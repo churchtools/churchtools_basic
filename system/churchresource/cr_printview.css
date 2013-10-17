@@ -1,0 +1,29 @@
+@CHARSET "UTF-8";
+
+@page { 
+  size:landscape;
+}
+
+table, tr, td {
+  size:landscape;
+  border: 1px solid black;
+  font-size:95%;
+  font-weight:bold;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+tr {
+  height:30px;	
+}	
+
+small {
+  font-size:80%;
+}
+
+a {
+  text-decoration:none;
+}

@@ -1,0 +1,11 @@
+; $Id$
+name = Church Service
+description = Gottesdienstverwaltung
+package = Church Tools
+core = 7.x
+version = 7.x-1.21
+configure = admin/config/churchtools
+dependencies[] = churchcore
+dependencies[] = churchdb
+files[] =
+

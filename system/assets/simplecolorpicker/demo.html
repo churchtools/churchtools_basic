@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Color picker for jQuery</title>
+  <meta name="description" content="A very simple jQuery color picker plugin."/>
+
+  <link rel="stylesheet" type="text/css" href="http://getbootstrap.com/2.3.2/assets/css/bootstrap.css"/>
+  <link rel="stylesheet" type="text/css" href="http://getbootstrap.com/2.3.2/assets/css/bootstrap-responsive.css"/>
+  <link rel="stylesheet" type="text/css" href="jquery.simplecolorpicker.css"/>
+</head>
+
+<body>
+
+<!-- Button to init the jQuery plugin -->
+<button id="init" class="btn btn-primary">Init the jQuery plugin</button>
+
+<!-- Button to destroy the jQuery plugin -->
+<button id="destroy" class="btn btn-danger">Destroy the jQuery plugin</button>
+
+<br/><br/>
+
+<form class="form-horizontal">
+  <fieldset>
+    <legend>Twitter Bootstrap form</legend>
+    <div class="control-group">
+      <label class="control-label" for="input01">Text input</label>
+      <div class="controls">
+        <input type="text" class="input-xlarge" id="input01">
+      </div>
+    </div>
+    <div class="control-group">
+      <label class="control-label" for="optionsCheckbox">Checkbox</label>
+      <div class="controls">
+        <label class="checkbox">
+          <input type="checkbox" id="optionsCheckbox" value="option1">
+          Option one
+        </label>
+      </div>
+    </div>
+    <div class="control-group">
+      <label class="control-label" for="colorpicker-inline">Select list</label>
+      <div class="controls">
+        <select name="colorpicker-inline" id="colorpicker-inline">
+          <!-- Colors from Google Calendar -->
+          <option value="#7bd148">Green</option>
+          <option value="#5484ed">Bold blue</option>
+          <option value="#a4bdfc">Blue</option>
+          <option value="#46d6db">Turquoise</option>
+          <option value="#7ae7bf">Light green</option>
+          <option value="#51b749">Bold green</option>
+          <option value="#fbd75b">Yellow</option>
+          <option value="#ffb878">Orange</option>
+          <option value="#ff887c">Red</option>
+          <option value="#dc2127">Bold red</option>
+          <option value="#dbadff">Purple</option>
+          <option value="#e1e1e1">Gray</option>
+        </select>
+        &lt;== Should select #fbd75b after 1 second
+      </div>
+    </div>
+    <div class="control-group">
+      <label class="control-label" for="multiSelect">Multicon-select</label>
+      <div class="controls">
+        <select multiple="multiple" id="multiSelect">
+          <option>1</option>
+          <option>2</option>
+          <option>3</option>
+          <option>4</option>
+          <option>5</option>
+        </select>
+      </div>
+    </div>
+    <div class="control-group">
+      <label class="control-label" for="fileInput">File input</label>
+      <div class="controls">
+        <input class="input-file" id="fileInput" type="file">
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Save changes</button>
+      <button class="btn">Cancel</button>
+    </div>
+  </fieldset>
+</form>
+
+Pick a color:
+<select name="colorpicker-picker">
+  <option value="#7bd148">Green</option>
+  <option value="#5484ed">Bold blue</option>
+  <option value="#a4bdfc" disabled>Blue</option>
+  <option value="#46d6db">Turquoise</option>
+  <option value="#7ae7bf">Light green</option>
+  <option value="#51b749">Bold green</option>
+  <option value="#fbd75b">Yellow</option>
+  <option value="#ffb878">Orange</option>
+  <option value="#ff887c" disabled>Red</option>
+  <option value="#dc2127">Bold red</option>
+  <option value="#dbadff">Purple</option>
+  <option value="#e1e1e1">Gray</option>
+</select>
+
+<br/><br/>
+
+Change background color:
+<select name="colorpicker-inline-background">
+  <option value="#ac725e">#ac725e</option>
+  <option value="#d06b64">#d06b64</option>
+  <option value="#f83a22">#f83a22</option>
+  <option value="#fa573c" selected>#fa573c</option>
+  <option value="#ff7537">#ff7537</option>
+  <option value="#ffad46">#ffad46</option>
+  <option value="#42d692">#42d692</option>
+  <option value="#16a765">#16a765</option>
+  <option value="#7bd148">#7bd148</option>
+  <option value="#7bd148">#7bd148</option>
+  <option value="#7bd148">#7bd148</option>
+  <option value="#fad165">#fad165</option>
+  <option value="#92e1c0">#92e1c0</option>
+  <option value="#9fe1e7">#9fe1e7</option>
+  <option value="#9fc6e7">#9fc6e7</option>
+  <option value="#4986e7">#4986e7</option>
+  <option value="#9a9cff">#9a9cff</option>
+  <option value="#b99aff">#b99aff</option>
+  <option value="#c2c2c2">#c2c2c2</option>
+  <option value="#cabdbf">#cabdbf</option>
+  <option value="#cca6ac">#cca6ac</option>
+  <option value="#f691b2">#f691b2</option>
+  <option value="#cd74e6">#cd74e6</option>
+  <option value="#a47ae2">#a47ae2</option>
+</select>
+&lt;== Should select #7bd148 after 2 seconds
+
+<br/><br/>
+
+Change background color:
+<select name="colorpicker-picker-background">
+  <!-- More colors from Google Calendar -->
+  <option value="#ac725e">#ac725e</option>
+  <option value="#d06b64">#d06b64</option>
+  <option value="#f83a22">#f83a22</option>
+  <option value="#fa573c">#fa573c</option>
+  <option value="#ff7537">#ff7537</option>
+  <option value="#ffad46">#ffad46</option>
+  <option value="#42d692">#42d692</option>
+  <option value="#16a765">#16a765</option>
+  <option value="#7bd148">#7bd148</option>
+  <option value="#b3dc6c">#b3dc6c</option>
+  <option value="#fbe983">#fbe983</option>
+  <option value="#fad165">#fad165</option>
+  <option value="#92e1c0">#92e1c0</option>
+  <option value="#9fe1e7">#9fe1e7</option>
+  <option value="#9fc6e7">#9fc6e7</option>
+  <option value="#4986e7">#4986e7</option>
+  <option value="#9a9cff">#9a9cff</option>
+  <option value="#b99aff">#b99aff</option>
+  <option value="#c2c2c2">#c2c2c2</option>
+  <option value="#cabdbf">#cabdbf</option>
+  <option value="#cca6ac">#cca6ac</option>
+  <option value="#f691b2">#f691b2</option>
+  <option value="#cd74e6">#cd74e6</option>
+  <option value="#a47ae2">#a47ae2</option>
+</select>
+&lt;== Should generate a JavaScript error after 3 seconds
+
+<br/><br/>
+
+<!-- Button to trigger modal -->
+<a href="#myModal" role="button" class="btn" data-toggle="modal">Launch demo modal</a>
+
+<!-- Modal -->
+<div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3 id="myModalLabel">Modal header</h3>
+  </div>
+  <div class="modal-body">
+    Pick a color:
+    <select name="colorpicker-inline">
+      <option value="#7bd148">Green</option>
+      <option value="#5484ed">Bold blue</option>
+      <option value="#a4bdfc">Blue</option>
+      <option value="#46d6db">Turquoise</option>
+      <option value="#7ae7bf">Light green</option>
+      <option value="#51b749">Bold green</option>
+      <option value="#fbd75b">Yellow</option>
+      <option value="#ffb878">Orange</option>
+      <option value="#ff887c">Red</option>
+      <option value="#dc2127">Bold red</option>
+      <option value="#dbadff">Purple</option>
+      <option value="#e1e1e1">Gray</option>
+    </select>
+    <br/><br/>
+    Pick another color:
+    <select name="colorpicker-picker">
+      <option value="#7bd148">Green</option>
+      <option value="#5484ed">Bold blue</option>
+      <option value="#a4bdfc">Blue</option>
+      <option value="#46d6db">Turquoise</option>
+      <option value="#7ae7bf">Light green</option>
+      <option value="#51b749">Bold green</option>
+      <option value="#fbd75b">Yellow</option>
+      <option value="#ffb878">Orange</option>
+      <option value="#ff887c">Red</option>
+      <option value="#dc2127">Bold red</option>
+      <option value="#dbadff">Purple</option>
+      <option value="#e1e1e1">Gray</option>
+    </select>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+    <button class="btn btn-primary">Save changes</button>
+  </div>
+</div>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.0/jquery.js"></script>
+<script src="http://getbootstrap.com/2.3.2/assets/js/bootstrap-transition.js"></script>
+<script src="http://getbootstrap.com/2.3.2/assets/js/bootstrap-modal.js"></script>
+<script src="jquery.simplecolorpicker.js"></script>
+
+<script>
+$(document).ready(function() {
+  setTimeout(function() {
+    $('#colorpicker-inline').simplecolorpicker('selectColor', '#fbd75b');
+  }, 1000);
+
+  $('select[name="colorpicker-inline-background"]').on('change', function() {
+    $(document.body).css('background-color', $('select[name="colorpicker-inline-background"]').val());
+  });
+  setTimeout(function() {
+    // colorpicker-inline-background contains 3 times the color #7BD148
+    $('select[name="colorpicker-inline-background"]').simplecolorpicker('selectColor', '#7BD148');
+  }, 2000);
+
+  $('select[name="colorpicker-picker-background"]').on('change', function() {
+    $(document.body).css('background-color', $('select[name="colorpicker-picker-background"]').val());
+  });
+  setTimeout(function() {
+    // Generates a JavaScript error
+    $('select[name="colorpicker-picker-background"]').simplecolorpicker('selectColor', 'unknown');
+  }, 3000);
+
+  $('#init').on('click', function() {
+    $('select[name="colorpicker-inline"]').simplecolorpicker();
+    $('select[name="colorpicker-picker"]').simplecolorpicker({picker: true});
+    $('select[name="colorpicker-inline-background"]').simplecolorpicker();
+    $('select[name="colorpicker-picker-background"]').simplecolorpicker({picker: true});
+  });
+
+  $('#destroy').on('click', function() {
+    $('select[name="colorpicker-inline"]').simplecolorpicker('destroy');
+    $('select[name="colorpicker-picker"]').simplecolorpicker('destroy');
+    $('select[name="colorpicker-inline-background"]').simplecolorpicker('destroy');
+    $('select[name="colorpicker-picker-background"]').simplecolorpicker('destroy');
+  });
+
+  // By default, activate simplecolorpicker plugin on HTML selects
+  $('#init').trigger('click');
+});
+</script>
+
+</body>
+</html>

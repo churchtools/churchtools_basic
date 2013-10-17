@@ -1,0 +1,436 @@
+<?php
+
+/**
+ * Implementation of hook_schema().
+ */
+function churchservice_schema() {
+  $schema = array();
+
+$schema['cs_event'] = array(
+  'description' => 'TODO: beschreibe diese Tabelle!',
+  'fields' => array(
+    'id' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'serial',
+      'not null' => TRUE,
+    ),
+    'datum' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'mysql_type' => 'datetime',
+      'not null' => TRUE,
+    ),
+    'bezeichnung' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'varchar',
+      'length' => '255',
+      'not null' => TRUE,
+    ),
+    'special' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'varchar',
+      'length' => '255',
+      'not null' => FALSE,
+    ),
+    'admin' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'varchar',
+      'length' => '255',
+      'not null' => FALSE,
+    ),    
+    'category_id' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'int',
+      'length' => '11',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+  ),
+  'primary key' => array('id'),
+);
+$schema['cs_eventservice'] = array(
+  'description' => 'TODO: beschreibe diese Tabelle!',
+  'fields' => array(
+    'id' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'serial',
+      'not null' => TRUE,
+    ),
+    'event_id' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'int',
+      'not null' => TRUE,
+    ),
+    'service_id' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'int',
+      'not null' => TRUE,
+    ),
+    'valid_yn' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 1,
+    ),
+    'zugesagt_yn' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+    'name' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'varchar',
+      'length' => '255',
+      'not null' => FALSE,
+    ),
+    'cdb_person_id' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'int',
+      'not null' => FALSE,
+    ),
+    'reason' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'varchar',
+      'length' => '255',
+      'not null' => FALSE,
+    ),
+    'mailsenddate' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'mysql_type' => 'datetime',
+      'not null' => FALSE,
+    ),
+    'modifieddate' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'mysql_type' => 'datetime',
+      'not null' => TRUE,
+    ),
+    'modifieduser' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'varchar',
+      'length' => '255',
+      'not null' => TRUE,
+    ),
+  ),
+  'primary key' => array('id'),
+);
+$schema['cs_service'] = array(
+  'description' => 'TODO: beschreibe diese Tabelle!',
+  'fields' => array(
+    'id' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'serial',
+      'not null' => TRUE,
+    ),
+    'bezeichnung' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'varchar',
+      'length' => '255',
+      'not null' => TRUE,
+    ),
+    'standard_yn' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+    'servicegroup_id' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'int',
+      'not null' => TRUE,
+    ),
+    'cdb_gruppen_ids' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'varchar',
+      'length' => '255',
+      'not null' => FALSE,
+    ),
+    'cdb_tag_ids' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'varchar',
+      'length' => '255',
+      'not null' => FALSE,
+    ),
+    'sendremindermails_yn' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+    'sortkey' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+  ),
+  'primary key' => array('id'),
+);
+$schema['cs_servicegroup'] = array(
+  'description' => 'TODO: beschreibe diese Tabelle!',
+  'fields' => array(
+    'id' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'serial',
+      'not null' => TRUE,
+    ),
+    'bezeichnung' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'varchar',
+      'length' => '255',
+      'not null' => TRUE,
+    ),
+    'sortkey' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+  ),
+  'primary key' => array('id'),
+);
+$schema['cs_category'] = array(
+  'description' => 'TODO: beschreibe diese Tabelle!',
+  'fields' => array(
+    'id' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'int',
+      'not null' => TRUE,
+    ),
+    'bezeichnung' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'varchar',
+      'length' => '255',
+      'not null' => TRUE,
+    ),
+    'sortkey' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+  ),
+  'primary key' => array('id'),
+);
+$schema['cs_eventtemplate'] = array(
+  'description' => 'TODO: beschreibe diese Tabelle!',
+  'fields' => array(
+    'id' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'int',
+      'not null' => TRUE,
+    ),
+    'bezeichnung' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'varchar',
+      'length' => '255',
+      'not null' => TRUE,
+    ),
+    'stunde' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'int',
+      'not null' => FALSE,
+    ),
+    'minute' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'int',
+      'not null' => FALSE,
+    ),
+    'category_id' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'int',
+      'not null' => FALSE,
+    ),
+    'event_bezeichnung' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'varchar',
+      'length' => '255',
+      'not null' => FALSE,
+    ),
+    'special' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'varchar',
+      'length' => '255',
+      'not null' => FALSE,
+    ),
+    'admin' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'varchar',
+      'length' => '255',
+      'not null' => FALSE,
+    ),
+    'sortkey' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+    ),
+  ),
+  'primary key' => array('id'),
+);
+$schema['cs_eventtemplate_service'] = array(
+  'description' => 'TODO: beschreibe diese Tabelle!',
+  'fields' => array(
+    'eventtemplate_id' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'int',
+      'not null' => TRUE,
+    ),
+    'service_id' => array(
+      'description' => 'TODO: beschreibe dieses Feld!',
+      'type' => 'int',
+      'not null' => TRUE,
+    ),
+  ),
+);
+
+
+  return $schema;
+}
+
+function churchservice_add_example_data() {
+  db_insert("cs_category")
+    ->fields(array("id"=>0, "bezeichnung"=>"Sonstige Veranstaltung", "sortkey"=>50 ))
+    ->execute();
+  db_insert("cs_eventtemplate")
+    ->fields(array("id"=>0,"bezeichnung"=>"Standard","sortkey"=>100))
+    ->execute();
+
+
+
+  db_insert("cs_servicegroup")
+    ->fields(array("bezeichnung"=>"Programm"))
+    ->execute();
+  db_insert("cs_servicegroup")
+    ->fields(array("bezeichnung"=>"Ordner"))
+    ->execute();
+  db_insert("cs_servicegroup")
+    ->fields(array("bezeichnung"=>"Techniker"))
+    ->execute();
+
+  db_insert("cs_service")
+    ->fields(array("bezeichnung"=>"Moderation","standard_yn"=>1,"servicegroup_id"=>1))
+    ->execute();
+  db_insert("cs_service")
+    ->fields(array("bezeichnung"=>"Musikleiter","standard_yn"=>1,"servicegroup_id"=>1))
+    ->execute();
+  db_insert("cs_service")
+    ->fields(array("bezeichnung"=>"Predigt","standard_yn"=>1,"servicegroup_id"=>1))
+    ->execute();
+  db_insert("cs_service")
+    ->fields(array("bezeichnung"=>"Hauptordner","standard_yn"=>1,"servicegroup_id"=>2))
+    ->execute();
+  db_insert("cs_service")
+    ->fields(array("bezeichnung"=>"Nebenordner","standard_yn"=>0,"servicegroup_id"=>2))
+    ->execute();
+  db_insert("cs_service")
+    ->fields(array("bezeichnung"=>"Ton","standard_yn"=>0,"servicegroup_id"=>3))
+    ->execute();
+
+  $dt = new datetime();  
+  db_insert("cs_event")
+    ->fields(array("datum"=>$dt->format('Y-m-d H:i:s'),"bezeichnung"=>"Gottesdienst","special"=>"mit Abendmahl"))
+    ->execute();
+}
+
+/**
+ * Implementation fo hook_install().
+ */
+function churchservice_install() {
+  db_query("UPDATE {system} SET weight = -1 WHERE name='churchservice' AND type='module'");
+  // Seid drupal 7 nicht mehr notwendig
+  // drupal_install_schema('churchservice');
+  churchservice_add_example_data();
+}
+
+/**
+ * Implmentation of hook_uninstall().
+ */
+function churchservice_uninstall() {
+  // Unset churchservice variables.
+  variable_del('churchservice_use_cookies');
+
+  // Drop tables.
+  drupal_uninstall_schema('churchservice');
+}
+
+function churchservice_update_7103() {
+  db_query('ALTER TABLE {cs_eventservice} add valid_yn INT( 1 ) NOT NULL DEFAULT 1 AFTER service_id');
+  drupal_flush_all_caches(); 
+}
+function churchservice_update_7104() {
+  db_query('ALTER TABLE  {cs_service} ADD cdb_gruppen_ids VARCHAR( 255 ) NULL AFTER servicegroup_id');
+  db_query('ALTER TABLE  {cs_eventservice} ADD  cdb_person_id INT( 11 ) NULL AFTER  name');  
+}
+
+function churchservice_update_7105() {
+  db_query('ALTER TABLE {cs_eventservice} ADD mailsenddate DATETIME NULL AFTER cdb_person_id');
+  db_query('ALTER TABLE {cs_service} ADD  sendremindermails_yn INT( 1 ) NOT NULL DEFAULT 0 AFTER cdb_gruppen_ids');
+}
+
+/**
+* Erweitere die Suche in ChurchDB mit Hilfe von Tags
+*/
+function churchservice_update_7110() {
+  db_query('ALTER TABLE {cs_service} ADD cdb_tag_ids VARCHAR(255) NULL AFTER cdb_gruppen_ids');
+}
+   
+/**
+* Erstelle Tabelle fuer Event-Kategorien
+*/
+function churchservice_update_7112() {
+  db_query("CREATE TABLE {cs_category} (
+    id INT( 11 ) NOT NULL PRIMARY KEY ,
+    bezeichnung VARCHAR( 255 ) NOT NULL ,
+    sortkey INT( 11 ) NOT NULL DEFAULT '0'
+  )");
+  
+  db_insert("cs_category")
+    ->fields(array("id"=>0,"bezeichnung"=>"Sonstige Veranstaltung","sortkey"=>100))
+    ->execute();
+    
+  db_query("ALTER TABLE {cs_event} ADD category_id INT( 11 ) NOT NULL DEFAULT '0'");
+}
+
+/**
+* Fuege die Moeglichkeit eines Absagegrundes hinzu
+*/
+function churchservice_update_7118() {
+  db_query("ALTER TABLE {cs_eventservice} ADD reason VARCHAR( 255 ) NULL AFTER cdb_person_id");
+}
+
+
+   
+/**
+* Erstelle Tabellen fuer Event-Vorlagen und ergaenze Events mit der Admin-Funktion
+*/
+function churchservice_update_7119() {
+  db_query("CREATE TABLE {cs_eventtemplate} (
+    id INT( 11 ) NOT NULL PRIMARY KEY ,
+    bezeichnung VARCHAR( 255 ) NOT NULL ,
+    category_id int(11) NULL,
+    event_bezeichnung varchar(255) null,
+    special varchar(255) null,
+    admin varchar(255) null,
+    sortkey INT( 11 ) NOT NULL DEFAULT '0'
+  )");
+  
+  db_insert("cs_eventtemplate")
+    ->fields(array("id"=>0,"bezeichnung"=>"Standard","sortkey"=>100))
+    ->execute();
+
+  db_query("CREATE TABLE {cs_eventtemplate_service} (
+    eventtemplate_id INT( 11 ) NOT NULL ,
+    service_id INT( 11 ) NOT NULL 
+  )");
+
+  db_query("ALTER TABLE {cs_event} ADD admin VARCHAR( 255 ) NULL AFTER special");
+    
+}
+
+/**
+* Erlaube noch das Speichern der Stunde und Minute in der Event-Vorlage
+*/
+function churchservice_update_7120() {
+  db_query("ALTER TABLE {cs_eventtemplate} ADD stunde int(11) NULL AFTER bezeichnung");
+  db_query("ALTER TABLE {cs_eventtemplate} ADD minute int(11) NULL AFTER stunde");
+}

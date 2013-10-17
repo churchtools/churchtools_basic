@@ -1,0 +1,10 @@
+; $Id$
+name = Church Core
+description = Basis-Modul
+package = Church Tools
+core = 7.x
+version = 7.x-1.81
+configure = admin/config/churchtools
+;dependencies[] = 
+files[] =
+

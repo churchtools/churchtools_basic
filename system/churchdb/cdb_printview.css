@@ -1,0 +1,41 @@
+@CHARSET "UTF-8";
+
+@page { 
+  size:landscape;
+}
+
+small {
+  font-size:100%;
+}
+
+table {
+  font-size:12px;	
+}
+
+.dontbreak {
+  page-break-inside: avoid;
+}
+
+table { page-break-after:auto }
+tr    { page-break-inside:avoid; page-break-after:auto }
+td    { page-break-inside:avoid; page-break-after:auto }
+    
+img {
+	width:40px;
+}
+
+a {
+  text-decoration:none;
+  color:black;
+}
+
+a.cdb_hidden {
+  display:none;
+}
+
+a[href]:after {
+    content: "";
+  }
+  abbr[title]:after {
+    content: "";
+  }

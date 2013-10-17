@@ -1,0 +1,405 @@
+(Legende: "+"=>Neues Feature  "-"=>Fehlerbehebung)
+
+churchtools 2.40
++ Simulieren kann nun über die Fußzeile direkt gestartet werden.
++ Über die Fußleiste kann man nun dem Admin eine E-Mail senden.
++ Import-Funktion von Personendaten über eine beliebige Datenbanktabelle. Über Administation > Import.
+- (CDB) Gruppenfilter bei Distrikt und Typen-Wahl war nicht immer korrekt.
+- (CDB) SMS-Fehlermeldung führt manchesmal zu einer echten Fehlermeldung
+- (Cal) Sortierung der Gruppennamen berücksichtigt nun auch die Umlaute
+- (CR) Unter gewissen Umständen konnten Buchungen selbst bestätigt werden.
+- (CS) Template-Admin und Notizen werden nun beim Erstellen von ChurchCal aus übernommen 
+- (CS) Titelleiste nun standardmäßig fixiert.
+- (CS) Wenn es mehr als drei Dateianhänge gibt, werden sie auf der Startseite nur mit "..." angezeigt.
+- (CS) Kleiner Fehler im Cron-Job behoben 
++ Test-Modus: Sobald in der churchtools.config der Eintrag "test=true" steht, ist CT im Testmodus. Es werden dann keine E-Mails versendet.
+
+churchtools 2.39
++ Admin-Nachricht auf Login- und Startseite setzbar, z.B. für geplante Downtimes.
++ (Cal) Nun können alle Geburtstage angezeigt für Personen mit ViewAll-Rechten
+- (Cal) Kleiner Darstellungs-Fehler im Einbettungsmodus behoben
++ (CDB) Man kann nun direkt bei einer neuen Gruppenzuordnung eine Gruppe erstellen
++ (CDB) Optimierungen der neuen Suche. Person kann sofort angelegt werden, wenn es sie noch nicht gibt.
++ (CDB) Sicherheitsnachfrage bei Massen-Mails an über 5 Personen ergänzt.
+- (CS) Anzeige der Notiz beim Event-Template 
+- Umstellung des Session-Speicherung. Gab bei manchen Providern Probleme mit dem Temp-Verzeichnis.
+
+churchtools 2.38
++ (CDB) Filter für Station und Bereich sind nun auch Multiselects, dafür Mitgliedsfilter bei Weitere Filter herausgenommen.
++ (CDB) Spitzname wird nun auch in der Geburstagsliste mit angezeigt
++ (CDB) Gruppenfilter überarbeitet: Man z.B. nun auch nach Distrikten und Teilnehmerstatus suchen ohne sich auf einen Gruppentyp beschränken zu müssen
++ (CDB) Autocomplete-Filter bei der Suche für Gruppen, Personen und Tags
++ (CDB) Autorisierungs-Filter geht nun auch durch Gruppen und Status
++ (Cal) Ressourcen-Filter kann nun auch nach Ressourcentyp filtern
++ (Cal) Bei Eventeingabe sind nun die Kalender nach Typen sortiert
++ (Cal) Auswählen von allen Kalendern eines Multiselects funktioniert nun einwandfrei
++ (Cal) Weitere Funktionen beim Einbetten des Kalenders, siehe http://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc:ChurchCal%C2%A0einbetten/
++ (Auth) Man kann nun nach Autorisierung filtern
+- (CR) Datum bleibt nun beim Wechsel der Ressourcentypen gleich
+- (Cal) Titel bleibt nun gleich bei Wiederholungen mit Orts-Angabe
+- (CDB) Fehler beim Zuweisen von Rechten behoben, wenn noch keine vorhanden waren 
+
+churchtools 2.37
++ Checkin holt sich nun die Kalendereinträge aus ChurchCal und nicht mehr ChurchService
++ (Cal+CS) Events zwischen ChurchService und ChurchCal sind nun auch vom Startdatum verbunden und können jeweils geändert werden.
++ (Cal+CR) Aus ChurchCal können nun Ressourcen-Anfragen gestellt werden. 
++ (Cal) Es sind nun private iCal-Abos möglich, d.h. man kann auch ohne Freischaltung mit einer Sicherheits-URL Kalender abbonieren.
++ (Cal) Es gibt nun für eingebette Kalender des EventViews eine Mini-Ansicht und eine Beschränkung der Anzahl der Einträge (siehe hierzu die Hilfe) 
+- (Cal) Kleine Bugs im Kalender behoben
+- (Cal) Bugs im iCal-Abo behoben bei Serienterminen
+- (Cal) Jahresansicht funktioniert wieder
++ (Checkin) Es gibt nun eine "Vereinfachte Ansicht". Ideal für iPads: Man kann so die obere Leiste über "Einschränkungen" verbieten und so kann man das Einchecken problemlos z.B. Eltern übergeben.
++ (CS) PRO: Templates enthalten nun nicht nur ob ein Dienst benötigt wird, sondern auch die Anzahl der benötigten Dienste. Dadurch werden beim Update leider die Templates geleert:(
++ (CS) Farbe für Abwesenheitsgrund kann gewählt werden.
+- (CS) für den aktuellen Tag zeigt er nun auch schon vergangene Events an.
+- (CS) Gruppentypleiter und Distriktleiter können nun ihre Servicegruppen auch sehen und bearbeiten.
+- (CDB) Wenn eine Person gelöscht wird, werden nun auch ihre Berechtigung entfernt.
+- (CDB) Personen-Suche z.B. bei Gruppen hinzufügen sucht nun auch nach dem Spitznamen
+- (CDB) Wenn ein FollowUp abgebrochen wird, wird nun auch der Kommentar gespeichert.
+
+churchtools 2.36
+BESONDERE NEWS - BITTE UNBEDINGT BEACHTEN!
++ (Cal) Neuimplementierung des Kalenders. Wichtigste Änderung: Die Kategorien von ChurchService sind nun zum 
+  Kalender gewechselt. Hier sind sie nun autorisierbar, d.h. wenn man im Kalender oder auch CS Einträge
+  sehen möchte, muss man die Kalender freigeben. Sinnvoll ist die Freigabe per Status. 
++ Neue Berechtigungsanwendung. Bietet viel mehr Übersicht und bessere Bedienung über die Autorisierung 
+  von Personen, Gruppen und Status. Diese ist über das Menü oben rechts > "Rechteverwaltung" zu erreichen 
++ Es kann nun eingestellt werden, was ein öffentlicher Benutzer (Anonym, ohne eingeloggt zu sein) sehen kann. 
+  Hierzu benutze "Rechteverwaltung" > - Öffentlicher Benutzer -
++ Es gibt nun ein Archiv mit selbst gesendeten E-Mails. Die Admins dürfen alle ausgegangenen E-Mails sehen.
+  Es wird hier auch angezeigt, welche versendeten Mails wirklich gelesen wurden! 
+
+KLEINERE ÄNDERUNGEN
++ Autorisierung wird nun bei jedem Reload einer Seite aktualisiert. Dies erleichtert die Bedienung vor 
+  allem bei Änderungen von Stammdaten 
++ Mails werden nur noch max 10 Stück auf einmal versendet. Dadurch Schutz vor Spam-Markierung
++ Anzeige der richtigen Namen in der Browser-Infozeile
+- Sicherheitslücke bei Personen ohne E-Mail-Adresse mit Login-Rechten behoben
+- Berechtigung von Stammdaten korrigiert
++ (Cal) Einbettung des Event-Kalenders in eigene Homepage verbessert.  
++ (Cal) Nun werden auch seine eigenen Dienste und Dienstanfragen angezeigt
+- (Cal) Geburstage aus dem Archiv werden nicht im Kalender angezeigt
++ (Checkin) Viele kleine Optimierungen 
++ (CDB) Suche kann nun eine UND Suchen durch Leerzeichen getrennt enthalten, also z.B. "tag:gesang jens martin"
+  Dadurch kann auch nach Initialen gesucht werden "je ma ra"
++ (CDB) Suche nach IDs ist nun eindeutig, sobald ein # davor gestellt wird genommen wird, also für Id 12: "#12"
++ (CDB) Log auf 2048 Zeichen und Gruppennamen auf 100 Zeichen erweitert
+- (CDB) Massen-Zuweisung von Rechten geht wieder
+- (CDB) Letzte Gruppenteilnahme zurücksetzen führte nicht mehr zur Fehlermeldung, wenn keine mehr vorhanden ist 
++ (CS) Wiederholung von Events nun nicht mehr per Anzahl Wochen, sondern per Datumswähler
++ (CS) Anzeige von Dateien auch auf der Startseite bei eigenen Diensten
++ (CS) Viele kleine Optimierungen bei den Songs
++ (CS) Abwesenheiten können nun auch mit Uhrzeit angegeben werden und werden entsprechen berücksichtigt.
+- (CS) Fehler bei Änderungen der Diensterinnerung größer als 1 Tag behoben
++ (CW) Alte Wiki-Versionen über 3 Monat alt werden nun entfernt
+
+churchtools 2.33
++ (CS) Services können nun bequem im Programm selber angepaßt und erstellt werden
++ (CDB) Unter "Meine Gruppen" werden nun auch Gruppen angezeigt, bei denen man durch den Distrikt oder Gruppentyp Gruppenleiter ist.
++ (CDB) Bei SMS funktionieren nun auch die Umlaute korrekt & es wird eine Anzahl der geschriebenen Zeichen eingeblendet.
++ Focus auf das Suchfeld nun bei allen Views.
++ (Wiki) Als Link für die Hauptseite geht nun auch [[Hauptseite]].
+- (Cal) Beim Klicken zum Erstellen eines Termines gingen zwei Fenster auf.
+- (Checkin) Einige kleine Fehler behoben
+
+churchtools 2.32
++ (CDB) Neue Pflege der Gruppenteilnahme für gesamten Monat nun über die Auswahl "Gruppenteilnahme" in der Personenliste. 
++ (CDB) Gruppen können nun gelöscht werden, auch wenn Personen zugeordnet sind. Zur Sicherheit muß ein zusätzliche Haken in der Bestätigungsaufforderung gesetzt werden.
++ (CDB) Gruppentyp bei Gruppen kann nun nachträglich geändert werden
++ (CS) Man kann nun zu Services auch eine Notiz angeben. So kann man z.B. für Jugend und Sonntags jeweils ein extra Lobpreisleiterservice einrichten, die beide "Lobpreisleiter" heissen.
++ (CS) Nun kann die Zeit eingestellt werden, wieviel vorher eine Erinnerung erfolgen soll
++ (Cal) Termine kann man nun direkt im Kalender aufziehen.
+- Button "Simulation beenden" nun direkt in der Menüleiste
+- Umstellung von smspromote auf Zugriff über Sockets (statt file), dadurch nun höhere Kompatiblität zu Providern
+
+churchtools 2.31
++ Die Reihenfolge und die Anzeige der Anwendungsnamen im Menü und auf der Startseite kann nun eingestellt werden.
++ Beim Simulieren von Personen wird nun die Farbe der Headerleiste invertiert
++ (CDB) SMS-Einbindung von smspromote.de
++ (CDB) Beim Erstellen von Gruppen wird nun der Distrikt mit angegeben.
+- Bei der Basic-Version wird nun der Checkin-Button nicht mehr angezeigt 
+- (CDB) Löschen von Gruppen ist nun gleich aufgebaut wie bei Personen
+- JavaScript-Dateien werden nun bei Versionswechsel nicht mehr ausversehen vom Browser gecacht.
+- Der Nachname wird nun auch nach Mailchimp übertragen.
+
+churchtools 2.30
++ Nur PRO: Neues Checkin-System und dafür auch Update der ChurchDBSync-Applikation mit Druckfunktionen
++ (CDB) Personen können nun ins Archiv (und zurück) befördert werden. So werden Daten nicht gelöscht, aber nur noch mit einem dafür neu vorhandemem Recht (view archive) einsehbar.
++ (CDB) MailChimp-Integration. Gruppen können nun MailChimp-Listen zugefügt werden. Um die Funktion zu aktivieren muss der API-Key von Mailchimp.com in den Admin-Einstellungen eingetragen werden.
++ (CDB) Absender bei E-Mail-Adressen nun im Format "Vorname Name <email>" 
++ (CDB) Bei Gruppen ist nun einstellbar, ob Mails an Leiter bei Änderungen gesendet werden sollen.
++ (CDB) Es wird nun in der Personenlist auch nach Kommentaren in Gruppenzugehörigkeit gesucht
++ (CDB) Es gibt ein neues Recht: Man kann nun View-Rechte auf Gruppen setzen. Z.B. Lobpreiser dürfen Techniker sehen o.ä.
++ (CDB) Status ist nun ein Multiselect, hierdurch kann schnell nach mehreren Statis gleichzeitig durchsucht werden.
++ (CS) Kategorie-Filter nun auch bei den Fakten
++ Admin-Einstellungen nun nach Anwendungen separiert
+- Korrektur der Anzeige Status beantragt/Zu löschen auf Startseite
+- (CR) Kleiner Fehler bei Terminen über mehrere Tage behoben
+- (CDB) Personenliste ist nun automatisch nach einem zweitem Kriterium sortiert
+- (Cal) Ganztagestermine werden nun per iCal korrekt exportiert. Zeitzone wird nun korrekt exportiert
+- (CDB) Bei der Eingabe von Daten werden nun überflüssige Leerzeichen entfernt
+- (CDB) Ohne Schreibrechte kann man keine E-Mail-Adresse mehr setzen, die schon vorhanden ist. Dies erhöht die Sicherheit.
+
+churchtools 2.29
++ Stammdaten können nun beim Editieren gefiltert werden
++ Im LogViewer kann nun gefiltert werden
++ Station kann nun durch CDB_FELD komplett ausgeblendet werden.
++ Hochgeladene Dateien können nun umbenannt werden. Eine Vorschau von Bildern und Videos ist nun integriert.
++ (CR) EMail ist nun besser formatiert
+
+churchtools 2.28
++ (CW) Seiten können nun per Klick auf der CT-Startseite angezeigt werden
++ (CW) Es können nun noch größere Texte&Tabellen gespeichert werden.
++ (CW) Standard-Wiki ist nun auch autorisiert. Standardwiki mit Id 0 ist einsehbar, sobald man das Wiki auch ohne Login freigibt.
++ (CC)+(CR) Viele neue Wiederholungstermin-Varianten und Ausnahmen etc. hinzugefügt (danke an CLW-Bonn!)
++ Datenbankkonsistenzcheck hinzugefügt unter "Über ChurchTools 2.0"
++ Spitzname hinzugefügt. Nach diesem kann auch gesucht werden.
++ Nur PRO: Es können Datenschutzbestimmungen hinterlegt werden, die Benutzer einmalig akzeptieren müssen
++ Sicherheit erhöht: Nach 6 Fehlversuchen ist der Account bis zum nächsten Cron-Job gesperrt
+- (CS) Reminder-Mails werden nun genau 24h vorher gesendet und nicht mehr um Mitternacht
+- Zwei mögliche SQL-Injections geschlossen.
+
+churchtools 2.26
++ (CDB) FollowUp: Es kann nun bei der Nachfolgegruppe bestimmt werden, in welchen Gruppenteilnehmerstatus die Person erhält. Z.B. kann durch den Status "Teilnahme beantragt" der KG-Leiter angefragt werden.
++ (CDB) FollowUp: Wenn man von einem FollowUp in das nächste leitet und dort das FollowUp abgebrochen wird, fällt die Person automatisch zurück in das vorige FollowUp.
++ (CDB) Distriktleiter kann nun auch ohne Edit-Rechte seine Gruppen Personen zuordnen
++ (CDB) Smartphone-Sicht auf Personendetails verbessert
++ (CDB) Suche nun auch nach Nachname Vorname möglich
++ (CDB) Weitere Filter nach Nationalität
++ (CDB) Es können nun allen markierten Personen über die Personenfunktion direkt ein Tag zugeordnet werden
++ (CS) EMail-Symbol im Tooltip zeigt an, sobal die Person per E-Mail benachrichtigt wurde
++ (CS) Leiter kann nun beim Absagen auch ein Grund angeben, sobald eine EMail gesendet wurde 
+- (CDB) Fehler in der Mitgliederliste bei Personen mit wenig Rechten
+- (CDB) Fehler bei DB-Prefix behoben
+- (CDB) Manchesmal wurden die Aufgaben nicht angezeigt
+- Cronjob nutzte noch use_modul[]
+- (CW) Sortkey wird nun beachtet 
+
+churchtools 2.25
+- (CDB) Fehler in der Darstellung behoben wenn Gruppentyp oder Distrikt deselektiert wurde
+- (CS) Kategorienfilter funktioniert nun auch beim Aufruf Handy-Format
++ Sicherheitsverbesserung: Dateien (inkl. neue Fotos) werden nun mit Hashcode abgelegt
++ (CDB) Aufgaben (Gruppenaufnahme/Löschung) werden auf der Startseite angezeigt
++ (CDB) Personen-Gruppenzuordnung kann nun auch in der Gruppenliste editiert werden
++ (CR) Termine können nun kopiert werden durch Button im Toolip
++ (CR) Ressourcentypen nun direkt anklickbar als Register
++ (Cal) Tooltip bei ChurchCal und Events können nun direkt kopiert werden
++ (CW) Druckansicht
++ (CW) Upload von Dateien
++ (CW) Anzeige von Neuigkeiten auf der Startseite
+
+churchtools 2.24
++ (CDB) Beziehungsfilter separiert und um Beziehung in Gruppen ergänzt, so findet man z.B. alle Beter von Kindern
++ (CDB) Es können nun für Distrikte und Gruppentypen Personen zugeordnet werden, die dann Einsicht in alle zugehörigen Personen erhalten.
++ (CDB) Bei Auswahl von Distrikten in der Gruppenansicht kann man nun die Historie anschauen
++ (CDB) Beim Neuanlegen von Personen können nun auch Adressdaten angelegt werden, damit bei neuen Familien nicht immer alles neu angegeben werden muss. 
++ (CDB) Beim Durchführen des FollowUps wird nun auch der Gruppenkommentar angegeben.
++ (CDB) Teilnehemerstatus kann nun über die Stammdatenpflege umbenannt werden
++ Session-Handling verbessert: Nun kann man auf mehreren Geräten gleichzeitig angemeldet sein. Außerdem nun Session-Id nun mit eindeutiger Id pro Datenbankinstallation
++ (CDB) GoogleMaps kann nun auch mehr als 500 Personen anzeigen.
++ (CDB) Die Mitgliederliste kann nun administriert werden, was an Kontaktdaten dargestellt wird.
++ Offline-Modus ergänzt. Man kann die Site nun in den Admin-Einstellungen offline stellen, z.B. für Updates. Nur Admins dürfen weiter arbeiten.
+- (CDB) Gruppennotiz wurde beim Editieren nicht angezeigt
+- (CDB) überwiesen von und überwiesen nach wird wieder korrekt angezeigt
+- (CDB) Fehler beim Export behoben
+- (CDB) Statistik über Nationalität geht wieder
+- (CDB) Sicherheitslücke behoben: LogViewer-Berechtigung wurde nicht korrekt geprüft
+- (CDB) Umlaute und Darstellungsfehler in der Mitgliederliste-PDF behoben
++ Bei Neu-Installation kann nun ChurchTools selbstständig die Datenbank befüllen 
+
+churchtools 2.22
++ Link zur Mitgliederliste auf der Startseite, wenn Berechtigung vorhanden
+- (CS) Falsche Fehlermeldung, wenn eine Person noch in keiner Gruppe war.
+- (CS) Es konnte keine Datei hochladen, wenn beim Event keiner zugeordnet war
+- (CDB) Anlage einer neuen Person hat die neue Person nicht gleich angezeigt
+- (Wiki) Anzeige des Inhaltsverzeichnises bei Handys verbessert
+
+churchtools 2.21
++ Beim Optigem-Sync wird nun auch das Geburtsdatum mitsynchronisiert.
+- Fehler bei Ausführung des Cron-Jobs behoben, wenn keine Tags in CS benutzt wurden.
+- Fehler behoben auf Home-Seite bei Personen mit speziellen Rechten
++ (Wiki) Shortcuts für Editieren (Ctrl+e), Speichern (Ctrl+s) und Abbrechen (ESC) hinzugefügt.
++ (CDB) Stark verbesserte Druckansicht der Mitgliederliste nun über PDF-Export und nicht mehr als HTML.  
++ (CDB) Entkopplung der Filter von der Liste und Speicherung der Sortierung, dadurch noch schnelleres Klickgefühl!
++ (CDB) Weitere Filter nun unterteilt in Gruppen und Personenfilter
++ (CDB) Neuer Filter: Keine E-Mail-Adresse. Wird automatisch angefragt, wenn Mailer aufgerufen wurde.
+- (CDB) Fehler in Nationalität behoben
+
+churchtools 2.20
++ use_modul wird nun in der Config nicht mehr benötigt, Module sind nun herauszunehmen, in dem bei Administationseinstellung einfach der Name leergelassen wird.
++ (Wiki) Neu: Wiki mit WYSIWYG-Editor und autorisierbaren Wiki-Kategorien.
++ (Wiki) Nur PRO: Seiten werden automatisch verschlüsselt abgelegt, sobald ein Key "encryptionkey=key" in der churchtools.config angelegt wird!
++ WYSIWYG-Editor für E-Mails an Personen
++ (CR) Es werden nun bei der Erstellung von Buchungen Terminkonflikte angezeigt  
++ (CS) Beim Upload von Dateien können nun auch bei den E-Mails Kommentare angegeben werden. 
++ (CDB) Signature hinterlegen für E-Mails an Personen
++ (CDB) Nationalität nun als Selectbox (Altdaten werden in die neue Stammdatentabelle automatisch übernommen) und im Export enthalten
+- (CDB) Statistik nach Nationalität ergänzt
++ (CDB) Nur PRO: Felder in ChurchDB nun deaktiverbar und einstellbar
++ (CDB) Es gibt einen neuen Gruppenteilnehmerstatis: "Teilnahme angefragt" 
++ (CDB) Es gibt nun offene Gruppen. Diese kann man über die Startseite anfragen und die Person bekommt den Status "Teilnahme angefragt"
++ (CDB) Es gibt nun öffentliche Gruppen, die können auf Google Maps dargestellt werden. Wenn sie offen sind, kann direkt eine Kontaktanfrage erfolgen. Url: ?q=externmapview
++ (CDB) Angefragte und zu löschende Gruppen werden nun unter Meine Aufgaben angezeigt
++ (CDB) Automatische Willkommensemail bei Gruppen können sind nun möglich, z.B. wenn jemand in ein FollowUp aufgenommen wird.
++ (CBD) Nun sind auch Tags unter "Weitere Filter" zu finden.
+- (CDB) Man konnte keine Person in eine Gruppe nehmen, wenn man noch in keiner Gruppe ist.
++ (Cal) Kalendar kann nun eingebettet werden inkl. der Auswahl einer Kategorie mithilfe des Parameters z.B."&category_id=1"
++ Editieren von Stammdaten verschönert
+
+churchtools 2.17
++ Die maximale Upload-Dateigröße kann in den Admin-Einstellungen nun geändert werden.
++ Nur PRO: Die Datenbank kann nun automatisch täglich in ein gesicherteres FTP-Verzeichnis gesichert werden. Siehe Admin-Einstellungen.
++ (CS) Neu hochgeladenen Dateien werden nun mit Datum und Person versehen
++ (CS) ChurchService enthält die Möglichkeit Songs und Arrangements hochzuladen und zu verwalten
+- (CS) Problem bei Darstellung mit IE8 behoben
++ (CDB) Das Land wird nun mit exportiert, wenn man viewall-Rechte besitzt.
+- (Cal) Ausnahmen bei Wiederholungsterminen bei Ressourcen werden nun korrekt angezeigt
++ (Cal) KW-Anzeige und Design noch näher an Bootstrap
+- Sicherheit: Verzeichnisschutz wird nun durch .htaccess automatisch gesetzt, falls nicht vorhanden
+
+churchtools 2.16
++ (CS) Nur PRO: Dienste können nun automatisch besetzt werden. Momentan erst mal mit Doppelklick auf den entsprechenden Tabelleneintrag. 
++ (CS) Nur PRO: Die Anzahl von mehrfachen Diensten (z.B. 6x Abendmahlsausteiler) kann geändert werden, auch wenn Personen schon dafür angefragt sind.
++ (CS) Bei Zusage von Diensten kann durch eine neue Option "allowToNoteByConfirmation_yn" in Stammdaten bei "service" auch eine Texteingabe ermöglich werden, z.B. "ich kann, aber nur von 18-21h".
++ (CS) "Deine aktuelle Eventbesetzung" auf der Startseite für die nächsten 3 Tage
++ (CDB) FollowUp kann nun auch abgebrochen werden auch von Leuten ohne Gruppen-Edit-Rechte.
++ Nur PRO: Es findet nun beim Ändern des Passworts eine Prüfung statt, es muß mindestens 6 Buchstaben, Groß- und Kleinbuchstaben sowie ein Zahl enthalten.
+
+churchtools 2.14
+ACHTUNG, DIE INDEX.PHP MUSS DIESMAL MIT AUSGETAUSCHT WERDEN
++ Neue Über ChurchTools-Seite eingebaut mit Lizenzhinweisen und Info über aktuelle Berechtigung und Config.
++ Umstellung auf HTML-Emails, hierfür liegt ein Template unter system/includes, welches nach sites/XXX kopiert und modfiziert werden kannn.
++ index.html ist nun nur noch auf das Nötigste beschränkt, so dass sie normalerweise nicht mehr ausgetauscht werden muß.
++ Bessere Sicht bei Mobil-Aufruf durch nutzen von Button-Menüs und Ausblenden der Filter 
++ (CS) Löschen von Dateien, Dateien gleich an mehrere Events heften und EMail-Benachrichtigung für Dateiuploads an alle angefragten Leute
++ (CS) Historie wird gleich angezeigt, man muß nicht mehr auf einen Button drücken.
++ (CS) Fakten können nun exportiert werden.
++ (CS) Verlinkung der Blocks auf der Startseite zu den Inhalten (z.B. Dienstanfrage zum Event)
++ (CS) Zusagen und Absagen E-Mails nun mit automatischem Login in ChurchTools. Ist jemand anders angemeldet, wird dieser automatisch abgemeldet.
++ (CR) Admin bekommt keine Mail mehr, wenn er selber die Raumbuchung getätigt hat.
++ (CR) Redesign des Kalenders und der Buchungsanfrage
++ (CDB) Log zusammengeführt auf die PersonIds von ChurchTools 2.0
++ (CDB) Neues Recht: "view address" um die Adressdaten einsehen zu können auch ohne view alldetails
++ (CDB) Neues Recht: "view whoisonline" hier kann gesteuert werden, wer auf der Startseite die aktuell angemeldeten Personen sieht. 
+- (CS) Fehler bei Abssagen/Zusagen von frei angefragten Personen ohne Rechte
+- (CS) Es kam zu einem Darstellungsfehler, wenn man nach einer Person gesucht hat und diese dann abgesagt hat.
+- (CS) Abwesenheiten-Block nun nach Startdatum sortiert
+- (Cal) Abwesenheit sortiert nach Nachnamen und nicht mehr Vornamen.
+- (CDB) Tags werden selbst bei Nichtbenutztung nicht mehr gelöscht, wenn sie noch in ChurchService referenziert werden.
+- (CDB) Exporter speichert wieder ein Datei und macht kein Export in das Browserfenster
+
+churchtools 2.11
+ACHTUNG, DIE INDEX.PHP MUSS DIESMAL MIT AUSGETAUSCHT WERDEN
++ Gruppen-Teilnehmer sehen nicht mehr die Abwesenheit von Leuten, sondern erst ab Teilnahmerstatus "Mitarbeiter"
++ Leiter sehen nun die Teilnahme an anderen Gruppen (Nur Gruppen mit anzeigen_in_meinegruppe_teilnehmer_yn=1)
++ (CDB) Personendetailansicht ist die Gruppenanzeige bei vielen Gruppen optimierter
++ (CDB) Weitere Filter Geburtsort. Sucht nach einem beliebigem Vorkommen. Wenn man z.B. Personen pflegt wie Berlin/D oder Accra/Ghana findet man mit "Accra/" alle Personen in Accra geboren wurden und mit "/Ghana" alle Personen, die aus Ghana kommen.
+- (CDB) Man kann nun wieder eine Person mit dem identischem Namen anlegen
+- (CDB) Export sieht nur noch mit viewallDetails auch wirklich die Details von Personen
+- (CDB) Mit dem Recht editgroups sieht man nun alle zugeordneten Gruppen
+- (CDB) Der Leiter einer Gruppe sieht nun die Gruppe in der Personendetailansicht, auch wenn anzeigen_in_meinegruppen_teilnehmer_yn=0 ist
+- (CDB) Optimierung der internen Berechtigungen bei Personen-Details
+- (CDB) In der Gruppenliste können nun Gruppenteilnehmer nichts mehr ändern
+- (CDB) Versteckte Gruppen sind nun auch für Personen mit "edit group"-Berechtigung versteckt.
+- (CS) Icons für Dateianhang und Mail verbessert 
+- (CS) Beim Ändern der Kategorie wechselt er nicht wieder zurück zur alten Liste
+- (CS) Bei Fakten werden nun auch Kommazahlen bei der Eingabe akzeptiert
++ (Cal/CS) In ChurchService kann nun bei Kategorien angegeben werden, dass diese Events nicht im Kalendar angezeigt werden. 
++ (Cal/CR) In ChurchResource kann nun bei Buchungen angegeben werden, dass diese im Kalender angezeigt werden. 
+- (Cal) Im Jahreskalender sind nun die Farben immer korrekt.
++ (CS) Aggregation der Facts pro Tag
+- ChurchTools 2.0 steht nun unter der MIT-Lizenz.  
+- (ChurchDBSync) Sync mit Datensätzen weiter optimiert, die nur in OPTIGEM vorhanden sind.
+
+churchtools 2.10
++ (CS/Cal) Datenschutz: Abwesenheiten werden nur noch in den Gruppen angezeigt, wenn ich mind. den Status Mitarbeiter in der Gruppe habe.
++ Neuer Block auf der Startseite: Abwesenheiten der nächsten 30 Tage. 
++ (CS) Jahresübersicht für Abwesenheiten
+- Fehlermeldung bei Problemen mit Upload von Fotos verbessert und Maximale Größe auf 6MB reduziert. 
+- (CDB) FollowUp-Filter an das Design angepaßt
+- Ein Mitarbeiter innerhalb einer Gruppe kann nun keine Gruppenzugehörigkeiten mehr ändern.
+- Programmierung beim Ressourcenblock "Aktuelle Buchungen" führte zum PHP-Fehler bei manchen PHP-Versionen. 
+
+churchtools 2.09
++ (CS) Bei mehreren gleichzeitigen Zugriffen unterschiedlicher User werden nur noch die geänderten Events neu geladen und gerendert.
++ (CS) Praktische Mehrfachauswahl für Kategorienfilter
++ (CS) Neuigkeiten innerhalb der Gruppe wird nicht mehr auf einem kleinen Bildschirm (<600px Breite) angezeigt, es waren zu viele Infos.
++ LogViewer angehübscht, Login-Versuche (inkl. evtl. Fehlermeldungen) und Wiki-Aufrufe (help) werden nun gelogt.
++ Admin kann nun das Passwort von Personen direkt setzen
++ Admin kann nun den Zugang zu ChurchTools für Personen sperren
++ Aktualisierung Bootstrap Theme auf 2.2.2. Andere Template können verwendet werden durch Ersetzen der bootstrap/css/boostrap.min.css, siehe z.B. http://bootswatch.com/#gallery
++ (CS) Es dürfen nun alle Dateien zu einem Event hochladen, die entweder Admin sind, Schreibrechte haben oder in einem Dienst eingeteilt sind.
++ (Cal) Kalender nun auch als Button auf der Startseite.
++ (Cal) Tagesansicht hinzugefügt
+- (CDB) Sortkey bei Gruppentyp wird nun richtig beachtet
+- (CDB) Er wertet nun auch intelligente Gruppe beim Start der ChurchDB aus
+- (CDB) Mit fehlender Adresse wird nun die Google-Karte ausgeblendet. 
+- (CS) Textliche Fehler bei E-Mail Benachrichtung bei Vorschlägen bei Events behoben.
+- (CS) Keine leere offene Dienste Mail mehr.
+- (CR) Nun genügt das Recht "administer settings" um alle Anfragen zu editieren.
+- Geburtstagsliste war nicht alphabetisch pro Tag sortiert
+- Kompatiblitätsverbesserungen für den Internet Explorer 8.0
+- Verschnellerte Startseite, vor allem für Mobil-Zugriff wichtig
+- Kleine Erweiterungen für das neue ChurchSync (siehe www.churchtools.de)
++ (CS-PRO) Dienste nun mehrfach pro Event nutzbar, also z.B. für Sonntag 12 Leute für Service Abendmahl anfragen. 
+
+churchtools 2.08
++ Automatischer CronJob aktivierbar. Bei Neuinstallation automatisch aktiv.
++ (CS) Der Anfragende bekommt eine Mail, wenn jemand ab- oder zusagt (in den Einstellungen deaktivierbar)
++ (CS) Dateiupload kann nun von Personen mit Editrechten durchgeführt werden
++ (CS) Die Kategorien können nun Farben erhalten, die dann in CS und im CAL entsprechend dargestellt werden.
++ (CS) Neue Personen ohne Login erhalten nun automatisch einen einmaligen Anmeldelink für den Zugriff zum System, wenn sie zu Diensten eingeteilt sind und "sendremindermails_yn" beim Service aktiviert ist.
++ (CS) Deutliche Performanceverbesserungen in der Listenansicht, Verbesserung der Ansicht mit fester Titelzeile
++ (CAL) Wiederholungstermine und Ausnahmen sind nun möglich
+- (CR) Bei neuen Benutzern war tw. die Userid zu kurz, dadurch konnten Buchungen u.U. nicht genehmigt werden. 
+- Fehler bei Mails bei Änderungen von Gruppenzugehörigkeit und bei Mails zu Diensterinnungen behoben.
+- Fehler bei der Anzeige "Wer ist online?". Manchesmal wurden Personen mehrfach aufgezählt.
+
+churchtools 2.07
+- Dialoge passen sich nun besser bei kleinen Displays (iPhone..) an.
++ (CS) Dienstplan kann an der Titelleiste fixiert werden
+- (CS) Falsche Fehlermeldung "NotEnoughRights" bei Zufügen von Diensten behoben.
++ (CDB) Personen ohne ViewAll müssen nun nicht mehr unter "Meine Gruppen" immer eine Gruppe ausgewählt haben 
+- (CDB) GoogleMaps wächst mit der Größe des Anzeigefensters mit
+- (CDB) Benutzerfotos können wieder hochgeladen werden.
++ (CAL) Erstellte Termine können nun auch wieder editiert oder gelöscht werden.
+- (CAL) Gruppen mit anzeigen_in_meinegruppen_teilnehmer_yn=0 werden nicht gezeigt, es sei denn man hat viewalldata oder ist Leiter oder Mitarbeiter o.ä..
+- Speichern von Admin-Einstellung ging durch die Behebung der Sicherheitslücke nicht mehr
+
+churchtools 2.06
+- Fehlermeldung Unrecognized token '<' bei ChurchCal und Home behoben
+- (CAL) Es können nun auch Kalendereinträge bei Firefox erstellt werden.
+- (CAL) Kalenderanzeige optimiert für iPad, die Liste ist nun gut per iPad zu bedienen.
+- Wichtiger Behebung einer Sicherheitslücke behoben, die durch SQL Injections möglich war.
+
+churchtools 2.05
++ (CAL) Neue Kalenderansicht: Führt Abwesenheiten mit ChurchService-Events und auch beliebigen Buchungen zusammen. Zusätzlich können nun eigene Termine eingestellt werden. Der Kalender kann per iCal abonniert werden oder in öffentlichen Seiten eingebettet werden. Dazu muß der Kalender aktiviert werden (In churchtools.config: use_modul[] = churchcal) und man muß sich neu abmelden und einloggen.
+- (CDB) Kommentare können nun wieder gespeichert werden
+- (CDB) Suchfeld optimiert: Es wird beim Laden nicht mehr überschrieben.
+- (CDB) Kleine Bugs behoben: Export geht wieder, Filter bei Statistik und Karte. Schreibrecht funktionierte nicht. Bei Gruppen ging die Berechtigungsbox zweimal auf.
+- (CT) Auf der Startseite unter "Aktuelle Buchungen" werden nun auch Wiederholungstermine angezeigt
+- (CT) Warnung, wenn der Ordner "sites/xxx/files" nicht beschreibbar ist
++ (CS) Zusätzlich wird nun bei Anzeige des Dienstes auch E-Mail-Adresse und Telefon gezeigt, wenn man in ChurchDB die entsprechenden Rechte hat
+- (CS) Wechseln des Monats führt zum aktualisieren der Eventliste
+- (CS) Fehler beim Eingeben von Fakten behoben. Fakten werden nun auch gelogt. Beim Überschreiben von Fakten wird nun gewarnt.
+- (CS) Fehler in iCal behoben
+- (CR) Link in den Mails war noch veraltet.
+
+20121104 churchtools 2.04
+- Datenbankupdates werden nur bei Seiten ausgeführt, nicht mehr bei AJAX-Calls. Außerdem nur bei Admin-Zugriffen. 
++ (CS) Hochladen von Dateien zu Events. Sehr praktisch für Ablauf etc.
++ (CS) Mitarbeiter können ihre Abwesenheitszeiten eintragen. Mit zusätzlichen Rechten kann man nun Abwesenheitszeiten für anderen eintragen.
++ (CS) Nun können Fakten zu Gottesdiensten eingetragen werden.
++ Kleine Schönheitsverbesserungen
+- Neues Passwort wurde durch Tests noch angezeigt, ist nun behoben
+- (CDB) Fehler beim Erstellen von neuen Gruppen behoben
+
+20121103 churchtools 2.03
++ Favicon und iPhone/iPad-Symbole für Startbildschirm werden nun eingebunden unter system/assets/ico
+- Link am Footer öffnet nun ein neues Fenster
+- (CDB) Kommentare können nun wieder gelöscht werden
+- (CDB) Löschen von Personen geht nun wieder
+- (CS) Fehler beim Erstellen und Ändern von Vorlagen behoben
+
+20121102 churchtools 2.02
++ Erste Version, noch als Betatest anzusehen!

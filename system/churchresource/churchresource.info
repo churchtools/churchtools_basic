@@ -1,0 +1,10 @@
+; $Id
+name = Church Resource
+description = Resource-Administration for Churches
+package = Church Tools
+core = 7.x
+version = 7.x-1.36
+configure = admin/config/churchtools
+dependencies[] = churchcore
+files[] =
+
