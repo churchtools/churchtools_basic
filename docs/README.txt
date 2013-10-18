@@ -1,10 +1,11 @@
-Version 2.0 - Stand 15.02.2013 - Jens Martin Rauen
+Version 2.0 - Stand 18.10.2013 - Jens Martin Rauen
 
 ** VORAUSSETZUNG **
 - MySQL, PHP und einen Browser mit Java-Script-Untersützung
 
 ** INSTALLATION **
 - Siehe hierzu http://intern.churchtools.de/?q=help&doc=Installation
+- Login mit admin/admin
 
 Wie geht es weiter?
 - Schaue in das Dokument "WasChurchToolsBietet.pdf"
