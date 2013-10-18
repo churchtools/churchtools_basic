@@ -91,9 +91,9 @@ AuthView.prototype.renderEntryDetail= function(pos_id) {
             }
             if (masterData.auth_table[auth.id].datenfeld=="cc_calcategory") {
               var type="Gemeindekalender";
-              if (masterData.category[datenfeld.id].privat_yn==1) 
+              if (masterData.cc_calcategory[datenfeld.id].privat_yn==1) 
                 type="Persönlich";
-              else if (masterData.category[datenfeld.id].oeffentlich_yn==0)
+              else if (masterData.cc_calcategory[datenfeld.id].oeffentlich_yn==0)
                 type="Gruppenkalender";
               if (sub_child_daten[type]==null)
                 sub_child_daten[type]=new Array();
