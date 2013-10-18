@@ -1,6 +1,6 @@
 ; $Id$
 ; Achtung, das €ndern dieser Versionsangabe steuert die Datenbankupdates!
-churchtools_version=2.39
+churchtools_version=2.40
 
 home = main/home.php
 
