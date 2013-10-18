@@ -88,7 +88,7 @@ function compile_javascript() {
     for js in $(find target-release/churchtools-$1/system -name "c*.js"); do
 	echo "Compiling $js"
 	cp $js $js.source
-	#java -jar $UTILS_PATH/js-compiler.jar --js $js.source > $js
+	java -jar $UTILS_PATH/js-compiler.jar --js $js.source > $js
 	rm $js.source
     done
 }
