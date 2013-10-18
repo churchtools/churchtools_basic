@@ -1573,9 +1573,11 @@ CREATE TABLE `cdb_person` (
 
 --
 -- Daten für Tabelle `cdb_person`
+-- Default login:    admin
+-- Default password: admin
 --
 
-INSERT INTO `cdb_person` VALUES(1, 'Ackermeister', 'Sabine', '', 1, '81dc9bdb52d04dc20036dbd8313ed055', NULL, '2013-08-30 15:56:42', 0, NULL, 2, 'Dipl.-Ing.', 'Kedenburgstr. 22', '22041', 'Hamburg', '', '', '040 12345678', '0179 12345678', '', '', 'admin@test.de', '53.5778604', '10.08704130000001', 'admin', 0, '', '2011-01-01 00:00:00', '2011-01-31 00:00:00', 'Administrator');
+INSERT INTO `cdb_person` VALUES(1, 'Ackermeister', 'Sabine', '', 1, '21232f297a57a5a743894a0e4a801fc3', NULL, '2013-08-30 15:56:42', 0, NULL, 2, 'Dipl.-Ing.', 'Kedenburgstr. 22', '22041', 'Hamburg', '', '', '040 12345678', '0179 12345678', '', '', 'admin@test.de', '53.5778604', '10.08704130000001', 'admin', 0, '', '2011-01-01 00:00:00', '2011-01-31 00:00:00', 'Administrator');
 INSERT INTO `cdb_person` VALUES(2, 'Helmut', 'Meier', '', 1, NULL, NULL, NULL, 0, NULL, 2, '', 'Bostelreihe 9', '22043', 'Hamburg', '', '', '', '', '', '', 'helmut@test.de', '53.5778604', '10.08704130000001', 'admin', 0, '', '2011-01-01 00:00:00', '2011-01-31 00:00:00', 'Administrator');
 
 -- --------------------------------------------------------
