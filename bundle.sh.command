@@ -1,5 +1,3 @@
-cd /Applications/MAMP/htdocs/bootstrap/
-
 datename=`date '+%Y%m%d'`
 rm -rf ../$datename
 mkdir $datename
