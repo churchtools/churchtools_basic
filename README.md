@@ -1,4 +1,4 @@
-churchtools_basic
-=================
+Church Tools 2.0 Community Edition
+==================================
 
-ChurchTools 2.0 - Basis-Version
+Source code of the ChurchTools 2.0 Community Edition. For Pro version, please visit http://churchtools.de/
