@@ -136,9 +136,10 @@ function churchtools_main() {
   if ($config!=null) {  
     // Session Init
     if (!file_exists($files_dir."/tmp")) 
-      @mkdir($files_dir."/tmp",0777,true);  
+      @mkdir($files_dir."/tmp",0775,true);  
     if (!file_exists($files_dir."/tmp")) {
-      addErrorMessage("Verzeichnis $files_dir ist nicht beschreibbar. Bitte Schreibrechte (777) setzen!");
+      // Admin should act accordingly, default suggestion is 0755.
+      addErrorMessage("Permission denied write to the directory $files_dir");
     }
     session_name("ChurchTools_".$config["db_name"]);
     session_start();    
