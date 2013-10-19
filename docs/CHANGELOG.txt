@@ -1,5 +1,12 @@
 (Legende: "+"=>Neues Feature  "-"=>Fehlerbehebung)
 
+churchtools 2.41
+ACHTUNG: Wichtige €nderungen in der churchtools.config: Bitte die Datenbank-Angaben mit "db_" versehen, so dass dort steht:
+db_server = localhost
+db_user = root
+db_password = 1234
+db_name = churchtools
+
 churchtools 2.40
 + Simulieren kann nun Ÿber die Fu§zeile direkt gestartet werden.
 + †ber die Fu§leiste kann man nun dem Admin eine E-Mail senden.
