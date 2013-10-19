@@ -1747,7 +1747,7 @@ function dump_database() {
   
   $dir=$files_dir."/db_backup";
   if (!file_exists($dir))
-    mkdir($dir,0777,true);
+    mkdir($dir,0777,true); //XXX: Security alert!
   if (!is_writable($dir)) {
     addErrorMessage("Das Verzeichnis $dir muss beschreibbar sein. Bitte Rechte daf&uuml;r setzen!");
   }
