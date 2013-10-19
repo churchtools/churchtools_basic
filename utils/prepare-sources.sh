@@ -71,7 +71,7 @@ function make_target() {
 # Get the version of the release.
 #
 function get_version() {
-    echo $(cat index.php | grep 'Release Version' | sed 's/.*:*\s//g')
+    echo $(cat system/churchtools.mapping | grep 'churchtools_version' | sed 's/.*=//g')
 }
 
 #
