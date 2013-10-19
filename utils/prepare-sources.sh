@@ -33,22 +33,26 @@
 #
 TARGET="target-release"
 COMPILE_JS="yes"
+INCLUDE_DOC="yes"
+ARC_FORMAT="bzip2"
 ARC=""
 
 #
 # Check environment
 #
 function check_environment() {
-    JV="";
-    if [ ! -z $(which java 2>/dev/null) ]; then
-	JV=$(java -version 2>&1 | grep version | awk '{print $3}' | sed 's/"//g')
-    fi
+    if [ "$COMPILE_JS" = "yes" ]; then
+	JV="";
+	if [ ! -z $(which java 2>/dev/null) ]; then
+	    JV=$(java -version 2>&1 | grep version | awk '{print $3}' | sed 's/"//g')
+	fi
 
-    if [ -z $JV ]; then
+	if [ -z $JV ]; then
 	    echo "Warning: Java was not found in the standard path. Skipping JavaScript compilation."
-	COMPILE_JS="no"
-    else
-	echo "Java version: $JV"
+	    COMPILE_JS="no"
+	else
+	    echo "Java version: $JV"
+	fi
     fi
 }
 
@@ -74,6 +78,10 @@ function get_version() {
 # Copy all the sources to the release
 #
 function move_sources() {
+    if [ "$INCLUDE_DOC" = "yes" ]; then
+	cp -r "docs" $1
+    fi
+
     for obj in "index.php" "LICENSE" "sites" "system" "utils"; do
 	cp -r $obj $1
     done
@@ -99,15 +107,61 @@ function compile_javascript() {
 #
 function archive_sources() {
     cd target-release;
-    ARC=$(pwd)/churchtools-$1.tar.bz2
-    tar cf - churchtools-$1 | bzip2 > $ARC
-    rm -rf churchtools-$1
+    
+    if [ "$2" = "zip" ]; then
+	out=churchtools-$1.zip
+	mv churchtools-$1 churchtools
+	zip -qrT $out churchtools
+	rm -rf churchtools
+    else
+	out=churchtools-$1.tar.bz2
+	tar cf - churchtools-$1 | bzip2 > $out
+	rm -rf churchtools-$1
+    fi
+
+    ARC=$(pwd)/$out
+}
+
+
+#
+# Usage function
+#
+function usage() {
+    cat <<EOF
+
+ChurchTools Source Archive Preparation, v0.1
+
+Usage: <commands>
+
+Commands:
+    --no-doc       Do not include documentation.
+    --no-compile   Do not minimize Java Script.
+    --zip          Output ZIP archive.
+
+    --help         This help message.
+
+EOF
+    exit;
 }
 
 
 #
 # Main
 #
+
+# Setup the runtime
+for opt in $@; do
+    if [ "$opt" = "--no-doc" ]; then
+	INCLUDE_DOC="no"
+    elif [ "$opt" = "--no-compile" ]; then
+	COMPILE_JS="no"
+    elif [ "$opt" = "--zip" ]; then
+	ARC_FORMAT="zip"
+    elif [ "$opt" = "--help" ]; then
+	usage;
+    fi
+done
+
 # Get to the right directory root
 cd $(cd $(dirname "${BASH_SOURCE[0]}") && pwd )
 cd ..
@@ -129,7 +183,7 @@ if [ "$COMPILE_JS" = "yes" ]; then
 fi
 
 # Archive
-archive_sources $VERSION;
+archive_sources $VERSION $ARC_FORMAT;
 
 # Finish
 echo
