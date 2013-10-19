@@ -140,7 +140,7 @@ function churchtools_main() {
     if (!file_exists($files_dir."/tmp")) {
       addErrorMessage("Verzeichnis $files_dir ist nicht beschreibbar. Bitte Schreibrechte (777) setzen!");
     }
-    session_name("ChurchTools_".$config["database"]);
+    session_name("ChurchTools_".$config["db_name"]);
     session_start();    
     register_shutdown_function('handleShutdown');
     

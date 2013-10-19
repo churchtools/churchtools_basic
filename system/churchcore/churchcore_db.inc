@@ -1535,13 +1535,13 @@ function escape_string($str) {
 
 function db_connect() {
   global $config, $mysqli;
-  $mysqli = new mysqli($config["server"], $config["user"], $config["password"], $config["database"]);
+  $mysqli = new mysqli($config["db_server"], $config["db_user"], $config["db_password"], $config["db_name"]);
   if ($mysqli->connect_errno) {
-    addErrorMessage("Keine Verbindung zum MySQL-Server ".$config["user"]."@".$config["server"]." - ".$mysqli->connect_error);
+    addErrorMessage("Database connection error: ".$config["db_user"]."@".$config["db_server"]." - ".$mysqli->connect_error);
     return false;
   }
   if (!$mysqli->set_charset("utf8")) {
-    addErrorMessage("Error loading character set utf8: %s\n", $mysqli->error);
+    addErrorMessage("Error loading character set UTF-8: %s\n", $mysqli->error);
     return false;
   }
   return true;
