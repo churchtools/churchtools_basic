@@ -34,18 +34,31 @@ function handleShutdown() {
  */
 function loadConfig() {
   global $files_dir;
-  $config=null;  
-  if (strpos($_SERVER["SERVER_NAME"],".")>0) {
+
+  // Unix default. Should have ".conf" extension as per standards.
+  $config = parse_ini_file("/etc/churchtools.conf");
+
+  // Domain-specific config.
+  if ($config == null && strpos($_SERVER["SERVER_NAME"],".") > 0) {
     $substr=substr($_SERVER["SERVER_NAME"],0,strpos($_SERVER["SERVER_NAME"],"."));
     if (file_exists("sites/$substr/churchtools.config")) {
       $config = parse_ini_file("sites/$substr/churchtools.config");
       $files_dir="sites/".$substr;
     }
   }
-  if ($config==null)
-    $config = parse_ini_file("sites/default/churchtools.config");
+
+  // Default domain
   if ($config==null) {
-     addErrorMessage("Config-File wurde nicht gefunden. Bitte die Datei sites/default/churchtools.standard.config nach sites/default/churchtools.config kopieren und entsprechend anpassen.");
+    $config = parse_ini_file("sites/default/churchtools.config");
+  }
+  
+  if ($config==null) {
+     addErrorMessage("<p><h3>Error: Configuration file was not
+     found.</h3></p><br/><p>Expected locations are either
+     <code>/etc/churchtools.conf</code> or <code><i>INSTALLATION</i>/sites/default/churchtools.config</code>
+     files.</p><p>Hint: You can also use <strong>example</strong> file in
+     <code><i>INSTALLATION</i>/sites/default/churchtools.example.config</code> by renaming it to
+     either one and editing it accordingly.</p>");
   }  
   
   return $config;
