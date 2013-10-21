@@ -35,13 +35,16 @@ function handleShutdown() {
 function loadConfig() {
     global $files_dir;
     // Unix default. Should have ".conf" extension as per standards.
+    $config = null;
     $cnf_location = "/etc/churchtools/default.conf";
-    $config = parse_ini_file($cnf_location);
+    if (file_exists($cnf_location)) {
+        $config = parse_ini_file($cnf_location);
+    }
 
     // Package installed, per domain.
     // All possible virt-hosts in HTTP server has to be symlinked to it.
-    if ($config == null) {
-        $cnf_location = "/etc/churchtools/hosts/" . $_SERVER["SERVER_NAME"] . ".conf";
+    $cnf_location = "/etc/churchtools/hosts/" . $_SERVER["SERVER_NAME"] . ".conf";
+    if ($config == null && file_exists($cnf_location)) {
         $config = parse_ini_file($cnf_location);
     }
 
@@ -57,8 +60,8 @@ function loadConfig() {
     }
 
     // Default domain
-    if ($config == null) {
-        $cnf_location = "sites/default/churchtools.config";
+    $cnf_location = "sites/default/churchtools.config";
+    if ($config == null && file_exists($cnf_location)) {
         $config = parse_ini_file($cnf_location);
     }
   
