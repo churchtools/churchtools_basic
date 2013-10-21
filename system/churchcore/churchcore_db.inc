@@ -1533,18 +1533,31 @@ function escape_string($str) {
   return $mysqli->real_escape_string($str);
 }
 
+/*
+ * Connect to the MySQL database.
+ */
 function db_connect() {
-  global $config, $mysqli;
-  $mysqli = new mysqli($config["db_server"], $config["db_user"], $config["db_password"], $config["db_name"]);
-  if ($mysqli->connect_errno) {
-    addErrorMessage("Database connection error: ".$config["db_user"]."@".$config["db_server"]." - ".$mysqli->connect_error);
-    return false;
-  }
-  if (!$mysqli->set_charset("utf8")) {
-    addErrorMessage("Error loading character set UTF-8: %s\n", $mysqli->error);
-    return false;
-  }
-  return true;
+    global $config, $mysqli;
+    $mysqli = new mysqli($config["db_server"], $config["db_user"], $config["db_passwordi"], $config["db_name"]);
+    
+    if ($mysqli->connect_errno) {
+        $error_message = "<h3>" . "Database connection error" . "</h3>";
+        $error_message .= "<p><strong>" . "Reason: " . "</strong>" . $mysqli->connect_error . "</p>";
+        $error_message .= "<div class=\"alert alert-info\">";
+        $error_message .= sprintf("Please edit your default configuration file <code>%s</code>, perhaps?", $config["_current_config_file"]);
+        $error_message .= "</div>";
+        
+        addErrorMessage($error_message);
+        return false;
+    }
+    
+    if (!$mysqli->set_charset("utf8")) {
+        addErrorMessage("Error loading character set UTF-8: %s\n", $mysqli->error);
+        
+        return false;
+    }
+    
+    return true;
 }
 
 function db_close() {

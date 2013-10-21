@@ -33,36 +33,56 @@ function handleShutdown() {
  * Gibt die Config als Array zurŸck oder null wenn es keine zu laden gibt.
  */
 function loadConfig() {
-  global $files_dir;
+    global $files_dir;
+    // Unix default. Should have ".conf" extension as per standards.
+    $cnf_location = "/etc/churchtools/default.conf";
+    $config = parse_ini_file($cnf_location);
 
-  // Unix default. Should have ".conf" extension as per standards.
-  $config = parse_ini_file("/etc/churchtools.conf");
-
-  // Domain-specific config.
-  if ($config == null && strpos($_SERVER["SERVER_NAME"],".") > 0) {
-    $substr=substr($_SERVER["SERVER_NAME"],0,strpos($_SERVER["SERVER_NAME"],"."));
-    if (file_exists("sites/$substr/churchtools.config")) {
-      $config = parse_ini_file("sites/$substr/churchtools.config");
-      $files_dir="sites/".$substr;
+    // Package installed, per domain.
+    // All possible virt-hosts in HTTP server has to be symlinked to it.
+    if ($config == null) {
+        $cnf_location = "/etc/churchtools/hosts/" . $_SERVER["SERVER_NAME"] . ".conf";
+        $config = parse_ini_file($cnf_location);
     }
-  }
 
-  // Default domain
-  if ($config==null) {
-    $config = parse_ini_file("sites/default/churchtools.config");
-  }
+    // Config, based on subdomain.
+    // WARNING: This code will break per IP address access and supports only last subdomain.
+    if ($config == null && strpos($_SERVER["SERVER_NAME"],".") > 0) {
+        $hostname=substr($_SERVER["SERVER_NAME"],0,strpos($_SERVER["SERVER_NAME"],"."));
+        $cnf_location = "sites/$hostname/churchtools.config";
+        if (file_exists($cnf_location)) {
+            $config = parse_ini_file($cnf_location);
+            $files_dir="sites/".$hostname;
+        }
+    }
+
+    // Default domain
+    if ($config == null) {
+        $cnf_location = "sites/default/churchtools.config";
+        $config = parse_ini_file($cnf_location);
+    }
   
-  if ($config==null) {
-     addErrorMessage("<p><h3>Error: Configuration file was not
-     found.</h3></p><br/><p>Expected locations are either
-     <code>/etc/churchtools.conf</code> or <code><i>INSTALLATION</i>/sites/default/churchtools.config</code>
-     files.</p><p>Hint: You can also use <strong>example</strong> file in
-     <code><i>INSTALLATION</i>/sites/default/churchtools.example.config</code> by renaming it to
-     either one and editing it accordingly.</p>");
-  }  
+    if ($config == null) {
+        $error_message = "<h3>" . "Error: Configuration file was not found." . "</h3>";
+        $error_message .= "<p>" . "Expected locations are:
+            <ul>
+                <li>Default appliance: <code>/etc/churchtools/default.conf</code></li>
+                <li>Per-domain appliance: <code>/etc/churchtools/hosts/" . $_SERVER["SERVER_NAME"] . ".conf</code></li>
+                <li>Shared hosting per domain: <code><i>YOUR_INSTALLATION</i>/sites/" . $_SERVER["SERVER_NAME"] . "/churchtools.config</code></li>
+                <li>Hosting per sub-domain: <code><i>YOUR_INSTALLATION</i>/sites/<b>&lt;subdomain&gt;.&lt;domain&gt;</b>/churchtools.config</code></li>
+                <li>Shared hosting default (single installation): <code><i>YOUR_INSTALLATION</i>/sites/default/churchtools.config</code></li>
+            </ul>
+            <div class=\"alert alert-info\">You can also use <strong>example</strong> file in
+            <code><i>INSTALLATION</i>/sites/default/churchtools.example.config</code> by renaming it to
+            either one location that suits your setup and further editing it accordingly.</div>";
+        addErrorMessage($error_message);
+    } else {
+        $config["_current_config_file"] = $cnf_location;
+    }
   
-  return $config;
+    return $config;
 }
+
 
 function loadDBConfig() {
   global $config;    
