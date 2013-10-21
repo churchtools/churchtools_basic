@@ -97,31 +97,38 @@ function home_main() {
 }
 
 function checkFilesDir() {
-  global $files_dir;
-  // PrŸfe fŸr Uploads, dass der files Ordner auch existiert und auch bebschreibbar ist.
-  if (!file_exists($files_dir."/files"))
-    mkdir($files_dir."/files",0777,true);
-  if (!is_writable($files_dir."/files")) {
-    addErrorMessage("Das Verzeichnis $files_dir/files muss beschreibbar sein. Bitte Rechte daf&uuml;r setzen!");
-  }
-  else {
-    if (!file_exists($files_dir."/files/.htaccess")) {
-      $handle = fopen($files_dir."/files/.htaccess",'w+');
-      fwrite($handle,"Allow from all");
-      fclose($handle);
-    }    
-    if (!file_exists($files_dir."/fotos/.htaccess")) {
-      $handle = fopen($files_dir."/fotos/.htaccess",'w+');
-      fwrite($handle,"Allow from all");
-      fclose($handle);
-    }    
-  }
-  if (!file_exists($files_dir."/.htaccess")) {
-    $handle = fopen($files_dir."/.htaccess",'w+');
-    fwrite($handle,"Deny from all");
-    fclose($handle);
-  }
-  
+    global $files_dir;
+    if (!file_exists($files_dir."/files")) {
+        mkdir($files_dir."/files",0777,true);
+    }
+
+    if (!is_writable($files_dir."/files")) {
+        addErrorMessage("Das Verzeichnis $files_dir/files muss beschreibbar sein. Bitte Rechte daf&uuml;r setzen!");
+    } else {
+        if (!file_exists($files_dir."/files/.htaccess")) {
+            $handle = fopen($files_dir."/files/.htaccess",'w+');
+            if ($handle) {
+                fwrite($handle,"Allow from all\n");
+                fclose($handle);
+            }
+        }
+
+        if (!file_exists($files_dir."/fotos/.htaccess")) {
+            $handle = fopen($files_dir."/fotos/.htaccess",'w+');
+            if ($handle) {
+                fwrite($handle,"Allow from all\n");
+                fclose($handle);
+            }
+        }
+    }
+
+    if (!file_exists($files_dir."/.htaccess")) {
+        $handle = fopen($files_dir."/.htaccess",'w+');
+        if ($handle) {
+            fwrite($handle,"Deny from all\n");
+            fclose($handle);
+        }
+    }
 }
 
 ?>
