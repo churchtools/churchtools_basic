@@ -1538,7 +1538,7 @@ function escape_string($str) {
  */
 function db_connect() {
     global $config, $mysqli;
-    $mysqli = new mysqli($config["db_server"], $config["db_user"], $config["db_passwordi"], $config["db_name"]);
+    $mysqli = new mysqli($config["db_server"], $config["db_user"], $config["db_password"], $config["db_name"]);
     
     if ($mysqli->connect_errno) {
         $error_message = "<h3>" . "Database connection error" . "</h3>";
