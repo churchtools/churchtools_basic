@@ -1,0 +1,25 @@
+Brief document on MySQL (MariaDB) setup
+=======================================
+
+
+Connect to MariaDB as superuser:
+
+       # mysql -u root -p
+
+Create database:
+
+       MariaDB [(none)]> create database churchtools;
+       Query OK, 1 row affected (0.00 sec)
+
+Grant usage to new user and create it:
+
+       MariaDB [(none)]> grant usage on *.* to foo@localhost identified by 'bar';
+       Query OK, 0 rows affected (0.01 sec)
+
+Grant all privileges to new user:
+
+       MariaDB [(none)]> grant all privileges on churchtools.* to foo@localhost;
+       Query OK, 0 rows affected (0.00 sec)
+
+
+Edit appropriate configuration files of ChurchTools and enjoy!
