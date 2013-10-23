@@ -7,7 +7,7 @@
 function churchcal_createEvent($params, $source=null) {
   // Wenn es von anderem Modul kommt, habe ich da die Rechte schon geprŸft!  
   if (($source==null) && (!churchcal_isAllowedToEditCategory($params["category_id"]))) 
-    return jsend()->fail("Keine Rechte beim Erstellen mit Id:".$params["category_id"]);
+    throw new CTNoPermission("Keine Rechte beim Erstellen mit Id:".$params["category_id"], "churchcal");
   
   $i = new CTInterface();
   $i->setParam("startdate");
@@ -24,70 +24,65 @@ function churchcal_createEvent($params, $source=null) {
   $i->setParam("ort");
   $i->addModifiedParams();
   
-  try {
-    $new_id=db_insert("cc_cal")->fields($i->getDBInsertArrayFromParams($params))->execute(false);
-    
-    if (isset($params["exceptions"])) {
-      foreach ($params["exceptions"] as $exception) {
-        $res=churchcal_addException(array("cal_id"=>$new_id, 
-                                 "except_date_start"=>$exception["except_date_start"], 
-                                 "except_date_end"=>$exception["except_date_end"]));
-        if ($res["status"]!="success") 
-          return $res;
-      }
-    }  
-    if (isset($params["additions"])) {
-      foreach ($params["additions"] as $addition) {
-        $res=churchcal_addAddition(array("cal_id"=>$new_id, 
-                                 "add_date"=>$addition["add_date"],
-                                 "with_repeat_yn"=>$addition["with_repeat_yn"]));
-        if ($res["status"]!="success") 
-          return $res;
-      }
-    }  
-    // BENACHRICHTIGE ANDERE MODULE
-    if (($source==null) || ($source!="churchresource")) {
-      include_once(drupal_get_path('module', 'churchresource') .'/churchresource_db.inc');
-      $params["id"]=$new_id;
-      churchresource_updateResourcesFromChurchCal($params, "churchcal");           
-    }
-    if (($source==null) || ($source!="churchservice")) {
-      if ((!isset($params["repeat_id"]) || ($params["repeat_id"]==0))) {
-        include_once(drupal_get_path('module', 'churchservice') .'/churchservice_db.inc');
-        $cs_params=array_merge(array(), $params); 
-        $cs_params["cal_id"]=$new_id;
-        $cs_params["id"]=null; 
+  $new_id=db_insert("cc_cal")->fields($i->getDBInsertArrayFromParams($params))->execute(false);
   
-        
-        $o=(object) $params;
-        $o->startdate=new DateTime($o->startdate);
-        $o->enddate=new DateTime($o->enddate);
-        $diff=$o->enddate->format("U")-$o->startdate->format("U");
-        if (!isset($o->repeat_until)) $o->repeat_until=$o->enddate->format('Y-m-d H:i:s');
-        // Das mit repeat_id wird noch nicht von JavaScript angesteiuert. Das ist zu kompliziert mit
-        // Wiederholungsterminen, falls es €nderungen gibt. 
-        // Ist nur schon mal pro forma drin. Gibt Probleme bei Addition wg. Array/Object-Typ...
-        foreach (getAllDatesWithRepeats($o,-1000,+1000) as $d) {
-          $cs_params["startdate"]=$d->format('Y-m-d H:i:s');
-          $enddate=clone $d;
-          $enddate->modify("+$diff seconds"); 
-          $cs_params["enddate"]=$enddate->format('Y-m-d H:i:s');
-          // Wenn es kopiert werden soll
-          if ((isset($cs_params["copychurchservice"])) && ($cs_params["copychurchservice"]=="true")) {
-            churchservice_copyEventByCalId($params["orig_id"], $new_id, $cs_params["startdate"], true);
-          } 
-          // Ansonsten eben neu anlegen
-          else {
-            churchservice_saveEvent($cs_params, "churchcal");               
-          }
-        }
-      }      
+  if (isset($params["exceptions"])) {
+    foreach ($params["exceptions"] as $exception) {
+      $res=churchcal_addException(array("cal_id"=>$new_id, 
+                               "except_date_start"=>$exception["except_date_start"], 
+                               "except_date_end"=>$exception["except_date_end"]));
+      if ($res["status"]!="success") 
+        return $res;
     }
-  } 
-  catch (Exception $e) {
-    return jsend()->error($e);      
+  }  
+  if (isset($params["additions"])) {
+    foreach ($params["additions"] as $addition) {
+      $res=churchcal_addAddition(array("cal_id"=>$new_id, 
+                               "add_date"=>$addition["add_date"],
+                               "with_repeat_yn"=>$addition["with_repeat_yn"]));
+      if ($res["status"]!="success") 
+        return $res;
+    }
+  }  
+  // BENACHRICHTIGE ANDERE MODULE
+  if (($source==null) || ($source!="churchresource")) {
+    include_once(drupal_get_path('module', 'churchresource') .'/churchresource_db.inc');
+    $params["id"]=$new_id;
+    churchresource_updateResourcesFromChurchCal($params, "churchcal");           
   }
-  return jsend()->success($new_id);  
+  if (($source==null) || ($source!="churchservice")) {
+    if ((!isset($params["repeat_id"]) || ($params["repeat_id"]==0))) {
+      include_once(drupal_get_path('module', 'churchservice') .'/churchservice_db.inc');
+      $cs_params=array_merge(array(), $params); 
+      $cs_params["cal_id"]=$new_id;
+      $cs_params["id"]=null; 
+
+      
+      $o=(object) $params;
+      $o->startdate=new DateTime($o->startdate);
+      $o->enddate=new DateTime($o->enddate);
+      $diff=$o->enddate->format("U")-$o->startdate->format("U");
+      if (!isset($o->repeat_until)) $o->repeat_until=$o->enddate->format('Y-m-d H:i:s');
+      // Das mit repeat_id wird noch nicht von JavaScript angesteiuert. Das ist zu kompliziert mit
+      // Wiederholungsterminen, falls es €nderungen gibt. 
+      // Ist nur schon mal pro forma drin. Gibt Probleme bei Addition wg. Array/Object-Typ...
+      foreach (getAllDatesWithRepeats($o,-1000,+1000) as $d) {
+        $cs_params["startdate"]=$d->format('Y-m-d H:i:s');
+        $enddate=clone $d;
+        $enddate->modify("+$diff seconds"); 
+        $cs_params["enddate"]=$enddate->format('Y-m-d H:i:s');
+        // Wenn es kopiert werden soll
+        if ((isset($cs_params["copychurchservice"])) && ($cs_params["copychurchservice"]=="true")) {
+          churchservice_copyEventByCalId($params["orig_id"], $new_id, $cs_params["startdate"], true);
+        } 
+        // Ansonsten eben neu anlegen
+        else {
+          churchservice_saveEvent($cs_params, "churchcal");               
+        }
+      }
+    }      
+  }
+  return $new_id;  
 }  
  
 function churchcal_isAllowedToEditCategory($category_id) {
@@ -104,12 +99,12 @@ function churchcal_updateEvent($params, $source=null) {
   if ($source==null) {
     // PrŸfe, ob ich auf neue Kategorie schrieben darf
     if (!churchcal_isAllowedToEditCategory($params["category_id"])) 
-      return jsend()->fail("Keine Rechte!");
+      return CTNoPermission("AllowedToEditCategory[".$params["category_id"]."]", "churchcal");
     // PrŸfe, ob ich auf die vorhandene Kategorie schreiben darf
     $old_cal=db_query("select category_id, startdate from {cc_cal} where id=:id", array(":id"=>$params["id"]))->fetch();
     if (!churchcal_isAllowedToEditCategory($old_cal->category_id)) 
-      return jsend()->fail("Keine Rechte!");
-  }
+      return CTNoPermission("AllowedToEditCategory[".$old_cal->category_id."]", "churchcal");
+      }
   
   // Wenn es nur eine Verschiebung auf dem Kalender ist
   if (!isset($params["repeat_id"])) {
@@ -211,7 +206,6 @@ function churchcal_updateEvent($params, $source=null) {
     if ($source==null) $source="churchcal";
     churchservice_saveEvent($cs_params, $source);    
   }        
-  return jsend()->success();  
 }  
 
  
@@ -299,7 +293,7 @@ function churchcal_getAllowedCategories($withPrivat=true, $onlyIds=false) {
 }
 
 
-function churchcal_getCalPerCategory($cats, $withintern=true) {
+function churchcal_getCalPerCategory($params) {
   $data=array();
   
   date_default_timezone_set("Europe/Berlin");
@@ -309,7 +303,7 @@ function churchcal_getCalPerCategory($cats, $withintern=true) {
                from {cc_cal} cal
                left join {cs_event} e on (cal.id=e.cc_cal_id) 
                left join {cr_booking} b on (cal.id=b.cc_cal_id) 
-               where cal.category_id in (".implode(",",$cats).") ".($withintern?"":" and cal.intern_yn=0")." order by category_id");
+               where cal.category_id in (".implode(",",$params["category_ids"]).") order by category_id");
   $data=null;
   
   // Agreggiere, falls es mehrere Bookings pro calendareintrag gibt.
@@ -328,7 +322,7 @@ function churchcal_getCalPerCategory($cats, $withintern=true) {
   }
 
   if ($data==null) {
-    return jsend()->success(array());
+    return array();
   }
   
   $excepts=churchcore_getTableData("cc_cal_except");
@@ -365,7 +359,7 @@ function churchcal_getCalPerCategory($cats, $withintern=true) {
     }    
     
   $ret=array();  
-  foreach ($cats as $cat) {
+  foreach ($params["category_ids"] as $cat) {
     $ret[$cat]=array();
     foreach ($data as $d) {
       if ($d->category_id==$cat)
@@ -373,7 +367,7 @@ function churchcal_getCalPerCategory($cats, $withintern=true) {
     }       
   }
   
-  return jsend()->success($ret);  
+  return $ret;  
 }
 
 ?>
