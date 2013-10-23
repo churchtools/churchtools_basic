@@ -436,15 +436,14 @@ function churchservice_openservice_rememberdays() {
     $txt="<h3>Hallo ".$res->vorname.",</h3><p>";
     
     $inviter=churchcore_getPersonById($res->modified_pid);
+    $txt.="Du wurdest in dem Dienstplan auf ".variable_get('site_name', 'drupal');
     if ($inviter!=null)        
-      $txt.="Du wurdest in dem Dienstplan auf ".variable_get('site_name', 'drupal').
-             ' von <i>'.$inviter->vorname." ".$inviter->name."</i> zu Diensten vorgeschlagen. <br/>Bitte sage diese zu oder ab:";
-    else      
-      $txt.="Du wurdest in dem Dienstplan auf ".variable_get('site_name', 'drupal')." zu Diensten vorgeschlagen.<br/>Bitte sage diese zu oder ab:";
+      $txt.=' von <i>'.$inviter->vorname." ".$inviter->name."</i>";
+    $txt.=" zu Diensten vorgeschlagen. <br/>Zum Zu- oder Absagen bitte hier klicken:";
 
     $loginstr=churchcore_createPersonLoginStr($res->p_id);
       
-    $txt.='<p><a href="'.$base_url.'?q=home&id='.$res->p_id.'&loginstr='.$loginstr.'" class="btn btn-primary">%sitename aufrufen</a>';
+    $txt.='<p><a href="'.$base_url.'?q=home&id='.$res->p_id.'&loginstr='.$loginstr.'" class="btn btn-primary">%sitename</a>';
     
     $txt.="<p><p><b>Folgende Dienst-Termine sind von Dir noch nicht bearbeitet:</b><ul>";        
     $arr=db_query($sql2, array(":p_id"=>$res->p_id, ":zugesagt"=>0));
