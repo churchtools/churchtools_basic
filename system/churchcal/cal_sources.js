@@ -146,18 +146,19 @@ CalBirthdayType.prototype.jsonCall = function(ids) {
     if (ok) {
       var d = new Date();
       var cs_events= new Array();
-      var i=10;
-      $.each(json, function(k,a) {
-        for (var i=-1;i<=1;i++) {
-          var o=Object();
-          o.title= a.name;
-          o.allDay= true;
-          var b = a.birthday.toDateEn();          
-          b.setYear(d.getFullYear()+i);
-          o.start= b;
-          cs_events.push(o);            
-        }
-      });
+      if (json!=null) {
+        $.each(json, function(k,a) {
+          for (var i=-1;i<=1;i++) {
+            var o=Object();
+            o.title= a.name;
+            o.allDay= true;
+            var b = a.birthday.toDateEn();          
+            b.setYear(d.getFullYear()+i);
+            o.start= b;
+            cs_events.push(o);            
+          }
+        });
+      }
       if (t.data[id].status!="hide") {
         t.data[id].status="loaded";
         t.data[id].current_CalEvents={container:t, category_id:id, events:cs_events, color:"lightblue", editable:false};            

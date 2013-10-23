@@ -158,7 +158,7 @@ function jsend() {
 }
 
 class JSEND {
-  function success($data="ok") {
+  function success($data=null) {
     return array("status"=>"success", "data"=>$data);  //."" weggenommen am 26.3.2013 für Datenrückgabe. Warum .""??
   }
   // Hinweis es hat nicht geklappt. Z.B. keine Rechte
