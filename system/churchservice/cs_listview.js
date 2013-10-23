@@ -1406,7 +1406,7 @@ ListView.prototype._renderInputName = function (manuelInput, eventservice, event
     }
     if (_leere_liste) 
       rows.push('<option value="-2">-- keine Person in der Liste --</option>');
-    if ((editRights) && (eventservice.name==null)) 
+    if ((editRights) && (eventservice.name==null) && (masterData.auth.viewchurchdb)) 
       rows.push('<option value="-1">... andere Person hinzuf&uuml;gen</option>');          
 
     rows.push("</Select>");

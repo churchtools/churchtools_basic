@@ -6,6 +6,7 @@ db_server = localhost
 db_user = root
 db_password = 1234
 db_name = churchtools
+- (CS) Man kann ohne ChurchDB-Rechte nun keine Personen mehr hinzufügen, die nicht zum Dienst gehören
 
 churchtools 2.40
 + Simulieren kann nun über die Fußzeile direkt gestartet werden.
