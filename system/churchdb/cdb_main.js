@@ -6,8 +6,6 @@
  * @Version 20110101
  */
 
-var churchdb_js_version = "7.x-1.97";
-
 // Alle Stammdaten werden hier gespeichert
 var masterData = null;
 

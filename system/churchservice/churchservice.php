@@ -20,6 +20,21 @@ function churchservice__filedownload() {
   churchcore__filedownload();  
 }
 
+ 
+function churchservice_getAdminModel() {
+  global $config;
+  
+  $model = new CC_ModulModel("churchservice");  
+  $model->addField("churchservice_entries_last_days","", "INPUT_REQUIRED","Wieviel Tage zur&uuml;ck in ChurchService-Daten geladen werden");
+    $model->fields["churchservice_entries_last_days"]->setValue($config["churchservice_entries_last_days"]);    
+  $model->addField("churchservice_openservice_rememberdays","", "INPUT_REQUIRED","Nach wieviel Tagen die Dienstanfrage erneut statt findet, wenn sie noch nicht zugesagt oder abgelehnt wurde");
+    $model->fields["churchservice_openservice_rememberdays"]->setValue($config["churchservice_openservice_rememberdays"]);  
+  $model->addField("churchservice_reminderhours","", "INPUT_REQUIRED","Wieviele Stunden im Vorfeld eine Erinnerung an den Dienst erfolgen soll");
+    $model->fields["churchservice_reminderhours"]->setValue($config["churchservice_reminderhours"]);  
+    
+  return $model;
+}
+
 function churchservice__exportfacts() {
   if (!user_access("edit facts","churchservice")) {
     addInfoMessage("Keine Berechtigung zum Exportieren von Faktendaten (edit facts)");

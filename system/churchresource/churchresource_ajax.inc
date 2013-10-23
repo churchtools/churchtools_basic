@@ -45,11 +45,6 @@ function churchresource_getModulesPath() {
   return drupal_get_path('module', 'churchresource');
 }
 
-function churchresource_getVersion() {
-  $config = parse_ini_file(churchresource_getModulesPath()."/churchresource.info"); 
-  return $config["version"];
-}
-
 /**
  * Erzeugt eine Uebersicht ueber alle Stammdatentabellen, die per MaintainView gepflegt werden sollen
  * Diese Infos werden per JSON an das JS uebergeben
@@ -91,7 +86,6 @@ global $user, $base_url;
     case "getMasterData":
       include_once(drupal_get_path('module', 'churchcal') .'/churchcal_db.inc');
       $res=churchresource_getMasterDataTables();
-      $res["version"] = churchresource_getVersion();
       $res["masterDataTables"] = churchresource_getMasterDataTablenames();
       $res["auth"] = churchresource_getAuthForAjax();
 	  $res["status"] = churchcore_getTableData("cr_status");
@@ -105,7 +99,6 @@ global $user, $base_url;
 	  $res["user_name"] = "$user->vorname $user->name";
 	  $res["settings"] =  churchresource_getUserSettings($user->id);
       $res["lastLogId"] = churchresource_getLastLogId();	   
-	  $res["bootstrap"] = variable_get('bootstrap', false);
 	  $res["churchcal_name"] =variable_get('churchcal_name');
 	  $res["category"] =churchcore_getTableData("cc_calcategory", null, null, "id, color, bezeichnung");  
 	  

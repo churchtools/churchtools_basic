@@ -5,8 +5,6 @@ function cdb_loadMasterData(nextFunction) {
   jQuery.getJSON("index.php?q=churchresource/ajax", { func: "getMasterData" }, function(json) {
     timers["endMasterdata"]=new Date();
     masterData=json;
-    if (json.version!=churchresource_js_version)
-      alert("Achtung, Versionen unterscheiden sich, bitte Cache loeschen! php:"+json.version+"/js:"+churchresource_js_version);
     
     churchInterface.clearStatus();
     if (nextFunction!=null) nextFunction();

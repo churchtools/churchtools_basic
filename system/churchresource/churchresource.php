@@ -12,8 +12,18 @@ function churchresource_getAuth() {
 function churchresource_getName() {
   global $config;
   return $config["churchresource_name"];
-  }
+}
 
+function churchresource_getAdminModel() {
+  global $config;
+  
+  $model = new CC_ModulModel("churchresource");      
+  $model->addField("churchresource_entries_last_days","", "INPUT_REQUIRED","Wieviel Tage zur&uuml;ck in ChurchResource-Daten geladen werden");
+  $model->fields["churchresource_entries_last_days"]->setValue($config["churchresource_entries_last_days"]);  
+  return $model;
+}
+  
+  
 function churchresource_main() {
   drupal_add_js('system/assets/js/jquery.history.js'); 
   

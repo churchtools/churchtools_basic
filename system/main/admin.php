@@ -1,6 +1,6 @@
 <?php 
 
-  include_once("system/includes/forms.php");
+include_once("system/includes/forms.php");
 
 class CC_ModulModel extends CC_Model {
   public function __construct($modulename) {
@@ -54,21 +54,12 @@ function admin_main() {
   $model->addField("site_mail","", "EMAIL","E-Mail-Adresse der Website (E-Mails werden von hier aus gesendet)");
     $model->fields["site_mail"]->setValue($config["site_mail"]);
 
-        
-  $model->addField("churchdb_name","", "INPUT_OPTIONAL","Name f&uuml;r ChurchDB (Bitte Feld leerlassen, wenn das Modul nicht ben&ouml;tigt wird)");
-    $model->fields["churchdb_name"]->setValue($config["churchdb_name"]);    
-    
-  $model->addField("churchresource_name","", "INPUT_OPTIONAL","Name f&uuml;r ChurchResource (Bitte Feld leerlassen, wenn das Modul nicht ben&ouml;tigt wird)");
-    $model->fields["churchresource_name"]->setValue($config["churchresource_name"]);
-    
-  $model->addField("churchservice_name","", "INPUT_OPTIONAL","Name von ChurchService (Bitte Feld leerlassen, wenn das Modul nicht ben&ouml;tigt wird)");
-    $model->fields["churchservice_name"]->setValue($config["churchservice_name"]);
-    
-  $model->addField("churchcal_name","", "INPUT_OPTIONAL","Name von ChurchCal (Bitte Feld leerlassen, wenn das Modul nicht ben&ouml;tigt wird)");
-    $model->fields["churchcal_name"]->setValue($config["churchcal_name"]);
-    
-  $model->addField("churchwiki_name","", "INPUT_OPTIONAL","Name von ChurchWiki (Bitte Feld leerlassen, wenn das Modul nicht ben&ouml;tigt wird)");
-    $model->fields["churchwiki_name"]->setValue($config["churchwiki_name"]);
+  // Now iterate through each module for naming the module
+  $modules=churchcore_getModulesSorted();
+  foreach ($modules as $module) {
+    $model->addField($module."_name","", "INPUT_OPTIONAL","Name f&uuml;r <i>$module</i> (Bitte Feld leerlassen, wenn das Modul nicht ben&ouml;tigt wird)");
+      $model->fields[$module."_name"]->setValue($config[$module."_name"]);       
+  }
     
   $model->addField("max_uploadfile_size_kb","", "INPUT_REQUIRED","Maximale Upload-Dateigr&ouml;sse in Kilobytes (z.B. 10MB entsprechen hier ca. 10000)");
     $model->fields["max_uploadfile_size_kb"]->setValue($config["max_uploadfile_size_kb"]);
@@ -90,73 +81,24 @@ function admin_main() {
   
   $txt_general=$model->render();
   
+ 
+  // Now iterate through each module getting the admin forms
   $m=array();
- 
-  $model = new CC_ModulModel("churchdb");
-
-  $model->addField("churchdb_maxexporter","", "INPUT_REQUIRED","Wieviel Datens&auml;tze maximal exportiert werden d&uuml;rfen");
-    $model->fields["churchdb_maxexporter"]->setValue($config["churchdb_maxexporter"]);
+  foreach ($modules as $module) {
+    include_once(drupal_get_path('module', $module)."/$module.php");
+    if (function_exists($module."_getAdminModel")) {
+      $model=call_user_func($module."_getAdminModel");
+      if ($model!=null)
+        $m[$module]=$model->render();
+    }
+  }
     
-  $model->addField("churchdb_home_lat","", "INPUT_REQUIRED","Koordinaten-Mittelpunkt Latitude (am besten durch Google Maps herauszufinden)");
-    $model->fields["churchdb_home_lat"]->setValue($config["churchdb_home_lat"]);
-    
-  $model->addField("churchdb_home_lng","", "INPUT_REQUIRED","Koordination-Mittelpunkt Longitudinal (am besten durch Google Maps herauszufinden)");
-    $model->fields["churchdb_home_lng"]->setValue($config["churchdb_home_lng"]);
-        
-  $model->addField("churchdb_emailseparator","", "INPUT_REQUIRED","Standard-Separator f&uuml;r mehrere Empf&auml;nger beim ChurchDB-E-Mailer");
-    $model->fields["churchdb_emailseparator"]->setValue($config["churchdb_emailseparator"]);
-    
-  $model->addField("churchdb_groupnotchoosable","", "INPUT_REQUIRED","Wie lange zur&uuml;ck nach Abschlussdatum die Gruppe noch unter Meine Gruppen pr&auml;sent sein soll");
-    $model->fields["churchdb_groupnotchoosable"]->setValue($config["churchdb_groupnotchoosable"]);
-    
-  $model->addField("churchdb_birthdaylist_status","", "INPUT_REQUIRED","Kommaseparierte Liste mit Status-Ids f&uuml;r Geburtstagsliste");
-    $model->fields["churchdb_birthdaylist_status"]->setValue($config["churchdb_birthdaylist_status"]);    
-  $model->addField("churchdb_birthdaylist_station","", "INPUT_REQUIRED","Kommaseparierte Liste mit Station-Ids f&uuml;r Geburtstagsliste");
-    $model->fields["churchdb_birthdaylist_station"]->setValue($config["churchdb_birthdaylist_station"]);
-
-  $model->addField("churchdb_mailchimp_apikey","", "INPUT_OPTIONAL",'Wenn die Integration von MailChimp.com genutzt werden soll, bitte hier den API-Key angeben. <a target="_clean" href="http://intern.churchtools.de/?q=help&doc=MailChimp-Integration">Weitere Informationen</a>');
-    $model->fields["churchdb_mailchimp_apikey"]->setValue($config["churchdb_mailchimp_apikey"]);
-  $model->addField("churchdb_smspromote_apikey","", "INPUT_OPTIONAL",'Wenn die Integration von smspromote.de genutzt werden soll, bitte hier den API-Key angeben.  <a target="_clean" href="http://intern.churchtools.de/?q=help&doc=smspromote-Integration">Weitere Informationen</a>');
-    $model->fields["churchdb_smspromote_apikey"]->setValue($config["churchdb_smspromote_apikey"]);
-    
-  $model->addField("churchdb_sendgroupmails","", "CHECKBOX","Sende &Auml;nderungen in Gruppen an Leiter, Co-Leiter und Supervisore");
-    $model->fields["churchdb_sendgroupmails"]->setValue($config["churchdb_sendgroupmails"]);
-
-  $m["churchdb"]=$model->render();
-  
- 
-  $model = new CC_ModulModel("churchservice");  
-  $model->addField("churchservice_entries_last_days","", "INPUT_REQUIRED","Wieviel Tage zur&uuml;ck in ChurchService-Daten geladen werden");
-    $model->fields["churchservice_entries_last_days"]->setValue($config["churchservice_entries_last_days"]);    
-  $model->addField("churchservice_openservice_rememberdays","", "INPUT_REQUIRED","Nach wieviel Tagen die Dienstanfrage erneut statt findet, wenn sie noch nicht zugesagt oder abgelehnt wurde");
-    $model->fields["churchservice_openservice_rememberdays"]->setValue($config["churchservice_openservice_rememberdays"]);  
-  $model->addField("churchservice_reminderhours","", "INPUT_REQUIRED","Wieviele Stunden im Vorfeld eine Erinnerung an den Dienst erfolgen soll");
-    $model->fields["churchservice_reminderhours"]->setValue($config["churchservice_reminderhours"]);  
-    
-  $m["churchservice"]=$model->render();
-
-  
-  $model = new CC_ModulModel("churchresource");      
-  $model->addField("churchresource_entries_last_days","", "INPUT_REQUIRED","Wieviel Tage zur&uuml;ck in ChurchResource-Daten geladen werden");
-    $model->fields["churchresource_entries_last_days"]->setValue($config["churchresource_entries_last_days"]);  
-  $m["churchresource"]=$model->render();
-  
-  $model = new CC_ModulModel("churchcheckin");      
-  $m["churchcheckin"]=$model->render();
-  
-  $model = new CC_ModulModel("churchcal");      
-  $m["churchcal"]=$model->render();
-  
-  $model = new CC_ModulModel("churchwiki");      
-  $m["churchwiki"]=$model->render();
-  
   $txt='<h1>Einstellungen f&uuml;r die Website</h1><p>Der Administrator kann hier Einstellung vornehmen. Diese gelten f&uuml;r alle Benutzer, bitte vorsichtig anpassen!</p>';
   $txt.='<div class="tabbable">';
-  $arr=churchcore_getModulesSorted();
   $txt.='<ul class="nav nav-tabs">';
     $txt.='<li class="active"><a href="#tab1" data-toggle="tab">Allgemein</a></li>';
-    foreach ($arr as $module) {
-      if ($config[$module."_name"]!="")
+    foreach ($modules as $module) {
+      if ((isset($m[$module])) && ($config[$module."_name"]!=""))
         $txt.='<li><a href="#tab'.$module.'" data-toggle="tab">'.$config[$module."_name"].'</a></li>';
     }
     $txt.='</ul>';
@@ -164,10 +106,12 @@ function admin_main() {
     $txt.='<div class="tab-pane active" id="tab1">';
       $txt.=$txt_general;  
     $txt.='</div>';
-    foreach($arr as $module) {
-      $txt.='<div class="tab-pane" id="tab'.$module.'">';
-        $txt.=$m[$module];    
-      $txt.='</div>';
+    foreach($modules as $module) {
+      if (isset($m[$module])) {
+        $txt.='<div class="tab-pane" id="tab'.$module.'">';
+          $txt.=$m[$module];    
+        $txt.='</div>';
+      }
     }
     
   $txt.='</div></div>';

@@ -52,6 +52,12 @@ function churchcal_main() {
   return $txt;    
 }
 
+function churchcal_getAdminModel() {
+  $model = new CC_ModulModel("churchcal");      
+  return $model;
+}
+
+
 
 function churchcal_getMyServices() {
   global $user;

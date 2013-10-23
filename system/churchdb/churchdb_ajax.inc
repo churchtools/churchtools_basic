@@ -684,11 +684,6 @@ function churchdb_getModulesPath() {
   return drupal_get_path('module', 'churchdb');
 }
 
-function churchdb_getVersion() {
-  $config = parse_ini_file(churchdb_getModulesPath()."/churchdb.info"); 
-  return $config["version"];
-}
-
 /**
  * Erzeugt eine Uebersicht ueber alle Stammdatentabellen, die per MaintainView gepflegt werden sollen
  * Diese Infos werden per JSON an das JS uebergeben
@@ -1264,7 +1259,6 @@ $timer.="masterData:".round(microtime(true)-$t,3)." ";
     $res["userid"]=$user->vorname." ".$user->cmsuserid." [".$user_pid."]";
     $res["auth"] = churchdb_getAuthForAjax();
     $res["site_name"] = variable_get("site_name");
-    $res["version"] = churchdb_getVersion();
     $res["modulespath"] = churchdb_getModulesPath();
     $res["files_url"] = $base_url.$files_dir; 
     $res["modulename"] = "churchdb";
