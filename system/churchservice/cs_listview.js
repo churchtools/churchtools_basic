@@ -482,7 +482,7 @@ ListView.prototype.renderEditEvent = function(event) {
   rows.push('<tr><td>'+this.renderTextarea("InputSpecial", "Weitere Infos", event.special, 20,3));
   rows.push('<tr><td>'+this.renderInput("InputAdmin", "Event-Admin", event.admin, 20, !masterData.auth.admin));
   rows.push('<p><small><span id="adminName">Kommaseparierte Person-Ids, dazu Name eintippen.</span></small></p>');
-  if ((event.admin!=null) && (event.admin!="") && (masterData.viewchurchdb)) {
+  if ((event.admin!=null) && (event.admin!="") && (masterData.auth.viewchurchdb)) {
     churchInterface.jsonRead({func:"getPersonById", id:event.admin}, function(json) {
       var s = "";
       $.each(json.data, function(k,a) {
