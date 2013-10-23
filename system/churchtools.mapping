@@ -17,9 +17,6 @@ churchdb/uploadImage = churchdb/upload.php
 externmapview = churchdb/churchdb.php
 externmapview/ajax = churchdb/churchdb.php
 
-churchcheckin = churchdb/checkin.php
-churchcheckin/ajax = churchdb/checkin.php
-
 churchservice = churchservice/churchservice.php
 churchservice/ajax = churchservice/churchservice.php
 churchservice/uploadfile = churchservice/uploadFile.php
@@ -56,8 +53,6 @@ churchcal/ical =  churchcal/churchcal.php
 
 cron = main/cron.php
 ical = churchservice/churchservice.php
-
-churchdb_version=7.x-1.97
 
 page_with_noauth[] = ical
 page_with_noauth[] = cron
