@@ -57,22 +57,13 @@ function churchwiki_load($doc_id, $wikicategory_id, $version_no=null) {
     $version_no=churchwiki_getCurrentNo($doc_id, $wikicategory_id);
 
   ct_log("Aufruf Hilfeseite $wikicategory_id:$doc_id ($version_no)",2,"-1", "help");
-  
-    
-  $sql_1="select * from {cc_wiki} where version_no=:version_no and doc_id=:doc_id and wikicategory_id=:wikicategory_id";
-  $sql_2="select p.vorname, p.name, doc_id,  version_no, wikicategory_id, aes_decrypt(text, '".churchcore_getEncryptionKey()."') text, 
+      
+  $sql="select p.vorname, p.name, doc_id,  version_no, wikicategory_id, text, 
           modified_date, modified_pid, auf_startseite_yn from {cc_wiki} w LEFT JOIN {cdb_person} p ON (w.modified_pid=p.id) 
           where version_no=:version_no and doc_id=:doc_id and wikicategory_id=:wikicategory_id";
-  $data=db_query((churchcore_getEncryptionKey()==null?$sql_1:$sql_2), 
-    array(':doc_id'=>$doc_id, ":wikicategory_id"=>$wikicategory_id,
-       ':version_no'=>$version_no)
+  $data=db_query($sql, array(':doc_id'=>$doc_id, ":wikicategory_id"=>$wikicategory_id,
+     ':version_no'=>$version_no)
   )->fetch();
-  // Kann die Encrption nicht lesen, versuche es nun ohne
-  if (($data==null) || ($data->text==null)) {
-    $data=db_query($sql_1, array(':doc_id'=>$doc_id, ":wikicategory_id"=>$wikicategory_id,
-       ':version_no'=>$version_no)
-    )->fetch();
-  }        
   if (isset($data->text)) {
     $data->text = preg_replace('/\\\/', "", $data->text);
     $data->text = preg_replace('/===([^===]*)===/', "<h3>$1</h3>", $data->text);
@@ -127,12 +118,8 @@ function churchwiki__ajax() {
         $res=jsend()->fail("Keine Berechtigung zum Speichern von ".$_POST["wikicategory_id"]);
       else {  
         $dt = new DateTime();
-        if (churchcore_getEncryptionKey()==null)
-          $sql="insert into {cc_wiki} (doc_id, version_no, wikicategory_id, text, modified_date, modified_pid)
-            values (:doc_id, :version_no, :wikicategory_id, :text, :modified_date, :modified_pid)";
-        else  
-          $sql="insert into {cc_wiki} (doc_id, version_no, wikicategory_id, text, modified_date, modified_pid)
-            values (:doc_id, :version_no, :wikicategory_id, aes_encrypt(:text, '".churchcore_getEncryptionKey()."'), :modified_date, :modified_pid)";
+        $sql="insert into {cc_wiki} (doc_id, version_no, wikicategory_id, text, modified_date, modified_pid)
+          values (:doc_id, :version_no, :wikicategory_id, :text, :modified_date, :modified_pid)";
         db_query($sql,array(":doc_id"=>$_POST["doc_id"], 
           ":version_no"=>churchwiki_getCurrentNo($_POST["doc_id"],$_POST["wikicategory_id"])+1, 
           ":wikicategory_id"=>$_POST["wikicategory_id"],
@@ -154,7 +141,6 @@ function churchwiki__ajax() {
       $data["modulename"] = "churchwiki";
       $data["modulespath"] = drupal_get_path('module', 'churchwiki');
       $data["adminemail"] = variable_get('site_mail', '');
-      $data["encrypted"] = churchcore_getEncryptionKey()!=null;
       $res=jsend()->success($data);      
     }
     else if ($func=='load') {
@@ -365,9 +351,7 @@ function churchwiki_main() {
   drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_maintainstandardview.js'); 
   
   drupal_add_js('system/assets/ckeditor/ckeditor.js');
-  //drupal_add_js('system/assets/ckeditor/config.js');
   drupal_add_js('system/assets/ckeditor/lang/de.js');
-  //drupal_add_css('system/assets/ckeditor/skins/moono/editor.css');
   drupal_add_js('system/churchwiki/wiki_maintainview.js');
   drupal_add_js('system/churchwiki/churchwiki.js');
   
@@ -395,13 +379,6 @@ function churchwiki__printview() {
   global $files_dir;
   include_once("system/includes/forms.php");
 
-  drupal_add_css('system/assets/ui/jquery-ui-1.8.18.custom.css');
-  drupal_add_js('system/assets/ui/jquery.ui.core.min.js');
-  drupal_add_js('system/assets/ui/jquery.ui.datepicker.min.js');
-  drupal_add_js('system/assets/ui/jquery.ui.position.min.js');
-  drupal_add_js('system/assets/ui/jquery.ui.widget.min.js');
-  drupal_add_js('system/assets/ui/jquery.ui.autocomplete.min.js');
-  drupal_add_js('system/assets/ui/jquery.ui.dialog.min.js');
   drupal_add_js('system/assets/js/jquery.history.js'); 
   
   drupal_add_css('system/assets/fileuploader/fileuploader.css'); 
@@ -412,17 +389,12 @@ function churchwiki__printview() {
   
   drupal_add_js(drupal_get_path('module', 'churchcore') .'/shortcut.js'); 
   
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/churchcore.js'); 
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/churchforms.js'); 
   drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_abstractview.js'); 
   drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_standardview.js'); 
   drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_maintainstandardview.js'); 
   
-  drupal_add_js('system/churchcore/cc_interface.js');
   drupal_add_js('system/assets/ckeditor/ckeditor.js');
-  //drupal_add_js('system/assets/ckeditor/config.js');
   drupal_add_js('system/assets/ckeditor/lang/de.js');
-  //drupal_add_css('system/assets/ckeditor/skins/moono/editor.css');
   drupal_add_js('system/churchwiki/wiki_maintainview.js');
   drupal_add_js('system/churchwiki/churchwiki.js');
   

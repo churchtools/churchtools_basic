@@ -800,13 +800,6 @@ function drupal_json_output($mixed) {
   echo drupal_json_encode($mixed);
 }
 
-function churchcore_getEncryptionKey() {
-  global $config;
-  
-  return null;
-  if (isset($config["encryptionkey"])) return $config["encryptionkey"];
-}
-
 function churchcore_getTableData($tablename, $sql_order="", $sql_where="", $sql_cols="*") {
   if ($sql_order!="") $sql_order=" order by ".$sql_order;
     $res = db_query("SELECT $sql_cols FROM `{".$tablename."}` ".($sql_where==""?"":"WHERE $sql_where")." $sql_order");
