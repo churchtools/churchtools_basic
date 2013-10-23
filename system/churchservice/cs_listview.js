@@ -522,7 +522,6 @@ ListView.prototype.renderEditEvent = function(event) {
   
   rows.push('<div style="wid_th:40%;float:right;padding-right:20px;">');
   rows.push('<table>');
-  var pro=false;
 
   if (event.id==null) {
     $.each(churchcore_sortData(masterData.servicegroup,"sortkey"),function(k,sg) {
@@ -548,13 +547,9 @@ ListView.prototype.renderEditEvent = function(event) {
               if (entries>0) count=entries;
             }
           }
-          if (!pro) {
-            rows.push('<td width=10px><input type="checkbox" id="cb_'+s.id+'" class="cdb-checkbox"');
-            if (count>0) rows.push("checked");
-            rows.push('/>');
-          }
-          else
-            rows.push('<td width=10px>'+form_renderInput({controlgroup:false, htmlclass:"without-bottom", type:"mini", cssid:"cb_"+s.id, value:count}));        
+          rows.push('<td width=10px><input type="checkbox" id="cb_'+s.id+'" class="cdb-checkbox"');
+          if (count>0) rows.push("checked");
+          rows.push('/>');
         }      
       });    
     });

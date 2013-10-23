@@ -171,7 +171,7 @@ WikiView.prototype.renderPage = function (content) {
   else
     rows.push("Neu");
 
-  if (masterData.encrypted==false)
+  if ((masterData.encrypted==null) || (masterData.encrypted==false))
     rows.push('<br><a href="http://intern.churchtools.de/?q=help&doc=Verschluesselung" target="_clean">unverschl&uuml;sselt</a>');
   else
     rows.push("<br>verschl&uuml;sselt");
