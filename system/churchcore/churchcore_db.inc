@@ -280,7 +280,16 @@ function php_quot_print_encode($str) {
 
 function churchcore_getModulesSorted() {
   global $config;
-  $arr=array ("churchdb", "churchresource", "churchservice", "churchcal", "churchwiki");
+
+  // Get the module names out of the file system in directory system/*
+  $arr=array();
+  $scandir=scandir("system");
+  foreach ($scandir as $file) {
+    if ((strPos($file,'church')!==false) && ($file!="churchcore") && (is_dir("system/".$file))) {
+      $arr[]=$file;
+    }   
+  }
+  
   $sort_arr=array();    
   $mysort=1000;
   foreach ($arr as $module) {
