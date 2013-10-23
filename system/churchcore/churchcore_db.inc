@@ -18,14 +18,26 @@ class CTException extends Exception {
 class CTFail extends Exception {
   // Die Exceptionmitteilung neu definieren, damit diese nicht optional ist
   public function __construct($message, $code = 0) {
-      // etwas Code
-
       // sicherstellen, dass alles korrekt zugewiesen wird
       parent::__construct($message, $code);
   }
   // ma§geschneiderte Stringdarstellung des Objektes
   public function __toString() {
       return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
+  }
+}
+
+// Nicht genug Recht die Funktion auszufŸhren
+class CTNoPermission extends CTFail {
+  // Die Exceptionmitteilung neu definieren, damit diese nicht optional ist
+  public function __construct($auth, $modulename) {
+    $this->auth=$auth;
+    $this->modulename=$modulename;
+    // sicherstellen, dass alles korrekt zugewiesen wird
+    parent::__construct($this, 0);
+  }
+  public function __toString() {
+    return "Keine ausreichende Berechtigung. Das Recht $this->auth ($this->modulename) ist notwendig.";
   }
 }
 
@@ -46,10 +58,14 @@ class CTAjaxHandler {
     return $this->modulename."_".$func_name;
   }
   
-  function addFunction($func_name, $auth_rights=null) {
+  /*
+   * Add Function name and optional an auth
+   */
+  function addFunction($func_name, $auth_rights=null, $auth_module_name=null) {
     if (!function_exists($this->getFunctionName($func_name)))
       throw new CTException("Function ".$this->getFunctionName($func_name)." nicht gefunden!");
-    $this->funcs[$func_name]=array("name"=>$func_name, "auth"=>$auth_rights);
+    if ($auth_module_name==null) $auth_module_name=$this->modulename;
+    $this->funcs[$func_name]=array("name"=>$func_name, "auth"=>$auth_rights, "module"=>$auth_module_name);
   }
   
   function call() {
@@ -59,18 +75,23 @@ class CTAjaxHandler {
 
     if (!isset($params["func"])) 
       return jsend()->error("Parameter func nicht definiert!");
+      
     if (!isset($this->funcs[$params["func"]])) 
       return jsend()->error("Func ".$params["func"]." wurde nicht als Function definiert!");
+      
     $func=$this->funcs[$params["func"]];
     try {
-      if (($func["auth"]!=null) && (!user_access($funcs["auth"], $this->modulename)))
-        return jsend()->fail("Nicht genug Rechte um ".$func["name"]." auszuf&uuml;hren. ".
-                                  "Es wird ".$func["auth"]." von ".$this->modulename." ben&ouml;nigt");
+      if (($func["auth"]!=null) && (!user_access($func["auth"], $func["module"])))
+        throw new CTNoPermission($func["auth"], $func["module"]);
         
       return jsend()->success(call_user_func($this->getFunctionName($func["name"]), $params));      
     } 
     // Kein schlimmer Fehler, soll in der Anwendung behandelt werden. Z.B. Datensatz schon vorhanden
     catch (CTFail $e) {
+      return jsend()->fail($e);
+    }
+    // Keine Rechte
+    catch (CTNoPermission $e) {
       return jsend()->fail($e);
     }
     // Heftiger Fehler, sofortiger Abbruch
