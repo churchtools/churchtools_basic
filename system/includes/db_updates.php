@@ -1096,6 +1096,10 @@ function updateDB_238() {
   
 }
 
+function updateDB_241() {
+  db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (309, 'edit template', 'churchservice', null, 'Darf Event-Templates editieren',1)");
+}
+
 /*  db_query("DROP TABLE {cdb_newsletter}");
   db_query("CREATE TABLE  drupal7_intern.cdb_newsletter (
 id INT( 11 ) NOT NULL AUTO_INCREMENT ,

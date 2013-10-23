@@ -286,7 +286,7 @@ ListView.prototype.saveEventAsTemplate = function (event, template_name, func) {
   event.bezeichnung=template_name;
   event.template_id=_getTemplateIdFromName(template_name);
   event.dauer_sec=(event.enddate.toDateEn(true).getTime()-event.startdate.toDateEn(true).getTime())/1000;
-  churchInterface.jsonWriteSyncron(obj);
+  churchInterface.jsendWrite(obj, null, false);
   cdb_loadMasterData(function() {
     func(_getTemplateIdFromName(template_name));    
   });
@@ -394,7 +394,7 @@ ListView.prototype.renderEditEvent = function(event) {
       controlgroup:false
     }));
     
-    if (masterData.auth.admin) {
+    if (masterData.auth["edit template"]) {
       rows.push("&nbsp; <a href=\"#\" id=\"saveTemplate\" title=\"Vorlage speichern\">" +this.renderImage("save", 20)+"</a>");
       if (template.id!=0)
         rows.push("&nbsp;<a href=\"#\" id=\"deleteTemplate\" title=\"Vorlage entfernen\">" +this.renderImage("delete_2", 20)+"</a>");      
@@ -482,7 +482,7 @@ ListView.prototype.renderEditEvent = function(event) {
   rows.push('<tr><td>'+this.renderTextarea("InputSpecial", "Weitere Infos", event.special, 20,3));
   rows.push('<tr><td>'+this.renderInput("InputAdmin", "Event-Admin", event.admin, 20, !masterData.auth.admin));
   rows.push('<p><small><span id="adminName">Kommaseparierte Person-Ids, dazu Name eintippen.</span></small></p>');
-  if ((event.admin!=null) && (event.admin!="")) {
+  if ((event.admin!=null) && (event.admin!="") && (masterData.viewchurchdb)) {
     churchInterface.jsonRead({func:"getPersonById", id:event.admin}, function(json) {
       var s = "";
       $.each(json.data, function(k,a) {
@@ -595,7 +595,7 @@ ListView.prototype.renderEditEvent = function(event) {
   });
   $("#deleteTemplate").click(function() {
     if (confirm("Soll die Vorlage "+template.bezeichnung+" wirklich entfernt werden?")) {
-      churchInterface.jsonWriteSyncron({func:"deleteTemplate", id:template.id});
+      churchInterface.jsendWrite({func:"deleteTemplate", id:template.id}, null, false);
       delete masterData.eventtemplate[template.id];
       elem.dialog("close");
       masterData.settings.aktuelleEventvorlage=0;      

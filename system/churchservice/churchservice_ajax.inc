@@ -64,6 +64,9 @@ function churchservice_getAuthorization() {
     $res["viewhistory"]=true;
   if (isset($auth["export data"]))
     $res["export"]=true;
+  if (isset($auth["edit template"])) {
+    $res["edit template"]=true;
+  }
   if (isset($auth["edit masterdata"])) {
     $res["admin"]=true;
   }
@@ -702,14 +705,16 @@ function churchservice_updateOrInsertTemplate($template_id, $bezeichnung, $stund
       ->condition('id',$template_id,"=")
       ->execute();
   }
-  foreach ($services as $service=>$val) {
-    if ($val>0) {
-      db_query("insert into {cs_eventtemplate_service} (eventtemplate_id, service_id, count) values (:eventtemplate_id, :service_id, :count) on duplicate key update service_id=:service_id, count=:count",
-         array(":eventtemplate_id"=>$template_id, ":service_id"=>$service, ":count"=>$val));
+  if (isset($services)) {
+    foreach ($services as $service=>$val) {
+      if ($val>0) {
+        db_query("insert into {cs_eventtemplate_service} (eventtemplate_id, service_id, count) values (:eventtemplate_id, :service_id, :count) on duplicate key update service_id=:service_id, count=:count",
+           array(":eventtemplate_id"=>$template_id, ":service_id"=>$service, ":count"=>$val));
+      }
+      else    
+        db_query("delete from {cs_eventtemplate_service} where eventtemplate_id=:eventtemplate_id and service_id=:service_id",
+          array(":eventtemplate_id"=>$template_id, ":service_id"=>$service));
     }
-    else    
-      db_query("delete from {cs_eventtemplate_service} where eventtemplate_id=:eventtemplate_id and service_id=:service_id",
-        array(":eventtemplate_id"=>$template_id, ":service_id"=>$service));
   }      
 }
 function churchservice_getAbsent() {
@@ -1119,13 +1124,21 @@ $timer.="end:".round(microtime(true)-$t,3);
     $res = churchcore_sendEMailToPersonIds($_POST["ids"], $_POST["betreff"], $inhalt, null, true, $usetemplate);
     break;
   case "saveTemplate":
-    $res="ok";
-    churchservice_updateOrInsertTemplate(($_GET["template_id"]=="null"?null:$_GET["template_id"]), $_GET["bezeichnung"], $_GET["stunde"], $_GET["minute"], $_GET["dauer_sec"], $_GET["category_id"], $_GET["event_bezeichnung"], $_GET["special"], $_GET["admin"], $_GET["services"]);
+    if (!user_access("edit template","churchservice"))
+      $res=jsend()->error("Keine Rechte");
+    else {  
+      churchservice_updateOrInsertTemplate(($_GET["template_id"]=="null"?null:$_GET["template_id"]), $_GET["bezeichnung"], $_GET["stunde"], $_GET["minute"], $_GET["dauer_sec"], $_GET["category_id"], $_GET["event_bezeichnung"], $_GET["special"], $_GET["admin"], (isset($_GET["services"])?$_GET["services"]:null));
+      $res=jsend()->success();
+    }
     break;
   case "deleteTemplate":    
-    db_query("delete from {cs_eventtemplate_service} where eventtemplate_id=$id"); 
-    db_query("delete from {cs_eventtemplate} where id=$id");
-    $res="ok"; 
+    if (!user_access("edit template","churchservice"))
+      $res=jsend()->error("Keine Rechte");
+    else {  
+      db_query("delete from {cs_eventtemplate_service} where eventtemplate_id=$id"); 
+      db_query("delete from {cs_eventtemplate} where id=$id");
+      $res=jsend()->success();
+    } 
     break;
   case "saveSetting":
     churchcore_saveUserSetting("churchservice", $user_pid, $sub, $_GET["val"]);
