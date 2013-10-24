@@ -112,7 +112,7 @@ WeekView.prototype.renderListMenu = function() {
   $("#cdb_search a").click(function () {
     t.filter["filterRessourcen-Typ"]=$(this).attr("id").substr(14,99);
     masterData.settings.filterRessourcentyp=t.getFilter("filterRessourcen-Typ");
-    churchInterface.jsonWrite({func:"saveSetting", sub:"filterRessourcentyp", 
+    churchInterface.jsendWrite({func:"saveSetting", sub:"filterRessourcentyp", 
                val:t.getFilter("filterRessourcen-Typ")});
     t.renderView();
   });
@@ -229,7 +229,7 @@ WeekView.prototype.messageReceiver = function(message, args) {
     else if (message=="filterChanged") {
       if (args[0]=="filterRessourcen-Typ") {
         masterData.settings.filterRessourcentyp=this.getFilter("filterRessourcen-Typ");
-        churchInterface.jsonWrite({func:"saveSetting", sub:"filterRessourcentyp", 
+        churchInterface.jsendWrite({func:"saveSetting", sub:"filterRessourcentyp", 
                    val:this.getFilter("filterRessourcen-Typ")});
       }
     }
@@ -907,7 +907,7 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
     var log=$("#cr_logs");
     if (log!=null) {
       // Hole die Log-Daten
-      $.getJSON("index.php?q=churchresource/ajax", { func: "getLogs", id:id }, function(json) {
+      churchInterface.jsendRead({ func: "getLogs", id:id }, function(ok, json) {
         if (json!=null) {
           logs='<small><font style="line-height:100%;"><a href="#" id="toogleLogs">Historie >></a><br/></small>';
           logs=logs+'<div id="cr_logs_detail" style="display: none; border: 1px solid white; height: 140px; overflow: auto; margin: 2px; padding: 2px;">';
@@ -924,7 +924,7 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
           $("#cr_logs a").click(function(c) {
             if (($(this).attr("id")=="del_complete") && (masterData.auth.editall)){
               if (confirm("Soll der Termin wirklich entfernt werden? Achtung, man kann es nicht mehr wiederherstellen!")) {          
-                $.getJSON("index.php?q=churchresource/ajax", {func: "delBooking", id:id}, function(json) {
+                churchInterface.jsendWrite({func: "delBooking", id:id}, function(ok, json) {
                   allBookings[id]=null;
                   $("#cr_cover").html("");
                   t.renderList();

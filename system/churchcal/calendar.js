@@ -129,8 +129,8 @@ function _select(start, end, allDay, a, view) {
 
 function _renderViewChurchResource(elem) {  
   if (masterData.resources==null) {
-    churchInterface.jsonRead({func:"getMasterData"}, function(data) {
-      if (data=="error") alert("Fehler beim Holen der Ressourcen: "+data);
+    churchInterface.jsendRead({func:"getMasterData"}, function(ok, data) {
+      if (!ok) alert("Fehler beim Holen der Ressourcen: "+data);
       else {
         masterData.resources=data.res;
         masterData.resourcesTypes=data.resTypes;
@@ -138,7 +138,7 @@ function _renderViewChurchResource(elem) {
         if (masterData.resources==null) masterData.resources=new Object();
         _renderEditEventContent(elem, currentEvent);
       }
-    }, "churchresource");   
+    }, null, null, "churchresource");   
     elem.find("#cal_content").html("Lade Daten...");
   }
   else {

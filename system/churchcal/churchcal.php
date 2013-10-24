@@ -540,7 +540,6 @@ function churchcal_moveCSEvent() {
 }
 
 function churchcal__ajax() {
-  global $user, $base_url;
   include_once("system/churchcal/churchcal_db.inc");
   
   $ajax = new CTAjaxHandler("churchcal");

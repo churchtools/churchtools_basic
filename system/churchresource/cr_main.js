@@ -15,12 +15,12 @@ var allBookings = new Object();
 var timers = new Array();
 
 jQuery(document).ready(function() {
+  churchInterface.setModulename("churchresource");
   churchInterface.registerView("WeekView", weekView);
   churchInterface.registerView("MaintainView", maintainView);
   
   // Lade alle Kennzeichentabellen
   cdb_loadMasterData(function() {
-    churchInterface.setModulename(masterData.modulename);
     churchInterface.setLastLogId(masterData.lastLogId);
     
     // Initialisiere Browser-History, ruft damit schon RenderView() auf, falles Parameter uebergeben worden sind

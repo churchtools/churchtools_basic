@@ -109,7 +109,7 @@ function churchresource_createBooking($params) {
     churchresource_send_mail("[".variable_get('site_name', 'drupal')."] Neue Buchungsanfrage: ".$params["text"], $txt_user, $user->email);
   $txt=churchcore_getFieldChanges(getBookingFields(),null,$res);
   cr_log("CREATE BOOKING\n".$txt,3,$res->id);  
-  return jsend()->success($res);
+  return $res;
 }
 
 function getBookingFields() {
@@ -137,7 +137,7 @@ function churchresource_updateBooking($params) {
   $old_arr=getBooking($params["id"]);
   $buser=churchcore_getPersonById($old_arr->person_id);
   if ($buser==null) {
-    $res=jsend()->error("Error by loading user!");
+    throw new CTException("Error by loading old user!");
   }
   else {  
     $ressources=churchcore_getTableDataSorted("cr_resource","resourcetype_id,sortkey,bezeichnung");
@@ -189,7 +189,7 @@ function churchresource_updateBooking($params) {
     if (($exc!=false) && ($bigchange)) {
       foreach ($exc as $e) {
         if (!isset($e->vorhanden))
-          churchresource_delException($e->id);
+          churchresource_delException(array("id"=>$e->id));
       }
     }
 
@@ -248,7 +248,7 @@ function churchresource_updateBooking($params) {
     $txt=churchcore_getFieldChanges(getBookingFields(),$old_arr,$arr,false);
     if ($txt!=null)
       cr_log("UPDATE BOOKING\n".$txt,3,$arr->id);
-    $res=jsend()->success(array("exceptions"=>$res_exceptions));
+    $res=array("exceptions"=>$res_exceptions);
   }
   return $res;
 }
@@ -334,8 +334,9 @@ function churchresource_getLastLogId() {
   return $arr->id;  
 }
 
-function churchresource_pollForNews($last_id) {
+function churchresource_pollForNews($params) {
   global $user;
+  $last_id=$params["last_id"];
   $res=db_query("select * from {cr_log} where id > $last_id and person_id!='".$user->id."'");
   $arrs=Array();
   foreach ($res as $arr) {
@@ -356,9 +357,9 @@ function addException($booking_id, $date_start, $date_end, $pid) {
      "modified_pid"=>$pid,
      "modified_date"=>$dt->format('Y-m-d H:i:s')))->execute();
 }
-function churchresource_delException($exc_id) {
+function churchresource_delException($params) {
+  $exc_id=$params["id"];
   $res=db_query("delete from {cr_exception} where id=:id",array(':id'=>$exc_id));
-  return jsend()->success();      
 }
 
 function addAddition($booking_id, $date_start, $with_repeat, $pid) {
@@ -372,7 +373,6 @@ function addAddition($booking_id, $date_start, $with_repeat, $pid) {
 }
 function churchresource_delAddition($add_id) {
   $res=db_query("delete from {cr_addition} where id=:id",array(':id'=>$add_id));
-  return jsend()->success();      
 }
 
 function getBookings($von=null, $bis=null, $status_id_in="") {
@@ -427,14 +427,16 @@ function getBooking($id) {
   return $res;	
 }
 
-function delBooking($id) {
+function churchresource_delBooking($params) {
+  $id=$params["id"];
   $res=db_query("DELETE FROM {cr_exception} where booking_id=".$id); 
   $res=db_query("DELETE FROM {cr_addition} where booking_id=".$id); 
   $res=db_query("DELETE FROM {cr_booking} where id=".$id);
   return "ok"; 
 }
 
-function churchresource_getLogs($id) {
+function churchresource_getLogs($params) {
+  $id=$params["id"];
   $res=db_query("SELECT l.*, concat(p.vorname,' ',p.name) as person_name from {cr_log} l, {cdb_person} p 
              where l.person_id=p.id and booking_id=".$id." order by datum desc");
   $ret=null; 
