@@ -1,9 +1,5 @@
 <?php
 
-function churchresource__ajax() {
-  include_once(drupal_get_path('module', 'churchresource').'/churchresource_ajax.inc');
-  call_user_func("churchresource_ajax");
-}
 
 function churchresource_getAuth() {
   return "view churchresource";
@@ -176,8 +172,6 @@ global $user;
    
   $content=$content.drupal_get_header();
   
-//  drupal_add_css(drupal_get_path('module', 'churchresource').'/cr_printview.css');
-//  $content=$content.drupal_get_css();
   $content=$content.'<link type="text/css" rel="stylesheet" media="all" href="'.drupal_get_path('module', 'churchcore').'/churchcore.css" />';
   $content=$content.'<link type="text/css" rel="stylesheet" media="all" href="'.drupal_get_path('module', 'churchresource').'/cr_printview.css" />';
     
@@ -190,6 +184,96 @@ global $user;
   $content=$content."<div id=\"cdb_f_ilter\"></div></div> <div id=\"cdb_content\">Seite wird aufgebaut...</div>";
   $content=$content."</body></html>";
   echo $content;
+}
+
+
+
+function churchresource_getAuthForAjax() {
+  $res=null;
+  $auth=$_SESSION["user"]->auth["churchresource"];
+  
+  if (isset($auth["view"]))
+    $res["view"]=true;
+  if (isset($auth["create bookings"])) {
+  	$res["write"]=true;
+  }  
+  if (isset($auth["administer bookings"])) {
+  	$res["write"]=true;
+  	$res["editall"]=true;
+  }
+  if (isset($auth["edit masterdata"])) {
+    $res["admin"]=true;
+  }
+  return $res;
+}
+
+
+function churchresource_mail($key, &$message, $params) {
+  $language = $message['language'];
+  
+  // WofŸr?? Bringt Drupal 7 durcheinander
+  //$variables = user_mail_tokens($params['account'], $language);
+  switch($key) {
+    case 'churchresource_notify':
+    $message['subject'] =$params["subject"];
+    $message['body'][] = $params["message"];
+    break;
+  }
+}
+
+function churchresource_getBookings($params) {
+  return getBookings();
+}
+
+class CTChurchResourceModule extends CTAbstractModule {
+  
+  public function getMasterDataTablenames() {
+    $res=array();
+    $res[1]=churchcore_getMasterDataEntry(1, "Ressource", "res", "cr_resource","resourcetype_id,sortkey,bezeichnung");
+    $res[2]=churchcore_getMasterDataEntry(2, "Ressourcen-Typ", "resTypes", "cr_resourcetype");
+    $res[3]=churchcore_getMasterDataEntry(3, "Status", "status", "cr_status");  
+    return $res;
+  }
+  
+  public function getMasterData() {
+    global $user;
+    $res=array();
+    include_once(drupal_get_path('module', 'churchcal') .'/churchcal_db.inc');
+    $res=$this->getMasterDataTables();
+    $res["masterDataTables"] = $this->getMasterDataTablenames();
+    $res["auth"] = churchresource_getAuthForAjax();
+    $res["status"] = churchcore_getTableData("cr_status");
+    $res["minutes"] = churchcore_getTableData("cr_minutes");
+    $res["hours"] = churchcore_getTableData("cr_hours");
+    $res["repeat"] = churchcore_getTableData("cc_repeat");
+    $res["modulename"] = $this->getModuleName();
+    $res["modulespath"] = $this->getModulePath();
+    $res["userid"] = $user->cmsuserid; // CMS Username#
+    $res["user_pid"] = $user->id;
+    $res["user_name"] = "$user->vorname $user->name";
+    $res["settings"] =  $this->getSettings();
+    $res["lastLogId"] = churchresource_getLastLogId();	   
+    $res["churchcal_name"] =variable_get('churchcal_name');
+    $res["category"] =churchcore_getTableData("cc_calcategory", null, null, "id, color, bezeichnung");  
+    return $res;
+  } 
+}
+
+function churchresource__ajax() {
+  include_once("churchresource_db.inc");
+  
+  $module=new CTChurchResourceModule("churchresource");
+
+  $ajax = new CTAjaxHandler($module);
+  $ajax->addFunction("pollForNews", "view"); 
+  $ajax->addFunction("getBookings", "view"); 
+  $ajax->addFunction("getLogs", "view"); 
+  $ajax->addFunction("delException", "administer bookings"); 
+  $ajax->addFunction("delBooking", "edit masterdata"); 
+  $ajax->addFunction("createBooking", "view"); 
+  $ajax->addFunction("updateBooking", "view"); 
+  
+  drupal_json_output($ajax->call());  
 }
 
 ?>

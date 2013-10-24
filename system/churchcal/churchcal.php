@@ -492,7 +492,7 @@ function churchcal_getCalEvents() {
   return $ret;    
 }
 
-function churchcal_getMasterData($params) {
+function churchcal_getMasterData() {
   global $user, $base_url;
   $ret=array();
   $ret["modulespath"]=drupal_get_path('module', 'churchcal');
@@ -519,11 +519,6 @@ function churchcal_getMasterData($params) {
   return $ret;
 }
 
-function churchcal_saveSetting($params) {
-  global $user;
-  churchcore_saveUserSetting("churchcal", $user->id, $params["sub"], $params["val"]);
-}
-
 function churchcal_getAllowedGroups() {
   include_once(drupal_get_path('module', 'churchdb').'/churchdb_db.inc');
   return churchdb_getAllowedGroups();
@@ -539,10 +534,23 @@ function churchcal_moveCSEvent() {
   db_query("update {cs_event} set startdate=startdate+ TODO  ");
 }
 
+
+class CTChurchCalModule extends CTAbstractModule {
+  public function getMasterDataTablenames() {
+    // No stammdatenpflege in ChurchCal
+    return null;
+  }
+  public function getMasterData() {
+    return churchcal_getMasterData();
+  } 
+}
+
 function churchcal__ajax() {
   include_once("system/churchcal/churchcal_db.inc");
   
-  $ajax = new CTAjaxHandler("churchcal");
+  $module=new CTChurchCalModule("churchcal");
+  
+  $ajax = new CTAjaxHandler($module);
   $ajax->addFunction("getCalEvents", "view"); 
   $ajax->addFunction("getCalPerCategory", "view");
   $ajax->addFunction("getAbsents", "view");
@@ -555,7 +563,6 @@ function churchcal__ajax() {
   $ajax->addFunction("getShares", "view"); 
   $ajax->addFunction("saveShares", "view"); 
   $ajax->addFunction("getResource", "view", "churchresource");
-  $ajax->addFunction("saveSetting", "view");
   $ajax->addFunction("getAllowedGroups", "view", "churchdb");
   $ajax->addFunction("getAllowedPersons", "view", "churchdb");
   $ajax->addFunction("saveCategory", "view");  

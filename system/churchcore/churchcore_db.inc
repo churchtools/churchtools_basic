@@ -1,5 +1,110 @@
 <?php
 
+/**
+ * Interface for implementing ChurchTools-Modules
+ * Currently only used for ChurchResource and ChurchCal
+ */
+interface CTModuleInterface {
+  /**
+   * A string containing the module name
+   */
+  public function getModuleName();
+  
+  /**
+   * Relative path to the module, e.g. system/churchresource
+   */
+  public function getModulePath();
+  
+  /**
+   * A complete array with relevant master data for JS-View
+   */
+  public function getMasterData();
+  
+  /**
+   * Saves conrete one row in one table
+   *  
+   * @param unknown_type $params array(id, table and col0..x columname and value0..x for data).
+   */
+  public function saveMasterData($params);
+  
+  /**
+   * Deletes one row in one table. 
+   *  
+   * @param unknown_type $params array(id, table)
+   */
+  public function deleteMasterData($params);
+  
+  /**
+   * Saves the user setting for the current login user
+   * 
+   * @param unknown_type $params array(sub, val) 
+   */
+  public function saveSetting($params);
+
+  /**
+   * Get all user settings for current login user
+   */
+  public function getSettings();  
+  
+  
+  /*
+   * UP FROM HERE EVER MODULE HAS TO IMPLEMENT THIS STUFF
+   */
+  
+  /**
+   * Return an array with churchcore_getMasterDataEntry() entries, for all MasterData tables.
+   */
+  public function getMasterDataTablenames();    
+}
+
+
+
+
+abstract class CTAbstractModule implements CTModuleInterface {
+  private $modulename="abstract";
+  public function __construct($modulename) {
+    if ($modulename==null) die("No Modulename given in new CTModule()");
+    $this->modulename=$modulename;
+  }
+  public function getModuleName() {
+    return $this->modulename;
+  } 
+  public function getModulePath() {
+    return drupal_get_path('module', $this->modulename);
+  }
+  public function deleteMasterData($params) {
+    if ((user_access("edit masterdata","churchresource")) && (churchcore_isAllowedMasterData($this->getMasterDataTablenames(), $params["table"]))) {
+      churchcore_deleteMasterData($params["id"], $params["table"]);
+      cr_log("f:deleteMasterData id:".$params["id"],2);
+    }
+    else throw new CTNoPermission("edit masterdata", $this->modulename);  
+  }
+  public function saveMasterData($params) {
+    if ((user_access("edit masterdata","churchresource")) && (churchcore_isAllowedMasterData($this->getMasterDataTablenames(), $params["table"]))) {      
+      churchcore_saveMasterData($params["id"], $params["table"]);
+      cr_log("f:saveMasterData id:".$params["id"],2);
+    } 
+    else throw new CTNoPermission("edit masterdata",$this->modulename);  
+  }  
+  
+  public function saveSetting($params) {
+    global $user;
+    churchcore_saveUserSetting($this->modulename, $user->id, $params["sub"], $params["val"]);
+  }
+  public function getSettings() {
+    global $user;
+    return churchcore_getUserSettings($this->modulename,$user->id); 
+  }  
+  protected function getMasterDataTables() {
+    $tables=$this->getMasterDataTablenames();
+    foreach ($tables as $value) {
+      $res[$value["shortname"]]=churchcore_getTableData($value["tablename"],$value["sql_order"]);
+    }
+    return $res;
+  }  
+}
+
+
 class CTException extends Exception {
   // Die Exceptionmitteilung neu definieren, damit diese nicht optional ist
   public function __construct($message, $code = 0) {
@@ -48,10 +153,12 @@ class CTNoPermission extends CTFail {
  */
 class CTAjaxHandler {
   private $modulename="church";
+  private $module=null;
   private $funcs = array();
 
-  public function __construct($modulename) {
-    $this->modulename=$modulename;
+  public function __construct($module) {
+    $this->module=$module;
+    $this->modulename=$module->getModuleName();
   }
   
   function getFunctionName($func_name) {
@@ -75,6 +182,15 @@ class CTAjaxHandler {
 
     if (!isset($params["func"])) 
       return jsend()->error("Parameter func nicht definiert!");
+            
+    if ($params["func"]=="getMasterData")
+      return jsend()->success($this->module->getMasterData());
+    else if ($params["func"]=="deleteMasterData")
+      return jsend()->success($this->module->deleteMasterData($params));
+    else if ($params["func"]=="saveMasterData")
+      return jsend()->success($this->module->saveMasterData($params));
+    else if ($params["func"]=="saveSetting")
+      return jsend()->success($this->module->saveSetting($params));
       
     if (!isset($this->funcs[$params["func"]])) 
       return jsend()->error("Func ".$params["func"]." wurde nicht als Function definiert!");
