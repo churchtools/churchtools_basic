@@ -1538,7 +1538,7 @@ function getUserAuthorization($user_id) {
   // Autorisierung Ÿber Status
   $res=db_query("select auth, daten_id, modulename, datenfeld from {cdb_gemeindeperson} gp, {cc_domain_auth} da, {cc_auth} a 
                    where da.domain_type='status' and a.id=da.auth_id 
-                   and da.domain_id=gp.status_id and gp.id=$user_id $where");
+                   and da.domain_id=gp.status_id and gp.person_id=$user_id $where");
   $auth=_implantAuth($res,$auth);
 
   // Autorisierung Ÿber Gruppen
