@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<update>
+    <title>Update database for version 2.41</title>
+    <queries>
+      <query order="1">
+          <![CDATA[
+INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (309, 'edit template', 'churchservice', null, 'Darf Event-Templates editieren',1)
+]]>
+      </query>
+    </queries>
+</update>
