@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <comment>Test messages</comment>
+  <entry key="hello.world">Здоров, світе!</entry>
+  <entry key="how.are.you">Як си маєте, пане {0}?</entry>
+</properties>
