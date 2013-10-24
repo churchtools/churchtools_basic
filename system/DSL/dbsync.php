@@ -1,22 +1,99 @@
 <?php
 
+/**
+ * Database Synchronizer class.
+ * Used for upgrading the database schema.
+ */
 class DBSync {
     private $dom = null;
+    private $db = null;
+    private $tablePrefix = "";
+    
+    public $MARIADB = 0;
+    public $POSTGRESQL = 1;
 
-    /*
+    /**
      * Constructor.
      */
     public function __construct() {
     }
 
-    /*
+    /**
      * Destructor.
      */
     public function __destruct() {
         $this->dom = null;
     }
+    
+    /**
+     * Set table prefix. Default is none.
+     * 
+     * @param type $prefix
+     */
+    public function setTablePrefix($prefix) {
+        $this->tablePrefix = $prefix;
+    }
+    
+    /**
+     * Connect to the database.
+     * Note: Currently only MariaDB supported.
+     * 
+     * @global mysqli
+     * @param type $vendor
+     * @param type $host
+     * @param type $user
+     * @param type $password
+     * @param type $dbname
+     * @return boolean
+     */
+    public function connect($vendor, $host, $user, $password, $dbname) {
+        if ($vendor == $this->MARIADB) {
+            $this->db = new mysqli($host, $user, $password, $dbname);
+            if ($this->db->connect_errno) {
+                return $this->db->connect_errno;
+            }
+        }
+        
+        if (!$this->db-set_charset("utf8")) {
+            return $this->db->error;
+        }
 
-    /*
+        return null;
+    }
+
+    /**
+     * Query the database.
+     * 
+     * @param type $template
+     * @param type $params
+     */
+    public function query($template, $params=null) {
+        // Prefix around?
+        if ($this->tablePrefix) {
+            $template = str_replace("}", "", str_replace("{", $this->tablePrefix, $template));
+        }
+
+        // Set params into the SQL template
+        if ($params != null) {
+            foreach ($params as $ref => $value) {
+                $value = escape_string($value);
+                if (gettype($value) == "string") {
+                    $value = "'" . $value . "'";
+                }
+
+                $template = str_replace($ref, $value, $template);
+            }
+        }
+        
+        // Perform
+        $result = $this->db-query($template);
+        if (!$result) {
+            throw new SQLException("SQL: " . $template . "\nError: " . $this->db->error);
+        }
+    }
+
+
+    /**
      * Load one document and parse queries.
      */
     private function loadDocument($path) {
@@ -25,13 +102,13 @@ class DBSync {
             $this->dom = new DOMDocument();
             $this->dom->load($path);
             echo "Document at $path has been loaded\n";
-            foreach ($this->getQueries() as $q) {
+            foreach ($this->getQueries() as $query) {
                 // Execute query here
             }
         }
     }
 
-    /*
+    /**
      * Run sequence on updating schema.
      */
     public function updateSchema($path) {
@@ -45,10 +122,10 @@ class DBSync {
         }
     }
 
-    /*
+    /**
      * Load queries from one document.
      */
-	private function getQueries() {
+    private function getQueries() {
         $queries = array();
         foreach($this->dom->getElementsByTagName("query") as $queryNode) {
             foreach($queryNode->childNodes as $cdataNode) {
@@ -63,8 +140,17 @@ class DBSync {
 
         return $queries;
     }
+    
+    /**
+     * Check if schema upgrade is required.
+     * Returns True or False appropriately.
+     */
+    public function needsSchemaUpgrade() {
+        return false;
+    }
 }
 
 $dbsync = new DBSync();
-$dbsync->updateSchema("system/DSL/update/");
+$dbsync->updateSchema("system/DSL/update/mariadb/");
+
 ?>
