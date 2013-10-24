@@ -6,30 +6,14 @@ function auth_main() {
     return " ";
   }
   
-   // drupal_add_css(drupal_get_path('module', 'churchcore').'/churchcore.css');
-  //drupal_add_css(drupal_get_path('module', 'churchcore').'/churchcore_bootstrap.css');
   drupal_add_css('system/assets/fileuploader/fileuploader.css'); 
-  drupal_add_css('system/assets/ui/jquery-ui-1.8.18.custom.css');
   
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/shortcut.js'); 
   drupal_add_js('system/bootstrap/js/bootstrap-multiselect.js'); 
   drupal_add_js('system/assets/fileuploader/fileuploader.js'); 
   drupal_add_js('system/assets/js/jquery.history.js'); 
-  
-  drupal_add_js('system/assets/ui/jquery.ui.core.min.js');
-  drupal_add_js('system/assets/ui/jquery.ui.datepicker.min.js');
-  drupal_add_js('system/assets/ui/jquery.ui.position.min.js');
-  drupal_add_js('system/assets/ui/jquery.ui.widget.min.js');
-  drupal_add_js('system/assets/ui/jquery.ui.autocomplete.min.js');
-  drupal_add_js('system/assets/ui/jquery.ui.dialog.min.js');
-  drupal_add_js('system/assets/ui/jquery.ui.mouse.min.js');
-  drupal_add_js('system/assets/ui/jquery.ui.draggable.min.js');
-  drupal_add_js('system/assets/ui/jquery.ui.selectable.min.js');
-  drupal_add_js('system/assets/ui/jquery.ui.resizable.min.js');
-  
+    
   drupal_add_css('system/assets/dynatree/ui.dynatree.css');
   drupal_add_js('system/assets/dynatree/jquery.dynatree-1.2.4.js');
-    
   
   drupal_add_js(drupal_get_path('module', 'churchcore') .'/churchcore.js'); 
   drupal_add_js(drupal_get_path('module', 'churchcore') .'/churchforms.js'); 
@@ -59,10 +43,6 @@ function auth_main() {
 
 function churchauth_getMasterData($params) {
   global $config;
-
-  if (!user_access("administer persons","churchcore")) {
-    return "No rights!";
-  }
   
   $res=array();
   $res["auth_table"]=churchcore_getTableData("cc_auth");
@@ -119,10 +99,6 @@ function churchauth_getMasterData($params) {
 }
 
 function churchauth_saveAuth($params) {
-  if (!user_access("administer persons","churchcore")) {
-    return "No rights!";
-  }
-  
   db_query("delete from {cc_domain_auth} where domain_type=:domain_type and domain_id=:domain_id", 
       array(":domain_type"=>$params["domain_type"], ":domain_id"=>$params["domain_id"]));
   if (isset($params["data"])) {    
@@ -148,9 +124,9 @@ function churchauth_saveSetting($params) {
 
 function auth__ajax() {
   $ajax = new CTAjaxHandler("churchauth");
-  $ajax->addFunction("getMasterData");
-  $ajax->addFunction("saveAuth");
-  $ajax->addFunction("saveSetting");
+  $ajax->addFunction("getMasterData", "administer persons", "churchcore");
+  $ajax->addFunction("saveAuth", "administer persons", "churchcore");
+  $ajax->addFunction("saveSetting", "administer persons", "churchcore");
   
   drupal_json_output($ajax->call());  
 }

@@ -129,8 +129,8 @@ function _select(start, end, allDay, a, view) {
 
 function _renderViewChurchResource(elem) {  
   if (masterData.resources==null) {
-    churchInterface.jsonRead({func:"getMasterData"}, function(data) {
-      if (data=="error") alert("Fehler beim Holen der Ressourcen: "+data);
+    churchInterface.jsendRead({func:"getMasterData"}, function(ok, data) {
+      if (!ok) alert("Fehler beim Holen der Ressourcen: "+data);
       else {
         masterData.resources=data.res;
         masterData.resourcesTypes=data.resTypes;
@@ -138,7 +138,7 @@ function _renderViewChurchResource(elem) {
         if (masterData.resources==null) masterData.resources=new Object();
         _renderEditEventContent(elem, currentEvent);
       }
-    }, "churchresource");   
+    }, null, null, "churchresource");   
     elem.find("#cal_content").html("Lade Daten...");
   }
   else {
@@ -342,7 +342,7 @@ function _renderEditEventContent(elem, currentEvent) {
     $("#inputBezeichnung").focus();    
     
     elem.find("#inputCategory").change(function() {
-      churchInterface.jsonWrite({func:"saveSetting", sub:"category_id", val:$(this).val()});
+      churchInterface.jsendWrite({func:"saveSetting", sub:"category_id", val:$(this).val()});
       masterData.settings.category_id=$(this).val(); 
       currentEvent.category_id=$(this).val();
       _renderEditEventNavi(elem, currentEvent);
@@ -597,7 +597,7 @@ function delEvent(event, func) {
 
 function _viewChanged(view) {
   if ((masterData.settings["viewName"]==null) || (masterData.settings["viewName"]!=view.name))
-    churchInterface.jsonWrite({func:"saveSetting", sub:"viewName", val:view.name});
+    churchInterface.jsendWrite({func:"saveSetting", sub:"viewName", val:view.name});
 }
 
 function categoryEditable(category_id) {
@@ -878,7 +878,7 @@ function createMultiselect(name, data) {
   var t=this;
   filter[name]=new CC_MultiSelect(data, function(id, selected) {
     masterData.settings[name]=this.getSelectedAsArrayString();
-    churchInterface.jsonWrite({func:"saveSetting", sub:name, val:masterData.settings[name]});
+    churchInterface.jsendWrite({func:"saveSetting", sub:name, val:masterData.settings[name]});
     if (id=="allSelected") {
       if (filter[name]!=null) {
         $.each(filter[name].data, function(k,a) {
@@ -927,11 +927,12 @@ function _loadAllowedGroups(func) {
     }
     else {
       masterData.groups=data;
+      if (masterData.groups==null) masterData.groups=new Array();
       func();
     }
-    if (masterData.groups==null) masterData.groups=new Array();
   });   
 }
+
 function _loadAllowedPersons(func) {
   var elem=form_showCancelDialog("Lade Daten...","");
   churchInterface.jsendRead({func:"getAllowedPersons"}, function(ok, data) {
@@ -1384,7 +1385,7 @@ $(document).ready(function() {
   if ($("#entries").length!=0) max_entries=$("#entries").val();
 
 	churchInterface.setStatus("Lade Kennzeichen...");
-  churchInterface.jsonRead({func:"getMasterData"}, function(json) {
+  churchInterface.jsendRead({func:"getMasterData"}, function(ok, json) {
     churchInterface.clearStatus();
     masterData=json;
     

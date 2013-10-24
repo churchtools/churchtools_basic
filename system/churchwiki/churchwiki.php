@@ -20,6 +20,12 @@ function churchwiki_getMasterDataTables() {
   return $res;
 }
 
+function churchwiki_getAdminModel() {
+  $model = new CC_ModulModel("churchwiki");      
+  return $model;
+}
+
+
 function churchwiki_getCurrentNo($doc_id, $wikicategory_id=0) {
   $res=db_query("select max(version_no) c from {cc_wiki} where doc_id=:doc_id and wikicategory_id=:wikicategory_id",
     array(":doc_id"=>$doc_id, ":wikicategory_id"=>$wikicategory_id))->fetch();

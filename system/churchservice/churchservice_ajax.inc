@@ -1039,7 +1039,6 @@ $timer.="masterData:".round(microtime(true)-$t,3)." ";
       $res["eventtemplate_services"] = churchservice_getEventtemplateServices($auth);
       $res["churchcal_name"] =$config["churchcal_name"];
       $res["songcategory"] = churchcore_getTableData("cs_songcategory","sortkey");
-      $res["bootstrap"] = variable_get('bootstrap', false);
 $timer.="end:".round(microtime(true)-$t,3);
 	  $res["timer"]=$timer;
 	  

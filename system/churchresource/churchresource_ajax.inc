@@ -45,11 +45,6 @@ function churchresource_getModulesPath() {
   return drupal_get_path('module', 'churchresource');
 }
 
-function churchresource_getVersion() {
-  $config = parse_ini_file(churchresource_getModulesPath()."/churchresource.info"); 
-  return $config["version"];
-}
-
 /**
  * Erzeugt eine Uebersicht ueber alle Stammdatentabellen, die per MaintainView gepflegt werden sollen
  * Diese Infos werden per JSON an das JS uebergeben
@@ -75,91 +70,69 @@ function churchresource_getUserSettings($user_pid) {
   return churchcore_getUserSettings("churchresource",$user_pid);  
 }
 
-function churchresource_ajax() {
-global $user, $base_url;
 
-  if (isset($_GET["func"]))
-    $function=$_GET["func"];
-  else  
-    $function=$_POST["func"];
-  $id=null;
-  $sub=null;
-  if (isset($_GET["id"])) $id=$_GET["id"];
-  if (isset($_GET["sub"])) $sub=$_GET["sub"];
-  
-  switch ($function) {
-    case "getMasterData":
-      include_once(drupal_get_path('module', 'churchcal') .'/churchcal_db.inc');
-      $res=churchresource_getMasterDataTables();
-      $res["version"] = churchresource_getVersion();
-      $res["masterDataTables"] = churchresource_getMasterDataTablenames();
-      $res["auth"] = churchresource_getAuthForAjax();
-	  $res["status"] = churchcore_getTableData("cr_status");
-      $res["minutes"] = churchcore_getTableData("cr_minutes");
-      $res["hours"] = churchcore_getTableData("cr_hours");
-      $res["repeat"] = churchcore_getTableData("cc_repeat");
-      $res["modulename"] = "churchresource";
-      $res["modulespath"] = churchresource_getModulesPath();
-	  $res["userid"] = $user->cmsuserid; // CMS Username#
-	  $res["user_pid"] = $user->id;
-	  $res["user_name"] = "$user->vorname $user->name";
-	  $res["settings"] =  churchresource_getUserSettings($user->id);
-      $res["lastLogId"] = churchresource_getLastLogId();	   
-	  $res["bootstrap"] = variable_get('bootstrap', false);
-	  $res["churchcal_name"] =variable_get('churchcal_name');
-	  $res["category"] =churchcore_getTableData("cc_calcategory", null, null, "id, color, bezeichnung");  
-	  
-      break;
-    case "pollForNews": 
-      $res = churchresource_pollForNews($_GET["last_id"]);
-      break;
-	case "saveSetting":
-      churchcore_saveUserSetting("churchresource", $user->id, $sub, $_GET["val"]);
-      $res="ok";
-      break;     
-    case "deleteMasterData" :
-      if ((user_access("edit masterdata","churchresource")) && (churchcore_isAllowedMasterData(churchresource_getMasterDataTablenames(), $_GET["table"]))) {
-        churchcore_deleteMasterData($id, $_GET["table"]);
-        cr_log("f:$function id:$id",2);
-        $res=jsend()->success();
-      }
-      else $res=jsend()->error("Keine Rechte! ".(!user_access("edit masterdata","churchresource")?"Bitte edit masterdata vergeben.":"Unerlaubte Tabelle!"));
-      break;
-    case "saveMasterData" :
-      if ((user_access("edit masterdata","churchresource")) && (churchcore_isAllowedMasterData(churchresource_getMasterDataTablenames(), $_GET["table"]))) {      
-        churchcore_saveMasterData($id, $_GET["table"]);
-        cr_log("f:$function id:$id",2);
-        $res=jsend()->success();
-      } 
-      else $res=jsend()->error("Keine Rechte! ".(!user_access("edit masterdata","churchresource")?"Bitte edit masterdata vergeben.":"Unerlaubte Tabelle!"));
-      break;
-    case "getBookings":
-      $res=getBookings();
-      break;  
-    case "getLogs":
-      $res=churchresource_getLogs($_GET["id"]);
-      break;
-    case "delException":
-      if (!user_access("administer bookings","churchresource"))
-        $res=jsend()->error("Keine Berechtigung");
-      else {  
-        $res=churchresource_delException($_GET["id"]);
-      }
-      break;
-    case "delBooking":
-      if (user_access("edit masterdata","churchresource")) {      
-        $res=delBooking($_GET["id"]);
-      } else $res="no rights!";  
-      break;
-    case "createBooking":
-      $res=churchresource_createBooking($_POST);
-      break;
-    case "updateBooking":
-      $res=churchresource_updateBooking($_POST);
-      break;        
-    	
-	default: $res[]="Unknown function call: ".$function;    
+function churchresource_getMasterData() {
+  global $user;
+  $res=array();
+  include_once(drupal_get_path('module', 'churchcal') .'/churchcal_db.inc');
+  $res=churchresource_getMasterDataTables();
+  $res["masterDataTables"] = churchresource_getMasterDataTablenames();
+  $res["auth"] = churchresource_getAuthForAjax();
+  $res["status"] = churchcore_getTableData("cr_status");
+  $res["minutes"] = churchcore_getTableData("cr_minutes");
+  $res["hours"] = churchcore_getTableData("cr_hours");
+  $res["repeat"] = churchcore_getTableData("cc_repeat");
+  $res["modulename"] = "churchresource";
+  $res["modulespath"] = churchresource_getModulesPath();
+  $res["userid"] = $user->cmsuserid; // CMS Username#
+  $res["user_pid"] = $user->id;
+  $res["user_name"] = "$user->vorname $user->name";
+  $res["settings"] =  churchresource_getUserSettings($user->id);
+  $res["lastLogId"] = churchresource_getLastLogId();	   
+  $res["churchcal_name"] =variable_get('churchcal_name');
+  $res["category"] =churchcore_getTableData("cc_calcategory", null, null, "id, color, bezeichnung");  
+  return $res;
+}
+
+function churchresource_deleteMasterData($params) {
+  if ((user_access("edit masterdata","churchresource")) && (churchcore_isAllowedMasterData(churchresource_getMasterDataTablenames(), $params["table"]))) {
+    churchcore_deleteMasterData($params["id"], $params["table"]);
+    cr_log("f:deleteMasterData id:".$params["id"],2);
   }
-  drupal_json_output($res);
+  else throw new CTNoPermission("edit masterdata", "churchresource");  
+}
+
+function churchresource_saveSetting($params) {
+  global $user;
+  churchcore_saveUserSetting("churchresource", $user->id, $params["sub"], $params["val"]);
+}
+
+function churchresource_saveMasterData($params) {
+  if ((user_access("edit masterdata","churchresource")) && (churchcore_isAllowedMasterData(churchresource_getMasterDataTablenames(), $params["table"]))) {      
+    churchcore_saveMasterData($params["id"], $params["table"]);
+    cr_log("f:saveMasterData id:".$params["id"],2);
+  } 
+  else throw new CTNoPermission("edit masterdata","churchresource");  
+}
+
+function churchresource_getBookings($params) {
+  return getBookings();
+}
+
+function churchresource_ajax() {
+  $ajax = new CTAjaxHandler("churchresource");
+  $ajax->addFunction("getMasterData", "view"); 
+  $ajax->addFunction("pollForNews", "view"); 
+  $ajax->addFunction("saveSetting", "view"); 
+  $ajax->addFunction("deleteMasterData", "edit masterdata"); 
+  $ajax->addFunction("saveMasterData", "edit masterdata"); 
+  $ajax->addFunction("getBookings", "view"); 
+  $ajax->addFunction("getLogs", "view"); 
+  $ajax->addFunction("delException", "administer bookings"); 
+  $ajax->addFunction("delBooking", "edit masterdata"); 
+  $ajax->addFunction("createBooking", "view"); 
+  $ajax->addFunction("updateBooking", "view"); 
+
+  drupal_json_output($ajax->call());  
 }
 
