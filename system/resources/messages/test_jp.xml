@@ -4,5 +4,4 @@
   <comment>Test messages</comment>
   <entry key="hello.world">こんにちは、世界。</entry>
   <entry key="how.are.you">どのようにあなたは、{0}さん？</entry>
-  <entry key="not.translated">This message is only in English</entry>
 </properties>
