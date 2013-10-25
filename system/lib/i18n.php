@@ -113,10 +113,11 @@ class TextBundle {
     }
 }
 
-
 /**
  * Example usage
  */
+
+/*
 $bundle = new TextBundle("system/resources/messages");
 
 // English
@@ -147,5 +148,5 @@ echo "\n";
 echo "Not recognized:\n";
 echo "\t" . $bundle->getText("gibberish") . "\n";
 echo "\n";
-
+*/
 ?>

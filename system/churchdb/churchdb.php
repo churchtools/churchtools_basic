@@ -9,11 +9,6 @@ function churchdb_getAuth() {
   return "view churchresource";
 }
 
-function churchdb_getName() {
-  global $config;
-  return $config["churchdb_name"];
-}
-
 function churchdb_getAdminModel() {
   global $config;
   

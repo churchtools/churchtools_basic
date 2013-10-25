@@ -492,33 +492,6 @@ function churchcal_getCalEvents() {
   return $ret;    
 }
 
-function churchcal_getMasterData() {
-  global $user, $base_url;
-  $ret=array();
-  $ret["modulespath"]=drupal_get_path('module', 'churchcal');
-  $ret["churchservice_name"]=variable_get("churchservice_name");
-  $ret["churchcal_name"]=variable_get("churchcal_name");
-  $ret["churchresource_name"]=variable_get("churchresource_name");
-  $ret["base_url"]=$base_url;
-  $ret["user_pid"]=$user->id;
-  if (user_access("view","churchdb")) {
-    $ret["absent_reason"]=churchcore_getTableData("cs_absent_reason");
-  }
-  if (user_access("view","churchresource")) {
-    $ret["resourcen"]=churchcore_getTableData("cr_resource");
-    $ret["resourceTypes"]=churchcore_getTableData("cr_resourcetype");
-  }
-  $ret["category"]=churchcal_getAllowedCategories(true);
-  $ret["settings"]=churchcore_getUserSettings("churchcal", $user->id);
-  $ret["repeat"]=churchcore_getTableData("cc_repeat");
-  if (count($ret["settings"])==0) {
-    $arr["checkboxEvents"]="true";
-    $ret["settings"]=$arr;
-  }
-  $ret["auth"]=churchcal_getAuthForAjax();  
-  return $ret;
-}
-
 function churchcal_getAllowedGroups() {
   include_once(drupal_get_path('module', 'churchdb').'/churchdb_db.inc');
   return churchdb_getAllowedGroups();
@@ -536,12 +509,31 @@ function churchcal_moveCSEvent() {
 
 
 class CTChurchCalModule extends CTAbstractModule {
-  public function getMasterDataTablenames() {
-    // No stammdatenpflege in ChurchCal
-    return null;
-  }
   public function getMasterData() {
-    return churchcal_getMasterData();
+    global $user, $base_url;
+    $ret=array();
+    $ret["modulespath"]=drupal_get_path('module', 'churchcal');
+    $ret["churchservice_name"]=variable_get("churchservice_name");
+    $ret["churchcal_name"]=variable_get("churchcal_name");
+    $ret["churchresource_name"]=variable_get("churchresource_name");
+    $ret["base_url"]=$base_url;
+    $ret["user_pid"]=$user->id;
+    if (user_access("view","churchdb")) {
+      $ret["absent_reason"]=churchcore_getTableData("cs_absent_reason");
+    }
+    if (user_access("view","churchresource")) {
+      $ret["resourcen"]=churchcore_getTableData("cr_resource");
+      $ret["resourceTypes"]=churchcore_getTableData("cr_resourcetype");
+    }
+    $ret["category"]=churchcal_getAllowedCategories(true);
+    $ret["settings"]=churchcore_getUserSettings("churchcal", $user->id);
+    $ret["repeat"]=churchcore_getTableData("cc_repeat");
+    if (count($ret["settings"])==0) {
+      $arr["checkboxEvents"]="true";
+      $ret["settings"]=$arr;
+    }
+    $ret["auth"]=churchcal_getAuthForAjax();  
+    return $ret;
   } 
 }
 
@@ -556,7 +548,6 @@ function churchcal__ajax() {
   $ajax->addFunction("getAbsents", "view");
   $ajax->addFunction("getMyServices", "view", "churchservice");
   $ajax->addFunction("getBirthdays", "view", "churchservice"); 
-  $ajax->addFunction("getMasterData", "view"); 
   $ajax->addFunction("deleteCategory", "view"); 
   $ajax->addFunction("updateEvent", "view"); 
   $ajax->addFunction("createEvent", "view"); 

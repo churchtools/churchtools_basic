@@ -41,94 +41,96 @@ function auth_main() {
   return $content;
 }
 
-function churchauth_getMasterData($params) {
-  global $config;
-  
-  $res=array();
-  $res["auth_table"]=churchcore_getTableData("cc_auth");
-  
-  foreach($res["auth_table"] as $auth) {
-    if (($auth->datenfeld!=null) && (!isset($res[$auth->datenfeld])))
-      $res[$auth->datenfeld]=churchcore_getTableData($auth->datenfeld);    
-  }
-  
-  $res["person"]=churchcore_getTableData("cdb_person", "name, vorname", null, "id, concat(name, ', ', vorname) as bezeichnung");
-  $res["person"][-1]=new stdClass(); $res["person"][-1]->id=-1;  $res["person"][-1]->bezeichnung="- &Ouml;ffentlicher Benutzer -";
-  $res["gruppe"]=churchcore_getTableData("cdb_gruppe", null, null, "id, bezeichnung");
-  $res["status"]=churchcore_getTableData("cdb_status");
-  $res["category"]=churchcore_getTableData("cc_calcategory", null, null, "id, bezeichnung, privat_yn, oeffentlich_yn");
-  
-  $res["admins"]=$config["admin_ids"];
-  
-  $auths=churchcore_getTableData("cc_domain_auth");
-  if ($auths!=false)
-  foreach ($auths as $auth) {
-    $domaintype=array();
-    // Initalisiere $res[domain_tye]
-    if (isset($res[$auth->domain_type]))
-      $domaintype=$res[$auth->domain_type];
-      
-      
-    $elem=new stdClass();  
-    if (isset($domaintype[$auth->domain_id]))
-      $elem=$domaintype[$auth->domain_id];
-    else {
-      $elem->id=$auth->domain_id;
-      if (isset($db[$auth->domain_type][$auth->domain_id]))
-        $elem->bezeichnung=$db[$auth->domain_type][$auth->domain_id]->bezeichnung;
-      else $elem->bezeichnung="Nicht vorhanden!";  
-    }
-    
-    if ($auth->daten_id==null)
-      $elem->auth[$auth->auth_id]=$auth->auth_id;
-    else {
-      if (!isset($elem->auth[$auth->auth_id]))
-        $elem->auth[$auth->auth_id]=array();
-      $elem->auth[$auth->auth_id][$auth->daten_id]=$auth->daten_id;
-    }  
-    
-    
-    $domaintype[$auth->domain_id]=$elem;
-    $res[$auth->domain_type]=$domaintype;
-  }  
-  foreach (churchcore_getModulesSorted() as $name) {
-    if (isset($config[$name."_name"]))
-      $res["names"][$name]=$config[$name."_name"];
-  }
-  return $res;
-}
-
-function churchauth_saveAuth($params) {
-  db_query("delete from {cc_domain_auth} where domain_type=:domain_type and domain_id=:domain_id", 
-      array(":domain_type"=>$params["domain_type"], ":domain_id"=>$params["domain_id"]));
-  if (isset($params["data"])) {    
-    foreach ($params["data"] as $data) {
-      if (isset($data["daten_id"]))
-        db_query("insert into {cc_domain_auth} (domain_type, domain_id, auth_id, daten_id)
-             values (:domain_type, :domain_id, :auth_id, :daten_id)", 
-            array(":domain_type"=>$params["domain_type"], ":domain_id"=>$params["domain_id"], 
-                ":auth_id"=>$data["auth_id"], ":daten_id"=>$data["daten_id"]));
-      else      
-        db_query("insert into {cc_domain_auth} (domain_type, domain_id, auth_id)
-             values (:domain_type, :domain_id, :auth_id)", 
-            array(":domain_type"=>$params["domain_type"], ":domain_id"=>$params["domain_id"], 
-                ":auth_id"=>$data["auth_id"]));
-    }
-  }    
-}
-
-function churchauth_saveSetting($params) {
-  global $user;  
-  churchcore_saveUserSetting("churchauth", $user->id, $_GET["sub"], $_GET["val"]);
-}
-
 function auth__ajax() {
-  $ajax = new CTAjaxHandler("churchauth");
-  $ajax->addFunction("getMasterData", "administer persons", "churchcore");
-  $ajax->addFunction("saveAuth", "administer persons", "churchcore");
-  $ajax->addFunction("saveSetting", "administer persons", "churchcore");
+  $module = new CTChurchAuthModule("churchauth");
+  $ajax = new CTAjaxHandler($module);
+  $ajax->addModuleHandler("saveAuth", "administer persons", "churchcore");
   
   drupal_json_output($ajax->call());  
 }
+
+
+
+
+class CTChurchAuthModule extends CTAbstractModule {
+
+  public function saveAuth($params) {
+    db_query("delete from {cc_domain_auth} where domain_type=:domain_type and domain_id=:domain_id", 
+        array(":domain_type"=>$params["domain_type"], ":domain_id"=>$params["domain_id"]));
+    if (isset($params["data"])) {    
+      foreach ($params["data"] as $data) {
+        if (isset($data["daten_id"]))
+          db_query("insert into {cc_domain_auth} (domain_type, domain_id, auth_id, daten_id)
+               values (:domain_type, :domain_id, :auth_id, :daten_id)", 
+              array(":domain_type"=>$params["domain_type"], ":domain_id"=>$params["domain_id"], 
+                  ":auth_id"=>$data["auth_id"], ":daten_id"=>$data["daten_id"]));
+        else      
+          db_query("insert into {cc_domain_auth} (domain_type, domain_id, auth_id)
+               values (:domain_type, :domain_id, :auth_id)", 
+              array(":domain_type"=>$params["domain_type"], ":domain_id"=>$params["domain_id"], 
+                  ":auth_id"=>$data["auth_id"]));
+      }
+    }    
+  }
+
+  
+  public function getMasterData() {
+      global $config;
+  
+    $res=array();
+    $res["auth_table"]=churchcore_getTableData("cc_auth");
+    
+    foreach($res["auth_table"] as $auth) {
+      if (($auth->datenfeld!=null) && (!isset($res[$auth->datenfeld])))
+        $res[$auth->datenfeld]=churchcore_getTableData($auth->datenfeld);    
+    }
+    
+    $res["person"]=churchcore_getTableData("cdb_person", "name, vorname", null, "id, concat(name, ', ', vorname) as bezeichnung");
+    $res["person"][-1]=new stdClass(); $res["person"][-1]->id=-1;  $res["person"][-1]->bezeichnung="- &Ouml;ffentlicher Benutzer -";
+    $res["gruppe"]=churchcore_getTableData("cdb_gruppe", null, null, "id, bezeichnung");
+    $res["status"]=churchcore_getTableData("cdb_status");
+    $res["category"]=churchcore_getTableData("cc_calcategory", null, null, "id, bezeichnung, privat_yn, oeffentlich_yn");
+    
+    $res["admins"]=$config["admin_ids"];
+    
+    $auths=churchcore_getTableData("cc_domain_auth");
+    if ($auths!=false)
+    foreach ($auths as $auth) {
+      $domaintype=array();
+      // Initalisiere $res[domain_tye]
+      if (isset($res[$auth->domain_type]))
+        $domaintype=$res[$auth->domain_type];
+        
+        
+      $elem=new stdClass();  
+      if (isset($domaintype[$auth->domain_id]))
+        $elem=$domaintype[$auth->domain_id];
+      else {
+        $elem->id=$auth->domain_id;
+        if (isset($db[$auth->domain_type][$auth->domain_id]))
+          $elem->bezeichnung=$db[$auth->domain_type][$auth->domain_id]->bezeichnung;
+        else $elem->bezeichnung="Nicht vorhanden!";  
+      }
+      
+      if ($auth->daten_id==null)
+        $elem->auth[$auth->auth_id]=$auth->auth_id;
+      else {
+        if (!isset($elem->auth[$auth->auth_id]))
+          $elem->auth[$auth->auth_id]=array();
+        $elem->auth[$auth->auth_id][$auth->daten_id]=$auth->daten_id;
+      }  
+      
+      
+      $domaintype[$auth->domain_id]=$elem;
+      $res[$auth->domain_type]=$domaintype;
+    }  
+    foreach (churchcore_getModulesSorted() as $name) {
+      if (isset($config[$name."_name"]))
+        $res["names"][$name]=$config[$name."_name"];
+    }
+    return $res;
+  }  
+}
+
 
 ?>

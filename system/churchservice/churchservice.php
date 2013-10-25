@@ -79,11 +79,6 @@ function churchservice_getAuth() {
   return "view churchservice";
 }
 
-function churchservice_getName() {
-  global $config;
-  return $config["churchservice_name"];
-}
-
 function churchservice_main() {
   drupal_add_css('system/assets/fileuploader/fileuploader.css'); 
   
@@ -114,7 +109,7 @@ function churchservice_main() {
   drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_main.js'); 
 
   $content="";
-  // √úbergabe der ID f√ºr den Direkteinstieg einer Person
+  // Übergabe der ID für den Direkteinstieg einer Person
   if (isset($_GET["id"]) && ($_GET["id"]!=null))
     $content=$content."<input type=\"hidden\" id=\"externevent_id\" value=\"".$_GET["id"]."\"/>";
   if (isset($_GET["service_id"]) && ($_GET["service_id"]!=null))

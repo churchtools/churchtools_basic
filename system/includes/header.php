@@ -77,7 +77,7 @@
               <div class="btn-group pull-right">
                 <?php if (isset($_SESSION["simulate"])) {?>
                   <a class="btn" href="?q=simulate&link=<?php echo $q?>">
-                    Simulation beenden
+                    <?php echo t('exit.simulation')?>
                   </a>
                   <?php } ?>   
                 <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
@@ -87,7 +87,7 @@
                 <ul class="dropdown-menu">
                   <?php //Andere Familienmitglieder mit der gleichen E-Mail-Adresse
                    if (isset($_SESSION["family"])) {
-                     echo('<caption>Wechseln zu...</caption>');
+                     echo('<caption>'.t('change.to').'</caption>');
                      foreach ($_SESSION["family"] as $family) {
                         echo('<li><a href="?q=login&family_id='.$family->id.'">'.$family->vorname.' '.$family->name.'</a></li>');                        
                       }                       
@@ -96,34 +96,34 @@
                   ?>
                   <li><a href="?q=profile">
                   <?php 
-                    if (isset($user->password)) echo "Passwort &auml;ndern";
-                    else echo "Passwort setzen"; 
+                    if (isset($user->password)) echo t("change.password");
+                    else echo t("set.password"); 
                   ?></a></li>
-                  <?php if ((user_access("view", "churchdb")) && (isset($user)) && ($user->email!='')) { ?>
-                    <li><a href="?q=churchdb/mailviewer">Gesendete Nachrichten</a></li>
-                  <?php } ?>  
+                  <?php if ((user_access("view", "churchdb")) && (isset($user)) && ($user->email!='')) { 
+                    echo '<li><a href="?q=churchdb/mailviewer">'.t('sent.messages').'</a></li>';
+                  } ?>  
                   <li class="divider"></li>
                   <?php 
                   
                     if (user_access("administer settings", "churchcore")) {
-                      echo '<li><a href="?q=admin">Admin-Einstellungen</a></li>';                      
+                      echo '<li><a href="?q=admin">'.t('admin.settings').'</a></li>';                      
                     }                  
                     if (user_access("administer persons", "churchcore")) {
-                      echo '<li><a href="?q=auth">Rechteverwaltung</a></li>';
+                      echo '<li><a href="?q=auth">'.t('admin.permissions').'</a></li>';
                     } 
                     if (user_access("administer settings", "churchcore")) {
-                      echo '<li><a href="?q=cron&manual=true">Cron-Job ausf&uuml;hren</a></li>';
+                      echo '<li><a href="?q=cron&manual=true">'.t('start.cronjob').'</a></li>';
                     }                  
                     if (user_access("view logfile", "churchcore")) {
-                      echo '<li><a href="?q=churchcore/logviewer">Log-Viewer</a></li>';
+                      echo '<li><a href="?q=churchcore/logviewer">'.t('logviewer').'</a></li>';
                     }
                     if (user_access("administer settings", "churchcore")) {
                       echo '<li class="divider"></li>';
                     }                  
                     ?>   
-                  <li><a href="?q=about">&Uuml;ber ChurchTools 2.0</a></li>
+                  <li><a href="?q=about"><?php echo t('about.churchtools'); ?></a></li>
                   <li class="divider"></li>
-                  <li><a href="?q=logout">Abmelden</a></li>
+                  <li><a href="?q=logout"><?php echo t('logout');?></a></li>
                 </ul>
               </div>
              <div class="pull-right">
@@ -160,7 +160,8 @@
   <?php 
     } else     
     echo '<div>';
-  ?>   
-
-   <?php if ((isset($config["site_offline"]) && ($config["site_offline"]==1))) {   echo '<div class="alert alert-info">Achtung, der Offline-Modus ist aktiv!</div>';} ?>
+    if ((isset($config["site_offline"]) && ($config["site_offline"]==1))) {   
+      echo '<div class="alert alert-info">'.t("offline.mode.is.active").'</div>';
+    } 
+    ?>
     

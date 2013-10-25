@@ -13,12 +13,12 @@ function login_main() {
     if (isset($config["login_message"]))
       addInfoMessage($config["login_message"], true);
     $model = new CC_Model("LoginForm", "prooveLogin", "Login");
-    $model->setHeader("Anmeldung", "Bitte folgende Felder ausf&uuml;llen:");    
-    $model->addField("email","", "INPUT_REQUIRED","EMail-Adresse oder Benutzername");
-    $model->addField("password","", "PASSWORD","Passwort");
+    $model->setHeader(t("login.headline"), t("please.fill.following.fields"));    
+    $model->addField("email","", "INPUT_REQUIRED",t("email.or.username"));
+    $model->addField("password","", "PASSWORD",t("password"));
     if ((!isset($config["show_remember_me"])) || ($config["show_remember_me"]==1)) 
-      $model->addField("rememberMe","", "CHECKBOX","Zuk&uuml;nftig an mich erinnern");
-    $model->addButton("Anmelden","ok");
+      $model->addField("rememberMe","", "CHECKBOX",t("remember.me"));
+    $model->addButton(t("login"),"ok");
     
     if (isset($_GET["newpwd"])) {
       $res=db_query("select count(*) c from {cdb_person} where email='".$_GET["email"]."' and archiv_yn=0")->fetch();
@@ -79,7 +79,7 @@ function login_main() {
     
     $txt.=$model->render();
     $txt.='<script>jQuery("#newpwd").click(function(k,a) {
-         if (confirm("Wirklich neues Passwort zusenden?")) {
+         if (confirm("'.t('want.to.receive.new.password').'")) {
            window.location.href="?newpwd=true&email="+jQuery("#LoginForm_email").val()+"&q='.$q.'";
             }
           });</script>';
@@ -136,7 +136,7 @@ function prooveLogin($form) {
   }   
      
   if ($wrong_email) {
-    $form->fields["email"]->setError('Die EMail-Adresse oder Benutzername ist nicht bekannt!');
+    $form->fields["email"]->setError(t('email.or.username.unknown'));
     ct_log("Login vergeblich: Unbekannte E-Mail-Adresse ".$form->fields["email"]->getValue(),2,"-1", "login");
     return false;                    
   }
@@ -152,7 +152,7 @@ function prooveLogin($form) {
   }
   // Kein Passwort stimmte
   else {
-    $form->fields["password"]->setError('Das Passwort ist nicht korrekt. <a href="#" id="newpwd">Neues Passwort anfordern?</a>');
+    $form->fields["password"]->setError('<a href="#" id="newpwd">'.t('forgot.password').'</a>');
     ct_log("Login vergeblich: ".$form->fields["email"]->getValue()." mit falschem Passwort",2,"-1", "login");
     return false;                
   }

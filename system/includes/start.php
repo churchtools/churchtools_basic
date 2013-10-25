@@ -12,6 +12,7 @@ $add_header="";
 $q="";
 $config=array();
 $mapping=array();
+$i18n=null;
 $content="";
 $embedded=false;
 $user=null;
@@ -161,44 +162,53 @@ function getBaseUrl() {
 }
 
 function churchtools_main() {
-  global $q, $q_orig, $add_header, $config, $mapping, $content, $base_url, $files_dir, $user, $embedded;
+  global $q, $q_orig, $add_header, $config, $mapping, $content, $base_url, $files_dir, $user, $embedded, $i18n;
   
   $base_url=getBaseUrl();
   
   include("system/churchcore/churchcore_db.inc");
+  include("system/lib/i18n.php");
   
   $config = loadConfig();
   
   if ($config!=null) {  
-    // Session Init
-    if (!file_exists($files_dir."/tmp")) 
-      @mkdir($files_dir."/tmp",0775,true);  
-    if (!file_exists($files_dir."/tmp")) {
-      // Admin should act accordingly, default suggestion is 0755.
-      addErrorMessage("Permission denied write to the directory $files_dir");
-    }
-    session_name("ChurchTools_".$config["db_name"]);
-    session_start();    
-    register_shutdown_function('handleShutdown');
-    
-    if (isset($_GET["q"])) {
-      $q=$_GET["q"];  
-    }
-    if ($q=="")
-      $q="home";
-    
-    $q_orig=$q;    
-    
-    if ((isset($_GET["embedded"]) && ($_GET["embedded"]==true))) $embedded=true;
-  
-    $mapping = loadMapping(); 
     if (db_connect()) { 
       loadDBConfig();
+      
+      // Load i18n churchcore-bundle 
+      if (!isset($config["language"])) {
+        $config["language"]=substr($_SERVER['HTTP_ACCEPT_LANGUAGE'],0,2);
+      }
+      $i18n = new TextBundle("system/resources/messages");
+      $i18n->load("churchcore", ($config["language"]!=null ? $config["language"] : null));
+      
+      // Session Init
+      if (!file_exists($files_dir."/tmp")) 
+        @mkdir($files_dir."/tmp",0775,true);  
+      if (!file_exists($files_dir."/tmp")) {
+        // Admin should act accordingly, default suggestion is 0755.
+        addErrorMessage(t("permission.denied.write.dir", $files_dir));
+      }
+      session_name("ChurchTools_".$config["db_name"]);
+      session_start();    
+      register_shutdown_function('handleShutdown');
+      
+      if (isset($_GET["q"])) {
+        $q=$_GET["q"];  
+      }
+      if ($q=="")
+        $q="home";
+      
+      $q_orig=$q;    
+      
+      if ((isset($_GET["embedded"]) && ($_GET["embedded"]==true))) $embedded=true;
+    
+      $mapping = loadMapping(); 
       
       // PrŸfe auf Offline-Modus !
       if ((isset($config["site_offline"]) && ($config["site_offline"]==1))) {
         if ((!isset($_SESSION["user"]) || (!in_array($_SESSION["user"]->id, $config["admin_ids"])))) {
-          echo "Diese Seite wird gerade gewartet. Bitte versuche es sp&auml;ter noch einmal.";
+          echo t("site.is.down");
           return false;
         }
       }
@@ -239,7 +249,7 @@ function pleaseAcceptDatasecurity() {
   if (isset($_GET["acceptsecurity"])) {
     db_query("update {cdb_person} set acceptedsecurity=current_date() where id=$user->id");
     $user->acceptedsecurity=new DateTime();
-    addInfoMessage("Danke f&uuml;r das Akzeptieren der Datenschutzbestimmungen!");
+    addInfoMessage(t("datasecurity.accept.thanks"));
     return processRequest($q);
   }
     
@@ -249,7 +259,7 @@ function pleaseAcceptDatasecurity() {
   $text=str_replace("[Spitzname]",($user->spitzname==""?$user->vorname:$spitzname),$text);
   
   $text='<div class="container-fluid"><div class="well">'.$text;
-  $text.='<a href="?q='.$q.'&acceptsecurity=true" class="btn btn-important"> Datenschutzbestimmungen akzeptieren</a>';
+  $text.='<a href="?q='.$q.'&acceptsecurity=true" class="btn btn-important">'.t("datasecurity.accept").'</a>';
   $text.='</div></div>';
   return $text;
 }
@@ -281,9 +291,9 @@ function processRequest($_q) {
       }
       else {
         $name=$_q;
-        if (function_exists($_q."_getName"))
-          $name=call_user_func($_q."_getName");
-        addInfoMessage("Keine Berechtigung f&uuml;r ".$name);
+        if (isset($config[$key."_name"])) 
+          $name=$config[$key."_name"];
+        addInfoMessage(t("no.permission.for", $name));
         return "";
       }
     }
@@ -292,7 +302,7 @@ function processRequest($_q) {
       die();
   }
   else 
-    addErrorMessage($_q." nicht gefunden in churchtools.mapping!");
+    addErrorMessage(t("mapping.not.found", $_q));
   return $content;
 }
 

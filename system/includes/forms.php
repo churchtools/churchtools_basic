@@ -71,12 +71,12 @@ class CC_Field extends CC_HTMLElement {
   
   public function isValid() {
     if (($this->isRequired()) && (isset($this->value)) && ($this->value=="")) {
-      $this->error="Bitte das Feld ausf&uuml;llen!"; 
+      $this->error=t("please.complete.this.field"); 
       return false;
     }
     else if ($this->fieldType=="EMAIL") {
       if (!strpos($this->value,'@')) {
-        $this->error="Bitte eine g&uuml;ltige EMail-Adresse angeben";
+        $this->error=t("please.enter.valid.email");
         return false;                 
       }
     }
@@ -241,7 +241,7 @@ class CC_Model {
     $txt.='<div class="form">';
     $txt.='<form class="well form-vertical" id="verticalForm" action="?q='.$q_orig.'" method="post">';
     if ($this->help_url!=null) {
-      $txt.='<label class="ct_help_label"><a title="Hilfe aufrufen" href="http://intern.churchtools.de?q=help&doc='.$this->help_url.'" target="_clean">';
+      $txt.='<label class="ct_help_label"><a title="'.t("getting.help").'" href="http://intern.churchtools.de?q=help&doc='.$this->help_url.'" target="_clean">';
       $txt.='<i class="icon-question-sign"></i></a>';
       $txt.='</label>';
     }
@@ -261,7 +261,7 @@ class CC_Model {
     $txt.='</form>';
     
     if ($one_required)
-      $txt.='<p class="note">Felder mit <span class="required">*</span> m&uuml;ssen ausgef&uuml;llt werden.</p>';
+      $txt.='<p class="note">'.t("fields.with.asterisk.has.to.be.filled").'</p>';
     
     
     

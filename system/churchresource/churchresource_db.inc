@@ -334,19 +334,6 @@ function churchresource_getLastLogId() {
   return $arr->id;  
 }
 
-function churchresource_pollForNews($params) {
-  global $user;
-  $last_id=$params["last_id"];
-  $res=db_query("select * from {cr_log} where id > $last_id and person_id!='".$user->id."'");
-  $arrs=Array();
-  foreach ($res as $arr) {
-    $arrs[$arr->id]=$arr;   
-  }
-  $arr=Array();
-  $arr["lastLogId"]=churchresource_getLastLogId();
-  $arr["logs"]=$arrs;  
-  return $arr;
-}
 
 function addException($booking_id, $date_start, $date_end, $pid) {
   $dt=new DateTime();  
@@ -433,17 +420,6 @@ function churchresource_delBooking($params) {
   $res=db_query("DELETE FROM {cr_addition} where booking_id=".$id); 
   $res=db_query("DELETE FROM {cr_booking} where id=".$id);
   return "ok"; 
-}
-
-function churchresource_getLogs($params) {
-  $id=$params["id"];
-  $res=db_query("SELECT l.*, concat(p.vorname,' ',p.name) as person_name from {cr_log} l, {cdb_person} p 
-             where l.person_id=p.id and booking_id=".$id." order by datum desc");
-  $ret=null; 
-  foreach ($res as $arr) {
-    $ret[]=$arr;
-  }
-  return $ret; 	 
 }
 
 /**

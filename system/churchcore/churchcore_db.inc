@@ -46,13 +46,9 @@ interface CTModuleInterface {
    */
   public function getSettings();  
   
-  
-  /*
-   * UP FROM HERE EVER MODULE HAS TO IMPLEMENT THIS STUFF
-   */
-  
   /**
-   * Return an array with churchcore_getMasterDataEntry() entries, for all MasterData tables.
+   * Return an array with churchcore_getMasterDataEntry() entries, for all MasterData tables. 
+   * Or null if there is no table needed.
    */
   public function getMasterDataTablenames();    
 }
@@ -62,16 +58,20 @@ interface CTModuleInterface {
 
 abstract class CTAbstractModule implements CTModuleInterface {
   private $modulename="abstract";
+
   public function __construct($modulename) {
     if ($modulename==null) die("No Modulename given in new CTModule()");
     $this->modulename=$modulename;
   }
+  
   public function getModuleName() {
     return $this->modulename;
   } 
+  
   public function getModulePath() {
     return drupal_get_path('module', $this->modulename);
   }
+  
   public function deleteMasterData($params) {
     if ((user_access("edit masterdata","churchresource")) && (churchcore_isAllowedMasterData($this->getMasterDataTablenames(), $params["table"]))) {
       churchcore_deleteMasterData($params["id"], $params["table"]);
@@ -79,6 +79,7 @@ abstract class CTAbstractModule implements CTModuleInterface {
     }
     else throw new CTNoPermission("edit masterdata", $this->modulename);  
   }
+  
   public function saveMasterData($params) {
     if ((user_access("edit masterdata","churchresource")) && (churchcore_isAllowedMasterData($this->getMasterDataTablenames(), $params["table"]))) {      
       churchcore_saveMasterData($params["id"], $params["table"]);
@@ -91,10 +92,12 @@ abstract class CTAbstractModule implements CTModuleInterface {
     global $user;
     churchcore_saveUserSetting($this->modulename, $user->id, $params["sub"], $params["val"]);
   }
+  
   public function getSettings() {
     global $user;
     return churchcore_getUserSettings($this->modulename,$user->id); 
   }  
+  
   protected function getMasterDataTables() {
     $tables=$this->getMasterDataTablenames();
     foreach ($tables as $value) {
@@ -102,6 +105,10 @@ abstract class CTAbstractModule implements CTModuleInterface {
     }
     return $res;
   }  
+  
+  public function getMasterDataTablenames() {
+    return null;
+  }
 }
 
 
@@ -159,10 +166,22 @@ class CTAjaxHandler {
   public function __construct($module) {
     $this->module=$module;
     $this->modulename=$module->getModuleName();
+    $this->addModuleHandler("getMasterData");
+    $this->addModuleHandler("deleteMasterData");
+    $this->addModuleHandler("saveMasterData");
+    $this->addModuleHandler("saveSetting");
   }
   
   function getFunctionName($func_name) {
     return $this->modulename."_".$func_name;
+  }
+  
+  /*
+   * Function from the module given by the constructor
+   */
+  function addModuleHandler($func_name, $auth_rights=null, $auth_module_name=null) {
+    if ($auth_module_name==null) $auth_module_name=$this->modulename;
+    $this->funcs[$func_name]=array("name"=>$func_name, "auth"=>$auth_rights, "module"=>$auth_module_name, "handler"=>true);
   }
   
   /*
@@ -183,34 +202,27 @@ class CTAjaxHandler {
     if (!isset($params["func"])) 
       return jsend()->error("Parameter func nicht definiert!");
             
-    if ($params["func"]=="getMasterData")
-      return jsend()->success($this->module->getMasterData());
-    else if ($params["func"]=="deleteMasterData")
-      return jsend()->success($this->module->deleteMasterData($params));
-    else if ($params["func"]=="saveMasterData")
-      return jsend()->success($this->module->saveMasterData($params));
-    else if ($params["func"]=="saveSetting")
-      return jsend()->success($this->module->saveSetting($params));
-      
-    if (!isset($this->funcs[$params["func"]])) 
-      return jsend()->error("Func ".$params["func"]." wurde nicht als Function definiert!");
-      
-    $func=$this->funcs[$params["func"]];
     try {
+      if (!isset($this->funcs[$params["func"]])) 
+        return jsend()->error("Func ".$params["func"]." wurde nicht als Module-Handler oder Function definiert!");
+      $func=$this->funcs[$params["func"]];
       if (($func["auth"]!=null) && (!user_access($func["auth"], $func["module"])))
         throw new CTNoPermission($func["auth"], $func["module"]);
         
-      return jsend()->success(call_user_func($this->getFunctionName($func["name"]), $params));      
+      if (isset($func["handler"]))
+        return jsend()->success($this->module->$func["name"]($params));
+      else                      
+        return jsend()->success(call_user_func($this->getFunctionName($func["name"]), $params));      
     } 
     // Kein schlimmer Fehler, soll in der Anwendung behandelt werden. Z.B. Datensatz schon vorhanden
     catch (CTFail $e) {
       return jsend()->fail($e);
     }
-    // Keine Rechte
+    // No Permissions
     catch (CTNoPermission $e) {
       return jsend()->fail($e);
     }
-    // Heftiger Fehler, sofortiger Abbruch
+    // Fatal error, immediate stop the application
     catch (Exception $e) {
       return jsend()->error($e);
     }    
@@ -340,6 +352,10 @@ function addInfoMessage($msg, $hide=false) {
   $content.='<div class="alert alert-info '.($hide?"hide_automatically":"").'">'.$msg.'</div>';  
 }
 
+function t($txt, $p1=null) {
+  global $i18n;
+  return $i18n->getText($txt, $p1);
+}
 
 function language_default() {
   return null;

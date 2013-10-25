@@ -1,24 +1,5 @@
 <?php
 
-
-function churchresource_getAuth() {
-  return "view churchresource";
-}
-
-function churchresource_getName() {
-  global $config;
-  return $config["churchresource_name"];
-}
-
-function churchresource_getAdminModel() {
-  global $config;
-  
-  $model = new CC_ModulModel("churchresource");      
-  $model->addField("churchresource_entries_last_days","", "INPUT_REQUIRED","Wieviel Tage zur&uuml;ck in ChurchResource-Daten geladen werden");
-  $model->fields["churchresource_entries_last_days"]->setValue($config["churchresource_entries_last_days"]);  
-  return $model;
-}
-  
   
 function churchresource_main() {
   drupal_add_js('system/assets/js/jquery.history.js'); 
@@ -54,6 +35,33 @@ function churchresource_main() {
   </div>
 </div>";
   return $content;
+}  
+
+function churchresource__ajax() {
+  include_once("churchresource_db.inc");
+  
+  $module=new CTChurchResourceModule("churchresource");
+
+  $ajax = new CTAjaxHandler($module);
+  $ajax->addModuleHandler("getBookings", "view");
+  $ajax->addModuleHandler("pollForNews", "view"); 
+  $ajax->addModuleHandler("getLogs", "view"); 
+  
+  $ajax->addFunction("delException", "administer bookings"); 
+  $ajax->addFunction("delBooking", "edit masterdata"); 
+  $ajax->addFunction("createBooking", "view"); 
+  $ajax->addFunction("updateBooking", "view"); 
+  
+  drupal_json_output($ajax->call());  
+}
+
+function churchresource_getAdminModel() {
+  global $config;
+  
+  $model = new CC_ModulModel("churchresource");      
+  $model->addField("churchresource_entries_last_days","", "INPUT_REQUIRED","Wieviel Tage zur&uuml;ck in ChurchResource-Daten geladen werden");
+  $model->fields["churchresource_entries_last_days"]->setValue($config["churchresource_entries_last_days"]);  
+  return $model;
 }  
 
 function churchresource_getOpenBookings() {
@@ -208,24 +216,11 @@ function churchresource_getAuthForAjax() {
 }
 
 
-function churchresource_mail($key, &$message, $params) {
-  $language = $message['language'];
-  
-  // WofŸr?? Bringt Drupal 7 durcheinander
-  //$variables = user_mail_tokens($params['account'], $language);
-  switch($key) {
-    case 'churchresource_notify':
-    $message['subject'] =$params["subject"];
-    $message['body'][] = $params["message"];
-    break;
-  }
-}
-
-function churchresource_getBookings($params) {
-  return getBookings();
-}
-
 class CTChurchResourceModule extends CTAbstractModule {
+  
+  public function getBookings($params) {
+    return getBookings();  
+  }
   
   public function getMasterDataTablenames() {
     $res=array();
@@ -257,23 +252,31 @@ class CTChurchResourceModule extends CTAbstractModule {
     $res["category"] =churchcore_getTableData("cc_calcategory", null, null, "id, color, bezeichnung");  
     return $res;
   } 
-}
-
-function churchresource__ajax() {
-  include_once("churchresource_db.inc");
   
-  $module=new CTChurchResourceModule("churchresource");
-
-  $ajax = new CTAjaxHandler($module);
-  $ajax->addFunction("pollForNews", "view"); 
-  $ajax->addFunction("getBookings", "view"); 
-  $ajax->addFunction("getLogs", "view"); 
-  $ajax->addFunction("delException", "administer bookings"); 
-  $ajax->addFunction("delBooking", "edit masterdata"); 
-  $ajax->addFunction("createBooking", "view"); 
-  $ajax->addFunction("updateBooking", "view"); 
+  function pollForNews($params) {
+    global $user;
+    $last_id=$params["last_id"];
+    $res=db_query("select * from {cr_log} where id > $last_id and person_id!='".$user->id."'");
+    $arrs=Array();
+    foreach ($res as $arr) {
+      $arrs[$arr->id]=$arr;   
+    }
+    $arr=Array();
+    $arr["lastLogId"]=churchresource_getLastLogId();
+    $arr["logs"]=$arrs;  
+    return $arr;
+  }  
   
-  drupal_json_output($ajax->call());  
+  function getLogs($params) {
+    $id=$params["id"];
+    $res=db_query("SELECT l.*, concat(p.vorname,' ',p.name) as person_name from {cr_log} l, {cdb_person} p 
+               where l.person_id=p.id and booking_id=".$id." order by datum desc");
+    $ret=null; 
+    foreach ($res as $arr) {
+      $ret[]=$arr;
+    }
+    return $ret; 	 
+  }
 }
 
 ?>
