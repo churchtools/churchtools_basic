@@ -4,5 +4,5 @@
   <comment>Test messages</comment>
   <entry key="hello.world">Hello, World!</entry>
   <entry key="how.are.you">How are you, {0}?</entry>
-  <entry key="not.translated">This message is only in English</entry>
+  <entry key="not.translated">This message is only in &lt;strong&gt;English&lt;/strong&gt;</entry>
 </properties>
