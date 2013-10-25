@@ -207,7 +207,7 @@ function churchcore__filedownload() {
     if (isset($mime_types[substr(strrchr($filename, '.'),1)]))
       drupal_add_http_header('Content-Type',$mime_types[substr(strrchr($filename, '.'),1)],false);
     else   
-      drupal_add_http_header('Content-Type','application/unkown',false);
+      drupal_add_http_header('Content-Type','application/unknown',false);
     if ((isset($_GET["type"])) && ($_GET["type"]=="download"))
       drupal_add_http_header('Content-Disposition','attachment;filename="'.$file->bezeichnung.'"',false);
     else  
