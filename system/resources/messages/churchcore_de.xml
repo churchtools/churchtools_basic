@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <comment>Test messages</comment>
+  <entry key="permission.denied.write.dir">Verzeichnis {0} muss beschreibbar sein!</entry>
+  <entry key="site.is.down">Diese Seite wird gerade gewartet. Bitte versuche es später noch einmal.</entry>
+  <entry key="datasecurity.accept.thanks">Danke für das Akzeptieren der Datenschutzbestimmungen!</entry>
+  <entry key="datasecurity.accept">Datenschutzbestimmungen akzeptieren</entry>
+  <entry key="no.permission.for">Keine Berechtigung für {0}</entry>
+  <entry key="mapping.not.found">{0} nicht gefunden in churchtools.mapping!</entry>
+  <entry key="fields.with.asterisk.has.to.be.filled">Felder mit * müssen ausgefüllt werden.</entry>
+  <entry key="please.complete.this.field">Bitte das Feld ausfüllen!</entry>
+  <entry key="please.enter.valid.email">Bitte eine gültige EMail-Adresse angeben!</entry>
+  <entry key="getting.help">Hilfe aufrufen</entry>
+
+  <!-- HEADER -->
+  <entry key="exit.simulation">Exit simulation mode</entry>
+  <entry key="change.password">Passwort ändern</entry>
+  <entry key="set.password">Setzte ein Passwort</entry>
+  <entry key="sent.messages">Gesendete Nachrichten</entry>  
+  <entry key="admin.settings">Admin-Einstellungen</entry>
+  <entry key="admin.permissions">Rechteverwaltung</entry>
+  <entry key="start.cronjob">Cron-Job ausführen</entry>
+  <entry key="logviewer">Log-Viewer</entry>
+  <entry key="about.churchtools">Über ChurchTools 2.0</entry>
+  <entry key="logout">Abmelden</entry>
+  <entry key="change.to">Wechseln zu...</entry>
+  <entry key="offline.mode.is.active">Achtung, Offline-Modus ist aktiv!</entry>
+  
+  <!-- ABOUT -->
+  <entry key="current.permissions">Aktuelle Berechtigungen</entry>  
+  <entry key="current.config">Aktuelle Konfiguration</entry>
+  <entry key="consistence.check">Konsistenz-Check</entry>
+  <entry key="churchtools.claim">ChurchTools bietet exzellente Software für CRM-Aufgaben im Gemeinde- und Vereinskontext.</entry>
+  <entry key="read.more">Mehr Infos</entry>
+  <entry key="logged.in.as">Angemeldet als {0}</entry>
+  <entry key="current.db.consistence.check">Aktueller Konsistenz-Check der Datenbank</entry>
+  <entry key="found.no.problem">Kein Problem gefunden</entry>
+  <entry key="found.problem.with.tables">Problem mit Tabellen {0} gefunden.</entry>
+  <entry key="detailed.report">Ausführlicher Bericht</entry>
+  
+  <!-- PROFILE -->
+  <entry key="change.password">Passwort ändern</entry>
+  <entry key="to.change.password.complete.following.fields">Zum Anpassen des Passwortes bitte die folgenden Felder ausfüllen</entry>
+  <entry key="old.password">Altes Passwort</entry>
+  <entry key="new.password">Neues Passwort</entry>
+  <entry key="repeat.new.password">Neues Passwort wiederholen</entry>
+  <entry key="welcome">Herzlich willkommen!</entry>
+  <entry key="to.login.later.set.own.password">Damit Du Dich zum späteren Zeitpunkt wieder anmelden kannst, bitte nun ein eigenes sicheres Passwort wählen und in beide Felder eintragen:</entry>
+  <entry key="password.does.not.match.the.previous">Das Passwort stimmt nicht mit dem vorigen überein!</entry>
+  <entry key="please.take.new.password">Als Passwort wurde das alte genommen. Bitte ein neues Passwort setzen!</entry>
+  <entry key="password.is.incorrect">Das Passwort stimmt nicht.</entry>
+  <entry key="password.changes.successfully">Das Passwort wurde erfolgreich geändert</entry>
+  <entry key="set.password">Passwort festlegen</entry>
+    
+  <!-- LOGIN -->
+  <entry key="login.headline">Anmeldung</entry>
+  <entry key="please.fill.following.fields">Bitte folgende Felder ausfüllen:</entry>
+  <entry key="email.or.username">EMail-Adresse oder Benutzername</entry>
+  <entry key="password">Passwort</entry>
+  <entry key="remember.me">Zukünftig an mich erinnern</entry>
+  <entry key="login">Anmelden</entry>
+  <entry key="email.or.username.unknown">Die EMail-Adresse oder Benutzername ist nicht bekannt!</entry>
+  <entry key="forgot.password">Neues Passwort anfordern?</entry>
+  <entry key="want.to.receive.new.password">Wirklich neues Passwort anfordern?</entry>
+  
+</properties>

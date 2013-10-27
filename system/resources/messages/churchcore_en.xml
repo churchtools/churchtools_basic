@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <comment>Core messages</comment>
+  <entry key="permission.denied.write.dir">Permission denied write to the directory &lt;i&gt;{0}&lt;/strong&gt;</entry>
+  <entry key="site.is.down">The site is down, please try again later.</entry>
+  <entry key="datasecurity.accept.thanks">Thank you for accapting the data security!</entry>
+  <entry key="datasecurity.accept">Accept data security</entry>
+  <entry key="no.permission.for">No permission for &lt;i&gt;{0}&lt;/i&gt;</entry>
+  <entry key="mapping.not.found">&lt;i&gt;{0}&lt;/i&gt; not found in churchtools.mapping!</entry>
+  <entry key="fields.with.asterisk.has.to.be.filled">Fields with * are required.</entry>
+  <entry key="please.complete.this.field">Please complete this field!</entry>
+  <entry key="please.enter.valid.email">Please enter a valid email address!</entry>
+  <entry key="getting.help">Getting Help</entry>
+  
+  <!-- HEADER -->
+  <entry key="exit.simulation">Exit simulation</entry>
+  <entry key="change.password">Change password</entry>
+  <entry key="set.password">Set password</entry>
+  <entry key="sent.messages">Sent messages</entry>
+  <entry key="admin.settings">Administer settings</entry>
+  <entry key="admin.permissions">Administer permissions</entry>
+  <entry key="start.cronjob">Start cronjob</entry>
+  <entry key="logviewer">Log viewer</entry>
+  <entry key="about.churchtools">About ChurchTools 2.0</entry>
+  <entry key="logout">Logout</entry>
+  <entry key="change.to">Change to...</entry>
+  <entry key="offline.mode.is.active">Caution, offline mode is active!</entry>  
+  
+  <!-- PROFILE -->
+  <entry key="change.password">Change password</entry>
+  <entry key="to.change.password.complete.following.fields">To change the password, please complete the following fields:</entry>
+  <entry key="old.password">Old password</entry>
+  <entry key="new.password">New password</entry>
+  <entry key="repeat.new.password">Please repeat new password</entry>
+  <entry key="welcome">Welcome!</entry>
+  <entry key="to.login.later.set.own.password">To login later, please set your own password now by completing the following fields:</entry>
+  <entry key="password.does.not.match.the.previous">The password does not match to the previous one!</entry>
+  <entry key="please.take.new.password">You take the old one. Please take a new password!</entry>
+  <entry key="password.is.incorrect">Password is incorrect.</entry>
+  <entry key="password.changes.successfully">Password has been changed successfully</entry>
+  <entry key="set.password">Set password</entry>
+  
+  
+    <!-- ABOUT -->
+  <entry key="current.permissions">Current permissions</entry>  
+  <entry key="current.config">Current configuration</entry>
+  <entry key="consistence.check">Consistentence check</entry>
+  <entry key="churchtools.claim">ChurchTools offers excellent Software for CRM tasks in churches and clubs.</entry>
+  <entry key="read.more">Read more</entry>
+  <entry key="logged.in.as">Logged in as {0}</entry>
+  <entry key="current.db.consistence.check">Current database consistence check</entry>
+  <entry key="found.no.problem">Found no problem</entry>
+  <entry key="found.problem.with.tables">Found problem with tables {0}.</entry>
+  <entry key="detailed.report">Detailed report</entry>
+  
+  <!-- LOGIN -->
+  <entry key="login.headline">Login</entry>
+  <entry key="please.fill.following.fields">Please fill in the following fields: </entry>
+  <entry key="email.or.username">Email or username</entry>
+  <entry key="password">Password</entry>
+  <entry key="remember.me">Remember me</entry>
+  <entry key="login">Login</entry>
+  <entry key="email.or.username.unknown">The Email or username is not known!</entry>
+  <entry key="forgot.password">Forgot password?</entry>
+  <entry key="want.to.receive.new.password">Do you really want to receive a new password?</entry>
+	  
+</properties>
