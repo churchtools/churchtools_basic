@@ -51,8 +51,8 @@ function churchdb_main() {
   //drupal_add_css(drupal_get_path('module', 'churchcore').'/churchcore_bootstrap.css');
   drupal_add_css('system/assets/fileuploader/fileuploader.css'); 
   
-  drupal_add_js(drupal_get_path('module', 'churchdb') .'/charting/jquery.flot.min.js'); 
-  drupal_add_js(drupal_get_path('module', 'churchdb') .'/charting/jquery.flot.pie.js'); 
+  drupal_add_js('system/assets/flot/jquery.flot.min.js'); 
+  drupal_add_js('system/assets/flot/jquery.flot.pie.js'); 
   drupal_add_js('system/assets/js/jquery.history.js'); 
 
   drupal_add_js('system/assets/ui/jquery.ui.slider.min.js');
@@ -114,8 +114,6 @@ function externmapview_main() {
   drupal_add_js(drupal_get_path('module', 'churchcore') .'/shortcut.js'); 
   drupal_add_css('system/assets/ui/jquery-ui-1.8.18.custom.css');
   
-  drupal_add_js(drupal_get_path('module', 'churchdb') .'/charting/jquery.flot.min.js'); 
-  drupal_add_js(drupal_get_path('module', 'churchdb') .'/charting/jquery.flot.pie.js'); 
   drupal_add_js('system/assets/js/jquery.history.js'); 
   drupal_add_js('system/assets/ui/jquery.ui.core.min.js');
   drupal_add_js('system/assets/ui/jquery.ui.position.min.js');
