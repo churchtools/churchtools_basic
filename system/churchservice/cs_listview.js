@@ -98,7 +98,7 @@ ListView.prototype.renderListMenu = function() {
   navi.addEntry(churchInterface.isCurrentView("ListView"),"alistview","Listenansicht");
   if (masterData.auth.manageabsent)
     navi.addEntry(churchInterface.isCurrentView("CalView"),"acalview","Abwesenheiten");
-  if (masterData.auth.editfacts)
+  if (masterData.auth.viewfacts)
     navi.addEntry(churchInterface.isCurrentView("FactView"),"afactview","Fakten");
   if (masterData.auth.viewsong)
     navi.addEntry(churchInterface.isCurrentView("SongView"),"asongview","Songs");

@@ -175,7 +175,7 @@ AuthView.prototype.getListHeader = function() {
 AuthView.prototype.addFurtherListCallbacks  = function() {
   var t=this;
   $("#cdb_content #simulate").click(function() {
-    window.location.href="?q=simulate&id="+$(this).parents("tr").attr("id")+"&location=home&back=auth";
+    window.location.href="?q=simulate&id="+$(this).parents("tr").attr("id")+"&location=home&back=churchauth";
   });
   $("#cdb_content .hoveractor").hover(
       function () {

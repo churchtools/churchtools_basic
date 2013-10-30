@@ -1098,6 +1098,8 @@ function updateDB_238() {
 
 function updateDB_241() {
   db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (309, 'edit template', 'churchservice', null, 'Darf Event-Templates editieren',1)");
+  db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (321, 'view facts', 'churchservice', null, 'Darf Fakten sehen',1)");
+  db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (322, 'export facts', 'churchservice', null, 'Darf Fakten exportieren',1)");
 }
 
 /*  db_query("DROP TABLE {cdb_newsletter}");

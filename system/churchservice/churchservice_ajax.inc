@@ -74,8 +74,15 @@ function churchservice_getAuthorization() {
   if (isset($auth["manage absent"])) {
     $res["manageabsent"]=true;
   }
+  if (isset($auth["view facts"])) {
+    $res["viewfacts"]=true;    
+  }
+  if (isset($auth["export facts"])) {
+    $res["exportfacts"]=true;    
+  }
   if (isset($auth["edit facts"])) {
     $res["editfacts"]=true;
+    $res["viewfacts"]=true;    
   }
   if (isset($auth["view song"])) {
     if (isset($auth["view songcategory"])) {
@@ -926,6 +933,10 @@ function churchservice_editServiceGroupPersonWeight($params) {
 
 function churchservice_saveFact($event_id, $fact_id, $value) {
   global $user;
+  
+  if (!user_access("edit facts", "churchservice"))
+    return jsend()->fail("Keine Rechte");
+  
   $dt = new datetime();
   
   if ($value=="")

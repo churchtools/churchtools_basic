@@ -36,14 +36,21 @@ function churchservice_getAdminModel() {
 }
 
 function churchservice__exportfacts() {
-  if (!user_access("edit facts","churchservice")) {
+  if (!user_access("export facts","churchservice")) {
     addInfoMessage("Keine Berechtigung zum Exportieren von Faktendaten (edit facts)");
     return " ";
   }
   drupal_add_http_header('Content-type', 'application/csv; charset=ISO-8859-1; encoding=ISO-8859-1',true);
   drupal_add_http_header('Content-Disposition', 'attachment; filename="churchservice_fact_export.csv"',true);
   
-  $events=churchcore_getTableData("cs_event", "datum");
+  $events=churchcore_getTableData("cs_event", "startdate");
+  
+  $db=db_query("select e.*, c.bezeichnung, c.category_id from {cs_event} e, {cc_cal} c where e.cc_cal_id=c.id order by e.startdate");
+  $events=array();
+  foreach ($db as $e) {
+    $events[$e->id]=$e;
+  } 
+  
   $category=churchcore_getTableData("cs_category");
   $facts=churchcore_getTableData("cs_fact", "sortkey");
   $res=db_query("select * from cs_event_fact");  
@@ -53,15 +60,16 @@ function churchservice__exportfacts() {
     $result[$d->event_id]->facts[$d->fact_id]=$d->value;    
   }
 
-  echo '"Datum";"Bezeichnung";"Kategorie";';
+  echo '"Datum";"Bezeichnung";"Notizen";"Kategorie";';
   foreach ($facts as $fact) {
     echo mb_convert_encoding('"'.$fact->bezeichnung.'";', 'ISO-8859-1', 'UTF-8');
   }
   echo "\n";
   foreach ($events as $key=>$event) {
     if (isset($result[$key])) {
-      echo "$event->datum;";
+      echo "$event->startdate;";
       echo mb_convert_encoding('"'.$event->bezeichnung.'";', 'ISO-8859-1', 'UTF-8');
+      echo mb_convert_encoding('"'.$event->special.'";', 'ISO-8859-1', 'UTF-8');
       echo mb_convert_encoding('"'.$category[$event->category_id]->bezeichnung.'";', 'ISO-8859-1', 'UTF-8');
       foreach ($facts as $fact) {
         if (isset($result[$key]->facts[$fact->id])) {
