@@ -365,7 +365,7 @@ AuthView.prototype.renderListMenu = function() {
 
 $(document).ready(function() {
   churchInterface.registerView("AuthView", authView);
-  churchInterface.setModulename("auth");
+  churchInterface.setModulename("churchauth");
   
   // Lade alle Kennzeichentabellen
   loadMasterData(function() {

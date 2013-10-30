@@ -1,0 +1,4 @@
+churchcore/uploadfile = churchcore/uploadFile.php
+churchcore/logviewer = churchcore/churchcore.php
+churchauth = churchcore/churchauth.php
+churchauth/ajax = churchcore/churchauth.php

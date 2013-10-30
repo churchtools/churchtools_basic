@@ -15,6 +15,12 @@ interface CTModuleInterface {
    */
   public function getModulePath();
   
+  
+  public function getMappings();
+  
+  public function doCron();
+  
+  
   /**
    * A complete array with relevant master data for JS-View
    */
@@ -70,6 +76,14 @@ abstract class CTAbstractModule implements CTModuleInterface {
   
   public function getModulePath() {
     return drupal_get_path('module', $this->modulename);
+  }
+  
+  public function getMappings() {
+  	return null;
+  }
+  
+  public function doCron() {
+  	return null;  	
   }
   
   public function deleteMasterData($params) {
@@ -431,14 +445,16 @@ function php_quot_print_encode($str) {
   return $ret;
 }
 
-function churchcore_getModulesSorted() {
+
+function churchcore_getModulesSorted($withCoreModule=false) {
   global $config;
 
   // Get the module names out of the file system in directory system/*
   $arr=array();
   $scandir=scandir("system");
   foreach ($scandir as $file) {
-    if ((strPos($file,'church')!==false) && ($file!="churchcore") && (is_dir("system/".$file))) {
+    if ((strPos($file,'church')!==false) && (($file!="churchcore" || $withCoreModule)) 
+        && (is_dir("system/".$file))) {
       $arr[]=$file;
     }   
   }
@@ -446,7 +462,7 @@ function churchcore_getModulesSorted() {
   $sort_arr=array();    
   $mysort=1000;
   foreach ($arr as $module) {
-    if ((isset($config[$module."_name"]) && ($config[$module."_name"]!=""))) {
+    if ((!isset($config[$module."_name"]) || ($config[$module."_name"]!=""))) {
       if ((!isset($config[$module."_sortcode"])) || isset($sort_arr[$config[$module."_sortcode"]])) {
         $mysort++;
         $sort_arr[$mysort]=$module;        
@@ -1572,7 +1588,7 @@ function getUserAuthorization($user_id) {
     $auth["help"]["view"]=true;
     $auth["cron"]["view"]=true;
     $auth["ical"]["view"]=true;
-    $auth["auth"]["view"]=true;
+    $auth["churchauth"]["view"]=true;
     if ((isset($auth["churchcore"])) && (isset($auth["churchcore"]["administer persons"])))
       $auth["simulate"]["view"]=true;
     if ((isset($auth["churchcore"])) && (isset($auth["churchcore"]["administer settings"])))

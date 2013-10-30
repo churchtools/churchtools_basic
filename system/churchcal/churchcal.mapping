@@ -1,0 +1,4 @@
+churchcal = churchcal/churchcal.php
+churchcal/ajax =  churchcal/churchcal.php
+churchcal/ical =  churchcal/churchcal.php
+

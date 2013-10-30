@@ -1,58 +1,67 @@
 <?php
 
-function auth_main() {
+$churchauth=null;
+
+function churchauth_getModule() {
+  global $churchauth;
+  if ($churchauth==null) 
+  	$churchauth=new CTChurchAuthModule("churchauth");
+  return $churchauth;
+}
+
+function churchauth__ajax() {
+  $module = new CTChurchAuthModule("churchauth");
+  $ajax = new CTAjaxHandler($module);
+  $ajax->addModuleHandler("saveAuth", "administer persons", "churchcore");
+   
+  drupal_json_output($ajax->call());
+}
+
+function churchauth_main() {
   if (!user_access("administer persons","churchcore")) {
-    addInfoMessage("Keine Berechtigung! Hierf&uuml;r ist <i>administer persons</i> notwendig.");
-    return " ";
+  		addInfoMessage("Keine Berechtigung! Hierf&uuml;r ist <i>administer persons</i> notwendig.");
+  		return " ";
   }
-  
-  drupal_add_css('system/assets/fileuploader/fileuploader.css'); 
-  
-  drupal_add_js('system/bootstrap/js/bootstrap-multiselect.js'); 
-  drupal_add_js('system/assets/fileuploader/fileuploader.js'); 
-  drupal_add_js('system/assets/js/jquery.history.js'); 
-    
+   
+  drupal_add_css('system/assets/fileuploader/fileuploader.css');
+   
+  drupal_add_js('system/bootstrap/js/bootstrap-multiselect.js');
+  drupal_add_js('system/assets/fileuploader/fileuploader.js');
+  drupal_add_js('system/assets/js/jquery.history.js');
+   
   drupal_add_css('system/assets/dynatree/ui.dynatree.css');
   drupal_add_js('system/assets/dynatree/jquery.dynatree-1.2.4.js');
-  
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/churchcore.js'); 
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/churchforms.js'); 
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_abstractview.js'); 
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_standardview.js'); 
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_maintainstandardview.js'); 
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_interface.js'); 
-  
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_authview.js'); 
-
+   
+  drupal_add_js(drupal_get_path('module', 'churchcore') .'/churchcore.js');
+  drupal_add_js(drupal_get_path('module', 'churchcore') .'/churchforms.js');
+  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_abstractview.js');
+  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_standardview.js');
+  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_maintainstandardview.js');
+  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_interface.js');
+   
+  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_authview.js');
+   
   $content="";
-
-  $content=$content." 
+   
+  $content=$content."
 <div class=\"row-fluid\">
   <div class=\"span3\">
     <div id=\"cdb_menu\"></div>
     <div id=\"cdb_filter\"></div>
-  </div>  
+  </div>
   <div class=\"span9\">
-    <div id=\"cdb_search\"></div> 
-    <div id=\"cdb_group\"></div> 
+    <div id=\"cdb_search\"></div>
+    <div id=\"cdb_group\"></div>
     <div id=\"cdb_content\"></div>
   </div>
 </div>";
   return $content;
 }
 
-function auth__ajax() {
-  $module = new CTChurchAuthModule("churchauth");
-  $ajax = new CTAjaxHandler($module);
-  $ajax->addModuleHandler("saveAuth", "administer persons", "churchcore");
-  
-  drupal_json_output($ajax->call());  
-}
+
+class CTChurchAuthModule extends CTAbstractModule {	
 
 
-
-
-class CTChurchAuthModule extends CTAbstractModule {
 
   public function saveAuth($params) {
     db_query("delete from {cc_domain_auth} where domain_type=:domain_type and domain_id=:domain_id", 

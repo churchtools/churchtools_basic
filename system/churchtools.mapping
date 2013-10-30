@@ -3,35 +3,7 @@
 churchtools_version=2.40
 
 home = main/home.php
-
-churchdb = churchdb/churchdb.php
-churchdb/ajax = churchdb/churchdb.php
-churchdb/birthdaylist = churchdb/churchdb.php
-churchdb/mailviewer = churchdb/churchdb.php
-churchdb/memberlist = churchdb/churchdb.php
-churchdb/memberlist_printview = churchdb/churchdb.php
-churchdb/memberlist_settings = churchdb/churchdb.php
-churchdb/vcard = churchdb/churchdb.php
-churchdb/export = churchdb/churchdb.php
-churchdb/uploadImage = churchdb/upload.php
-externmapview = churchdb/churchdb.php
-externmapview/ajax = churchdb/churchdb.php
-
-churchservice = churchservice/churchservice.php
-churchservice/ajax = churchservice/churchservice.php
-churchservice/uploadfile = churchservice/uploadFile.php
-churchservice/exportfacts = churchservice/churchservice.php
-churchservice/filedownload = churchservice/churchservice.php
-
-churchresource = churchresource/churchresource.php
-churchresource/ajax = churchresource/churchresource.php
-churchresource/printview = churchresource/churchresource.php
-
-churchcore/uploadfile = churchcore/uploadFile.php
-churchcore/logviewer = churchcore/churchcore.php
-auth = churchcore/churchauth.php
-auth/ajax = churchcore/churchauth.php
-
+cron = main/cron.php
 login = main/login.php
 logout = main/logout.php
 profile = main/profile.php
@@ -39,24 +11,6 @@ simulate = main/simulate.php
 admin = main/admin.php
 about = main/about.php
 about/ajax=main/about.php
-help = churchwiki/churchwiki.php
-churchwiki = churchwiki/churchwiki.php
-churchwiki/create = churchwiki/churchwiki.php
-churchwiki/ajax = churchwiki/churchwiki.php
-churchwiki/uploadfile = churchwiki/uploadFile.php
-churchwiki/printview = churchwiki/churchwiki.php
-churchwiki/filedownload = churchwiki/churchwiki.php
 
-churchcal = churchcal/churchcal.php
-churchcal/ajax =  churchcal/churchcal.php
-churchcal/ical =  churchcal/churchcal.php
-
-cron = main/cron.php
-ical = churchservice/churchservice.php
-
-page_with_noauth[] = ical
 page_with_noauth[] = cron
-page_with_noauth[] = help
-page_with_noauth[] = externmapview
-page_with_noauth[] = externmapview/ajax
 page_with_noauth[] = about

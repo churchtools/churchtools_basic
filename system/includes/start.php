@@ -101,9 +101,16 @@ function loadDBConfig() {
 }
 
 function loadMapping() {
-  return parse_ini_file("system/churchtools.mapping");
+  $mapping=parse_ini_file("system/churchtools.mapping");
+  // Load mappings from modules like system/churchdb/churchdb.mapping
+  foreach (churchcore_getModulesSorted(true) as $module) {
+    if (file_exists("system/$module/$module.mapping")) {
+      $map=parse_ini_file("system/$module/$module.mapping");
+      $mapping=array_merge($mapping, $map);
+    }
+  }
+  return $mapping;
 }
-
 
 /**
  * 
@@ -173,6 +180,7 @@ function churchtools_main() {
   
   if ($config!=null) {  
     if (db_connect()) { 
+      // DBConfig overwrites the config files
       loadDBConfig();
       
       // Load i18n churchcore-bundle 
@@ -181,6 +189,14 @@ function churchtools_main() {
       }
       $i18n = new TextBundle("system/resources/messages");
       $i18n->load("churchcore", ($config["language"]!=null ? $config["language"] : null));
+      
+      // PrŸfe auf Offline-Modus !
+      if ((isset($config["site_offline"]) && ($config["site_offline"]==1))) {
+        if ((!isset($_SESSION["user"]) || (!in_array($_SESSION["user"]->id, $config["admin_ids"])))) {
+          echo t("site.is.down");
+          return false;
+        }
+      }
       
       // Session Init
       if (!file_exists($files_dir."/tmp")) 
@@ -193,6 +209,7 @@ function churchtools_main() {
       session_start();    
       register_shutdown_function('handleShutdown');
       
+      
       if (isset($_GET["q"])) {
         $q=$_GET["q"];  
       }
@@ -204,20 +221,13 @@ function churchtools_main() {
       if ((isset($_GET["embedded"]) && ($_GET["embedded"]==true))) $embedded=true;
     
       $mapping = loadMapping(); 
-      
-      // PrŸfe auf Offline-Modus !
-      if ((isset($config["site_offline"]) && ($config["site_offline"]==1))) {
-        if ((!isset($_SESSION["user"]) || (!in_array($_SESSION["user"]->id, $config["admin_ids"])))) {
-          echo t("site.is.down");
-          return false;
-        }
-      }
 
       $success=true;
+      // Check for DB-Updates and loginstr only if this is not an ajax call. 
       if (strrpos($q, "ajax")===false) { 
         $success=checkForDBUpdates();
         if ($success) {                
-          // PrŸfe, ob ich ein loginstr habe und die Id nicht dem aktuellen User entspricht
+          // Is there a loginstr which does not fitt to the current logged in user?
           if ((isset($_GET["loginstr"])) && (isset($_GET["id"])) && (userLoggedIn())
              && ($_SESSION["user"]->id!=$_GET["id"])) {           
             logout_current_user();
@@ -230,7 +240,7 @@ function churchtools_main() {
       if ($success) {   
         if (isset($_SESSION['user'])) $user=$_SESSION['user'];
           
-        // Datensicherheitsbestimmungen akzeptiert?
+        // Accept data security?
         if ((userLoggedIn()) && (!isset($_SESSION["simulate"])) && ($q!="logout") && (isset($config["accept_datasecurity"])) && ($config["accept_datasecurity"]==1) && (!isset($user->acceptedsecurity)))
           $content.=pleaseAcceptDatasecurity();
         else
@@ -291,15 +301,14 @@ function processRequest($_q) {
       }
       else {
         $name=$_q;
-        if (isset($config[$key."_name"])) 
-          $name=$config[$key."_name"];
+        if (isset($config[$_q."_name"])) 
+          $name=$config[$_q."_name"];
         addInfoMessage(t("no.permission.for", $name));
         return "";
       }
     }
     $content.=call_user_func($_q."_".$param);
-    if ($content==null)
-      die();
+    if ($content==null) die();
   }
   else 
     addErrorMessage(t("mapping.not.found", $_q));

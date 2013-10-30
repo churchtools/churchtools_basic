@@ -1,0 +1,14 @@
+churchdb = churchdb/churchdb.php
+churchdb/ajax = churchdb/churchdb.php
+churchdb/birthdaylist = churchdb/churchdb.php
+churchdb/mailviewer = churchdb/churchdb.php
+churchdb/memberlist = churchdb/churchdb.php
+churchdb/memberlist_printview = churchdb/churchdb.php
+churchdb/memberlist_settings = churchdb/churchdb.php
+churchdb/vcard = churchdb/churchdb.php
+churchdb/export = churchdb/churchdb.php
+churchdb/uploadImage = churchdb/upload.php
+externmapview = churchdb/churchdb.php
+externmapview/ajax = churchdb/churchdb.php
+page_with_noauth[] = externmapview
+page_with_noauth[] = externmapview/ajax

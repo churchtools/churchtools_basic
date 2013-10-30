@@ -1,0 +1,3 @@
+churchresource = churchresource/churchresource.php
+churchresource/ajax = churchresource/churchresource.php
+churchresource/printview = churchresource/churchresource.php

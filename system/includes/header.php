@@ -109,7 +109,7 @@
                       echo '<li><a href="?q=admin">'.t('admin.settings').'</a></li>';                      
                     }                  
                     if (user_access("administer persons", "churchcore")) {
-                      echo '<li><a href="?q=auth">'.t('admin.permissions').'</a></li>';
+                      echo '<li><a href="?q=churchauth">'.t('admin.permissions').'</a></li>';
                     } 
                     if (user_access("administer settings", "churchcore")) {
                       echo '<li><a href="?q=cron&manual=true">'.t('start.cronjob').'</a></li>';

@@ -1,0 +1,7 @@
+churchwiki = churchwiki/churchwiki.php
+churchwiki/create = churchwiki/churchwiki.php
+churchwiki/ajax = churchwiki/churchwiki.php
+churchwiki/uploadfile = churchwiki/uploadFile.php
+churchwiki/printview = churchwiki/churchwiki.php
+churchwiki/filedownload = churchwiki/churchwiki.php
+help = churchwiki/churchwiki.php
