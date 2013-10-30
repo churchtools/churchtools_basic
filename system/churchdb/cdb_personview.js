@@ -492,7 +492,7 @@ PersonView.prototype.addSecondMenu = function() {
       rows.push('<option value="addPersonTag">... einen Tag hinzuf&uuml;gen');
     if (masterData.auth.adminpersons)
       rows.push('<option value="addPersonAuth">... ein Zugriffssrecht hinzuf&uuml;gen');
-    if ((masterData.auth.adminpersons) && (t.name=="PersonView"))
+    if ((masterData.auth["push/pull archive"]) && (t.name=="PersonView"))
       rows.push('<option value="archivePerson">... ins Archiv verschieben');
     rows.push('</select>');
   }
@@ -2742,13 +2742,14 @@ PersonView.prototype.renderDetails = function (id) {
         }); 
       if (masterData.auth.write)        
         _text=_text+'<a href="#" id="f_bereich"><img width="16px" align="absmiddle" src="'+masterData.modulespath+'/images/options.png"/></a> &nbsp; &nbsp; &nbsp;';
-      if ((masterData.auth.admin) || (masterData.auth.adminpersons)) {
+      if ((masterData.auth.admin) || (masterData.auth.adminpersons) || (masterData.auth["push/pull archive"])) {
         _text=_text+"&nbsp;Admin-Funktion: ";
-        if ((masterData.auth.viewarchive) && (a.archiv_yn==0))
+        if ((masterData.auth["push/pull archive"]) && (a.archiv_yn==0))
           _text=_text+"&nbsp;<a href=\"#\" title=\"Person archivieren\" id=\"archivePerson\">"+form_renderImage({src:"archive.png", width:18})+"</a>";
-        if ((masterData.auth.viewarchive) && (a.archiv_yn==1))
+        if ((masterData.auth["push/pull archive"]) && (a.archiv_yn==1))
           _text=_text+"&nbsp;<a href=\"#\" title=\"Person zur&uuml;ckeholen\" id=\"undoArchivePerson\">"+form_renderImage({src:"undoarchive.png", width:18})+"</a>";
-        _text=_text+"&nbsp;<a href=\"#\" title=\"Person entfernen\" id=\"delete_user\">"+form_renderImage({src:"trashbox.png", width:18})+"</a>&nbsp;&nbsp;";
+        if (masterData.auth.admin || masterData.auth.adminpersons)
+          _text=_text+"&nbsp;<a href=\"#\" title=\"Person entfernen\" id=\"delete_user\">"+form_renderImage({src:"trashbox.png", width:18})+"</a>&nbsp;&nbsp;";
       }
       _text=_text+'&nbsp;<a href="#" id="person_'+a.id+'">#'+a.id+"</a></i></small>&nbsp;&nbsp;";
 

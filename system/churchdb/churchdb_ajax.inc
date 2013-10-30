@@ -911,7 +911,11 @@ function churchdb_getAuthForAjax() {
     
   if (isset($auth["view archive"])) {
     $res["viewarchive"]=true;
-  }
+  }  
+  if (isset($auth["push/pull archive"])) 
+    $res["push/pull archive"]=true;
+  
+  
   
   if (isset($auth["edit masterdata"])) {
     $res["admin"]=true;
@@ -936,7 +940,6 @@ function churchdb_getAuthForAjax() {
   else if (isset($auth["view group"])) {
     $res["viewgroups"]=$auth["view group"];
   }
-  
   if (isset($auth["view group statistics"])) {
     $res["viewgroupstats"]=true;
   }
@@ -1433,13 +1436,13 @@ $timer.="end:".round(microtime(true)-$t,3)." ";
     } else $res="Nicht genuegend Recht zum loeschen!";
     break;  
   case "archivePerson":
-    if ((user_access("administer persons","churchcore"))) {
+    if ((user_access("push/pull archive","churchdb"))) {
       cdb_log("f:$function id:$id",2,$id,CDB_LOG_PERSON,1);
       $res=archiveUser($id);
     } else $res="Nicht genuegend Rechte!";
     break;  
   case "undoArchivePerson":
-    if ((user_access("administer persons","churchcore"))) {
+    if ((user_access("push/pull archive","churchdb"))) {
       cdb_log("f:$function id:$id",2,$id,CDB_LOG_PERSON,1);
       $res=archiveUser($id, true);
     } else $res="Nicht genuegend Rechte!";
