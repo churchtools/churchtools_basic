@@ -109,7 +109,7 @@ class CTChurchAuthModule extends CTAbstractModule {
         $elem->id=$auth->domain_id;
         if (isset($db[$auth->domain_type][$auth->domain_id]))
           $elem->bezeichnung=$db[$auth->domain_type][$auth->domain_id]->bezeichnung;
-        else $elem->bezeichnung="Nicht vorhanden!";  
+        else $elem->bezeichnung=t("non.existent");  
       }
       
       if ($auth->daten_id==null)

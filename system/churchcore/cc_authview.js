@@ -82,7 +82,7 @@ AuthView.prototype.renderEntryDetail= function(pos_id) {
             var select=false;
             if ((masterData[t.currentDomain][pos_id]!=null) && (masterData[t.currentDomain][pos_id].auth!=null) 
                  && (masterData[t.currentDomain][pos_id].auth[auth.id]!=null) && 
-                   // -1 steht für alle. Das wird hier dann entsprechend aufgesplittet
+                   // -1 means ALL! It comes from the authoriziation by ChurchDB
                     ((masterData[t.currentDomain][pos_id].auth[auth.id][-1]!=null)
                      || (masterData[t.currentDomain][pos_id].auth[auth.id][datenfeld.id]!=null))) {
               select=true;
@@ -97,7 +97,6 @@ AuthView.prototype.renderEntryDetail= function(pos_id) {
                 type="Gruppenkalender";
               if (sub_child_daten[type]==null)
                 sub_child_daten[type]=new Array();
-              if (select) expand_datenfeld[type]=true;
               sub_child_daten[type].push({title:datenfeld.bezeichnung, select:select, key:auth.id+"_"+datenfeld.id});
             }
             else {
@@ -106,7 +105,7 @@ AuthView.prototype.renderEntryDetail= function(pos_id) {
           });
           // Wenn es Sub-Kategorien gibt, muss ich die hier noch einfügen.
           $.each(sub_child_daten, function(k,a) {
-            child_daten.push({title:k, isFolder:true, children:a, expand:expand_datenfeld[k]!=null});
+            child_daten.push({title:k, isFolder:true, children:a});
           });
         }
         child.push({title:auth.bezeichnung+" ("+auth.auth+")", isFolder:true, children:child_daten, expand:!churchcore_isObjectEmpty(expand_datenfeld)});             

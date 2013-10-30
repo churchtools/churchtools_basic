@@ -27,6 +27,9 @@
   <entry key="change.to">Wechseln zu...</entry>
   <entry key="offline.mode.is.active">Achtung, Offline-Modus ist aktiv!</entry>
   
+  <!-- AUTH -->
+  <entry key="not.existent">Nicht vorhanden!</entry>
+  
   <!-- ABOUT -->
   <entry key="current.permissions">Aktuelle Berechtigungen</entry>  
   <entry key="current.config">Aktuelle Konfiguration</entry>

@@ -27,6 +27,9 @@
   <entry key="change.to">Switch to...</entry>
   <entry key="offline.mode.is.active">Caution! Offline mode is active.</entry>  
   
+  <!-- AUTH -->
+  <entry key="not.existent">Non-existent!</entry>
+  
   <!-- PROFILE -->
   <entry key="change.password">Change password</entry>
   <entry key="to.change.password.complete.following.fields">To change the password, please fill-in the following fields:</entry>
