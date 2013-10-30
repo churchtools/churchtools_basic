@@ -75,10 +75,6 @@ function churchservice__exportfacts() {
   return null;
 }
 
-function churchservice_getAuth() {
-  return "view churchservice";
-}
-
 function churchservice_main() {
   drupal_add_css('system/assets/fileuploader/fileuploader.css'); 
   
@@ -95,7 +91,6 @@ function churchservice_main() {
   drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_abstractview.js'); 
   drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_standardview.js'); 
   drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_maintainstandardview.js'); 
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_interface.js'); 
   
   drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_loadandmap.js'); 
   drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_settingsview.js'); 

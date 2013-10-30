@@ -6,8 +6,6 @@
  * @Version 20110101
  */
 
-var churchservice_js_version = "7.x-1.21";
-
 // Alle Stammdaten werden hier gespeichert
 var masterData = null;
 // MOmentan fŸr Abwesenheit benutzt 

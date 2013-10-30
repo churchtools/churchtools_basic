@@ -13,9 +13,7 @@ function cdb_loadMasterData(nextFunction) {
     masterData=json;
     // Wenn ich sortiere, kann ich nicht mehr per ID darauf zugreifen...
     masterData.service_sorted=churchcore_sortData_numeric(masterData.service,"sortkey");
-    if (json.version!=churchservice_js_version)
-      alert("Achtung, Versionen unterscheiden sich, bitte Cache loeschen! php:"+json.version+"/js:"+churchservice_js_version);
-    
+
     churchInterface.clearStatus();
   //  localStorage.setObject("serviceMasterData",masterData);
     

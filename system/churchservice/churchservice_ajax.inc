@@ -156,11 +156,6 @@ function churchservice_getModulesPath() {
   return drupal_get_path('module', 'churchservice');
 }
 
-function churchservice_getVersion() {
-  $config = parse_ini_file(churchservice_getModulesPath()."/churchservice.info"); 
-  return $config["version"];
-}
-
 function churchservice_extractEventServiceData($arr, $auth=null, $event_admin=false) {
   $res=array();
   $res["id"]=(isset($arr->eventservice_id)?$arr->eventservice_id:$arr->id);
@@ -1022,7 +1017,6 @@ global $user, $base_url, $files_dir, $config;
 	  $res["masterDataTables"] = churchservice_getMasterDataTablenames();
 $timer.="masterData:".round(microtime(true)-$t,3)." ";
 	  $res["auth"] = $auth;
-	  $res["version"] = churchservice_getVersion();
 	  $res["modulespath"] = churchservice_getModulesPath();
 	  $res["files_url"] = $base_url.$files_dir;
 	  $res["files_dir"] = $files_dir;
