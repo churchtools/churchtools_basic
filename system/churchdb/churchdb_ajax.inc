@@ -1333,7 +1333,7 @@ class CTChurchDBModule extends CTAbstractModule {
     return churchdb_getAllowedPersonData('archiv_yn=1');
   }
   public function getPersonDetails($params) {
-    $this->logPerson($params);
+    $this->logPerson($params, 3);
     return churchdb_getPersonDetails($params["id"]);
   }
   public function getPersonDetailsLogs($params) {
@@ -1402,24 +1402,24 @@ class CTChurchDBModule extends CTAbstractModule {
     return $res;
   }
   public function GroupMeeting($params) {
-    $this->logGroup($params);
+    $this->logGroup($params, 3);
     
     if ($params["sub"]=="getList")
-    $res=getGroupMeeting($params["g_id"]);
+      $res=getGroupMeeting($params["g_id"]);
     else if ($params["sub"]=="canceled")
-    $res=cancelGroupMeeting($params["gt_id"]);
+      $res=cancelGroupMeeting($params["gt_id"]);
     else if ($params["sub"]=="create")
-    createGroupMeetings();
+      createGroupMeetings();
     else if ($params["sub"]=="stats")
-    $res=getGroupMeetingStats($params["id"]);
+      $res=getGroupMeetingStats($params["id"]);
     else if ($params["sub"]=="delete")
-    $res=deleteGroupMeetingStats($params["id"]);
+      $res=deleteGroupMeetingStats($params["id"]);
     else if ($params["sub"]=="saveProperties")
-    $res=savePropertiesGroupMeetingStats($params);
+      $res=savePropertiesGroupMeetingStats($params);
     else if ($params["sub"]=="editCheckin")
-    $res=editCheckinGroupMeetingStats($params);
+      $res=editCheckinGroupMeetingStats($params);
     else
-    throw new CTException("Error in GroupMeeting");
+      throw new CTException("Error in GroupMeeting, unkown sub.");
     return $res;    
   }
   public function addEvent($params) {

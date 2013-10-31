@@ -208,7 +208,11 @@ ChurchInterface.prototype.jsend = function (name, obj, func, async, get, overwri
       },
       error: function(jqXHR, textStatus, errorThrown) {
         this_object.fatalErrorOccured=true;
-        this_object.throwFatalError("<b>Fehlermeldung: "+jqXHR.status+" "+textStatus+(errorThrown!=null?" Fehler: "+errorThrown:'')+"</b><br/><br/>"+jqXHR.responseText);
+        if ((jqXHR.status!=0) || (errorThrown!="")) {
+          this_object.setStatus("Fehler aufgetreten!");
+          this_object.throwFatalError("<b>Fehlermeldung: "+jqXHR.status+" "+textStatus+(errorThrown!=null?" Fehler: "+errorThrown:'')+"</b><br/><br/>"+jqXHR.responseText);
+        }
+        else this_object.setStatus("Abbrechen...");
       }
     });
   }
