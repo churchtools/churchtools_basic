@@ -1303,7 +1303,7 @@ CC_Menu.prototype.renderDiv = function(divId, asButton) {
   
   if ((asButton==null) || (asButton==false)) {
     rows.push('<div class="well sidebar-nav"><ul class="nav nav-list">');
-    rows.push('<li class="nav-header">Men&uuml;');    
+    rows.push('<li class="nav-header">'+this.label);    
     jQuery.each(this.entries, function(k,a) {
       rows.push('<li><a href="#" id="'+a.id+'"><i class="icon-'+a.icon+'"></i> '+a.caption+'</a>');
     });

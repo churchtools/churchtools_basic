@@ -24,9 +24,9 @@ MaintainView.prototype.renderMenu = function() {
     });
   }
   
-  menu = new CC_Menu("Men&uuml;");
-  menu.addEntry("Zur&uuml;ck zur Liste", "apersonview", "arrow-left");
-  menu.addEntry("Hilfe", "ahelp", "question-sign");
+  menu = new CC_Menu(_("menu"));
+  menu.addEntry(_("back.to.main.menu"), "apersonview", "arrow-left");
+  menu.addEntry(_("help"), "ahelp", "question-sign");
 
   if (!menu.renderDiv("cdb_menu"))
     $("#cdb_menu").hide();

@@ -84,6 +84,9 @@ function churchservice__exportfacts() {
 }
 
 function churchservice_main() {
+  global $version, $files_dir, $config;
+  
+  
   drupal_add_css('system/assets/fileuploader/fileuploader.css'); 
   
   drupal_add_js('system/bootstrap/js/bootstrap-multiselect.js'); 
@@ -110,7 +113,9 @@ function churchservice_main() {
   drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_itemview.js'); 
   drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_songview.js'); 
   drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_main.js'); 
-
+    
+  drupal_add_js(createI18nFile("churchservice"));
+  
   $content="";
   // Übergabe der ID für den Direkteinstieg einer Person
   if (isset($_GET["id"]) && ($_GET["id"]!=null))

@@ -30,34 +30,33 @@ ListView.prototype.getData = function(sorted) {
 ListView.prototype.renderMenu = function() {
   this_object=this;
   
-  menu = new CC_Menu("Men&uuml;");
+  menu = new CC_Menu(_("menu"));
   
   if (masterData.auth.write)
-    menu.addEntry("Neues Event anlegen", "anewentry", "star");
-
+    menu.addEntry(_("create.new.event"), "create-new-event", "star");
 
   if (masterData.auth.admin) {  
-    menu.addEntry("Auslastung", "aauslastung", "fire");
+    menu.addEntry(_("workload"), "workload", "fire");
   }
 
-  menu.addEntry("Einstellungen", "asettingsview", "wrench");    
+  menu.addEntry(_("settings"), "settings", "wrench");    
 
   if (masterData.auth.admin)  
-    menu.addEntry("Stammdatenpflege", "amaintainview", "cog");
+    menu.addEntry(_("maintain.masterdata"), "maintain-masterdata", "cog");
 
-  menu.addEntry("Hilfe", "ahelp", "question-sign");
+  menu.addEntry(_("help"), "ahelp", "question-sign");
 
   if (!menu.renderDiv("cdb_menu",churchcore_handyformat()))
     $("#cdb_menu").hide();
   else {    
     $("#cdb_menu a").click(function () {
-      if ($(this).attr("id")=="anewentry") {
+      if ($(this).attr("id")=="create-new-event") {
         this_object.renderAddEntry();
       }
       else if ($(this).attr("id")=="avorlage") {
         this_object.editTemplates(); 
       }
-      else if ($(this).attr("id")=="aauslastung") {
+      else if ($(this).attr("id")=="workload") {
         this_object.showAuslastung(); 
       }
       else if ($(this).attr("id")=="aaddfilter") {
@@ -72,11 +71,11 @@ ListView.prototype.renderMenu = function() {
         menuDepth=$(this).attr("id");
         this_object.renderMenu();
       }
-      else if ($(this).attr("id")=="asettingsview") {
+      else if ($(this).attr("id")=="settings") {
         menuDepth="amain";
         churchInterface.setCurrentView(settingsView);
       }
-      else if ($(this).attr("id")=="amaintainview") {
+      else if ($(this).attr("id")=="maintain-masterdata") {
         menuDepth="amain";
         churchInterface.setCurrentView(maintainView);
       }
@@ -1004,7 +1003,7 @@ ListView.prototype.makeFilterCategories = function(start_string) {
 
 ListView.prototype.getListHeader = function() {
   var this_object=this;
-  
+
   if (masterData.settings.listViewTableHeight==null) masterData.settings.listViewTableHeight=1;
   
   if ((masterData.settings.filterCategory=="") || (masterData.settings.filterCategory==null)

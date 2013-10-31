@@ -20,13 +20,7 @@ interface CTModuleInterface {
    * Relative path to the module, e.g. system/churchresource
    */
   public function getModulePath();
-  
-  
-  public function getMappings();
-  
-  public function doCron();
-  
-  
+    
   /**
    * A complete array with relevant master data for JS-View
    */
@@ -65,15 +59,60 @@ interface CTModuleInterface {
   public function getMasterDataTablenames();    
 }
 
+function cleandir($dir) {
+  if (is_dir($dir)) {
+    $objects = scandir($dir);
+    foreach ($objects as $object) {
+      if ($object != "." && $object != "..") {
+        if (filetype($dir."/".$object) != "dir") {
+          unlink($dir."/".$object);
+        }
+      }
+    }
+  }
+}
 
+function rrmdir($dir) {
+  if (is_dir($dir)) {
+    $objects = scandir($dir);
+    foreach ($objects as $object) {
+      if ($object != "." && $object != "..") {
+        if (filetype($dir."/".$object) == "dir") rrmdir($dir."/".$object); else unlink($dir."/".$object);
+      }
+    }
+    reset($objects);
+    rmdir($dir);
+  }  
+}
+
+function cleanI18nFiles() {
+  global $files_dir;
+  cleandir("$files_dir/files/messages/");
+}
+
+function createI18nFile($modulename) {
+  global $config, $files_dir;
+  
+  if (!file_exists("$files_dir/files/messages/")) 
+    mkdir("$files_dir/files/messages", 0777);
+
+  $filename="$files_dir/files/messages/$modulename"."_".$config["language"].".js";
+  if (!file_exists($filename)) {
+    $i18n = new TextBundle("system/churchservice/resources/messages");
+    $i18n->load("churchservice", $config["language"]);
+    $i18n->writeJSFile($filename);
+  }
+  return $filename;  
+}
 
 
 abstract class CTAbstractModule implements CTModuleInterface {
   private $modulename="abstract";
 
   public function __construct($modulename) {
+    global $config, $files_dir, $i18n;
     if ($modulename==null) die("No Modulename given in new CTModule()");
-    $this->modulename=$modulename;
+    $this->modulename=$modulename;    
   }
   
   public function getModuleName() {
@@ -82,14 +121,6 @@ abstract class CTAbstractModule implements CTModuleInterface {
   
   public function getModulePath() {
     return drupal_get_path('module', $this->modulename);
-  }
-  
-  public function getMappings() {
-  	return null;
-  }
-  
-  public function doCron() {
-  	return null;  	
   }
   
   public function deleteMasterData($params) {
@@ -783,8 +814,9 @@ function checkForDBUpdates() {
       addErrorMessage("Fehler beim Update der Datenbank von ".$old_db_version." auf $software_version: Zu viele &Auml;nderungen. Bitte versuchen Sie es erneut. Wenn es immer noch zum Fehler kommt wenden Sie sich bitte an Ihren Administrator.");
       return false;
     }
-    else if ($counter<100) {
+    else if ($counter<100) {      
       addInfoMessage("Datenbankupdates ausgef&uuml;hrt von ChurchTools v$old_db_version auf v".$software_version);
+      cleanI18nFiles();
       $sitename=$config["site_name"];
       churchcore_systemmail("info@churchtools.de", "Neue Version auf ".$sitename, "Datenbankupdates ausgefuehrt von ChurchTools v$old_db_version auf v".$software_version."\n".$base_url);
       churchcore_systemmail($config["site_mail"], "Neue Version auf ".$config["site_name"], "Datenbankupdates ausgefuehrt von ChurchTools v$old_db_version auf v".$software_version."\n".$base_url);

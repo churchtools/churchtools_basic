@@ -2,8 +2,13 @@ debug=false;
 dayNames= ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 
 
-function l(s) {
-  return s;  
+function _(s) {  
+  if (lang[s]==null) return "***"+s+"***";
+  res=lang[s];
+  $.each(arguments, function(k,a) {
+    if (k>0) res=res.replace("{"+(k-1), a).replace("}","");        
+  });  
+  return res;  
 }
 
 function churchcore_handyformat() {

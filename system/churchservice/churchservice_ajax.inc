@@ -1088,6 +1088,7 @@ class CTChurchServiceModule extends CTAbstractModule {
   public function getChurchDBMasterData($params) {
     $res["cdb_gruppen"]=churchcore_getTableData("cdb_gruppe");
     $res["cdb_tag"]=churchcore_getTableData("cdb_tag");
+    return $res;
   }      
 }
 

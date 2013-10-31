@@ -8,6 +8,7 @@ db_password = 1234
 db_name = churchtools
 + (CS) Neues Recht: Edit Template - Darf Event-Templates editieren.
 - (CS) Man kann ohne ChurchDB-Rechte nun keine Personen mehr hinzufügen, die nicht zum Dienst gehören
+- Bitte die neue ChurchDBSync-Version 1.06 verwenden!
 
 churchtools 2.40
 + Simulieren kann nun über die Fußzeile direkt gestartet werden.

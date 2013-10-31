@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <comment>ChurchService messages</comment>
+  <entry key="menu">Menü</entry>
+  <entry key="create.new.event">Neues Event anlegen</entry>
+  <entry key="workload">Auslastung</entry>
+  <entry key="settings">Einstellungen</entry>
+  <entry key="maintain.masterdata">Stammdatenpflege</entry>
+  <entry key="help">Hilfe</entry>
+  <entry key="back.to.main.menu">Zurück zum Hauptmenü</entry>
+	  
+</properties>
