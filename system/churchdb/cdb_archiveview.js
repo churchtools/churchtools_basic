@@ -13,9 +13,9 @@ archiveView = new ArchiveView();
 
 function cdb_loadPersonArchiveData(func) {
   churchInterface.setStatus("Lade Personendaten...");
-  churchInterface.jsonRead({func:"getAllPersonArchiveData"}, function(json) {
-    if (json.persons!=null) {
-      jQuery.each(json.persons, function(k,a) {
+  churchInterface.jsendRead({func:"getAllPersonArchiveData"}, function(ok, json) {
+    if (json!=null) {
+      jQuery.each(json, function(k,a) {
         allPersons[a.p_id]=cdb_mapJsonPerson1(a, allPersons[a.p_id]);
       });
     }  

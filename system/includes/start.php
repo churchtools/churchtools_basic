@@ -106,6 +106,8 @@ function loadMapping() {
   foreach (churchcore_getModulesSorted(true) as $module) {
     if (file_exists("system/$module/$module.mapping")) {
       $map=parse_ini_file("system/$module/$module.mapping");
+      if (isset($map["page_with_noauth"]) && isset($mapping["page_with_noauth"]))
+        $map["page_with_noauth"]=array_merge($mapping["page_with_noauth"], $map["page_with_noauth"]); 
       $mapping=array_merge($mapping, $map);
     }
   }
@@ -292,6 +294,7 @@ function processRequest($_q) {
       $param="_".substr($_q,strpos($_q,"/")+1,99);
       $_q=substr($_q,0,strpos($_q,"/"));
     }    
+    
     if ((!user_access("view",$_q)) && (!in_array($_q,$mapping["page_with_noauth"])) && ($_q!="login")
                 && (!in_array($_q,(isset($config["page_with_noauth"])?$config["page_with_noauth"]:array()))))  {
       // Wenn kein Benutzer angemeldet ist, dann zeige nun die Anmeldemaske

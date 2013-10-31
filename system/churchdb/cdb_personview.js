@@ -117,7 +117,7 @@ PersonView.prototype.renderMenu = function() {
         menuDepth="amain";
         if (masterData.settings.churchdbInitView!='GroupView') {
           masterData.settings.churchdbInitView='GroupView';
-          churchInterface.jsonWrite({func:"saveSetting", sub:"churchdbInitView", val:"GroupView"});
+          churchInterface.jsendWrite({func:"saveSetting", sub:"churchdbInitView", val:"GroupView"});
         }
         churchInterface.setCurrentView(groupView);
       }
@@ -328,7 +328,7 @@ PersonView.prototype.renderAddEntry = function(prefill) {
     if ($(this).attr("id")=="Inputf_dep") txt="newPersonBereich";
     else if ($(this).attr("id")=="Inputf_status") txt="newPersonStatus";
     else if ($(this).attr("id")=="Inputf_station") txt="newPersonStation";
-    churchInterface.jsonWrite({func:"saveSetting", sub:txt, val:$(this).val()});
+    churchInterface.jsendWrite({func:"saveSetting", sub:txt, val:$(this).val()});
     masterData.settings[txt]=$(this).val();
     
     var g_id=$(this).val();
@@ -355,7 +355,7 @@ PersonView.prototype.renderAddEntry = function(prefill) {
       obj["force"]="checked";
     }
     
-    $.getJSON("index.php?q=churchdb/ajax", obj, function(json) {        
+    churchInterface.jsendWrite(obj, function(ok, json) {        
       if (json.result=="exist") {
         $("#searchEntry").val(json.id).keyup();          
         alert("Mindestens eine Person mit dem Namen existiert schon!");
@@ -442,21 +442,21 @@ PersonView.prototype.addPersonGroupRelation = function(id, g_id, memberstatus_no
   
   if (masterData.groups[g_id].followup_typ_id>0) {
     alert('Followup "'+masterData.followupTypes[masterData.groups[g_id].followup_typ_id].bezeichnung+'" wurde gestartet!');
-    churchInterface.jsonWriteSyncron({func:"addPersonGroupRelation", id:id, g_id:g_id, 
+    churchInterface.jsendWrite({func:"addPersonGroupRelation", id:id, g_id:g_id, 
            followup_count_no:1, followup_erfolglos_zurueck_gruppen_id:followup_erfolglos_zurueck_gruppen_id,
-           leader:memberstatus_no, date:d.toStringEn()}, function() {success=true;});
+           leader:memberstatus_no, date:d.toStringEn()}, function(ok) {success=ok;}, false);
   }  
   else         
-    churchInterface.jsonWriteSyncron({func:"addPersonGroupRelation", id:id, g_id:g_id, leader:memberstatus_no, date:d.toStringEn()}, function() {success=true;});
+    churchInterface.jsendWrite({func:"addPersonGroupRelation", id:id, g_id:g_id, leader:memberstatus_no, date:d.toStringEn()}, function(ok) {success=ok;}, false);
   
   if (!success) {
     return false;
   }
   else {  
     if (allPersons[id]==null) { 
-      churchInterface.jsonReadSyncron({func:"getPersonDetails", id:id}, function(json) {
+      churchInterface.jsendRead({func:"getPersonDetails", id:id}, function(ok, json) {
         allPersons[json.id]=cdb_mapJsonDetails(json, allPersons[json.id]);
-      });
+      }, false);
     }
     else {      
       arr=new Object();
@@ -540,7 +540,7 @@ PersonView.prototype.renderTooltip = function(tooltip, divid) {
     }
     else {
       txt=txt+'Lade Daten..</div><div style="clear:both"></div></div>';
-      churchInterface.jsonRead({func:"getPersonDetails", id:id}, function(json) {
+      churchInterface.jsendRead({func:"getPersonDetails", id:id}, function(ok, json) {
         if (json!="no access") {
           allPersons[json.id]=cdb_mapJsonDetails(json, allPersons[json.id]);       
           //t.prepareTooltip(tooltip, 0);
@@ -597,7 +597,7 @@ PersonView.prototype.tooltipCallback = function(id, tooltip) {
     t.clearTooltip(true);
     var g_id=$("#data-group-id").val();
     if (confirm("Wirklich das Treffen vom "+$("#data-datum").val().toDateEn(true).toStringDe()+" entfernen?")) {
-      churchInterface.jsonWrite({func:"GroupMeeting", sub:"delete", id:$("#data-gruppentreffen-id").val()}, function(ok) {
+      churchInterface.jsendWrite({func:"GroupMeeting", sub:"delete", id:$("#data-gruppentreffen-id").val()}, function(ok) {
         if (ok) {
           cdb_loadGroupMeetingStats(churchInterface.getCurrentView().filter, g_id, function() {
             masterData.groups[g_id].meetingList=null;
@@ -711,7 +711,7 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
     }
     else if ($(this).attr("id")=="closeGruppenteilnahme") {
       masterData.settings.selectedGroupType=churchcore_getFirstElement(masterData.groupTypes).id;
-      churchInterface.jsonWrite({func:"saveSetting", sub:"selectedGroupType", val:masterData.settings.selectedGroupType});    
+      churchInterface.jsendWrite({func:"saveSetting", sub:"selectedGroupType", val:masterData.settings.selectedGroupType});    
       r.renderView();
     }
     else if ($(this).attr("id")=="editGruppentreffenProperties") {
@@ -769,7 +769,7 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
       o.sub="editCheckin";
       o.gruppentreffen_id=$(this).attr("data-gruppentreffen-id");
       o.p_id=p_id;
-      churchInterface.jsonWrite(o); 
+      churchInterface.jsendWrite(o); 
 
       t.renderList();
       t.renderGroupContent(t.filter["filterMeine Gruppen"]);
@@ -782,7 +782,7 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
     if (this.id=="filterGruppentyp") {
       var oldval=masterData.settings.selectedGroupType;
       masterData.settings.selectedGroupType=$(this).val();
-      churchInterface.jsonWrite({func:"saveSetting", sub:"selectedGroupType", val:$(this).val()});
+      churchInterface.jsendWrite({func:"saveSetting", sub:"selectedGroupType", val:$(this).val()});
       if ((masterData.settings.selectedGroupType==-4) && (t.filter['filterMeine Gruppen']==null)) {
         alert('Bitte erst eine Gruppe unter "Meine Filter" einstellen');
         masterData.settings.selectedGroupType=oldval;
@@ -880,7 +880,7 @@ PersonView.prototype.personFunction = function (value, param) {
                    allPersons[ids[current_id]].tags= new Array();
                  if (!churchcore_inArray(id, allPersons[ids[current_id]].tags)) {
                    allPersons[ids[current_id]].tags.push(id);
-                   churchInterface.jsonWrite({func:"addPersonTag", id:ids[current_id], tag_id:id});
+                   churchInterface.jsendWrite({func:"addPersonTag", id:ids[current_id], tag_id:id});
                  }
                }
                else if (value=="addPersonAuth") {
@@ -889,13 +889,13 @@ PersonView.prototype.personFunction = function (value, param) {
                    allPersons[ids[current_id]].auth=new Object();
                  allPersons[ids[current_id]].auth[id]=id;
                  obj.auth_id=id;
-                 churchInterface.jsonWriteSyncron(obj);                 
+                 churchInterface.jsendWrite(obj, null, false);                 
                }
                else if (value=="archivePerson") {
                  obj.id=ids[current_id];
                  if (allPersons[ids[current_id]].archiv_yn==0) {
                    allPersons[ids[current_id]].archiv_yn=1;
-                   churchInterface.jsonWriteSyncron(obj);
+                   churchInterface.jsendWrite(obj, null, false);
                  }
                }
                elem.find("div.bar").width((100*(current_id+1)/ids.length)+'%');
@@ -1125,7 +1125,7 @@ PersonView.prototype.makeFilterStatus = function(name, start_string, data) {
   
   t.filter[filterName]=new CC_MultiSelect(data, function(id, selected) {
     masterData.settings[filterName]=this.getSelectedAsArrayString();
-    churchInterface.jsonWrite({func:"saveSetting", sub:filterName, val:masterData.settings[filterName]});
+    churchInterface.jsendWrite({func:"saveSetting", sub:filterName, val:masterData.settings[filterName]});
     t.renderList();
   });
   t.filter[filterName].setSelectedAsArrayString(start_string);
@@ -1305,10 +1305,10 @@ PersonView.prototype.messageReceiver = function(message, args) {
                   +a.userid+" hat eine neue Person angelegt.</small>",true);
           
           if ((allPersons[a.domain_id]==null) || (allPersons[a.domain_id].details)) {
-            churchInterface.jsonReadSyncron({func:"getPersonDetails", id:a.domain_id}, function(json) {
+            churchInterface.jsendRead({func:"getPersonDetails", id:a.domain_id}, function(ok, json) {
               allPersons[json.id]=cdb_mapJsonDetails(json, allPersons[json.id]); 
               refresh=true;
-            });                    
+            }, false);                    
             if ((allPersons[a.domain_id]!=null) && (allPersons[a.domain_id].inEdit!=null)) {
               allPersons[a.domain_id].inEdit.empty().remove();
               allPersons[a.domain_id].inEdit=null;
@@ -1499,11 +1499,11 @@ PersonView.prototype.renderFilter = function() {
     }    
     else if ($(this).attr("id")=="delIntelligentGroup") {
       if (confirm("Wirklich die intelligente Gruppen "+t.filter["filterMeine Gruppen"].substr(6,99)+" entfernen?")) {
-        churchInterface.jsonWrite({func:"delMyFilter", name:t.filter["filterMeine Gruppen"].substr(6,99)});
+        churchInterface.jsendWrite({func:"delMyFilter", name:t.filter["filterMeine Gruppen"].substr(6,99)});
         delete masterData.settings.filter[t.filter["filterMeine Gruppen"].substr(6,99)];
         delete t.filter["filterMeine Gruppen"];
         masterData.settings.selectedMyGroup=null;
-        churchInterface.jsonWrite({func:"saveSetting", sub:"selectedMyGroup", val:"null"});
+        churchInterface.jsendWrite({func:"saveSetting", sub:"selectedMyGroup", val:"null"});
 
         t.resetPersonFilter();
         t.resetGroupFilter();
@@ -1525,7 +1525,7 @@ PersonView.prototype.renderFilter = function() {
             t.filter.filterStatus=t.filter.filterStatus.getSelectedAsArrayString();
             t.filter.filterStation=t.filter.filterStation.getSelectedAsArrayString();
             t.filter.filterBereich=t.filter.filterBereich.getSelectedAsArrayString();
-            churchInterface.jsonWriteSyncron({func:"saveMyFilter", name:name, filter:t.filter});
+            churchInterface.jsendWrite({func:"saveMyFilter", name:name, filter:t.filter}, null, false);
             t.makeFilterStatus("Status", masterData.settings.filterStatus);
             t.makeFilterStatus("Station", masterData.settings.filterStation);
             t.makeFilterStatus("Bereich", masterData.settings.filterBereich, masterData.auth.dep);
@@ -2381,7 +2381,7 @@ PersonView.prototype.renderAuthDialog = function (id) {
       if (a.email=="")
         alert("Ohne E-Mail-Adresse kann die Person nicht eingeladen werden!");
       else if (confirm("Wirklich "+a.vorname+" "+a.name+" einladen? Die Person bekommt eine E-Mail mit einem Link, wo sie dann das Passwort erstellen kann.")) {
-        churchInterface.jsonWrite({func:"sendInvitationMail", id:a.id}, function(ok) {
+        churchInterface.jsendWrite({func:"sendInvitationMail", id:a.id}, function(ok) {
           if (ok) {
             alert("Einladung wurde gesendet.");
             a.einladung=1;
@@ -2800,7 +2800,7 @@ PersonView.prototype.renderDetails = function (id) {
     if (allPersons[id].tags==null)
       allPersons[id].tags= new Array();
     allPersons[id].tags.push(tag_id);
-    churchInterface.jsonWrite({func:"addPersonTag", id:id, tag_id:tag_id});
+    churchInterface.jsendWrite({func:"addPersonTag", id:id, tag_id:tag_id});
     t.renderList(allPersons[id]);
   });
   
@@ -2818,7 +2818,7 @@ PersonView.prototype.renderDetails = function (id) {
       if ($("#detail_logs"+id).is(":hidden")) {
         $("#detail_logs"+id).html("Lade Daten...");
         $("#detail_logs"+id).animate({ height: 'toggle'}, "medium");
-        jQuery.getJSON("index.php?q=churchdb/ajax", { func: "getPersonDetailsLogs",id:id }, function(json) {
+        churchInterface.jsendRead({ func: "getPersonDetailsLogs",id:id }, function(ok, json) {
           _text="";        
           _text=_text+"<small><table class=\"table\"><tr><td><i>Datum</i><td><i>Text</i><td><i>Erfolgt durch</i><td>";      
           if (json!=null)
@@ -2857,7 +2857,7 @@ PersonView.prototype.renderDetails = function (id) {
     else if (fieldname=="simulatePerson") {
       if ((masterData.settings.hideSimulateQuestion=="1") || (confirm("Wirklich "+a.vorname+" "+a.name+" simulieren? Simulation kann durch das Benutzer-Menu beendet werden."))) {
         if (masterData.settings.hideSimulateQuestion==null) 
-          churchInterface.jsonWriteSyncron({func:"saveSetting", sub:"hideSimulateQuestion", val:"1"});
+          churchInterface.jsendWrite({func:"saveSetting", sub:"hideSimulateQuestion", val:"1"}, null, false);
         window.location.href="?q=simulate&id="+allPersons[id].id+"&location=churchdb";
       }
     }
@@ -2880,7 +2880,7 @@ PersonView.prototype.renderDetails = function (id) {
     else if (fieldname.indexOf("del_rel_")==0) {
       if (confirm("Beziehung wirklich entfernen?")) {
         rel_id=$(this).attr("id").substr(8,99);
-        churchInterface.jsonWrite({func:"del_rel", id:id, rel_id:rel_id}, function(ok) {
+        churchInterface.jsendWrite({func:"del_rel", id:id, rel_id:rel_id}, function(ok) {
           $("tr[id=detail"+id+"]").html("");   
           cdb_loadRelations(function () {
             t.renderEntryDetail(id);
@@ -2931,7 +2931,7 @@ PersonView.prototype.renderDetails = function (id) {
           }
           obj["rel_id"]=fieldname.substr(9,99);
           
-          churchInterface.jsonWrite(obj, function(ok) {  
+          churchInterface.jsendWrite(obj, function(ok) {  
             $("tr[id=detail"+id+"]").html(""); 
             cdb_loadRelations(function () {
               t.renderEntryDetail(id);
@@ -3032,7 +3032,7 @@ PersonView.prototype.renderDetails = function (id) {
           txt="Das FollowUp bei "+a.vorname+" "+a.name+" wirklich abbrechen? Achtung, um das FollowUp wieder zu starten, muss die Person wieder der entsprechend Gruppen zugeordnet werden!";          
           
         if (confirm(txt)) {
-          churchInterface.jsonWrite({func:"delPersonGroupRelation",id:id,g_id:g_id});
+          churchInterface.jsendWrite({func:"delPersonGroupRelation",id:id,g_id:g_id});
           delete allPersons[id].gruppe[g_id];
           var obj = new Object();
           obj["note"]='Followup "'+masterData.followupTypes[masterData.groups[g_id].followup_typ_id].bezeichnung+'" wurde abgebrochen. ';
@@ -3045,7 +3045,7 @@ PersonView.prototype.renderDetails = function (id) {
             t.addPersonGroupRelation(id, back_id);
             obj["note"]=obj["note"]+" Es geht zur&uuml;ck an "+masterData.groups[back_id].bezeichnung;
           }
-          churchInterface.jsonWriteSyncron(obj);
+          churchInterface.jsendWrite(obj, null, false);
           allPersons[id].details=null;
           t.renderList();
           //t.renderDetails(id);
@@ -3081,7 +3081,7 @@ PersonView.prototype.renderDetails = function (id) {
               obj["note"]=obj["note"]+" mit insg. "+b.followup_add_diff_days+" Tagen Differenz (+"+_diff_days+")";
           } else {
             // Entferne Person aus der Gruppe 
-            churchInterface.jsonWrite({func:"delPersonGroupRelation",id:id,g_id:g_id});
+            churchInterface.jsendWrite({func:"delPersonGroupRelation",id:id,g_id:g_id});
             delete allPersons[id].gruppe[g_id];
             obj["note"]=obj["note"]+" abgeschlossen mit "+b.followup_add_diff_days+" Tagen Differenz, Gruppe "+masterData.groups[g_id].bezeichnung+" wird entfernt.";
             // Wurde ein Nachfolger markiert?
@@ -3107,7 +3107,7 @@ PersonView.prototype.renderDetails = function (id) {
         allPersons[id].details=null;
         obj["note"]=obj["note"]+"<br/>"+$('#followupNote_'+g_id+'_'+id).val();
         $("#cdb_followup_"+g_id+"_"+id).html("Speichern...");
-        churchInterface.jsonWrite(obj, function(ok) {
+        churchInterface.jsendWrite(obj, function(ok) {
           t.renderView();  
           t.renderTodos();
         });        
@@ -3160,7 +3160,7 @@ PersonView.prototype.editPersonAuth = function (id) {
   var t=this;
   this.editDomainAuth(id, allPersons[id].auth, "person", function(id) {
     // Hole mir neue Details fŸr die Person mit der Auth-infos
-    churchInterface.jsonRead({func:"getPersonDetails", id:id}, function(json) {
+    churchInterface.jsendRead({func:"getPersonDetails", id:id}, function(ok, json) {
       allPersons[json.id]=cdb_mapJsonDetails(json, allPersons[json.id]);
       // Rendere die View neu, da auch die Tablle Zugriffsrechte anzeigen kann
       t.renderFilter();
@@ -3194,7 +3194,7 @@ PersonView.prototype.delPersonFromGroup = function (id, g_id, withoutConfirmatio
   }
   if ((masterData.auth.editgroups) || (groupView.isPersonSuperLeaderOfGroup(masterData.user_pid, g_id))) {
     if ((withoutConfirmation) || (confirm(a.vorname+" "+a.name+" wirklich aus der Gruppe herausnehmen?"))) {
-      churchInterface.jsonWrite({func:"delPersonGroupRelation",id:id,g_id:g_id}, function() {
+      churchInterface.jsendWrite({func:"delPersonGroupRelation",id:id,g_id:g_id}, function() {
         $("tr[id=detail" + id + "]").remove();
         delete a.gruppe[g_id]; 
         if (churchInterface.getCurrentView().name=="PersonView") {
@@ -3216,7 +3216,7 @@ PersonView.prototype.delPersonFromGroup = function (id, g_id, withoutConfirmatio
         "Speichern": function() {
         var date = new Date();
         var comment=$("#comment").val();
-        churchInterface.jsonWrite({func:"editPersonGroupRelation",id:id,g_id:g_id,comment:$("#comment").val(),date:date.toStringEn(),leader:-1}, function() {
+        churchInterface.jsendWrite({func:"editPersonGroupRelation",id:id,g_id:g_id,comment:$("#comment").val(),date:date.toStringEn(),leader:-1}, function() {
           a.gruppe[g_id].leiter=-1;
           a.gruppe[g_id].comment=comment;
           t.renderList(a);
@@ -3239,7 +3239,7 @@ PersonView.prototype.renderEntryDetail = function (pos_id, data_id) {
   $("tr[id=detail" + pos_id + "]").remove();
   $("tr[id=" + pos_id + "]").after("<tr id=\"detail" + data_id + "\"><td colspan=\"10\" id=\"detailTD" + data_id + "\">Lade Daten..</td></tr>");
   if ((allPersons[data_id]!=null)  && (allPersons[data_id].details == null)) {
-    churchInterface.jsonRead({func:"getPersonDetails", id:data_id}, function(json) {
+    churchInterface.jsendRead({func:"getPersonDetails", id:data_id}, function(ok, json) {
 //      _aktiv=window.clearTimeout(_aktiv);
       if (json=="no access") {
         delete allPersons[data_id];
@@ -3395,7 +3395,7 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
   }
   else if (fieldname.indexOf("del_tag")==0) {    
     allPersons[id].tags.splice($.inArray(fieldname.substring(7,99),allPersons[id].tags),1);
-    churchInterface.jsonWriteSyncron({func:"delPersonTag", id:id, tag_id:fieldname.substring(7,99)});
+    churchInterface.jsendWrite({func:"delPersonTag", id:id, tag_id:fieldname.substring(7,99)}, null, false);
     this.renderList();      
     return false;
   }
@@ -3468,7 +3468,7 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
         "Speichern": function() {
           var obj=form.getAllValsAsObject();
           obj.func="createGroup";
-          $.getJSON("index.php?q=churchdb/ajax", obj, function(json) {        
+          churchInterface.jsendWrite(obj, function(ok, json) {        
             if (json.result=="exist") {
               alert("Gruppe mit dem Namen existiert schon!");
             }
@@ -3635,7 +3635,7 @@ PersonView.prototype._saveEditEntryData = function (id, fieldname, renderViewNec
 
   cover.html("Die Daten werden gespeichert...");
   
-  churchInterface.jsonWrite(obj, function(ok) {
+  churchInterface.jsendWrite(obj, function(ok) {
       cover.dialog("close");
       cover.html("");
       if (!ok) allPersons[id]=orig_obj;
@@ -3686,7 +3686,7 @@ PersonView.prototype.msg_filterChanged = function (id, oldVal) {
     $("#cdb_group").html("");
     if (masterData.settings.selectedMyGroup!=t.filter['filterMeine Gruppen']) {
       masterData.settings.selectedMyGroup=t.filter['filterMeine Gruppen'];
-      churchInterface.jsonWrite({func:"saveSetting", sub:"selectedMyGroup", val:(masterData.settings.selectedMyGroup==null?"null":masterData.settings.selectedMyGroup)});
+      churchInterface.jsendWrite({func:"saveSetting", sub:"selectedMyGroup", val:(masterData.settings.selectedMyGroup==null?"null":masterData.settings.selectedMyGroup)});
     }
     // Wenn es mit "filter" anfŠngt, dann handelt es sich jetzt um intelligente Gruppen
     if ((typeof t.filter['filterMeine Gruppen']=="string") && (t.filter['filterMeine Gruppen'].indexOf("filter")==0)) {
@@ -4284,7 +4284,7 @@ PersonView.prototype.renderGroupEntry = function() {
 PersonView.prototype.loadGroupMeetingList = function (g_id) {
   var t=this;
   masterData.groups[g_id].meetingList="get data";
-  $.getJSON("index.php?q=churchdb/ajax", { func: "GroupMeeting", sub:"getList", g_id: g_id}, function(json) {
+  churchInterface.jsendWrite({ func: "GroupMeeting", sub:"getList", g_id: g_id}, function(ok, json) {
     if (json!=null) {
       masterData.groups[g_id].meetingList=json;  
       t.renderGroupContent(g_id);
@@ -4461,21 +4461,6 @@ PersonView.prototype.renderGroupContent = function(g_id) {
           $(this).dialog("close");
         }
       });
-
-/*      
-      if (confirm("Sollen wirklich "+arr.length+" Personen eingecheckt werden?")) {
-        $.each(allPersons, function(a,k) {
-          k.checked=false;
-        });
-        $.getJSON("index.php?q=churchdb/ajax", { func: "GroupMeeting", sub:"entry", g_id:t.filter['filterMeine Gruppen'], gt_id: gruppentreffen_id, entries:arr.join(",")}, function(json) {
-          // info löschen, damit er neue Infos holt.
-          masterData.groups[t.filter['filterMeine Gruppen']].meetingList=null;
-          t.renderGroupEntry();
-          t.renderList();
-        });
-        $("#cdb_group").html("");
-        cdb_loadGroupMeetingStats(t.filter);
-      }*/  
     }
     else if ($(this).attr("id")=="a_gruppenliste") {
       groupView.clearFilter();
@@ -4488,7 +4473,7 @@ PersonView.prototype.renderGroupContent = function(g_id) {
       var id=null;
       if (gt!=null) id=gt.id;      
       masterData.settings.selectedGroupType=id;
-      churchInterface.jsonWrite({func:"saveSetting", sub:"selectedGroupType", val:id});
+      churchInterface.jsendWrite({func:"saveSetting", sub:"selectedGroupType", val:id});
 
       t.renderGroupEntry();
       t.renderList();
@@ -4504,7 +4489,7 @@ PersonView.prototype.renderGroupContent = function(g_id) {
       t.renderList();
     }
     else {
-      $.getJSON("index.php?q=churchdb/ajax", { func: "GroupMeeting", sub:"canceled", gt_id: gruppentreffen_id }, function(json) {
+      churchInterface.jsendWrite({ func: "GroupMeeting", sub:"canceled", gt_id: gruppentreffen_id }, function(oi, json) {
         // info löschen, damit er neue Infos holt.
         masterData.groups[t.filter['filterMeine Gruppen']].meetingList=null;
         t.renderGroupEntry();

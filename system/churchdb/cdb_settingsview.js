@@ -151,12 +151,12 @@ SettingsView.prototype.renderList = function() {
   form_implantWysiwygEditor("editor", false);
   $("#savesignature").click(function(k) {
     masterData.settings["signature"]=CKEDITOR.instances.editor.getData();
-    churchInterface.jsonWrite({func:"saveSetting", sub:"signature", val:CKEDITOR.instances.editor.getData()});          
+    churchInterface.jsendWrite({func:"saveSetting", sub:"signature", val:CKEDITOR.instances.editor.getData()});          
   });
   
   $("#cdb_content select").change(function(c) {
     masterData.settings[$(this).attr("id")]=$(this).val();
-    churchInterface.jsonWrite({func:"saveSetting", sub:$(this).attr("id"), val:$(this).val()});      
+    churchInterface.jsendWrite({func:"saveSetting", sub:$(this).attr("id"), val:$(this).val()});      
   });  
 
 };

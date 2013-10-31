@@ -2,11 +2,6 @@
 
 include_once('./'. drupal_get_path('module', 'churchdb') .'/../churchcore/churchcore_db.inc');
 
-define("CDB_LOG_PERSON", 'person');
-define("CDB_LOG_GROUP", 'group');
-define("CDB_LOG_MASTERDATA", 'masterData');
-define("CDB_LOG_TAG", 'tag');
-
 
 /**
  * 
@@ -248,13 +243,8 @@ function churchdb_addEvent($params) {
   $i->setParam("gruppe_id");
   $i->addModifiedParams();  
   
-  try {
-    $id=db_insert("cdb_gruppentreffen")->fields($i->getDBInsertArrayFromParams($params))->execute(false);        
-  } 
-  catch (Exception $e) {
-    return jsend()->error($e);      
-  }
-  return jsend()->success();  
+  $id=db_insert("cdb_gruppentreffen")->fields($i->getDBInsertArrayFromParams($params))->execute(false);        
+  return $id;  
 }
 
 // Gibt ein Array zurŸck mit allen p_ids in den Gruppen myGroups
@@ -560,21 +550,15 @@ function savePropertiesGroupMeetingStats($params) {
   $i->setParam("kommentar");
   $i->addModifiedParams();  
   
-  try {
-    $id=db_update("cdb_gruppentreffen")
-      ->fields($i->getDBInsertArrayFromParams($params))
-      ->condition("id", $params["id"], "=")
-      ->execute(false);
-      
-    if (isset($params["entries"])) {
-      if (entryGroupMeeting($params["g_id"], $params["id"], $params["entries"])!="ok")
-        return jsend()->error("Problem beim Speichern der einzelnen Teilnahmerdaten");      
-    }
-  } 
-  catch (Exception $e) {
-    return jsend()->error($e);      
+  $id=db_update("cdb_gruppentreffen")
+    ->fields($i->getDBInsertArrayFromParams($params))
+    ->condition("id", $params["id"], "=")
+    ->execute(false);
+    
+  if (isset($params["entries"])) {
+    if (entryGroupMeeting($params["g_id"], $params["id"], $params["entries"])!="ok")
+      throw new CTException("Problem beim Speichern der einzelnen Teilnahmerdaten");      
   }
-  return jsend()->success();  
 }
 
 /**
@@ -674,7 +658,7 @@ function churchdb_deleteLastGroupStatistik($id) {
                 where gruppe_id=:g_id and eintragerfolgt_yn=1 order by datumvon desc limit 1",array (":g_id"=>$id))
    ->fetch();
  
-  if ($res==false) return jsend()->fail("Es ist keine Gruppenteilnahme mehr gepflegt.");
+  if ($res==false) throw new CTFail("Es ist keine Gruppenteilnahme mehr gepflegt.");
   
   db_query("delete from {cdb_gruppentreffen_gemeindeperson} where gruppentreffen_id=:gruppentreffen_id",
               array(":gruppentreffen_id"=>$res->id));
@@ -682,7 +666,6 @@ function churchdb_deleteLastGroupStatistik($id) {
     ->fields(array("eintragerfolgt_yn"=>0,"ausgefallen_yn"=>0))
     ->condition("id", $res->id, "=")
     ->execute();
-  return jsend()->success();  
 }
 
 function delRelation($id) {

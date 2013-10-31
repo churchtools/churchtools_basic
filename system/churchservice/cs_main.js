@@ -19,6 +19,7 @@ var allEvents = new Object();
 var timers = new Array();
 
 jQuery(document).ready(function() {
+  churchInterface.setModulename("churchservice");
   churchInterface.registerView("ListView", listView);
   churchInterface.registerView("CalView", calView);
   churchInterface.registerView("FactView", factView);
@@ -36,7 +37,6 @@ jQuery(document).ready(function() {
       listView.currentDate=jQuery("#currentdate").val().toDateEn(); 
       currentDate_externGesetzt=true;
     }
-    churchInterface.setModulename(masterData.modulename);
     churchInterface.setLastLogId(masterData.lastLogId);
     
     // Initialisiere Browser-History, ruft damit schon RenderView() auf, falles Parameter uebergeben worden sind

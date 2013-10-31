@@ -187,30 +187,35 @@ function churchservice_extractEventServiceData($arr, $auth=null, $event_admin=fa
 /*
  * Holt sich neue Eventdaten die nach der LastLogId geï¿½ndert wurden.
  */
-function churchservice_getNewEventData($last_id) {
+function churchservice_getNewEventData($params) {
   global $user;
+  $last_id=$params["last_id"];
   $arr=db_query("select event_id from {cs_eventservice} where modified_pid!=:user and id>=:last_id group by event_id",
                    array(":user"=>$user->id, ":last_id"=>$last_id));
   $events=array();                   
   foreach ($arr as $data) {
     $event=churchservice_getAllEventData($data->event_id);
     $events[$data->event_id]=$event[$data->event_id];
-  }
+  }  
   return $events;
 }
 
 /** Lï¿½dt alle Events und nur die Services die sollen **/
-function churchservice_getAllEventData($id) { 
+function churchservice_getAllEventData($params) { 
   global $user;
+  $id=null;
+  if (isset($params["id"])) $id=$params["id"]; 
+  
   $auth=churchservice_getAuthorization();
   
+  include_once(drupal_get_path('module', 'churchcal') .'/churchcal_db.inc');
   $cat=churchcal_getAllowedCategories(false, true);
   $cat[]=-1;
   
   $lastday=-variable_get('churchservice_entries_last_days');
   //$auth=user_access("view servicegroup","churchservice");
   $sql = db_query('SELECT e.id, e.startdate startdate, cal.enddate, e.cc_cal_id, cal.bezeichnung, e.special, cal.category_id, e.admin, datediff(e.startdate,CURRENT_DATE) datediff
-                   FROM {cs_event} e, {cc_cal} cal where cal.id=e.cc_cal_id and '.(isset($id)?"e.id=$id":"1=1").
+                   FROM {cs_event} e, {cc_cal} cal where cal.id=e.cc_cal_id and '.($id!=null?"e.id=$id":"1=1").
                    " AND cal.category_id in (".implode(",",$cat).")");
   
   $sql_s = "select es.service_id, es.name, es.cdb_person_id, es.id eventservice_id, es.counter,
@@ -277,24 +282,6 @@ function churchservice_getMasterDataTables() {
   return $res;
 }
 
-/**
- * 
- * @param unknown_type $event_id
- * @param unknown_type $service_id
- */
-/* FUNKTIONIERT ABER MOMENTAN NICHT BENï¿½TIGT!
-function churchservice_delServiceFromEvent($event_id, $service_id) {
-global $user;
-  $auth=churchservice_getAuthorization();
-  if ((!isset($auth["editservice"][$service_id])) && (!isset($auth["leaderservice"][$service_id])))
-    return "Not enough rights!";
-     
-    cdb_log("[ChurchService] Entferne Service ".$service_id." vom Event",2,$event_id,"service");          
-    db_query("delete from {cs_eventservice} where event_id=:event_id and service_id=:service_id",
-    array(":event_id"=>$_GET["id"], ":service_id"=>$_GET["service_id"]));
-  return "ok";
-}
-*/
 
 function churchService_adminOfEvent($event_id) {
   $res=db_query("select admin from {cs_event} where id=$event_id")->fetch();  
@@ -307,15 +294,14 @@ function churchService_adminOfEvent($event_id) {
   return $dabei;  
 }
 
-function churchservice_addOrRemoveServiceToEvent() {
+function churchservice_addOrRemoveServiceToEvent($params) {
 global $user;
-  $problem=false;
   $auth=churchservice_getAuthorization();
   $k=0;
-  while ((isset($_GET["col".$k])) && (!$problem)) {
+  while (isset($params["col".$k])) {
     $fields=array();
-    $fields["event_id"]=$_GET["id"];
-    $fields["service_id"]=$_GET["col".$k];
+    $fields["event_id"]=$params["id"];
+    $fields["service_id"]=$params["col".$k];
     
     $dt = new datetime();
     $fields["valid_yn"]=1;
@@ -327,14 +313,14 @@ global $user;
     // Soll bleiben bzw. erstellt werden
     $soll=0;
     $ist=$db->c;
-    if ((isset($_GET["val".$k]) && ($_GET["val".$k]=="checked"))) {
-      if (isset($_GET["count".$k])) $soll=$_GET["count".$k];
+    if ((isset($params["val".$k]) && ($params["val".$k]=="checked"))) {
+      if (isset($params["count".$k])) $soll=$params["count".$k];
       else $soll=1;
     }
 
     if ($ist!=$soll) {
-      if ((!isset($auth["editservice"][$_GET["col".$k]])) && (!isset($auth["leaderservice"][$_GET["col".$k]])) && (!churchService_adminOfEvent($_GET["id"])))
-        return "Not enough rights in addOrRemoveServiceToEvent: ".$_GET["col".$k];
+      if ((!isset($auth["editservice"][$params["col".$k]])) && (!isset($auth["leaderservice"][$params["col".$k]])) && (!churchService_adminOfEvent($params["id"])))
+        return "Not enough rights in addOrRemoveServiceToEvent: ".$params["col".$k];
       if (($ist==1) && ($soll>1))
         // Wenn es nur einen gibt und nun mehr geben soll, lege noch den Counter auf 1, damit es schï¿½ner aussieht.
         db_query("update {cs_eventservice} set counter=1 where event_id=:event_id and service_id=:service_id and counter is null",
@@ -371,7 +357,7 @@ global $user;
         ->execute();
       cdb_log("[ChurchService] Erstelle Service ".$fields["service_id"]." fuer Event",2,$fields["event_id"],"service");
     }
-    while (($ist>$soll) && (!$problem)) {
+    while ($ist>$soll) {
       // Hole den hšchsten freien Count, wenn es keinen gibt, dann stimmt was nicht, denn
       // das wird ja eigentlich Ÿber JS sichergestellt, dass nur das gelšscht werden kann, wenn was frei ist       
       $res=db_query("select max(counter) c from {cs_eventservice} where 
@@ -379,7 +365,7 @@ global $user;
           array(":event_id"=>$fields["event_id"], ":service_id"=>$fields["service_id"]))
           ->fetch();
       if ($res==null) {
-        $problem=true;
+        throw new CTFail("Error by query max(counter)");
       }
       else {  
         if ($res->c==null)
@@ -393,25 +379,30 @@ global $user;
     }
     $k++;
   }
-  if ($problem) return "Fehler aufgetreten!";
-  else return "ok";     
 }
 
 function churchservice_deleteEvent($event_id) {
   cdb_log("[ChurchService] Entferne Event!",2,$event_id,"service");          
-  db_query("delete from {cs_eventservice} where event_id=:event_id", array(":event_id"=>$event_id));
-  db_query("delete from {cs_event} where id=:event_id", array(":event_id"=>$event_id));
-  return "ok";
+  db_query("delete from {cs_eventservice} where event_id=:event_id", array(":event_id"=>$event_id), false);
+  db_query("delete from {cs_event} where id=:event_id", array(":event_id"=>$event_id), false);
 }
 
-function churchservice_deleteService($service_id) {
+function churchservice_deleteService($params) {
+  $service_id=$params["id"];
+  $auth=churchservice_getAuthorization();
+  if (!isset($auth["editservice"]) || (!isset($auth["editservice"][$service_id])))
+    throw new CTNoPermission("editservice", "churchservice"); 
+  
   cdb_log("[ChurchService] Entferne Service!",2,$service_id,"service");          
-  db_query("delete from {cs_eventservice} where service_id=:service_id", array(":service_id"=>$service_id));
-  db_query("delete from {cs_service} where id=:service_id", array(":service_id"=>$service_id));
-  return jsend()->success();
+  db_query("delete from {cs_eventservice} where service_id=:service_id", array(":service_id"=>$service_id), false);
+  db_query("delete from {cs_service} where id=:service_id", array(":service_id"=>$service_id), false);
 }
 
 function churchservice_editService($params) {
+  $auth=churchservice_getAuthorization();
+  if (!isset($auth["editservice"]) || (!isset($auth["editservice"][$params["id"]])))
+    throw new CTNoPermission("editservice", "churchservice"); 
+  
   $i=new CTInterface();
   $i->setParam("id",false);
   $i->setParam("bezeichnung");
@@ -422,24 +413,18 @@ function churchservice_editService($params) {
   $i->setParam("sendremindermails_yn");
   $i->setParam("allowtonotebyconfirmation_yn");
   $i->setParam("sortkey");
-//  $i->addModifiedParams();  
-
-  try {
-    if ($params["id"]=="null") {
-      db_insert("cs_service")
-        ->fields($i->getDBInsertArrayFromParams($params))
-        ->execute(false);          
-    }
-    else
-      db_update("cs_service")
-        ->fields($i->getDBInsertArrayFromParams($params, true))
-        ->condition("id", $params["id"], "=")
-        ->execute(false);
-  } 
-  catch (Exception $e) {
-    return jsend()->error($e);      
+  
+  if ($params["id"]=="null") {
+    db_insert("cs_service")
+      ->fields($i->getDBInsertArrayFromParams($params))
+      ->execute(false);          
   }
-  return jsend()->success();  
+  else {
+    db_update("cs_service")
+      ->fields($i->getDBInsertArrayFromParams($params, true))
+      ->condition("id", $params["id"], "=")
+      ->execute(false);
+  } 
 }
 
 function churchservice_updateEventService($id, $name, $cdb_person_id, $zugesagt_yn, $reason) {
@@ -462,7 +447,7 @@ function churchservice_updateEventService($id, $name, $cdb_person_id, $zugesagt_
   if ((!isset($auth["editservice"][$arr->service_id])) && (!isset($auth["memberservice"][$arr->service_id])) && (!churchService_adminOfEvent($arr->event_id))
     // Es ist trotzdem erlaubt, wenn die PersonId eingetragen ist, dann wurde er ja angefragt
      && ($arr->cdb_person_id!=$user->id))
-    return "Not enough rights!"; 
+    throw new CTNoPermission("editservice","churchservice");
 
     
   // Wenn die neue €nderung vom gleichen User kommt und noch kein Cron gelaufen ist, 
@@ -546,10 +531,11 @@ function churchservice_updateEventService($id, $name, $cdb_person_id, $zugesagt_
 }
 
 /**
-* ids - Komma-separierte Liste mit GruppenIds
+* params[ids] - Komma-separierte Liste mit GruppenIds
 * Result - Array mit ids, darin enthalten, Name, Vorname, Person_id
  */
-function getPersonByGroupIds($ids) {
+function churchservice_getPersonByGroupIds($params) {
+  $ids=$params["ids"];
   $res = db_query("select g.bezeichnung, gpg.gruppe_id g_id, p.id p_id, gp.id gp_id, p.vorname, p.name, p.email, 
   gp.imageurl, p.cmsuserid, gpg.status_no leiter 
      from {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg, {cdb_gruppe} g
@@ -591,7 +577,8 @@ function churchservice_getLastLogId($last_id=0) {
   return $arr->max;
 }
 
-function churchservice_pollForNews($last_id) {
+function churchservice_pollForNews($params) {
+  $last_id=$params["last_id"];
   $arr["lastLogId"]=churchservice_getLastLogId($last_id);
   return $arr;
 }
@@ -719,10 +706,6 @@ function churchservice_updateOrInsertTemplate($template_id, $bezeichnung, $stund
     }
   }      
 }
-function churchservice_getAbsent() {
-  global $config;
-  return churchcore_getTableData("cs_absent", "startdate"); //, "datediff(startdate,current_date)>-".$config["churchservice_entries_last_days"]);
-}
 
 function churchservice_getAllFacts() {
   global $config;
@@ -775,30 +758,18 @@ function churchservice_addNewSong($params) {
   $i->setParam("copyright");
   $i->addModifiedParams();  
   
-  try {
-    $params["song_id"]=db_insert("cs_song")->fields($i->getDBInsertArrayFromParams($params))->execute(false);
-    $params["bezeichnung"]="Standard-Arrangement";
-    $params["default_yn"]=1;
-    $i=new CTInterface();
-    $i->setParam("song_id");
-    $i->setParam("bezeichnung");
-    $i->setParam("bpm");
-    $i->setParam("beat");
-    $i->setParam("tonality");
-    $i->setParam("default_yn");
-    $i->addModifiedParams();
-    try {
-      db_insert("cs_song_arrangement")->fields($i->getDBInsertArrayFromParams($params))->execute(false);
-    }
-    catch (Exception $e) {
-      db_query("delete from {cs_song} where id=:id", array(":id"=>$params["song_id"]), false);
-      return jsend()->error($e);      
-    }
-  } 
-  catch (Exception $e) {
-    return jsend()->error($e);      
-  }
-  return jsend()->success();  
+  $params["song_id"]=db_insert("cs_song")->fields($i->getDBInsertArrayFromParams($params))->execute(false);
+  $params["bezeichnung"]="Standard-Arrangement";
+  $params["default_yn"]=1;
+  $i=new CTInterface();
+  $i->setParam("song_id");
+  $i->setParam("bezeichnung");
+  $i->setParam("bpm");
+  $i->setParam("beat");
+  $i->setParam("tonality");
+  $i->setParam("default_yn");
+  $i->addModifiedParams();
+  db_insert("cs_song_arrangement")->fields($i->getDBInsertArrayFromParams($params))->execute(false);
 }
 
 function churchservice_editSong($params) {
@@ -811,16 +782,10 @@ function churchservice_editSong($params) {
   $i->setParam("copyright");
   $i->addModifiedParams();  
   
-  try {
-    db_update("cs_song")
-      ->fields($i->getDBInsertArrayFromParams($params))
-      ->condition("id", $params["id"], "=")
-      ->execute(false);
-  } 
-  catch (Exception $e) {
-    return jsend()->error($e);      
-  }
-  return jsend()->success();  
+  db_update("cs_song")
+    ->fields($i->getDBInsertArrayFromParams($params))
+    ->condition("id", $params["id"], "=")
+    ->execute(false);
 }
 
 function churchservice_editArrangement($params) {
@@ -835,16 +800,10 @@ function churchservice_editArrangement($params) {
   $i->setParam("note");
   $i->addModifiedParams();  
   
-  try {
-    db_update("cs_song_arrangement")
-      ->fields($i->getDBInsertArrayFromParams($params))
-      ->condition("id", $params["id"], "=")
-      ->execute(false);
-  } 
-  catch (Exception $e) {
-    return jsend()->error($e);      
-  }
-  return jsend()->success();  
+  db_update("cs_song_arrangement")
+    ->fields($i->getDBInsertArrayFromParams($params))
+    ->condition("id", $params["id"], "=")
+    ->execute(false);
 }
 
 
@@ -853,30 +812,19 @@ function churchservice_addArrangement($params) {
   $i->setParam("song_id");
   $i->setParam("bezeichnung");
   $i->addModifiedParams();    
-  try {
-    $res=db_insert("cs_song_arrangement")
-      ->fields($i->getDBInsertArrayFromParams($params))
-      ->execute(false);
-  } 
-  catch (Exception $e) {
-    return jsend()->error($e);      
-  }
-  return jsend()->success($res);  
+  $res=db_insert("cs_song_arrangement")
+    ->fields($i->getDBInsertArrayFromParams($params))
+    ->execute(false);
+  return $res;  
 }
 
 function churchservice_delArrangement($params) {
   $i=new CTInterface();
   $i->setParam("id");
-  try {
-    db_delete("cs_song_arrangement")
-      ->fields($i->getDBInsertArrayFromParams($params))
-      ->condition("id", $params["id"], "=")
-      ->execute(false);
-  } 
-  catch (Exception $e) {
-    return jsend()->error($e);      
-  }
-  return jsend()->success();  
+  db_delete("cs_song_arrangement")
+    ->fields($i->getDBInsertArrayFromParams($params))
+    ->condition("id", $params["id"], "=")
+    ->execute(false);
 }
 
 function churchservice_makeAsStandardArrangement($params) {
@@ -885,21 +833,15 @@ function churchservice_makeAsStandardArrangement($params) {
   $i->setParam("default_yn");
   $i->setParam("song_id");
   $i->addModifiedParams();    
-  try {
-    db_update("cs_song_arrangement")
-      ->fields($i->getDBInsertArrayFromParams($params))
-      ->condition("song_id", $params["song_id"], "=")
-      ->execute(false);
-    $params["default_yn"]=1;  
-    db_update("cs_song_arrangement")
-      ->fields($i->getDBInsertArrayFromParams($params))
-      ->condition("id", $params["id"], "=")
-      ->execute(false);
-  } 
-  catch (Exception $e) {
-    return jsend()->error($e);      
-  }
-  return jsend()->success();  
+  db_update("cs_song_arrangement")
+    ->fields($i->getDBInsertArrayFromParams($params))
+    ->condition("song_id", $params["song_id"], "=")
+    ->execute(false);
+  $params["default_yn"]=1;  
+  db_update("cs_song_arrangement")
+    ->fields($i->getDBInsertArrayFromParams($params))
+    ->condition("id", $params["id"], "=")
+    ->execute(false);
 }
 
 
@@ -918,24 +860,19 @@ function churchservice_editServiceGroupPersonWeight($params) {
       ->execute(false);
   } 
   catch (Exception $e) {
-    try {
       db_query("update {cs_servicegroup_person_weight} 
         set max_per_month=:max_per_month, relation_weight=:relation_weight, morning_weight=:morning_weight
         where servicegroup_id=:servicegroup_id and person_id=:person_id",
          $i->getDBParamsArrayFromParams($params));
-      } 
-      catch (Exception $e) {
-        return jsend()->error($e);
-      }      
   }
-  return jsend()->success();  
 }
 
-function churchservice_saveFact($event_id, $fact_id, $value) {
+function churchservice_saveFact($params) {
   global $user;
   
-  if (!user_access("edit facts", "churchservice"))
-    return jsend()->fail("Keine Rechte");
+  $event_id=$params["event_id"];
+  $fact_id=$params["fact_id"];
+  $value=$params["value"];
   
   $dt = new datetime();
   
@@ -945,9 +882,7 @@ function churchservice_saveFact($event_id, $fact_id, $value) {
     db_query("insert into {cs_event_fact} (event_id, fact_id, value, modified_date, modified_pid)
            values ($event_id, $fact_id, $value, '".$dt->format('Y-m-d H:i:s')."', $user->id)
             on duplicate key update value=$value, modified_pid=$user->id, modified_date='".$dt->format('Y-m-d H:i:s')."'");
-  cdb_log("[ChurchService] Speichere Fakt $value bei Fakt $fact_id, Event $event_id",2, $fact_id, "fact");
-  
-  return jsend()->success();
+  cdb_log("[ChurchService] Speichere Fakt $value bei Fakt $fact_id, Event $event_id",2, $fact_id, "fact");  
 }
 
 function churchservice_getServiceGroupPersonWeight() {
@@ -990,53 +925,31 @@ function churchservice_addAbsent($person_id, $absent_reason_id, $bezeichnung, $s
      "modified_date"=>$dt->format('Y-m-d H:i:s'))
   )->execute();
   
-  return jsend()->success($id);
+  return $id;
 }
 
 function churchservice_delAbsent($id) {
   db_query("delete from {cs_absent} where id=:id", array(":id"=>$id));
-  return jsend()->success();
 }
 
 
-function churchservice_ajax() {
-global $user, $base_url, $files_dir, $config;
-  include_once("system/churchcal/churchcal_db.inc");
-  include_once("churchservice_db.inc");
-  
-  $t=microtime(true);
-  $function="";
-  if (isset($_GET["func"]))
-    $function=$_GET["func"];
-  else  
-    $function=$_POST["func"];
-    
-  $user_pid=churchcore_getCurrentUserPid();
-  $id=null;
-  $sub="-";  
-  if (isset($_GET["id"]))
-    $id=$_GET["id"];
-  if (isset($_GET["sub"]))
-    $sub=$_GET["sub"];
-    
-  $timer="start:".round(microtime(true)-$t,3)." ";
-  
-  switch ($function) {
-    case "getMasterData":
+class CTChurchServiceModule extends CTAbstractModule {
+  public function getMasterData() {
+    global $user, $base_url, $files_dir, $config;
+      include_once(drupal_get_path('module', 'churchcal') .'/churchcal_db.inc');
       $auth=churchservice_getAuthorization();
       $res=churchservice_getMasterDataTables();
 	  $res["masterDataTables"] = churchservice_getMasterDataTablenames();
-$timer.="masterData:".round(microtime(true)-$t,3)." ";
 	  $res["auth"] = $auth;
 	  $res["modulespath"] = churchservice_getModulesPath();
 	  $res["files_url"] = $base_url.$files_dir;
 	  $res["files_dir"] = $files_dir;
 	  $res["modulename"] = "churchservice";
 	  $res["adminemail"] = variable_get('site_mail', '');
-	  $res["user_pid"] = $user_pid;
+	  $res["user_pid"] = $user->id;
 	  $res["user_name"] = $user->vorname." ".$user->name;
 	  $res["userid"] = $user->cmsuserid;	  
-      $res["settings"] =  churchservice_getUserSettings($user_pid);
+      $res["settings"] =  churchservice_getUserSettings($user->id);
       $res["lastLogId"] = churchservice_getLastLogId();
       $res["eventtemplate"] = churchcore_getTableData("cs_eventtemplate","sortkey");
       $res["category"] = churchcal_getAllowedCategories(false);  
@@ -1044,205 +957,162 @@ $timer.="masterData:".round(microtime(true)-$t,3)." ";
       $res["eventtemplate_services"] = churchservice_getEventtemplateServices($auth);
       $res["churchcal_name"] =$config["churchcal_name"];
       $res["songcategory"] = churchcore_getTableData("cs_songcategory","sortkey");
-$timer.="end:".round(microtime(true)-$t,3);
-	  $res["timer"]=$timer;
-	  
-	  break;
-  case "getEventTemplates":
-    $res=jsend()->success(churchcore_getTableData("cs_eventtemplate","sortkey"));
-    break;      
-  case "pollForNews": 
-    $res = churchservice_pollForNews($_GET["last_id"]);
-    break;
-  case "getNewEventData": 
-    $res["events"] = churchservice_getNewEventData($_GET["last_id"]);
-	break;
-  case "getAllEventData": 
-      $res["events"] = churchservice_getAllEventData($id);
-	  break;
-  case "updateEventService": 
-    $res=churchservice_updateEventService(
-       $_GET["id"],
-       (isset($_GET["name"])?$_GET["name"]:null),
-       (isset($_GET["cdb_person_id"])?$_GET["cdb_person_id"]:null),
-       $_GET["zugesagt_yn"],
-       (isset($_GET["reason"])?$_GET["reason"]:null))
-     ;
-    break;
-  case "getPersonByGroupIds":
-    // Um fï¿½r die Gruppe die Personennamen zu bekommen
-    $res = getPersonByGroupIds($_GET["ids"]);
-    break;
-  case "saveEvent": 
-    $auth=churchservice_getAuthorization();
-    if (!$auth["write"]) 
-      $res="Keine Rechte!";
-    else 
-      $res = jsend()->success(churchservice_saveEvent($_GET));
-    break;
-  case "deleteEvent": 
-    $auth=churchservice_getAuthorization();
-    if (!$auth["write"]) 
-      $res="Keine Rechte!";
-    else 
-      $res = churchservice_deleteEvent($id);
-    break;
-  case "deleteService": 
-    $auth=churchservice_getAuthorization();
-    if (!isset($auth["editservice"]) || (!isset($auth["editservice"][$id]))) 
-      $res=jsend()->error("Keine Rechte!");
-    else 
-      $res = churchservice_deleteService($id);
-    break;    
-  case "editService": 
-    $auth=churchservice_getAuthorization();
-    if (!isset($auth["editgroup"]) || (!isset($auth["editgroup"][$_GET["servicegroup_id"]]))) 
-      $res=jsend()->error("Keine Rechte!");
-    else 
-      $res = churchservice_editService($_GET);
-    break;    
-  case "getGroupAndTagInfos":
+      return $res;
+  }
+  
+  public function getEventTemplates() {
+    return churchcore_getTableData("cs_eventtemplate","sortkey");
+  }
+  
+  public function updateEventService($params) {
+    return churchservice_updateEventService(
+       $params["id"],
+       (isset($params["name"])?$params["name"]:null),
+       (isset($params["cdb_person_id"])?$params["cdb_person_id"]:null),
+       $params["zugesagt_yn"],
+       (isset($params["reason"])?$params["reason"]:null));
+  }
+  
+  public function getAbsent($params) {
+    global $config;
+    return churchcore_getTableData("cs_absent", "startdate"); //, "datediff(startdate,current_date)>-".$config["churchservice_entries_last_days"]);    
+  }
+  
+  public function getGroupAndTagInfos() {
+    global $user;
     $a=array();
     if (user_access("view alldata", "churchdb"))
       $a["groups"]=getAllGroups();
     else
       $a["groups"]=churchdb_getMyGroups($user->id, false, true);
     $a["tags"]=getAllTags();
-    $res=jsend()->success($a);    
-    break;
-  case "addOrRemoveServiceToEvent": 
-    $res = churchservice_addOrRemoveServiceToEvent();
-    break;
+    return $a;    
+  }
+  
+  public function addOrRemoveServiceToEvent($params) { 
+    return churchservice_addOrRemoveServiceToEvent($params);
+  }
     
-/*  case "delServiceFromEvent": 
-    $res = churchservice_delServiceFromEvent($_GET["id"], $_GET["service_id"]);
-    break;*/
-  case "sendEMailToPersonIds":
-    $inhalt=$_POST["inhalt"];
-    $usetemplate=(isset($_POST["usetemplate"]) && ($_POST["usetemplate"]==true));
-    if ($_POST["domain_id"]!="null") {
-//      $res=db_query("select concat(year(datum),'-',month(datum),'-', day(datum)) as datum from {cs_event} where id=".$_GET["domain_id"])->fetch();
-//      $datum=$res->datum;
-      $inhalt.='<p><a class="btn btn-royal" href="'.$base_url.'?q=churchservice&id='.$_POST["domain_id"].'">Event aufrufen</a>';
+  public function sendEMailToPersonIds($params) {
+    $inhalt=$params["inhalt"];
+    $usetemplate=(isset($params["usetemplate"]) && ($params["usetemplate"]==true));
+    if ($params["domain_id"]!="null") {
+      $inhalt.='<p><a class="btn btn-royal" href="'.$base_url.'?q=churchservice&id='.$params["domain_id"].'">Event aufrufen</a>';
     } 
-    $res = churchcore_sendEMailToPersonIds($_POST["ids"], $_POST["betreff"], $inhalt, null, true, $usetemplate);
-    break;
-  case "saveTemplate":
-    if (!user_access("edit template","churchservice"))
-      $res=jsend()->error("Keine Rechte");
-    else {  
-      churchservice_updateOrInsertTemplate(($_GET["template_id"]=="null"?null:$_GET["template_id"]), $_GET["bezeichnung"], $_GET["stunde"], $_GET["minute"], $_GET["dauer_sec"], $_GET["category_id"], $_GET["event_bezeichnung"], $_GET["special"], $_GET["admin"], (isset($_GET["services"])?$_GET["services"]:null));
-      $res=jsend()->success();
-    }
-    break;
-  case "deleteTemplate":    
-    if (!user_access("edit template","churchservice"))
-      $res=jsend()->error("Keine Rechte");
-    else {  
-      db_query("delete from {cs_eventtemplate_service} where eventtemplate_id=$id"); 
-      db_query("delete from {cs_eventtemplate} where id=$id");
-      $res=jsend()->success();
-    } 
-    break;
-  case "saveSetting":
-    churchcore_saveUserSetting("churchservice", $user_pid, $sub, $_GET["val"]);
-    $res="ok";
-    break;     
-  case "delFile":
-    $res=churchcore_delFile($id);
-    break;     
-  case "renameFile":
-    $res=churchcore_renameFile($id, $_GET["filename"]);
-    break;     
-  case "copyFile":
-    $res=churchcore_copyFileToOtherDomainId($id, $_GET["domain_id"]);
-    break;     
-  case "getFiles":
-    $res=churchcore_getFiles("service");
-    break;     
-  case "getAllSongs":
-    $res=churchservice_getAllSongs();
-    break;     
-  case "addNewSong":
-    if (user_access("edit song", "churchservice")) 
-      $res=churchservice_addNewSong($_GET);
-    else $res=jsend()->fail("Keine Rechte!");      
-    break;
-  case "editSong":
-    if (user_access("edit song", "churchservice")) 
-      $res=churchservice_editSong($_GET);
-    else $res=jsend()->fail("Keine Rechte!");      
-    break;
-  case "editArrangement":
-    if (user_access("edit song", "churchservice")) 
-      $res=churchservice_editArrangement($_GET);
-    else $res=jsend()->fail("Keine Rechte!");  
-    break;    
-  case "addArrangement":
-    if (user_access("edit song", "churchservice")) 
-      $res=churchservice_addArrangement($_GET);
-    else $res=jsend()->fail("Keine Rechte!");      
-    break;    
-    case "delArrangement":
-    if (user_access("edit song", "churchservice")) 
-      $res=churchservice_delArrangement($_GET);
-    else $res=jsend()->fail("Keine Rechte!");      
-    break;    
-  case "makeAsStandardArrangement":
-    if (user_access("edit song", "churchservice")) 
-      $res=churchservice_makeAsStandardArrangement($_GET);
-    else $res=jsend()->fail("Keine Rechte!");      
-    break;
-  case "getAllFacts":
-    $res=churchservice_getAllFacts();
-    break;     
-  case "saveFact":
-    $res=churchservice_saveFact($_GET["event_id"], $_GET["fact_id"], $_GET["value"]);
-    break;     
-  case "getAbsent":
-    $res= churchservice_getAbsent($user_pid);
-    break;
-  case "addAbsent":
-    $res= churchservice_addAbsent($_GET["person_id"], $_GET["absent_reason_id"], $_GET["bezeichnung"], $_GET["startdate"], $_GET["enddate"]);
-    break;
-  case "delAbsent":
-    $res= churchservice_delAbsent($_GET["id"]);
-    break;
-  case "saveNote":
-    churchservice_saveNote($_GET["event_id"], $_GET["text"]);
-    $res="ok";
-    break;     
-  case "getServiceGroupPersonWeight":
+    return churchcore_sendEMailToPersonIds($params["ids"], $params["betreff"], $inhalt, null, true, $usetemplate);
+  }
+  
+  public function saveTemplate($params) {
+    $this->checkPerm("edit template");
+    churchservice_updateOrInsertTemplate(($params["template_id"]=="null"?null:$params["template_id"]), $params["bezeichnung"], $params["stunde"], $params["minute"], $params["dauer_sec"], $params["category_id"], $params["event_bezeichnung"], $params["special"], $params["admin"], (isset($params["services"])?$params["services"]:null));
+  }
+  
+  public function deleteTemplate($params) {    
+    $this->checkPerm("edit template");
+    db_query("delete from {cs_eventtemplate_service} where eventtemplate_id=".$params["id"]); 
+    db_query("delete from {cs_eventtemplate} where id=".$params["id"]);
+  }
+  
+  public function delFile($params) {
+    return churchcore_delFile($params["id"]);
+  }
+       
+  public function renameFile($params) {
+    return churchcore_renameFile($params["id"], $params["filename"]);
+  }
+       
+  public function copyFile($params) {
+    return churchcore_copyFileToOtherDomainId($params["id"], $params["domain_id"]);
+  }
+       
+  public function getFiles($params) {
+    return churchcore_getFiles("service");
+  }
+         
+  public function getAllSongs($params) {
+    return churchservice_getAllSongs();
+  }
+       
+  public function addNewSong($params) {
+    $this->checkPerm("edit song");    
+    return churchservice_addNewSong($params);
+  }
+  
+  public function editSong($params) {
+    $this->checkPerm("edit song");
+    return churchservice_editSong($params);
+  }
+  
+  public function editArrangement($params) {
+    $this->checkPerm("edit song");
+    return churchservice_editArrangement($params);
+  }
+      
+  public function addArrangement($params) {
+    $this->checkPerm("edit song");
+    return churchservice_addArrangement($params);
+  }    
+  
+  public function delArrangement($params) {
+    $this->checkPerm("edit song");
+    return churchservice_delArrangement($params);
+  }
+      
+  public function makeAsStandardArrangement($params) {
+    $this->checkPerm("edit song");
+    return churchservice_makeAsStandardArrangement($params);
+  }
+  
+  public function addAbsent($params) {
+    return churchservice_addAbsent($params["person_id"], $params["absent_reason_id"], $params["bezeichnung"], $params["startdate"], $params["enddate"]);
+  }
+  
+  public function delAbsent($params) {
+    return churchservice_delAbsent($params["id"]);
+  }
+  
+  public function saveNote($params) {
+    churchservice_saveNote($params["event_id"], $params["text"]);
+  } 
+      
+  public function getServiceGroupPersonWeight($params) {
+    $res=array();
     $res["weight"]=churchservice_getServiceGroupPersonWeight();
-    break;     
-  case "editServiceGroupPersonWeight":
-    if (user_access("view", "churchservice")) 
-      $res=churchservice_editServiceGroupPersonWeight($_GET);
-    else $res=jsend()->fail("Keine Rechte!");      
-    break;
-  case "getChurchDBMasterData":
+    return $res;
+  }
+       
+  public function editServiceGroupPersonWeight($params) {
+    return churchservice_editServiceGroupPersonWeight($params);
+  }
+    
+  public function getChurchDBMasterData($params) {
     $res["cdb_gruppen"]=churchcore_getTableData("cdb_gruppe");
     $res["cdb_tag"]=churchcore_getTableData("cdb_tag");
-    break;
-  case "deleteMasterData" :
-    if ((user_access("edit masterdata","churchservice")) && (churchcore_isAllowedMasterData(churchservice_getMasterDataTablenames(), $_GET["table"]))) {
-      churchcore_deleteMasterData($id, $_GET["table"]);
-      cdb_log("f:$function id:$id",2,-1,CDB_LOG_MASTERDATA,1);
-      $res=jsend()->success();
-    }
-    else $res=jsend()->error("Keine Rechte! ".(!user_access("edit masterdata","churchservice")?"Bitte edit masterdata vergeben.":"Unerlaubte Tabelle!"));
-    break;
-  case "saveMasterData" :
-    if ((user_access("edit masterdata","churchservice")) && (churchcore_isAllowedMasterData(churchservice_getMasterDataTablenames(), $_GET["table"]))) {      
-      churchcore_saveMasterData($id, $_GET["table"]);
-      cdb_log("f:$function id:$id",2,-1,CDB_LOG_MASTERDATA,1);
-      $res=jsend()->success();
-    } 
-    else $res=jsend()->error("Keine Rechte! ".(!user_access("edit masterdata","churchservice")?"Bitte edit masterdata vergeben.":"Unerlaubte Tabelle!"));
-    break;  
-    
-	default: $res[]="Unknown function call: ".$function;    
-  }
-  drupal_json_output($res);
+  }      
+}
+
+function churchservice_ajax() {
+  include_once("churchservice_db.inc");
+  
+  $module=new CTChurchServiceModule("churchservice");
+  $ajax = new CTAjaxHandler($module);
+  
+  $ajax->addFunction("pollForNews", "view"); 
+  $ajax->addFunction("getNewEventData", "view"); 
+  $ajax->addFunction("getAllEventData", "view"); 
+  $ajax->addFunction("getPersonByGroupIds", "view"); 
+  $ajax->addFunction("saveEvent", "edit events"); 
+  $ajax->addFunction("deleteEvent", "edit events"); 
+  
+  // Facts
+  $ajax->addFunction("getAllFacts", "view facts"); 
+  $ajax->addFunction("saveFact", "edit facts"); 
+  
+  $ajax->addFunction("deleteService");
+  $ajax->addFunction("editService");
+  
+  $ajax->addFunction("addOrRemoveServiceToEvent");
+  
+  drupal_json_output($ajax->call());
 }
 

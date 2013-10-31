@@ -656,7 +656,7 @@ StandardTableView.prototype.mailPerson = function (personId, name, subject) {
               obj.ids=obj.ids+","+masterData.user_pid;
             else
               obj.ids=obj.ids+","+masterData.user_pid[0];
-          churchInterface.jsonWrite({func:"saveSetting", sub:"sendBCCMail", val: masterData.settings.sendBCCMail});
+          churchInterface.jsendWrite({func:"saveSetting", sub:"sendBCCMail", val: masterData.settings.sendBCCMail});
   
           obj.betreff=$("#betreff").val();
           obj.inhalt=CKEDITOR.instances.inhalt.getData();
@@ -1397,7 +1397,7 @@ StandardTableView.prototype.editDomainAuth = function (id, auth, domain_type, fu
 
   if (masterData.cdb_gruppe==null) {
     var elem = this.showDialog("Lade Daten...", "Lade Autorisierungsdaten...", 300, 300);
-    churchInterface.jsonRead({func:"loadAuthData"}, function(json){
+    churchInterface.jsendRead({func:"loadAuthData"}, function(ok, json){
       elem.dialog("close");
       $.each(json, function(k, a) {
         masterData[k]=a;
@@ -1422,7 +1422,7 @@ StandardTableView.prototype.editDomainAuth = function (id, auth, domain_type, fu
         obj.func="saveDomainAuth";
         obj.domain_type=domain_type;
         obj.id=id;
-        churchInterface.jsonWriteSyncron(obj);
+        churchInterface.jsendWrite(obj, null, false);
         if (typeof func =="function") func(id);
         $(this).dialog("close");      
       },

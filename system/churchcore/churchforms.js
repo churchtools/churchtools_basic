@@ -187,7 +187,7 @@ function form_autocompletePersonSelect (divid, withMyDeps, func) {
         str=str.substr(str.lastIndexOf(",")+1,99);
         addStr=request.term.substr(0,request.term.lastIndexOf(",")+1)+" ";
       }
-      churchInterface.jsonRead({func: "getPersonByName", searchpattern: $.trim(str), withmydeps:withMyDeps}, function (json) {
+      churchInterface.jsendRead({func: "getPersonByName", searchpattern: $.trim(str), withmydeps:withMyDeps}, function (ok, json) {
         $(divid).removeClass("throbbing");
         if (json.result=="ok") {
           if (json.data!=null) {
@@ -202,7 +202,7 @@ function form_autocompletePersonSelect (divid, withMyDeps, func) {
           }
             
         }        
-      }, "churchdb");
+      }, null, null, "churchdb");
     },
     minLength: 2,
     select: func

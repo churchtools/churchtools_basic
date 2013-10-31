@@ -1,21 +1,14 @@
 function cdb_loadMasterData(nextFunction) {
   timers["startMasterdata"]=new Date();
 
-/*  if ((masterData==null) && (localStorage.getItem("serviceMasterData")!=null)) {
-    masterData=localStorage.getObject("serviceMasterData");
-    if (nextFunction!=null) setTimeout(nextFunction,0);
-  }
-  else {
-  */
   churchInterface.setStatus("Lade Kennzeichen...");
-  jQuery.getJSON("index.php?q=churchservice/ajax", { func: "getMasterData" }, function(json) {
+  churchInterface.jsendRead({ func: "getMasterData" }, function(ok, json) {
     timers["endMasterdata"]=new Date();
     masterData=json;
     // Wenn ich sortiere, kann ich nicht mehr per ID darauf zugreifen...
     masterData.service_sorted=churchcore_sortData_numeric(masterData.service,"sortkey");
 
     churchInterface.clearStatus();
-  //  localStorage.setObject("serviceMasterData",masterData);
     
     if (nextFunction!=null) nextFunction();
   });
@@ -36,16 +29,21 @@ function cs_loadEventData(id, nextFunction, forceReload) {
   var obj = new Object();
   obj.func="getAllEventData";
   if (id!=null) obj.id=id;
-  churchInterface.jsonRead(obj, function(json) {
-    timers["endAllPersons"]=new Date();
-    if (json.events!=null) {
-      jQuery.each(json.events, function(k,a) {
-        allEvents[a.id]=a;
-      });
-    }  
-//    localStorage.setObject("allEvents",allEvents);
-    churchInterface.clearStatus();
-    if (nextFunction!=null) nextFunction();
+  churchInterface.jsendRead(obj, function(ok, json) {
+    if (!ok) {
+      alert("Fehler beim Laden der Eventdaten: "+json);
+    } 
+    else {
+      timers["endAllPersons"]=new Date();
+      if (json!=null) {
+        jQuery.each(json, function(k,a) {
+          allEvents[a.id]=a;
+        });
+      }  
+  //    localStorage.setObject("allEvents",allEvents);
+      churchInterface.clearStatus();
+      if (nextFunction!=null) nextFunction();
+    }
   });
 }
 
@@ -60,9 +58,9 @@ function cs_loadNewEventData(lastLogId, nextFunction) {
   obj.func="getNewEventData";
   obj.last_id=lastLogId;
   var newEvents = new Array();
-  churchInterface.jsonRead(obj, function(json) {
-    if (json.events!=null) {
-      jQuery.each(json.events, function(k,a) {
+  churchInterface.jsendRead(obj, function(ok, json) {
+    if ((ok) && (json!=null)) {
+      jQuery.each(json, function(k,a) {
         newEvents.push(a.id);
         allEvents[a.id]=a;
       });
@@ -89,7 +87,7 @@ function cs_loadPersonDataFromCdb(nextFunction) {
   });
   ids=ids+"-1";
   //Lade Daten!
-  churchInterface.jsonRead({func: "getPersonByGroupIds", ids: ids}, function(json) {
+  churchInterface.jsendRead({func: "getPersonByGroupIds", ids: ids}, function(ok, json) {
     if (groups==null) 
       groups=new Array();
     jQuery.each(json, function(k,a) {
@@ -104,7 +102,7 @@ function cs_loadPersonDataFromCdb(nextFunction) {
 function cs_loadAbsent(nextFunction) {
   churchInterface.setStatus("Lade Abwesenheiten...");
   //Lade Daten!
-  churchInterface.jsonRead({func: "getAbsent"}, function(json) {
+  churchInterface.jsendRead({func: "getAbsent"}, function(ok, json) {
     if (json!=null) {
       jQuery.each(json, function(k,a) {
         if (allPersons[a.person_id]==null)
@@ -127,7 +125,7 @@ function cs_loadAbsent(nextFunction) {
 function cs_loadSongs(nextFunction) {
   churchInterface.setStatus("Lade Songs...");
   //Lade Daten!
-  churchInterface.jsonRead({func: "getAllSongs"}, function(json) {
+  churchInterface.jsendRead({func: "getAllSongs"}, function(ok, json) {
     allSongs=new Object();
     if (json!=null) {
       if (json.songs!=null) {
@@ -144,18 +142,21 @@ function cs_loadSongs(nextFunction) {
 function cs_loadFacts(nextFunction) {
   churchInterface.setStatus("Lade Fakten...");
   //Lade Daten!
-  churchInterface.jsonRead({func: "getAllFacts"}, function(json) {
-    if (json!=null) {
-      jQuery.each(json, function(k,a) {
-        jQuery.each(a, function(k,fact) {
-          if (allEvents[fact.id]!=null) {
-            if (allEvents[fact.id].facts==null)
-              allEvents[fact.id].facts=new Object();
-            allEvents[fact.id].facts[fact.fact_id]=fact;
-          }
+  churchInterface.jsendRead({func: "getAllFacts"}, function(ok, json) {
+    if (!ok) alert("Fehler beim Laden der Fakten: "+json);
+    else {
+      if (json!=null) {
+        jQuery.each(json, function(k,a) {
+          jQuery.each(a, function(k,fact) {
+            if (allEvents[fact.id]!=null) {
+              if (allEvents[fact.id].facts==null)
+                allEvents[fact.id].facts=new Object();
+              allEvents[fact.id].facts[fact.fact_id]=fact;
+            }
+          });
         });
-      });
-    }        
+      }
+    }
     churchInterface.clearStatus();
     if (nextFunction!=null) nextFunction();
   });
@@ -164,7 +165,7 @@ function cs_loadFacts(nextFunction) {
 function cs_loadFiles(nextFunction) {
   churchInterface.setStatus("Lade Dateien...");
   //Lade Daten!
-  churchInterface.jsonRead({func: "getFiles"}, function(json) {
+  churchInterface.jsendRead({func: "getFiles"}, function(ok, json) {
     if (json!=null) {
       jQuery.each(allEvents, function(k,a) {
         a.files=null;

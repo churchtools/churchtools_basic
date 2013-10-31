@@ -43,10 +43,6 @@ function churchresource__ajax() {
   $module=new CTChurchResourceModule("churchresource");
 
   $ajax = new CTAjaxHandler($module);
-  $ajax->addModuleHandler("getBookings", "view");
-  $ajax->addModuleHandler("pollForNews", "view"); 
-  $ajax->addModuleHandler("getLogs", "view"); 
-  
   $ajax->addFunction("delException", "administer bookings"); 
   $ajax->addFunction("delBooking", "edit masterdata"); 
   $ajax->addFunction("createBooking", "view"); 

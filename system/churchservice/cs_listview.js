@@ -139,7 +139,7 @@ ListView.prototype.showLastChanges = function() {
   var this_object=this;
   // Erstmal die aktuelle Zeit zum Speichern r�bersenden
   var _d= new Date();
-  churchInterface.jsonWrite({func:"saveSetting", sub:"lastVisited", val:_d.toStringEn(true)});
+  churchInterface.jsendWrite({func:"saveSetting", sub:"lastVisited", val:_d.toStringEn(true)});
 
   // Variablen vorbereiten
   if (masterData.settings.lastVisited!=null) { 
@@ -177,7 +177,7 @@ ListView.prototype.showLastChanges = function() {
   if (_text!="") {
     this.showDialog("Neuigkeiten innerhalb Deiner Gruppe", "<table class=\"table table-condensed\">"+_text+"</table>", 600, 600, {
       "Sp\u00e4ter nochmal zeigen": function() {
-        churchInterface.jsonWrite({func:"saveSetting", sub:"lastVisited", val:_lastVisited.toStringEn(true)});
+        churchInterface.jsendWrite({func:"saveSetting", sub:"lastVisited", val:_lastVisited.toStringEn(true)});
         $(this).dialog("close");
       },
       "Schliessen": function() {
@@ -212,7 +212,7 @@ ListView.prototype.messageReceiver = function(message, args) {
 /*      Habe es wieder herausgenommen, da es doch zu Verwirrungen f�hren kann.
  *      if (args[0]=="filterMeine Filter") {
         masterData.settings.filterMeineFilter=this.getFilter("filterMeine Filter");
-        churchInterface.jsonWrite({func:"saveSetting", sub:"filterMeineFilter",
+        churchInterface.jsendWrite({func:"saveSetting", sub:"filterMeineFilter",
                    val:this.getFilter("filterMeine Filter")});
       }*/
 //    }
@@ -326,23 +326,28 @@ ListView.prototype.saveEditEvent = function (elem) {
   }
   var i=0;
   
-  function _recurs(json) {
-    if (_array[i]!=null) {
-      churchInterface.jsendWrite(_array[i],_recurs);
-      elem.html("<b>Daten werden gespeichert f&uuml;r Woche "+i+"...</b><br/><br/>");
-    }              
+  function _recurs(ok, json) {
+    if (!ok) {
+      alert("Fehler: "+json);
+    } 
     else {
-      // Array ist rausgeschrieben, nun kann ich neuladen
-      elem.html("<b>Lade nun Eventliste neu...</b>");  
-      cs_loadEventData(null, function(){
-        elem.dialog("close");
-        this_object.renderList();
-      });            
+      if (_array[i]!=null) {
+        churchInterface.jsendWrite(_array[i],_recurs);
+        elem.html("<b>Daten werden gespeichert f&uuml;r Woche "+i+"...</b><br/><br/>");
+      }              
+      else {
+        // Array ist rausgeschrieben, nun kann ich neuladen
+        elem.html("<b>Lade nun Eventliste neu...</b>");  
+        cs_loadEventData(null, function(){
+          elem.dialog("close");
+          this_object.renderList();
+        });            
+      }
     }
     i=i+1;
   }
   
-  _recurs();
+  _recurs(true);
 };
 
 ListView.prototype.renderEditEvent = function(event) {
@@ -483,14 +488,14 @@ ListView.prototype.renderEditEvent = function(event) {
   rows.push('<tr><td>'+this.renderInput("InputAdmin", "Event-Admin", event.admin, 20, !masterData.auth.admin));
   rows.push('<p><small><span id="adminName">Kommaseparierte Person-Ids, dazu Name eintippen.</span></small></p>');
   if ((event.admin!=null) && (event.admin!="") && (masterData.auth.viewchurchdb)) {
-    churchInterface.jsonRead({func:"getPersonById", id:event.admin}, function(json) {
+    churchInterface.jsendRead({func:"getPersonById", id:event.admin}, function(ok, json) {
       var s = "";
       $.each(json.data, function(k,a) {
         if (s!="") s=s+"<br/>";
         s=s+a.vorname+" "+a.name;
       });
       $("#adminName").html(s);
-    }, "churchdb"); 
+    }, null, null, "churchdb"); 
   }
     
   
@@ -668,7 +673,7 @@ ListView.prototype.renderEditEvent = function(event) {
         obj=new Object();
         obj.func="deleteEvent";
         obj.id=event.id;       
-        $.getJSON("index.php?q=churchservice/ajax", obj, function(json) {
+        churchInterface.jsendWrite(obj, function(ok, json) {
           if (json!="ok") alert("Fehler beim Speichern: "+json);
           else {
             delete allEvents[event.id];
@@ -990,7 +995,7 @@ ListView.prototype.makeFilterCategories = function(start_string) {
   var t=this;
   t.filter["filterKategorien"]=new CC_MultiSelect(masterData.category, function(id, selected) {
     masterData.settings.filterCategory=this.getSelectedAsArrayString();
-    churchInterface.jsonWrite({func:"saveSetting", sub:"filterCategory", val:masterData.settings.filterCategory});
+    churchInterface.jsendWrite({func:"saveSetting", sub:"filterCategory", val:masterData.settings.filterCategory});
     t.renderList();
   });
   t.filter["filterKategorien"].setSelectedAsArrayString(start_string);
@@ -1426,7 +1431,7 @@ function _completePersonInfo(id) {
   //Versuche Kontaktdaten anzureichern
   $("#divkontakt").html("");
   if ((id!=null) && (masterData.auth.viewchurchdb)) {
-    churchInterface.jsonRead({func:"getPersonById",id:id}, function(json) {
+    churchInterface.jsendRead({func:"getPersonById",id:id}, function(ok, json) {
       if ((json.data!=null) && (json.data[id]!=null)) {
         var d=json.data[id];
         txt="";
@@ -1437,7 +1442,7 @@ function _completePersonInfo(id) {
         if (txt!="") $("#divkontakt").html("<p><small>"+txt+"</small>");
       }
       
-    }, "churchdb");
+    }, null, null, "churchdb");
   } 
 }
 
@@ -1624,7 +1629,7 @@ ListView.prototype.renderEditEventService = function(event_id, eventservice_id, 
           obj.zugesagt_yn=0;
         }
         elem.html("<p><br/><b>Daten werden gespeichert...</b><br/><br/>");
-        $.getJSON("index.php?q=churchservice/ajax", obj, function(json) {
+        churchInterface.jsendWrite(obj, function(ok, json) {
           elem.dialog("close");
           if (!json.result) {
             alert("Fehler beim Speichern: "+json);
@@ -2158,7 +2163,7 @@ ListView.prototype.renderAddServiceToServicegroup = function(event, sg_id, user_
         
         elem.html("<p><br/><b>Daten werden gespeichert...</b><br/><br/>");
                 
-        $.getJSON("index.php?q=churchservice/ajax", obj, function(json) {
+        churchInterface.jsendWrite(obj, function(ok, json) {
           if (json!="ok") alert("Fehler beim Speichern: "+json);
           else {
             cs_loadEventData(event.id, function(){
@@ -2305,7 +2310,7 @@ ListView.prototype.sendEMailToEvent = function(event) {
             masterData.settings.sendBCCMail=($("#sendBCCMail").attr("checked")?1:0);
             if (masterData.settings.sendBCCMail==1)            
               ids=ids+masterData.user_pid+",";            
-            churchInterface.jsonWrite({func:"saveSetting", sub:"sendBCCMail", val: masterData.settings.sendBCCMail});
+            churchInterface.jsendWrite({func:"saveSetting", sub:"sendBCCMail", val: masterData.settings.sendBCCMail});
             ids=ids+"-1";
             obj.ids=ids;
             obj.betreff=$("#betreff").val();
@@ -2346,7 +2351,7 @@ ListView.prototype.editNote = function(event) {
       var txt=$("#infos").val();
       obj.text=txt;
       obj.event_id=event.id;      
-      churchInterface.jsonWrite(obj, function(res) {
+      churchInterface.jsendWrite(obj, function(res) {
         if (res) {
           event.special=txt;
           this_object.renderList(event);
@@ -2420,7 +2425,7 @@ ListView.prototype.attachFile = function(event) {
   form_implantWysiwygEditor("editor", null, true);
   elem.find("input:checkbox").change(function() {
     masterData.settings[$(this).attr("id")]=($(this).attr("checked")=="checked"?1:0);
-    churchInterface.jsonWrite({func:"saveSetting", sub:$(this).attr("id"), val:($(this).attr("checked")=="checked"?1:0)});    
+    churchInterface.jsendWrite({func:"saveSetting", sub:$(this).attr("id"), val:($(this).attr("checked")=="checked"?1:0)});    
   });
 
   
@@ -2591,7 +2596,7 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
     else if ($(this).attr("id").indexOf("delCol")==0) {
       var id=$(this).attr("id").substr(6,99);
       masterData.settings["viewgroup"+id]=0;
-      churchInterface.jsonWrite({func:"saveSetting", sub:"viewgroup"+id, val:0});
+      churchInterface.jsendWrite({func:"saveSetting", sub:"viewgroup"+id, val:0});
       t.renderList();
     }
   });
@@ -2632,7 +2637,7 @@ ListView.prototype.addMoreCols = function() {
   });
   elem.find("input:checkbox").click(function(c) {
     masterData.settings[$(this).attr("id")]=($(this).attr("checked")=="checked"?1:0);
-    churchInterface.jsonWrite({func:"saveSetting", sub:$(this).attr("id"), val:masterData.settings[$(this).attr("id")]});
+    churchInterface.jsendWrite({func:"saveSetting", sub:$(this).attr("id"), val:masterData.settings[$(this).attr("id")]});
     t.renderList();
   });  
 };

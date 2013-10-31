@@ -1,5 +1,11 @@
 <?php
 
+define("CDB_LOG_PERSON", 'person');
+define("CDB_LOG_GROUP", 'group');
+define("CDB_LOG_MASTERDATA", 'masterData');
+define("CDB_LOG_TAG", 'tag');
+
+
 /**
  * Interface for implementing ChurchTools-Modules
  * Currently only used for ChurchResource and ChurchCal
@@ -89,7 +95,7 @@ abstract class CTAbstractModule implements CTModuleInterface {
   public function deleteMasterData($params) {
     if ((user_access("edit masterdata","churchresource")) && (churchcore_isAllowedMasterData($this->getMasterDataTablenames(), $params["table"]))) {
       churchcore_deleteMasterData($params["id"], $params["table"]);
-      cr_log("f:deleteMasterData id:".$params["id"],2);
+      $this->logMasterData($params);
     }
     else throw new CTNoPermission("edit masterdata", $this->modulename);  
   }
@@ -97,7 +103,7 @@ abstract class CTAbstractModule implements CTModuleInterface {
   public function saveMasterData($params) {
     if ((user_access("edit masterdata","churchresource")) && (churchcore_isAllowedMasterData($this->getMasterDataTablenames(), $params["table"]))) {      
       churchcore_saveMasterData($params["id"], $params["table"]);
-      cr_log("f:saveMasterData id:".$params["id"],2);
+      $this->logMasterData($params);
     } 
     else throw new CTNoPermission("edit masterdata",$this->modulename);  
   }  
@@ -120,11 +126,42 @@ abstract class CTAbstractModule implements CTModuleInterface {
     return $res;
   }  
   
+  protected function checkPerm($auth, $modulename=null) {
+    if ($modulename==null) $modulename=$this->modulename;
+    if (!user_access($auth, $modulename))
+      throw new CTNoPermission($auth, $modulename);
+  }
+  
+  public function log($params, $loglevel=2) {
+    ct_log(makeParamsLoggable($params), $loglevel);
+  }
+  public function logPerson($params, $loglevel=2) {
+    ct_log(makeParamsLoggable($params), $loglevel, (isset($params["id"])?$params["id"]:null), CDB_LOG_PERSON);    
+  }
+  public function logGroup($params, $loglevel=2) {
+    ct_log(makeParamsLoggable($params), $loglevel, (isset($params["id"])?$params["id"]:null), CDB_LOG_GROUP);
+  }
+  public function logMasterData($params, $loglevel=2) {
+    ct_log(makeParamsLoggable($params), $loglevel, (isset($params["id"])?$params["id"]:null), CDB_LOG_MASTERDATA);
+  }
+  
   public function getMasterDataTablenames() {
     return null;
   }
 }
 
+function makeParamsLoggable($params) {
+  $my=array();
+  foreach ($params as $key=>$param) {
+    if (($key!="q") && ($key!="func"))
+      $my[]="$key:$param";
+  } 
+  $str="";
+  if (isset($params["func"])) $str.=$params["func"]." ";
+  if (count($my)>0) 
+    $str.="(".implode(", ", $my).")";
+  return $str;
+}
 
 class CTException extends Exception {
   // Die Exceptionmitteilung neu definieren, damit diese nicht optional ist
@@ -180,22 +217,10 @@ class CTAjaxHandler {
   public function __construct($module) {
     $this->module=$module;
     $this->modulename=$module->getModuleName();
-    $this->addModuleHandler("getMasterData");
-    $this->addModuleHandler("deleteMasterData");
-    $this->addModuleHandler("saveMasterData");
-    $this->addModuleHandler("saveSetting");
   }
   
   function getFunctionName($func_name) {
     return $this->modulename."_".$func_name;
-  }
-  
-  /*
-   * Function from the module given by the constructor
-   */
-  function addModuleHandler($func_name, $auth_rights=null, $auth_module_name=null) {
-    if ($auth_module_name==null) $auth_module_name=$this->modulename;
-    $this->funcs[$func_name]=array("name"=>$func_name, "auth"=>$auth_rights, "module"=>$auth_module_name, "handler"=>true);
   }
   
   /*
@@ -217,14 +242,14 @@ class CTAjaxHandler {
       return jsend()->error("Parameter func nicht definiert!");
             
     try {
+      if (method_exists($this->module, $params["func"]))
+        return jsend()->success($this->module->$params["func"]($params));        
+        
       if (!isset($this->funcs[$params["func"]])) 
-        return jsend()->error("Func ".$params["func"]." wurde nicht als Module-Handler oder Function definiert!");
+        return jsend()->error("Func ".$params["func"]." wurde nicht als Function definiert!");
       $func=$this->funcs[$params["func"]];
       if (($func["auth"]!=null) && (!user_access($func["auth"], $func["module"])))
-        throw new CTNoPermission($func["auth"], $func["module"]);
-        
-      if (isset($func["handler"]))
-        return jsend()->success($this->module->$func["name"]($params));
+        throw new CTNoPermission($func["auth"], $func["module"]);        
       else                      
         return jsend()->success(call_user_func($this->getFunctionName($func["name"]), $params));      
     } 
@@ -723,9 +748,7 @@ function churchcore_sendEMailToPersonids($ids, $betreff, $inhalt, $from=null, $h
     }
   }
   if (count($error)>0)
-    return jsend()->success("An folgende Personen konnte wegen fehlender EMail-Adresse keine EMail gesendet werden: ".implode($error,","));
-    
-  return jsend()->success();
+    return "An folgende Personen konnte wegen fehlender EMail-Adresse keine EMail gesendet werden: ".implode($error,",");    
 }
 
 
@@ -1026,49 +1049,36 @@ function churchcore_getFilesAsDomainIdArr($domain_type, $domain_id=null) {
 function churchcore_copyFileToOtherDomainId($id, $domain_ids) {
   global $files_dir;
   $res=db_query("select * from {cc_file} where id=:id", array(":id"=>$id), false)->fetch();
-  if (!$res) 
-    return jsend()->fail("Datei nicht in der Datenbank gefunden!");
-  else {
-    $arr=explode(",", $domain_ids);
-    foreach ($arr as $val) {
-      if ($val!="") {
-        if (!file_exists("$files_dir/files/$res->domain_type/$val")) mkdir("$files_dir/files/$res->domain_type/$val",0777,true);
-        if (!copy("$files_dir/files/$res->domain_type/$res->domain_id/$res->filename", "$files_dir/files/$res->domain_type/$val/$res->filename"))
-          return jsend()->fail("Datei konnte nicht nach $files_dir/files/$res->domain_type/$val/$res->filename kopiert werden!");
-        db_query("insert into {cc_file} (domain_type, domain_id, bezeichnung, filename, modified_date, modified_pid) 
-           values (:domain_type, :domain_id, :bezeichnung, :filename, :modified_date, :modified_pid)",
-           array(":domain_type"=>$res->domain_type, ":domain_id"=>$val, ":bezeichnung"=>$res->bezeichnung, 
-                   ":filename"=>$res->filename,":modified_date"=>$res->modified_date, ":modified_pid"=>$res->modified_pid));
-      }      
-    }
-    return jsend()->success();
-  }      
+  if (!$res) throw new CTFail("Datei nicht in der Datenbank gefunden!");
+  $arr=explode(",", $domain_ids);
+  foreach ($arr as $val) {
+    if ($val!="") {
+      if (!file_exists("$files_dir/files/$res->domain_type/$val")) mkdir("$files_dir/files/$res->domain_type/$val",0777,true);
+      if (!copy("$files_dir/files/$res->domain_type/$res->domain_id/$res->filename", "$files_dir/files/$res->domain_type/$val/$res->filename"))
+        throw new CTFail("Datei konnte nicht nach $files_dir/files/$res->domain_type/$val/$res->filename kopiert werden!");
+      db_query("insert into {cc_file} (domain_type, domain_id, bezeichnung, filename, modified_date, modified_pid) 
+         values (:domain_type, :domain_id, :bezeichnung, :filename, :modified_date, :modified_pid)",
+         array(":domain_type"=>$res->domain_type, ":domain_id"=>$val, ":bezeichnung"=>$res->bezeichnung, 
+                 ":filename"=>$res->filename,":modified_date"=>$res->modified_date, ":modified_pid"=>$res->modified_pid));
+    }      
+  }
 }
 
 function churchcore_renameFile($id, $filename) {
   global $files_dir;
   $res=db_query("select * from {cc_file} where id=:id", array(":id"=>$id), false)->fetch();
-  if (!$res) 
-    return jsend()->fail("Datei nicht in der Datenbank gefunden!");
-  else {
-    db_query("update {cc_file} set bezeichnung=:bezeichnung where id=:id", 
-      array(":id"=>$id, ":bezeichnung"=>$filename), false);
-    return jsend()->success();
-  }  
+  if (!$res) throw new CTFail("Datei nicht in der Datenbank gefunden!");
+  db_query("update {cc_file} set bezeichnung=:bezeichnung where id=:id", 
+    array(":id"=>$id, ":bezeichnung"=>$filename), false);
 }
 
 function churchcore_delFile($id) {
   global $files_dir;
   $res=db_query("select * from {cc_file} where id=:id", array(":id"=>$id), false)->fetch();
-  if (!$res) 
-    return jsend()->fail("Datei nicht in der Datenbank gefunden!");
-  else {
-    db_query("delete from {cc_file} where id=:id", array(":id"=>$id), false);
-    if (unlink("$files_dir/files/$res->domain_type/$res->domain_id/$res->filename")) {
-      return jsend()->success();
-    }
-    else return jsend()->fail("Datei konnte auf dem Server nicht entfernt werden.");  
-  }  
+  if (!$res) throw new CTFail("Datei nicht in der Datenbank gefunden!");
+  db_query("delete from {cc_file} where id=:id", array(":id"=>$id), false);
+  if (!unlink("$files_dir/files/$res->domain_type/$res->domain_id/$res->filename")) 
+    throw new CTFail("Datei konnte auf dem Server nicht entfernt werden.");  
 }
 
 function churchcore_renderFile($file) { 
@@ -1736,6 +1746,12 @@ function db_close() {
   $mysqli->close();
 }
 
+/**
+ * ChurchTools primary db access.
+ * @param unknown_type $sql String
+ * @param unknown_type $params params in an array
+ * @param unknown_type $print_error true=>echo the error message, otherwise SQLException will be thrown 
+ */
 function db_query($sql, $params=null, $print_error=true) {
   global $mysqli, $config;
   
@@ -1743,16 +1759,12 @@ function db_query($sql, $params=null, $print_error=true) {
   $sql=str_replace("}","",$sql);
   if ($params!=null) { 
     foreach ($params as $key=>$val) {
-//      if ($val==null) 
-//        $val='null';
-//      else {  
-        $val=escape_string($val);
-        if (($key==":id") && (strpos($val," ") !== false) && ($val>=1))
-          echo $mysqli->error."\nStrange Id: ".$sql;    
-        
-        if (gettype($val)=="string")
-          $val="'".$val."'";
-//      }
+      $val=escape_string($val);
+      if (($key==":id") && (strpos($val," ") !== false) && ($val>=1))
+        echo $mysqli->error."\nStrange Id: ".$sql;    
+      
+      if (gettype($val)=="string")
+        $val="'".$val."'";
       $sql=str_replace($key,$val,$sql);      
     }
   }
@@ -2060,4 +2072,3 @@ function churchcore_saveMasterData($id, $table) {
   } 
   db_query($sql);  
 }
-

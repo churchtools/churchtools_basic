@@ -101,9 +101,7 @@ function churchservice_saveEvent($params, $source=null) {
       $params["notizen"]=$params["special"];
       $params["link"]="";
       $params["ort"]="";
-      $res=churchcal_createEvent($params, "churchservice");
-      if ($res["status"]!="success") throw new CTException("Fehler beim Erstellen des Kalendereintrages: ".$res["message"]);
-      $cal_id=$res["data"];
+      $cal_id=churchcal_createEvent($params, "churchservice");
     }
     $fields["cc_cal_id"]=$cal_id;  
     $event_id=db_insert("cs_event")->fields($fields)->execute();

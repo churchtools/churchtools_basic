@@ -205,8 +205,8 @@ function cdb_showGeoPerson(address, id, limit) {
           obj["lng"]=results[0].geometry.location.lng();
           allPersons[id].geolat=results[0].geometry.location.lat();
           allPersons[id].geolng=results[0].geometry.location.lng();
-          jQuery.getJSON("index.php?q=churchdb/ajax", obj, function(json) {
-            if (json!="ok") alert("Fehler beim Speichern der Geocode-Daten: "+json);
+          churchInterface.jsendWrite(obj, function(ok, json) {
+            if (!ok) alert("Fehler beim Speichern der Geocode-Daten: "+json);
           });
 
         } else {
@@ -244,8 +244,8 @@ function cdb_showGeoGruppe(address, id) {
           obj["lng"]=results[0].geometry.location.lng();
           masterData.groups[id].geolat=results[0].geometry.location.lat();
           masterData.groups[id].geolng=results[0].geometry.location.lng();
-          jQuery.getJSON("index.php?q=churchdb/ajax", obj, function(json) {
-            if (json!="ok") alert("Fehler beim Speichern der Geocode-Daten: "+json);
+          churchInterface.jsendWrite(obj, function(ok, json) {
+            if (!ok) alert("Fehler beim Speichern der Geocode-Daten: "+json);
           });
   
         } else {

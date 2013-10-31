@@ -361,7 +361,7 @@ WikiView.prototype.loadDoc = function(doc_id, wikicategory_id, version_no) {
 };
 
 function churchwiki_loadMasterData() {
-  churchInterface.jsendWrite({func:"masterData"}, function(ok, data) {
+  churchInterface.jsendWrite({func:"getMasterData"}, function(ok, data) {
     if (ok) {
       masterData=data;
     }

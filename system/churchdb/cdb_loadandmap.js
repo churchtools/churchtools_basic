@@ -71,9 +71,9 @@ function cdb_loadRelations(nextFunction) {
   jQuery.each(allPersons, function(k,a) {
     a.rels=null;
   });
-  churchInterface.jsonRead({func:"getAllRels"}, function(json) {
-    if (json.rels!=null) {
-    	jQuery.each(json.rels, function(k,a) {
+  churchInterface.jsendRead({func:"getAllRels"}, function(ok, json) {
+    if (json!=null) {
+    	jQuery.each(json, function(k,a) {
         cdb_addJsonRels(a, allPersons[a.k_id]);
         cdb_addJsonRels(a, allPersons[a.v_id]);
       });
@@ -89,7 +89,7 @@ function cdb_loadRelations(nextFunction) {
 
 function cdb_loadSearch(nextFunction) {
   churchInterface.setStatus("Lade Suchdaten...");
-  churchInterface.jsonRead({func:"getSearchableData"}, function(json) {
+  churchInterface.jsendRead({func:"getSearchableData"}, function(ok, json) {
     jQuery.each(json.searchable, function(k,a) {
       if (allPersons[a.id]!=null)
         allPersons[a.id]=cdb_mapJsonSearchable(a, allPersons[a.id]);          
@@ -120,7 +120,7 @@ function cdb_loadSearch(nextFunction) {
 function cdb_loadMasterData(nextFunction) {
   churchInterface.setStatus("Lade Kennzeichen...");
   timers["startMasterdata"]=new Date();
-  jQuery.getJSON("index.php?q=churchdb/ajax", { func: "getMasterData" }, function(json) {
+  churchInterface.jsendRead({ func: "getMasterData" }, function(ok, json) {
     timers["endMasterdata"]=new Date();
     masterData=json;
     churchInterface.clearStatus();
@@ -133,10 +133,10 @@ function cdb_loadPersonData(nextFunction, limit, p_id) {
   window.setTimeout(function() {
     churchInterface.setStatus("Lade Personendaten...");
     timers["startAllPersons"]=new Date();
-    churchInterface.jsonRead({func:"getAllPersonData", limit:limit, p_id:p_id}, function(json) {
+    churchInterface.jsendRead({func:"getAllPersonData", limit:limit, p_id:p_id}, function(ok, json) {
       timers["endAllPersons"]=new Date();
-      if (json.persons!=null) {
-        jQuery.each(json.persons, function(k,a) {
+      if (json!=null) {
+        jQuery.each(json, function(k,a) {
           allPersons[a.p_id]=cdb_mapJsonPerson1(a, allPersons[a.p_id]);
         });
       }  
@@ -158,7 +158,7 @@ function cdb_loadGroupMeetingStats(filter, _id, func) {
     if (!masterData.auth.viewgroupstats) 
       _id=filter['filterOwnGroups'];
       
-    churchInterface.jsonRead({func:"GroupMeeting", sub:"stats", id: _id }, function(json) {
+    churchInterface.jsendRead({func:"GroupMeeting", sub:"stats", id: _id }, function(ok, json) {
       groupMeetingStats=json;
       if (func!=null) func(true);
     });

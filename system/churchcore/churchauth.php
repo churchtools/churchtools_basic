@@ -12,8 +12,6 @@ function churchauth_getModule() {
 function churchauth__ajax() {
   $module = new CTChurchAuthModule("churchauth");
   $ajax = new CTAjaxHandler($module);
-  $ajax->addModuleHandler("saveAuth", "administer persons", "churchcore");
-   
   drupal_json_output($ajax->call());
 }
 
@@ -64,6 +62,9 @@ class CTChurchAuthModule extends CTAbstractModule {
 
 
   public function saveAuth($params) {
+    if (!user_access("administer persons","churchcore")) 
+  	  throw new CTNoPermission("administer persons", "churchcore");
+    
     db_query("delete from {cc_domain_auth} where domain_type=:domain_type and domain_id=:domain_id", 
         array(":domain_type"=>$params["domain_type"], ":domain_id"=>$params["domain_id"]));
     if (isset($params["data"])) {    

@@ -76,8 +76,8 @@ CDBStandardTableView.prototype.addTagCallbacks = function(id, func) {
           }
         });
       if (tag_id==null) {
-        churchInterface.jsonWriteSyncron({func:"addNewTag", bezeichnung:val},
-          function(b){
+        churchInterface.jsendWrite({func:"addNewTag", bezeichnung:val},
+          function(ok, b){
             var o = new Object();
             o.id=b;
             o.bezeichnung=val;
@@ -85,9 +85,10 @@ CDBStandardTableView.prototype.addTagCallbacks = function(id, func) {
               masterData.tags=new Object();
             masterData.tags[b]=o;
             tag_id=b;
+            func(tag_id);
           });
       }
-      func(tag_id);
+      else func(tag_id);
     }
   });
 };

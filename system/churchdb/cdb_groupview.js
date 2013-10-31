@@ -67,7 +67,7 @@ GroupView.prototype.renderMenu = function() {
         $("#cdb_group").html("");
         if (masterData.settings.churchdbInitView!='PersonView') {
           masterData.settings.churchdbInitView='PersonView';
-          churchInterface.jsonWrite({func:"saveSetting", sub:"churchdbInitView", val:"PersonView"});
+          churchInterface.jsendWrite({func:"saveSetting", sub:"churchdbInitView", val:"PersonView"});
         }
         churchInterface.setCurrentView(personView);
       }
@@ -321,7 +321,7 @@ GroupView.prototype.msg_filterChanged = function (id, oldVal) {
     t.renderDistrict();
     if (masterData.settings.filterDistrikt!=t.filter['filterDistrikt']) {
       masterData.settings.filterDistrikt=t.filter['filterDistrikt'];
-      churchInterface.jsonWrite({func:"saveSetting", sub:"filterDistrikt", val:(masterData.settings.filterDistrikt==null?"null":masterData.settings.filterDistrikt)});
+      churchInterface.jsendWrite({func:"saveSetting", sub:"filterDistrikt", val:(masterData.settings.filterDistrikt==null?"null":masterData.settings.filterDistrikt)});
     }
   }
   else if (id=="filterGruppentyp") {
@@ -383,7 +383,7 @@ GroupView.prototype.renderAddEntry = function() {
     if ($("#forceCreate").attr("checked")=="checked") {
       obj["force"]="checked";
     }
-    $.getJSON("index.php?q=churchdb/ajax", obj, function(json) {        
+    churchInterface.jsendWrite(obj, function(ok, json) {        
       if (json.result=="exist") {
         $("#searchEntry").val(json.id).keyup();          
         alert("Mindestens eine Gruppe mit dem Namen existiert schon!");
@@ -1042,7 +1042,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
       ) { 
     if ((masterData.groups[g_id].meetingList==null)) {
       masterData.groups[g_id].meetingList="get data";
-      $.getJSON("index.php?q=churchdb/ajax", { func: "GroupMeeting", sub:"getList", g_id: g_id }, function(json) {
+      churchInterface.jsendWrite({ func: "GroupMeeting", sub:"getList", g_id: g_id }, function(ok, json) {
         if (json!=null) {
           masterData.groups[g_id].meetingList=json;
           $("#groupinfosTD"+p_id).html("");
@@ -1282,7 +1282,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
     if (masterData.groups[g_id].tags==null)
       masterData.groups[g_id].tags= new Array();
     masterData.groups[g_id].tags.push(tag_id);
-    churchInterface.jsonWrite({func:"addGroupTag", id:g_id, tag_id:tag_id});
+    churchInterface.jsendWrite({func:"addGroupTag", id:g_id, tag_id:tag_id});
     this_object.renderList();
     this_object.renderEntryDetail(g_id);      
   });
@@ -1323,7 +1323,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
           else {
             obj.func="deleteGroup";
             obj.id=p_id;
-            churchInterface.jsonWrite(obj, function(ok) {
+            churchInterface.jsendWrite(obj, function(ok) {
               if (ok) {        
                 delete masterData.groups[p_id];
                 churchInterface.getCurrentView().renderList();
@@ -1496,7 +1496,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
     }
     else if ($(this).attr("id").indexOf("del_tag")==0) {    
       masterData.groups[g_id].tags.splice($.inArray($(this).attr("id").substring(7,99),masterData.groups[g_id].tags),1);
-      churchInterface.jsonWriteSyncron({func:"delGroupTag", id:g_id, tag_id:$(this).attr("id").substring(7,99)});
+      churchInterface.jsendWrite({func:"delGroupTag", id:g_id, tag_id:$(this).attr("id").substring(7,99)}, null, false);
       this_object.renderView();
       this_object.renderEntryDetail(g_id);
       return false;
@@ -1541,7 +1541,7 @@ GroupView.prototype.renderEditEntry = function (id, fieldname) {
       masterData.groups[id].geolat="";
         
       $("#cbn_editor").html("<p><br/><b>Daten werden gespeichert...</b><br/><br/>");
-      churchInterface.jsonWrite(obj, function(ok) {
+      churchInterface.jsendWrite(obj, function(ok) {
         // Hier wird absichtlich die CurrentView neu gerendet, es kann sein, dass eine Gruppe ja aus der
         // Personensicht geaendert wurde!
         churchInterface.getCurrentView().renderList();

@@ -609,14 +609,15 @@ function _churchdb_delPersonGroupRelation($p_id, $g_id) {
   return "ok";
 }
 
-function saveBereich($rel_id) {
-global $user, $_GET;
+function saveBereich($params) {
+global $user;
+  $rel_id=$params["id"];
   $arr=churchdb_getAllowedDeps();
    
   foreach ($arr as $value) {
     db_query("DELETE FROM {cdb_bereich_person} WHERE person_id=:rel_id and bereich_id=:bereich_id", 
       array(":rel_id"=>$rel_id, ":bereich_id"=>$value)); 
-	if ((isset($_GET["bereich".$value])) && ($_GET["bereich".$value]==1)) {
+	if ((isset($params["bereich".$value])) && ($params["bereich".$value]==1)) {
       db_query("INSERT INTO {cdb_bereich_person} VALUES (".$value.", ".$rel_id.")");  		  	
 	}
   }  
@@ -684,10 +685,6 @@ function churchdb_getModulesPath() {
   return drupal_get_path('module', 'churchdb');
 }
 
-/**
- * Erzeugt eine Uebersicht ueber alle Stammdatentabellen, die per MaintainView gepflegt werden sollen
- * Diese Infos werden per JSON an das JS uebergeben
- */
 function churchdb_getMasterDataTablenames() {
   $res=array();
   // Nummern nicht �ndern, Statistik bezieht sich darauf!
@@ -990,29 +987,24 @@ function churchdb_addPersonAuth($id, $auth_id) {
   db_insert("cc_domain_auth")->fields($fields)->execute();        
   return "ok";
 }
+
 function churchdb_deactivatePerson($id) {
   // Entferne direkt zugeordnete Berechtigungen.
-  db_query("delete from {cc_domain_auth} where domain_type='person' and domain_id=:id", array(":id"=>$id));
+  db_query("delete from {cc_domain_auth} where domain_type='person' and domain_id=:id", array(":id"=>$id), false);
   // Setze Person auf deactive
-  db_query("update {cdb_person} set active_yn=0, loginstr=null where id=:id", array(":id"=>$id));
-  
-  return jsend()->success();
+  db_query("update {cdb_person} set active_yn=0, loginstr=null where id=:id", array(":id"=>$id), false);
 }
 
 function churchdb_activatePerson($id) {
   // Setze Person auf active
-  db_query("update {cdb_person} set active_yn=1 where id=:id", array(":id"=>$id));
-  
-  return jsend()->success();
+  db_query("update {cdb_person} set active_yn=1 where id=:id", array(":id"=>$id), false);
 }
 
 function churchdb_setPersonPassword($id, $password) {
   if ((!isset($password)) || ($password==null) || ($password==""))
-    return jsend()->fail("Password nicht akzeptiert");
+    throw new CTFail("Password nicht akzeptiert");
         
-  db_query("update {cdb_person} set password=md5(:password) where id=:id", array(":id"=>$id, ":password"=>$password));
-  
-  return jsend()->success();
+  db_query("update {cdb_person} set password=md5(:password) where id=:id", array(":id"=>$id, ":password"=>$password), false);
 }
 
 
@@ -1049,21 +1041,16 @@ function churchdb_addMailchimpRelation($params) {
   $i->setParam("goodbye_yn");
   $i->setParam("notifyunsubscribe_yn");
   $i->addModifiedParams();    
-  try {
-    $res=db_insert("cdb_gruppe_mailchimp")
-      ->fields($i->getDBInsertArrayFromParams($params))
-      ->execute(false);
-  } 
-  catch (Exception $e) {
-    return jsend()->error($e);      
-  }
-  return jsend()->success($res);    
+  $res=db_insert("cdb_gruppe_mailchimp")
+    ->fields($i->getDBInsertArrayFromParams($params))
+    ->execute(false);
+  return $res;    
 }
+
 function churchdb_delMailchimpRelation($params) {
   db_query("delete from {cdb_gruppe_mailchimp} 
             where mailchimp_list_id=:list_id and gruppe_id=:gruppe_id",
     array(":gruppe_id"=>$params["gruppe_id"], ":list_id"=>$params["mailchimp_list_id"]));
-  return jsend()->success();    
 }
 
 function churchdb_loadMailchimp() {
@@ -1082,12 +1069,10 @@ function churchdb_loadMailchimp() {
   $res->lists=$api->lists();
   if ($api->errorCode){
     $txt="Unable to load lists()! Code=".$api->errorCode. " Msg=".$api->errorMessage;
-    return jsend()->fail($txt);
+    throw new CTFail($txt);
   } 
-  else {
-    $res->zuordnung=$zuordnung;  
-    return jsend()->success($res);
-  }
+  $res->zuordnung=$zuordnung;  
+  return $res;
 }
 
 
@@ -1209,44 +1194,71 @@ function churchdb_sendsms($ids, $txt) {
       $res["smscount"]++;
     }    
   }
-  return jsend()->success($res);  
+  return $res;  
 }
 
-function churchdb_ajax() {
-global $user, $base_url, $files_dir;
-  $t=microtime(true);
+function f_functions($params) {
+  $function=$params["func"];
+  $fields=getAllFields("intern_code='".$function."'");
+  
+  // Pr�fe, ob eine E_Mail-Adresse gesetz werden soll die es schon gibt ohne Schreibrechte.
+  // Das soll verhindert werden, denn sonst kann sich jemand die E-Mail eines Admins geben...
+  if ((isset($params["email"]) && (!user_access("write access", "churchdb")))) {
+    $db=db_query("select * from {cdb_person} p where email=:email and id!=:id",
+    array(":email"=>$params["email"], ":id"=>$params["id"]))->fetch();
+    if ($db!=false) {
+      $res="Die E-Mail-Adresse ist schon vergeben. Um eine vergebene E-Mail-Adresse zu setzen werden mehr Rechte gebraucht.";
+      break;
+    }
+  }
+  if ($function=="f_group") {
+    saveGeocodeGruppe($params["id"],"","");
+  }
+  foreach ($fields["fields"] as $key=>$value) {
+    if (isset($params[$key]))
+    $arr[$key]=$params[$key];
+  }
+  // Wenn die letzteaenderung mit �bergeben wird (z.B. bei Sync mit externen Tools)
+  // Soll das hier mit gesetzt werden
+  if (isset($params['letzteaenderung']))
+  $arr['letzteaenderung']=$params['letzteaenderung'];
 
-  $user_pid = churchcore_getCurrentUserPid();      
-
-  $function="";
-  if (isset($_GET["func"]))
-    $function=$_GET["func"];
-  else if (isset($_POST["func"])) 
-    $function=$_POST["func"];
+  $oldarr=saveDataArray($fields, $params["id"], $arr);
+  if (is_string($oldarr))
+  $res=$oldarr;
   else {
-    $res[]="Unknown function call: ";
-  } 
-  
-  if (isset($_GET["id"]))
-    $id=$_GET["id"];
-  else $id=null;  
-  if (isset($_GET["sub"]))
-    $sub=$_GET["sub"];
-  else $sub="-";  
-  $res="";
-  $timer="start:".round(microtime(true)-$t,3)." ";
-  
-  switch ($function) {
-    case "getMasterData":
-      
-    $res=churchdb_getMasterDataTables();
-$timer.="masterData:".round(microtime(true)-$t,3)." ";
+    $txt=churchcore_getFieldChanges($fields["fields"], $oldarr, $arr);
+    if ($txt!=null) {
+      if ($function=="f_group") {
+        $txt="Gruppe: ".$arr["bezeichnung"]."\n".$txt;
+      }
+      else {
+        $details=churchdb_getPersonDetails($params["id"]);
+        $txt="Person: ".$details->vorname." ".$details->name." (".$params["id"].")\n".$txt;
+      }
+    }
+    sendFieldNotifications($function,$txt);
+     
+    if ($txt!=null)
+    if ($function=="f_group")
+      cdb_log("$function - ".$txt,2,$params["id"],CDB_LOG_GROUP,1);
+    else
+      cdb_log("$function - ".$txt,2,$params["id"],CDB_LOG_PERSON,1);
+  }
+}
 
+
+class CTChurchDBModule extends CTAbstractModule {
+
+  public function getMasterData() {
+    global $user, $base_url, $files_dir, $config;
+
+    $res=churchdb_getMasterDataTables();
     $res["feldtyp"]=churchcore_getTableData("cdb_feldtyp");
     $res["fields"]=getAllFields();
     $res["groups"] = getAllGroups();
     $res["tags"] = getAllTags();
-    $res["FUNachfolgeDomains"] = array("0"=> array ("id"=>"0", "bezeichnung"=>"Kein"), 
+    $res["FUNachfolgeDomains"] = array("0"=> array ("id"=>"0", "bezeichnung"=>"Kein"),
                                        "1"=> array ("id"=>"1", "bezeichnung"=>"Gruppentyp"),
                                        "2"=> array ("id"=>"2", "bezeichnung"=>"Distrikt"),
                                        "3"=> array ("id"=>"3", "bezeichnung"=>"Gruppe")
@@ -1254,372 +1266,324 @@ $timer.="masterData:".round(microtime(true)-$t,3)." ";
     $res["groupMemberTypes"] = getGroupMemberTypes();
     $res["groupFilterTypes"] = churchdb_getGroupFilterTypes();
 
-    // Das sind sie Stammdateninfos f�r die Stammdatenpflege und die Statistik    
+    // Das sind sie Stammdateninfos f�r die Stammdatenpflege und die Statistik
     if ((user_access("edit masterdata", "churchdb")) || (user_access("view statistics", "churchdb")))
-      $res["masterDataTables"] = churchdb_getMasterDataTablenames();
+    $res["masterDataTables"] = churchdb_getMasterDataTablenames();
 
-    $res["user_pid"]=$user_pid;
-    $res["userid"]=$user->vorname." ".$user->cmsuserid." [".$user_pid."]";
+    $res["user_pid"]=$user->id;
+    $res["userid"]=$user->vorname." ".$user->cmsuserid." [".$user->id."]";
     $res["auth"] = churchdb_getAuthForAjax();
     $res["site_name"] = variable_get("site_name");
     $res["modulespath"] = churchdb_getModulesPath();
-    $res["files_url"] = $base_url.$files_dir; 
+    $res["files_url"] = $base_url.$files_dir;
     $res["modulename"] = "churchdb";
-    $res["adminemail"] = variable_get('site_mail', '');    
+    $res["adminemail"] = variable_get('site_mail', '');
     $res["max_exporter"] = variable_get('churchdb_maxexporter', '150');
     $res["groupnotchoosable"] = variable_get('churchdb_groupnotchoosable', 30);
     $res["home_lat"] = variable_get('churchdb_home_lat', '53.568537');
     $res["home_lng"] = variable_get('churchdb_home_lng', '10.03656');
-    $res["settings"] = churchdb_getUserSettings($user_pid);
+    $res["settings"] = churchdb_getUserSettings($user->id);
     $res["last_log_id"] = churchdb_getLastLogId();
     $res["mailchimp"] = variable_get('churchdb_mailchimp_apikey')!="";
-    if (user_access("administer persons", "churchcore")) 
-      $res["auth_table"] = churchdb_getAuthTable();
+    if (user_access("administer persons", "churchcore"))
+    $res["auth_table"] = churchdb_getAuthTable();
 
     if (isset($res["auth"]["edit newsletter"])) {
       $nl=churchdb_getTableData("cdb_newsletter");
-      $newsletter=array();  
+      $newsletter=array();
       foreach ($res["auth"]["edit newsletter"] as $n) {
         $newsletter=$nl[$n];
-      }  
+      }
       $res["newsletter"]=$newsletter;
     }
-      
-$timer.="end:".round(microtime(true)-$t,3)." ";
-	  $res["timer"]=$timer;
 
-	break;
-  case "getAllRels": 
-    $res["rels"] = getAllRelations();
-    break;
-  case "mailchimp":
-    if ($_GET["sub"]=="load") 
-      $res = churchdb_loadMailchimp();
-    else if ($_GET["sub"]=="add")
-      $res = churchdb_addMailchimpRelation($_GET);    
-    else if ($_GET["sub"]=="del")
-      $res = churchdb_delMailchimpRelation($_GET);    
-    break;
-  case "sendsms":
-    if (!user_access("send sms", "churchdb"))
-      $res = jsend()->error("Keine Berechtigung!");
-    else  
-      $res = churchdb_sendsms($_GET["ids"], $_GET["smstxt"]);
-    break;  
-  case "pollForNews": 
-    $res = churchdb_pollForNews($_GET["last_id"]);
-    break;
-  case "getAllPersonData": 
-	  if (isset($_GET["p_id"])) {
-	    // Pr�fe gegen SQL-Injection
-	    if (!is_numeric($_GET["p_id"])) { echo "Unallowed access!"; return null;};
-	    $res["persons"] = churchdb_getAllowedPersonData('archiv_yn=0 and p.id='.$_GET["p_id"]);
-	  }
-	  else  
-        $res["persons"] = churchdb_getAllowedPersonData('archiv_yn=0');
-	  break;
-  case "getAllPersonArchiveData": 
-      $res["persons"] = churchdb_getAllowedPersonData('archiv_yn=1');
-	  break;
- case "getOptigemPersonData":
-    $res='OPTIGEM nur bei der ChurchTools Pro-Version!';
-    break;
-    
-  case "getPersonDetails": 
-	  $res = churchdb_getPersonDetails($id);
-    cdb_log("f:$function id:$id",3,$id);
-	  break;
-  case "getPersonDetailsLogs":
-    $res = churchdb_getPersonDetailsLogs($id);
-    break;
-	case "getSearchableData": 
-	  $res["searchable"] = getSearchableData();
-	  $res["oldGroupRelations"] =getOldGroupRelations();
-	  $res["tagRelations"] =getTagRelations();
-	  break;
-	case "f_geocode_person":
-		saveGeocodePerson($id,$_GET["lat"],$_GET["lng"]);
-    $res="ok";
-    break;
-	case "f_geocode_gruppe":
-    saveGeocodeGruppe($id,$_GET["lat"],$_GET["lng"]);
-    $res="ok";
-    break;
-	case "createAddress":
-	  if (!user_access("write access","churchdb"))
-	    $res="Keine Rechte!";
-	  else {  
-        $res=createAddress($_GET);
-        if (isset($res["id"]))
-         cdb_log("f:$function res:".$res["result"]." ".(isset($_GET["givenname"])?$_GET["givenname"]:$_GET["vorname"])." ".$_GET["name"]." ".$_GET["Inputf_dep"]." ".$_GET["Inputf_status"],2,$res["id"],CDB_LOG_PERSON,1);
-	  }
-    break;
-	case "createGroup":
-      $res=createGroup($_GET["name"],$_GET["Inputf_grouptype"],$_GET["Inputf_district"], (isset($_GET["force"])?$_GET["force"]:null));
-      cdb_log("f:$function res:".$res["result"]." ".$_GET["name"]." ".$_GET["Inputf_grouptype"],3,$res["id"],CDB_LOG_GROUP,1);
-    break;
-  case "deleteLastGroupStatistic":
-    $res=churchdb_deleteLastGroupStatistik($id);
-    break;
-  case "deleteGroup":
-      $res=deleteGroup($id);
-      cdb_log("f:$function id:".$id,2,$id,CDB_LOG_GROUP,1);
-    break;
-    case "f_image":
-		$res=saveImage($id, $_GET["url"]);		
-        cdb_log("f:$function id:$id ".$_GET["url"],2,$id,CDB_LOG_PERSON,1);
-		break;
-	case "f_bereich": 
-      $res=saveBereich($id);
-      cdb_log("f:$function id:$id",3,$id,CDB_LOG_PERSON,1);
-      break;
-	case "f_note": 
-      $res=saveNote($id,$_GET["note"],$_GET["comment_viewer"],(isset($_GET["relation_name"])?$_GET["relation_name"]:"person"));      
-      if (isset($_GET["followup_count_no"])) {
-        $gp_id=_churchdb_getGemeindepersonIdFromPersonId($id);
-        db_query("UPDATE {cdb_gemeindeperson_gruppe} set followup_count_no=".$_GET["followup_count_no"].", followup_add_diff_days=".$_GET["followup_add_diff_days"].
-                    " where gemeindeperson_id=".$gp_id." and gruppe_id=".$_GET["followup_gid"]);
-      }
-      cdb_log("f:$function ".$_GET["note"]." ".$_GET["comment_viewer"],3,$id,CDB_LOG_PERSON,1);
-    break;
-	case "add_rel":
-	  $res=addRelation($id, $_GET["child_id"], $_GET["rel_id"]);
-	  cdb_log("Neue Beziehung zu ".$_GET["child_id"]." Typ:".$_GET["rel_id"],2,$id,CDB_LOG_PERSON,1);
-	break;  
-	case "del_rel":
-	  $res=delRelation($_GET["rel_id"]);
-	  cdb_log("Beziehung ".$_GET["rel_id"]." entfernt",2,$id,CDB_LOG_PERSON,1);
-	  break;
-	case "GroupMeeting":
-    cdb_log("f:$function id:$id sub:$sub",3);
-		if ($_GET["sub"]=="getList")
-        $res=getGroupMeeting($_GET["g_id"]);
-      else if ($_GET["sub"]=="canceled")
-        $res=cancelGroupMeeting($_GET["gt_id"]);
-      else if ($_GET["sub"]=="create") 
-        createGroupMeetings();
-      else if ($_GET["sub"]=="stats") 
-        $res=getGroupMeetingStats($id);
-      else if ($_GET["sub"]=="delete") 
-        $res=deleteGroupMeetingStats($id);
-      else if ($_GET["sub"]=="saveProperties") 
-        $res=savePropertiesGroupMeetingStats($_GET);
-      else if ($_GET["sub"]=="editCheckin")  
-        $res=editCheckinGroupMeetingStats($_GET);
-      else 
-        $res="Error in GroupMeeting"; 
-	  break;
-  case "addEvent":
-      $res=churchdb_addEvent($_GET);
-    break;	  
-  case "del_note": 
-    if (user_access("write access","churchdb")) {
-      $sql="DELETE FROM {cdb_comment} WHERE id=".$_GET["comment_id"];
-      db_query($sql);
-      cdb_log("Kommentar geloescht ".$_GET["comment_id"],2,$_GET["id"],CDB_LOG_PERSON,1);
-      $res="ok";
-	}
-    break;
-  case "setCMSUser" :
-  	cdb_log("f:$function id:$id",3,$id,CDB_LOG_PERSON,1);
-  	$res=setCMSUser($id, $user->cmsuserid);
-  	break;
-  case "send_email" :
-    cdb_log("f:$function ".$_GET["subject"]." ".$_GET["body"],3);    
-    churchdb_send_mail($_GET["subject"],$_GET["body"],$_GET["to"]);
-    $res="ok";
-  	break;
-  case "delete_user":
-    if ((user_access("administer persons","churchcore")) || (user_access("edit masterdata","churchdb"))) {
-      cdb_log("f:$function id:$id",2,$id,CDB_LOG_PERSON,1);
-      $res=deleteUser($id);
-    } else $res="Nicht genuegend Recht zum loeschen!";
-    break;  
-  case "archivePerson":
-    if ((user_access("push/pull archive","churchdb"))) {
-      cdb_log("f:$function id:$id",2,$id,CDB_LOG_PERSON,1);
-      $res=archiveUser($id);
-    } else $res="Nicht genuegend Rechte!";
-    break;  
-  case "undoArchivePerson":
-    if ((user_access("push/pull archive","churchdb"))) {
-      cdb_log("f:$function id:$id",2,$id,CDB_LOG_PERSON,1);
-      $res=archiveUser($id, true);
-    } else $res="Nicht genuegend Rechte!";
-    break;  
-  case "auth" :
-    print_r(churchdb_getAuthForAjax());
-    break; 
-  case "deleteMasterData" :
-    if ((user_access("edit masterdata","churchdb")) && (churchcore_isAllowedMasterData(churchdb_getMasterDataTablenames(), $_GET["table"]))) {
-      churchcore_deleteMasterData($id, $_GET["table"]);
-      cdb_log("f:$function id:$id",2,-1,CDB_LOG_MASTERDATA,1);
-      $res=jsend()->success();
+    return $res;
+  }
+
+
+
+  public function getAllRels($params) {
+    return getAllRelations();
+  }
+  public function mailchimp($params) {
+    if ($params["sub"]=="load")
+    $res = churchdb_loadMailchimp();
+    else if ($params["sub"]=="add")
+    $res = churchdb_addMailchimpRelation($params);
+    else if ($params["sub"]=="del")
+    $res = churchdb_delMailchimpRelation($params);
+  }
+  public function sendsms($params) {
+    $this->checkPerm("send sms");
+    return churchdb_sendsms($params["ids"], $params["smstxt"]);
+  }
+  public function pollForNews($params) {
+    return churchdb_pollForNews($params["last_id"]);
+  }
+  public function getAllPersonData($params) {
+    if (isset($params["p_id"])) {
+      // Check against SQL-Injection
+      if (!is_numeric($params["p_id"])) { echo "Unallowed access!"; return null;};
+      return churchdb_getAllowedPersonData('archiv_yn=0 and p.id='.$params["p_id"]);
     }
-    else $res=jsend()->error("Keine Rechte! ".(!user_access("edit masterdata","churchdb")?"Bitte edit masterdata vergeben.":"Unerlaubte Tabelle!"));
-    break;
-  case "saveMasterData" :
-    if ((user_access("edit masterdata","churchdb")) && (churchcore_isAllowedMasterData(churchdb_getMasterDataTablenames(), $_GET["table"]))) {      
-      churchcore_saveMasterData($id, $_GET["table"]);
-      cdb_log("f:$function id:$id",2,-1,CDB_LOG_MASTERDATA,1);
-      $res=jsend()->success();
-    } 
-    else $res=jsend()->error("Keine Rechte! ".(!user_access("edit masterdata","churchdb")?"Bitte edit masterdata vergeben.":"Unerlaubte Tabelle!"));
-    break;  
-  case "saveSetting":
-    churchcore_saveUserSetting("churchdb", $user_pid, $sub, $_GET["val"]);
-    $res="ok";
-    break;     
-  case "test" :
-    print $base_url;
-    print "\nchurchdb_sendgroupmails: ".variable_get('churchdb_sendgroupmails', true);
-    break;
-  case "saveMyFilter":
-    $data=churchcore_getUserSettings("churchdb",$user_pid);
+    else
+      return churchdb_getAllowedPersonData('archiv_yn=0');
+  }
+  public function getAllPersonArchiveData($params) {
+    return churchdb_getAllowedPersonData('archiv_yn=1');
+  }
+  public function getPersonDetails($params) {
+    $this->logPerson($params);
+    return churchdb_getPersonDetails($params["id"]);
+  }
+  public function getPersonDetailsLogs($params) {
+    return churchdb_getPersonDetailsLogs($params["id"]);
+  }
+  public function getSearchableData($params) {
+    $res["searchable"] = getSearchableData();
+    $res["oldGroupRelations"] =getOldGroupRelations();
+    $res["tagRelations"] =getTagRelations();
+    return $res;
+  }
+  public function f_geocode_person($params) {
+    saveGeocodePerson($params["id"],$params["lat"],$params["lng"]);
+  }
+  public function f_geocode_gruppe($params) {
+    saveGeocodeGruppe($params["id"],$params["lat"],$params["lng"]);
+  }
+  public function createAddress($params) {
+    $this->checkPerm("write access");
+    $res=createAddress($params);
+    if (isset($res["id"]))
+      $this->logPerson($params, 2);
+    return $res;
+  }
+  public function createGroup($params) {
+    $res=createGroup($params["name"],$params["Inputf_grouptype"],$params["Inputf_district"], (isset($params["force"])?$params["force"]:null));
+    $this->logGroup($params, 2);    
+    return $res;
+  }
+  public function deleteLastGroupStatistic($params) {
+    return churchdb_deleteLastGroupStatistik($params["id"]);
+  }
+  public function deleteGroup($params) {
+    $res=deleteGroup($params["id"]);
+    $this->logGroup($params, 2);    
+    return $res;
+  }
+  public function f_image($params) {
+    $res=saveImage($params["id"], $params["url"]);
+    $this->logPerson($params, 2);  
+    return $res;
+  }
+  public function f_bereich($params) {
+    $res=saveBereich($params);
+    $this->logPerson($params, 2);
+    return $res;
+  }
+  public function f_note($params) {
+    $res=saveNote($params["id"],$params["note"],$params["comment_viewer"],(isset($params["relation_name"])?$params["relation_name"]:"person"));
+    if (isset($params["followup_count_no"])) {
+      $gp_id=_churchdb_getGemeindepersonIdFromPersonId($params["id"]);
+      db_query("UPDATE {cdb_gemeindeperson_gruppe} set followup_count_no=".$params["followup_count_no"].", followup_add_diff_days=".$params["followup_add_diff_days"].
+                    " where gemeindeperson_id=".$gp_id." and gruppe_id=".$params["followup_gid"]);
+    }
+    $this->logPerson($params, 2);
+    return $res;
+  }
+  public function add_rel($params) {
+    $res=addRelation($params["id"], $params["child_id"], $params["rel_id"]);
+    $this->logPerson($params, 2);
+    return $res;
+  }
+  public function del_rel($params) {
+    $res=delRelation($params["rel_id"]);
+    $this->logPerson($params, 2);
+    return $res;
+  }
+  public function GroupMeeting($params) {
+    $this->logGroup($params);
+    
+    if ($params["sub"]=="getList")
+    $res=getGroupMeeting($params["g_id"]);
+    else if ($params["sub"]=="canceled")
+    $res=cancelGroupMeeting($params["gt_id"]);
+    else if ($params["sub"]=="create")
+    createGroupMeetings();
+    else if ($params["sub"]=="stats")
+    $res=getGroupMeetingStats($params["id"]);
+    else if ($params["sub"]=="delete")
+    $res=deleteGroupMeetingStats($params["id"]);
+    else if ($params["sub"]=="saveProperties")
+    $res=savePropertiesGroupMeetingStats($params);
+    else if ($params["sub"]=="editCheckin")
+    $res=editCheckinGroupMeetingStats($params);
+    else
+    throw new CTException("Error in GroupMeeting");
+    return $res;    
+  }
+  public function addEvent($params) {
+    return churchdb_addEvent($params);
+  }
+  public function del_note($params) {
+    $this->checkPerm("write access");
+    $sql="DELETE FROM {cdb_comment} WHERE id=".$params["comment_id"];
+    db_query($sql);
+    $this->logPerson($params);
+  }
+  public function setCMSUser($params) {
+    global $user;
+    $this->logPerson($params);
+    return setCMSUser($params["id"], $user->cmsuserid);
+  }
+  public function send_email($params) {
+    $this->log($params);
+    churchdb_send_mail($params["subject"],$params["body"],$params["to"]);
+  }
+  public function delete_user($params) {
+    if ((user_access("administer persons","churchcore")) || (user_access("edit masterdata","churchdb"))) {
+      $this->logPerson($params,1);
+      return deleteUser($params["id"]);
+    } throw new CTNoPermission("administer persons");
+  }
+  public function archivePerson($params) {
+    $this->checkPerm("push/pull archive");
+    $this->logPerson($params,1);
+    return archiveUser($params["id"]);
+  }
+  public function undoArchivePerson($params) {
+    $this->checkPerm("push/pull archive");
+    $this->logPerson($params,1);
+    return archiveUser($params["id"], true);
+  }
+  public function saveMyFilter($params) {
+    global $user;
+    $data=churchcore_getUserSettings("churchdb",$user->id);
     $arr=array();
     if (isset($data["filter"]))
-      $arr=unserialize($data["filter"]);
-    $arr[$_GET["name"]]=$_GET["filter"];
-    churchcore_saveUserSetting("churchdb",$user_pid,"filter",serialize($arr));
-    
-    $res="ok";
-    break;    
-  case "delMyFilter":
-    $data=churchcore_getUserSettings("churchdb",$user_pid);  
-    $arr=unserialize($data["filter"]);    
-    unset($arr[$_GET["name"]]);
-    churchcore_saveUserSetting("churchdb",$user_pid,"filter",serialize($arr));
-    $res="ok";
-    break;
-  case "delPersonTag":    
-    $gp_id=_churchdb_getGemeindepersonIdFromPersonId($id);    
-    db_query("delete from {cdb_gemeindeperson_tag} where tag_id=".$_GET["tag_id"]." and gemeindeperson_id=$gp_id");
-    break;    
-  case "delGroupTag":    
-    db_query("delete from {cdb_gruppe_tag} where tag_id=".$_GET["tag_id"]." and gruppe_id=$id");
-    break;    
-  case "addNewTag":
-    $dt = new DateTime();    
+    $arr=unserialize($data["filter"]);
+    $arr[$params["name"]]=$params["filter"];
+    churchcore_saveUserSetting("churchdb",$user->id,"filter",serialize($arr));
+  }
+  public function delMyFilter($params) {
+    global $user;
+    $data=churchcore_getUserSettings("churchdb",$user->id);
+    $arr=unserialize($data["filter"]);
+    unset($arr[$params["name"]]);
+    churchcore_saveUserSetting("churchdb",$user->id,"filter",serialize($arr));
+  }
+  public function delPersonTag($params) {
+    $gp_id=_churchdb_getGemeindepersonIdFromPersonId($params["id"]);
+    db_query("delete from {cdb_gemeindeperson_tag} where tag_id=".$params["tag_id"]." and gemeindeperson_id=$gp_id");
+  }
+  public function delGroupTag($params) {
+    db_query("delete from {cdb_gruppe_tag} where tag_id=".$params["tag_id"]." and gruppe_id=".$params["id"]);
+  }
+  public function addNewTag($params) {
+    global $user;
+    $dt = new DateTime();
     $new_id=db_insert('cdb_tag')->fields(array(
-      "bezeichnung"=>$_GET["bezeichnung"], 
+      "bezeichnung"=>$params["bezeichnung"], 
       "letzteaenderung"=>$dt->format('Y-m-d H:i:s'),
       "aenderunguser"=>$user->cmsuserid))->execute();
-    $res=$new_id;
-    cdb_log("$function - addNewTag: ".$_GET["bezeichnung"],2,$new_id,CDB_LOG_TAG);
-    break;    
-  case "addPersonTag":
-    $dt = new DateTime();   
-    $gp_id=_churchdb_getGemeindepersonIdFromPersonId($id);    
+    return $new_id;
+    cdb_log("addNewTag: ".$params["bezeichnung"],2,$new_id,CDB_LOG_TAG);
+  }
+  public function addPersonTag($params) {
+    $dt = new DateTime();
+    $gp_id=_churchdb_getGemeindepersonIdFromPersonId($params["id"]);
     $new_id=db_insert('cdb_gemeindeperson_tag')->fields(array(
       "gemeindeperson_id"=>$gp_id,
-      "tag_id"=>$_GET["tag_id"],
+      "tag_id"=>$params["tag_id"],
       "letzteaenderung"=>$dt->format('Y-m-d H:i:s')))->execute();
-    $res="ok";
-    cdb_log("$function - addPersonTag: ".$_GET["tag_id"]." P:".$id,2,$id,CDB_LOG_PERSON,1);
-    break;    
-  case "addGroupTag":
-    $dt = new DateTime();   
+    $this->logPerson($params);
+  }
+  public function addGroupTag($params) {
+    $dt = new DateTime();
     $new_id=db_insert('cdb_gruppe_tag')->fields(array(
-      "gruppe_id"=>$_GET["id"],
-      "tag_id"=>$_GET["tag_id"],
+      "gruppe_id"=>$params["id"],
+      "tag_id"=>$params["tag_id"],
       "letzteaenderung"=>$dt->format('Y-m-d H:i:s')))->execute();
-    $res="ok";
-    cdb_log("$function - addGroupTag: ".$_GET["tag_id"]." G:".$id,2,$id,CDB_LOG_PERSON,1);
-    break;    
-  case "addPersonDistrictRelation":
-    if (!user_access("administer groups", "churchdb"))
-      $res=jsend()->fail("Fehlende Berechtigung");
-    else {  
-      $dt = new DateTime();   
-      $new_id=db_insert('cdb_person_distrikt')->fields(array(
-        "person_id"=>$_GET["id"],
-        "distrikt_id"=>$_GET["distrikt_id"],
-        "modified_pid"=>$user->id,
-      "modified_date"=>$dt->format('Y-m-d H:i:s')))->execute();
-      $res=jsend()->success();
-      cdb_log("$function - addPersonDistrikt: ".$_GET["distrikt_id"]." G:".$id,2,$id,CDB_LOG_PERSON,1);
-    }
-    break;       
-  case "delPersonDistrictRelation":
-    if (!user_access("administer groups", "churchdb"))
-      $res=jsend()->fail("Fehlende Berechtigung");
-    else {  
-      db_query("delete from {cdb_person_distrikt} where person_id=:id and distrikt_id=:distrikt_id",
-        array(":id"=>$_GET["id"], ":distrikt_id"=>$_GET["distrikt_id"]));      
-      $res=jsend()->success();
-      cdb_log("$function - delPersonDistrikt: ".$_GET["distrikt_id"]." G:".$id,2,$id,CDB_LOG_PERSON,1);
-    }    
-    break;
-  case "addPersonGruppentypRelation":
-    if (!user_access("administer groups", "churchdb"))
-      $res=jsend()->fail("Fehlende Berechtigung");
-    else {  
-      $dt = new DateTime();   
-      $new_id=db_insert('cdb_person_gruppentyp')->fields(array(
-        "person_id"=>$_GET["id"],
-        "gruppentyp_id"=>$_GET["gruppentyp_id"],
-        "modified_pid"=>$user->id,
-      "modified_date"=>$dt->format('Y-m-d H:i:s')))->execute();
-      $res=jsend()->success();
-      cdb_log("$function - addPersonGruppentyp: ".$_GET["gruppentyp_id"]." G:".$id,2,$id,CDB_LOG_PERSON,1);
-    }
-    break;       
-  case "delPersonGruppentypRelation":
-    if (!user_access("administer groups", "churchdb"))
-      $res=jsend()->fail("Fehlende Berechtigung");
-    else {  
-      db_query("delete from {cdb_person_gruppentyp} where person_id=:id and gruppentyp_id=:gruppentyp_id",
-        array(":id"=>$_GET["id"], ":gruppentyp_id"=>$_GET["gruppentyp_id"]));      
-      $res=jsend()->success();
-      cdb_log("$function - delPersonGruppentyp: ".$_GET["gruppentyp_id"]." G:".$id,2,$id,CDB_LOG_PERSON,1);
-    }    
-    break;
-  case "delPersonGroupRelation":
-    $res=_churchdb_delPersonGroupRelation($id, $_GET["g_id"]);
-    break;
-  case "editPersonGroupRelation":
-    if (isset($_GET["followup_count_no"]))
-      $f=$_GET["followup_count_no"];
+    $this->logPerson($params);
+  }
+  public function addPersonDistrictRelation($params) {
+    global $user;
+    $this->checkPerm("administer groups");
+    $dt = new DateTime();
+    $new_id=db_insert('cdb_person_distrikt')->fields(array(
+      "person_id"=>$params["id"],
+      "distrikt_id"=>$params["distrikt_id"],
+      "modified_pid"=>$user->id,
+    "modified_date"=>$dt->format('Y-m-d H:i:s')))->execute();
+    $this->logPerson($params);
+  }
+  public function delPersonDistrictRelation($params) {
+    $this->checkPerm("administer groups");
+    db_query("delete from {cdb_person_distrikt} where person_id=:id and distrikt_id=:distrikt_id",
+    array(":id"=>$params["id"],":distrikt_id"=>$params["distrikt_id"]));
+    $this->logPerson($params);
+  }
+  public function addPersonGruppentypRelation($params) {
+    global $user;
+    $this->checkPerm("administer groups");
+        $dt = new DateTime();
+    $new_id=db_insert('cdb_person_gruppentyp')->fields(array(
+    "person_id"=>$params["id"],
+    "gruppentyp_id"=>$params["gruppentyp_id"],
+    "modified_pid"=>$user->id,
+    "modified_date"=>$dt->format('Y-m-d H:i:s')))->execute();
+    $this->logPerson($params);
+  }
+  public function delPersonGruppentypRelation($params) {
+    $this->checkPerm("administer groups");
+    db_query("delete from {cdb_person_gruppentyp} where person_id=:id and gruppentyp_id=:gruppentyp_id",
+    array(":id"=>$params["id"], ":gruppentyp_id"=>$params["gruppentyp_id"]));
+    $this->logPerson($params);
+  }
+  public function delPersonGroupRelation($params) {
+    return _churchdb_delPersonGroupRelation($params["id"], $params["g_id"]);
+  }
+  public function editPersonGroupRelation($params) {
+    if (isset($params["followup_count_no"]))
+      $f=$params["followup_count_no"];
     else
       $f="null";
-       
-    $res=_churchdb_editPersonGroupRelation($id, 
-        $_GET["g_id"], 
-        $_GET["leader"], 
-        $_GET["date"], 
-        $f,
-        (isset($_GET["comment"])?$_GET["comment"]:null)
-      );
-    break;
-  case "addPersonGroupRelation":
-    $res=churchdb_addPersonGroupRelation($id, 
-        $_GET["g_id"], 
-        $_GET["leader"], 
-        $_GET["date"], 
-        (isset($_GET["followup_count_no"])?$_GET["followup_count_no"]:null),
-        (isset($_GET["followup_erfolglos_zurueck_gruppen_id"])?$_GET["followup_erfolglos_zurueck_gruppen_id"]:null),
-        (isset($_GET["comment"])?$_GET["comment"]:null)
-      );
-    break;
-  case "getPersonByName":
-    $res=_churchdb_getPersonByName($_GET["searchpattern"],isset($_GET["withmydeps"]));
-    break;  
-  case "getPersonById":
-    $res=_churchdb_getPersonById($_GET["id"]);
-    break;  
-  case "sendInvitationMail":
-    churchdb_invitePersonToSystem($_GET["id"], $_SESSION["user"]);
-    $res="ok";
-    break;
-  case "setPersonPassword":
-    if (user_access("administer persons","churchcore"))
-      $res=churchdb_setPersonPassword($id, $_GET["password"]);
-    else $res=jsend()->error("Nicht genug Rechte!");    
-    break;
-  case "sendEMailToPersonIds":
-    $res = churchcore_sendEMailToPersonIds($_POST["ids"], $_POST["betreff"], $_POST["inhalt"], null, true, false);    
-    break;
-  case "loadAuthData":
+     
+    return _churchdb_editPersonGroupRelation($params["id"],
+      $params["g_id"],
+      $params["leader"],
+      $params["date"],
+      $f,
+      (isset($params["comment"])?$params["comment"]:null)
+    );
+  }
+  public function addPersonGroupRelation($params) {
+    return churchdb_addPersonGroupRelation($params["id"],
+      $params["g_id"],
+      $params["leader"],
+      $params["date"],
+      (isset($params["followup_count_no"])?$params["followup_count_no"]:null),
+      (isset($params["followup_erfolglos_zurueck_gruppen_id"])?$params["followup_erfolglos_zurueck_gruppen_id"]:null),
+      (isset($params["comment"])?$params["comment"]:null)
+    );
+  }
+  public function getPersonByName($params) {
+    return _churchdb_getPersonByName($params["searchpattern"],isset($params["withmydeps"]));
+  }
+  public function getPersonById($params) {
+    return _churchdb_getPersonById($params["id"]);
+  }
+  public function sendInvitationMail($params) {
+    churchdb_invitePersonToSystem($params["id"], $_SESSION["user"]);
+  }
+  public function setPersonPassword($params) {
+    $this->checkPerm("administer persons");
+    return churchdb_setPersonPassword($params["id"], $params["password"]);
+  }
+  public function sendEMailToPersonIds($params) {
+    return churchcore_sendEMailToPersonIds($_POST["ids"], $_POST["betreff"], $_POST["inhalt"], null, true, false);
+  }
+  public function loadAuthData($params) {
     if (user_access("administer persons", "churchcore")) {
       $res["cdb_bereich"] = (object) churchcore_getTableData("cdb_bereich");
       $res["cdb_comment_viewer"] = (object) churchcore_getTableData("cdb_comment_viewer");
@@ -1627,124 +1591,85 @@ $timer.="end:".round(microtime(true)-$t,3)." ";
       $res["cs_songcategory"] = (object) churchcore_getTableData("cs_songcategory");
       $res["cc_wikicategory"] = (object) churchcore_getTableData("cc_wikicategory");
       $res["cc_calcategory"] = (object) churchcore_getTableData("cc_calcategory");
-      //$res["cdb_newsletter"] = churchcore_getTableData("cdb_newsletter");
+      return $res;
     }
-    break;      
-  case "deactivatePerson":
-    if (user_access("administer persons","churchcore"))
-      $res = churchdb_deactivatePerson($id);
-    else $res=jsend()->error("Nicht genug Rechte!");    
-    break;
-  case "activatePerson":
-    if (user_access("administer persons","churchcore"))
-      $res = churchdb_activatePerson($id);
-    else $res=jsend()->error("Nicht genug Rechte!");    
-  break;
-  case "getGroupAutomaticEMail":
-    if (user_access("administer groups", "churchdb")) {
-      $res=jsend()->success(db_query("select * from {cdb_gruppenteilnehmer_email} where gruppe_id=:gruppe_id and status_no=:status_no",
-        array(":gruppe_id"=>$_GET["id"], ":status_no"=>$_GET["status_no"]))->fetch());
-    }      
-    else $res=jsend()->error("Nicht genug Rechte!");    
-    break;
-  case "saveGroupAutomaticEMail":
-    if (user_access("administer groups", "churchdb")) {
-      db_query("insert into {cdb_gruppenteilnehmer_email} (gruppe_id, status_no, aktiv_yn, sender_pid, email_betreff, email_inhalt)
-           values (:gruppe_id, :status_no, :aktiv_yn, :sender_pid, :email_betreff, :email_inhalt)
-            on duplicate key update aktiv_yn=:aktiv_yn, sender_pid=:sender_pid, email_betreff=:email_betreff, email_inhalt=:email_inhalt",
-        array(':gruppe_id'=>$_GET["id"], 
-              ':status_no'=>$_GET["status_no"],
-              ':aktiv_yn'=>$_GET["aktiv_yn"],
-              ':sender_pid'=>$_GET["sender_pid"],
-              ':email_betreff'=>$_GET["email_betreff"],
-              ':email_inhalt'=>$_GET["email_inhalt"]));
-      $res=jsend()->success();
-    }      
-    else $res=jsend()->error("Nicht genug Rechte!");    
-  break;
-  case "addPersonAuth":
-    if (user_access("administer persons","churchcore"))
-      $res = churchdb_addPersonAuth($id, $_GET["auth_id"]);
-    else $res="not enough rights!";
-    break;
-  case "saveDomainAuth":
-    if (user_access("administer persons","churchcore"))
-      $res = churchdb_saveDomainAuth($_GET);
-    else $res="not enough rights!";
-    break;
-  case "getImportTables":
-    if (user_access("edit masterdata","churchdb")) {
-      $db=db_query('show tables');
-      $arr=array();
-      foreach ($db as $table) {
-        foreach ($table as $row) {
-          if (!isCTDBTable($row)) $arr[$row]=array("id"=>$row, "bezeichnung"=>$row);
-        }        
-      }      
-      $res=jsend()->success($arr);
-    }
-    else $res=jsend()->error("not enough rights!");
-    break;
-  case "getTableContent":
-    if (user_access("edit masterdata","churchdb")) {
-      $res=jsend()->success(churchcore_getTableData($_GET["table"]));
-    }
-    else $res=jsend()->error("not enough rights!");
-    break;
-  case "f_address" || "f_church" || "f_category" || "f_group":
-    $fields=getAllFields("intern_code='".$function."'");
-    if ($fields==null) {
-      $res=jsend()->error("Unbekannter Aufruf: ".$function);        	
-      break;
-    } 
-    // Pr�fe, ob eine E_Mail-Adresse gesetz werden soll die es schon gibt ohne Schreibrechte. 
-    // Das soll verhindert werden, denn sonst kann sich jemand die E-Mail eines Admins geben...
-    else if ((isset($_GET["email"]) && (!user_access("write access", "churchdb")))) {
-      $db=db_query("select * from {cdb_person} p where email=:email and id!=:id",
-         array(":email"=>$_GET["email"], ":id"=>$_GET["id"]))->fetch();
-      if ($db!=false) {
-        $res="Die E-Mail-Adresse ist schon vergeben. Um eine vergebene E-Mail-Adresse zu setzen werden mehr Rechte gebraucht.";
-        break;
+  }
+  public function deactivatePerson($params) {
+    $this->checkPerm("administer persons");
+    return churchdb_deactivatePerson($params["id"]);
+  }
+  public function activatePerson($params) {
+    $this->checkPerm("administer persons");
+    return churchdb_activatePerson($params["id"]);
+  }
+  public function getGroupAutomaticEMail($params) {
+    $this->checkPerm("administer groups");
+    return db_query("select * from {cdb_gruppenteilnehmer_email} where gruppe_id=:gruppe_id and status_no=:status_no",
+    array(":gruppe_id"=>$params["id"], ":status_no"=>$params["status_no"]))->fetch();
+  }
+  public function saveGroupAutomaticEMail($params) {
+    $this->checkPerm("administer groups");
+        db_query("insert into {cdb_gruppenteilnehmer_email} (gruppe_id, status_no, aktiv_yn, sender_pid, email_betreff, email_inhalt)
+         values (:gruppe_id, :status_no, :aktiv_yn, :sender_pid, :email_betreff, :email_inhalt)
+          on duplicate key update aktiv_yn=:aktiv_yn, sender_pid=:sender_pid, email_betreff=:email_betreff, email_inhalt=:email_inhalt",
+    array(':gruppe_id'=>$params["id"],
+            ':status_no'=>$params["status_no"],
+            ':aktiv_yn'=>$params["aktiv_yn"],
+            ':sender_pid'=>$params["sender_pid"],
+            ':email_betreff'=>$params["email_betreff"],
+            ':email_inhalt'=>$params["email_inhalt"]));
+  }
+  public function addPersonAuth($params) {
+    $this->checkPerm("administer persons", "churchcore");
+    return churchdb_addPersonAuth($params["id"], $params["auth_id"]);
+  }
+  public function saveDomainAuth($params) {
+    $this->checkPerm("administer persons", "churchcore");
+    return churchdb_saveDomainAuth($params);
+  }
+  public function getImportTables($params) {
+    $this->checkPerm("edit masterdata");
+    $db=db_query('show tables');
+    $arr=array();
+    foreach ($db as $table) {
+      foreach ($table as $row) {
+        if (!isCTDBTable($row)) $arr[$row]=array("id"=>$row, "bezeichnung"=>$row);
       }
     }
-  	if ($function=="f_group") {
-  	  saveGeocodeGruppe($_GET["id"],"","");
-    }  
-    foreach ($fields["fields"] as $key=>$value) {
-      if (isset($_GET[$key]))
-        $arr[$key]=$_GET[$key];
-    }
-    // Wenn die letzteaenderung mit �bergeben wird (z.B. bei Sync mit externen Tools)
-    // Soll das hier mit gesetzt werden
-    if (isset($_GET['letzteaenderung']))
-      $arr['letzteaenderung']=$_GET['letzteaenderung'];
-
-    $oldarr=saveDataArray($fields, $_GET["id"], $arr);
-    if (is_string($oldarr))
-      $res=$oldarr;
-    else {  
-      $txt=churchcore_getFieldChanges($fields["fields"], $oldarr, $arr);
-      if ($txt!=null) {
-        if ($function=="f_group") {
-      	  $txt="Gruppe: ".$arr["bezeichnung"]."\n".$txt;  
-        } 
-        else {
-          $details=churchdb_getPersonDetails($id);
-          $txt="Person: ".$details->vorname." ".$details->name." ($id)\n".$txt;
-      	} 
-      }  
-      sendFieldNotifications($function,$txt);
-       
-      if ($txt!=null) 
-        if ($function=="f_group") 
-          cdb_log("$function - ".$txt,2,$id,CDB_LOG_GROUP,1);
-        else
-          cdb_log("$function - ".$txt,2,$id,CDB_LOG_PERSON,1);
-      $res="ok";
-    }   
-    break;
-	default: $res[]="Unknown function call: ".$function;    
+    return $arr;
   }
-  drupal_json_output($res);
+  public function getTableContent($params) {
+    $this->checkPerm("edit masterdata");
+    return churchcore_getTableData($params["table"]);
+  }
+  public function f_address($params) {
+    return f_functions($params);
+  }
+  public function f_church($params) {
+    return f_functions($params);
+  }
+  public function f_category($params) {
+    return f_functions($params);
+  }
+  public function f_group($params) {
+    return f_functions($params);
+  }
+  public function getMasterDataTablenames() {
+    return churchdb_getMasterDataTablenames();  
+  }
+
 }
 
+
+function churchdb_ajax() {
+  include_once("churchdb_db.inc");
+
+  $module=new CTChurchDBModule("churchdb");
+
+  $ajax = new CTAjaxHandler($module);
+
+  //$t=microtime(true);
+  //$timer="start:".round(microtime(true)-$t,3)." ";
+
+  drupal_json_output($ajax->call());
+}

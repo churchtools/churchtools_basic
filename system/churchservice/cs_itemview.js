@@ -90,7 +90,7 @@ ItemView.prototype.addFurtherListCallbacks = function(cssid) {
     else if ($(this).attr("id").indexOf("delCol")==0) {
       var id=$(this).attr("id").substr(6,99);
       masterData.settings["viewgroup"+id]=0;
-      churchInterface.jsonWrite({func:"saveSetting", sub:"viewgroup"+id, val:0});
+      churchInterface.jsendWrite({func:"saveSetting", sub:"viewgroup"+id, val:0});
       t.renderList();
     }
   });

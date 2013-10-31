@@ -580,7 +580,7 @@ SongView.prototype.messageReceiver = function(message, args) {
   if (message=="filterChanged") {
     if (args[0]=="filterSongcategory") {
       masterData.settings.filterSongcategory=$("#filterSongcategory").val();
-      churchInterface.jsonWrite({func:"saveSetting", sub:"filterSongcategory", val:masterData.settings.filterSongcategory});
+      churchInterface.jsendWrite({func:"saveSetting", sub:"filterSongcategory", val:masterData.settings.filterSongcategory});
     }
   }
 };

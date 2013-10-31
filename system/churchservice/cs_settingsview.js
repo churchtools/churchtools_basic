@@ -111,11 +111,11 @@ SettingsView.prototype.renderList = function() {
   
   $("#cdb_content select").change(function(c) {
     masterData.settings[$(this).attr("id")]=$(this).val();
-    churchInterface.jsonWrite({func:"saveSetting", sub:$(this).attr("id"), val:$(this).val()});      
+    churchInterface.jsendWrite({func:"saveSetting", sub:$(this).attr("id"), val:$(this).val()});      
   });  
   $("#cdb_content input:checkbox").click(function(c) {
     masterData.settings[$(this).attr("id")]=($(this).attr("checked")=="checked"?1:0);
-    churchInterface.jsonWrite({func:"saveSetting", sub:$(this).attr("id"), val:masterData.settings[$(this).attr("id")]});      
+    churchInterface.jsendWrite({func:"saveSetting", sub:$(this).attr("id"), val:masterData.settings[$(this).attr("id")]});      
   });  
   $("#cdb_content a.abo_ical").click(function(c) {
     ical_abo();

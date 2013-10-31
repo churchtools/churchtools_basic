@@ -43,12 +43,14 @@ ChurchInterface.prototype.sendMessageToAllViews = function (message, args) {
 ChurchInterface.prototype._pollForNews = function () {
   var this_object=this;
   this.pollForNews=window.setTimeout(function() {
-    this_object.jsonRead({func:"pollForNews", last_id:this_object.lastLogId}, function(json) {
-      if (json.lastLogId>this_object.lastLogId) {
-        this_object.sendMessageToAllViews("pollForNews",json.logs);
-        this_object.lastLogId=json.lastLogId;
+    this_object.jsendRead({func:"pollForNews", last_id:this_object.lastLogId}, function(ok, json) {
+      if (ok) {
+        if (json.lastLogId>this_object.lastLogId) {
+          this_object.sendMessageToAllViews("pollForNews",json.logs);
+          this_object.lastLogId=json.lastLogId;
+        }
+        this_object._pollForNews();
       }
-      this_object._pollForNews();
     });
   },10000);
 };
@@ -157,96 +159,6 @@ ChurchInterface.prototype.throwFatalError=function(errorText){
   this.errorWindow=modal;
 };
 
-ChurchInterface.prototype.jsonReadSyncron = function (obj, func, overwriteModul) {
-  var this_object=this;
-  var module=this.modulename;
-  if (overwriteModul!=null)
-    module=overwriteModul;
-  jQuery.ajax({
-    url: "index.php?q="+module+"/ajax",
-    dataType: 'json',
-    data: obj,
-    async:false,    
-    success : function(json) {
-      func(json);
-      if (this_object.errorWindow!=null) {
-        this_object.errorWindow.remove();
-        this_object.errorWindow=null;
-      }
-    }
-  });  
-};
-
-
-/**
- * Liest Daten von der Standard-Ajax-Schnittstelle
- * @param obj - Enthält alle Parameter
- * @param func - function wird bei Erfolg mit true, sonst mit false aufgerufen.
- */
-ChurchInterface.prototype.jsonRead = function (obj, func, overwriteModulename) {    
-  var this_object=this;
-  if (!this_object.fatalErrorOccured) {
-    var module=this.modulename;
-    if (overwriteModulename!=null)
-      module=overwriteModulename;
-    
-    if (debug) console.log(obj);
-    
-    jQuery.ajax({
-      url: "index.php?q="+module+"/ajax",
-      dataType: 'json',
-      data: obj,
-      success : function(json) {
-        if (debug) console.log(json);
-        func(json);
-        if (this_object.errorWindow!=null) {
-          this_object.errorWindow.remove();
-          this_object.errorWindow=null;
-        }      
-      },
-      error: function(jqXHR, textStatus, errorThrown) {
-        if (debug) {
-          console.log("error reading! Status:"+textStatus+" Error:"+errorThrown);
-          if (jqXHR!=null) console.log(jqXHR);
-        }
-        if ((this_object.errorWindow==null) && (jqXHR.status!=0)) {
-          this_object.throwFatalError("<b>Fehlermeldung: "+jqXHR.status+" - "+textStatus+(errorThrown!=null?" Fehler: "+errorThrown:'')+"</b><br/><br/>"+jqXHR.responseText);
-        }  
-        window.setTimeout(function() {this_object.jsonRead(obj, func, overwriteModulename);}, 10000);
-      }
-    });
-  }
-};
-
-
-/**
- * Schreibt Daten an die Standard-Ajax-Schnittstelle
- * @param obj - Enthält alle Objecte, vor allem die func
- * @param func - function wird bei Erfolg mit true, sonst mit false aufgerufen.
- */
-ChurchInterface.prototype.jsonWrite = function (obj, func) {
-  var this_object=this;
-  if (!this_object.fatalErrorOccured) {
-    this.setStatus("Speichere Daten...");
-    jQuery.ajax({
-      url: "index.php?q="+this.modulename+"/ajax",
-      dataType: 'json',
-      data: obj,
-      success : function(json) {
-        this_object.clearStatus();
-        if (json!="ok")  
-          alert("Fehler beim Speichern in "+this_object.modulename+": "+json);
-        if (func!=null)
-          func(json=="ok");
-      },
-      error: function(jqXHR, textStatus, errorThrown) {
-        this_object.fatalErrorOccured=true;
-        this_object.throwFatalError("<b>Fehlermeldung: "+jqXHR.status+" "+textStatus+(errorThrown!=null?" Fehler: "+errorThrown:'')+"</b><br/><br/>"+jqXHR.responseText);
-      }
-    });
-  }
-};
-
 
 /**
  * Schreibt Daten an die Standard-Ajax-Schnittstelle mit dem JSEND Standard
@@ -259,7 +171,7 @@ ChurchInterface.prototype.jsonWrite = function (obj, func) {
  * @param Get - getmethod (default=true)
  */
 ChurchInterface.prototype.jsendWrite = function (obj, func, async, get, overwriteModulename) {
-  return this.jsend("Speichere", obj, func, async, get, overwriteModulename);
+  return this.jsend("Speichern", obj, func, async, get, overwriteModulename);
 };
 ChurchInterface.prototype.jsendRead = function (obj, func, async, get, overwriteModulename) {
   return this.jsend("Lade", obj, func, async, get, overwriteModulename);
@@ -302,20 +214,8 @@ ChurchInterface.prototype.jsend = function (name, obj, func, async, get, overwri
   }
 };
 
-ChurchInterface.prototype.jsonWriteSyncron = function (obj, func) {
-  this.setStatus("Speichere Daten...");  
-  jQuery.ajax({
-    url: "index.php?q="+this.modulename+"/ajax",
-    dataType: 'json',
-    data: obj,
-    async: false,
-    success: func
-  });  
-  this.clearStatus();
-};
-
 ChurchInterface.prototype.sendEmail = function (to, subject, body) {
-  this.jsonWrite({ func: "send_email",  subject: subject, body:body, to:to});
+  this.jsendWrite({ func: "send_email",  subject: subject, body:body, to:to});
 };
 
 /**
@@ -369,22 +269,6 @@ ChurchInterface.prototype.isCurrentView = function (name) {
 
 
 ChurchInterface.prototype.implantCallbacks = function() {
-  /*$("a.tooltip-person").hover(function() {
-    var id=$(this).attr("data-id");    
-    $(this).popover({title:'<span id="title_'+id+'"></span>', content:'<div id="tooltip_'+id+'">Lade Daten...</div>', html:true, placement:"bottom", trigger:"manual", animation:true}).popover("show");
-      churchInterface.jsonRead({func:"getPersonDetails", id:id}, function(json) {
-        $('#tooltip_'+id).html(json.strasse);
-        $('#title_'+id).html(json.vorname+" "+json.name);
-      }, "churchdb");
-    
-  }, function() {
-    if ($(this).data("popover")!=null) {
-      $(this).popover("hide");
-      $(this).data("popover",null);
-    }
-    
-  });
-  */
 };
 
 

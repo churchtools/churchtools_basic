@@ -385,13 +385,13 @@ function churchcal_saveCategory($params) {
   global $user;
   
   $auth=false;
-  if ((isset($_GET["id"])) && (churchcal_isAllowedToEditCategory($_GET["id"])))
+  if ((isset($params["id"])) && (churchcal_isAllowedToEditCategory($params["id"])))
     $auth=true;
-  else if (($_GET["privat_yn"]==1) && ($_GET["oeffentlich_yn"]==0) && (user_access("personal category", "churchcal")))  
+  else if (($params["privat_yn"]==1) && ($params["oeffentlich_yn"]==0) && (user_access("personal category", "churchcal")))  
     $auth=true;
-  else if (($_GET["privat_yn"]==0) && ($_GET["oeffentlich_yn"]==0) && (user_access("group category", "churchcal")))  
+  else if (($params["privat_yn"]==0) && ($params["oeffentlich_yn"]==0) && (user_access("group category", "churchcal")))  
     $auth=true;
-  else if (($_GET["privat_yn"]==0) && ($_GET["oeffentlich_yn"]==1) && (user_access("church category", "churchcal")))  
+  else if (($params["privat_yn"]==0) && ($params["oeffentlich_yn"]==1) && (user_access("church category", "churchcal")))  
     $auth=true;
   else throw new CTNoPermission("AllowToEditCategory", "churchcal");   
   

@@ -25,6 +25,7 @@ var timers = new Array();
 
 
 jQuery(document).ready(function() {
+  churchInterface.setModulename("churchdb");
   churchInterface.registerView("PersonView", personView);
   churchInterface.registerView("ArchiveView", archiveView);
   churchInterface.registerView("GroupView", groupView);
@@ -36,8 +37,6 @@ jQuery(document).ready(function() {
   cdb_initializeGoogleMaps();
   // Lade alle Kennzeichentabellen
   cdb_loadMasterData(function() {
-    churchInterface.setModulename(masterData.modulename);
-
     // Initialisiere Browser-History, ruft damit schon RenderView() auf, falles Parameter uebergeben worden sind
     churchInterface.activateHistory((masterData.settings.churchdbInitView!=null?masterData.settings.churchdbInitView:"PersonView"));
   /*
