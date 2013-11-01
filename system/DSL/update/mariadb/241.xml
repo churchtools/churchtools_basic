@@ -17,9 +17,19 @@ INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfse
 INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (322, 'export facts', 'churchservice', null, 'Darf Fakten exportieren',1)
 ]]>
       </query>
-      <query order="3">
+      <query order="4">
           <![CDATA[
 INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (118, 'push/pull archive', 'churchdb', null, 'Darf Personen ins Archiv verschieben und zurueckholen',1)
+]]>
+      </query>
+      <query order="5">
+          <![CDATA[
+ALTER TABLE {cc_file} CHANGE filename filename VARCHAR( 100 ) NOT NULL
+]]>
+      </query>
+      <query order="6">
+          <![CDATA[
+ALTER TABLE {cc_file} CHANGE domain_id domain_id VARCHAR( 100 ) NOT NULL
 ]]>
       </query>
     </queries>
