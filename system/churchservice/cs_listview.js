@@ -2163,7 +2163,7 @@ ListView.prototype.renderAddServiceToServicegroup = function(event, sg_id, user_
         elem.html("<p><br/><b>Daten werden gespeichert...</b><br/><br/>");
                 
         churchInterface.jsendWrite(obj, function(ok, json) {
-          if (json!="ok") alert("Fehler beim Speichern: "+json);
+          if (!ok) alert("Fehler beim Speichern: "+json);
           else {
             cs_loadEventData(event.id, function(){
               elem.dialog("close");

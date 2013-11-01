@@ -2640,8 +2640,7 @@ PersonView.prototype.renderDetails = function (id) {
             if ((_count<=3) || (t.showAllCommentDetails)) {
               var _class=(b.relation_name=='person_followup'?'followup_comment':'');
               // Text als Links erkennen und ersetzen
-              var _text=b.text.replace(/(http:\/\/\S*)/g, '<a target="_clean" href="$1">$1<\/a>');
-              _text=_text.replace(/(https:\/\/\S*)/g, '<a target="_clean" href="$1">$1<\/a>');
+              var _text=b.text.htmlize();
               
               _comments=_comments+'<tr>'+'<td class="'+_class+'"><p><small>'+_text;
               _comments=_comments+"<br/><font color=\"grey\"><i>(";

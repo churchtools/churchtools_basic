@@ -300,6 +300,16 @@ String.prototype.trim = function (len) {
 };
 
 /**
+ * Recognize links and convert them as html a
+ */
+String.prototype.htmlize = function() {
+  var _text=this.replace(/(http:\/\/\S*)/g, '<a target="_clean" href="$1">$1<\/a>');
+  _text=_text.replace(/(https:\/\/\S*)/g, '<a target="_clean" href="$1">$1<\/a>');
+  _text=_text.replace(/\n/g,'<br/>');
+  return _text;
+};
+
+/**
 *  Formatiert den String "2008-02-22 10:12:50" um in den Typ Datum, Uhrzeit ist optional
 */
 String.prototype.toDateEn = function (withTime) {

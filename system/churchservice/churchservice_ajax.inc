@@ -257,32 +257,6 @@ function churchservice_getAllEventData($params) {
   return $events;
 }
 
-
-/**
- * Erzeugt eine Uebersicht ueber alle Stammdatentabellen, die per MaintainView gepflegt werden sollen
- * Diese Infos werden per JSON an das JS uebergeben
- */
-function churchservice_getMasterDataTablenames() {
-  $res=array();
-  $res[2]=churchcore_getMasterDataEntry(2, "Service", "service", "cs_service");
-  $res[3]=churchcore_getMasterDataEntry(3, "Service-Gruppe", "servicegroup", "cs_servicegroup","sortkey");
-  //$res[4]=churchcore_getMasterDataEntry(4, "Event-Kategorien", "category", "cs_category","sortkey");
-  $res[5]=churchcore_getMasterDataEntry(5, "Abwesenheitsgrund", "absent_reason", "cs_absent_reason","sortkey");
-  $res[6]=churchcore_getMasterDataEntry(6, "Fakten", "fact", "cs_fact","sortkey");
-  $res[7]=churchcore_getMasterDataEntry(7, "Song-Kategorien", "songcategory", "cs_songcategory","sortkey");
-  
-  return $res;
-}
-
-function churchservice_getMasterDataTables() {
-  $tables=churchservice_getMasterDataTablenames();
-  foreach ($tables as $value) {
-    $res[$value["shortname"]]=churchcore_getTableData($value["tablename"],$value["sql_order"]);
-  }
-  return $res;
-}
-
-
 function churchService_adminOfEvent($event_id) {
   $res=db_query("select admin from {cs_event} where id=$event_id")->fetch();  
   $split = explode(",",$res->admin);
@@ -934,12 +908,25 @@ function churchservice_delAbsent($id) {
 
 
 class CTChurchServiceModule extends CTAbstractModule {
+  
+  public function getMasterDataTablenames() {
+    $res=array();
+    $res[2]=churchcore_getMasterDataEntry(2, "Service", "service", "cs_service");
+    $res[3]=churchcore_getMasterDataEntry(3, "Service-Gruppe", "servicegroup", "cs_servicegroup","sortkey");
+    //$res[4]=churchcore_getMasterDataEntry(4, "Event-Kategorien", "category", "cs_category","sortkey");
+    $res[5]=churchcore_getMasterDataEntry(5, "Abwesenheitsgrund", "absent_reason", "cs_absent_reason","sortkey");
+    $res[6]=churchcore_getMasterDataEntry(6, "Fakten", "fact", "cs_fact","sortkey");
+    $res[7]=churchcore_getMasterDataEntry(7, "Song-Kategorien", "songcategory", "cs_songcategory","sortkey");
+    
+    return $res;
+  }
+  
   public function getMasterData() {
     global $user, $base_url, $files_dir, $config;
       include_once(drupal_get_path('module', 'churchcal') .'/churchcal_db.inc');
       $auth=churchservice_getAuthorization();
-      $res=churchservice_getMasterDataTables();
-	  $res["masterDataTables"] = churchservice_getMasterDataTablenames();
+      $res=$this->getMasterDataTables();
+	  $res["masterDataTables"] = $this->getMasterDataTablenames();
 	  $res["auth"] = $auth;
 	  $res["modulespath"] = churchservice_getModulesPath();
 	  $res["files_url"] = $base_url.$files_dir;
