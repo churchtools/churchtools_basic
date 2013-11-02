@@ -1737,7 +1737,7 @@ function user_save() {
 // --- DATENBANK_TOOLS
 // ----------------------------------------
 
-$mysqli;
+$db_pdo;
 
 class SQLException extends Exception {
   // Die Exceptionmitteilung neu definieren, damit diese nicht optional ist
@@ -1754,42 +1754,31 @@ class SQLException extends Exception {
   
 }
 
+/* TODO: remove all users */
 function escape_string($str) {
-  global $mysqli;
-  //return str_replace("'","\'",$txt);
-  return $mysqli->real_escape_string($str);
+  global $db_pdo;
+  return $db_pdo->quote($str);
 }
 
 /*
  * Connect to the MySQL database.
  */
 function db_connect() {
-    global $config, $mysqli;
-    $mysqli = new mysqli($config["db_server"], $config["db_user"], $config["db_password"], $config["db_name"]);
-    
-    if ($mysqli->connect_errno) {
-        $error_message = "<h3>" . "Database connection error" . "</h3>";
-        $error_message .= "<p><strong>" . "Reason: " . "</strong>" . $mysqli->connect_error . "</p>";
-        $error_message .= "<div class=\"alert alert-info\">";
-        $error_message .= sprintf("Please edit your default configuration file <code>%s</code>, perhaps?", $config["_current_config_file"]);
+    global $config, $db_pdo;
+    try {
+        $db_pdo = new PDO("mysql:hostname=${config["db_server"]};dbname=${config["db_name"]};charset=UTF8", $config["db_user"], $config["db_password"], array(PDO::ATTR_PERSISTENT => TRUE));
+    } catch(PDOException $e) {
+        $error_message = "<h3>Database connection error</h3>";
+        $error_message .= "<p><strong>Reason: </strong>" . $e->getMessage() . "</p>";
+        $error_message .= "<div class='alert alert-info'>";
+        $error_message .= "Please edit your default configuration file <code>".$config["_current_config_file"]."</code>, perhaps?";
         $error_message .= "</div>";
         
         addErrorMessage($error_message);
         return false;
     }
     
-    if (!$mysqli->set_charset("utf8")) {
-        addErrorMessage("Error loading character set UTF-8: %s\n", $mysqli->error);
-        
-        return false;
-    }
-    
     return true;
-}
-
-function db_close() {
-  global $mysqli;
-  $mysqli->close();
 }
 
 /**
@@ -1799,29 +1788,20 @@ function db_close() {
  * @param unknown_type $print_error true=>echo the error message, otherwise SQLException will be thrown 
  */
 function db_query($sql, $params=null, $print_error=true) {
-  global $mysqli, $config;
+  global $db_pdo, $config;
   
   $sql=str_replace("{",$config["prefix"],$sql);
   $sql=str_replace("}","",$sql);
-  if ($params!=null) { 
-    foreach ($params as $key=>$val) {
-      $val=escape_string($val);
-      if (($key==":id") && (strpos($val," ") !== false) && ($val>=1))
-        echo $mysqli->error."\nStrange Id: ".$sql;    
-      
-      if (gettype($val)=="string")
-        $val="'".$val."'";
-      $sql=str_replace($key,$val,$sql);      
+  $res = $db_pdo->prepare($sql);
+  if ($res === FALSE) {
+    $err = $db_pdo->errorInfo();
+    if ($print_error) {
+      echo $err[2]."\nGesamtes SQL: ".$sql;
     }
-  }
-  $res = $mysqli->query($sql);
-  if (!$res) {
-    if ($print_error)
-      echo $mysqli->error."\nGesamtes SQL: ".$sql;    
-    else throw new SQLException($mysqli->error."\nGesamtes SQL: ".$sql);  
+    else throw new SQLException($err[2]."\nGesamtes SQL: ".$sql);
     return false;
-  } 
-  $d = new db_accessor($res);
+  }
+  $d = new db_accessor($res, $params, $sql);
   return $d;
 }
 
@@ -1831,15 +1811,16 @@ class db_accessor implements Iterator {
   private $res=null;
   private $current=null;
 
-  public function __construct($_res) {
+  public function __construct($_res, $params = null, $sql = null) {
     $this->res = $_res;
-    if ($this->res==null)
-      die("db_test::fetch - res = null");
-    if (!$this->res instanceof mysqli_result) {
+    if (!$this->res instanceof PDOStatement) {
       return null;
     }
-    else
-      $this->current=$this->res->fetch_object();
+    if (!$this->res->execute($params)) {
+      $err = $this->res->errorInfo();
+      throw new SQLException($err[2]."\nSQL: ".$sql);
+    }
+    $this->next();
   }    
   public function fetch() {
     return $this->current;
@@ -1857,13 +1838,14 @@ class db_accessor implements Iterator {
   }
 
   function next() {
-    $this->current=$this->res->fetch_object();
+    $this->current=$this->res->fetchObject();
   }
 
   function valid() {
     return $this->current!=null;
   }  
   
+  /* FIXME: unused, but also not useful right now in "basic" version */
   function getResult() {
     return $this->res; 
   }
@@ -1899,13 +1881,13 @@ class db_updatefields extends db_fields {
       if (!isset($val))
         $sql.="null";
       else {
-        if (gettype($val)=="string")
-          $sql.="'".escape_string($val)."'";
+        if (is_string($val))
+          $sql.=escape_string($val);
         else  
           $sql.="$val";
       }      
     }
-    $sql.=" WHERE 1=1 ";
+    $sql.=" WHERE 1 ";
     return new db_execute($sql);
   }
 }
@@ -1933,8 +1915,8 @@ class db_insertfields extends db_fields {
       if (!isset($val))
         $sql.="null";
       else {
-        if (gettype($val)=="string")
-          $sql.="'".escape_string($val)."'";
+        if (is_string($val))
+          $sql.=escape_string($val);
         else  
           $sql.="$val";
       }  
