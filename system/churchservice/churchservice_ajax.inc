@@ -1093,7 +1093,7 @@ function churchservice_ajax() {
   $ajax->addFunction("deleteEvent", "edit events"); 
   
   // Facts
-  $ajax->addFunction("getAllFacts", "view facts"); 
+  $ajax->addFunction("getAllFacts", "view facts || edit facts"); 
   $ajax->addFunction("saveFact", "edit facts"); 
   
   $ajax->addFunction("deleteService");

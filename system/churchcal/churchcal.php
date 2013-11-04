@@ -601,10 +601,10 @@ function churchcal__ical() {
     $cats=churchcal_getAllowedCategories(false, true);
     $cat_names=churchcal_getAllowedCategories(false, false);
   }
-  $arr=churchcal_getCalPerCategory($cats, false);
+  $arr=churchcal_getCalPerCategory(array("category_ids"=>$cats), false);
   
   
-  foreach ($arr["data"] as $cats) {
+  foreach ($arr as $cats) {
     foreach ($cats as $res) {
     
       $res->startdate=new DateTime($res->startdate);

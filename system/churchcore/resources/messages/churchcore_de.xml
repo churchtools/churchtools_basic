@@ -14,7 +14,7 @@
   <entry key="getting.help">Hilfe aufrufen</entry>
 
   <!-- HEADER -->
-  <entry key="exit.simulation">Exit simulation mode</entry>
+  <entry key="exit.simulation">Simulation beenden</entry>
   <entry key="change.password">Passwort ändern</entry>
   <entry key="set.password">Setzte ein Passwort</entry>
   <entry key="sent.messages">Gesendete Nachrichten</entry>  
@@ -26,6 +26,8 @@
   <entry key="logout">Abmelden</entry>
   <entry key="change.to">Wechseln zu...</entry>
   <entry key="offline.mode.is.active">Achtung, Offline-Modus ist aktiv!</entry>
+  <entry key="simulate.person">Person simulieren</entry>
+  <entry key="name.of.person">Personenname eingeben</entry>
   
   <!-- AUTH -->
   <entry key="not.existent">Nicht vorhanden!</entry>
@@ -66,5 +68,19 @@
   <entry key="email.or.username.unknown">Die EMail-Adresse oder Benutzername ist nicht bekannt!</entry>
   <entry key="forgot.password">Neues Passwort anfordern?</entry>
   <entry key="want.to.receive.new.password">Wirklich neues Passwort anfordern?</entry>
+
+  <!-- MAIL-ARCHIVE -->  
+  <entry key="archive.of.sent.messages">Archiv der gesendeten E-Mails/SMS</entry>
+  <entry key="filter">Filtern</entry>
+  <entry key="back">Zurück</entry>
+  <entry key="status">Status</entry>
+  <entry key="date">Datum</entry>
+  <entry key="receiver">Empfänger</entry>
+  <entry key="sender">Sender</entry>
+  <entry key="subject">Betreff</entry>
+  <entry key="read">Gelesen</entry>
+  
+  
+  
   
 </properties>

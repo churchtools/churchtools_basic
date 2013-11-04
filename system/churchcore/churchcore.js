@@ -810,9 +810,9 @@ $(document).ready(function() {
     return false;
   });
   $("#simulate_person").click(function() {
-    var form = new CC_Form("Person simulieren");
-    form.addInput({cssid:"simulate_input_person", label:"Personnamen eingeben"});
-    form_showCancelDialog("Person simulieren", form.render());
+    var form = new CC_Form(_("simulate.person"));
+    form.addInput({cssid:"simulate_input_person", label:_("name.of.person")});
+    form_showCancelDialog(_("simulate.person"), form.render());
     form_autocompletePersonSelect("#simulate_input_person", true, function(a,b) {
       window.location.href="?q=simulate&id="+b.item.value+"&location="+settings.q;
     });

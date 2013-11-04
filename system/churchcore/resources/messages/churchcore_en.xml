@@ -26,6 +26,8 @@
   <entry key="logout">Logout</entry>
   <entry key="change.to">Switch to...</entry>
   <entry key="offline.mode.is.active">Caution! Offline mode is active.</entry>  
+  <entry key="simulate.person">Simulate person</entry>
+  <entry key="name.of.person">Name of person</entry>
   
   <!-- AUTH -->
   <entry key="not.existent">Non-existent!</entry>
@@ -43,9 +45,8 @@
   <entry key="password.is.incorrect">Password is incorrect.</entry>
   <entry key="password.changes.successfully">Password has been changed successfully</entry>
   <entry key="set.password">Set password</entry>
-  
-  
-    <!-- ABOUT -->
+    
+  <!-- ABOUT -->
   <entry key="current.permissions">Permissions</entry>  
   <entry key="current.config">Configuration</entry>
   <entry key="consistence.check">Integrity check</entry>
@@ -67,5 +68,16 @@
   <entry key="email.or.username.unknown">Your e-mail or username was not recognized.</entry>
   <entry key="forgot.password">Forgot password?</entry>
   <entry key="want.to.receive.new.password">Do you really want to receive a new password?</entry>
+  
+  <!-- MAIL-ARCHIV -->	  
+  <entry key="archive.of.sent.messages">Archive of sent messages</entry>
+  <entry key="filter">filter</entry>
+  <entry key="back">back</entry>
+  <entry key="status">Status</entry>
+  <entry key="date">Date</entry>
+  <entry key="receiver">Receiver</entry>
+  <entry key="sender">Sender</entry>
+  <entry key="subject">Subject</entry>
+  <entry key="read">Read</entry>
 	  
 </properties>

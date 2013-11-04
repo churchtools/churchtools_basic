@@ -189,8 +189,9 @@ function churchtools_main() {
       if (!isset($config["language"])) {
         $config["language"]=substr($_SERVER['HTTP_ACCEPT_LANGUAGE'],0,2);
       }
-      $i18n = new TextBundle("system/resources/messages");
+      $i18n = new TextBundle("system/churchcore/resources/messages");
       $i18n->load("churchcore", ($config["language"]!=null ? $config["language"] : null));
+      $i18n->writeJSFile("churchcore");
       
       // Prüfe auf Offline-Modus !
       if ((isset($config["site_offline"]) && ($config["site_offline"]==1))) {

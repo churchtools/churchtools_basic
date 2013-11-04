@@ -9,5 +9,8 @@
   <entry key="maintain.masterdata">Maintain masterdata</entry>
   <entry key="help">Help</entry>
   <entry key="back.to.main.menu">Back to main menu</entry>
+
+  <entry key="simulate.person">Simulate person</entry>
+  <entry key="name.of.person">Name of person</entry>
 	  
 </properties>

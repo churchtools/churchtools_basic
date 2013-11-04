@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <comment>ChurchDB messages</comment>
+  <entry key="menu">Menü</entry>	  
+
+  <entry key="simulate.person">Simulate person</entry>
+  <entry key="name.of.person">Name of person</entry>
+</properties>

@@ -293,7 +293,7 @@ function churchcal_getAllowedCategories($withPrivat=true, $onlyIds=false) {
 }
 
 
-function churchcal_getCalPerCategory($params) {
+function churchcal_getCalPerCategory($params, $withintern=true) {
   $data=array();
   
   date_default_timezone_set("Europe/Berlin");
@@ -303,7 +303,9 @@ function churchcal_getCalPerCategory($params) {
                from {cc_cal} cal
                left join {cs_event} e on (cal.id=e.cc_cal_id) 
                left join {cr_booking} b on (cal.id=b.cc_cal_id) 
-               where cal.category_id in (".implode(",",$params["category_ids"]).") order by category_id");
+               where cal.category_id in (".implode(",",$params["category_ids"]).")
+                ".(!$withintern?" and intern_yn=0":"")." 
+               order by category_id");
   $data=null;
   
   // Agreggiere, falls es mehrere Bookings pro calendareintrag gibt.

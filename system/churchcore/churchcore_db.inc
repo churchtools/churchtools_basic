@@ -90,6 +90,13 @@ function cleanI18nFiles() {
   cleandir("$files_dir/files/messages/");
 }
 
+function loadI18nFile($modulename) {
+  global $config;
+  $i18n = new TextBundle("system/$modulename/resources/messages");
+  $i18n->load($modulename, $config["language"]);
+  return $i18n;
+}
+
 function createI18nFile($modulename) {
   global $config, $files_dir;
   
@@ -98,8 +105,7 @@ function createI18nFile($modulename) {
 
   $filename="$files_dir/files/messages/$modulename"."_".$config["language"].".js";
   if (!file_exists($filename)) {
-    $i18n = new TextBundle("system/churchservice/resources/messages");
-    $i18n->load("churchservice", $config["language"]);
+    $i18n=loadI18nFile($modulename);
     $i18n->writeJSFile($filename);
   }
   return $filename;  
@@ -279,10 +285,17 @@ class CTAjaxHandler {
       if (!isset($this->funcs[$params["func"]])) 
         return jsend()->error("Func ".$params["func"]." wurde nicht als Function definiert!");
       $func=$this->funcs[$params["func"]];
-      if (($func["auth"]!=null) && (!user_access($func["auth"], $func["module"])))
-        throw new CTNoPermission($func["auth"], $func["module"]);        
-      else                      
-        return jsend()->success(call_user_func($this->getFunctionName($func["name"]), $params));      
+      
+      if ($func["auth"]!=null) {
+        // Split auth string for OR-Combinations
+        $drin=false;
+        foreach (explode('||',$func["auth"]) as $val) {
+          if (user_access(trim($val), $func["module"])) $drin=true;
+        }
+        if (!$drin)
+          throw new CTNoPermission($func["auth"], $func["module"]);        
+      }      
+      return jsend()->success(call_user_func($this->getFunctionName($func["name"]), $params));      
     } 
     // Kein schlimmer Fehler, soll in der Anwendung behandelt werden. Z.B. Datensatz schon vorhanden
     catch (CTFail $e) {

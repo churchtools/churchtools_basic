@@ -556,7 +556,7 @@ function editEvent(event, month, currentDate) {
     } 
     else {        
       //$('<i/>').html('Termin l&ouml;schen').text()/*
-      elem.dialog('addbutton', l('Löschen'), function() {
+      elem.dialog('addbutton', 'Löschen', function() {
         delEvent(currentEvent, function() {
           elem.dialog("close");          
         });
@@ -777,8 +777,8 @@ function _eventMouseover(event, jsEvent, view) {
       if (myEvent.intern_yn==1) title=title+" (intern)";
 
       if (categoryEditable(myEvent.category_id)) {
-        title=title+'<span class="pull-right">&nbsp;<nobr>'+form_renderImage({cssid:"copyevent", label:l("Kopieren"), src:"copy.png", width:20});
-        title=title+"&nbsp;"+form_renderImage({cssid:"delevent", label:l('Löschen'), src:"trashbox.png", width:20})+"</nobr></span>";
+        title=title+'<span class="pull-right">&nbsp;<nobr>'+form_renderImage({cssid:"copyevent", label:"Kopieren", src:"copy.png", width:20});
+        title=title+"&nbsp;"+form_renderImage({cssid:"delevent", label:'Löschen', src:"trashbox.png", width:20})+"</nobr></span>";
       }
       if ((myEvent.ort!=null) && (myEvent.ort!=""))
         rows.push('<li>Ort: '+myEvent.ort);

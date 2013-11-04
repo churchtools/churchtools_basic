@@ -9,5 +9,8 @@
   <entry key="maintain.masterdata">Stammdatenpflege</entry>
   <entry key="help">Hilfe</entry>
   <entry key="back.to.main.menu">Zurück zum Hauptmenü</entry>
+
+  <entry key="simulate.person">Simulate person</entry>
+  <entry key="name.of.person">Name of person</entry>
 	  
 </properties>

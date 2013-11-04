@@ -77,9 +77,9 @@ function churchdb_main() {
   drupal_add_js(drupal_get_path('module', 'churchdb') .'/cdb_mapview.js'); 
   drupal_add_js(drupal_get_path('module', 'churchdb') .'/cdb_maintainview.js'); 
   drupal_add_js(drupal_get_path('module', 'churchdb') .'/cdb_main.js'); 
- // API v2
-  //$content='<script src="http://maps.google.com/maps?file=api&amp;v=2.x&amp;key='.
-  //     variable_get('churchdb_googleapi', '').'" type="text/javascript"></script>';
+  
+  drupal_add_js(createI18nFile("churchdb"));
+  
   // API v3
   $content='<script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=true"></script>';
 
@@ -140,10 +140,7 @@ function externmapview_main() {
   drupal_add_js(drupal_get_path('module', 'churchdb') .'/cdb_loadandmap.js'); 
   //drupal_add_js(drupal_get_path('module', 'churchdb') .'/cdb_mapview.js'); 
   drupal_add_js(drupal_get_path('module', 'churchdb') .'/cdb_externgroupview.js'); 
-  
- // API v2
-  //$content='<script src="http://maps.google.com/maps?file=api&amp;v=2.x&amp;key='.
-  //     variable_get('churchdb_googleapi', '').'" type="text/javascript"></script>';
+
   // API v3
   $content='<script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=true"></script>';
 
@@ -894,7 +891,7 @@ function churchdb__export() {
 
 function churchdb__mailviewer() {
   global $user, $config;
-  if ((!user_access("view","churchdb")) || ($user->email=="")) return "Keine Rechte";
+  if ((!user_access("view","churchdb")) || ($user->email=="")) return t("no.permission.for", $config["churchdb_name"]);
   
   $limit=200;
   if (isset($_GET["showmore"]))
@@ -912,7 +909,7 @@ function churchdb__mailviewer() {
     $filter.=" and (subject like '%".$_GET["filter"]."%' or body like '%".$_GET["filter"]."%')";
     $val=$_GET["filter"];
   }
-  $txt='<anchor id="log1"/><h2>Archiv der gesendeten E-Mails & SMS</h2>';
+  $txt='<anchor id="log1"/><h2>'.t("archive.of.sent.messages").'</h2>';
   $res=db_query("select * from {cc_mail_queue} where
 						$filter
 						order by modified_date desc
@@ -921,13 +918,13 @@ function churchdb__mailviewer() {
   $txt.='<form class="form-inline" action="">';
   $txt.='<input type="hidden" name="q" value="churchdb/mailviewer"/>';
   if (!isset($_GET["id"])) 
-    $txt.='<input name="filter" class="input-medium" type="text" value="'.$val.'"></input> <input type="submit" class="btn" value="Filtern"/>';
+    $txt.='<input name="filter" class="input-medium" type="text" value="'.$val.'"></input> <input type="submit" class="btn" value="'.t("filter").'"/>';
   else  
-    $txt.='<a href="?q=churchdb/mailviewer" class="btn">Zur&uuml;ck</a>';
+    $txt.='<a href="?q=churchdb/mailviewer" class="btn">'.t("back").'</a>';
   $txt.='</form>';  
   
   $txt.='<table class="table table-condensed table-bordered">';
-  $txt.="<tr><th>Status<th>Datum<th>Empf&auml;nger<th>Sender<th>Subject<th>Gelesen";
+  $txt.="<tr><th>".t("status")."<th>".t("date")."<th>".t("receiver")."<th>".t("sender")."<th>".t("subject")."<th>".t("read");
   $counter=0;
   if ($res!=false)
   foreach ($res as $arr) {

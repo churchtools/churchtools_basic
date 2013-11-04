@@ -49,7 +49,7 @@
   echo "settings.q=\"$q\";"; 
   
 ?></script>
-
+<script src="<?php echo createI18nFile("churchcore"); ?>"></script>
 
  <link rel="shortcut icon" href="system/assets/ico/favicon.ico">
     <link rel="apple-touch-icon-precomposed" sizes="144x144" href="system/assets/ico/apple-touch-icon-144-precomposed.png">

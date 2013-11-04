@@ -44,7 +44,7 @@ PersonView.prototype.renderMenu = function() {
   
   t.renderTodos();
   
-  menu = new CC_Menu("Men&uuml;");
+  menu = new CC_Menu(_("menu"));
   if (menuDepth=="amain") {
     if (masterData.auth.write)
       menu.addEntry("Neue Person anlegen", "anewentry", "star");
