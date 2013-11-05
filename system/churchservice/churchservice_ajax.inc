@@ -981,6 +981,8 @@ class CTChurchServiceModule extends CTAbstractModule {
   }
     
   public function sendEMailToPersonIds($params) {
+    global $base_url;
+    
     $inhalt=$params["inhalt"];
     $usetemplate=(isset($params["usetemplate"]) && ($params["usetemplate"]==true));
     if ($params["domain_id"]!="null") {
