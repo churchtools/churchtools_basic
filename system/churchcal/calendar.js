@@ -436,7 +436,7 @@ function getCalEditFields(o) {
   o.category_id=$("#inputCategory").val();
 }
 
-function saveEvent() {
+function saveEvent(event) {
   var o=currentEvent;
   var oldCat=o.category_id;
   if (currentEvent.view=="view-main")
@@ -459,8 +459,8 @@ function saveEvent() {
   churchInterface.jsendWrite(o, function(ok, data) {
     if (!ok) alert("Fehler beim Anpassen des Events: "+data);
     else {
-      if ((oldCat!=o.category_id) && (oldCat!=null)) 
-        calCCType.needData(oldCat, true);
+      if ((event!=null) && (event.category_id) && (event.category_id!=o.category_id)) 
+        calCCType.needData(event.category_id, true);
       calCCType.needData(o.category_id, true);
       if (o.bookings!=null) calResourceType.refreshView();
     }
@@ -516,7 +516,7 @@ function editEvent(event, month, currentDate) {
   var elem=form_showDialog((currentEvent.id==null?"Neuen Termin erstellen":"Termin editieren"), rows.join(""), 560, 600, {
     "Termin speichern": function() {
       //var o = new Object();
-      if (saveEvent())
+      if (saveEvent(event))
         $(this).dialog("close");
     }
   });

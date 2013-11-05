@@ -191,7 +191,6 @@ function churchtools_main() {
       }
       $i18n = new TextBundle("system/churchcore/resources/messages");
       $i18n->load("churchcore", ($config["language"]!=null ? $config["language"] : null));
-      $i18n->writeJSFile("churchcore");
       
       // Prüfe auf Offline-Modus !
       if ((isset($config["site_offline"]) && ($config["site_offline"]==1))) {

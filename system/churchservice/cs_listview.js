@@ -2317,7 +2317,7 @@ ListView.prototype.sendEMailToEvent = function(event) {
             obj.domain_id=event.id;
             obj.func="sendEMailToPersonIds";
             churchInterface.jsendWrite(obj, function(res, data) {
-              if (res) alert("EMail wurde gesendet. "+(data!="ok"?data:""));
+              if (res) alert("EMail wurde gesendet. "+(data!=null?data:""));
               else alert("Problem: "+data)
             }, null, false);          
             $(this).dialog("close");
