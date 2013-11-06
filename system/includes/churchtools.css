@@ -115,6 +115,10 @@ input.throbbing {
           border-radius: 4px 4px 4px 4px;
 }
 
+tr.detail {
+  background:#f9f9f9;
+}
+
 div.event_info {
   border-width:1px;
   border-style: solid;
@@ -176,6 +180,9 @@ img.small {
 }
 #tooltip_inner.ListView {
   width:280px;	
+}
+#tooltip_inner.SongView {
+  min-width:250px;	
 }
 #tooltip_inner.WeekView {
   width:250px;	

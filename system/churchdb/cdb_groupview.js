@@ -595,7 +595,9 @@ GroupView.prototype.renderListEntry = function(group) {
     else rows.push("<td>-");
     if (group.gruppentyp_id!=null)
       rows.push('<td><a href="#" id="filterGruppentyp'+group.gruppentyp_id+'">' 
-                     + masterData.groupTypes[group.gruppentyp_id].bezeichnung+'</a>'); 
+                     + (masterData.groupTypes[group.gruppentyp_id]!=null?
+                       masterData.groupTypes[group.gruppentyp_id].bezeichnung
+                          :'<font color="red">Gruppentyp_Id:'+group.gruppentyp_id+'</font>')+'</a>'); 
     else rows.push("<td>-");
     if ((this.filter["filterGruppentyp"]!=null) || (this.filter["filterDistrikt"]!=null)) {
       rows.push("<td>"+counter);
@@ -1212,7 +1214,8 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
   rows[rows.length]="<p>";
   rows[rows.length]="Zielgruppe: "+g.zielgruppe+"<br/>";
   rows[rows.length]='Gruppentyp: <a href="#" id="filterGruppentyp'+g.gruppentyp_id+'">'
-            +masterData.groupTypes[g.gruppentyp_id].bezeichnung+'</a>';
+            +(masterData.groupTypes[g.gruppentyp_id]!=null?
+                masterData.groupTypes[g.gruppentyp_id]:'<font color="red">Gruppentyp-Id:'+g.gruppentyp_id+'?</font>')+'</a>';
 
   if ((g.max_teilnehmer!=null)) 
     rows[rows.length]="<p>Max. Teilnehmer: "+g.max_teilnehmer+"";

@@ -744,6 +744,7 @@ function churchservice_addNewSong($params) {
   $i->setParam("default_yn");
   $i->addModifiedParams();
   db_insert("cs_song_arrangement")->fields($i->getDBInsertArrayFromParams($params))->execute(false);
+  return $params["song_id"];
 }
 
 function churchservice_editSong($params) {
@@ -799,6 +800,28 @@ function churchservice_delArrangement($params) {
     ->fields($i->getDBInsertArrayFromParams($params))
     ->condition("id", $params["id"], "=")
     ->execute(false);
+}
+
+function churchservice_deleteSong($params) {
+  $arrs=churchcore_getTableData('cs_song_arrangement', null, 'song_id='.$params["id"]);    
+  $files=churchcore_getFiles("song_arrangement");
+  foreach ($arrs as $arr) {
+    foreach($files as $file) {
+      if ($file->domain_id==$arr->id) {
+        churchcore_delFile($file->id); 
+      } 
+    }
+  }  
+  $i=new CTInterface();
+  $i->setParam("id");
+  db_delete("cs_song_arrangement")
+  ->fields($i->getDBInsertArrayFromParams($params))
+  ->condition("song_id", $params["id"], "=")
+  ->execute(false);
+  db_delete("cs_song")
+  ->fields($i->getDBInsertArrayFromParams($params))
+  ->condition("id", $params["id"], "=")
+  ->execute(false);
 }
 
 function churchservice_makeAsStandardArrangement($params) {
@@ -1046,6 +1069,13 @@ class CTChurchServiceModule extends CTAbstractModule {
     $this->checkPerm("edit song");
     return churchservice_delArrangement($params);
   }
+  
+  public function deleteSong($params) {
+    $this->checkPerm("edit song");
+    return churchservice_deleteSong($params);
+  }
+  
+  
       
   public function makeAsStandardArrangement($params) {
     $this->checkPerm("edit song");

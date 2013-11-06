@@ -17,17 +17,12 @@ SongView.prototype.getData = function(sorted) {
     var list=new Array();
     if (allSongs!=null)
       $.each(churchcore_sortData(allSongs,"bezeichnung"), function(k,song) {
-        $.each(song.arrangement, function(i,arr) {
-          var a=new Array();
-          a.song_id=song.id;
-          a.arrangement_id=arr.id;
-          a.id=song.id+"_"+arr.id;
-          list.push(a);
-        });
+        list.push(song);
       });
     return list;
   }
   else {
+    return allSongs;
     var list=new Object();
     if (allSongs!=null)
       $.each(allSongs, function(k,song) {
@@ -67,7 +62,7 @@ SongView.prototype.renderFilter = function () {
                     func:function(s) {return (masterData.auth.viewsongcategory!=null) && (masterData.auth.viewsongcategory[s.id])}
   });
  
-  form.addCheckbox({cssid:"searchStandard",label:"Nur Standard-Arrangement"});  
+  form.addCheckbox({cssid:"searchStandard",label:"Arrangements anzeigen"});  
   rows.push(form.render(true));
      
   rows.push("<div id=\"cdb_filtercover\"></div>");
@@ -85,26 +80,13 @@ SongView.prototype.renderFilter = function () {
 };
 
 
-SongView.prototype.groupingFunction = function (list) {
-  if (this.filter.searchStandard==null) {
-    var txt="";
-    txt=txt+"<b>"+allSongs[list.song_id].bezeichnung+"</b>";
-    if (allSongs[list.song_id].author!="")
-      txt=txt+'&nbsp; <small>'+allSongs[list.song_id].author+'</small>';
-    txt=txt+'&nbsp; <a href="#" class="edit-song" data-id="'+list.song_id+'">'+form_renderImage({src:"options.png", width:16})+'</a>';
-    return txt;
-  }
-  else return null;
-};
-
 SongView.prototype.checkFilter = function(a) {
   if (a==null) return false;
-  var song=allSongs[a.song_id];
-  var arrangement=song.arrangement[a.arrangement_id];
+  var song=allSongs[a.id];
   if (songView.filter!=null) {
     var filter=songView.filter;
     if ((filter.searchEntry!=null) && (song.bezeichnung.toLowerCase().indexOf(filter.searchEntry.toLowerCase())==-1)
-        && (filter.searchEntry!=a.arrangement_id))
+        && (filter.searchEntry!=a.active_arrangement_id) && (filter.searchEntry!="#"+a.id))
       return false;
     
     if ((filter.filterSongcategory!=null) 
@@ -114,8 +96,6 @@ SongView.prototype.checkFilter = function(a) {
     if (!churchcore_inArray(song.songcategory_id, masterData.auth.viewsongcategory))
       return false;
     
-    if ((filter.searchStandard) && (arrangement.default_yn==0))
-      return false;
   }
   return true;
 };
@@ -156,16 +136,15 @@ SongView.prototype.renderFiles = function(filecontainer, arrangement_id) {
         window.setTimeout(function() {
           if (!drin)
             this_object.clearTooltip();
-        },100);
+        },250);
       }
     );   
 };
 
 SongView.prototype.renderEntryDetail = function(pos_id) {
   var t=this;
-  var i=pos_id.indexOf('_');
-  var song=allSongs[pos_id.substr(0,i)];
-  var arrangement=song.arrangement[pos_id.substr(i+1,99)];
+  var song=allSongs[pos_id];
+  var arrangement=song.arrangement[song.active_arrangement_id];
 
   var rows=new Array();
   rows.push('<div class="entrydetail" id="entrydetail_'+pos_id+'" data-song-id="'+song.id+'" data-arrangement-id="'+arrangement.id+'">');  
@@ -181,9 +160,17 @@ SongView.prototype.renderEntryDetail = function(pos_id) {
     rows.push('<br/><small>CCLI: '+song.ccli+'</small>');
   rows.push('</div>');
   
+  var navi = new CC_Navi();
+  $.each(song.arrangement, function(k,a) {
+    navi.addEntry(a.id==song.active_arrangement_id,"view-"+a.id,a.bezeichnung);
+  });
+  if (masterData.auth.editsong)
+    navi.addEntry(false,"new",'<i>Erstelle weiteres Arrangement</i>');
 
+  rows.push(navi.render());
   
-  rows.push('<div class="row-fluid">');
+  
+  rows.push('<div class="well"><div class="row-fluid">');
     
     rows.push('<div class="span6">');
       rows.push('<legend>Informationen &nbsp; ');
@@ -204,20 +191,22 @@ SongView.prototype.renderEntryDetail = function(pos_id) {
       if (masterData.auth.editsong)
         rows.push('<p><div id="upload_button_'+arrangement.id+'">Nochmal bitte...</div>');
       rows.push('</div>');
-    rows.push('</div>');
-    
+    rows.push('</div>');    
   rows.push('</div>');
-  if (masterData.auth.editsong) {
+  if (masterData.auth.editsong && arrangement.default_yn==0) {
     rows.push('<hr/><p>');
-    rows.push(form_renderButton({label:"Weiteres Arrangement hinzuf&uuml;gen", htmlclass:"add", type:"small"})+"&nbsp; ");
-    if (arrangement.default_yn==0) {
-      rows.push(form_renderButton({label:"Zum Standard machen", htmlclass:"makestandard",type:"small"})+"&nbsp; ");
-      rows.push(form_renderButton({label:"Arrangement entfernen", htmlclass:"delete", type:"small"})+"&nbsp; ");
-    }
+    rows.push(form_renderButton({label:"Arrangement zum Standard machen", htmlclass:"makestandard",type:"small"})+"&nbsp; ");
+    rows.push(form_renderButton({label:"Arrangement entfernen", htmlclass:"delete", type:"small"})+"&nbsp; ");
   }
+  rows.push('</div>');
     
   rows.push('</div>');
-  var elem=$("tr[id=" + pos_id + "]").after("<tr id=\"detail" + pos_id + "\"><td colspan=\"7\" id=\"detailTD" + pos_id + "\">"+rows.join("")+"</td></tr>");
+  rows.push('<div class="pull-right">');
+  if (masterData.auth.editsong) 
+    rows.push('<a href="#" class="song-delete">'+form_renderImage({src:"trashbox.png", width:16})+'</a>&nbsp; ');
+  rows.push('<small>#'+song.id+'</small></div>');
+  $("tr[id=detail" + pos_id + "]").remove();
+  var elem=$("tr[id=" + pos_id + "]").after('<tr id="detail' + pos_id + '" class="detail"><td colspan="8" id="detailTD' + pos_id + '">'+rows.join("")+"</td></tr>");
 
   t.renderFiles(allSongs[song.id].arrangement, arrangement.id);
 
@@ -251,10 +240,6 @@ SongView.prototype.renderEntryDetail = function(pos_id) {
     t.editArrangement(song.id, arrangement.id);    
     return false;
   });
-  $("td[id=detailTD"+pos_id+"] input.add").click(function(e) {
-    t.addArrangement(song.id);    
-    return false;
-  });
   $("td[id=detailTD"+pos_id+"] input.delete").click(function(e) {
     t.deleteArrangement(song.id, arrangement.id);   
     return false;
@@ -263,18 +248,52 @@ SongView.prototype.renderEntryDetail = function(pos_id) {
     t.makeAsStandardArrangement(song.id, arrangement.id);    
     return false;
   });
-  //t.addTableContentCallbacks("#cdb_content td[id=detailTD"+pos_id+"]");
+  $("td[id=detailTD"+pos_id+"] a.song-delete").click(function(e) {
+    t.deleteSong(song.id);
+    return false;
+  });
   
+  $("td[id=detailTD"+pos_id+"] ul.nav a").click(function() {
+    var id=$(this).attr("id");
+    if (id=="new")
+      t.addArrangement(song.id);    
+    else 
+      song.active_arrangement_id=id.substr(5,99);
+    t.renderEntryDetail(pos_id);      
+    return false;
+  });
 
   
 };
 
-SongView.prototype.loadSongData = function() {
+
+SongView.prototype.deleteSong = function(song_id) {
+  var t=this;
+  if (confirm("Wirklich den Song "+allSongs[song_id].bezeichnung+" entfernen?")) {
+    var o=new Object();
+    o.func="deleteSong";
+    o.id=song_id;
+    churchInterface.jsendWrite(o, function(res) {
+      t.songsLoaded=false;
+      t.loadSongData();
+    });
+  }  
+};
+
+/**
+ * Load song data
+ * @param song_id and arrangement_id give an id of a song which should be opened
+ */
+SongView.prototype.loadSongData = function(song_id, arrangement_id) {
   if ((!this.songsLoaded) && (this.allDataLoaded)) {
     var elem = this.showDialog("Lade Songs", "Lade Songs...", 300,300);
     cs_loadSongs(function() {
       this_object.songsLoaded=true;
       elem.dialog("close");
+      if (allSongs[song_id]!=null) {
+        allSongs[song_id].open=true;
+        allSongs[song_id].active_arrangement_id=arrangement_id;
+      }
       this_object.renderList();
     });
   }
@@ -355,9 +374,9 @@ SongView.prototype.renderAddEntry = function() {
       var obj=form.getAllValsAsObject();
       if (obj!=null) {
         obj.func="addNewSong";
-        churchInterface.jsendWrite(obj, function(res) {
+        churchInterface.jsendWrite(obj, function(ok, res) {
           t.songsLoaded=false;
-          t.filter["searchEntry"]=obj.bezeichnung;
+          t.filter["searchEntry"]='#'+res;
           if (t.filter["filterSongcategory"]!=obj.songcategory_id) {
             delete t.filter["filterSongcategory"];
             delete masterData.settings.filterSongcategory;
@@ -388,6 +407,22 @@ function processFieldInput(elem, save) {
 
 SongView.prototype.addFurtherListCallbacks = function(cssid) {
   var t=this;
+  $("#cdb_content .hoveractor").hover(
+      function () {
+        $(this).children("span.hoverreactor").fadeIn('fast',function() {});
+      }, 
+      function () {
+        $(this).children("span.hoverreactor").fadeOut('fast');
+      }
+    );
+  
+  $("#cdb_content a.show-arrangement").click(function() {
+    var song_id=$(this).parents("tr").attr("id");
+    var arr_id=$(this).attr("data-arrangement-id");
+    allSongs[song_id].active_arrangement_id=arr_id;
+    t.renderList(allSongs[song_id]);
+    return false;
+  });
   
   /*
   $("td.editable").hover(
@@ -463,7 +498,7 @@ SongView.prototype.editArrangement = function(song_id, arrangement_id) {
         obj.id=arrangement_id;
         churchInterface.jsendWrite(obj, function(res) {
           t.songsLoaded=false;
-          t.loadSongData();
+          t.loadSongData(song_id, arrangement_id);
         });
         $(this).dialog("close");
       }
@@ -488,7 +523,7 @@ SongView.prototype.deleteArrangement = function(song_id, arrangement_id) {
     o.id=arrangement_id;
     churchInterface.jsendWrite(o, function(res) {
       t.songsLoaded=false;
-      t.loadSongData();
+      t.loadSongData(song_id);
     });
   }
 };
@@ -501,7 +536,7 @@ SongView.prototype.makeAsStandardArrangement = function(song_id, arrangement_id)
   o.song_id=song_id;
   churchInterface.jsendWrite(o, function(res) {
     t.songsLoaded=false;
-    t.loadSongData();
+    t.loadSongData(song_id, arrangement_id);
   });
 };
 
@@ -514,14 +549,16 @@ SongView.prototype.addArrangement = function(song_id) {
   churchInterface.jsendWrite(o, function(ok, res) {
     t.songsLoaded=false;
     t.open=true;
-    t.filter["searchEntry"]=res;
     t.renderFilter();
-    t.loadSongData();
+    t.loadSongData(song_id, res);
   });
 };
 
 SongView.prototype.getCountCols = function() {
-  return 6;
+  if (this_object.filter["filterSongcategory"]==null)
+    return 6;
+  else
+    return 5;
 };
 
 
@@ -534,32 +571,53 @@ SongView.prototype.getListHeader = function () {
   else
     songView.listViewTableHeight=665;
 
-  if (this.filter.searchStandard!=null) 
-    rows.push('<th>Nr.');
+  rows.push('<th>Nr.');
     
-  rows.push('<th>Bezeichnung<th>Tonart<th>BPM<th>Takt<th>Tags');
+  rows.push('<th>Bezeichnung');
+  if (this_object.filter["filterSongcategory"]==null)
+    rows.push('<th>Kategorie');
+  rows.push('<th>Tonart<th>BPM<th>Takt');
 
   return rows.join("");
 };
 
+SongView.prototype.groupingFunction = function() {
+  return null;
+}
+
 SongView.prototype.renderListEntry = function (list) {
   var rows = new Array();
-  var song=allSongs[list.song_id];
-  var arr=song.arrangement[list.arrangement_id];
-  if (this.filter.searchStandard==null) {
-    rows.push('<td><a href="#" id="detail'+list.id+'">'+arr.bezeichnung+"</a>");
-    if (arr.default_yn==1) rows.push(" *");
+  var song=allSongs[list.id];
+  if (song.active_arrangement_id==null) {
+    $.each(song.arrangement, function(k,a) {
+      if (a.default_yn==1) {
+        song.active_arrangement_id=a.id;
+        return false;
+      }
+    });
   }
-  else {
-    rows.push('<td><a href="#" id="detail'+list.id+'">'+song.bezeichnung+"</a>");
-    if (masterData.auth.editsong!=null) 
-      rows.push('&nbsp; <a href="#" class="edit-song" data-id="'+list.song_id+'">'+form_renderImage({src:"options.png", width:16})+'</a>');
+  var arr=song.arrangement[song.active_arrangement_id];
 
+  rows.push('<td class="hoveractor"><a href="#" id="detail'+list.id+'">'+song.bezeichnung+"</a>");
+  rows.push('&nbsp; <i><small>'+song.author.trim(50)+'</small></i>');
+  if (masterData.auth.editsong!=null) 
+    rows.push('&nbsp; <span class="hoverreactor" style="display:none"><a href="#" class="edit-song" data-id="'+list.song_id+'">'+form_renderImage({src:"options.png", width:16})+'</a></span>');
+  if (this.filter.searchStandard!=null) {
+    rows.push("<br/>");
+    $.each(song.arrangement, function(k,a) {
+      var txt=a.bezeichnung;
+      if (a.id==song.active_arrangement_id)
+        rows.push('<span class="label label-info">'+txt+'</span> ');
+      else
+        rows.push('<a href="#" class="show-arrangement" data-arrangement-id="'+a.id+'"><span class="label">'+txt+'</span></a> ');
+    });
   }
+
+  if (this_object.filter["filterSongcategory"]==null)
+    rows.push('<td>'+masterData.songcategory[song.songcategory_id].bezeichnung);
   rows.push('<td>'+arr.tonality);
   rows.push('<td>'+arr.bpm);
   rows.push('<td>'+arr.beat);
-  rows.push("<td>");
 
   return rows.join("");
 };
