@@ -107,6 +107,7 @@ class CTChurchWikiModule extends CTAbstractModule {
   }
   
   public function save($params) {
+    global $user;
     $auth=churchwiki_getAuth();  
     if (($auth["edit"]==false) || ($auth["edit"][$params["wikicategory_id"]]!=$params["wikicategory_id"]))
         throw new CTNoPermission("edit", "churchwiki");

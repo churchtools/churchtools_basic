@@ -120,13 +120,17 @@ tr.detail {
 }
 
 div.event_info {
+  font-size:85%;
+  color:#999;
   border-width:1px;
   border-style: solid;
   border-color: #EEE;
   border-radius: 4px;
-  padding: 5px 1px 0px 11px;
+  padding: 4px 1px 4px 11px;
   margin: 0px 3px 3px 1px;
   background: #F9F9F9;
+  max-width:250px;
+  line-height:150%;
 }
 
 div.fixed {

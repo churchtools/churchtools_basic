@@ -180,7 +180,7 @@ FactView.prototype.renderListEntry = function (event) {
   var width=100/(1+churchcore_countObjectElements(masterData.fact));
   rows.push('<td width="'+width+'%">' + event.startdate.toDateEn(true).toStringDeTime(true)+" "+event.bezeichnung);
   if (event.special!=null) {
-    rows.push("<div class=\"event_info\"><p><small>"+event.special.str_replace('\n','<br/>')+"</small></div>");
+    rows.push("<div class=\"event_info\">"+event.special.htmlize()+"</div>");
   }
   var cl="";
   if (masterData.auth.editfacts) cl="editable";

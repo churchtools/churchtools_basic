@@ -2,9 +2,7 @@
 loadPersonJS=false;
 
 jQuery(document).ready(function() {
-  //jQuery(".ct_whitebox").draggable( {sn_ap: ".span4", revert: "invalid", stop: function(event, ui) {console.log(ui);} });
   $(".span4").sortable();
-  //jQuery(".span4").disableSelection();
   $(".span4").droppable({
       accept: ".ct_whitebox",
       activeClass: "ui-state-hover",

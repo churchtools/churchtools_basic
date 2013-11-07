@@ -299,15 +299,16 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
     // denn hier macht es Sinn, das man alle sieht.
     if ((churchcore_handyformat()) && (churchInterface.getCurrentView().name!="WeekView"))
       masterData.settings["listMaxRows"+t.name]=10;    
+
+    var header=t.getListHeader();
     
     if (listObject == null) {
       rows[rows.length] = "Keinen Eintrag gefunden.";
     }
     else {
       rows[rows.length] = '<div style="" id="DivAddressTable"><table class="view table table-bordered table-condensed table-striped" style="tab_le-layout:fixed;margin-bottom:0px;" id="AddressTable">';
-      rows[rows.length] = '<thead><tr><th width="12px"><input type="checkbox" class="checked" id="markAll">';
-      
-      rows.push(t.getListHeader());
+      rows[rows.length] = '<thead><tr><th width="12px"><input type="checkbox" class="checked" id="markAll">';      
+        rows.push(header);
       rows.push('</thead>');
       
       if (t.listViewTableHeight!=null) {

@@ -187,24 +187,26 @@ PersonView.prototype.renderListMenu = function() {
     },
     source: function( request, response ) {
       var str=request.term.toUpperCase();
-      var r=new Array();
-      $.each(allPersons, function(k,a) {
-        var n=a.vorname+" "+a.name;
-        if (n.toUpperCase().indexOf(str)>=0)
-          r.push({label:a.vorname+" "+a.name, category:"", value:"#"+a.id});              
-      });
-      $.each(masterData.groups, function(k,a) {
-        if (groupView.isAllowedToSee(a.id))
-          if ((str=="GRUPPE:") || (a.bezeichnung.toUpperCase().indexOf(str)>=0) || (("GRUPPE:"+a.bezeichnung.toUpperCase()).indexOf(str)>=0))
-            r.push({label:a.bezeichnung, category:"Gruppe", value:"gruppe:"+a.bezeichnung});              
-      });
-      $.each(masterData.tags, function(k,a) {
-        if ((str=="TAG:") || (a.bezeichnung.toUpperCase().indexOf(str)>=0) || (("TAG:"+a.bezeichnung.toUpperCase()).indexOf(str)>=0))
-          r.push({label:a.bezeichnung, category:"Tag", value:"tag:"+a.bezeichnung});              
-      });
-      if ((r.length==0) && (r.indexOf("GRUPPE")==-1) && (r.indexOf("TAG")==-1) && (masterData.auth.write) && (str.indexOf("#")==-1))
-        r.push({label:"Erstelle "+request.term, category:"", value:"CREATE:"+request.term});
-      response(r);
+      if (str.length>1) {
+        var r=new Array();
+        $.each(allPersons, function(k,a) {
+          var n=a.vorname+" "+a.name;
+          if (n.toUpperCase().indexOf(str)>=0)
+            r.push({label:a.vorname+" "+a.name, category:"", value:"#"+a.id});              
+        });
+        $.each(masterData.groups, function(k,a) {
+          if (groupView.isAllowedToSee(a.id))
+            if ((str=="GRUPPE:") || (a.bezeichnung.toUpperCase().indexOf(str)>=0) || (("GRUPPE:"+a.bezeichnung.toUpperCase()).indexOf(str)>=0))
+              r.push({label:a.bezeichnung, category:"Gruppe", value:'gruppe:"'+a.bezeichnung+'"'});              
+        });
+        $.each(masterData.tags, function(k,a) {
+          if ((str=="TAG:") || (a.bezeichnung.toUpperCase().indexOf(str)>=0) || (("TAG:"+a.bezeichnung.toUpperCase()).indexOf(str)>=0))
+            r.push({label:a.bezeichnung, category:"Tag", value:'tag:"'+a.bezeichnung+'"'});              
+        });
+        if ((r.length==0) && (str.indexOf("GRUPPE")==-1) && (str.indexOf("TAG")==-1) && (masterData.auth.write) && (str.indexOf("#")==-1))
+          r.push({label:"Erstelle "+request.term, category:"", value:"CREATE:"+request.term});
+        response(r);
+      }
       searchEntry.removeClass("throbbing");
     },
     select: function(a,item) {
@@ -224,6 +226,8 @@ PersonView.prototype.renderListMenu = function() {
         // Leider mu§ ich hier TimeOut setzen, denn sonst ist der Wert noch nicht in der OberflŠche angekommen...
         window.setTimeout(function(){        
           $("#searchEntry").trigger( "keyup" );
+          // For iOS to close the virtual keyboard
+          $("#searchEntry").blur();
         },10);
       }
     }    
@@ -704,7 +708,7 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
       groupView.renderView();
     }   
     else if ($(this).attr("id").indexOf("search_tag")==0) {
-      t.setFilter("searchEntry","tag:"+$(this).attr("id").substr(10,99));
+      t.setFilter("searchEntry",'tag:"'+masterData.tags[$(this).attr("id").substring(10,99)].bezeichnung+'"');
       a.open=false;
       t.renderView();
       return false;
@@ -743,6 +747,7 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
   });
   if (cssid=="#cdb_content") { 
     $("#cdb_content span.clickyesno").click(function() {
+      console.log("cli");
       var m=t.getMeetingFromMeetingList(t.filter["filterMeine Gruppen"], $(this).attr("data-gruppentreffen-id"));
       var p_id=$(this).attr("data-person-id");
       var entry=null;
@@ -771,8 +776,11 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
       o.p_id=p_id;
       churchInterface.jsendWrite(o); 
 
+      t.getListHeader();
+      
+      var pos=$(document).scrollTop();
       t.renderList();
-      t.renderGroupContent(t.filter["filterMeine Gruppen"]);
+      window.setTimeout(function() { $(document).scrollTop(pos);}, 10);
       return false;
     });
   }
@@ -1768,9 +1776,11 @@ PersonView.prototype.checkFilter = function(a) {
   searchEntry=this.getFilter("searchEntry").toUpperCase();
   if (searchEntry!="") {
     
-    var searches=searchEntry.split(" ");
+    // Split by " ", but not masked with a "
+    searches=searchEntry.match(/(?:[^\s"]+|"[^"]*")+/g);
     var res=true;
     $.each(searches, function(k,search) {
+      search=search.replace(/"/g, "");
       if (search.indexOf("TAG:")==0) {
         if (!t.checkFilterTag(search, a.tags)) {
           res=false;          
@@ -1800,10 +1810,7 @@ PersonView.prototype.checkFilter = function(a) {
       else if ((a.name.toUpperCase().indexOf(search)<0) &&
                  (a.vorname.toUpperCase().indexOf(search)<0) &&
                  ((a.email==null) || (a.email.toUpperCase().indexOf(search)!=0)) &&
-//                 ((a.vorname+" "+a.name).toUpperCase().indexOf(search)!=0) &&
-//                 ((a.name+" "+a.vorname).toUpperCase().indexOf(search)!=0) &&
                  (a.spitzname.toUpperCase().indexOf(search)!=0) &&
-//                 ((a.spitzname+" "+a.name).toUpperCase().indexOf(search)!=0) &&
                  (a.id!=search) &&
                  (!checkKommentar(a.gruppe, search))) {
         res=false;
@@ -3387,7 +3394,7 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
     rows[rows.length]="Soll die Person wird wieder zur&uuml;ck in die normale Liste genommen werden?";
   }
   else if (fieldname.indexOf("search_tag")==0) {
-    this.setFilter("searchEntry","tag:"+masterData.tags[fieldname.substring(10,99)].bezeichnung);
+    this.setFilter("searchEntry",'tag:"'+masterData.tags[fieldname.substring(10,99)].bezeichnung+'"');
     allPersons[id].open=false;
     this.renderView();
     return false;
@@ -4390,32 +4397,34 @@ PersonView.prototype.renderGroupContent = function(g_id) {
     rows.push(form_renderButton({label:"Gruppenteilnahme schliessen", cssid:"btn_gruppenteilnahme",htmlclass:"pull-right"}));
     rows.push('</div>');
   }
+  else {
 
-  var rows2 = new Array();
-  var datumvon=new Date();
-  gruppentreffen_id=-1;
-  if (json!=null) {
-    $.each(churchcore_sortData(json,"datumvon"), function(k,a) {
-      if (a.eintragerfolgt_yn==0) {
-        rows2.push('<input type="button" class="btn pull-right" value="Treffen ausgefallen"/>');
-        rows2.push('<input type="button" class="btn pull-right" value="Auswahl absenden"/>');
-        if (a.datumvon.toDateEn(true).toStringDe(true)==a.datumbis.toDateEn(true).toStringDe(true))
-          rows2.push("<p><b>Bitte ausw&auml;hlen: Wer war am "+a.datumvon.toDateEn(true).toStringDe(true)+" da?</b>");
-        else
-          rows2.push("<p><b>Bitte ausw&auml;hlen: Wer war in der Zeit vom "+a.datumvon.toDateEn().toStringDe()+" - "+a.datumbis.toDateEn().toStringDe()+" da?</b>");
-        rows2.push('<br><small>Zuerst die Personen markieren, die bei dem Treffen dabei gewesen sind. Dann auf "Auswahl absenden" klicken.</small>');
-        gruppentreffen_id=a.id;
-        datumvon=a.datumvon.toDateEn(true);
-        return false;
-      } 
-    });
-    // Kein zu pflegende Gruppe gefunden, also rows wieder löschen.
-    if (gruppentreffen_id==-1)                 
-      rows2 = new Array();
+    var rows2 = new Array();
+    var datumvon=new Date();
+    gruppentreffen_id=-1;
+    if (json!=null) {
+      $.each(churchcore_sortData(json,"datumvon"), function(k,a) {
+        if (a.eintragerfolgt_yn==0) {
+          rows2.push('<input type="button" class="btn pull-right" value="Treffen ausgefallen"/>');
+          rows2.push('<input type="button" class="btn pull-right" value="Auswahl absenden"/>');
+          if (a.datumvon.toDateEn(true).toStringDe(true)==a.datumbis.toDateEn(true).toStringDe(true))
+            rows2.push("<p><b>Bitte ausw&auml;hlen: Wer war am "+a.datumvon.toDateEn(true).toStringDe(true)+" da?</b>");
+          else
+            rows2.push("<p><b>Bitte ausw&auml;hlen: Wer war in der Zeit vom "+a.datumvon.toDateEn().toStringDe()+" - "+a.datumbis.toDateEn().toStringDe()+" da?</b>");
+          rows2.push('<br><small>Zuerst die Personen markieren, die bei dem Treffen dabei gewesen sind. Dann auf "Auswahl absenden" klicken.</small>');
+          gruppentreffen_id=a.id;
+          datumvon=a.datumvon.toDateEn(true);
+          return false;
+        } 
+      });
+      // Kein zu pflegende Gruppe gefunden, also rows wieder löschen.
+      if (gruppentreffen_id==-1)                 
+        rows2 = new Array();
+    }
+    
+    if (rows2.length>0)
+      rows.push('<div class="well">'+rows2.join("")+'</div>');
   }
-  
-  if (rows2.length>0)
-    rows.push('<div class="well">'+rows2.join("")+'</div>');
   $("#cdb_group").html(rows.join(""));
 
   // Callbacks

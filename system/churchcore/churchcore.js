@@ -282,6 +282,15 @@ function isNumber(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
+/**
+ * Returns the time in Minute:Seconds
+ */
+String.prototype.formatMS = function() {
+  var s=this%60+'';
+  if (s.length==1) s='0'+s;
+  return Math.round(this/60)+":"+s;
+}
+
 String.prototype.endsWith = function(suffix) {
   return this.indexOf(suffix, this.length - suffix.length) !== -1;
 };

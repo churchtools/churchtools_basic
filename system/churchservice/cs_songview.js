@@ -12,6 +12,22 @@ SongView.prototype = new Temp();
 songView = new SongView();
 
 
+SongView.prototype.getSongFromArrangement = function(arrangement_id) {
+  var song=null;
+  if (allSongs!=null)
+    $.each(allSongs, function(k,a) {
+      $.each(a.arrangement, function(i,b) {
+        if (b.id==arrangement_id) {
+          a.active_arrangement_id=arrangement_id;
+          song=a;
+          return false;
+        }
+      });
+      if (song!=null) return false;
+    });
+  return song;
+};
+
 SongView.prototype.getData = function(sorted) {
   if (sorted) {
     var list=new Array();
@@ -285,7 +301,7 @@ SongView.prototype.deleteSong = function(song_id) {
  * @param song_id and arrangement_id give an id of a song which should be opened
  */
 SongView.prototype.loadSongData = function(song_id, arrangement_id) {
-  if ((!this.songsLoaded) && (this.allDataLoaded)) {
+  if (!this.songsLoaded) {
     var elem = this.showDialog("Lade Songs", "Lade Songs...", 300,300);
     cs_loadSongs(function() {
       this_object.songsLoaded=true;
@@ -294,7 +310,8 @@ SongView.prototype.loadSongData = function(song_id, arrangement_id) {
         allSongs[song_id].open=true;
         allSongs[song_id].active_arrangement_id=arrangement_id;
       }
-      this_object.renderList();
+      if (churchInterface.getCurrentView()==this_object)
+        this_object.renderList();
     });
   }
 };
@@ -563,6 +580,8 @@ SongView.prototype.getCountCols = function() {
 
 
 SongView.prototype.getListHeader = function () {
+  $("#cdb_group").html("");
+  
   var this_object=this;
   this.loadSongData();
   var rows = new Array();

@@ -1108,7 +1108,25 @@ class CTChurchServiceModule extends CTAbstractModule {
     $res["cdb_gruppen"]=churchcore_getTableData("cdb_gruppe");
     $res["cdb_tag"]=churchcore_getTableData("cdb_tag");
     return $res;
-  }      
+  }
+
+  
+  public function loadAgendas($params) {
+    return churchcore_getTableData("cs_agenda");
+  }
+  public function loadAgendaItems($params) {
+    $items=churchcore_getTableData("cs_item", null, "agenda_id=".$params["agenda_id"]);
+    if ($items!=null) {
+      foreach ($items as $item) {
+        $sgs=churchcore_getTableData("cs_item_servicegroup", null, "item_id=".$item->id);
+        if ($sgs!=null)
+          foreach ($sgs as $sg) {
+            $item->servicegroup[$sg->servicegroup_id]=$sg->note;
+          }      
+      }
+    } 
+    return $items;
+  }
 }
 
 function churchservice_ajax() {

@@ -136,6 +136,7 @@ ListView.prototype.addSecondMenu = function() {
  */
 ListView.prototype.showLastChanges = function() {
   var this_object=this;
+  
   // Erstmal die aktuelle Zeit zum Speichern r�bersenden
   var _d= new Date();
   churchInterface.jsendWrite({func:"saveSetting", sub:"lastVisited", val:_d.toStringEn(true)});
@@ -898,7 +899,7 @@ ListView.prototype.renderListEntry = function(event) {
   else
     rows.push("<b>" + event.startdate.toDateEn(true).toStringDeTime(true)+" "+event.bezeichnung+"</b><br/>");
   if ((event.special!=null) && (event.special!=""))
-    rows.push("<div class=\"event_info\"><p><small>"+event.special.str_replace('\n','<br/>')+"</small></div>");
+    rows.push("<div class=\"event_info\">"+event.special.htmlize()+"</div>");
   
   var _authMerker=masterData.auth.write || _bin_ich_admin;
   // Pr�fe, ob ich ein Leiter einer Gruppe bin, dann darf ich auch schreiben.
@@ -1003,6 +1004,7 @@ ListView.prototype.makeFilterCategories = function(start_string) {
 
 ListView.prototype.getListHeader = function() {
   var this_object=this;
+  $("#cdb_group").html("");
 
   if (masterData.settings.listViewTableHeight==null) masterData.settings.listViewTableHeight=1;
   

@@ -39,52 +39,21 @@ jQuery(document).ready(function() {
   cdb_loadMasterData(function() {
     // Initialisiere Browser-History, ruft damit schon RenderView() auf, falles Parameter uebergeben worden sind
     churchInterface.activateHistory((masterData.settings.churchdbInitView!=null?masterData.settings.churchdbInitView:"PersonView"));
-  /*
-    var p=localStorage.getObject("allPersons["+masterData.user_pid+"]");
-    if (p!=null) {
-      console.log("Load from Cache");
-      allPersons=p.data;
-      churchInterface.setLastLogId(p.lastLogId);  
-      // Nur noch ein Refresh der Liste ist notwendig
-      churchInterface.getCurrentView().renderView();
-
-      // Lade nun noch weitere Restdaten, refreshListNecessary legt fest, ob nochmal die Liste zu aktualisieren ist 
-      cdb_loadRelations(function(refreshListNecessary) {
-        cdb_loadSearch(function() {
-          cdb_loadGroupMeetingStats(churchInterface.getCurrentView().filter, null, function(refreshListNecessary2) {
-            masterData.allDataLoaded=true;
-            churchInterface.sendMessageToAllViews("allDataLoaded", new Array(refreshListNecessary || refreshListNecessary2));
-          });
-        });
-      });
-    } 
-    else */{  
-      churchInterface.setLastLogId(masterData.last_log_id);
-    
-      cdb_loadPersonData(function() {
-        // Genug Daten um die ersten 50 Personen und Meine Gruppen anzuzeigen.
-        churchInterface.getCurrentView().renderView(false);
-        jQuery("#searchEntry").focus();
-        
-        // Lade nun alle Personendaten im Hintergrund weiter
-//        cdb_loadPersonData(function() {
-          //var p = {data:allPersons, lastLogId:masterData.last_log_id};
-          //localStorage.setObject("allPersons["+masterData.user_pid+"]",p);
-          //console.log("Save Cache: "+"allPersons["+masterData.user_pid+"]");
-          // Nur noch ein Refresh der Liste ist notwendig
-          //churchInterface.getCurrentView().renderView(false);
+    churchInterface.setLastLogId(masterData.last_log_id);
   
-          // Lade nun noch weitere Restdaten, refreshListNecessary legt fest, ob nochmal die Liste zu aktualisieren ist 
-          cdb_loadRelations(function(refreshListNecessary) {
-            cdb_loadSearch(function() {
-              cdb_loadGroupMeetingStats(churchInterface.getCurrentView().filter, null, function(refreshListNecessary2) {
-                masterData.allDataLoaded=true;
-                churchInterface.sendMessageToAllViews("allDataLoaded", new Array(refreshListNecessary || refreshListNecessary2));
-              });
+    cdb_loadPersonData(function() {
+      // Genug Daten um die ersten 50 Personen und Meine Gruppen anzuzeigen.
+      churchInterface.getCurrentView().renderView(false);
+      jQuery("#searchEntry").focus();        
+        // Lade nun noch weitere Restdaten, refreshListNecessary legt fest, ob nochmal die Liste zu aktualisieren ist 
+        cdb_loadRelations(function(refreshListNecessary) {
+          cdb_loadSearch(function() {
+            cdb_loadGroupMeetingStats(churchInterface.getCurrentView().filter, null, function(refreshListNecessary2) {
+              masterData.allDataLoaded=true;
+              churchInterface.sendMessageToAllViews("allDataLoaded", new Array(refreshListNecessary || refreshListNecessary2));
             });
           });
- //       });
-      },50);
-    }
+        });
+    });
   });
 }); 
