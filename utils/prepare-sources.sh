@@ -92,7 +92,7 @@ function move_sources() {
 # Minimize JavaScript.
 #
 function compile_javascript() {
-    UTILS_PATH=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd )
+    UTILS_PATH=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd )/utils
     for js in $(find target-release/churchtools-$1/system -name "c*.js"); do
 	echo "Compiling $js"
 	cp "$js" "$js".source
