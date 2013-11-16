@@ -101,7 +101,7 @@ function createI18nFile($modulename) {
   global $config, $files_dir;
   
   if (!file_exists("$files_dir/files/messages/")) 
-    mkdir("$files_dir/files/messages", 0777);
+    mkdir("$files_dir/files/messages", 0777, true);
 
   $filename="$files_dir/files/messages/$modulename"."_".$config["language"].".js";
   if (!file_exists($filename)) {
