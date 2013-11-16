@@ -799,72 +799,37 @@ function churchcore_sendEMailToPersonids($ids, $betreff, $inhalt, $from=null, $h
 
 
 function checkForDBUpdates() {
-  global $config, $mapping, $base_url, $user;
+  global $mapping;
+
+  if ($mapping["churchtools_version"]==null)
+    die("churchtools_version nicht gefunden!");
+  $software_version=$mapping["churchtools_version"];
+
+  $db_version="nodb";
+
   try {
-    // Checke, ob CC_CONFIG vorhanden
+    // test if cc_config table is present
     $a=db_query("select * from {cc_config} where name='version'",null,false);
-    // Wenn er hier ankommt, dann ist so vorhanden und fürhe Updates durch
-    if ($mapping["churchtools_version"]==null)
-      die("churchtools_version nicht gefunden!");
-    $software_version=$mapping["churchtools_version"];
+    // if we arrive here, it is, so fetch current database version
     $db_version=$a->fetch()->value;
-    $old_db_version=$db_version;
-    $counter=100; // Zum Sicherstellen, dass er hier nicht festhängt.
-    while (($counter>0) && ($software_version!=$db_version)) {
-      include_once("system/includes/db_updates.php");
-      $counter--;
-      // Zerlege die Version in Hauptversion und Unterversion.
-      $arr=explode(".",$db_version);
-      // Addiere 1 zur Unterversion
-      $arr[1]=$arr[1]+1; if (strlen($arr[1])==1) $arr[1]="0".$arr[1];
-      $db_version=$arr[0].".".$arr[1];
-      // Rufe Funktion auf, wenn es eine gibt.
-      $func_name="updateDB_".$arr[0].$arr[1];
-      if (function_exists($func_name)) call_user_func($func_name);
-      // Aktualisiere DB
-      $a=db_query("update {cc_config} set value=:value where name='version'", array(":value"=>$db_version));
-    }
-    if ($counter==0) {
-      addErrorMessage("Fehler beim Update der Datenbank von ".$old_db_version." auf $software_version: Zu viele &Auml;nderungen. Bitte versuchen Sie es erneut. Wenn es immer noch zum Fehler kommt wenden Sie sich bitte an Ihren Administrator.");
-      return false;
-    }
-    else if ($counter<100) {      
-      addInfoMessage("Datenbankupdates ausgef&uuml;hrt von ChurchTools v$old_db_version auf v".$software_version);
-      cleanI18nFiles();
-      $sitename=$config["site_name"];
-      churchcore_systemmail("info@churchtools.de", "Neue Version auf ".$sitename, "Datenbankupdates ausgefuehrt von ChurchTools v$old_db_version auf v".$software_version."\n".$base_url);
-      churchcore_systemmail($config["site_mail"], "Neue Version auf ".$config["site_name"], "Datenbankupdates ausgefuehrt von ChurchTools v$old_db_version auf v".$software_version."\n".$base_url);
-      if (userLoggedIn()) {
-        $user=$_SESSION["user"];
-        $user->auth=getUserAuthorization($user->id);
-        $_SESSION["user"]=$user;
-      }      
-    }
-    return true;
   }
   catch (Exception $e) {
-    include_once("system/includes/db_updates.php");
     try {
-      // Prüfe, ob überhaupt schon Tabellen vorliegen, dann Neuinstallation, ansonsten Update von 1.XX
+      /* if cdb_person is present, but not cc_config, it's a pre-2.0 database */
       $a=db_query("select * from {cdb_person}",null,false);    
-      initTablesFor20();
-      addInfoMessage("Installiere Tabellen f&uuml;r Version 2.00");
-      return checkForDBUpdates();
+      $db_version="pre-2.0";
     }
     catch (Exception $e) {
-      if (isset($_GET["installdb"])) {
-        if (installDataTables()) {
-          addInfoMessage("Installiere Datenbanktabellen");
-          return checkForDBUpdates();
-        }  
-        else return false;
-      }
-      else {
-        addInfoMessage('Keine Datenbank-Tabellen gefunden. Soll ich sie nun anlegen?<p><a href="?installdb=true" class="btn">Tabellen jetzt anlegen</a>');
-        return false;
-      }      
+      /* still not? start from scratch */
+      $db_version="nodb";
     }
   }
+  /* anything to do? */
+  if ($db_version == $software_version)
+    return true;
+
+  include_once("system/includes/db_updates.php");
+  return run_db_updates($db_version);
 }
 
 function variable_get($var, $default=null) {
@@ -1818,7 +1783,7 @@ class db_accessor implements Iterator {
     }
     if (!$this->res->execute($params)) {
       $err = $this->res->errorInfo();
-      throw new SQLException($err[2]."\nSQL: ".$sql);
+      throw new SQLException($err[2]."\nSQL: $sql\n".print_r($params, true));
     }
     $this->next();
   }    
