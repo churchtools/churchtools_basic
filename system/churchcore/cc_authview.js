@@ -177,14 +177,6 @@ AuthView.prototype.addFurtherListCallbacks  = function() {
   $("#cdb_content #simulate").click(function() {
     window.location.href="?q=simulate&id="+$(this).parents("tr").attr("id")+"&location=home&back=churchauth";
   });
-  $("#cdb_content .hoveractor").hover(
-      function () {
-        $(this).children("span.hoverreactor").fadeIn('fast',function() {});
-      }, 
-      function () {
-        $(this).children("span.hoverreactor").fadeOut('fast');
-      }
-    );
   $("#searchEntry").keyup(function() {
     if ($(this).val()!="") {
       $("#searchAuth").removeAttr("checked");

@@ -1113,7 +1113,8 @@ PersonView.prototype.renderListEntry = function(a) {
     if (a.access!=null) {
       bereich=bereich+'<font title="';
       $.each(a.access, function (i, b) {
-        bereich=bereich+masterData.dep[i].bezeichnung+" ";
+        if (masterData.dep[i]!=null)
+          bereich=bereich+masterData.dep[i].bezeichnung+" ";
       });
       bereich=bereich+'">';
       $.each(a.access, function (i, b) {
@@ -3641,10 +3642,13 @@ PersonView.prototype._saveEditEntryData = function (id, fieldname, renderViewNec
 
   cover.html("Die Daten werden gespeichert...");
   
-  churchInterface.jsendWrite(obj, function(ok) {
+  churchInterface.jsendWrite(obj, function(ok, data) {
       cover.dialog("close");
       cover.html("");
-      if (!ok) allPersons[id]=orig_obj;
+      if (!ok) {
+        alert("Fehler beim Speichern: "+data);
+        allPersons[id]=orig_obj;
+      }
       if (obj["func"]=="delete_user") {
         allPersons[id]=null;
         t.renderList();
@@ -3705,6 +3709,7 @@ PersonView.prototype.msg_filterChanged = function (id, oldVal) {
 
       t.filter["filterMeine Gruppen"]=merker;
       t.renderFurtherFilter();
+      t.renderTodos();
     }
     // Wenn es vorher eine intelligente Gruppe war, mu§ ich nun Filter wieder lšschen
     else if ((typeof oldVal=="string") && (oldVal.indexOf("filter")==0)) {
@@ -3712,6 +3717,7 @@ PersonView.prototype.msg_filterChanged = function (id, oldVal) {
       t.resetPersonFilter();
       t.resetGroupFilter();  
       t.filter['filterMeine Gruppen']=merker;
+      t.renderTodos();
       t.renderFurtherFilter();
     }
     if ((t.filter['filterMeine Gruppen']>0)) {
@@ -4230,6 +4236,13 @@ PersonView.prototype.resetPersonFilter = function() {
   delete this.filter["filterStation"]; 
   delete this.filter["filterBereich"]; 
   delete this.filter["filterStatus"];
+  // Todo-filter
+  delete this.filter["followupOverdue"];
+  delete this.filter["followupToday"];
+  delete this.filter["groupSubscribe"];
+  delete this.filter["groupDelete"];
+  
+  
   delete this.filter["filterGeschlecht"]; 
   delete this.filter["filterFamilienstatus"];
   z=0;

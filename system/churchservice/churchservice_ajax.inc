@@ -54,6 +54,9 @@ function churchservice_getAuthorization() {
   if (user_access("view","churchdb")) 
     $res["viewchurchdb"]=true;
   
+  if (user_access("administer persons", "churchcore"))
+    $res["administer persons"]=true;
+  
   if (isset($auth["view"]))
     $res["read"]=true;
   if (isset($auth["edit events"])) {
@@ -143,6 +146,21 @@ function churchservice_getAuthorization() {
   $res["leaderservice"]=$res_leader;
   $res["editservice"]=$res_edit;
   
+  
+  if (isset($auth["view agenda"])) {
+    $res["view agenda"]=$auth["view agenda"];    
+  }
+  if (isset($auth["edit agenda"])) {
+    $res["edit agenda"]=$auth["edit agenda"];
+    // Dupicate permission to view
+    foreach ($res["edit agenda"] as $key=>$edit) {
+      $res["view agenda"][$key]=$edit;
+    }
+  }
+  if (isset($auth["edit agenda templates"])) {
+    $res["edit agenda templates"]=$auth["edit agenda templates"];
+  }
+  
   $auth=$res;
   return $res;
 }
@@ -231,6 +249,9 @@ function churchservice_getAllEventData($params) {
       // Hole noch Booking_Infos, damit ich wei§, dass er hier nicht das Datum Šndern darf.
       $b=db_query("select * from {cr_booking} where cc_cal_id=:cal_id", array(":cal_id"=>$arr->cc_cal_id))->fetch();
       $arr->bookings=$b!=false;
+      // Check if agenda items are available for this event
+      $b=db_query("select * from {cs_event_item} where event_id=:event_id limit 1", array(":event_id"=>$arr->id))->fetch();
+      $arr->agenda=$b!=false;
       // Nun geht es los!
       $events[$arr->id]=$arr;
       $event_admin=false;
@@ -1110,22 +1131,323 @@ class CTChurchServiceModule extends CTAbstractModule {
     return $res;
   }
 
-  
-  public function loadAgendas($params) {
-    return churchcore_getTableData("cs_agenda");
+  /*
+   *  NOW ALL FUNCTIONS FOR AGENDA VIEW
+   */
+
+  /**
+   * Load agenda templates, if allowed.
+   * @throws CTNoPermission
+   */
+  public function loadAllAgendaTemplates($params) {
+    $auth=churchservice_getAuthorization();
+    $allowedAgendas=$auth["view agenda"];
+    
+    $where="calcategory_id in (".implode(",",$allowedAgendas).") and template_yn=1";
+    $data=churchcore_getTableData("cs_agenda", null, $where);
+    return $data;
   }
+  
+  
+  /**
+   * Load agendas with ids inclusive belonging Event_ids but without the items 
+   * Check if is allowed to view or if I am involved in one of the events
+   * @param $params [ids] for ids to get
+   * ¨return agenda oder null if not found or not allowed
+   */
+  public function loadAgendas($params) {   
+    $where="id in (".implode(",",$params["ids"]).")";
+    $data=churchcore_getTableData("cs_agenda", null, $where);
+    $auth=churchservice_getAuthorization();
+    $allowedAgendas=$auth["view agenda"];
+    if ($data==false) return null;
+    else {
+      foreach ($data as $key=>$d) {    
+        // Check if template
+        $d->event_ids=$this->getBelongingEventIdsToAgenda($d->id);
+        // Check if allowed
+        if (!isset($allowedAgendas[$d->calcategory_id])) {
+          // if not allowed, checked if I am involved in services of belonging events
+          $involved=false;
+          foreach($d->event_ids as $event_id) {
+            if (!$involved) 
+              $involved=churchservice_amIInvolved($event_id);
+          }
+          if (!$involved) unset($data[$key]);
+        }
+      }
+      return $data;
+    }
+  }
+  
+  /**
+   * Gets the agenda belonging to the event $params["event_id"]
+   * @param unknown $params
+   * @throws CTFail
+   * @throws CTNoPermission
+   * @return Agenda with all items
+   */
+  public function loadAgendaForEvent($params) {
+        // Get first agenda_id
+    $db=db_query('select agenda_id from {cs_event_item} ei, {cs_item} i '. 
+                   'where ei.item_id=i.id and event_id=:event_id limit 1', 
+               array(":event_id"=>$params["event_id"]))->fetch();
+    if (!$db) throw new CTFail("Konnte keine Agenda fuer das Event finden!");
+    
+    // Now load agenda data
+    $agendas=$this->loadAgendas(array("ids"=>array($db->agenda_id)));
+    if (isset($agendas[$db->agenda_id]))
+      return $agendas[$db->agenda_id];
+    else throw new CTNoPermission("view agenda", "churchservice");
+  }
+  
+  private function getBelongingEventIdsToAgenda($agenda_id) {
+    // And add belonging event_ids to the agenda
+    $db2=db_query("select distinct ei.event_id id from {cs_event_item} ei, {cs_item} i
+                  where ei.item_id=i.id and i.agenda_id=:agenda_id", array(":agenda_id"=>$agenda_id));
+    $event_ids=array();
+    foreach ($db2 as $event) {
+      if ($event_ids[]=$event->id);
+    }
+    return $event_ids;    
+  }
+  
+  
+  /**
+   * Load Agenda items
+   * @param $params["agenda_id"]
+   * @throws CTException
+   * @throws CTNoPermission
+   * @return Ambigous <NULL, unknown, boolean, db_accessor>
+   */
   public function loadAgendaItems($params) {
-    $items=churchcore_getTableData("cs_item", null, "agenda_id=".$params["agenda_id"]);
+    $auth=churchservice_getAuthorization();
+    $agenda=churchcore_getTableData("cs_agenda", null, "id = ".$params["agenda_id"]);
+    if (!$agenda) throw new CTException("Agenda not found!");
+    
+    $items=churchcore_getTableData("cs_item", null, "agenda_id=".$params["agenda_id"]);    
     if ($items!=null) {
+      $event_ids=array();
       foreach ($items as $item) {
+        $ei=churchcore_getTableData("cs_event_item", null, "item_id=".$item->id, "event_id");
+        if ($ei!=null) {
+          $item->events=array();
+          foreach ($ei as $e) {
+            $item->event_ids[]=$e->event_id;
+            $event_ids[$e->event_id]=$e->event_id;
+          }
+        }
+        
         $sgs=churchcore_getTableData("cs_item_servicegroup", null, "item_id=".$item->id);
         if ($sgs!=null)
           foreach ($sgs as $sg) {
             $item->servicegroup[$sg->servicegroup_id]=$sg->note;
           }      
+      
       }
+      // Check perms
+      if ((!isset($auth["view agenda"])) && (!isset($auth["view agenda"][$agenda->calcategory_id]))) {
+        $involved=false;
+        foreach ($event_ids as $event_id) {
+          if (!$involved)
+            $involved=churchservice_amIInvolved($event_id);
+        }
+        if (!$involved) throw new CTNoPermission("view agenda", "churchservice");
+      }    
     } 
     return $items;
+  }
+  
+  /**
+   * Saves the item of the agenda agenda_id
+   * @param $params[...]
+   * @return new item id
+   */
+  public function saveItem($params) {
+    $agenda=$this->loadAgendas(array("ids"=>array($params["agenda_id"])));
+    if ($agenda==null)
+      throw new CTFail("Agenda nicht gefunden");
+    $this->checkPerm("edit agenda", null, $agenda[$params["agenda_id"]]->calcategory_id);
+    if ($agenda[$params["agenda_id"]]->template_yn==1)
+      $this->checkPerm("edit agenda templates", null, $agenda[$params["agenda_id"]]->calcategory_id);
+      
+    $i = new CTInterface();
+  	$i->setParam("agenda_id");
+  	$i->setParam("bezeichnung");
+  	$i->setParam("header_yn");
+  	$i->setParam("responsible");
+  	$i->setParam("arrangement_id", false);
+  	$i->setParam("note");
+  	$i->setParam("sortkey");
+  	$i->setParam("duration");
+  	$i->setParam("preservice_yn");
+  	$i->addModifiedParams();
+  	
+  	if (!isset($params["id"])) {
+  	  $params["id"]=db_insert("cs_item")
+  	  ->fields($i->getDBInsertArrayFromParams($params))
+  	  ->execute(false);
+  	}
+  	else {
+      db_update("cs_item")
+      ->fields($i->getDBInsertArrayFromParams($params))
+      ->condition("id", $params["id"], "=")
+      ->execute(false);
+  	}
+  	// Now insert event-relation  	
+    if (isset($params["event_ids"])) {
+  	  foreach ($params["event_ids"] as $event_id) {
+  	    // Ignore avoid error when item is already mapped to event
+  	    db_query("insert ignore into {cs_event_item} (event_id, item_id) values (:event_id, :item_id)", 
+  	      array(":event_id"=>$event_id, ":item_id"=>$params["id"]));
+  	  }  	    
+  	}
+  	return $params["id"];
+  }
+  
+  /**
+   * Saves the agenda and returns the saved one with all new Ids
+   */
+  public function saveAgenda($params) {
+    $this->checkPerm("edit agenda", null, $params["calcategory_id"]);
+    if ((isset($params["id"])) && (churchservice_isAgendaTemplate($params["id"])))
+      $this->checkPerm("edit agenda templates", null, $params["calcategory_id"]);
+    
+    $i = new CTInterface();
+  	$i->setParam("calcategory_id");
+  	$i->setParam("bezeichnung");
+  	$i->setParam("template_yn");
+  	$i->setParam("series");
+  	
+  	if (!isset($params["id"])) {
+  	  $params["id"]=db_insert("cs_agenda")
+  	  ->fields($i->getDBInsertArrayFromParams($params))
+      ->execute(false);  	  
+  	}
+  	else {
+      db_update("cs_agenda")
+      ->fields($i->getDBInsertArrayFromParams($params))
+      ->condition("id", $params["id"], "=")
+      ->execute(false);
+  	}
+  	
+  	if (isset($params["items"])) {
+  	  $newitems=array();
+  	  foreach ($params["items"] as $key=>$item) {
+  	    $item["agenda_id"]=$params["id"];
+  	  	$item["id"]=$this->saveItem($item);
+  	  	$newitems[$item["id"]]=$item;
+  	  }
+  	  $params["items"]=$newitems;
+  	}
+    $params["event_ids"]=$this->getBelongingEventIdsToAgenda($params["id"]);
+  	return $params;  	 
+  }
+  
+  /**
+   * Load item $params["id"] with calcategory_id and template_yn from agenda
+   * @param unknown $params
+   * @throws CTException - When item not found
+   * @throws CTNoPermission - When not allowed to edit or view
+   * @return item
+   */
+  public function loadItem($params) {
+    $db=db_query("select i.*, a.calcategory_id, a.template_yn from {cs_item} i, {cs_agenda} a where i.agenda_id=a.id
+            and i.id=:id", array(":id"=>$params["id"]))->fetch();
+    if (!$db) throw new CTException("Item not found!");
+    $auth=churchservice_getAuthorization();
+    if ((!isset($auth["view agenda"])) && (!isset($auth["view agenda"][$db->calcategory_id])) &&
+        (!isset($auth["edit agenda"])) && (!isset($auth["edit agenda"][$db->calcategory_id])))
+      throw new CTNoPermission("view agenda", "churchservice");
+    return $db;
+  }
+  
+  public function saveServiceGroupNote($params) {
+    $item=$this->loadItem(array("id"=>$params["item_id"]));
+    $this->checkPerm("edit agenda", null, $item->calcategory_id);
+    if ($item->template_yn==1)
+      $this->checkPerm("edit agenda templates", null, $item->calcategory_id);
+    
+    $i = new CTInterface();
+    $i->setParam("item_id");
+    $i->setParam("servicegroup_id");
+    $i->setParam("note");
+    db_delete("cs_item_servicegroup")
+    ->fields($i->getDBInsertArrayFromParams($params))
+    ->condition("item_id", $params["item_id"], "=")
+    ->condition("servicegroup_id", $params["servicegroup_id"], "=")
+    ->execute(false);
+    db_insert("cs_item_servicegroup")
+    ->fields($i->getDBInsertArrayFromParams($params))
+    ->execute(false);    
+  }
+  
+  public function deleteItemEventRelation($params) {
+    $item=$this->loadItem(array("id"=>$params["item_id"]));
+    $this->checkPerm("edit agenda", null, $item->calcategory_id);
+    
+    $i = new CTInterface();
+    $i->setParam("item_id");
+    $i->setParam("event_id");
+    
+    db_delete("cs_event_item")
+    ->fields($i->getDBInsertArrayFromParams($params))
+    ->condition("item_id", $params["item_id"], "=")
+    ->condition("event_id", $params["event_id"], "=")
+    ->execute(false);    
+  }
+  
+  public function addItemEventRelation($params) {
+    $item=$this->loadItem(array("id"=>$params["item_id"]));
+    $this->checkPerm("edit agenda", null, $item->calcategory_id);
+        
+    $i = new CTInterface();
+    $i->setParam("item_id");
+    $i->setParam("event_id");
+    
+    db_insert("cs_event_item")
+    ->fields($i->getDBInsertArrayFromParams($params))
+    ->execute(false);    
+  }
+
+  public function deleteItem($params) {
+    $item=$this->loadItem(array("id"=>$params["id"]));
+    $this->checkPerm("edit agenda", null, $item->calcategory_id);
+        
+    $i = new CTInterface();
+    $i->setParam("id");
+    
+    db_delete("cs_event_item")
+    ->fields($i->getDBInsertArrayFromParams($params))
+    ->condition("item_id", $params["id"], "=")
+    ->execute(false);
+    
+    db_delete("cs_item")
+    ->fields($i->getDBInsertArrayFromParams($params))
+    ->condition("id", $params["id"], "=")
+    ->execute(false);    
+  }
+  
+  public function deleteAgenda($params) {
+    $agenda=$this->loadAgendas(array("ids"=>array($params["id"])));
+    if ($agenda==null)
+      throw new CTException("Agenda not found!");
+    $this->checkPerm("edit agenda", null, $agenda[$params["id"]]->calcategory_id);
+    if (churchservice_isAgendaTemplate($params["id"]))
+      $this->checkPerm("edit agenda templates", null, $agenda[$params["id"]]->calcategory_id);
+      
+    $i = new CTInterface();
+    $i->setParam("id");
+
+    $db=db_query("select * from {cs_item} where agenda_id=:agenda_id", array(":agenda_id"=>$params["id"]), false);
+    foreach ($db as $item) {
+      $this->deleteItem(array("id"=>$item->id));
+    }
+    
+    db_delete("cs_agenda")
+    ->fields($i->getDBInsertArrayFromParams($params))
+    ->condition("id", $params["id"], "=")
+    ->execute(false);
   }
 }
 

@@ -15,6 +15,19 @@ function churchcore_handyformat() {
   return $(window).width()<767;  
 }
 
+/*
+ * Check permission of auth. When datafield is given, this will be checked, too
+ * E.g. user_access("edit category", 2);
+ * @return true/false
+ */
+function user_access(auth, datafield) {
+  if (masterData.auth!=null && masterData.auth[auth]!=null)
+    if (datafield==null) return true;
+    else if (masterData.auth[auth][datafield]!=null) return true;
+    
+  return false;
+}
+
 function churchcore_getBezeichnung(name, id) {
   if (masterData[name]==null)
     return '<span class="error">Stammdaten '+name+"?</span>";
@@ -276,6 +289,14 @@ function churchcore_inArray(obj, arrArray) {
     if (a==obj) ret=true;
   });
   return ret;
+}
+function churchcore_removeFromArray(obj, arrArray) {
+  jQuery.each(arrArray, function(k,a) {
+    if (a==obj) {
+      delete arrArray[k];
+      return false;
+    }
+  });
 }
 
 function isNumber(n) {

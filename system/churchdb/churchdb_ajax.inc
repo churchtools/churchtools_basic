@@ -1204,11 +1204,16 @@ function f_functions($params) {
   // Pr�fe, ob eine E_Mail-Adresse gesetz werden soll die es schon gibt ohne Schreibrechte.
   // Das soll verhindert werden, denn sonst kann sich jemand die E-Mail eines Admins geben...
   if ((isset($params["email"]) && (!user_access("write access", "churchdb")))) {
-    $db=db_query("select * from {cdb_person} p where email=:email and id!=:id",
-    array(":email"=>$params["email"], ":id"=>$params["id"]))->fetch();
-    if ($db!=false) {
-      $res="Die E-Mail-Adresse ist schon vergeben. Um eine vergebene E-Mail-Adresse zu setzen werden mehr Rechte gebraucht.";
-      break;
+  	// Check, if the email address has changed
+    $db=db_query("select * from {cdb_person} p where id=:id",
+               array(":id"=>$params["id"]))->fetch();
+    if ($db->email!=$params["email"]) {
+      // Check, if other user has this email
+      $db=db_query("select * from {cdb_person} p where email=:email and id!=:id",
+                 array(":email"=>$params["email"], ":id"=>$params["id"]))->fetch();
+      if ($db!=false) {
+        throw new CTFail("Die E-Mail-Adresse ist schon vergeben. Um eine vergebene E-Mail-Adresse zu setzen werden mehr Rechte gebraucht.");
+      }
     }
   }
   if ($function=="f_group") {
@@ -1577,7 +1582,7 @@ class CTChurchDBModule extends CTAbstractModule {
     churchdb_invitePersonToSystem($params["id"], $_SESSION["user"]);
   }
   public function setPersonPassword($params) {
-    $this->checkPerm("administer persons");
+    $this->checkPerm("administer persons", "churchcore");
     return churchdb_setPersonPassword($params["id"], $params["password"]);
   }
   public function sendEMailToPersonIds($params) {

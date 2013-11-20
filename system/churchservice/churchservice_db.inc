@@ -2,6 +2,29 @@
 
 include_once('./'. drupal_get_path('module', 'churchservice') .'/../churchcore/churchcore_db.inc');
 
+/**
+ * Checks if the agenda is a template
+ * @param unknown $agenda_id
+ * @throws CTException - When Agenda could not be found
+ * @return boolean
+ */
+function churchservice_isAgendaTemplate($agenda_id) {
+  $agenda=db_query("select * from {cs_agenda} where id=:id", array(":id"=>$agenda_id))->fetch();
+  if (!$agenda) throw new CTException("Agenda konnte nicht gefunden werden");
+  return $agenda->template_yn==1;  
+}
+
+/**
+ * Check, if I have a service in this event
+ * @param unknown $event_id
+ */
+function churchservice_amIInvolved($event_id) {
+  global $user;
+  $db=db_query("select * from {cs_eventservice} where event_id=:event_id and cdb_person_id=:p_id
+               and valid_yn=1", array(":event_id"=>$event_id, ":p_id"=>$user->id))->fetch();
+  return $db!=false; 
+}
+
 function churchservice_copyEventByCalId($orig_cal_id, $new_cal_id, $new_startdate, $allservices=true) {
   $event=db_query('select * from {cs_event} where cc_cal_id=:cal_id', array(":cal_id"=>$orig_cal_id))->fetch();
   if ($event!=false) {

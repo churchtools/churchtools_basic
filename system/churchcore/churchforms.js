@@ -155,13 +155,17 @@ function form_renderImage(options) {
   }
   var htmlclass=(options.htmlclass!=null?options.htmlclass:"");
   
-  if (options.cssid!="")
-    _text=_text+"<a href=\"#\" "+data+"title=\""+options.label+"\" id=\""+options.cssid+"\"><img style=\""+style+"\" src=\""+src+"\" class=\""+htmlclass+"\"></a>";
+  if (options.cssid!="" || options.link)
+    _text=_text+"<a href=\"#\" "+data+"title=\""+options.label+"\" class=\""+htmlclass+"\" id=\""+options.cssid+"\"><img style=\""+style+"\" src=\""+src+"\" class=\""+htmlclass+"\"></a>";
   else
     _text=_text+"<img style=\""+style+"\" src=\""+src+"\" title=\""+options.label+"\" class=\""+htmlclass+"\">";
     
 
   if ((controlgroup) || (controlgroup_end)) _text=_text+'</div></div>';
+  
+  if (options.hover) {
+    _text='<span class="hoverreactor">'+_text+'</span>';
+  }
   
   return _text;
 }

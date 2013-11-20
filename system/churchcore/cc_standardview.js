@@ -3,8 +3,10 @@
 
 
 //Constructor
-function StandardTableView() {
+function StandardTableView(options) {
+  var t=this;
   AbstractView.call(this);
+  
   this.name="StandardTableView";
   this.init=false;
   this.filter=new Object();
@@ -22,7 +24,15 @@ function StandardTableView() {
   this.renderListTimer=null;
   this.listViewAggregate=false;
   this.listViewTableHeight=null; // Wenn ja, hat die Tabelle eien fixen Titel
+  
+  this.showPaging=true;
+  this.rowNumbering=true;
 
+  if (options!=null) {
+    $.each(options, function(k,a) {
+      t[k]=a;
+    });
+  }
 }
 Temp.prototype = AbstractView.prototype;
 StandardTableView.prototype = new Temp();
@@ -245,14 +255,9 @@ StandardTableView.prototype.renderOneListEntry = function(id) {
  */
 StandardTableView.prototype.renderList = function(entry, newSort) {
   t=this;
-  if (t.renderListTimer==null)
-    t.renderListTimer=window.setTimeout(function() {
-
-  
+   
   var rows = new Array();
   
-  if (debug) t.startTimer();
- 
   // Wenn nur ein Eintrag neu gerendert werden soll
   if (entry!=null) {
     if (t.checkFilter(entry)) {      
@@ -262,7 +267,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
       else 
         rows[rows.length] = "<td><input type=\"checkbox\" id=\"check" + entry.id +
         "\" class=\"checked\">";      
-      if (t.groupingFunction(entry)==null) {
+      if (t.rowNumbering && t.groupingFunction(entry)==null) {
         rows.push("<td><a href=\"\" id=\"detail" + entry.id + "\">" + $("tr[id="+entry.id+"]").find("td").next().first().text()+"</a>");
       }
 
@@ -280,205 +285,213 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
   }
   // Wenn die ganze Tabelle neu gerendert werden soll
   else {
-    var current_id = 0;    
-    listObject=t.getData(true, newSort);    
-
-    $("#cdb_content").html("Tabellenaufbau...");    
-    
-    if ((masterData.settings==null) || (masterData.settings.listViewTableHeight==null) || (masterData.settings.listViewTableHeight==0))
-      t.listViewTableHeight=null;
-    else 
-      t.listViewTableHeight=646;
-
-    if (masterData.settings==null) masterData.settings=new Object();    
-    if (masterData.settings["listMaxRows"+t.name]==null)
-      masterData.settings["listMaxRows"+t.name]=25;
-    else masterData.settings["listMaxRows"+t.name]=masterData.settings["listMaxRows"+t.name]*1;
-    
-    // Wenn es Handyformat ist dann zeige immer nur 10 Zeilen, au§er bei der Ressourcen-WeekView, 
-    // denn hier macht es Sinn, das man alle sieht.
-    if ((churchcore_handyformat()) && (churchInterface.getCurrentView().name!="WeekView"))
-      masterData.settings["listMaxRows"+t.name]=10;    
-
-    var header=t.getListHeader();
-    
-    if (listObject == null) {
-      rows[rows.length] = "Keinen Eintrag gefunden.";
-    }
-    else {
-      rows[rows.length] = '<div style="" id="DivAddressTable"><table class="view table table-bordered table-condensed table-striped" style="tab_le-layout:fixed;margin-bottom:0px;" id="AddressTable">';
-      rows[rows.length] = '<thead><tr><th width="12px"><input type="checkbox" class="checked" id="markAll">';      
-        rows.push(header);
-      rows.push('</thead>');
+    if (t.renderListTimer==null)
+      t.renderListTimer=window.setTimeout(function() {
       
-      if (t.listViewTableHeight!=null) {
-        rows.push('</table></div>');
-        
-        rows.push('<div style="max-height:'+t.listViewTableHeight+'px; overflow-y:auto; overflow-x:auto">');
-        rows.push('<table class="view table table-bordered table-condensed ta_ble-striped" style="margin-bottom:0px" id="AddressTableChild">');        
-      }
+      if (debug) t.startTimer();
       
-      rows.push('<tbody>');
-      var startConcat = new Date();
-      var counter = 0; 
-      var lastGrouping=null;
+      var current_id = 0;    
+      listObject=t.getData(true, newSort);    
+  
+      $("#cdb_content").html("Tabellenaufbau...");    
       
-      $.each(listObject, function(k, entry) {
-        if ((entry!=null) && (t.checkFilter(entry))) {
-          counter++;
-          if ((counter>=t.listOffset) && (counter<=masterData.settings["listMaxRows"+t.name]+t.listOffset)) {
-
-            entry_txt=t.renderListEntry(entry);
-            if (entry_txt==null) 
-              counter--;
-            else {
-              var r = t.groupingFunction(entry);
-              if (r!=lastGrouping) {
-                lastGrouping=r;
-                rows.push('<tr class="grouping"><td class="grouping" align="center" colspan="'+(t.getCountCols())+'">'+r);
-              }
-              
-              rows.push("<tr class=\"data\" id=\"" + entry.id + "\">");                      
-              rows.push("<td><input type=\"checkbox\" class=\"checked\" id=\"check" + entry.id + "\"");
-              if (entry.checked) rows.push(" checked=checked"); 
-              rows.push(">");
-              
-              if (lastGrouping==null)
-                rows.push("<td><a href=\"\" id=\"detail" + entry.id + "\">" + counter + "</a>");         
-              rows.push(entry_txt);
-              
-              current_id = entry.id;
-            }  
-          }
-        } 
-      });    
-      
-      rows.push('<tbody>');
-      rows.push("</table>");
-      rows.push("</div>");
-
-      rows.push('<table class="table table-bordered table-condensed">');
-      if (counter>=masterData.settings["listMaxRows"+t.name]) {
-        rows[rows.length] = "<tr><td>Zeige "+masterData.settings["listMaxRows"+t.name]+" von "+counter+" gefundenen Eintr&auml;gen";
-        rows.push("&nbsp; &nbsp; &nbsp;Bl&auml;ttern: <a id=\"offset0\" href=\"#\"><<</a>&nbsp;|&nbsp;<a id=\"offsetMinus\" href=\"#\"><</a>&nbsp;|&nbsp;<a id=\"offsetPlus\" href=\"#\">></a>");
-      }  
+      if ((masterData.settings==null) || (masterData.settings.listViewTableHeight==null) || (masterData.settings.listViewTableHeight==0))
+        t.listViewTableHeight=null;
       else 
-        rows[rows.length] = "<tr><td>Zeige "+counter+" gefundene Eintr&auml;ge";
+        t.listViewTableHeight=646;
   
-      if (!churchcore_handyformat()) {
-        rows.push("&nbsp; &nbsp; &nbsp; &nbsp;(Zeilenanzahl: ");
-        rows.push('<a href="#" class="changemaxrow" data-id="10">10</a>&nbsp;|&nbsp;');
-        rows.push('<a href="#" class="changemaxrow" data-id="25">25</a>&nbsp;|&nbsp;');
-        rows.push('<a href="#" class="changemaxrow" data-id="50">50</a>&nbsp;|&nbsp;');
-        rows.push('<a href="#" class="changemaxrow" data-id="200">200</a>)');
-      }
-      rows.push("&nbsp; &nbsp; &nbsp; ");
-      if ((masterData.settings["listMaxRows"+t.name]<=20) || (counter<=20))
-        rows.push("&nbsp;<a href=\"#\" id=\"showAll\">alle &ouml;ffnen</a>");
-      rows.push("&nbsp; &nbsp; <a href=\"#\" id=\"hideAll\">alle schlie&szlig;en</a>");      
-      rows.push('</table>');
+      if (masterData.settings==null) masterData.settings=new Object();    
+      if (masterData.settings["listMaxRows"+t.name]==null)
+        masterData.settings["listMaxRows"+t.name]=25;
+      else masterData.settings["listMaxRows"+t.name]=masterData.settings["listMaxRows"+t.name]*1;
       
-      if (t.listViewTableHeight!=null) rows.push("<p></p>");
-
-      rows.push(t.addSecondMenu());      
-    }
-    $("#cdb_content").html(rows.join(""));
-    
-    if (debug) t.endTimer("renderTableView");
-    
-    calcHeaderWidth(current_id);
-
-    //if (counter==1) {
-      // Entry anzeigen, wenn alles geladen ist, sonst lŠdt er die Detaildaten auch noch, obwohl spŠter vielleicht noch
-      // mehr Leute kommen, die passend kšnnten. Au§er es ist eine Id, da wird es nur einen geben
-     // if (t.filter["searchEntry"]>0)
-       // t.renderEntryDetail(current_id);
-    //}  
+      // Wenn es Handyformat ist dann zeige immer nur 10 Zeilen, au§er bei der Ressourcen-WeekView, 
+      // denn hier macht es Sinn, das man alle sieht.
+      if ((churchcore_handyformat()) && (churchInterface.getCurrentView().name!="WeekView"))
+        masterData.settings["listMaxRows"+t.name]=10;    
   
-    // Callbacks auf die Header und Footer der Tabelle
-    $("#cdb_content input.checked").click(function (_content_input) {
-      var s=$(this).attr("id");
-      if (s=="markAll") {
-        if ((counter>=masterData.settings["listMaxRows"+t.name]) && (confirm("Es sind mehr Eintraege vorhanden, als momentan angezeigt. Sollen alle Eintraege markiert werden?"))) {
-          bol=$(this).is(":checked");
-          $.each(listObject, function(k,a) {
-            if ((a!=null) && (t.checkFilter(a))) {
-              a.checked=bol;
-            }  
-          });
-        }  
-
-        if ($(this).is(":checked")) {          
-          $("#cdb_content input.checked").not("#markAll").each(function(a) {
-            $(this).attr("checked","true");
-            t.getData(false)[$(this).attr("id").substr(5,99)]["checked"]=true;
-          });  
-        }  
-        else {   
-          $("#cdb_content input.checked").not("#markAll").each(function(a) {
-            $(this).removeAttr("checked");
-            t.getData(false)[$(this).attr("id").substr(5,99)]["checked"]=false;
-          }); 
-        }
-      }  
-      else t.getData(false)[$(this).attr("id").substr(5,99)]["checked"]=$(this).is(":checked");
-    });
-    $("#cdb_content a").click(function (_content_a) {
-      if ($(this).attr("id")=="orderby") loadList("","",$(this).attr("href"));
-      else if ($(this).attr("id")=="offset0") {
-        t.listOffset=0;
-        t.renderList();
+      var header=t.getListHeader();
+      
+      if (listObject == null) {
+        rows[rows.length] = "Keinen Eintrag gefunden.";
       }
-      else if ($(this).attr("id")=="offsetMinus") {
-        t.listOffset=t.listOffset-masterData.settings["listMaxRows"+t.name];
-        if (t.listOffset<0) t.listOffset=0;
-        t.renderList();
-      }
-      else if ($(this).attr("id")=="offsetPlus") {
-        t.listOffset=t.listOffset+masterData.settings["listMaxRows"+t.name];
-        t.renderList();
-      }
-      else if ($(this).attr("id")=="showAll") {
-        n=0; j=0;
-        $.each(listObject, function(k, a) {
-          n++;
-          if (t.checkFilter(a)) {
-            j++;
-            if ((n>=t.listOffset) && (j<=masterData.settings["listMaxRows"+t.name])) {
-              t.renderEntryDetail(a.id);
-            } 
-          }
-        });   
-      }
-      else if ($(this).attr("id")=="hideAll") {
-        $.each(listObject, function(k, entry) {
-          entry.open=false;
-        });
+      else {
+        rows[rows.length] = '<div style="" id="DivAddressTable"><table class="view table table-bordered table-condensed table-striped" style="tab_le-layout:fixed;margin-bottom:0px;" id="AddressTable">';
+        rows[rows.length] = '<thead><tr><th width="12px"><input type="checkbox" class="checked" id="markAll">';      
+          rows.push(header);
+        rows.push('</thead>');
         
+        if (t.listViewTableHeight!=null) {
+          rows.push('</table></div>');
+          
+          rows.push('<div style="max-height:'+t.listViewTableHeight+'px; overflow-y:auto; overflow-x:auto">');
+          rows.push('<table class="view table table-bordered table-condensed ta_ble-striped" style="margin-bottom:0px" id="AddressTableChild">');        
+        }
+        
+        rows.push('<tbody>');
+        var startConcat = new Date();
+        var counter = 0; 
+        var lastGrouping=null;
+        
+        $.each(listObject, function(k, entry) {
+          if ((entry!=null) && (t.checkFilter(entry))) {
+            counter++;
+            if ((counter>=t.listOffset) && (counter<=masterData.settings["listMaxRows"+t.name]+t.listOffset)) {
+  
+              entry_txt=t.renderListEntry(entry);
+              if (entry_txt==null) 
+                counter--;
+              else {
+                var r = t.groupingFunction(entry);
+                if (r!=lastGrouping) {
+                  lastGrouping=r;
+                  rows.push('<tr class="grouping"><td class="grouping" align="center" colspan="'+(t.getCountCols())+'">'+r);
+                }
+                
+                rows.push("<tr class=\"data\" id=\"" + entry.id + "\">");                      
+                rows.push("<td><input type=\"checkbox\" class=\"checked\" id=\"check" + entry.id + "\"");
+                if (entry.checked) rows.push(" checked=checked"); 
+                rows.push(">");
+                
+                if (t.rowNumbering && lastGrouping==null)
+                  rows.push("<td><a href=\"\" id=\"detail" + entry.id + "\">" + counter + "</a>");         
+                rows.push(entry_txt);
+                
+                current_id = entry.id;
+              }  
+            }
+          } 
+        });    
+        
+        rows.push('<tbody>');
+        rows.push("</table>");
+        rows.push("</div>");
+  
+        rows.push('<table class="table table-bordered table-condensed"><tr><td>');
+        
+        if (counter>=masterData.settings["listMaxRows"+t.name]) {
+          rows[rows.length] = "Zeige "+masterData.settings["listMaxRows"+t.name]+" von "+counter+" gefundenen Eintr&auml;gen";
+          rows.push("&nbsp; &nbsp; &nbsp;Bl&auml;ttern: <a id=\"offset0\" href=\"#\"><<</a>&nbsp;|&nbsp;<a id=\"offsetMinus\" href=\"#\"><</a>&nbsp;|&nbsp;<a id=\"offsetPlus\" href=\"#\">></a>");
+        }  
+        else 
+          rows[rows.length] = "Zeige "+counter+" gefundene Eintr&auml;ge";
+  
+        if (t.showPaging) {    
+          if (!churchcore_handyformat()) {
+            rows.push("&nbsp; &nbsp; &nbsp; &nbsp;(Zeilenanzahl: ");
+            rows.push('<a href="#" class="changemaxrow" data-id="10">10</a>&nbsp;|&nbsp;');
+            rows.push('<a href="#" class="changemaxrow" data-id="25">25</a>&nbsp;|&nbsp;');
+            rows.push('<a href="#" class="changemaxrow" data-id="50">50</a>&nbsp;|&nbsp;');
+            rows.push('<a href="#" class="changemaxrow" data-id="200">200</a>)');
+          }
+          rows.push("&nbsp; &nbsp; &nbsp; ");
+          if ((masterData.settings["listMaxRows"+t.name]<=20) || (counter<=20))
+            rows.push("&nbsp;<a href=\"#\" id=\"showAll\">alle &ouml;ffnen</a>");
+          rows.push("&nbsp; &nbsp; <a href=\"#\" id=\"hideAll\">alle schlie&szlig;en</a>");
+        }
+        rows.push('</table>');
+        
+        if (t.listViewTableHeight!=null) rows.push("<p></p>");
+  
+        rows.push(t.addSecondMenu());      
+      }
+      $("#cdb_content").html(rows.join(""));
+      
+      if (debug) t.endTimer("renderTableView");
+      
+      calcHeaderWidth(current_id);
+  
+      //if (counter==1) {
+        // Entry anzeigen, wenn alles geladen ist, sonst lŠdt er die Detaildaten auch noch, obwohl spŠter vielleicht noch
+        // mehr Leute kommen, die passend kšnnten. Au§er es ist eine Id, da wird es nur einen geben
+       // if (t.filter["searchEntry"]>0)
+         // t.renderEntryDetail(current_id);
+      //}  
+    
+      // Callbacks auf die Header und Footer der Tabelle
+      $("#cdb_content input.checked").click(function (_content_input) {
+        var s=$(this).attr("id");
+        if (s=="markAll") {
+          if ((counter>=masterData.settings["listMaxRows"+t.name]) && (confirm("Es sind mehr Eintraege vorhanden, als momentan angezeigt. Sollen alle Eintraege markiert werden?"))) {
+            bol=$(this).is(":checked");
+            $.each(listObject, function(k,a) {
+              if ((a!=null) && (t.checkFilter(a))) {
+                a.checked=bol;
+              }  
+            });
+          }  
+  
+          if ($(this).is(":checked")) {          
+            $("#cdb_content input.checked").not("#markAll").each(function(a) {
+              $(this).attr("checked","true");
+              t.getData(false)[$(this).attr("id").substr(5,99)]["checked"]=true;
+            });  
+          }  
+          else {   
+            $("#cdb_content input.checked").not("#markAll").each(function(a) {
+              $(this).removeAttr("checked");
+              t.getData(false)[$(this).attr("id").substr(5,99)]["checked"]=false;
+            }); 
+          }
+        }  
+        else t.getData(false)[$(this).attr("id").substr(5,99)]["checked"]=$(this).is(":checked");
+      });
+      $("#cdb_content a").click(function (_content_a) {
+        if ($(this).attr("id")=="orderby") loadList("","",$(this).attr("href"));
+        else if ($(this).attr("id")=="offset0") {
+          t.listOffset=0;
+          t.renderList();
+        }
+        else if ($(this).attr("id")=="offsetMinus") {
+          t.listOffset=t.listOffset-masterData.settings["listMaxRows"+t.name];
+          if (t.listOffset<0) t.listOffset=0;
+          t.renderList();
+        }
+        else if ($(this).attr("id")=="offsetPlus") {
+          t.listOffset=t.listOffset+masterData.settings["listMaxRows"+t.name];
+          t.renderList();
+        }
+        else if ($(this).attr("id")=="showAll") {
+          n=0; j=0;
+          $.each(listObject, function(k, a) {
+            n++;
+            if (t.checkFilter(a)) {
+              j++;
+              if ((n>=t.listOffset) && (j<=masterData.settings["listMaxRows"+t.name])) {
+                t.renderEntryDetail(a.id);
+              } 
+            }
+          });   
+        }
+        else if ($(this).attr("id")=="hideAll") {
+          $.each(listObject, function(k, entry) {
+            entry.open=false;
+          });
+          
+          t.renderList();
+        }      
+      });
+      $("#cdb_content a.changemaxrow").click(function () {    
+        masterData.settings["listMaxRows"+t.name]=$(this).attr("data-id");
         t.renderList();
-      }      
-    });
-    $("#cdb_content a.changemaxrow").click(function () {    
-      masterData.settings["listMaxRows"+t.name]=$(this).attr("data-id");
-      t.renderList();
-      churchInterface.jsendWrite({func:"saveSetting", sub:"listMaxRows"+t.name, val:$(this).attr("data-id")});    
-    });
-    
-    t.addTableContentCallbacks("#cdb_content");
-    $(window).resize(function() {
-      calcHeaderWidth();
-    });
-    if (listObject!=null)
-    $.each(listObject, function(k, entry) {
-      if ((entry!=null) && (t.checkFilter(entry))) 
-        if ((entry.open) || (counter==1)) t.renderEntryDetail(entry.id);
-    });
-    
-    if (debug) t.endTimer("renderTablecallback");
+        churchInterface.jsendWrite({func:"saveSetting", sub:"listMaxRows"+t.name, val:$(this).attr("data-id")});    
+      });
+      
+      t.addTableContentCallbacks("#cdb_content");
+      $(window).resize(function() {
+        calcHeaderWidth();
+      });
+      if (listObject!=null)
+      $.each(listObject, function(k, entry) {
+        if ((entry!=null) && (t.checkFilter(entry))) 
+          if ((entry.open) || (counter==1)) t.renderEntryDetail(entry.id);
+      });
+      
+      if (debug) t.endTimer("renderTablecallback");
+      t.renderListTimer=null;
+    },10);
 
   }
-  t.renderListTimer=null;
-  },10);
 };
 
 StandardTableView.prototype.startTimer = function() {
@@ -549,7 +562,16 @@ StandardTableView.prototype.addTableContentCallbacks = function(cssid) {
   $(cssid+" span[tooltip],a[tooltip]").click(function(c) {
     this_object.tooltip_hold=false;
     this_object.clearTooltip(true);
-  });  
+  });
+  $(".hoveractor").off("hover");
+  $(".hoveractor").hover(
+      function () {
+        $(this).children("span.hoverreactor").fadeIn('fast',function() {});
+      }, 
+      function () {
+        $(this).children("span.hoverreactor").fadeOut('fast');
+      }
+    );  
   this.addFurtherListCallbacks(cssid);
 };
 
@@ -580,24 +602,24 @@ StandardTableView.prototype.prepareTooltip = function(elem, delay, htmlclass) {
   this_object.tooltip_elem=elem;
   this_object.tooltipTimer=window.setTimeout(function() {
     var pos="bottom";
-//    if (this_object.tooltip_elem.offset().left>$(window).width()-200)
-//      pos="left";
-    this_object.tooltip_elem.popover({ 
-      content:txt, html:true, title:'<span id="tooltip_inner_title"/>', 
-       placement:pos, trigger:"manual", animation:true}).popover("show");
-    this_object.renderTooltip2Div(this_object.tooltip_elem, "tooltip_inner");
-    this_object.tooltipCallback(elem.attr("tooltip"), this_object.tooltip_elem.next(".popover"));
-    $(".popover").hover(
-      function() {
-        if (this_object.tooltip_elem!=null) this_object.tooltip_hold=true;
-      }, 
-      function() {
-        if (this_object.tooltip_hold) {
-          this_object.tooltip_hold=false;
-          this_object.clearTooltip();
-        }
-      });
-    this_object.tooltipTimer=null;
+    if (this_object.tooltip_elem!=null) {
+      this_object.tooltip_elem.popover({ 
+        content:txt, html:true, title:'<span id="tooltip_inner_title"/>', 
+         placement:pos, trigger:"manual", animation:true}).popover("show");
+      this_object.renderTooltip2Div(this_object.tooltip_elem, "tooltip_inner");
+      this_object.tooltipCallback(elem.attr("tooltip"), this_object.tooltip_elem.next(".popover"));
+      $(".popover").hover(
+        function() {
+          if (this_object.tooltip_elem!=null) this_object.tooltip_hold=true;
+        }, 
+        function() {
+          if (this_object.tooltip_hold) {
+            this_object.tooltip_hold=false;
+            this_object.clearTooltip();
+          }
+        });
+      this_object.tooltipTimer=null;
+    }
   }, delay);
 };
 
@@ -663,8 +685,9 @@ StandardTableView.prototype.mailPerson = function (personId, name, subject) {
           obj.inhalt=CKEDITOR.instances.inhalt.getData();
           obj.domain_id=null;
           obj.func="sendEMailToPersonIds";
-          churchInterface.jsendWrite(obj, function(res) {
-            if (res) alert("Die EMail wurde gesendet!");
+          churchInterface.jsendWrite(obj, function(ok, data) {
+            if (ok) alert("Die EMail wurde gesendet!");
+            else alert("Es ist ein Fehler aufgetreten: "+data);
           }, null, false);          
           $(this).dialog("close");
         }

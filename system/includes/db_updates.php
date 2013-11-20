@@ -1104,6 +1104,10 @@ function updateDB_241() {
   // Resolves problem with some wiki pages with long page names
   db_query("ALTER TABLE {cc_file} CHANGE filename filename VARCHAR( 100 ) NOT NULL");
   db_query("ALTER TABLE {cc_file} CHANGE domain_id domain_id VARCHAR( 100 ) NOT NULL");
+  // Add authorization for agenda module
+  db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (331, 'view agenda', 'churchservice', 'cc_calcategory', 'Darf Ablaufplaene sehen',1)");
+  db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (332, 'edit agenda', 'churchservice', 'cc_calcategory', 'Darf Ablaufplaene editieren',1)");
+  db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (333, 'edit agenda templates', 'churchservice', 'cc_calcategory', 'Darf Ablaufplan-Vorlagen editieren',1)");  
 }
 
 /*  db_query("DROP TABLE {cdb_newsletter}");

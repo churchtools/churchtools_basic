@@ -218,6 +218,10 @@ ChurchInterface.prototype.jsend = function (name, obj, func, async, get, overwri
   }
 };
 
+ChurchInterface.prototype.saveSetting = function(settingname, val) {
+  this.jsendWrite({func:"saveSetting", sub:settingname, val:val});  
+};
+
 ChurchInterface.prototype.sendEmail = function (to, subject, body) {
   this.jsendWrite({ func: "send_email",  subject: subject, body:body, to:to});
 };

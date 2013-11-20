@@ -163,9 +163,10 @@ abstract class CTAbstractModule implements CTModuleInterface {
     return $res;
   }  
   
-  protected function checkPerm($auth, $modulename=null) {
+  protected function checkPerm($auth, $modulename=null, $datafield=null) {
     if ($modulename==null) $modulename=$this->modulename;
-    if (!user_access($auth, $modulename))
+    $perm=user_access($auth, $modulename);
+    if ((!$perm) || ($datafield!=null && !isset($perm[$datafield])))
       throw new CTNoPermission($auth, $modulename);
   }
   
@@ -223,7 +224,7 @@ class CTFail extends Exception {
   }
   // ma§geschneiderte Stringdarstellung des Objektes
   public function __toString() {
-      return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
+      return $this->message;
   }
 }
 
@@ -792,7 +793,7 @@ function churchcore_sendEMailToPersonids($ids, $betreff, $inhalt, $from=null, $h
     }
   }
   if (count($error)>0)
-    return "An folgende Personen konnte wegen fehlender EMail-Adresse keine EMail gesendet werden: ".implode($error,",");    
+    throw new CTFail("An folgende Personen konnte wegen fehlender EMail-Adresse keine EMail gesendet werden: ".implode($error,","));    
 }
 
 
@@ -1868,14 +1869,15 @@ class db_accessor implements Iterator {
   }
 }
 
-
+/**
+ * db_update("cs_event")
+ * ->fields($fields)
+ * ->condition('id',$_GET["id"],"=")
+ * ->execute();
+ * @param $tablename
+ * @return db_updatefields
+ */
 function db_update($tablename) {
-/*
-  db_update("cs_event")
-      ->fields($fields)
-      ->condition('id',$_GET["id"],"=")
-      ->execute();  */
-  
   return new db_updatefields($tablename);  
 }
 

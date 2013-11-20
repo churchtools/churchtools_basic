@@ -23,7 +23,7 @@ jQuery(document).ready(function() {
   churchInterface.registerView("ListView", listView);
   churchInterface.registerView("CalView", calView);
   churchInterface.registerView("FactView", factView);
-  churchInterface.registerView("ItemView", itemView);
+  churchInterface.registerView("AgendaView", agendaView);
   churchInterface.registerView("SongView", songView);
   //churchInterface.registerView("TestView", testView);
   churchInterface.registerView("MaintainView", maintainView);

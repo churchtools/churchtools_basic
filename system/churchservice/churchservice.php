@@ -83,6 +83,63 @@ function churchservice__exportfacts() {
   return null;
 }
 
+
+
+function churchservice__printview() {
+  global $version, $files_dir, $config, $embedded;
+
+
+  drupal_add_css('system/assets/fileuploader/fileuploader.css');
+
+  drupal_add_js('system/bootstrap/js/bootstrap-multiselect.js');
+  drupal_add_js('system/assets/fileuploader/fileuploader.js');
+  drupal_add_js('system/assets/js/jquery.history.js');
+
+  drupal_add_js('system/assets/mediaelements/mediaelement-and-player.min.js');
+  drupal_add_css('system/assets/mediaelements/mediaelementplayer.css');
+
+  drupal_add_js('system/assets/ckeditor/ckeditor.js');
+  drupal_add_js('system/assets/ckeditor/lang/de.js');
+
+  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_abstractview.js');
+  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_standardview.js');
+  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_maintainstandardview.js');
+
+  drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_loadandmap.js');
+  drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_settingsview.js');
+  drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_maintainview.js');
+  drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_listview.js');
+  //drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_testview.js');
+  drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_calview.js');
+  drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_factview.js');
+  drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_agendaview.js');
+  drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_songview.js');
+  drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_main.js');
+
+  drupal_add_js(createI18nFile("churchservice"));
+
+  $content="";
+  // Übergabe der ID für den Direkteinstieg einer Person
+  if (isset($_GET["id"]) && ($_GET["id"]!=null))
+    $content=$content."<input type=\"hidden\" id=\"externevent_id\" value=\"".$_GET["id"]."\"/>";
+  if (isset($_GET["service_id"]) && ($_GET["service_id"]!=null))
+    $content=$content."<input type=\"hidden\" id=\"service_id\" value=\"".$_GET["service_id"]."\"/>";
+  if (isset($_GET["date"]) && ($_GET["date"]!=null))
+    $content=$content."<input type=\"hidden\" id=\"currentdate\" value=\"".$_GET["date"]."\"/>";
+  
+  $embedded=true;
+  
+  $content=$content."<input type=\"hidden\" id=\"printview\" value=\"true\"/>";
+  $content=$content."
+<div class=\"row-fluid\">
+  <div class=\"span12\">
+    <div id=\"cdb_group\"></div>
+    <div id=\"cdb_content\"></div>
+  </div>
+</div>";
+  return $content;
+}
+
 function churchservice_main() {
   global $version, $files_dir, $config;
   
@@ -110,7 +167,7 @@ function churchservice_main() {
   //drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_testview.js'); 
   drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_calview.js'); 
   drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_factview.js'); 
-  drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_itemview.js'); 
+  drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_agendaview.js'); 
   drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_songview.js'); 
   drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_main.js'); 
     

@@ -3,5 +3,6 @@ churchservice/ajax = churchservice/churchservice.php
 churchservice/uploadfile = churchservice/uploadFile.php
 churchservice/exportfacts = churchservice/churchservice.php
 churchservice/filedownload = churchservice/churchservice.php
+churchservice/printview = churchservice/churchservice.php
 ical = churchservice/churchservice.php
 page_with_noauth[] = ical

@@ -1,7 +1,7 @@
  
 // Constructor
-function ListView() {
-  StandardTableView.call(this);
+function ListView(options) {
+  StandardTableView.call(this, options);
   this.name="ListView";
   this.sortVariable="startdate";
 //  this.filter["searchFuture"]=true;
@@ -44,6 +44,7 @@ ListView.prototype.renderMenu = function() {
   if (masterData.auth.admin)  
     menu.addEntry(_("maintain.masterdata"), "maintain-masterdata", "cog");
 
+  menu.addEntry(_("printview"), "aprintview", "print");
   menu.addEntry(_("help"), "ahelp", "question-sign");
 
   if (!menu.renderDiv("cdb_menu",churchcore_handyformat()))
@@ -58,6 +59,11 @@ ListView.prototype.renderMenu = function() {
       }
       else if ($(this).attr("id")=="workload") {
         this_object.showAuslastung(); 
+      }
+      else if ($(this).attr("id")=="aprintview") {
+        fenster = window.open('?q=churchservice/printview&date='+t.currentDate.toStringEn(false)+'#ListView', "Druckansicht", "width=900,height=600,resizable=yes");
+        fenster.focus();
+        return false;
       }
       else if ($(this).attr("id")=="aaddfilter") {
         if (!this_object.furtherFilterVisible) {
@@ -94,11 +100,13 @@ ListView.prototype.renderMenu = function() {
 ListView.prototype.renderListMenu = function() {
   
   var navi = new CC_Navi();
-  navi.addEntry(churchInterface.isCurrentView("ListView"),"alistview","Listenansicht");
+  navi.addEntry(churchInterface.isCurrentView("ListView"),"alistview","Dienstplan");
   if (masterData.auth.manageabsent)
     navi.addEntry(churchInterface.isCurrentView("CalView"),"acalview","Abwesenheiten");
   if (masterData.auth.viewfacts)
     navi.addEntry(churchInterface.isCurrentView("FactView"),"afactview","Fakten");
+  if (allAgendas!=null || user_access("view agenda"))
+    navi.addEntry(churchInterface.isCurrentView("AgendaView"),"aagendaview","Abläufe");
   if (masterData.auth.viewsong)
     navi.addEntry(churchInterface.isCurrentView("SongView"),"asongview","Songs");
   
@@ -119,6 +127,9 @@ ListView.prototype.renderListMenu = function() {
       factView.furtherFilterVisible=this_object.furtherFilterVisible;
       factView.currentDate=this_object.currentDate;
       churchInterface.setCurrentView(factView);
+    }
+    else if ($(this).attr("id")=="aagendaview") {
+      churchInterface.setCurrentView(agendaView);
     }
     else if ($(this).attr("id")=="asongview") {
       churchInterface.setCurrentView(songView);
@@ -891,13 +902,19 @@ ListView.prototype.renderListEntry = function(event) {
   var width=100/(this.getCountCols()-1);
 
   if (masterData.category[event.category_id].color!=null)
-  rows.push('<div title="Kalender: '+masterData.category[event.category_id].bezeichnung+'" style="background-color:'+masterData.category[event.category_id].color+'; margin-top:5px; margin-left:3px; width:4px; height:15px"></div>');
-  rows.push('<td>');
+    rows.push('<div title="Kalender: '+masterData.category[event.category_id].bezeichnung+'" style="background-color:'+masterData.category[event.category_id].color+'; margin-top:5px; margin-left:3px; width:4px; height:15px"></div>');
+  rows.push('<td class="hoveractor">');
   
   if (masterData.auth.write)
-    rows.push("<b><a href=\"#\" id=\"editEvent" + event.id + "\">" + event.startdate.toDateEn(true).toStringDeTime() + " "+event.bezeichnung+"</a></b><br/>");
+    rows.push("<b><a href=\"#\" id=\"editEvent" + event.id + "\">" + event.startdate.toDateEn(true).toStringDeTime() + " "+event.bezeichnung+"</a></b>&nbsp; ");
   else
-    rows.push("<b>" + event.startdate.toDateEn(true).toStringDeTime(true)+" "+event.bezeichnung+"</b><br/>");
+    rows.push("<b>" + event.startdate.toDateEn(true).toStringDeTime(true)+" "+event.bezeichnung+"</b>&nbsp; ");
+  
+  if (masterData.auth.write)
+    rows.push(form_renderImage({src:"options.png", hover:true, width:18, htmlclass:"edit-event", label:"Editieren", link:true}));
+
+  rows.push("<br/>");
+
   if ((event.special!=null) && (event.special!=""))
     rows.push("<div class=\"event_info\">"+event.special.htmlize()+"</div>");
   
@@ -929,8 +946,12 @@ ListView.prototype.renderListEntry = function(event) {
     if (_bin_ich_admin) 
       rows.push("<a href=\"#\" id=\"filterMyAdmin" + event.id + "\" title=\"Du bist Admin!\">" +this.renderImage("person")+"</a>&nbsp;");
     else
-      rows.push(this.renderImage("person_sw",null,"Das Event hat einen Admin."));
+      rows.push(this.renderImage("person_sw",null,"Das Event hat einen Admin.")+"&nbsp;");
   
+  if (!event.agenda && user_access("edit agenda", event.category_id))
+    rows.push(form_renderImage({src:"agenda_plus.png", cssid:"show_agenda", label:"Ablaufplan zum Event hinzufügen", width:20}));
+  else if (event.agenda && (user_access("view agenda", event.category_id) || t.amIInvolved(event)))
+    rows.push(form_renderImage({src:"agenda.png", cssid:"show_agenda", label:"Ablaufplan aufrufen", width:20}));
   
   rows.push('<div class="filelist" data-id="'+event.id+'"></div>');
     
@@ -1945,13 +1966,14 @@ ListView.prototype.renderTooltip = function(elem) {
   }
   else {
   
-//    var event_id=id.substr(0,id.indexOf("_"));
     var eventservice_id=id.substr(id.indexOf("_")+1,99);
     
       var txt="";
       var a = this.getEventService(event_id, eventservice_id);
-      if (a.name!=null)
-        txt="<h4>"+a.name+"</h4>";
+      if (a.name!=null) {
+        txt="<h4>"+a.name;
+        txt=txt+"</h4>";
+      }
     
       var info=false;
       if (masterData.service[a.service_id].cdb_gruppen_ids!=null) {
@@ -1966,7 +1988,7 @@ ListView.prototype.renderTooltip = function(elem) {
         else
           txt=txt+"<font style=\"color:red\">Offen seit "+a.datum.toDateEn().toStringDe()+"</font>";
         if (a.mailsenddate!=null)
-          txt=txt+'&nbsp;<span title="Letzte Erinnerung gesendet am '+a.mailsenddate.toDateEn(true).toStringDe(true)+'">'+this_object.renderImage("email",12)+'</span>';
+          txt=txt+'&nbsp;<span title="Letzte Erinnerung gesendet am '+a.mailsenddate.toDateEn(true).toStringDe(true)+'">'+form_renderImage({src:"email.png",width:12})+'</span>';
         txt=txt+'<br/>';
       }
       //txt=txt+"</div>";
@@ -1980,6 +2002,16 @@ ListView.prototype.renderTooltip = function(elem) {
         if (t2!="")
           txt=txt+"Auslastung: "+t2;
       }
+      if (_cdb_person_id!=null) {
+        txt=txt+"<br/><br/>";
+        if (user_access("administer persons")) {
+          txt=txt+form_renderImage({src:"person_simulate.png",label:"Person simulieren", data:[{name:"id", value:_cdb_person_id}], width:18, 
+                  link:true, htmlclass:"simulate-person"})+"&nbsp;";
+        }
+        txt=txt+form_renderImage({src:"email.png",label:"Person eine E-Mail senden", data:[{name:"id", value:_cdb_person_id}], width:18, 
+          link:true, htmlclass:"email-person"})+"&nbsp;";
+      }
+      
       if (txt!="") {
         txt='<div>'+txt+"</div>";
         txt=txt+'<div style="clear:both"></div>';  
@@ -2001,7 +2033,17 @@ ListView.prototype.renderTooltip = function(elem) {
 };
 
 ListView.prototype.tooltipCallback = function(id, tooltip) {
-  if (tooltip.find("#file").val()) { 
+  var t=this;
+  $("a.simulate-person").click(function() {
+    window.location.href="?q=simulate&id="+$(this).attr("data-id")+"&location=churchservice";
+    return false;
+  });
+  $("a.email-person").click(function() {
+    t.clearTooltip();
+    t.mailPerson($(this).attr("data-id"));
+    return false;
+  });
+  if (tooltip.find("#file").val()) {
     var event_id=tooltip.parents("tr.data").attr("id");
     return this.tooltipCallbackForFiles(id, tooltip, allEvents, event_id);
   }
@@ -2490,7 +2532,7 @@ ListView.prototype.attachFile = function(event) {
                   obj.usetemplate="true";
                   obj.func="sendEMailToPersonIds";
                   churchInterface.jsendWrite(obj, function(ok, data) {
-                    if (ok) alert("E-Mail wurde gesendet. "+(data!="ok"?data:""));
+                    if (ok) alert("E-Mail wurde gesendet. "+(data!=null?data:""));
                     else alert("Problem beim Senden: "+data);   
                   }, null, false);          
                 }
@@ -2555,47 +2597,49 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
       }
     );
   
-  /*$('div.hover').mouseover(function(a) {
-    $('#headerspan'+$(this).attr("id").substr(6,99)).fadeIn('fast',function() {
-    });
+  $(cssid+" a.edit-event").click(function() {
+    t.renderEditEvent(allEvents[$(this).parents("tr").attr("id")]);
   });
-  $('div.hover').mouseout(function(a) {
-    $('#headerspan'+$(this).attr("id").substr(6,99)).fadeOut('fast');
-  });
-  */
+  
   $(cssid+" a").click(function (a) {
+    var cssid=$(this).attr("id");
     // Person zu einer Kleingruppe dazu nehmen
-    if ($(this).attr("id")==null) 
+    if (cssid==null) 
       return true;
-    else if ($(this).attr("id").indexOf("editEvent")==0) {
-      t.renderEditEvent(allEvents[$(this).attr("id").substr(9,99)]);
+    else if (cssid.indexOf("editEvent")==0) {
+      t.renderEditEvent(allEvents[cssid.substr(9,99)]);
     }
-    else if ($(this).attr("id").indexOf("mailEvent")==0) {
-      t.sendEMailToEvent(allEvents[$(this).attr("id").substr(9,99)]);
+    else if (cssid.indexOf("mailEvent")==0) {
+      t.sendEMailToEvent(allEvents[cssid.substr(9,99)]);
     }
-    else if ($(this).attr("id").indexOf("filterMyAdmin")==0) {
+    else if (cssid.indexOf("filterMyAdmin")==0) {
       if (t.filter["filterMeine Filter"]==2)
         delete t.filter["filterMeine Filter"];
       else t.setFilter("filterMeine Filter",2);
       t.renderView();
     }
-    else if ($(this).attr("id").indexOf("editNote")==0) {
-      t.editNote(allEvents[$(this).attr("id").substr(8,99)]);
+    else if (cssid=="show_agenda") {
+      t.currentEvent=allEvents[$(this).parents("tr").attr("id")];
+      agendaView.currentAgenda=null;
+      churchInterface.setCurrentView(agendaView, true);
     }
-    else if ($(this).attr("id").indexOf("attachFile")==0) {
-      t.attachFile(allEvents[$(this).attr("id").substr(10,99)]);
+    else if (cssid.indexOf("editNote")==0) {
+      t.editNote(allEvents[cssid.substr(8,99)]);
     }
-    else if ($(this).attr("id").indexOf("edit_es_")==0) {
-      t.renderEditEventService($(this).attr("id").substr(8,99),$(this).attr("eventservice_id"));      
+    else if (cssid.indexOf("attachFile")==0) {
+      t.attachFile(allEvents[cssid.substr(10,99)]);
     }
-    else if ($(this).attr("id").indexOf("addService")==0) {
+    else if (cssid.indexOf("edit_es_")==0) {
+      t.renderEditEventService(cssid.substr(8,99),$(this).attr("eventservice_id"));      
+    }
+    else if (cssid.indexOf("addService")==0) {
       t.renderAddServiceToServicegroup(allEvents[$(this).attr("event_id")], $(this).attr("servicegroup_id"), masterData.user_pid);
     }
-    else if ($(this).attr("id").indexOf("addMoreCols")==0) {
+    else if (cssid.indexOf("addMoreCols")==0) {
       t.addMoreCols();
     }
-    else if ($(this).attr("id").indexOf("delCol")==0) {
-      var id=$(this).attr("id").substr(6,99);
+    else if (cssid.indexOf("delCol")==0) {
+      var id=cssid.substr(6,99);
       masterData.settings["viewgroup"+id]=0;
       churchInterface.jsendWrite({func:"saveSetting", sub:"viewgroup"+id, val:0});
       t.renderList();
@@ -2996,7 +3040,6 @@ ListView.prototype.editAbsent = function(pid, name, fullday) {
     });
   });
   elem.find("#inputStarthour").change(function() {
-    console.log($("#inputStarthour").val());
     elem.find("#inputEndhour").val($(this).val()+1);
   });
   
@@ -3072,9 +3115,24 @@ ListView.prototype.editAbsent = function(pid, name, fullday) {
   
 };
 
+ListView.prototype.amIInvolved = function(a) {
+  if (a.services==null)
+    return false;
+  var _dabei=false;
+  $.each(a.services, function(k,service) {
+    if ((service.valid_yn==1) && (service.cdb_person_id==masterData.user_pid)) {
+      _dabei=true;
+      // exit
+      return false;
+    }
+  });
+  if (!_dabei) return false;  
+  return true;
+};
+
 ListView.prototype.checkFilter = function(a) {
   var filter=this.filter;
-  var this_object=this;
+  var t=this;
   // Person wurde geloescht o.ae.
   if (a==null) return false;
   // Es gibt noch keine Daten, soll er aber laden ueber Details
@@ -3096,17 +3154,7 @@ ListView.prototype.checkFilter = function(a) {
   if (this.filter["filterMeine Filter"]!=null) {
     // Meine Filter filtern, also angefragt oder zugesagt
     if (this.filter["filterMeine Filter"]==1) {
-      if (a.services==null)
-        return false;
-      var _dabei=false;
-      $.each(a.services, function(k,service) {
-        if ((service.valid_yn==1) && (service.cdb_person_id==masterData.user_pid)) {
-          _dabei=true;
-          // exit
-          return false;
-        }
-      });
-      if (!_dabei) return false;
+      return t.amIInvolved(a);
     } 
     // Meine Events, wo ich Admin bin
     else if (this.filter["filterMeine Filter"]==2) {

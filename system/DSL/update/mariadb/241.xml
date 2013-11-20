@@ -32,5 +32,20 @@ ALTER TABLE {cc_file} CHANGE filename filename VARCHAR( 100 ) NOT NULL
 ALTER TABLE {cc_file} CHANGE domain_id domain_id VARCHAR( 100 ) NOT NULL
 ]]>
       </query>
+      <query order="7">
+          <![CDATA[
+INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (331, 'view agenda', 'churchservice', 'cc_calcategory', 'Darf Ablaufpläne sehen',1)
+]]>
+      </query>
+      <query order="8">
+          <![CDATA[
+INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (332, 'edit agenda', 'churchservice', 'cc_calcategory', 'Darf Ablaufpläne editieren',1)
+]]>
+      </query>
+      <query order="9">
+          <![CDATA[
+INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (333, 'edit agenda templates', 'churchservice', 'cc_calcategory', 'Darf Ablaufplan-Vorlagen editieren',1)
+]]>
+      </query>
     </queries>
 </update>

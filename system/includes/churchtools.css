@@ -2,12 +2,20 @@
   margin-bottom: 13px;
 }	
 
+.hoverreactor {
+  display:none;
+}
+
 input.withoutmargin {
   margin:0
 }
   
 span.error {
   color:red;	
+}  
+  
+div.ui-datepicker {
+  min-width:12em;	
 }  
   
 a.ui-state-checkin {
@@ -36,11 +44,11 @@ div.filelist {
   margin-bottom:10px;	
 }
 
-th.active, td.active {
+th.active, td.active, td.editmode {
 	background-color: #F2F4F6 !important;
 }
 
-td.editable {
+td.editable, td.clickable {
   cursor:pointer; 
 }
 
