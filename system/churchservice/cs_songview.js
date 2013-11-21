@@ -40,18 +40,6 @@ SongView.prototype.getData = function(sorted) {
   }
   else {
     return allSongs;
-    var list=new Object();
-    if (allSongs!=null)
-      $.each(allSongs, function(k,song) {
-        $.each(song.arrangement, function(i,arr) {
-          var a=new Array();
-          a.song_id=song.id;
-          a.arrangement_id=arr.id;
-          a.id=song.id+"_"+arr.id;
-          list[a.id]=a;
-        });
-      });
-    return list;
   }
 };
 
