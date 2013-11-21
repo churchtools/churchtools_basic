@@ -750,19 +750,47 @@ ListView.prototype.getMemberOfOneGroup = function(g_ids, user_pid) {
 };
 
 /**
+ * Checks if the service has no tag or if, then the person has the same tag
+ * @param user_pid
+ * @param service
+ * @returns {Boolean}
+ */
+ListView.prototype.checkPersonHasOneTagFromService = function (user_pid, service) {
+  // No tag, so it is ok for me
+  if (service.cdb_tag_ids==null) return true;
+  var tag_ids=service.cdb_tag_ids.split(",");
+  var ok=false;
+  $.each(service.cdb_gruppen_ids.split(","), function(k,g) {
+    if (groups!=null && groups[g]!=null) {
+      $.each(groups[g], function(i,b) {
+        if ((b.p_id==user_pid) && (_checkPersonTag(tag_ids, b.tags))) {
+          ok=true;
+          return false;
+        }
+      });
+    }
+  });  
+  return ok;
+};
+
+/**
  * 
  * @param event - Das Event
  * @param services - Der konkrete Dienst aus dem Objekt Event
  * @return Html-Code
  */
 ListView.prototype.renderEventServiceEntry = function(event_id, services, bin_ich_admin) {
+  var t=this;
+  
   if ((services.valid_yn==1) && (masterData.service[services.service_id]!=null)) {
     var rows = new Array();
     rows.push("<p style=\"line-height:1.0;margin-bottom:4px;\">");
     var edit=false;
+    var service=masterData.service[services.service_id];
     var isMemberOfGroup=masterData.auth.memberservice[services.service_id]==true;
     var isLeaderOfOneGroup=masterData.auth.leaderservice[services.service_id]==true;
-    // Pr�fe ob ich die Rechte habe zu editieren.
+    
+    // Check the permission to edit:
     // 1. Drupal-Rechte durch EditGroup
     // 2. Wenn die Gruppe eine PersonenId hat und ich selber die Person bin
     // 3. Noch keiner eingetragen hat und ich in einer der Gruppen bin
@@ -770,11 +798,11 @@ ListView.prototype.renderEventServiceEntry = function(event_id, services, bin_ic
     // 5. Wenn ich Admin des Events bin
     if ((masterData.auth.editservice[services.service_id]) ||
           ((services.cdb_person_id!=null) && (services.cdb_person_id==masterData.user_pid)) ||
-          ((services.name==null) && (isMemberOfGroup)) ||
+          ((services.name==null) && (isMemberOfGroup && t.checkPersonHasOneTagFromService(masterData.user_pid, service))) ||
           ((isLeaderOfOneGroup)) ||
           ((bin_ich_admin)))
       edit=true;
- // TEST   
+  
     var seeHistory=isLeaderOfOneGroup || (masterData.auth.editservice[services.service_id]) || bin_ich_admin;
     var tooltip='tooltip="'+event_id+"_"+services.id+'" '+(seeHistory?"history=true":"")+' '+(isMemberOfGroup?"member=true":""+' ');
     
@@ -792,7 +820,7 @@ ListView.prototype.renderEventServiceEntry = function(event_id, services, bin_ic
  
     if ((this.filter["filterDienstgruppen"]==null) || 
          ((masterData.settings.listViewTableHeight!=null) && (masterData.settings.listViewTableHeight==0))) {
-      rows.push('<font class="'+_class+'"><b>'+masterData.service[services.service_id].bezeichnung);
+      rows.push('<font class="'+_class+'"><b>'+service.bezeichnung);
       if (services.counter!=null) rows.push(" "+services.counter);      
         rows.push(': </b></font>');
     }
@@ -808,7 +836,7 @@ ListView.prototype.renderEventServiceEntry = function(event_id, services, bin_ic
     rows.push('<font class="'+_class+'" style="'+style+'">');
     
     var name=services.name;
-    if ((masterData.service[services.service_id].cdb_gruppen_ids!=null) && (services.name==null))
+    if ((service.cdb_gruppen_ids!=null) && (services.name==null))
       name=services.cdb_person_id;
   
     if (name!=null) rows.push(name.trim(18));
@@ -919,7 +947,7 @@ ListView.prototype.renderListEntry = function(event) {
     rows.push("<div class=\"event_info\">"+event.special.htmlize()+"</div>");
   
   var _authMerker=masterData.auth.write || _bin_ich_admin;
-  // Pr�fe, ob ich ein Leiter einer Gruppe bin, dann darf ich auch schreiben.
+  // Check if I am a leader of the group
   if (!_authMerker)
     $.each(masterData.service, function(k,a) {
       if (masterData.auth.leaderservice[a.id]) {
@@ -929,7 +957,7 @@ ListView.prototype.renderListEntry = function(event) {
       }
     });
   if (_authMerker) rows.push("<a href=\"#\" id=\"editNote" + event.id + "\" title=\"Editiere 'Weitere Infos'\">" +this.renderImage("info")+"</a>&nbsp;");
-  // Pr�fe ob ich irgendwo eingetragen bin, dann darf ich zumindest Dateien hochladen
+  // Check if I am in one of the services, so I am allowed to uplaod files
   if ((!_authMerker) && (event.services!=null)) {
     $.each(event.services, function(k,a) {
       if ((a.valid_yn==1) && (masterData.user_pid==a.cdb_person_id)) {
@@ -955,8 +983,7 @@ ListView.prototype.renderListEntry = function(event) {
   
   rows.push('<div class="filelist" data-id="'+event.id+'"></div>');
     
-//  rows.push("&nbsp;<a href=\"#\" id=\"editNote" + event.id + "\">" +this.renderImage("comment")+"</a>");
-  
+  // When no filterDienstgruppe is selected, it show all Services, sorted by ServiceGroup
   if (this.filter["filterDienstgruppen"]==null) {
     $.each(this.sortMasterData(masterData.servicegroup, "sortkey"), function(k,sg) {
       var is_leader=false;
@@ -979,9 +1006,8 @@ ListView.prototype.renderListEntry = function(event) {
               }  
             }      
           });
-          // Anzeige der "+"-Zeichen f�r weitere Dienste einf�gen
+          // Show "+" to add furhter Services
           if (masterData.auth.write || _bin_ich_admin || is_leader) {
-//            rows.push('<p style="position:absolute;bottom:-2px;right:7px;"><a href="#" id="addService" event_id="'+event.id+'" servicegroup_id="'+sg.id+'">'+this_object.renderImage("options",14)+'</a>');
             rows.push('<p><a href="#" id="addService" event_id="'+event.id+'" servicegroup_id="'+sg.id+'">+</a>');
             _soll_zeigen=true;
           }
@@ -1196,8 +1222,10 @@ function _checkPersonTag(tag_ids, tags) {
   else {
     $.each(tag_ids, function(i,c) {
       if ((tags!=null)) {
-        if (churchcore_inObject(c,tags)) 
+        if (churchcore_inObject(c,tags)) {
           tag_dabei=true;
+          return false;
+        }
       }
     });
   }
@@ -1226,14 +1254,12 @@ ListView.prototype.getAllPersonsForService = function(service_id) {
   $.each(gruppen_ids.split(","), function(k,g) {
     if (groups[g]!=null) {
       $.each(groups[g], function(i,b) {
-        if (_checkPersonTag(tag_ids, b.tags)) {            
-          // nur die erste Gruppe nehmen
-          if (persons[b.p_id]==null) {
-            var o = new Object();
-            o.id=b.p_id;
-            o.bezeichnung=b.vorname+" "+b.name;
-            persons[o.id]=o;
-          }
+        if (_checkPersonTag(tag_ids, b.tags)) {
+          var o = new Object();
+          o.id=b.p_id;
+          o.bezeichnung=b.vorname+" "+b.name;
+          persons[o.id]=o;
+          return false;
         }
       });
     }
@@ -2008,8 +2034,10 @@ ListView.prototype.renderTooltip = function(elem) {
           txt=txt+form_renderImage({src:"person_simulate.png",label:"Person simulieren", data:[{name:"id", value:_cdb_person_id}], width:18, 
                   link:true, htmlclass:"simulate-person"})+"&nbsp;";
         }
-        txt=txt+form_renderImage({src:"email.png",label:"Person eine E-Mail senden", data:[{name:"id", value:_cdb_person_id}], width:18, 
-          link:true, htmlclass:"email-person"})+"&nbsp;";
+        if (info!=false && info.email!="") {
+          txt=txt+form_renderImage({src:"email.png",label:"Person eine E-Mail senden", data:[{name:"id", value:_cdb_person_id}], width:18, 
+            link:true, htmlclass:"email-person"})+"&nbsp;";
+        }
       }
       
       if (txt!="") {

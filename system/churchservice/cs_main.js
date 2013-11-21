@@ -65,20 +65,21 @@ jQuery(document).ready(function() {
           if (doit) listView.currentDate=first;
         }
       }
-      // Genug Daten um nun die Anwendung zu zeigen. 
-      // new: 27.1.13: RenderList reicht, denn Filter Šndert sich nix. 
-      churchInterface.getCurrentView().renderList();
-      churchInterface.sendMessageToAllViews("allDataLoaded");
       
-      // Lade nun alle Personendaten im Hintergrund weiter
-      window.setTimeout(function() {
-        cs_loadPersonDataFromCdb(function() {
+      cs_loadPersonDataFromCdb(function() {
+        // Genug Daten um nun die Anwendung zu zeigen. 
+        // new: 27.1.13: RenderList reicht, denn Filter Šndert sich nix. 
+        churchInterface.getCurrentView().renderList();
+        churchInterface.sendMessageToAllViews("allDataLoaded");
+        
+        // Lade nun alle Personendaten im Hintergrund weiter
+        window.setTimeout(function() {
           cs_loadAbsent(function() {
             cs_loadFiles(function() {
             });
           });
-        })
-      },10);
+        },10);
+      });
     }, false);    
   }, false);
 }); 
