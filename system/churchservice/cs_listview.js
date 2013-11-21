@@ -685,7 +685,7 @@ ListView.prototype.renderEditEvent = function(event) {
         obj.func="deleteEvent";
         obj.id=event.id;       
         churchInterface.jsendWrite(obj, function(ok, json) {
-          if (json!="ok") alert("Fehler beim Speichern: "+json);
+          if (!ok) alert("Fehler beim Speichern: "+json);
           else {
             delete allEvents[event.id];
             elem.dialog("close");

@@ -376,10 +376,10 @@ global $user;
   }
 }
 
-function churchservice_deleteEvent($event_id) {
-  cdb_log("[ChurchService] Entferne Event!",2,$event_id,"service");          
-  db_query("delete from {cs_eventservice} where event_id=:event_id", array(":event_id"=>$event_id), false);
-  db_query("delete from {cs_event} where id=:event_id", array(":event_id"=>$event_id), false);
+function churchservice_deleteEvent($params) {
+  cdb_log("[ChurchService] Entferne Event!",2,$params["id"],"service");          
+  db_query("delete from {cs_eventservice} where event_id=:event_id", array(":event_id"=>$params["id"]), false);
+  db_query("delete from {cs_event} where id=:event_id", array(":event_id"=>$params["id"]), false);
 }
 
 function churchservice_deleteService($params) {
