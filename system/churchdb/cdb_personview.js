@@ -1661,10 +1661,6 @@ function _checkGroupFilter(a, filter, z) {
         else if (filter["filterTeilnehmerstatus "+z]!=null) {
           if (filter["filterTeilnehmerstatus "+z]==k.leiter) dabei=true;
         } 
-        // Nichts angegeben          
-        else {
-          dabei=true;
-        }
          
       });
       if (dabei) return false;
