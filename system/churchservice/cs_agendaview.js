@@ -508,22 +508,20 @@ AgendaView.prototype.addItem = function(orig_item_id, post, header, arrangement)
     item.header_yn=1;
     item.bezeichnung="Neue Überschrift";
   }
-  else {
-    if (arrangement!=null) {
+  else if (arrangement!=null) {
       item.arrangement_id=arrangement.id;
       item.bezeichnung="";
       item.duration=arrangement.length_min*60+arrangement.length_sec*1+"";
-    }
-    t.saveItem(item, function() {
-      t.saveAgenda(t.currentAgenda, function(data) {
-        t.currentAgenda=data;
-      });
-      var pos=$(document).scrollTop();
-      t.renderList();
-      window.setTimeout(function() { $(document).scrollTop(pos);}, 10);
-      t.renderTimes();
-    });
   }
+  t.saveItem(item, function() {
+    t.saveAgenda(t.currentAgenda, function(data) {
+      t.currentAgenda=data;
+    });
+    var pos=$(document).scrollTop();
+    t.renderList();
+    window.setTimeout(function() { $(document).scrollTop(pos);}, 10);
+    t.renderTimes();
+  });
   
 };
 
