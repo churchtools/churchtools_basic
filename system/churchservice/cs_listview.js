@@ -596,13 +596,13 @@ ListView.prototype.renderEditEvent = function(event) {
 
   $("#saveTemplate").click(function() {
     var res=prompt("Bitte den Namen der Vorlage angeben:",template.bezeichnung);
-    if (res!=null)
+    if (res!=null && res!="")
       this_object.saveEventAsTemplate(_getEditEventFromForm(), res, function(template_id) {
         masterData.settings.aktuelleEventvorlage=template_id;
         elem.dialog("close");
         this_object.renderEditEvent(event);        
       });
-    
+    return false;
   });
   $("#deleteTemplate").click(function() {
     if (confirm("Soll die Vorlage "+template.bezeichnung+" wirklich entfernt werden?")) {
