@@ -76,8 +76,7 @@ function churchdb_getPersonDetails($id) {
   $sqlfields[]="geolng as lng";
   $sqlfields[]="cmsuserid";
   
-  function _checkAutorisierung($auto) {
-    global $iAmLeader;
+  function _checkAutorisierung($auto, $iAmLeader) {
     if ($auto==null) return true;
     if ($auto=="ViewAllDetailsOrPersonLeader") {
       return user_access('view address',"churchdb") || ($iAmLeader) || (user_access('view alldetails',"churchdb"));      
@@ -89,9 +88,10 @@ function churchdb_getPersonDetails($id) {
   }
   
   foreach ($res as $res2) {    
-    if (($res2->autorisierung==null) || (_checkAutorisierung($res2->autorisierung)))
+    if (($res2->autorisierung==null) || (_checkAutorisierung($res2->autorisierung, $iAmLeader))) {
       if (($res2->intern_code=="f_address") || ($iAmLeader) || (user_access('view alldetails',"churchdb")))
         $sqlfields[]=$res2->db_spalte;  
+    }
   } 
        
   $sql="select ".join($sqlfields,",");
