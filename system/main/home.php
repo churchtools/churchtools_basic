@@ -55,7 +55,7 @@ function home_main() {
   // blocks[] : label, col(1,2,3) sortkey, html
   $blocks=null;
   foreach ($btns as $key) {
-    if ($config[$key."_name"]!="") {
+    if ((isset($config[$key."_name"])) && ($config[$key."_name"]!="")) {
       //include_once("system/$key/$key.php");
       include_once("system/".$mapping[$key]);
       if (function_exists($key."_blocks")) {

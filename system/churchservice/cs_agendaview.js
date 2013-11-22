@@ -714,6 +714,7 @@ AgendaView.prototype.loadTemplates = function () {
 
 AgendaView.prototype.getListHeader = function () {
   var t=this;
+  t.listViewTableHeight=null;
   
   if (allAgendas==null) {
     songView.loadSongData();
