@@ -1097,17 +1097,64 @@ function updateDB_238() {
 }
 
 function updateDB_241() {
+  // Give some more facts permission for CS facts
   db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (309, 'edit template', 'churchservice', null, 'Darf Event-Templates editieren',1)");
   db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (321, 'view facts', 'churchservice', null, 'Darf Fakten sehen',1)");
   db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (322, 'export facts', 'churchservice', null, 'Darf Fakten exportieren',1)");
+  
+  // Give permission to push/pull people from/to archive in CDB 
   db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (118, 'push/pull archive', 'churchdb', null, 'Darf Personen ins Archiv verschieben und zurueckholen',1)");
+
   // Resolves problem with some wiki pages with long page names
   db_query("ALTER TABLE {cc_file} CHANGE filename filename VARCHAR( 100 ) NOT NULL");
   db_query("ALTER TABLE {cc_file} CHANGE domain_id domain_id VARCHAR( 100 ) NOT NULL");
-  // Add authorization for agenda module
+
+  // Add authorization for agenda in CS module
   db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (331, 'view agenda', 'churchservice', 'cc_calcategory', 'Darf Ablaufplaene sehen',1)");
   db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (332, 'edit agenda', 'churchservice', 'cc_calcategory', 'Darf Ablaufplaene editieren',1)");
-  db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (333, 'edit agenda templates', 'churchservice', 'cc_calcategory', 'Darf Ablaufplan-Vorlagen editieren',1)");  
+  db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (333, 'edit agenda templates', 'churchservice', 'cc_calcategory', 'Darf Ablaufplan-Vorlagen editieren',1)");
+
+  // Add tables for agenda in CS module
+  db_query("CREATE TABLE {cs_agenda} (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  calcategory_id int(11) NOT NULL,
+  bezeichnung varchar(100) NOT NULL,
+  template_yn int(1) NOT NULL DEFAULT '0',
+  series varchar(100) DEFAULT NULL,
+  modified_date datetime NOT NULL,
+  modified_pid int(11) NOT NULL,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1");
+  
+  db_query("CREATE TABLE {cs_item} (
+  id int(11) NOT NULL AUTO_INCREMENT,
+  agenda_id int(11) NOT NULL,
+  bezeichnung varchar(100) NOT NULL,
+  header_yn int(1) NOT NULL DEFAULT '0',
+  responsible varchar(100) NOT NULL,
+  arrangement_id int(11) DEFAULT NULL,
+  note varchar(255) NOT NULL,
+  sortkey int(11) NOT NULL,
+  duration int(11) NOT NULL,
+  preservice_yn int(1) NOT NULL DEFAULT '0',
+  modified_date datetime NOT NULL,
+  modified_pid int(11) NOT NULL,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1");
+  
+  db_query("CREATE TABLE {cs_event_item} (
+  event_id int(11) NOT NULL,
+  item_id int(11) NOT NULL,
+  PRIMARY KEY (event_id,item_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8");
+
+  db_query("CREATE TABLE {cs_item_servicegroup} (
+  item_id int(11) NOT NULL,
+  servicegroup_id int(11) NOT NULL,
+  note varchar(255) NOT NULL,
+  PRIMARY KEY (item_id,servicegroup_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8");
+  
 }
 
 /*  db_query("DROP TABLE {cdb_newsletter}");
