@@ -522,8 +522,9 @@ class CTChurchCalModule extends CTAbstractModule {
       $ret["absent_reason"]=churchcore_getTableData("cs_absent_reason");
     }
     if (user_access("view","churchresource")) {
-      $ret["resourcen"]=churchcore_getTableData("cr_resource");
+      $ret["resources"]=churchcore_getTableData("cr_resource");
       $ret["resourceTypes"]=churchcore_getTableData("cr_resourcetype");
+      $ret["bookingStatus"]=churchcore_getTableData("cr_status");
     }
     $ret["category"]=churchcal_getAllowedCategories(true);
     $ret["settings"]=churchcore_getUserSettings("churchcal", $user->id);

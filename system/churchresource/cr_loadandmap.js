@@ -4,7 +4,9 @@ function cdb_loadMasterData(nextFunction) {
   timers["startMasterdata"]=new Date();
   churchInterface.jsendRead({ func: "getMasterData" }, function(ok, json) {
     timers["endMasterdata"]=new Date();
-    masterData=json;
+    $.each(json, function(k,a) {
+      masterData[k]=json[k];  
+    });
     
     churchInterface.clearStatus();
     if (nextFunction!=null) nextFunction();
@@ -39,9 +41,7 @@ function cr_mapJsonBookings(a) {
 
 function cr_loadBookings(nextFunction) {
   churchInterface.setStatus("Lade Buchungen...");
-  timers["startAllPersons"]=new Date();
   churchInterface.jsendRead({func:"getBookings" }, function(ok, json) {
-    timers["endAllPersons"]=new Date();
     jQuery.each(json,function(k,a) {
       allBookings[a.id]=cr_mapJsonBookings(a);       
     });

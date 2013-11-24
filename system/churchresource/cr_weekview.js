@@ -20,13 +20,13 @@ weekView = new WeekView();
 WeekView.prototype.getData = function(sorted) {
   if (sorted) {
     var arr=new Array();
-    $.each(masterData.res,function(k,a){
+    $.each(masterData.resources,function(k,a){
       arr[k]=a;
     });
     arr.sort(function(a,b){
-      if (masterData.resTypes[a.resourcetype_id].sortkey*1>masterData.resTypes[b.resourcetype_id].sortkey*1)
+      if (masterData.resourceTypes[a.resourcetype_id].sortkey*1>masterData.resourceTypes[b.resourcetype_id].sortkey*1)
         return 1;
-      else if (masterData.resTypes[a.resourcetype_id].sortkey*1<masterData.resTypes[b.resourcetype_id].sortkey*1)
+      else if (masterData.resourceTypes[a.resourcetype_id].sortkey*1<masterData.resourceTypes[b.resourcetype_id].sortkey*1)
         return -1;
       // Dann sortiere nach Sortkey von der Res
       else if (a.sortkey*1>b.sortkey*1) return 1;
@@ -36,7 +36,7 @@ WeekView.prototype.getData = function(sorted) {
     return arr;
   }
   else
-    return masterData.res;
+    return masterData.resources;
 };
 
 WeekView.prototype.renderMenu = function() {
@@ -100,7 +100,7 @@ WeekView.prototype.renderListMenu = function() {
   
   searchEntry=this.getFilter("searchEntry");
   var navi = new CC_Navi();
-  $.each(masterData.resTypes, function(k,a) {
+  $.each(masterData.resourceTypes, function(k,a) {
     navi.addEntry(t.filter["filterRessourcen-Typ"]==a.id,"ressourcentyp_"+a.id,a.bezeichnung);
   });
   //navi.addEntry(true,"id1","Listenansicht");
@@ -537,7 +537,7 @@ WeekView.prototype.tooltipCallback = function(id, tooltip) {
 
 
 WeekView.prototype.groupingFunction = function (event) {
-  return masterData.resTypes[event.resourcetype_id].bezeichnung;
+  return masterData.resourceTypes[event.resourcetype_id].bezeichnung;
 };
   
 WeekView.prototype.getCountCols = function() {
@@ -596,7 +596,7 @@ function createNewBooking(res_id, date) {
   var d_until=new Date();
   d_until.addDays(7);
   a.repeat_until=d_until;
-  if ((res_id==null) || (masterData.res[res_id].autoaccept_yn==0))
+  if ((res_id==null) || (masterData.resources[res_id].autoaccept_yn==0))
     a.status_id=1;
   else 
     a.status_id=2;
@@ -631,7 +631,7 @@ WeekView.prototype.renderEditBookingFields = function (a) {
   }));
   
   rows.push(form_renderSelect({
-    data:masterData.res, 
+    data:masterData.resources, 
     cssid:"InputRessource", 
     label:"Ressource",
     htmlclass:"input-medium", 
@@ -677,10 +677,10 @@ WeekView.prototype.implantEditBookingCallbacks = function(divid, a) {
   
   function _setStatus() {
     var id=$("#InputRessource").val();
-    if ((id!=null) && (masterData.res[id]!=null)) {
-      if ((masterData.res[id].autoaccept_yn==0) && (!masterData.auth.editall)) 
+    if ((id!=null) && (masterData.resources[id]!=null)) {
+      if ((masterData.resources[id].autoaccept_yn==0) && (!masterData.auth.editall)) 
         $("#"+divid+" select[id=InputStatus]").val(1);
-      else if (masterData.res[id].autoaccept_yn==1) 
+      else if (masterData.resources[id].autoaccept_yn==1) 
         $("#"+divid+" select[id=InputStatus]").val(2);
     }
   }
@@ -705,37 +705,47 @@ WeekView.prototype.implantEditBookingCallbacks = function(divid, a) {
 WeekView.prototype.checkConflicts = function() {
   var t=this;
   var id=$("#cr_fields").attr("data-id");
+  var new_b=new Object();
   if ((id!=null) && (allBookings[id]!=null))
     var new_b=$.extend({}, allBookings[id]);
-  else  
-    var new_b=new Object();
   form_getDatesInToObject(new_b);
   var resource_id=$("#InputRessource").val();
-  var rows = new Array();
   
   // Erst mal baue ich alle Dat�mer auf mit der neuen Anfrage
   var new_booking_dates=new Array();
   var diff=new_b.enddate.getTime()-new_b.startdate.getTime();
 
-  $.each(churchcore_getAllDatesWithRepeats(new_b), function(k,ds) {
-    $.each(t.getIndexedBookings(ds.startdate), function(i,conflict) {
-      var booking=allBookings[conflict.id];
-      if ((booking!=null) && (booking.resource_id==resource_id) && (new_b.id!=booking.id)) {
-        if ((booking.status_id==1) || (booking.status_id==2)) {
-          if (churchcore_datesInConflict(ds.startdate, ds.enddate, conflict.startdate, conflict.enddate))
-            rows.push("<li>"+ds.startdate.toStringDe(true)+' - '+ds.enddate.toStringDe(true)+': '+booking.text);
-        }
-      }      
-    });    
-  });
-  if (rows.join("")!="") {
-    $("#conflicts").html('<p class="text-error">Achtung, Termin-Konflikte: <p class="text-error"><div id="show_conflicts"><ul>'+rows.join("")+'</div>');
+  var txt=t.calcConflicts(new_b, resource_id);
+  
+  if (txt!="") {
+    $("#conflicts").html('<p class="text-error">Achtung, Termin-Konflikte: <p class="text-error"><div id="show_conflicts"><ul>'+txt+'</div>');
     $("#conflicts").addClass("well");  
   }
   else { 
     $("#conflicts").html("");
     $("#conflicts").removeClass("well");
   }
+};
+
+WeekView.prototype.calcConflicts = function(new_b, resource_id) {
+  var t=this;
+  var rows=Array();
+  $.each(churchcore_getAllDatesWithRepeats(new_b), function(k,ds) {
+    $.each(t.getIndexedBookings(ds.startdate), function(i,conflict) {
+      var booking=allBookings[conflict.id];
+      if ((booking!=null) && (booking.resource_id==resource_id) && (new_b.id!=booking.id)) {
+        if ((booking.status_id==1) || (booking.status_id==2)) {
+          if (churchcore_datesInConflict(ds.startdate, ds.enddate, conflict.startdate, conflict.enddate)) {
+            if (conflict.startdate.sameDay(conflict.enddate))
+              rows.push("<li>"+conflict.startdate.toStringDe(true)+' - '+conflict.enddate.toStringDeTime()+': '+booking.text);
+            else
+              rows.push("<li>"+conflict.startdate.toStringDe(true)+' - '+conflict.enddate.toStringDe(true)+': '+booking.text);            
+          }
+        }
+      }      
+    });    
+  });
+  return rows.join("");  
 };
 
 WeekView.prototype.closeAndSaveBookingDetail = function (elem) {
@@ -839,7 +849,7 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
     }
     // Pruefen, ob der Eintrag schon von einem Admin bestaetigt wurde, dann muss er auf 1 (unbestaetigt) zurueckgesetzt werden
     if (((!masterData.auth.editall) && (masterData.auth.write) && (t.currentBooking.person_id==masterData.user_pid) &&
-        (t.currentBooking.status_id!=1) && (masterData.res[t.currentBooking.resource_id].autoaccept_yn==0))) {
+        (t.currentBooking.status_id!=1) && (masterData.resources[t.currentBooking.resource_id].autoaccept_yn==0))) {
       txt=txt+"<i><div style=\"background:white\"><b>Achtung: Die Anfrage wurde schon vom Administrator bearbeitet!</b><br/>Wenn nun 'Speichern' gew&auml;hlt, muss erneut der Administrator best&auml;tigen.</i></div><br/><br/>";
       t.currentBooking.status_id=1;
     }

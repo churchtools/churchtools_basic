@@ -262,6 +262,7 @@ function _shiftDate($date, $minutes) {
 
 function churchresource_updateResourcesFromChurchCal($params, $source) {
   global $user;
+  $resources=churchcore_getTableData("cr_resource");
   $db=db_query('select * from {cr_booking} where cc_cal_id=:cal_id', 
       array(":cal_id"=>$params["id"]));
       
@@ -273,6 +274,7 @@ function churchresource_updateResourcesFromChurchCal($params, $source) {
     if ((isset($params["bookings"])) && (isset($params["bookings"][$booking->resource_id]))) {
       $save = array_merge(array(), $params);      
       $save["cc_cal_id"]=$params["id"];
+      
       if (!isset($params["bookings"][$booking->resource_id]["status_id"]))
         $save["status_id"]=1;
       else $save["status_id"]=$params["bookings"][$booking->resource_id]["status_id"];
@@ -288,8 +290,12 @@ function churchresource_updateResourcesFromChurchCal($params, $source) {
       
       // Wenn es einen Unterschied im Datum gibt, setze den Status wieder auf zu genehmigen!
       if ((strtotime($save["startdate"])!=strtotime($booking->startdate)) ||
-            (strtotime($save["enddate"])!=strtotime($booking->enddate)))
-        $save["status_id"]=1;
+            (strtotime($save["enddate"])!=strtotime($booking->enddate))) {
+        // But only if I am not an admin and resource is not autoaccept!
+        if ((!user_access("administer bookings", "churchresource")) && 
+             ($resources[$booking->resource_id]->autoaccept_yn==0)) 
+          $save["status_id"]=1;
+      }
         
       churchresource_updateBooking($save);
         
@@ -306,7 +312,9 @@ function churchresource_updateResourcesFromChurchCal($params, $source) {
     if (!isset($booking["updated"])) {
       $save = array_merge(array(), $params);      
       $save["cc_cal_id"]=$params["id"];
-      $save["status_id"]=1;
+      if (!isset($booking["status_id"]))
+        $save["status_id"]=1;
+      else $save["status_id"]=$booking["status_id"];
       $save["person_id"]=$user->id;
       $save["resource_id"]=$booking["resource_id"];
       $save["text"]=$params["bezeichnung"];

@@ -6,9 +6,6 @@
  * @Version 20110101
  */
 
-// Alle Stammdaten werden hier gespeichert
-var masterData = null;
-
 var allBookings = new Object();
 
 //Hilfen fuer Zeitmessungen

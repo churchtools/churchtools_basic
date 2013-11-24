@@ -47,6 +47,7 @@
   echo "settings.files_url=\"$base_url$files_dir\";"; 
   echo "settings.base_url=\"$base_url\";"; 
   echo "settings.q=\"$q\";"; 
+  echo 'version='.$config["version"];
   
 ?></script>
 <script src="<?php echo createI18nFile("churchcore"); ?>"></script>

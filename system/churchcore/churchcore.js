@@ -1,6 +1,8 @@
 debug=false;
 dayNames= ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 
+// Contains all masterData
+var masterData=new Object();
 
 function _(s) {  
   if (lang[s]==null) return "***"+s+"***";
@@ -627,6 +629,41 @@ function cc_copyArray(source) {
   }
 }
 
+/**
+ * Reimplement the jQuery.getScript function. 
+ * See here for more information why
+ * http://techmonks.net/getscript-and-firebug-code/
+ */
+jQuery.extend({
+  getCTScript: function(url, callback) {
+    var head = document.getElementsByTagName("head")[0] || document.documentElement;
+    var script = document.createElement("script");
+    script.src = url+"?"+version;
+  
+    // Handle Script loading
+    var done = false;
+
+    // Attach handlers for all browsers
+    script.onload = script.onreadystatechange = function() {
+      if ( !done && (!this.readyState || this.readyState === "loaded" ||
+         this.readyState === "complete") ) {
+          done = true;
+          //success();
+          //complete();
+          if ( callback)
+                  callback();
+
+          // Handle memory leak in IE
+          script.onload = script.onreadystatechange = null;
+          if ( head && script.parentNode ) {
+                  head.removeChild( script );
+          }
+      }
+    };
+    head.insertBefore( script, head.firstChild );
+    return undefined;
+  }
+});
 
 jQuery.extend(jQuery.ui.dialog.prototype, { 
   'addbutton': function(buttonName, func) { 

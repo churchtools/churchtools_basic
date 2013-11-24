@@ -220,8 +220,8 @@ class CTChurchResourceModule extends CTAbstractModule {
   
   public function getMasterDataTablenames() {
     $res=array();
-    $res[1]=churchcore_getMasterDataEntry(1, "Ressource", "res", "cr_resource","resourcetype_id,sortkey,bezeichnung");
-    $res[2]=churchcore_getMasterDataEntry(2, "Ressourcen-Typ", "resTypes", "cr_resourcetype");
+    $res[1]=churchcore_getMasterDataEntry(1, "Ressource", "resources", "cr_resource","resourcetype_id,sortkey,bezeichnung");
+    $res[2]=churchcore_getMasterDataEntry(2, "Ressourcen-Typ", "resourceTypes", "cr_resourcetype");
     $res[3]=churchcore_getMasterDataEntry(3, "Status", "status", "cr_status");  
     return $res;
   }

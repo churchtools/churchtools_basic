@@ -1,9 +1,10 @@
-masterData=new Object();
 calendar=null;
 currentEvent=null;
 allEvents=null;
 allPersons=null;
 allData=new Object();
+// For loading ChurchResource-Bookings
+allBookings=null;
 viewName="calView";
 filterName="";
 monthNames= ['Januar', 'Februar', 'M&auml;rz', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
@@ -128,104 +129,136 @@ function _select(start, end, allDay, a, view) {
 }
 
 function _renderViewChurchResource(elem) {  
-  if (masterData.resources==null) {
-    churchInterface.jsendRead({func:"getMasterData"}, function(ok, data) {
-      if (!ok) alert("Fehler beim Holen der Ressourcen: "+data);
-      else {
-        masterData.resources=data.res;
-        masterData.resourcesTypes=data.resTypes;
-        masterData.status=data.status;
-        if (masterData.resources==null) masterData.resources=new Object();
-        _renderEditEventContent(elem, currentEvent);
+  // Baue erst ein schönes Select zusammen
+  var arr=new Array();
+  var sortkey=0;
+  $.each(churchcore_sortMasterData(masterData.resourceTypes, "sortkey"), function(k,a) {
+    arr.push({id:"", bezeichnung:'-- '+a.bezeichnung+' --'});
+    $.each(churchcore_sortMasterData(masterData.resources, "sortkey"), function(i,b) {
+      if (b.resourcetype_id==a.id) {
+        arr.push({id:b.id, bezeichnung:b.bezeichnung});
       }
-    }, null, null, "churchresource");   
-    elem.find("#cal_content").html("Lade Daten...");
+    });
+  });
+  var minutes=new Array();
+  minutes.push({id:0, bezeichnung:'-'});
+  minutes.push({id:15, bezeichnung:'15 Minuten'});
+  minutes.push({id:30, bezeichnung:'30 Minuten'});
+  minutes.push({id:45, bezeichnung:'45 Minuten'});
+  minutes.push({id:60, bezeichnung:'1 Stunde'});
+  minutes.push({id:90, bezeichnung:'1,5 Stunden'});
+  minutes.push({id:120, bezeichnung:'2 Stunden'});
+  minutes.push({id:150, bezeichnung:'2,5 Stunden'});
+  minutes.push({id:180, bezeichnung:'3 Stunden'});
+  minutes.push({id:240, bezeichnung:'4 Stunden'});
+  minutes.push({id:300, bezeichnung:'5 Stunden'});
+  minutes.push({id:360, bezeichnung:'6 Stunden'});
+  minutes.push({id:60*24, bezeichnung:'1 Tag'});
+  
+  var form = new CC_Form();
+  if (currentEvent.minpre==null) {
+    currentEvent.minpre=0; currentEvent.minpost=0;
   }
-  else {
-    // Baue erst ein schönes Select zusammen
-    var arr=new Array();
-    var sortkey=0;
-    $.each(churchcore_sortMasterData(masterData.resourcesTypes, "sortkey"), function(k,a) {
-      arr.push({id:"", bezeichnung:'-- '+a.bezeichnung+' --'});
-      $.each(churchcore_sortMasterData(masterData.resources, "sortkey"), function(i,b) {
-        if (b.resourcetype_id==a.id) {
-          arr.push({id:b.id, bezeichnung:b.bezeichnung});
-        }
-      });
-    });
-    var minutes=new Array();
-    minutes.push({id:0, bezeichnung:'-'});
-    minutes.push({id:15, bezeichnung:'15 Minuten'});
-    minutes.push({id:30, bezeichnung:'30 Minuten'});
-    minutes.push({id:45, bezeichnung:'45 Minuten'});
-    minutes.push({id:60, bezeichnung:'1 Stunde'});
-    minutes.push({id:90, bezeichnung:'1,5 Stunden'});
-    minutes.push({id:120, bezeichnung:'2 Stunden'});
-    minutes.push({id:150, bezeichnung:'2,5 Stunden'});
-    minutes.push({id:180, bezeichnung:'3 Stunden'});
-    minutes.push({id:240, bezeichnung:'4 Stunden'});
-    minutes.push({id:300, bezeichnung:'5 Stunden'});
-    minutes.push({id:360, bezeichnung:'6 Stunden'});
-    minutes.push({id:60*24, bezeichnung:'1 Tag'});
-    
-    var form = new CC_Form();
-    if (currentEvent.minpre==null) {
-      currentEvent.minpre=0; currentEvent.minpost=0;
-    }
-    form.addSelect({cssid:"ressource_new",  htmlclass:"resource", freeoption:true, label:"Ressource ausw&auml;hlen", data:arr, sort:false});
-    form.addSelect({label:"Im Vorfeld buchen", cssid:"min_pre_new", sort:false, selected:currentEvent.minpre, data:minutes});
-    form.addSelect({label:"Nachher buchen", cssid:"min_post_new", sort:false, selected:currentEvent.minpost, data:minutes});
-    form.addButton({cssid:"ressource-add",  controlgroup:true, htmlclass:"add", label:"Ressource hinzuf&uuml;gen"});
+  form.addSelect({label:"Im Vorfeld buchen", cssid:"min_pre_new", sort:false, selected:currentEvent.minpre, data:minutes});
+  form.addSelect({label:"Nachher buchen", cssid:"min_post_new", sort:false, selected:currentEvent.minpost, data:minutes});
+  form.addSelect({cssid:"ressource_new",  htmlclass:"resource", freeoption:true, 
+          label:"Ressource ausw&auml;hlen", data:arr, sort:false, func:function(a) {
+            return a.id=="" || currentEvent.bookings==null || currentEvent.bookings[a.id]==null;
+          }});
 
-    if (currentEvent.bookings!=null) {
-      form.addHtml('<legend>Vorhandene Buchungen</legend>');
-      form.addHtml('<div class="w_ell"><table class="table table-condensed"><tr><th>Ressource<th>Vorher<th>Nachher<th>Status<th>');
-      $.each(currentEvent.bookings, function(k,a) {
-        form.addHtml('<tr><td>');
-        form.addHtml(masterData.resources[a.resource_id].bezeichnung);
-        form.addHtml('<td>');
-        form.addSelect({type:"small", cssid:"min-pre-"+a.resource_id, controlgroup:false, sort:false, selected:a.minpre, data:minutes});
-        form.addHtml('<td>');
-        form.addSelect({type:"small", cssid:"min-post-"+a.resource_id, controlgroup:false, sort:false, selected:a.minpost, data:minutes});
-        form.addHtml('<td>');
-        if (a.status_id!=null) 
-          form.addHtml('<i>'+masterData.status[a.status_id].bezeichnung+'</i>');
-        form.addHtml('<td>');
-        if (a.status_id!=99)
-          form.addImage({src:"trashbox.png", cssid:"trash", width:20, data:[{name:"id", value:a.resource_id}]});          
+  if (currentEvent.bookings!=null) {    
+    if (allBookings==null) {
+      allBookings=new Object();
+      $.getCTScript("system/churchresource/cr_loadandmap.js", function() {
+        $.getCTScript("system/churchresource/cr_weekview.js", function() {
+          churchInterface.setModulename("churchresource");
+          cr_loadBookings(function() {
+            weekView.buildDates(allBookings);
+            _renderViewChurchResource(elem);      
+          });
+        });
       });
-      form.addHtml('</table></div>');
     }
     
-    elem.find("#cal_content").html(form.render(null, "horizontal"));
-    
-    elem.find("#ressource-add").click(function() {
-      if (elem.find("select.resource").val()>0) {
-        if (currentEvent.bookings==null) currentEvent.bookings=new Object();
-        currentEvent.minpre=elem.find("#min_pre_new").val();
-        currentEvent.minpost=elem.find("#min_post_new").val();        
-        currentEvent.bookings[elem.find("select.resource").val()]={resource_id:elem.find("select.resource").val(), 
-                  minpre:currentEvent.minpre, minpost:currentEvent.minpost, 
-                  status_id:1};
-        _renderEditEventContent(elem, currentEvent);
-      } 
-    });
-    elem.find("select").change(function() {
-      if ($(this).attr("id").indexOf("min-pre-")==0) {
-        currentEvent.bookings[$(this).attr("id").substr(8,99)].minpre=$(this).val();
-        _renderEditEventContent(elem, currentEvent);
+    form.addHtml('<legend>Vorhandene Buchungen</legend>');
+    form.addHtml('<div class="w_ell"><table class="table table-condensed"><tr><th>Ressource<th>Vorher<th>Nachher<th>Status<th>');
+    $.each(currentEvent.bookings, function(k,a) {
+      form.addHtml('<tr><td>');
+      form.addHtml(masterData.resources[a.resource_id].bezeichnung);
+      form.addHtml('<td>');
+      form.addSelect({type:"small", cssid:"min-pre-"+a.resource_id, controlgroup:false, sort:false, selected:a.minpre, data:minutes});
+      form.addHtml('<td>');
+      form.addSelect({type:"small", cssid:"min-post-"+a.resource_id, controlgroup:false, sort:false, selected:a.minpost, data:minutes});
+      form.addHtml('<td>');
+      form.addSelect({type:"medium", data:masterData.bookingStatus, cssid:"status-"+a.resource_id, controlgroup:false, selected:a.status_id,
+          func:function(s) {
+            return s.id==1 
+                   || (s.id==2 && masterData.resources[a.resource_id].autoaccept_yn==1) 
+                   || masterData.auth["administer bookings"]
+                   || s.id==a.status_id;
+          }
+      });
+      form.addHtml('<td>');
+      if (a.status_id!=99)
+        form.addImage({src:"trashbox.png", cssid:"trash", width:20, data:[{name:"id", value:a.resource_id}]});
+      if (typeof weekView!='undefined') {
+        var c=$.extend({}, currentEvent);
+        c.startdate=new Date();
+        c.enddate=new Date();
+        c.startdate.setTime(currentEvent.startdate.getTime() - (a.minpre * 60 * 1000));
+        c.enddate.setTime(currentEvent.enddate.getTime() + (a.minpost * 60 * 1000));
+        var conflicts=weekView.calcConflicts(c, a.resource_id);
+        if (conflicts!="") form.addHtml('<tr><td colspan="5"><div class="alert alert-error">Konflikte: '+conflicts+"</div>");
       }
-      else if ($(this).attr("id").indexOf("min-post-")==0) {
-        currentEvent.bookings[$(this).attr("id").substr(9,99)].minpost=$(this).val();
-        _renderEditEventContent(elem, currentEvent);
+      else {
+        form.addHtml('<tr><td colspan="5">');
+        form.addImage({src:"loading.gif"});
       }
+
     });
-    elem.find("#trash").click(function() {
-      currentEvent.bookings[$(this).attr("data-id")].status_id=99;
+    form.addHtml('</table></div>');
+  }
+  
+  elem.find("#cal_content").html(form.render(null, "horizontal"));
+  
+  elem.find("select.resource").change(function() {
+    if (elem.find("select.resource").val()>0) {
+      if (currentEvent.bookings==null) currentEvent.bookings=new Object();
+      currentEvent.minpre=elem.find("#min_pre_new").val();
+      currentEvent.minpost=elem.find("#min_post_new").val();
+      var resource_id=elem.find("select.resource").val();
+      var status_id=(masterData.resources[resource_id].autoaccept_yn==1?2:1);
+      currentEvent.bookings[elem.find("select.resource").val()]={resource_id:resource_id, 
+                minpre:currentEvent.minpre, minpost:currentEvent.minpost, 
+                status_id:status_id, fresh:true};
       _renderEditEventContent(elem, currentEvent);
-      return false;
-    });    
-  }  
+    } 
+  });
+  elem.find("select").change(function() {
+    if ($(this).attr("id").indexOf("min-pre-")==0) {
+      currentEvent.bookings[$(this).attr("id").substr(8,99)].minpre=$(this).val();
+      _renderEditEventContent(elem, currentEvent);
+    }
+    else if ($(this).attr("id").indexOf("min-post-")==0) {
+      currentEvent.bookings[$(this).attr("id").substr(9,99)].minpost=$(this).val();
+      _renderEditEventContent(elem, currentEvent);
+    }
+    else if ($(this).attr("id").indexOf("status-")==0) {
+      currentEvent.bookings[$(this).attr("id").substr(7,99)].status_id=$(this).val();
+      _renderEditEventContent(elem, currentEvent);
+    }
+  });
+  elem.find("#trash").click(function() {
+    // Is booking created but not saved (fresh), then I can delete it.
+    if (currentEvent.bookings[$(this).attr("data-id")].fresh) {
+      delete currentEvent.bookings[$(this).attr("data-id")];
+    }
+    else {
+      currentEvent.bookings[$(this).attr("data-id")].status_id=99;
+    }
+    _renderEditEventContent(elem, currentEvent);
+    return false;
+  });    
 }
  
 function currentEvent_addException(date) {
@@ -414,7 +447,7 @@ function _renderEditEventNavi(elem, currentEvent) {
     navi.addEntry(currentEvent.view=="view-invite","view-invite","Besprechungsanfrage");*/
   if ((masterData.category[currentEvent.category_id].privat_yn==0) && (masterData.auth["view churchservice"]))
     navi.addEntry(currentEvent.view=="view-churchservice","view-churchservice",masterData.churchservice_name);
-  if (masterData.auth["view churchresource"])
+  if (masterData.auth["create bookings"] || masterData.auth["administer bookings"])
     navi.addEntry(currentEvent.view=="view-churchresource","view-churchresource",masterData.churchresource_name);
   navi.renderDiv("cal_menu", churchcore_handyformat());
   
@@ -668,7 +701,8 @@ function initCalendarView() {
         // for all other views
         '': "H(:mm)'h'"
     },
-    allDayText:'Ganzt&auml;gig',
+    // No Text for allDay, not necessary
+    allDayText:'',
     firstHour:10,
     defaultView:((masterData.settings!=null)&&(masterData.settings["viewName"]!=null)?masterData.settings["viewName"]:"month"),
     axisFormat:"H:mm",
@@ -793,7 +827,7 @@ function _eventMouseover(event, jsEvent, view) {
       rows.push('<li>Status: '+event.status);
     rows.push('</ul>');
     if (myEvent!=null) {
-      if ((!embedded) && (myEvent.booking_id!=null)) 
+      if ((!embedded) && (myEvent.booking_id!=null) && (masterData.auth["view churchresource"])) 
         rows.push('<a href="?q=churchresource&id='+myEvent.booking_id+'"><span class="label label-info">'+masterData.churchresource_name+'</label></a>&nbsp;');
       if ((!embedded) && (myEvent.event_id!=null)) 
         rows.push('<a href="?q=churchservice&id='+myEvent.event_id+'"><span class="label label-info">'+masterData.churchservice_name+'</label></a>&nbsp;');
@@ -1359,7 +1393,7 @@ function renderChurchCategories() {
       form.addHtml('<div id="filterGemeindekalendar"></div>');        
     }
     if (masterData.auth["view churchresource"]) {
-      createMultiselect("filterRessourcen", masterData.resourcen);
+      createMultiselect("filterRessourcen", masterData.resources);
       form.addHtml('<div id="filterRessourcen"></div>');
       $.each(masterData.resourceTypes, function(k,a) {
         filter["filterRessourcen"].addFunction(a.bezeichnung+" w&auml;hlen", function(b) {
