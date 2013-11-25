@@ -1259,7 +1259,6 @@ ListView.prototype.getAllPersonsForService = function(service_id) {
           o.id=b.p_id;
           o.bezeichnung=b.vorname+" "+b.name;
           persons[o.id]=o;
-          return false;
         }
       });
     }
@@ -1985,8 +1984,6 @@ ListView.prototype.renderTooltip = function(elem) {
   var id=elem.attr("tooltip");
   var event_id=elem.parents("tr").attr("id");
   var _bin_ich_admin=bin_ich_admin(allEvents[event_id].admin);
-  
-  console.log(allEvents[event_id].files[id]);
   
   if (elem.hasClass("file")) {
     return this.renderTooltipForFiles(elem, null, allEvents[event_id].files[id], 
