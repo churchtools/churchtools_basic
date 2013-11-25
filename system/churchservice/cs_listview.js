@@ -1986,9 +1986,12 @@ ListView.prototype.renderTooltip = function(elem) {
   var event_id=elem.parents("tr").attr("id");
   var _bin_ich_admin=bin_ich_admin(allEvents[event_id].admin);
   
+  console.log(allEvents[event_id].files[id]);
+  
   if (elem.hasClass("file")) {
     return this.renderTooltipForFiles(elem, null, allEvents[event_id].files[id], 
-         ((masterData.auth.admin) || (masterData.auth.leaderservice[a.service_id]) || (_bin_ich_admin)));
+         (masterData.auth.admin || allEvents[event_id].files[id].modified_pid==masterData.user_pid 
+             || _bin_ich_admin));
   }
   else {
   

@@ -29,8 +29,7 @@ $.fn.eventCalendar = function(options) {
   this.each(function(i, _element) {
     var element = $(_element);
     var calendar = new eventCalendar(element, options);
-    element.data('eventCalendar', calendar); // TODO: look into memory leak implications
-    //calendar.render();
+    element.data('eventCalendar', calendar); 
   });  
   return this;
 };
@@ -83,7 +82,8 @@ function eventCalendar(element, options, eventSources) {
       var count=0;
       $.each(churchcore_sortData(allData, "start"), function(k,a) {
         if (a.start>=t.startdate) {
-          if ((filterName=="") || (a.title.toUpperCase().indexOf(_filter)>=0)) {
+          if ((filterName=="") || (a.title.toUpperCase().indexOf(_filter)>=0)
+                || (a.notizen!=null && a.notizen.toUpperCase().indexOf(_filter)>=0)) {
             rows.push('<tr><td>');
             
             if (!minical) {

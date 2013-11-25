@@ -78,25 +78,30 @@ function churchcal_getAbsents($params) {
   global $user;
   
   include_once(drupal_get_path('module', 'churchdb').'/churchdb_db.inc');
-  
-  $cal_ids=$params["cal_ids"];
   $persons=array();
-  // Wer hat explizit Freigaben fŸr den Kalender?
-  $db=db_query("select * from  {cc_domain_auth} d where d.auth_id=403 and d.daten_id in (".implode(",",$cal_ids).")");
-  if ($db!=false) { 
-    foreach ($db as $auth) {
-      if ($auth->domain_type=="person")
-        $persons[$auth->domain_id]=$auth->domain_id;
-      else if ($auth->domain_type=="gruppe") {
-        $allPersonIds=churchdb_getAllPeopleIdsFromGroups(array($auth->domain_id));
-        if ($allPersonIds!=false) {
-          foreach ($allPersonIds as $id) {
-            $persons[$id]=$id;
+  
+  if (isset($params["cal_ids"])) {
+    $cal_ids=$params["cal_ids"];
+    // Wer hat explizit Freigaben fŸr den Kalender?
+    $db=db_query("select * from  {cc_domain_auth} d where d.auth_id=403 and d.daten_id in (".implode(",",$cal_ids).")");
+    if ($db!=false) { 
+      foreach ($db as $auth) {
+        if ($auth->domain_type=="person")
+          $persons[$auth->domain_id]=$auth->domain_id;
+        else if ($auth->domain_type=="gruppe") {
+          $allPersonIds=churchdb_getAllPeopleIdsFromGroups(array($auth->domain_id));
+          if ($allPersonIds!=false) {
+            foreach ($allPersonIds as $id) {
+              $persons[$id]=$id;
+            }
           }
-        }
-      }          
-    }
-  }  
+        }          
+      }
+    }  
+  }
+  if (isset($params["person_id"])) {
+    $persons[$params["person_id"]]=$params["person_id"];
+  }
   
   $arrs=array();
   if (count($persons)>0) {
@@ -381,19 +386,36 @@ function churchcal_getAllEvents($cond="") {
   return $ret;
 }
 
+function churchcal_iAmOwner($category_id) {
+  global $user;
+  if ($category_id==null) return false;
+  $res=db_query('select modified_pid from {cc_calcategory} where id=:id', array(":id"=>$category_id))->fetch();
+  if (!$res) return false;
+  return $res->modified_pid==$user->id;
+}
+
 function churchcal_saveCategory($params) {
   global $user;
+  $id=null;
+  if (isset($params["id"])) $id=$params["id"];
   
   $auth=false;
-  if ((isset($params["id"])) && (churchcal_isAllowedToEditCategory($params["id"])))
-    $auth=true;
-  else if (($params["privat_yn"]==1) && ($params["oeffentlich_yn"]==0) && (user_access("personal category", "churchcal")))  
-    $auth=true;
-  else if (($params["privat_yn"]==0) && ($params["oeffentlich_yn"]==0) && (user_access("group category", "churchcal")))  
-    $auth=true;
-  else if (($params["privat_yn"]==0) && ($params["oeffentlich_yn"]==1) && (user_access("church category", "churchcal")))  
-    $auth=true;
-  else throw new CTNoPermission("AllowToEditCategory", "churchcal");   
+  if ($params["privat_yn"]==1 && $params["oeffentlich_yn"]==0) {
+    if ($id!=null) 
+      $auth=user_access("admin personal category", "churchcal") || churchcal_iAmOwner($id);  
+    else 
+      $auth=user_access("admin personal category", "churchcal") || user_access("create personal category", "churchcal");
+  }
+  else if ($params["privat_yn"]==0 && $params["oeffentlich_yn"]==0) {
+    if ($id!=null) 
+      $auth=user_access("admin group category", "churchcal") || churchcal_iAmOwner($id);  
+    else 
+      $auth=user_access("admin group category", "churchcal") || user_access("create group category", "churchcal");
+  }
+  else if ($params["privat_yn"]==0 && $params["oeffentlich_yn"]==1) {
+    $auth=user_access("admin church category", "churchcal") || churchcal_iAmOwner($id);  
+  }
+  if (!$auth) throw new CTNoPermission("Admin edit category", "churchcal");   
   
   $i = new CTInterface();
   $i->setParam("bezeichnung");
@@ -548,7 +570,7 @@ function churchcal__ajax() {
   $ajax->addFunction("getCalPerCategory", "view");
   $ajax->addFunction("getAbsents", "view");
   $ajax->addFunction("getMyServices", "view", "churchservice");
-  $ajax->addFunction("getBirthdays", "view", "churchservice"); 
+  $ajax->addFunction("getBirthdays", "view"); 
   $ajax->addFunction("deleteCategory", "view"); 
   $ajax->addFunction("updateEvent", "view"); 
   $ajax->addFunction("createEvent", "view"); 

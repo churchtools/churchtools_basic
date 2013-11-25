@@ -84,8 +84,10 @@ function churchcal_createEvent($params, $source=null) {
   }
   return $new_id;  
 }  
- 
+
 function churchcal_isAllowedToEditCategory($category_id) {
+  if ($category_id==null) return false;
+ 
   $arr=churchcal_getAuthForAjax();
   if (!isset($arr["edit category"])) return false;
   if (isset($arr["edit category"][$category_id])) return true;

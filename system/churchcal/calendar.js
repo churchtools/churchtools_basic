@@ -176,6 +176,7 @@ function _renderViewChurchResource(elem) {
             weekView.buildDates(allBookings);
             _renderViewChurchResource(elem);      
           });
+          churchInterface.setModulename("churchcal");
         });
       });
     }
@@ -207,6 +208,7 @@ function _renderViewChurchResource(elem) {
         c.enddate=new Date();
         c.startdate.setTime(currentEvent.startdate.getTime() - (a.minpre * 60 * 1000));
         c.enddate.setTime(currentEvent.enddate.getTime() + (a.minpost * 60 * 1000));
+        c.id=a.id;
         var conflicts=weekView.calcConflicts(c, a.resource_id);
         if (conflicts!="") form.addHtml('<tr><td colspan="5"><div class="alert alert-error">Konflikte: '+conflicts+"</div>");
       }
@@ -634,12 +636,33 @@ function _viewChanged(view) {
 }
 
 function categoryEditable(category_id) {
-  if (category_id==null) return false;
+  if (category_id==null || masterData.category[category_id]==null) return false;
   
-  if ((masterData.auth["edit category"]!=null) && (masterData.auth["edit category"][category_id]!=null))
+  if (user_access("edit category", category_id))
     return true;
-/*  if ((masterData.category[category_id]!=null) && (masterData.category[category_id].modified_pid==masterData.user_pid))  
-    return true;*/
+
+  return false;
+}
+
+/**
+ * Checks for admin rights to change name and color of category
+ * @param category_id
+ * @returns {Boolean}
+ */
+function categoryAdminable(category_id) {
+  if (!categoryEditable(category_id)) return false;
+  
+  var cat=masterData.category[category_id];
+  
+  if (cat.oeffentlich_yn==0 & cat.privat_yn==1 && user_access("admin personal category"))
+    return true;
+  else if (cat.oeffentlich_yn==0 & cat.privat_yn==0 && user_access("admin group category"))
+    return true;
+  else if (cat.oeffentlich_yn==1 & cat.privat_yn==0 && user_access("admin church category"))
+    return true;
+  
+  if (masterData.category[category_id].modified_pid==masterData.user_pid) return true;
+  
   return false;
 }
 
@@ -748,9 +771,9 @@ function initCalendarView() {
   else if (viewName=="eventView") {
     calendar.eventCalendar({});
     $("#header").append(form_renderInput({controlgroup:false, cssid:"searchEntry", placeholder:"Suche",htmlclass:"input-medium search-query"}));
-    $("#header").append('<span id="calView" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content">Kalender</span><span class="fc-button-effect"><span></span></span></span></span>');
-    $("#header").append('<span id="yearView" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content">Jahr</span><span class="fc-button-effect"><span></span></span></span></span>');
-    $("#header").append('<span id="eventView" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content"><i class="icon-list"></i></span><span class="fc-button-effect"><span></span></span></span></span>');
+    $("#header").append('<span id="calView" style="overflow:inherit" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content">Kalender</span><span class="fc-button-effect"><span></span></span></span></span>');
+    $("#header").append('<span id="yearView" style="overflow:inherit" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content">Jahr</span><span class="fc-button-effect"><span></span></span></span></span>');
+    $("#header").append('<span id="eventView" style="overflow:inherit" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content"><i class="icon-list"></i></span><span class="fc-button-effect"><span></span></span></span></span>');
   }
   else 
     alert("Unbekannter viewname!");
@@ -1153,7 +1176,7 @@ function editCategories(privat_yn, oeffentlich_yn, reload) {
       rows.push('<tr><td>'+form_renderColor(cat.color));
       rows.push('<td>'+cat.bezeichnung);
       rows.push('<td><a href="#" id="ical" data-id="'+cat.id+'"><span class="label">iCal</span></a>');
-      if (categoryEditable(cat.id)) { 
+      if (categoryAdminable(cat.id)) { 
         rows.push('<td>'+form_renderImage({src:"persons.png", width:20, cssid:"share", data:[{name:"id", value:cat.id}]}));
         rows.push('<td>'+form_renderImage({src:"options.png", width:20, cssid:"options", data:[{name:"id", value:cat.id}]}));
         rows.push('<td>'+form_renderImage({src:"trashbox.png", width:20, cssid:"delete", data:[{name:"id", value:cat.id}]}));
@@ -1163,9 +1186,9 @@ function editCategories(privat_yn, oeffentlich_yn, reload) {
   });
 
   if (
-       ((privat_yn==1) && (masterData.auth["personal category"]))
-       || ((privat_yn==0) && (oeffentlich_yn==0) && (masterData.auth["group category"]))
-       || ((privat_yn==0) && (oeffentlich_yn==1) && (masterData.auth["church category"]))
+       ((privat_yn==1) && (user_access("create personal category || admin personal category")))
+       || ((privat_yn==0) && (oeffentlich_yn==0) && (user_access("create group category || admin group category")))
+       || ((privat_yn==0) && (oeffentlich_yn==1) && (user_access("admin church category")))
       )
     rows.push('<tr><td><td><a href="#" id="options"><i>Neuen Kalender erstellen</i></a><td><td><td>'+form_renderImage({cssid:"options", src:"plus.png", width:20})+"<td>");
   
@@ -1233,6 +1256,7 @@ function needData(filtername, id) {
         calAbsentsType.needData(0);        
     }
     else if (id==1) calMyServicesType.needData(0);
+    else if (id==2) calMyAbsentsType.needData(0);
     else if (id==4) calBirthdayType.needData(0);
     else if (id==5) calAbsentsType.needData(0);
     else if (id==6) calAllBirthdayType.needData(0);
@@ -1262,7 +1286,7 @@ function hideData(filtername, id) {
 function renderPersonalCategories() {
   var rows = new Array();
   var form = new CC_Form("Pers&ouml;nliche Kalender"+form_renderImage({cssid:"edit_personal", src:"options.png", top: 8, width:24, htmlclass:"pull-right"}));
-  form.setHelp("ChurchCal-Filter");
+  form.setHelp("Persönliche Kalender");
   var sortkey=-1;
   var mycals=new Object();
   // Meine Kalendar
@@ -1274,19 +1298,21 @@ function renderPersonalCategories() {
       }
     });
   }
-  if (masterData.auth["view churchservice"]) {
+  if (user_access("view churchservice")) {
     form_addEntryToSelectArray(mycals,1,'Meine Dienste',sortkey); sortkey++;
-  }
-
-  if (sortkey>-1) {
-    form_addEntryToSelectArray(mycals,2,'-',sortkey); sortkey++;
+    form_addEntryToSelectArray(mycals,2,'Meine Abwesenheiten',sortkey);  sortkey++;
   }
   
   // Freigegebene
-  if (viewName!="yearView") {  
+  if (viewName!="yearView") {
+    var divider=false;
     if (churchcore_countObjectElements(masterData.category)>0) {
       $.each(churchcore_sortMasterData(masterData.category), function(k,a) {
         if ((a.modified_pid!=masterData.user_pid) && (a.oeffentlich_yn==0) && (a.privat_yn==1)) {
+          if (!divider) {
+            form_addEntryToSelectArray(mycals,3,'-',sortkey); sortkey++;
+            divider=true;
+          }
           form_addEntryToSelectArray(mycals,(a.id*1+100),a.bezeichnung,sortkey);
           sortkey++;
         }
@@ -1306,6 +1332,9 @@ function renderGroupCategories() {
   var sortkey=-1;
   var mycals=new Object();
   var rows = new Array();
+  if (!embedded) {
+    form.setHelp("Gruppenkalender");
+  }
   
   if ((masterData.auth["group category"]) || (churchcore_countObjectElements(masterData.category)>0)) {
     $.each(churchcore_sortMasterData(masterData.category), function(k,a) {
@@ -1340,7 +1369,7 @@ function renderChurchCategories() {
 
     if (!embedded) {
       form = new CC_Form("Gemeindekalender"+form_renderImage({cssid:"edit_church", src:"options.png", top:8, width:24, htmlclass:"pull-right"}));
-      form.setHelp("ChurchCal-Filter");
+      form.setHelp("Gemeindekalender");
     }
 
     oeff_cals=new Object();
@@ -1454,15 +1483,19 @@ $(document).ready(function() {
     
     $("#edit_personal").click(function() {
       editCategories(1, 0);
+      return false;
     });
     $("#edit_group").click(function() {
       editCategories(0, 0);
+      return false;
     });
     $("#edit_church").click(function() {
       editCategories(0, 1);
+      return false;
     });
     $("#showminical").click(function() {
       $("#minicalendar").toggle();
+      return false;
     });
     $("#abo").click(function() {
       var rows=new Array(); 

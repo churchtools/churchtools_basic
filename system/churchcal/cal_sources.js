@@ -189,21 +189,23 @@ churchInterface.jsendRead({func:"getBirthdays", all:true}, function(ok, json) {
     var d = new Date();
     var cs_events= new Array();
     var i=10;
-    $.each(json, function(k,a) {
-      for (var i=-1;i<=1;i++) {
-        var o=Object();
-        o.title= a.name;
-        o.allDay= true;
-        var b = a.birthday.toDateEn();          
-        b.setYear(d.getFullYear()+i);
-        o.start= b;
-        cs_events.push(o);            
+    if (json!=null) {
+      $.each(json, function(k,a) {
+        for (var i=-1;i<=1;i++) {
+          var o=Object();
+          o.title= a.name;
+          o.allDay= true;
+          var b = a.birthday.toDateEn();          
+          b.setYear(d.getFullYear()+i);
+          o.start= b;
+          cs_events.push(o);            
+        }
+      });
+      if (t.data[id].status!="hide") {
+        t.data[id].status="loaded";
+        t.data[id].current_CalEvents={container:t, category_id:id, events:cs_events, color:"lightblue", editable:false};            
+        send2Calendar("addEventSource",t.data[id].current_CalEvents);
       }
-    });
-    if (t.data[id].status!="hide") {
-      t.data[id].status="loaded";
-      t.data[id].current_CalEvents={container:t, category_id:id, events:cs_events, color:"lightblue", editable:false};            
-      send2Calendar("addEventSource",t.data[id].current_CalEvents);
     }
   }
   else alert("Fehler: "+status);
@@ -363,4 +365,49 @@ return "Abwesenheiten ";
 };
 
 
+//---------------------------------------------------------------------------------------------------------
+//Der CalMyAbsent-Type lŠdt die Daten aus der cs_Absent-Tabelle 
+//Es werden nur die Abwesenheiten geholt, fŸr die auch aktivierte Kalender habe
+//---------------------------------------------------------------------------------------------------------
+function CalMyAbsentsType() {
+  CalSourceType.call(this);
+}
+CalMyAbsentsType.prototype = new Temp();
+var calMyAbsentsType = new CalMyAbsentsType();
+CalMyAbsentsType.prototype.jsonCall = function(id) {
+  var t=this;
+  churchInterface.jsendRead({func:"getAbsents", person_id:masterData.user_pid}, function(ok, json) {
+     if (ok) {
+       var cr= new Array();
+       t.data[id].events=json;
+       $.each(t.data[id].events, function(i,a) {
+         var o=Object();
+         o.id=a.p_id;
+         o.title=a.vorname+" "+a.name;
+         o.start=a.startdate.toDateEn(true);
+         o.end=a.enddate.toDateEn(true);
+         if (masterData.absent_reason[a.reason_id]!=null) {
+           if (masterData.absent_reason[a.reason_id].color!="")
+             o.color=masterData.absent_reason[a.reason_id].color;
+           o.bezeichnung=masterData.absent_reason[a.reason_id].bezeichnung;
+         }
+         if ((o.start.getHours()==0) && (o.end.getHours()==0)) 
+           o.allDay=true;
+         else
+           o.allDay= false;
+         cr.push(o);            
+       });
+       if (t.data[id].status!="hide") {
+         t.data[id].status="loaded";
+         t.data[id].current_CalEvents={container:t, category_id:id, events:cr, color:"lightgreen", editable:false};            
+         send2Calendar("addEventSource",t.data[id].current_CalEvents);
+       }
+     }
+     else alert("Fehler: "+status);
+  });
+};
+
+CalMyAbsentsType.prototype.getName = function(category_id) {
+  return "Meine Abwesenheiten ";  
+};
 

@@ -23,11 +23,14 @@ function churchcore_handyformat() {
  * @return true/false
  */
 function user_access(auth, datafield) {
-  if (masterData.auth!=null && masterData.auth[auth]!=null)
-    if (datafield==null) return true;
-    else if (masterData.auth[auth][datafield]!=null) return true;
-    
-  return false;
+  $auth_arr=auth.split("||");
+  var res=false;
+  $.each($auth_arr, function(k,a) {
+    if (masterData.auth!=null && masterData.auth[a.trim()]!=null)
+      if (datafield==null) res=true;
+      else if (masterData.auth[a.trim()][datafield]!=null) res=true;          
+  });
+  return res;
 }
 
 function churchcore_getBezeichnung(name, id) {
