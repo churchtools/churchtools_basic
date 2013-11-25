@@ -67,6 +67,8 @@ function admin_main() {
   $model->addField("cronjob_delay","", "INPUT_REQUIRED","Zeit in Sekunden zwischen automatischen Cronjob (0=kein automatischer Cron, sinnvolle Werte z.B. 3600)");
     $model->fields["cronjob_delay"]->setValue($config["cronjob_delay"]);
   
+  $model->addField("timezone","", "INPUT_REQUIRED","Standard-Zeitzone. Z.b. Europe/Berlin");
+    $model->fields["timezone"]->setValue($config["timezone"]);
     
   $model->addField("show_remember_me","", "CHECKBOX","Anzeige von <i>Zuk&uuml;nftig an mich erinnern</i> auf der Login-Seite");
     $model->fields["show_remember_me"]->setValue($config["show_remember_me"]);

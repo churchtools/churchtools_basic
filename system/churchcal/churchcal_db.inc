@@ -301,8 +301,6 @@ function churchcal_getAllowedCategories($withPrivat=true, $onlyIds=false) {
 function churchcal_getCalPerCategory($params, $withintern=true) {
   $data=array();
   
-  date_default_timezone_set("Europe/Berlin");
-  
   $res=db_query("select cal.*, e.id event_id, 
                  b.id booking_id, b.startdate booking_startdate, b.enddate booking_enddate, b.resource_id booking_resource_id, b.status_id booking_status_id 
                from {cc_cal} cal

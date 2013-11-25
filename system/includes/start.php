@@ -185,6 +185,8 @@ function churchtools_main() {
       // DBConfig overwrites the config files
       loadDBConfig();
       
+      date_default_timezone_set($config["timezone"]);
+      
       // Load i18n churchcore-bundle 
       if (!isset($config["language"])) {
         $config["language"]=substr($_SERVER['HTTP_ACCEPT_LANGUAGE'],0,2);

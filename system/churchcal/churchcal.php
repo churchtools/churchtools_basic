@@ -591,7 +591,7 @@ function churchcal__ajax() {
 
 
 function churchcal__ical() {
-  global $base_url;
+  global $base_url, $config;
   include_once("system/churchcal/churchcal_db.inc");
   
   drupal_add_http_header('Content-Type','text/calendar;charset=utf-8',false);
@@ -605,7 +605,7 @@ function churchcal__ical() {
   $txt.="PRODID:-//ChurchTools//DE\r\n"; 
   $txt.="CALSCALE:GREGORIAN\r\n"; 
   $txt.="X-WR-CALNAME:".variable_get('site_name', 'drupal')." ChurchCal-Kalender\r\n";
-  $txt.="X-WR-TIMEZONE:Europe/Berlin\r\n"; 
+  $txt.="X-WR-TIMEZONE:".$config["timezone"]."\r\n"; 
   $txt.="METHOD:PUSH\r\n"; 
   
   $cat_names=null;

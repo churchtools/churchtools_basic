@@ -579,7 +579,7 @@ function churchservice_pollForNews($params) {
 }
 
 function churchservice_ical() {
-  global $base_url;
+  global $base_url, $config;
   
   if (!isset($_GET["id"])) 
     echo "Bitte id angeben!";
@@ -597,7 +597,7 @@ function churchservice_ical() {
   $txt.="PRODID:-//ChurchTools//DE\r\n"; 
   $txt.="CALSCALE:GREGORIAN\r\n"; 
   $txt.="X-WR-CALNAME:".variable_get('site_name', 'drupal')." Service-Kalender\r\n";
-  $txt.="X-WR-TIMEZONE:Europe/Berlin\r\n"; 
+  $txt.="X-WR-TIMEZONE:".$config["timezone"]."\r\n"; 
   $txt.="METHOD:PUSH\r\n"; 
 
   include_once('./'. drupal_get_path('module', 'churchservice') .'/churchservice_db.inc');
@@ -620,8 +620,8 @@ function churchservice_ical() {
       $txt.=" Anfrage von $res->vorname $res->name [$res->modified_pid]\r\n";
     $txt.="DTSTAMP:".$res->modified_date."\r\n"; 
     $txt.="UID:".$res->eventservice_id."\r\n"; 
-    $txt.="DTSTART;TZID=Europe/Berlin:".$res->datum_start."\r\n"; 
-    $txt.="DTEND;TZID=Europe/Berlin:".$res->datum_end."\r\n"; 
+    $txt.="DTSTART;TZID=".$config["timezone"].":".$res->datum_start."\r\n"; 
+    $txt.="DTEND;TZID=".$config["timezone"].":".$res->datum_end."\r\n"; 
     $txt.="END:VEVENT\r\n"; 
   }
   $txt.="END:VCALENDAR\r\n";

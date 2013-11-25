@@ -3,6 +3,7 @@
 churchtools 2.42
 + (Cal) Rechte optimiert: Nun kann man wählen, wer eigene Kalender erstellen kann und wer vorhandene administrieren darf.
 + (CS) Man kann nun auch ohne Admin-Rechte seine eigene hochgeladene Dateien löschen
++ Zeitzone einstellbar, wird bei manchen INstallationen ab PHP 5.4 notwendig.
 
 churchtools 2.41
 ACHTUNG: Wichtige Änderungen in der churchtools.config: Bitte die Datenbank-Angaben mit "db_" versehen, so dass dort steht:

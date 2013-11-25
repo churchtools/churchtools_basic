@@ -1168,6 +1168,7 @@ function updateDB_242() {
       bezeichnung = 'Persoenliche Kalender administrieren' WHERE cc_auth.id =406");
   
   db_query("ALTER TABLE {cdb_log} DROP userid");
+  db_query("INSERT INTO  {cc_config} (name, value) VALUES ('timezone', 'Europe/Berlin')");
   
 }
 
