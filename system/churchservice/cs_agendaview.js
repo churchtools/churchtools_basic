@@ -212,6 +212,7 @@ AgendaView.prototype.saveAgenda = function(agenda, func) {
  * @returns string
  */
 AgendaView.prototype.renderField = function(o, dataField, fullVersion) {
+  var t=this;
   var rows=new Array();
   if (fullVersion==null) fullVersion=true;
   
@@ -710,6 +711,23 @@ AgendaView.prototype.loadTemplates = function () {
   }  
 };
 
+AgendaView.prototype.loadAgendaForEvent = function(event_id, func) {
+  var t=this;
+  churchInterface.jsendRead({func:"loadAgendaForEvent", event_id:event_id}, function(ok, data) {
+    if (!ok) $("#cdb_content").html("Fehler beim Laden: "+data);
+    else {
+      if (allAgendas==null) {
+        allAgendas=new Object();
+      }
+      allAgendas[data.id]=data;
+      t.currentAgenda=data;
+      t.loadItems(t.currentAgenda.id, function() {
+        if (func!=null) func(data);
+      });
+    }
+  });
+};
+
 AgendaView.prototype.getListHeader = function () {
   var t=this;
   t.listViewTableHeight=null;
@@ -759,17 +777,9 @@ AgendaView.prototype.getListHeader = function () {
     if (listView.currentEvent!=null) {
       // If already an agenda mapped to the event
       if (listView.currentEvent.agenda) {
-        churchInterface.jsendRead({func:"loadAgendaForEvent", event_id:listView.currentEvent.id}, function(ok, data) {
-          if (!ok) $("#cdb_content").html("Fehler beim Laden: "+data);
-          else {
-            if (allAgendas==null) {
-              allAgendas=new Object();
-            }
-            allAgendas[data.id]=data;
-            t.currentAgenda=data;
-            t.renderView();
-          }
-        }); 
+        t.loadAgendaForEvent(listView.currentEvent.id, function(data) {
+          t.renderView();          
+        });
       } 
       // There is no agenda, please select one
       else {
@@ -830,11 +840,6 @@ AgendaView.prototype.getListHeader = function () {
         if (listView.currentEvent!=null) {
           t.startNewAgenda(allAgendas[$(this).val()]);
         }
-        else {
-          alert("HÄ?");
-          t.currentAgenda=allAgendas[$(this).val()];
-          t.renderList();
-        }
       }
     });
     
@@ -884,6 +889,27 @@ AgendaView.prototype.getListHeader = function () {
     return false;
   });
   
+  return t.renderListHeader($("#printview").val());
+};
+
+
+AgendaView.prototype.getAllowedServiceGroupsWithComments = function() {
+  var t=this;
+  var groups=new Object();
+  $.each(t.currentAgenda.items, function(k,a) {
+    if (a.servicegroup!=null) {
+      $.each(a.servicegroup, function(i,s) {
+        if (s!="" && masterData.auth.viewgroup[i])  
+          groups[i]=masterData.servicegroup[i];
+      });
+    }
+  });
+  return t.sortMasterData(groups);
+};
+
+AgendaView.prototype.renderListHeader = function(smallVersion) {
+  var t=this;
+  if (smallVersion==null) smallVersion=false;
   var rows = new Array();
   if (t.currentAgenda.template_yn==0 && t.currentAgenda.event_ids!=null) {
     $.each(t.currentAgenda.event_ids, function(k,a) {
@@ -892,22 +918,30 @@ AgendaView.prototype.getListHeader = function () {
     });
   }
   rows.push('<th width="45px">L&auml;nge<th style="min-width:200px">Text<th>Verantwortlich');
-  
-  $.each(this.sortMasterData(masterData.servicegroup), function(k,a) {
-    if ((masterData.settings["viewgroup"+a.id]==null) || (masterData.settings["viewgroup"+a.id]==1))
-      if (masterData.auth.viewgroup[a.id]) {
-        rows.push('<th class="hoveractor" id="header'+a.id+'">'+a.bezeichnung);
-        rows.push('<span class="hoverreactor pull-right">');
-        rows.push('<a href="#" id="delCol'+a.id+'">'+form_renderImage({src:"minus.png",width:16})+'</a> ');
-        rows.push('</span>');
-      }
+
+  var groups=new Object();
+  if (smallVersion)
+    groups=t.getAllowedServiceGroupsWithComments();
+  else {
+    $.each(t.sortMasterData(masterData.servicegroup), function(k,a) {
+      if ((masterData.settings["viewgroup"+a.id]==null) || (masterData.settings["viewgroup"+a.id]==1))
+        if (masterData.auth.viewgroup[a.id]) {
+          groups[k]=a;
+        }
+    });    
+  } 
+
+  $.each(groups, function(k,a) {
+    rows.push('<th class="hoveractor" id="header'+a.id+'">'+a.bezeichnung);
+    rows.push('<span class="hoverreactor pull-right">');
+    rows.push('<a href="#" id="delCol'+a.id+'">'+form_renderImage({src:"minus.png",width:16})+'</a> ');
+    rows.push('</span>');
   });
   
-  if (!$("#printview").val()) {
+  if (!smallVersion) {
     rows.push('<th width="16px"><a href="#" id="addMoreCols">'+this.renderImage("plus",16)+'</a>'); 
     rows.push('<th>'+form_renderImage({src:"paperclip.png", width:18}));
-  }
-
+  }  
   return rows.join("");
 };
 
@@ -972,6 +1006,7 @@ AgendaView.prototype.startNewAgenda = function(template_agenda) {
  * @param agenda_id
  */
 AgendaView.prototype.loadItems = function (agenda_id, func) {
+  var t=this;
   var elem=form_showCancelDialog("Lade...", "Lade Positionen..", 300, 300);
   churchInterface.jsendRead({func:"loadAgendaItems", agenda_id:agenda_id}, function(ok, data) {
     elem.dialog("close");
@@ -984,8 +1019,9 @@ AgendaView.prototype.loadItems = function (agenda_id, func) {
   });          
 };
 
-AgendaView.prototype.renderListEntry = function (event) {
+AgendaView.prototype.renderListEntry = function (event, smallVersion) {
   var t=this;
+  if (smallVersion==null) smallVersion=false;
   var rows = new Array();  
   
   if (event.header_yn==1) {
@@ -1012,21 +1048,30 @@ AgendaView.prototype.renderListEntry = function (event) {
   if (event.header_yn==0) {
     if (event.note!="")
       rows.push('<div class="event_info">'+event.note.trim(40)+"</div>");
-      rows.push('<td class="editable" data-field="responsible">'+event.responsible);
+    rows.push('<td class="editable" data-field="responsible">'+event.responsible);
+  
+    var groups=new Object();
+    if (smallVersion)
+      groups=t.getAllowedServiceGroupsWithComments();
+    else {
+      $.each(t.sortMasterData(masterData.servicegroup), function(k,a) {
+        if ((masterData.settings["viewgroup"+a.id]==null) || (masterData.settings["viewgroup"+a.id]==1))
+          if (masterData.auth.viewgroup[a.id]) {
+            groups[k]=a;
+          }
+      });    
+    }   
     
-    $.each(this.sortMasterData(masterData.servicegroup), function(k,a) {
-      if ((masterData.settings["viewgroup"+a.id]==null) || (masterData.settings["viewgroup"+a.id]==1))
-        if ((masterData.auth.viewgroup[a.id]) || (this_object.filter["filterMeine Filter"]==2)) {
-          rows.push('<td class="editable" data-field="servicegroup'+a.id+'">');    
-          rows.push(t.renderField(event, "servicegroup"+a.id, true));
-        }
+    $.each(groups, function(k,a) {
+      rows.push('<td class="editable" data-field="servicegroup'+a.id+'">');    
+      rows.push(t.renderField(event, "servicegroup"+a.id, true));
     });
-    if (!$("#printview").val()) {
-      rows.push('<td><td>');
+    if (!smallVersion && !$("#printview").val()) {
+    rows.push('<td><td>');
       if (event.arrangement_id!=null && event.arrangement_id>0) {
         var song=songView.getSongFromArrangement(event.arrangement_id);
-        if (song.files!=null)
-        rows.push(form_renderImage({src:"paperclip.png", link:true, htmlclass:"attachement", width:20}));
+        if (song!=null && song.files!=null)
+          rows.push(form_renderImage({src:"paperclip.png", link:true, htmlclass:"attachement", width:20}));
       }
     }
   }
@@ -1053,7 +1098,7 @@ AgendaView.prototype.renderTimes = function() {
     }
   });
   
-
+  var elem=$("table.AgendaView");
   // Now go through the Items and render the times
   $.each(t.getData(true), function(k,item) {
     $.each(t.currentAgenda.event_ids, function(i,a) {
@@ -1061,9 +1106,9 @@ AgendaView.prototype.renderTimes = function() {
         var rows=new Array();
         rows.push(time[a].toStringDeTime()+"h");
         time[a].setSeconds(time[a].getSeconds() + item.duration*1);
-        $('tr[id="'+item.id+'"] td[data-field=time'+a+']').html(rows.join(""));
+        elem.find('tr[id="'+item.id+'"] td[data-field=time'+a+']').html(rows.join(""));
       }
-      else $('tr[id="'+item.id+'"] td[data-field=time'+a+']').html("");
+      else elem.find('tr[id="'+item.id+'"] td[data-field=time'+a+']').html("");
     });
   });
 };

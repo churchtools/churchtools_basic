@@ -144,19 +144,21 @@ SongView.prototype.renderFiles = function(filecontainer, arrangement_id) {
   else {
     t.renderFilelist("", filecontainer, arrangement_id);
   }
-  $("div.filelist[data-id="+arrangement_id+"] span[tooltip],a[tooltip]").hover(
-      function() {
-        drin=true;
-        this_object.prepareTooltip($(this), null, $(this).attr("data-tooltiptype"));
-      }, 
-      function() {
-        drin=false;
-        window.setTimeout(function() {
-          if (!drin)
-            this_object.clearTooltip();
-        },250);
-      }
-    );   
+  if (!churchcore_touchscreen()) {
+    $("div.filelist[data-id="+arrangement_id+"] span[tooltip],a[tooltip]").hover(
+        function() {
+          drin=true;
+          this_object.prepareTooltip($(this), null, $(this).attr("data-tooltiptype"));
+        }, 
+        function() {
+          drin=false;
+          window.setTimeout(function() {
+            if (!drin)
+              this_object.clearTooltip();
+          },250);
+        }
+      );
+  }
 };
 
 SongView.prototype.renderEntryDetail = function(pos_id) {
@@ -321,16 +323,14 @@ SongView.prototype.deleteSong = function(song_id) {
 SongView.prototype.loadSongData = function(song_id, arrangement_id) {
   var t=this;
   if (!t.songsLoaded) {
-    var elem = this.showDialog("Lade Songs", "Lade Songs...", 300,300);
     cs_loadSongs(function() {
       t.songsLoaded=true;
-      elem.dialog("close");
       if (allSongs[song_id]!=null) {
         allSongs[song_id].open=true;
         if (allSongs[song_id].active_arrangement_id==null)
           allSongs[song_id].active_arrangement_id=arrangement_id;
       }
-      if (churchInterface.getCurrentView()==this_object)
+      if (churchInterface.getCurrentView()==t)
         this_object.renderList();
     });
   }
@@ -613,8 +613,9 @@ SongView.prototype.renderListEntry = function (list) {
 
   rows.push('<td class="hoveractor"><a href="#" id="detail'+list.id+'">'+song.bezeichnung+"</a>");
   rows.push('&nbsp; <i><small>'+song.author.trim(50)+'</small></i>');
-  if (masterData.auth.editsong!=null) 
-    rows.push('&nbsp; <span class="hoverreactor" style="display:none"><a href="#" class="edit-song" data-id="'+list.song_id+'">'+form_renderImage({src:"options.png", width:16})+'</a></span>');
+  // Only nice to have, so not displayed when working on touchscreens
+  if (masterData.auth.editsong!=null && !churchcore_touchscreen()) 
+    rows.push('&nbsp; <span class="hoverreactor"><a href="#" class="edit-song" data-id="'+list.song_id+'">'+form_renderImage({src:"options.png", width:16})+'</a></span>');
   if (this.filter.searchStandard!=null) {
     rows.push("<br/>");
     $.each(song.arrangement, function(k,a) {

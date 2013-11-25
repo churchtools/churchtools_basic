@@ -223,6 +223,12 @@ div.tooltip_address {
   padding: 1px 5px 0px;
 }
 
+.table-mini th,
+.table-mini td {
+  font-size:85%;
+  padding: 1px 3px 0px;
+}
+
 #cdb_content table {
   width:100%;	
 }

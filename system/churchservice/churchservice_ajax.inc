@@ -1159,7 +1159,8 @@ class CTChurchServiceModule extends CTAbstractModule {
     $where="id in (".implode(",",$params["ids"]).")";
     $data=churchcore_getTableData("cs_agenda", null, $where);
     $auth=churchservice_getAuthorization();
-    $allowedAgendas=$auth["view agenda"];
+    $allowedAgendas=array();
+    if (isset($auth["view agenda"])) $allowedAgendas=$auth["view agenda"];
     if ($data==false) return null;
     else {
       foreach ($data as $key=>$d) {    
@@ -1222,8 +1223,9 @@ class CTChurchServiceModule extends CTAbstractModule {
    */
   public function loadAgendaItems($params) {
     $auth=churchservice_getAuthorization();
-    $agenda=churchcore_getTableData("cs_agenda", null, "id = ".$params["agenda_id"]);
-    if (!$agenda) throw new CTException("Agenda not found!");
+    $db=churchcore_getTableData("cs_agenda", null, "id = ".$params["agenda_id"]);
+    if (!$db) throw new CTException("Agenda not found!");
+    $agenda=$db[$params["agenda_id"]];
     
     $items=churchcore_getTableData("cs_item", null, "agenda_id=".$params["agenda_id"]);    
     if ($items!=null) {
@@ -1246,7 +1248,7 @@ class CTChurchServiceModule extends CTAbstractModule {
       
       }
       // Check perms
-      if ((!isset($auth["view agenda"])) && (!isset($auth["view agenda"][$agenda->calcategory_id]))) {
+      if ((!isset($auth["view agenda"])) || (!isset($auth["view agenda"][$agenda->calcategory_id]))) {
         $involved=false;
         foreach ($event_ids as $event_id) {
           if (!$involved)

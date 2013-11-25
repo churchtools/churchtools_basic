@@ -933,8 +933,8 @@ ListView.prototype.renderListEntry = function(event) {
     rows.push('<div title="Kalender: '+masterData.category[event.category_id].bezeichnung+'" style="background-color:'+masterData.category[event.category_id].color+'; margin-top:5px; margin-left:3px; width:4px; height:15px"></div>');
   rows.push('<td class="hoveractor">');
   
-  if (masterData.auth.write)
-    rows.push("<b><a href=\"#\" id=\"editEvent" + event.id + "\">" + event.startdate.toDateEn(true).toStringDeTime() + " "+event.bezeichnung+"</a></b>&nbsp; ");
+  if (event.agenda && (user_access("view agenda", event.category_id) || t.amIInvolved(event)))
+    rows.push('<b><a href="#" id="detail'+event.id+'">' + event.startdate.toDateEn(true).toStringDeTime() + " "+event.bezeichnung+"</a></b>&nbsp; ");
   else
     rows.push("<b>" + event.startdate.toDateEn(true).toStringDeTime(true)+" "+event.bezeichnung+"</b>&nbsp; ");
   
@@ -978,8 +978,6 @@ ListView.prototype.renderListEntry = function(event) {
   
   if (!event.agenda && user_access("edit agenda", event.category_id))
     rows.push(form_renderImage({src:"agenda_plus.png", cssid:"show_agenda", label:"Ablaufplan zum Event hinzufügen", width:20}));
-  else if (event.agenda && (user_access("view agenda", event.category_id) || t.amIInvolved(event)))
-    rows.push(form_renderImage({src:"agenda.png", cssid:"show_agenda", label:"Ablaufplan aufrufen", width:20}));
   
   rows.push('<div class="filelist" data-id="'+event.id+'"></div>');
     
@@ -2610,8 +2608,6 @@ ListView.prototype.renderFiles = function () {
 };
 
 
-
-
 ListView.prototype.addFurtherListCallbacks = function(cssid) {
   t=this;
   if (cssid==null) cssid="#cdb_content";
@@ -2627,8 +2623,9 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
   
   $(cssid+" a.edit-event").click(function() {
     t.renderEditEvent(allEvents[$(this).parents("tr").attr("id")]);
+    return false;
   });
-  
+
   $(cssid+" a").click(function (a) {
     var cssid=$(this).attr("id");
     // Person zu einer Kleingruppe dazu nehmen
@@ -3232,8 +3229,38 @@ function _renderDetails(id) {
 
 }
 
-ListView.prototype.renderEntryDetail = function (pos_id, data_id) {
-
+ListView.prototype.renderEntryDetail = function (event_id) {
+  var t=this;
+  if (allEvents[event_id]==null) return;
+  var event=allEvents[event_id];
+  t.currentEvent=event;
+  $("tr.detail[data-id="+event_id+"]").html("");
+  if (event.agenda) {
+    songView.loadSongData();
+    agendaView.loadAgendaForEvent(event_id, function(data) {
+      var rows=new Array();
+      rows.push('<tr class="detail" id="detail'+event_id+'" data-id="'+event_id+'"><td colspan=20><div class="well">');  
+      rows.push('<legend>Ablauf &nbsp;');
+      if (user_access("view agenda", event.category_id))
+        rows.push(form_renderImage({src:"agenda.png", htmlclass:"show-agenda", data:[{name:"id", value:data.id}], link:true, label:"Ablaufplan aufrufen", width:20}));
+      rows.push('</legend>');
+      rows.push('<table class="table table-mini AgendaView">');
+      rows.push('<tr>'+agendaView.renderListHeader(true));
+      $.each(agendaView.getData(true), function(k,a) {
+        rows.push('<tr id="'+a.id+'">'+agendaView.renderListEntry(a, true));
+      });
+      
+      rows.push("</table>");
+      rows.push('</div>');
+      var elem=$("tr[id=" + event_id + "]").after(rows.join("")).next();
+      agendaView.renderTimes();
+      elem.find("a.show-agenda").click(function() {
+        agendaView.currentAgenda=allAgendas[$(this).attr("data-id")];
+        churchInterface.setCurrentView(agendaView); 
+        return false;
+      });
+    });
+  }
 };
 
 ListView.prototype.renderEditEntry = function(id, fieldname) {  

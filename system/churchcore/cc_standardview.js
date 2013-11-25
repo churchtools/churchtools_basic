@@ -316,7 +316,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
         rows[rows.length] = "Keinen Eintrag gefunden.";
       }
       else {
-        rows[rows.length] = '<div style="" id="DivAddressTable"><table class="view table table-bordered table-condensed table-striped" style="tab_le-layout:fixed;margin-bottom:0px;" id="AddressTable">';
+        rows[rows.length] = '<div style="" id="DivAddressTable"><table class="view '+t.name+' table table-bordered table-condensed table-striped" style="tab_le-layout:fixed;margin-bottom:0px;" id="AddressTable">';
         rows[rows.length] = '<thead><tr><th width="12px"><input type="checkbox" class="checked" id="markAll">';      
           rows.push(header);
         rows.push('</thead>');
@@ -325,7 +325,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
           rows.push('</table></div>');
           
           rows.push('<div style="max-height:'+t.listViewTableHeight+'px; overflow-y:auto; overflow-x:auto">');
-          rows.push('<table class="view table table-bordered table-condensed ta_ble-striped" style="margin-bottom:0px" id="AddressTableChild">');        
+          rows.push('<table class="view '+t.name+' table table-bordered table-condensed ta_ble-striped" style="margin-bottom:0px" id="AddressTableChild">');        
         }
         
         rows.push('<tbody>');

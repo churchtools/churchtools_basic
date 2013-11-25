@@ -17,6 +17,10 @@ function churchcore_handyformat() {
   return $(window).width()<767;  
 }
 
+function churchcore_touchscreen() {
+  return "ontouchstart" in document.documentElement;
+}
+
 /*
  * Check permission of auth. When datafield is given, this will be checked, too
  * E.g. user_access("edit category", 2);

@@ -28,8 +28,7 @@ jQuery(document).ready(function() {
   //churchInterface.registerView("TestView", testView);
   churchInterface.registerView("MaintainView", maintainView);
   churchInterface.registerView("SettingsView", settingsView);
-  
-  
+
   // Lade alle Kennzeichentabellen
   cdb_loadMasterData(function() {
     var currentDate_externGesetzt=false;
