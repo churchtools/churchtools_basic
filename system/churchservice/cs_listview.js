@@ -3234,7 +3234,7 @@ ListView.prototype.renderEntryDetail = function (event_id) {
   if (allEvents[event_id]==null) return;
   var event=allEvents[event_id];
   t.currentEvent=event;
-  $("tr.detail[data-id="+event_id+"]").html("");
+  $("tr.detail[data-id="+event_id+"]").html("Lade Daten..");
   if (event.agenda) {
     songView.loadSongData();
     agendaView.loadAgendaForEvent(event_id, function(data) {
@@ -3242,7 +3242,7 @@ ListView.prototype.renderEntryDetail = function (event_id) {
       rows.push('<tr class="detail" id="detail'+event_id+'" data-id="'+event_id+'"><td colspan=20><div class="well">');  
       rows.push('<legend>Ablauf &nbsp;');
       if (user_access("view agenda", event.category_id))
-        rows.push(form_renderImage({src:"agenda.png", htmlclass:"show-agenda", data:[{name:"id", value:data.id}], link:true, label:"Ablaufplan aufrufen", width:20}));
+        rows.push(form_renderImage({src:"agenda_call.png", htmlclass:"show-agenda", data:[{name:"id", value:data.id}], link:true, label:"Ablaufplan aufrufen", width:20}));
       rows.push('</legend>');
       rows.push('<table class="table table-mini AgendaView">');
       rows.push('<tr>'+agendaView.renderListHeader(true));
@@ -3253,7 +3253,7 @@ ListView.prototype.renderEntryDetail = function (event_id) {
       rows.push("</table>");
       rows.push('</div>');
       var elem=$("tr[id=" + event_id + "]").after(rows.join("")).next();
-      agendaView.renderTimes();
+      agendaView.addFurtherListCallbacks("tr.detail[data-id="+event_id+"]", true);
       elem.find("a.show-agenda").click(function() {
         agendaView.currentAgenda=allAgendas[$(this).attr("data-id")];
         churchInterface.setCurrentView(agendaView); 

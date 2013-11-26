@@ -233,8 +233,13 @@ AgendaView.prototype.renderField = function(o, dataField, fullVersion) {
       if (o.arrangement_id!=null) {
         var song=songView.getSongFromArrangement(o.arrangement_id);
         if (song!=null) {
-          if (o.bezeichnung=="") bezeichnung="Song: <i>"+song.bezeichnung+"</i>";
-          else bezeichnung=bezeichnung+ "<i> - "+song.bezeichnung+'</i>';
+          var s=song.bezeichnung;
+          // Song als URL!!
+          if (user_access("viewsong")) 
+            s='<a href="#" class="view-song" data-song-id="'+song.id+'" data-arrangement-id="'+o.arrangement_id+'">'+s+'</a>';
+            
+          if (o.bezeichnung=="") bezeichnung="Song: <i>"+s+"</i>";
+          else bezeichnung=bezeichnung+ "<i> - "+s+'</i>';
         }
       }   
       rows.push(bezeichnung);
@@ -363,128 +368,141 @@ AgendaView.prototype.cancelEditMode = function(data, editable) {
   }
 };
 
-AgendaView.prototype.addFurtherListCallbacks = function(cssid) {
+AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
   var t=this;
+  if (smallVersion==null) smallVersion=false;
   
   t.renderTimes();
-  $(cssid+" a.dropdown-toggle").dropdown();
   
-  $(cssid+" a").click(function (a) {
-    // Person zu einer Kleingruppe dazu nehmen
-    if ($(this).attr("id")==null) 
-      return true;
-    else if ($(this).attr("id").indexOf("addMoreCols")==0) {
-      t.addMoreCols();
-      return false;
-    }
-    else if ($(this).attr("id").indexOf("delCol")==0) {
-      var id=$(this).attr("id").substr(6,99);
-      masterData.settings["viewgroup"+id]=0;
-      churchInterface.jsendWrite({func:"saveSetting", sub:"viewgroup"+id, val:0});
-      t.renderList();
-      return false;
-    }
-  });
-  
-  $(cssid+" a.edit-item").click(function() {
-    t.editItem(t.currentAgenda.items[$(this).attr("data-id")]);
-    return false;
-  });
-  $(cssid+" a.delete-item").click(function() {
-    if (churchcore_countObjectElements(t.currentAgenda.items)==1) {
-      alert("Position kann nicht gelöscht werden. Es muß mindestens eine Position bestehen bleiben!");
-    }
-    else {
-      var id=$(this).parents("span.dropdown").attr("data-id");
-      if (confirm("Position "+t.currentAgenda.items[id].bezeichnung+" wirklich löschen?")) {
-        t.deleteItem(t.currentAgenda.items[id], function() {
-          t.renderList();
-        });
-      }
-    }
-    return false;
-  });
-  
-  $(cssid+" a.attachement").click(function() {
-    var id=$(this).parents("tr").attr("id");
-    var arr_id=t.currentAgenda.items[id].arrangement_id;
-    var song=songView.getSongFromArrangement(arr_id);
-    if (song!=null) {
-      song.active_arrangement_id=arr_id;
-      churchInterface.setCurrentView(songView, true);
-      songView.setFilter("searchEntry", "#"+songView.getSongFromArrangement(arr_id).id);
-    }
-  });
-  
-  $(cssid+" a.add-item").click(function() {
-    var elem=$(this);
-    var orig_item_id=elem.parents("span.dropdown").attr("data-id");
-    // When addings songs it will lead to the songView, where I can select a song
-    if (elem.hasClass("song")) {
-      songView.songselect={post:elem.hasClass("post"), orig_item_id:orig_item_id};
-      churchInterface.setCurrentView(songView);
-    }
-    else {
-      t.addItem(orig_item_id, elem.hasClass("post"), elem.hasClass("header"));
-    }
-
-    return false;
-  });
-
-  if (t.currentAgenda!=null && user_access("edit agenda", t.currentAgenda.calcategory_id)
-    && (t.currentAgenda.template_yn==0 || user_access("edit agenda templates", t.currentAgenda.calcategory_id))) {
-    $(cssid+" td.editable,"+cssid+" td.clickable").hover(function() {
-        $(this).addClass("active");
-      },
-      function() {
-        $(this).removeClass("active");
-      }
-    );
-    $(cssid+" td.editable").click(function() {
-      t.startEditMode($(this));
-    });
-    $(cssid+" td.clickable").click(function() {
-      var data=t.getData();
-      var id=$(this).parents("tr").attr("id");
-      var col=$(this).attr("data-field");
-      if (col.indexOf("time")==0) {
-        var event_id=col.substr(4,99);
-        if (churchcore_inArray(event_id, data[id].event_ids)) {
-          churchcore_removeFromArray(event_id, data[id].event_ids);
-          churchInterface.jsendWrite({func:"deleteItemEventRelation", item_id:id, event_id:event_id});
-        } 
-        else {
-          if (data[id].event_ids==null) data[id].event_ids=new Array();
-          churchInterface.jsendWrite({func:"addItemEventRelation", item_id:id, event_id:event_id});
-          data[id].event_ids.push(event_id);
-        }
-        t.renderTimes();
-      }    
-    });
-  
-  
+  if (!smallVersion) {
+    $(cssid+" a.dropdown-toggle").dropdown();
     
-    $("tbody").sortable({
-        helper: function(e, tr) {
-          var originals = tr.children();
-          var helper = tr.clone();
-          helper.children().each(function(index) {
-              $(this).width(originals.eq(index).width());
+    $(cssid+" a").click(function (a) {
+      // Person zu einer Kleingruppe dazu nehmen
+      if ($(this).attr("id")==null) 
+        return true;
+      else if ($(this).attr("id").indexOf("addMoreCols")==0) {
+        t.addMoreCols();
+        return false;
+      }
+      else if ($(this).attr("id").indexOf("delCol")==0) {
+        var id=$(this).attr("id").substr(6,99);
+        masterData.settings["viewgroup"+id]=0;
+        churchInterface.jsendWrite({func:"saveSetting", sub:"viewgroup"+id, val:0});
+        t.renderList();
+        return false;
+      }
+    });
+    
+    
+    $(cssid+" a.edit-item").click(function() {
+      t.editItem(t.currentAgenda.items[$(this).attr("data-id")]);
+      return false;
+    });
+    $(cssid+" a.delete-item").click(function() {
+      if (churchcore_countObjectElements(t.currentAgenda.items)==1) {
+        alert("Position kann nicht gelöscht werden. Es muß mindestens eine Position bestehen bleiben!");
+      }
+      else {
+        var id=$(this).parents("span.dropdown").attr("data-id");
+        if (confirm("Position "+t.currentAgenda.items[id].bezeichnung+" wirklich löschen?")) {
+          t.deleteItem(t.currentAgenda.items[id], function() {
+            t.renderList();
           });
-          return helper;
-        },
-        stop: function(e, ui) {
-          sortData(t.getData(true), $(this).attr("data-previd"), ui.item.index());
-          t.saveAgenda(t.currentAgenda, function(data) {
-            t.currentAgenda=data;
-          });
-          t.renderTimes();
-        },
-        start: function(e, ui) {
-          $(this).attr('data-previd',ui.item.index());
         }
-    }).disableSelection();
+      }
+      return false;
+    });
+    
+    $(cssid+" a.attachement").click(function() {
+      var id=$(this).parents("tr").attr("id");
+      var arr_id=t.currentAgenda.items[id].arrangement_id;
+      var song=songView.getSongFromArrangement(arr_id);
+      if (song!=null) {
+        song.active_arrangement_id=arr_id;
+        churchInterface.setCurrentView(songView, true);
+        songView.setFilter("searchEntry", "#"+songView.getSongFromArrangement(arr_id).id);
+      }
+    });
+    
+    $(cssid+" a.add-item").click(function() {
+      var elem=$(this);
+      var orig_item_id=elem.parents("span.dropdown").attr("data-id");
+      // When addings songs it will lead to the songView, where I can select a song
+      if (elem.hasClass("song")) {
+        songView.songselect={post:elem.hasClass("post"), orig_item_id:orig_item_id};
+        churchInterface.setCurrentView(songView);
+      }
+      else {
+        t.addItem(orig_item_id, elem.hasClass("post"), elem.hasClass("header"));
+      }
+  
+      return false;
+    });
+  
+    if (t.currentAgenda!=null && user_access("edit agenda", t.currentAgenda.calcategory_id)
+      && (t.currentAgenda.template_yn==0 || user_access("edit agenda templates", t.currentAgenda.calcategory_id))) {
+      $(cssid+" td.editable,"+cssid+" td.clickable").hover(function() {
+          $(this).addClass("active");
+        },
+        function() {
+          $(this).removeClass("active");
+        }
+      );
+      $(cssid+" td.editable").click(function() {
+        t.startEditMode($(this));
+      });
+      $(cssid+" td.clickable").click(function() {
+        var data=t.getData();
+        var id=$(this).parents("tr").attr("id");
+        var col=$(this).attr("data-field");
+        if (col.indexOf("time")==0) {
+          var event_id=col.substr(4,99);
+          if (churchcore_inArray(event_id, data[id].event_ids)) {
+            churchcore_removeFromArray(event_id, data[id].event_ids);
+            churchInterface.jsendWrite({func:"deleteItemEventRelation", item_id:id, event_id:event_id});
+          } 
+          else {
+            if (data[id].event_ids==null) data[id].event_ids=new Array();
+            churchInterface.jsendWrite({func:"addItemEventRelation", item_id:id, event_id:event_id});
+            data[id].event_ids.push(event_id);
+          }
+          t.renderTimes();
+        }    
+      });
+    
+    
+      
+      $("tbody").sortable({
+          helper: function(e, tr) {
+            var originals = tr.children();
+            var helper = tr.clone();
+            helper.children().each(function(index) {
+                $(this).width(originals.eq(index).width());
+            });
+            return helper;
+          },
+          stop: function(e, ui) {
+            sortData(t.getData(true), $(this).attr("data-previd"), ui.item.index());
+            t.saveAgenda(t.currentAgenda, function(data) {
+              t.currentAgenda=data;
+            });
+            t.renderTimes();
+          },
+          start: function(e, ui) {
+            $(this).attr('data-previd',ui.item.index());
+          }
+      }).disableSelection();
+    }
   }
+  $(cssid+" a.view-song").click(function() {
+    var song_id=$(this).attr("data-song-id");
+    var arrangement_id=$(this).attr("data-arrangement-id");
+    allSongs[song_id].active_arrangement_id=arrangement_id;
+    songView.filter["searchEntry"]="#"+song_id;
+    churchInterface.setCurrentView(songView, false);
+    return false;
+  });
   
 
 };
@@ -713,19 +731,44 @@ AgendaView.prototype.loadTemplates = function () {
 
 AgendaView.prototype.loadAgendaForEvent = function(event_id, func) {
   var t=this;
-  churchInterface.jsendRead({func:"loadAgendaForEvent", event_id:event_id}, function(ok, data) {
-    if (!ok) $("#cdb_content").html("Fehler beim Laden: "+data);
-    else {
-      if (allAgendas==null) {
-        allAgendas=new Object();
+  
+  var agenda_id=null;
+  if (allAgendas!=null) {
+    $.each(allAgendas, function(k,a) {
+      if (a.event_ids!=null) {
+        $.each(a.event_ids, function(i,e) {
+          if (e==event_id) agenda_id=a.id;
+          return false;
+        });
       }
-      allAgendas[data.id]=data;
-      t.currentAgenda=data;
-      t.loadItems(t.currentAgenda.id, function() {
-        if (func!=null) func(data);
-      });
+    });
+    if (agenda_id!=null) {
+      t.currentAgenda=allAgendas[agenda_id];
+      if (t.currentAgenda.items==null) {
+        t.loadItems(t.currentAgenda.id, function() {
+          if (func!=null) func(t.currentAgenda);
+        });
+      }
+      else 
+        if (func!=null) func(t.currentAgenda);
     }
-  });
+  }
+
+  if (agenda_id==null) {    
+    churchInterface.jsendRead({func:"loadAgendaForEvent", event_id:event_id}, function(ok, data) {
+      if (!ok) $("#cdb_content").html("Fehler beim Laden: "+data);
+      else {
+        if (allAgendas==null) {
+          allAgendas=new Object();
+        }
+        allAgendas[data.id]=data;
+        t.currentAgenda=data;
+        t.loadItems(t.currentAgenda.id, function() {
+          if (func!=null) func(data);
+        });
+      }
+    });
+  }
 };
 
 AgendaView.prototype.getListHeader = function () {
@@ -1007,9 +1050,7 @@ AgendaView.prototype.startNewAgenda = function(template_agenda) {
  */
 AgendaView.prototype.loadItems = function (agenda_id, func) {
   var t=this;
-  var elem=form_showCancelDialog("Lade...", "Lade Positionen..", 300, 300);
   churchInterface.jsendRead({func:"loadAgendaItems", agenda_id:agenda_id}, function(ok, data) {
-    elem.dialog("close");
     t.currentAgenda.items=new Object();
     if (!ok) alert("Fehler beim Laden der Daten: "+data);
     else {
