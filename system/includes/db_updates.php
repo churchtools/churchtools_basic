@@ -1733,7 +1733,9 @@ function run_db_updates($db_version) {
     }
     $a=db_query("select * from {cc_config} where name='version'",null,false);
     $software_version=$a->fetch()->value;
-    if ($db_version != "nodb")
+    if ($db_version == "nodb")
+      addInfoMessage("Datenbankupdates ausgef&uuml;hrt auf v$software_version");
+    else
       addInfoMessage("Datenbankupdates ausgef&uuml;hrt von ChurchTools v$db_version auf v$software_version");
     cleanI18nFiles();
     $sitename=$config["site_name"];
