@@ -2750,7 +2750,7 @@ PersonView.prototype.renderDetails = function (id) {
         if ((masterData.auth["push/pull archive"]) && (a.archiv_yn==0))
           _text=_text+"&nbsp;<a href=\"#\" title=\"Person archivieren\" id=\"archivePerson\">"+form_renderImage({src:"archive.png", width:18})+"</a>";
         if ((masterData.auth["push/pull archive"]) && (a.archiv_yn==1))
-          _text=_text+"&nbsp;<a href=\"#\" title=\"Person zur&uuml;ckeholen\" id=\"undoArchivePerson\">"+form_renderImage({src:"undoarchive.png", width:18})+"</a>";
+          _text=_text+"&nbsp;<a href=\"#\" title=\"Person zur&uuml;ckholen\" id=\"undoArchivePerson\">"+form_renderImage({src:"undoarchive.png", width:18})+"</a>";
         if (masterData.auth.admin || masterData.auth.adminpersons)
           _text=_text+"&nbsp;<a href=\"#\" title=\"Person entfernen\" id=\"delete_user\">"+form_renderImage({src:"trashbox.png", width:18})+"</a>&nbsp;&nbsp;";
       }

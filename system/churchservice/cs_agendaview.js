@@ -301,10 +301,25 @@ AgendaView.prototype.startEditMode = function (editable) {
       t.saveEditMode(data[$(a).parents("tr").attr("id")],$(a));
     });          
     editable.addClass("editmode");
-    
-    var elem=editable.html('<input type="text" class="editor" style="margin:0;width:'+(editable.width()-10)+'px" '
+    var elem=null;
+    if (editable.hasClass("textarea")) {
+      elem=editable.html('<textarea class="editor" maxlength=200 style="margin:0;width:'+(editable.width()-10)+'px" '
+          +'>'+t.renderField(data[id], col, false)+'</textarea>')
+        .find("textarea");
+      // Limit max character to given maxlength
+      elem.keyup(function(){
+        var max = parseInt($(this).attr('maxlength'));   
+        if($(this).val().length > max){
+           $(this).val($(this).val().substr(0, max));
+        }        
+        $(this).parent().find('.charleft').html(max - $(this).val().length);
+     });  
+    }
+    else {
+      elem=editable.html('<input type="text" class="editor" style="margin:0;width:'+(editable.width()-10)+'px" '
            +'value="'+t.renderField(data[id], col, false)+'"/>')
          .find("input");
+    }
     elem.focus();
     elem.keyup(function(e) {
       // Enter
@@ -338,7 +353,7 @@ AgendaView.prototype.saveEditMode = function(data, editable) {
   } 
   else if (col.indexOf("servicegroup")==0) {
     if (data.servicegroup==null) data.servicegroup=new Object();
-    data.servicegroup[col.substr(12,99)]=t.rerenderField(editable.find("input").val(), col);
+    data.servicegroup[col.substr(12,99)]=t.rerenderField(editable.find("textarea").val(), col);
     editable.html(t.renderField(data, col));
     editable.removeClass("editmode");
     t.saveServiceGroupNote(data, col.substr(12,99));
@@ -932,7 +947,7 @@ AgendaView.prototype.getListHeader = function () {
     return false;
   });
   
-  return t.renderListHeader($("#printview").val());
+  return t.renderListHeader();
 };
 
 
@@ -975,13 +990,13 @@ AgendaView.prototype.renderListHeader = function(smallVersion) {
   } 
 
   $.each(groups, function(k,a) {
-    rows.push('<th class="hoveractor" id="header'+a.id+'">'+a.bezeichnung);
+    rows.push('<th class="hoveractor" style="min-width:60px" id="header'+a.id+'">'+a.bezeichnung);
     rows.push('<span class="hoverreactor pull-right">');
     rows.push('<a href="#" id="delCol'+a.id+'">'+form_renderImage({src:"minus.png",width:16})+'</a> ');
     rows.push('</span>');
   });
   
-  if (!smallVersion) {
+  if (!smallVersion && $("#printview").val()==null) {
     rows.push('<th width="16px"><a href="#" id="addMoreCols">'+this.renderImage("plus",16)+'</a>'); 
     rows.push('<th>'+form_renderImage({src:"paperclip.png", width:18}));
   }  
@@ -1088,7 +1103,7 @@ AgendaView.prototype.renderListEntry = function (event, smallVersion) {
 
   if (event.header_yn==0) {
     if (event.note!="")
-      rows.push('<div class="event_info">'+event.note.trim(40)+"</div>");
+      rows.push('<div class="event_info">'+(!smallVersion&&$("#printview").val()==null?event.note.trim(40):event.note)+"</div>");
     rows.push('<td class="editable" data-field="responsible">'+event.responsible);
   
     var groups=new Object();
@@ -1104,10 +1119,10 @@ AgendaView.prototype.renderListEntry = function (event, smallVersion) {
     }   
     
     $.each(groups, function(k,a) {
-      rows.push('<td class="editable" data-field="servicegroup'+a.id+'">');    
+      rows.push('<td class="editable textarea" data-field="servicegroup'+a.id+'">');    
       rows.push(t.renderField(event, "servicegroup"+a.id, true));
     });
-    if (!smallVersion && !$("#printview").val()) {
+    if (!smallVersion && $("#printview").val()==null) {
     rows.push('<td><td>');
       if (event.arrangement_id!=null && event.arrangement_id>0) {
         var song=songView.getSongFromArrangement(event.arrangement_id);
