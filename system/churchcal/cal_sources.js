@@ -243,7 +243,7 @@ CalResourceType.prototype.jsonCall = function(ids) {
            var o=Object();
            //o.id= a.id,
            var repeat=(a.repeat_id>0?'{R}':"");
-           o.title= a.bezeichnung+repeat+" ("+masterData.resourcen[a.resource_id].bezeichnung+")";
+           o.title= a.bezeichnung+repeat+" ("+masterData.resources[a.resource_id].bezeichnung+")";
            if (a.status_id==1) o.title='<font color="lightgray">'+o.title+"?</font>";
            else if (a.status_id==3) o.title='<span style="color:lightgray;text-decoration:line-through;">'+o.title+"</span>";
            o.status=a.status;
@@ -265,7 +265,7 @@ CalResourceType.prototype.jsonCall = function(ids) {
 };
 
 CalResourceType.prototype.getName = function(category_id) {
-  return masterData.resourcen[category_id].bezeichnung;  
+  return masterData.resources[category_id].bezeichnung;  
 };
 
 

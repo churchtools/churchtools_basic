@@ -1336,7 +1336,7 @@ function renderGroupCategories() {
     form.setHelp("Gruppenkalender");
   }
   
-  if ((masterData.auth["group category"]) || (churchcore_countObjectElements(masterData.category)>0)) {
+  if ((user_access("admin group category")) || (churchcore_countObjectElements(masterData.category)>0)) {
     $.each(churchcore_sortMasterData(masterData.category), function(k,a) {
       if ((a.oeffentlich_yn==0) && (a.privat_yn==0)) {
         var title=a.bezeichnung;
@@ -1352,7 +1352,7 @@ function renderGroupCategories() {
       form.addHtml('<div id="filterGruppenKalender"></div>');
       rows.push(form.render(true));
     }
-    else if (masterData.auth["group category"])  {
+    else if (user_access("admin group category"))  {
       form.addHtml('<i>Kein Kalender vorhanden</i>');
       rows.push(form.render(true));
     }

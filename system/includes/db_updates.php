@@ -1170,6 +1170,12 @@ function updateDB_242() {
 
   // Add Timezone support
   db_query("INSERT INTO  {cc_config} (name, value) VALUES ('timezone', 'Europe/Berlin')");
+  
+  // Gives the admin the permission to edit categories. Cause 404 has admindarfsehen_yn=0 
+  db_query("INSERT INTO {cc_domain_auth} VALUES('person', 1, 404, 1)");
+  db_query("INSERT INTO {cc_domain_auth} VALUES('person', 1, 404, 2)");
+  db_query("INSERT INTO {cc_domain_auth} VALUES('person', 1, 404, 3)");
+  
   // Drop old userid-col
   db_query("ALTER TABLE {cdb_log} DROP userid");
 }

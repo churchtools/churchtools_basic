@@ -34,6 +34,21 @@ INSERT INTO  {cc_config} (name, value) VALUES ('timezone', 'Europe/Berlin')
       </query>
       <query order="7">
           <![CDATA[
+INSERT INTO {cc_domain_auth} VALUES('person', 1, 404, 1)
+]]>
+      </query>
+      <query order="8">
+          <![CDATA[
+INSERT INTO {cc_domain_auth} VALUES('person', 1, 404, 2)
+]]>
+      </query>
+      <query order="9">
+          <![CDATA[
+INSERT INTO {cc_domain_auth} VALUES('person', 1, 404, 3)
+]]>
+      </query>
+      <query order="10">
+          <![CDATA[
 ALTER TABLE {cdb_log} DROP userid
 ]]>
       </query>
