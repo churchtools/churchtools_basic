@@ -112,7 +112,7 @@ function run_db_updates($db_version) {
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cdb_distrikt} VALUES
            (1, 'Nord', 1, 'gruppe_schwarz.png'),
-           (2, 'S¸d', 1, 'gruppe_gelb.png'),
+           (2, 'S√ºd', 1, 'gruppe_gelb.png'),
            (3, 'Ost', 1, 'gruppe_blau.png'),
            (4, 'West', 1, 'gruppe_gruen.png'),
            (5, 'Sommerfreizeiten', 4, NULL)");
@@ -265,7 +265,7 @@ function run_db_updates($db_version) {
         db_query("INSERT INTO {cdb_gruppentyp} VALUES
            (1, 'Kleingruppe', 1, 1, 0),
            (2, 'Dienst', 1, 0, 0),
-           (3, 'Maﬂnahme', 0, 0, 1),
+           (3, 'Ma√ünahme', 0, 0, 1),
            (4, 'Merkmal', 0, 0, 1)");
         db_query("CREATE TABLE {cdb_gruppe_tag} (
           `gruppe_id` int(11) NOT NULL,
@@ -344,7 +344,7 @@ function run_db_updates($db_version) {
            (0, 'unbekannt', '?', 0, 1),
            (1, 'Freund', 'F', 0, 1),
            (2, 'Mitglied', 'M', 1, 1),
-           (3, 'zu lˆschen', 'X', 0, 0)");
+           (3, 'zu l√∂schen', 'X', 0, 0)");
         db_query("CREATE TABLE {cdb_tag} (
           `id` int(11) NOT NULL AUTO_INCREMENT,
           `bezeichnung` varchar(255) NOT NULL,
@@ -548,7 +548,7 @@ function run_db_updates($db_version) {
         return false;
       }
     case 'pre-2.0':
-      db_query("create table {cc_config} (name varchar(255) not null, value varchar(255) not null)");
+      db_query("create table {cc_config} (name varchar(255) not null, value varchar(255) not null) CHARSET=utf8");
       db_query("ALTER TABLE {cc_config} ADD PRIMARY KEY(name)");
       db_query("INSERT INTO {cc_config} VALUES
          ('churchcal_name', 'ChurchCal'),
@@ -571,23 +571,23 @@ function run_db_updates($db_version) {
          ('currently_mail_sending', '0'),
          ('last_cron', '1377871248'),
          ('last_db_dump', '1377868285'),
-         ('login_message', 'Willkommen auf dem neuen ChurchTools 2.0. Zum Anmelden bitte die Felder ausf¸llen!'),
+         ('login_message', 'Willkommen auf dem neuen ChurchTools 2.0. Zum Anmelden bitte die Felder ausf√ºllen!'),
          ('mail_enabled', '1'),
          ('site_mail', 'admin@example.com'),
          ('site_name', 'ChurchTools 2.0'),
          ('version', '2.00'),
          ('welcome', 'Herzlich willkommen'),
          ('welcome_subtext', 'Das ist die Startseite von ChurchTools 2.0');");
-      db_query("create table {cc_session} (person_id int(11) not null, session varchar(255) not null, hostname varchar(255) not null, datum datetime not null)");
+      db_query("create table {cc_session} (person_id int(11) not null, session varchar(255) not null, hostname varchar(255) not null, datum datetime not null) CHARSET=utf8");
 
-      db_query("CREATE TABLE {cc_auth} (id int(11) NOT NULL, auth varchar(255) NOT NULL, modulename varchar(255) NOT NULL, datenfeld varchar(255) DEFAULT NULL, bezeichnung varchar(255) NOT NULL,PRIMARY KEY (id)) ");
+      db_query("CREATE TABLE {cc_auth} (id int(11) NOT NULL, auth varchar(255) NOT NULL, modulename varchar(255) NOT NULL, datenfeld varchar(255) DEFAULT NULL, bezeichnung varchar(255) NOT NULL,PRIMARY KEY (id)) CHARSET=utf8");
 
       db_query("insert into {cc_auth}  VALUES(1, 'administer settings', 'churchcore', NULL, 'Stammdaten pflegen, Logfile einsehen, Einstellung, ...')");
-      db_query("insert into {cc_auth}  VALUES(2, 'administer persons', 'churchcore', NULL, 'Berechtigungen setzen, löschen und Benutzer simulieren')");
+      db_query("insert into {cc_auth}  VALUES(2, 'administer persons', 'churchcore', NULL, 'Berechtigungen setzen, l√∂schen und Benutzer simulieren')");
       db_query("insert into {cc_auth}  VALUES(3, 'view logfile', 'churchcore', NULL, 'Logfile einsehen')");
 
       db_query("insert into {cc_auth}  VALUES(101, 'view', 'churchdb', NULL, 'Anwendung ChurchDB sehen')");
-      db_query("insert into {cc_auth}  VALUES(102, 'view alldata', 'churchdb', 'cdb_bereich', 'Alle Datensätze des jeweiligen Bereiches einsehen')");
+      db_query("insert into {cc_auth}  VALUES(102, 'view alldata', 'churchdb', 'cdb_bereich', 'Alle Datens√§tze des jeweiligen Bereiches einsehen')");
       db_query("insert into {cc_auth}  VALUES(103, 'view birthdaylist', 'churchdb', NULL, 'Geburtagsliste einsehen')");
       db_query("insert into {cc_auth}  VALUES(104, 'view group statistics', 'churchdb', NULL, 'Gruppenstatistik einsehen')");
       db_query("insert into {cc_auth}  VALUES(105, 'view memberliste', 'churchdb', NULL, 'Mitgliederliste einsehen')");
@@ -599,7 +599,7 @@ function run_db_updates($db_version) {
       db_query("insert into {cc_auth}  VALUES(111, 'write access', 'churchdb', NULL, 'Schreibzugriff auf bestimmen Bereich')");
       db_query("insert into {cc_auth}  VALUES(112, 'export data', 'churchdb', NULL, 'Daten exportieren')");
       db_query("insert into {cc_auth}  VALUES(113, 'view comments', 'churchdb', 'cdb_comment_viewer', 'Kommentare einsehen')");
-      db_query("insert into {cc_auth}  VALUES(114, 'administer groups', 'churchdb', NULL, 'Gruppen erstellen, löschen, etc.')");
+      db_query("insert into {cc_auth}  VALUES(114, 'administer groups', 'churchdb', NULL, 'Gruppen erstellen, l√∂schen, etc.')");
       db_query("insert into {cc_auth}  VALUES(199, 'edit masterdata', 'churchdb', NULL, 'Stammdaten editieren')");
 
       db_query("insert into {cc_auth}  VALUES(201, 'view', 'churchresource', NULL, 'Anwendung ChurchResource sehen')");
@@ -608,13 +608,13 @@ function run_db_updates($db_version) {
 
       db_query("insert into {cc_auth}  VALUES(301, 'view', 'churchservice', NULL, 'Anwendung ChurchService sehen')");
       db_query("insert into {cc_auth}  VALUES(302, 'view history', 'churchservice', NULL, 'Historie anschauen')");
-      db_query("insert into {cc_auth}  VALUES(303, 'edit events', 'churchservice', NULL, 'Events erstellen, löschen, etc.')");
+      db_query("insert into {cc_auth}  VALUES(303, 'edit events', 'churchservice', NULL, 'Events erstellen, l√∂schen, etc.')");
       db_query("insert into {cc_auth}  VALUES(304, 'view servicegroup', 'churchservice', 'cs_servicegroup', 'Dienstanfragen der jeweiligen Gruppe einsehen')");
       db_query("insert into {cc_auth}  VALUES(305, 'edit servicegroup', 'churchservice', 'cs_servicegroup', 'Dienstanfragen der jeweiligen Gruppe editieren')");
       db_query("insert into {cc_auth}  VALUES(306, 'create bookings', 'churchresource', NULL, 'Erstelle eigene Anfragen')");
       db_query("insert into {cc_auth}  VALUES(399, 'edit masterdata', 'churchservice', NULL, 'Stammdaten editieren')");
 
-      db_query("CREATE TABLE {cc_domain_auth} (domain_type varchar(30) NOT NULL, domain_id int(11) NOT NULL, auth_id int(11) NOT NULL,  daten_id int(11) DEFAULT NULL)");
+      db_query("CREATE TABLE {cc_domain_auth} (domain_type varchar(30) NOT NULL, domain_id int(11) NOT NULL, auth_id int(11) NOT NULL,  daten_id int(11) DEFAULT NULL) CHARSET=utf8");
       addInfoMessage("Installiere Tabellen f&uuml;r Version 2.00");
       /* fall through to regular update */
     case '2.00':
@@ -647,7 +647,7 @@ function run_db_updates($db_version) {
       domain_id int(11) NOT NULL,
       filename varchar(255) NOT NULL,
       UNIQUE KEY domain_type (domain_type,domain_id,filename),
-      PRIMARY KEY (id))");
+      PRIMARY KEY (id)) CHARSET=utf8");
       
       db_query("INSERT INTO {cc_auth} (id ,auth ,modulename ,datenfeld ,bezeichnung)
          VALUES ('307',  'manage absent',  'churchservice', NULL ,  'Abwesenheiten einsehen und pflegen');");
@@ -660,7 +660,7 @@ function run_db_updates($db_version) {
         bezeichnung varchar(255) NOT NULL,
         sortkey int(11) NOT NULL,
         PRIMARY KEY (id)
-      )");
+      ) CHARSET=utf8");
       
       db_query("INSERT INTO {cs_absent_reason} VALUES(1, 'Abwesend', 2)");
       db_query("INSERT INTO {cs_absent_reason} VALUES(2, 'Urlaub', 1)");
@@ -676,7 +676,7 @@ function run_db_updates($db_version) {
         modifieddate datetime NOT NULL,
         modifieduser int(11) NOT NULL,
       PRIMARY KEY (id)
-      )");
+      ) CHARSET=utf8");
       
       db_query("CREATE TABLE {cs_event_fact} (
         event_id int(11) NOT NULL,
@@ -685,7 +685,7 @@ function run_db_updates($db_version) {
         modifieddate datetime DEFAULT NULL,
         modifieduser int(11) DEFAULT NULL,
         PRIMARY KEY (event_id,fact_id)
-      )");
+      ) CHARSET=utf8");
       
       db_query("
         CREATE TABLE {cs_fact} (
@@ -693,7 +693,7 @@ function run_db_updates($db_version) {
           bezeichnung varchar(255) NOT NULL,
           sortkey int(11) NOT NULL DEFAULT '0',
           PRIMARY KEY (id)
-      )");
+      ) CHARSET=utf8");
       
       db_query("INSERT INTO {cs_fact} VALUES(1, 'Besucher', 0)");
       db_query("INSERT INTO {cs_fact} VALUES(2, 'Kollekte', 0)");
@@ -715,7 +715,7 @@ function run_db_updates($db_version) {
         modifieddate datetime NOT NULL,
         modifieduser int(11) NOT NULL,
         PRIMARY KEY (id)
-      )");
+      ) CHARSET=utf8");
       set_version("2.05");
     
     case '2.05':
@@ -729,7 +729,7 @@ function run_db_updates($db_version) {
         except_date datetime not null,
         modifieddate datetime NOT NULL,
         modifieduser int(11) NOT NULL,
-        PRIMARY KEY (id)) ");
+        PRIMARY KEY (id)) CHARSET=utf8");
       db_query("ALTER TABLE {cs_category} ADD color VARCHAR( 20 ) NULL AFTER bezeichnung");
       db_query("ALTER TABLE {cc_cal} ADD category_id INT( 11 ) NOT NULL DEFAULT '0' AFTER enddate");
       db_query("ALTER TABLE {cdb_status} ADD sortkey INT( 11 ) NOT NULL DEFAULT '0'");
@@ -798,7 +798,7 @@ function run_db_updates($db_version) {
     case '2.13':
       db_query("INSERT INTO  {cc_auth} (id, auth, modulename, bezeichnung) values (4, 'view whoisonline', 'churchcore', 'Sieht auf der Startseite, wer aktuell online ist')");
       db_query("CREATE TABLE {cc_loginstr} 
-          (person_id int(11) NOT NULL, loginstr varchar(255) NOT NULL, create_date date NOT NULL) ");
+          (person_id int(11) NOT NULL, loginstr varchar(255) NOT NULL, create_date date NOT NULL) CHARSET=utf8");
       db_query("insert into {cc_loginstr} (person_id, loginstr, create_date) 
                    select id person_id, loginstr, now() from {cdb_person} where loginstr is not null");   
       set_version("2.14");
@@ -820,7 +820,7 @@ function run_db_updates($db_version) {
           note varchar(255) NOT NULL,
           modified_date datetime NOT NULL,
           modified_pid int(11) NOT NULL,
-        PRIMARY KEY (id)) "
+        PRIMARY KEY (id)) CHARSET=utf8"
       );
       db_query("CREATE TABLE {cs_song_arrangement} (
           id int(11) NOT NULL AUTO_INCREMENT,
@@ -835,7 +835,7 @@ function run_db_updates($db_version) {
           note varchar(255) NOT NULL,
           modified_date datetime NOT NULL,
           modified_pid int(11) NOT NULL,
-        PRIMARY KEY (id)) 
+        PRIMARY KEY (id)) CHARSET=utf8
       ");
       db_query("
       CREATE TABLE {cs_servicegroup_person_weight} (
@@ -846,7 +846,7 @@ function run_db_updates($db_version) {
         morning_weight int(1) NOT NULL DEFAULT '0',
         modified_date datetime NOT NULL,
         modified_pid int(11) NOT NULL,
-        PRIMARY KEY (person_id,servicegroup_id))"
+        PRIMARY KEY (person_id,servicegroup_id)) CHARSET=utf8"
       );
       
       echo "Anpassungen bei den Files...";
@@ -868,7 +868,7 @@ function run_db_updates($db_version) {
         id INT( 11 ) NOT NULL,
         bezeichnung VARCHAR( 100 ) NOT NULL ,
         sortkey int(11) not null default 0,
-        PRIMARY KEY (  id ))");
+        PRIMARY KEY (  id )) CHARSET=utf8");
       db_query("insert into {cs_songcategory} values (0,'Unbekannt',0)"); 
       db_query("ALTER TABLE {cs_song} ADD songcategory_id INT( 11 ) NOT NULL AFTER bezeichnung");
       db_query("INSERT INTO  {cc_auth} (
@@ -901,7 +901,7 @@ function run_db_updates($db_version) {
         db_tabelle varchar(50) NOT NULL,
         id_name varchar(50) NOT NULL,
         PRIMARY KEY (id)
-        );");
+        ) CHARSET=utf8");
       db_query("INSERT INTO {cdb_feldkategorie} VALUES (1, 'Adresse', 'f_address', 'cdb_person', 'id')");
       db_query("INSERT INTO {cdb_feldkategorie} VALUES (2, 'Informationen', 'f_church', 'cdb_gemeindeperson', 'person_id')");
       db_query("INSERT INTO {cdb_feldkategorie} VALUES (3, 'Kategorien', 'f_category', 'cdb_gemeindeperson', 'id')");
@@ -913,7 +913,7 @@ function run_db_updates($db_version) {
       bezeichnung varchar(30) NOT NULL,
       intern_code varchar(10) NOT NULL,
       PRIMARY KEY (id)
-    )");
+    ) CHARSET=utf8");
     
     db_query("INSERT INTO {cdb_feldtyp} VALUES (1, 'Textfeld', 'text')");
     db_query("INSERT INTO {cdb_feldtyp} VALUES (2, 'Auswahlfeld', 'select')");
@@ -936,9 +936,9 @@ function run_db_updates($db_version) {
       laenge int(3) DEFAULT NULL,
       sortkey int(11) NOT NULL,
       PRIMARY KEY (id)
-    )");
+    ) CHARSET=utf8");
     
-    db_query("INSERT INTO {cdb_feld} VALUES(1, 1, 1, 'titel', NULL, 1, 'Titel', '', ' ', NULL, 12, 1)");
+    db_query("INSERT INTO {cdb_feld} VALUES(1, 1, 1, 'titel', NULL, 1, 'Titel', '', '', NULL, 12, 1)");
     db_query("INSERT INTO {cdb_feld} VALUES(2, 1, 1, 'vorname', NULL, 1, 'Vorname', '', '&nbsp;', NULL, 30, 2)");
     db_query("INSERT INTO {cdb_feld} VALUES(3, 1, 1, 'name', NULL, 1, 'Name', '', '<br/>', NULL, 30, 3)");
     db_query("INSERT INTO {cdb_feld} VALUES(4, 1, 1, 'strasse', NULL, 1, 'Strasse', '', '<br/>', 'ViewAllDetailsOrPersonLeader', 30, 4)");
@@ -997,14 +997,14 @@ function run_db_updates($db_version) {
       
       db_query("INSERT INTO {cdb_nationalitaet} VALUES(0, 'unbekannt')");
       
-      // Fülle Nationalitäten auf mit schon vorhandenen
+      // Add existing nationality values to new table
      db_query("ALTER TABLE {cdb_nationalitaet} CHANGE  id id INT( 11 ) NOT NULL AUTO_INCREMENT");
      db_query("insert into {cdb_nationalitaet} (bezeichnung) (select nationalitaet from {cdb_gemeindeperson} gp left join {cdb_nationalitaet} n on (gp.nationalitaet=n.bezeichnung) where n.bezeichnung is null and gp.nationalitaet!=''
     group by nationalitaet)");
       
-    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Ägypten')");
-    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Äquatorialguinea')");
-    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Äthiopien')");
+    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('&Auml;gypten')");
+    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('&Auml;quatorialguinea')");
+    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('&Auml;thiopien')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Afghanistan')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Albanien')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Algerien')");
@@ -1034,14 +1034,14 @@ function run_db_updates($db_version) {
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Chile')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('China')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Costa Rica')");
-    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Dänemark')");
+    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('D&auml;nemark')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Deutschland')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Dominica')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Dominikanische Republik')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Dschibuti')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Ecuador')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('El Salvador')");
-    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Elfenbeinküste')");
+    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Elfenbeink&uuml;ste')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Eritrea')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Estland')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Fidschi')");
@@ -1053,7 +1053,7 @@ function run_db_updates($db_version) {
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Ghana')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Grenada')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Griechenland')");
-    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Großbritannien')");
+    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Gro&szlig;britannien')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Guatemala')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Guinea')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Guinea-Bissau')");
@@ -1127,11 +1127,11 @@ function run_db_updates($db_version) {
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Niue')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Nordkorea')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Norwegen')");
-    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Österreich')");
+    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('&Ouml;sterreich')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Oman')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Pakistan')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Palau')");
-    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Palästinensische Gebiete')");
+    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Pal&auml;stinensische Gebiete')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Panama')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Papua-Neuguinea')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Paraguay')");
@@ -1140,14 +1140,14 @@ function run_db_updates($db_version) {
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Polen')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Portugal')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Ruanda')");
-    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Rumänien')");
+    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Rum&auml;nien')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Russland')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Sahara')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Salomonen')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Sambia')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Samoa')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('San Marino')");
-    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('São Tomé und Príncipe')");
+    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('S&atilde;o Tom&eacute; und Pr&iacute;ncipe')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Saudi-Arabien')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Schweden')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Schweiz')");
@@ -1166,8 +1166,8 @@ function run_db_updates($db_version) {
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('St. Lucia')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('St. Vincent und die Grenadinen')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Sudan')");
-    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Südafrika')");
-    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Südkorea')");
+    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('S&uuml;dafrika')");
+    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('S&uuml;dkorea')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Suriname')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Swasiland')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Syrien')");
@@ -1185,7 +1185,7 @@ function run_db_updates($db_version) {
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Turkmenistan')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Turks- und Caicosinseln')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Tuvalu')");
-    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Türkei')");
+    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('T&uuml;rkei')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Uganda')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Ukraine')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Ungarn')");
@@ -1197,7 +1197,7 @@ function run_db_updates($db_version) {
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Venezuela')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Vereinigte Arabische Emirate')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Vietnam')");
-    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Weißrussland')");
+    db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Wei&szlig;russland')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Zentralafrikanische Republik')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Zypern')");
     
@@ -1226,7 +1226,7 @@ function run_db_updates($db_version) {
       email_betreff varchar(255) NOT NULL,
       email_inhalt blob NOT NULL,
       PRIMARY KEY (id),
-      UNIQUE KEY gruppe_id (gruppe_id,status_no)) ");
+      UNIQUE KEY gruppe_id (gruppe_id,status_no)) CHARSET=utf8");
       db_query("ALTER TABLE  {cr_resource} CHANGE admin_person_ids admin_person_ids VARCHAR( 50 ) NOT NULL DEFAULT  '-1'");
       set_version("2.18");
       
@@ -1381,25 +1381,8 @@ function run_db_updates($db_version) {
       db_query("INSERT INTO {cdb_feld} VALUES(0, 1, 1, 'spitzname', NULL, 1, 'Spitzname', '', '(%) ', NULL, 30, 3)");
       db_query("ALTER TABLE {cdb_beziehungstyp} ADD sortkey INT( 11 ) NOT NULL");
       db_query("ALTER TABLE {cdb_person} ADD loginerrorcount INT( 11 ) NOT NULL AFTER lastlogin");
-      
-      db_query("insert into {cc_wiki} (doc_id, version_no, wikicategory_id, text) values ('Sicherheitsbestimmungen', 1, 0,
-         '<p><strong>Verpflichtung auf das Datengeheimnis gem&auml;&szlig; &sect; 5 Bundesdatenschutzgesetz (BDSG), auf das Fernmeldegeheimnis gem&auml;&szlig; &sect; 88 Telekommunikationsgesetz (TKG) und auf Wahrung von Gesch&auml;ftsgeheimnissen</strong><br />
-    <br />
-    Hallo&nbsp;[Vorname]!<br />
-    Die pers&ouml;nlichen Daten unserer Mitarbeiter und Mitglieder wollen wir sch&uuml;tzen. Darum bitten wir Dich, Dich auf das Datengeheimnis wie folgt zu verpflichten:<br />
-    <br />
-    <strong>1. Verpflichtung auf das Datengeheimnis nach &sect; 5 BDSG</strong><br />
-    Aufgrund von &sect; 5 BDSG ist mir untersagt, personenbezogene Daten, die mir dienstlich bekannt werden, unbefugt zu erheben, zu verarbeiten oder zu nutzen. Dies gilt sowohl f&uuml;r die dienstliche T&auml;tigkeit innerhalb wie auch au&szlig;erhalb (z.B. bei Kunden und Interessenten) des Unternehmens/der Beh&ouml;rde.<br />
-    Die Pflicht zur Wahrung des Datengeheimnisses bleibt auch im Falle einer Versetzung oder nach Beendigung des Arbeits-/Dienstverh&auml;ltnisses bestehen.<br />
-    <br />
-    <strong>2. Verpflichtung auf das Fernmeldegeheimnis</strong><br />
-    Aufgrund von &sect; 88 TKG bin ich zur Wahrung des Fernmeldegeheimnisses verpflichtet, so- weit ich im Rahmen meiner T&auml;tigkeit bei der Erbringung gesch&auml;ftsm&auml;&szlig;iger Telekommunikationsdienste mitwirke.<br />
-    <br />
-    <strong>3. Verpflichtung auf Wahrung von Gesch&auml;ftsgeheimnissen</strong><br />
-    &Uuml;ber Angelegenheiten des Unternehmens, die beispielsweise Einzelheiten ihrer Organisation und ihre Einrichtung betreffen, sowie &uuml;ber Gesch&auml;ftsvorg&auml;nge und Zahlen des internen Rechnungswesens, ist auch nach Beendigung des Arbeitsverh&auml;ltnisses von mir Verschwiegenheit zu wahren, sofern sie nicht allgemein &ouml;ffentlich bekannt geworden sind. Hierunter fallen&nbsp;auch Vorg&auml;nge von Drittunternehmen, mit denen ich dienstlich befasst bin. Auf die gesetzli- chen Bestimmungen &uuml;ber unlauteren Wettbewerb wurde ich besonders hingewiesen.<br />
-    Alle dienstliche T&auml;tigkeiten betreffenden Aufzeichnungen, Abschriften, Gesch&auml;ftsunterlagen, Ablichtungen dienstlicher oder gesch&auml;ftlicher Vorg&auml;nge, die mir &uuml;berlassen oder von mir angefertigt werden, sind vor Einsichtnahme Unbefugter zu sch&uuml;tzen.<br />
-    <br />
-    Von diesen Verpflichtungen habe ich Kenntnis genommen. Ich bin mir bewusst, dass ich mich bei Verletzungen des Datengeheimnisses, des Fernmeldegeheimnisses oder von Gesch&auml;ftsgeheimnissen strafbar machen kann, insbesondere nach &sect;&sect; 44, 43 Abs. 2 BDSG, &sect; 206 Strafgesetzbuch (StGB) und nach &sect; 17 Gesetz gegen den unlauteren Wettbewerb (UWG).</p>')");
+      db_query("INSERT INTO {cc_wiki} VALUES ('main',1,0,'<h2>‚Äã<strong>Was ist das Wiki?</strong></h2>\n\n<p><span style=\\\"font-size:14px\\\">D</span><img alt=\\\"\\\" src=\\\"http://intern.churchtools.de/system/assets/img/wiki_logo.png\\\" style=\\\"float:right; height:270px; width:300px\\\" /><span style=\\\"font-size:14px\\\">as Wiki soll als Dokumentation, Informations- und Arbeitsgrundlage f&uuml;r die verschiedenen Dienstbereiche der Gemeinde dienen. Jeder Mitarbeiter eines Dienstbereiches kann auf Wunsch Zugriff auf die entsprechenden Wiki-Kategorien erhalten. Diese Seiten k&ouml;nnen dann&nbsp;von allen aus demselben Dienstbereich gelesen und bearbeitet werden. So k&ouml;nnen aktuelle Information, Abl&auml;ufe, Einstellungen, etc. zeitnah gespeichert werden und sind sofort f&uuml;r alle einsehbar. Damit ist jeder zu jederzeit auf dem neusten Wissenstand.</span></p>\n\n<div><span style=\\\"font-size:14px\\\">Durch das Wiki haben neue Mitarbeiter alle n&ouml;tigen Informationen, Anleitungen und Hintergrundinformationen f&uuml;r ihren Dienst. Erfahrene Mitarbeiter k&ouml;nnen ihr Wissen und gesammelte Informationen dokumentieren und auf sie zur&uuml;ckgreifen.</span></div>\n\n<h2>Weitere Infos</h2>\n\n<div><span style=\\\"font-size:14px\\\">Mehr Infos zum Wiki gibt es <a href=\\\"http://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc:ChurchWiki/\\\" target=\\\"_blank\\\">hier</a>.</span></div>\n',0,'2013-08-30 15:59:42',1)");
+      db_query("INSERT INTO {cc_wiki} VALUES ('Sicherheitsbestimmungen',1,0,'<p><strong>Verpflichtung auf das Datengeheimnis gem&auml;&szlig; &sect; 5 Bundesdatenschutzgesetz (BDSG), auf das Fernmeldegeheimnis gem&auml;&szlig; &sect; 88 Telekommunikationsgesetz (TKG) und auf Wahrung von Gesch&auml;ftsgeheimnissen</strong><br />\n<br />\nHallo&nbsp;[Vorname]!<br />\nDie pers&ouml;nlichen Daten unserer Mitarbeiter und Mitglieder wollen wir sch&uuml;tzen. Darum bitten wir Dich, Dich auf das Datengeheimnis wie folgt zu verpflichten:<br />\n<br />\n<strong>1. Verpflichtung auf das Datengeheimnis nach &sect; 5 BDSG</strong><br />\nAufgrund von &sect; 5 BDSG ist mir untersagt, personenbezogene Daten, die mir dienstlich bekannt werden, unbefugt zu erheben, zu verarbeiten oder zu nutzen. Dies gilt sowohl f&uuml;r die dienstliche T&auml;tigkeit innerhalb wie auch au&szlig;erhalb (z.B. bei Kunden und Interessenten) des Unternehmens/der Beh&ouml;rde.<br />\nDie Pflicht zur Wahrung des Datengeheimnisses bleibt auch im Falle einer Versetzung oder nach Beendigung des Arbeits-/Dienstverh&auml;ltnisses bestehen.<br />\n<br />\n<strong>2. Verpflichtung auf das Fernmeldegeheimnis</strong><br />\nAufgrund von &sect; 88 TKG bin ich zur Wahrung des Fernmeldegeheimnisses verpflichtet, so- weit ich im Rahmen meiner T&auml;tigkeit bei der Erbringung gesch&auml;ftsm&auml;&szlig;iger Telekommunikationsdienste mitwirke.<br />\n<br />\n<strong>3. Verpflichtung auf Wahrung von Gesch&auml;ftsgeheimnissen</strong><br />\n&Uuml;ber Angelegenheiten des Unternehmens, die beispielsweise Einzelheiten ihrer Organisation und ihre Einrichtung betreffen, sowie &uuml;ber Gesch&auml;ftsvorg&auml;nge und Zahlen des internen Rechnungswesens, ist auch nach Beendigung des Arbeitsverh&auml;ltnisses von mir Verschwiegenheit zu wahren, sofern sie nicht allgemein &ouml;ffentlich bekannt geworden sind. Hierunter fallen&nbsp;auch Vorg&auml;nge von Drittunternehmen, mit denen ich dienstlich befasst bin. Auf die gesetzli- chen Bestimmungen &uuml;ber unlauteren Wettbewerb wurde ich besonders hingewiesen.<br />\nAlle dienstliche T&auml;tigkeiten betreffenden Aufzeichnungen, Abschriften, Gesch&auml;ftsunterlagen, Ablichtungen dienstlicher oder gesch&auml;ftlicher Vorg&auml;nge, die mir &uuml;berlassen oder von mir angefertigt werden, sind vor Einsichtnahme Unbefugter zu sch&uuml;tzen.<br />\n<br />\nVon diesen Verpflichtungen habe ich Kenntnis genommen. Ich bin mir bewusst, dass ich mich bei Verletzungen des Datengeheimnisses, des Fernmeldegeheimnisses oder von Gesch&auml;ftsgeheimnissen strafbar machen kann, insbesondere nach &sect;&sect; 44, 43 Abs. 2 BDSG, &sect; 206 Strafgesetzbuch (StGB) und nach &sect; 17 Gesetz gegen den unlauteren Wettbewerb (UWG).</p>',0,'0000-00-00 00:00:00',0)");
       db_query("insert into {cc_config} (name, value) values ('accept_datasecurity','0')");
       db_query("ALTER TABLE {cdb_person} ADD acceptedsecurity DATETIME NULL AFTER loginerrorcount");  
       set_version("2.28");
@@ -1527,9 +1510,9 @@ function run_db_updates($db_version) {
         
       db_query("ALTER TABLE {cs_event} ADD cc_cal_id INT( 11 ) NOT NULL AFTER id");
       
-      // Erstelle nun Vater-Calendereinträge in cc_cal
+      // create parent cc_cal entries
       db_query("insert into {cc_cal} (select null, bezeichnung, '', '', 0, datum, DATE_ADD(datum, INTERVAL 1 HOUR), category_id, 0, null, null, null, current_date(), -1 from {cs_event})");
-      // Stelle nun Verknüpfung zum Vater cc_cal her.
+      // link to parent cc_cal
       db_query("update {cs_event} e 
         inner join (select * from {cc_cal}) as cal
         on cal.category_id=e.category_id and cal.bezeichnung=e.bezeichnung and cal.startdate=e.datum and e.cc_cal_id=0
@@ -1540,7 +1523,7 @@ function run_db_updates($db_version) {
       db_query("ALTER TABLE {cs_event} CHANGE datum startdate DATETIME NOT NULL ");
       
       // CALENDAR
-      // Erstmal die Bezeichnungen rüberholen
+      // first, import descriptions
       db_query("CREATE TABLE {cc_calcategory} (
         id int(11) NOT NULL AUTO_INCREMENT,
         bezeichnung varchar(100) NOT NULL,
@@ -1557,15 +1540,14 @@ function run_db_updates($db_version) {
       db_query("ALTER TABLE {cc_cal} CHANGE category_id  old_category_id INT( 11 ) NOT NULL DEFAULT 0");
       db_query("ALTER TABLE {cc_cal} ADD category_id INT( 11 ) NOT NULL AFTER old_category_id");
       $db=db_query("select cal.id cal_id, cs.id cs_id from {cc_calcategory} cal, {cs_category} cs where cal.bezeichnung=cs.bezeichnung");
-      // Nun müssen wir die Ids anpassen, da hier nun AUTO_INCREMENT verwendet wird
+      // adapt IDs since auto_increment is used now
       if ($db!=null)
         foreach ($db as $ids) {
           db_query("update {cc_cal} set category_id=:cal_id where old_category_id=:cs_id", 
             array(":cal_id"=>$ids->cal_id, ":cs_id"=>$ids->cs_id));      
         } 
-    
-    
-      // Admin darf soll auch nicht immer alles sehen, z.B. persönliche Kalender und view auf alle Gruppen (hat er sowieso)
+
+      // admin may not see everything, eg. personal calendars
       db_query("ALTER TABLE {cc_auth} ADD admindarfsehen_yn INT( 1 ) NOT NULL DEFAULT 1");
       db_query("UPDATE {cc_auth} SET admindarfsehen_yn =  0  WHERE id=115");
       
@@ -1605,14 +1587,16 @@ function run_db_updates($db_version) {
       db_query("ALTER TABLE {cdb_gruppe} CHANGE bezeichnung bezeichnung VARCHAR( 100 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");  
       db_query("ALTER TABLE {cdb_log} CHANGE txt txt VARCHAR( 2048 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
     
-      // Der öffentliche User darf den Kalender sehen
+      // public user may see the calendar function and church service calendars
       db_query("INSERT INTO {cc_domain_auth} (
         domain_type, domain_id, auth_id, daten_id)
         VALUES ('person',  '-1',  '401', NULL);");  
+      db_query("INSERT INTO {cc_domain_auth} VALUES('person', -1, 403, 2)");
+      db_query("INSERT INTO {cc_domain_auth} VALUES('person', -1, 403, 3)");
       
       db_query("update {cc_auth} set bezeichnung='Admin-Einstellungen anpassen' where id=1");
     
-      // Autorisiere View der öffentlichen Kalendar über den Status. 
+      // authorize viewing the calendar by status
       db_query("insert into {cc_domain_auth} SELECT 'status', s.id, 403, cat.id FROM {cc_calcategory} cat, {cdb_status} s where cat.oeffentlich_yn=1");
       set_version("2.35");
     
@@ -1730,6 +1714,16 @@ function run_db_updates($db_version) {
       db_query("INSERT INTO {cc_domain_auth} VALUES('person', 1, 404, 2)");
       db_query("INSERT INTO {cc_domain_auth} VALUES('person', 1, 404, 3)");
       set_version("2.42");
+
+    case '2.42':
+      db_query("update {cdb_nationalitaet} set bezeichnung='Elfenbeink&uuml;ste' where bezeichnung='Elfenbeink?ste'");
+      db_query("update {cdb_nationalitaet} set bezeichnung='Gro&szlig;britannien' where bezeichnung='Gro?britannien'");
+      db_query("update {cdb_nationalitaet} set bezeichnung='Pal&auml;stinensische Gebiete' where bezeichnung='Pal?stinensische Gebiete'");
+      db_query("update {cdb_nationalitaet} set bezeichnung='Rum&auml;nien' where bezeichnung='Rum?nien'");
+      db_query("update {cdb_nationalitaet} set bezeichnung='S&atilde;o Tom&eacute; und Pr&iacute;ncipe' where bezeichnung='S?o Tom? und Pr?ncipe'");
+      db_query("update {cdb_nationalitaet} set bezeichnung='Wei&szlig;russland' where bezeichnung='Wei?russland'");
+      db_query("update {cc_config} set value=1 where name='cronjob_dbdump' and value=0");
+      db_query("update {cc_config} set value=60 where name='cronjob_delay' and value=0");
     }
     $a=db_query("select * from {cc_config} where name='version'",null,false);
     $software_version=$a->fetch()->value;
