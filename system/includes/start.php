@@ -185,7 +185,7 @@ function churchtools_main() {
       // DBConfig overwrites the config files
       loadDBConfig();
       
-      date_default_timezone_set($config["timezone"]);
+      date_default_timezone_set(variable_get("timezone", "Europe/Berlin"));
       
       // Load i18n churchcore-bundle 
       if (!isset($config["language"])) {
