@@ -798,7 +798,7 @@ function churchdb__export() {
               and bp.bereich_id in ('.$allowedDeps.') ';
     
   
-	$persons = db_query($persons_sql.$ids.' ORDER BY name, vorname, id');			  
+	$persons = db_query($persons_sql.$ids.' ORDER BY name, vorname, id, b.sortkey ');			  
   // Zuerst werden die Daten in ein Array gepackt und dabei nach Bereich verdichtet, 
   // so dass eine Person in mehreren Bereichen auch nur 1x aufgefuehrt wird.
   // Die Bereiche werden dann per "," getrennt
@@ -811,10 +811,10 @@ function churchdb__export() {
     else $person=array();  
     foreach ($arr as $a=>$key) {
       // Dies dient der Verdichtung nach Bereich
-      if (($a=="bereich") && ($person["bereich"]!=null)) {
+      if (($a=="bereich") && (isset($person["bereich"]))) {
         $person[$a]=$person[$a]."::".$key;        
       } 
-      else if (($a=="bereich_id") && ($person["bereich_id"]!=null)) {
+      else if (($a=="bereich_id") && (isset($person["bereich_id"]))) {
         $person[$a]=$person[$a]."::".$key;        
       } 
       else  

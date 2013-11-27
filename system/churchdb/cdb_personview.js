@@ -600,8 +600,9 @@ PersonView.prototype.tooltipCallback = function(id, tooltip) {
   tooltip.find("input.delete").click(function() {
     t.clearTooltip(true);
     var g_id=$("#data-group-id").val();
+    var gt_id=$("#data-gruppentreffen-id").val();
     if (confirm("Wirklich das Treffen vom "+$("#data-datum").val().toDateEn(true).toStringDe()+" entfernen?")) {
-      churchInterface.jsendWrite({func:"GroupMeeting", sub:"delete", id:$("#data-gruppentreffen-id").val()}, function(ok) {
+      churchInterface.jsendWrite({func:"GroupMeeting", sub:"delete", id:gt_id}, function(ok) {
         if (ok) {
           cdb_loadGroupMeetingStats(churchInterface.getCurrentView().filter, g_id, function() {
             masterData.groups[g_id].meetingList=null;

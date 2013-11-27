@@ -14,17 +14,17 @@ INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfse
       </query>
       <query order="3">
           <![CDATA[
-UPDATE {cc_auth} SET auth = 'admin church category', bezeichnung = 'Gemeindekalender administrieren' WHERE cc_auth.id =402
+UPDATE {cc_auth} SET auth = 'admin church category', bezeichnung = 'Gemeindekalender administrieren' WHERE id =402
 ]]>
       </query>
       <query order="4">
           <![CDATA[
-UPDATE {cc_auth} SET auth = 'admin group category', bezeichnung = 'Gruppenkalender administrieren' WHERE cc_auth.id =405
+UPDATE {cc_auth} SET auth = 'admin group category', bezeichnung = 'Gruppenkalender administrieren' WHERE id =405
 ]]>
       </query>
       <query order="5">
           <![CDATA[
-UPDATE {cc_auth} SET auth = 'admin personal category', bezeichnung = 'Persoenliche Kalender administrieren' WHERE cc_auth.id =406
+UPDATE {cc_auth} SET auth = 'admin personal category', bezeichnung = 'Persoenliche Kalender administrieren' WHERE id =406
 ]]>
       </query>
       <query order="6">

@@ -3,17 +3,28 @@
 churchtools 2.42
 + (Cal) Rechte optimiert: Nun kann man wŠhlen, wer eigene Kalender erstellen kann und wer vorhandene administrieren darf.
 + (CS) Man kann nun auch ohne Admin-Rechte seine eigene hochgeladene Dateien lšschen
-+ Zeitzone einstellbar, wird bei manchen INstallationen ab PHP 5.4 notwendig.
++ (CS) Separierte Anzeige der Kalender nach Gruppen und Gemeindekalender
++ Zeitzone einstellbar, wird bei manchen Installationen ab PHP 5.4 notwendig.
 
 churchtools 2.41
+Erste Version die auf der neuen Community von GutHib basiert. Dadurch sind einige KonfigurationsŠnderungen notwendig geworden:
 ACHTUNG: Wichtige €nderungen in der churchtools.config: Bitte die Datenbank-Angaben mit "db_" versehen, so dass dort steht:
 db_server = localhost
 db_user = root
 db_password = 1234
 db_name = churchtools
-+ (CS) Neues Recht: Edit Template - Darf Event-Templates editieren.
-- (CS) Man kann ohne ChurchDB-Rechte nun keine Personen mehr hinzufŸgen, die nicht zum Dienst gehšren
-- Bitte die neue ChurchDBSync-Version 1.06 verwenden!
+ACHTUNG: Bitte die neue ChurchDBSync-Version 1.06 verwenden!
+Weitere Neuigkeiten:
++ AblŠufe fŸr Events erstellen. Inklusive Vorlagen, Rechte, Songs hinzufŸgen, DruckansichtÉ
++ Songs Ÿberarbeitet und verbessert.
++ Startseite ist nun auch auf Englisch verfŸgbar
++ ZusŠtzliche Rechte fŸr 
+=> CS-Fakten ansehen und Exporten
+=> CS-Templates erstellen
+=> CDB-Archiv: Personen ins Archiv befšrdern und zurŸck
++ Viele weitere Detailverbesserung
+
+
 
 churchtools 2.40
 + Simulieren kann nun Ÿber die Fu§zeile direkt gestartet werden.

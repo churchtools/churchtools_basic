@@ -947,6 +947,14 @@ function createMultiselect(name, data) {
       }
     }
     else {
+      if (name=="filterGemeindekalendar" && (id==6 || id==4)) {
+        var counterpart=(id==4?6:4);
+        if (filter[name].isSelected(counterpart)) {
+          hideData(name, counterpart);
+          filter[name].toggleSelected(counterpart);
+          filterMultiselect("filterGemeindekalendar", (!embedded?"Gemeindekalender":"Kalender"));
+        }
+      }
       if (selected)
         needData(name, id);
       else
@@ -1221,14 +1229,6 @@ function editCategories(privat_yn, oeffentlich_yn, reload) {
   });   
   elem.find("#delete").click(function() {
     var id=$(this).attr("data-id");
-    var c=0;
-    $.each(masterData.category, function(i,cat) {
-      if ((cat.id!=id) && (cat.privat_yn==1)) c=c+1;
-    });
-    if (c==0) {
-      alert("Ein privater Kalender muss bestehen bleiben!");
-      return false;
-    }
     if (confirm("Wirklich den Kalender "+masterData.category[id].bezeichnung+" und alle seine Daten entfernen?")) {
       churchInterface.jsendWrite({func:"deleteCategory", id:id}, function(ok, info) {
         if (!ok) alert("Es ist ein Fehler aufgetreten: "+info);

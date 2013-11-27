@@ -1162,11 +1162,11 @@ function updateDB_242() {
   db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (407, 'create personal category', 'churchcal', null, 'Darf persoenliche Kalender erstellen',1)");
   db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (408, 'create group category', 'churchcal', null, 'Darf Gruppenkalender erstellen',1)");
   db_query("UPDATE {cc_auth} SET auth = 'admin church category',
-      bezeichnung = 'Gemeindekalender administrieren' WHERE cc_auth.id =402");
+      bezeichnung = 'Gemeindekalender administrieren' WHERE id =402");
   db_query("UPDATE {cc_auth} SET auth = 'admin group category',
-      bezeichnung = 'Gruppenkalender administrieren' WHERE cc_auth.id =405");
+      bezeichnung = 'Gruppenkalender administrieren' WHERE id =405");
   db_query("UPDATE {cc_auth} SET auth = 'admin personal category',
-      bezeichnung = 'Persoenliche Kalender administrieren' WHERE cc_auth.id =406");
+      bezeichnung = 'Persoenliche Kalender administrieren' WHERE id =406");
 
   // Add Timezone support
   db_query("INSERT INTO  {cc_config} (name, value) VALUES ('timezone', 'Europe/Berlin')");

@@ -362,6 +362,7 @@ ListView.prototype.saveEditEvent = function (elem) {
 };
 
 ListView.prototype.renderEditEvent = function(event) {
+  var t=this;
   var rows=new Array();
   var template=null;
   
@@ -493,7 +494,7 @@ ListView.prototype.renderEditEvent = function(event) {
 
   
   
-  rows.push('<tr><td>Kalender<td>'+this.renderSelect(event.category_id, "category", masterData.category));
+  rows.push('<tr><td>Kalender<td>'+this.renderSelect(event.category_id, "category", t.prepareCategoriesForSelect()));
   rows.push('<tr><td>'+this.renderInput("InputBezeichnung", "Bezeichnung", event.bezeichnung, 20));
   rows.push('<tr><td>'+this.renderTextarea("InputSpecial", "Weitere Infos", event.special, 20,3));
   rows.push('<tr><td>'+this.renderInput("InputAdmin", "Event-Admin", event.admin, 20, !masterData.auth.admin));
@@ -582,10 +583,14 @@ ListView.prototype.renderEditEvent = function(event) {
 
   var elem = this.showDialog("Ver&auml;nderung des Events", rows.join(""), (event.id==null?680:450), (event.id==null?600:500), {
     "Speichern": function() {
-      this_object.saveEditEvent(elem);
-      // Wenn es neu ist, dann soll das Datum gesetzt werden, damit der neue Eintrag sichtbar wird.
-      if (event.id==null) {
-        this_object.currentDate=event.startdate.toDateEn(false);
+      if ($("#Inputcategory").val()<0) alert("Bitte einen Kalender auswählen!");
+      else if ($("#InputBezeichnung").val()=="") alert("Bitte eine Bezeichnung angeben!");
+      else {
+        this_object.saveEditEvent(elem);
+        // Wenn es neu ist, dann soll das Datum gesetzt werden, damit der neue Eintrag sichtbar wird.
+        if (event.id==null) {
+          this_object.currentDate=event.startdate.toDateEn(false);
+        }
       }
     }
   });
@@ -680,19 +685,27 @@ ListView.prototype.renderEditEvent = function(event) {
   
   if (event.id!=null) {
     elem.dialog('addbutton', 'Entfernen', function() {
-      if (confirm("Soll das gesamte Event wirklich entfernt werden?")) {
-        obj=new Object();
-        obj.func="deleteEvent";
-        obj.id=event.id;       
-        churchInterface.jsendWrite(obj, function(ok, json) {
-          if (!ok) alert("Fehler beim Speichern: "+json);
-          else {
-            delete allEvents[event.id];
-            elem.dialog("close");
-            this_object.renderList();
-          }
-        });  
+      var form = new CC_Form("Eintrag wirklich entfernen?");
+      form.addCheckbox({cssid:"deleteCalEntry", label:"Auch Kalendereintrag löschen"});
+      var elem2 = form_showDialog("Löschen des Events", form.render(null, "horizontal"), 400, 400, {
+        "Löschen": function() {    
+          obj=form.getAllValsAsObject();
+          obj.func="deleteEvent";
+          obj.id=event.id;       
+          churchInterface.jsendWrite(obj, function(ok, json) {
+            if (!ok) alert("Fehler beim Speichern: "+json);
+            else {
+              delete allEvents[event.id];
+              elem2.dialog("close");
+              elem.dialog("close");
+              this_object.renderList();
+            }
+          });  
+        },
+      "Abbruch": function() {
+        elem2.dialog("close");      
       }
+      });
     });
   }
   elem.dialog('addbutton',"Abbruch", function() {
@@ -977,7 +990,9 @@ ListView.prototype.renderListEntry = function(event) {
       rows.push(this.renderImage("person_sw",null,"Das Event hat einen Admin.")+"&nbsp;");
   
   if (!event.agenda && user_access("edit agenda", event.category_id))
-    rows.push(form_renderImage({src:"agenda_plus.png", cssid:"show_agenda", label:"Ablaufplan zum Event hinzufügen", width:20}));
+    rows.push(form_renderImage({src:"agenda_plus.png", htmlclass:"show-agenda", link:true, label:"Ablaufplan zum Event hinzufügen", width:20}));
+  else if (event.agenda && user_access("view agenda", event.category_id))
+    rows.push(form_renderImage({src:"agenda.png", htmlclass:"show-agenda", link:true, label:"Ablaufplan anzeigen", width:20}));
   
   rows.push('<div class="filelist" data-id="'+event.id+'"></div>');
     
@@ -1036,9 +1051,34 @@ ListView.prototype.renderListEntry = function(event) {
 };
 
 
+ListView.prototype.prepareCategoriesForSelect = function(multiselect) {
+  var data=new Object();
+  if (multiselect==null) multiselect=false;
+  var sortkey=1;
+  $.each(churchcore_sortMasterData(masterData.category), function(k,c) {
+    if (c.privat_yn==0 && c.oeffentlich_yn==0) {
+      form_addEntryToSelectArray(data, c.id, c.bezeichnung, sortkey);
+      sortkey++;
+    }
+  });
+  if (churchcore_countObjectElements(data)>0) {
+    if (!multiselect) form_addEntryToSelectArray(data, -2 , '== Gruppenkalender ==', 0);
+    form_addEntryToSelectArray(data, -1 , '== Gemeinedekalender ==', sortkey);
+    sortkey++;
+  }
+  $.each(churchcore_sortMasterData(masterData.category), function(k,c) {
+    if (c.privat_yn==0 && c.oeffentlich_yn==1) {
+      form_addEntryToSelectArray(data, c.id, c.bezeichnung, sortkey);
+      sortkey++;
+    }
+  });
+  return data;
+};
+
 ListView.prototype.makeFilterCategories = function(start_string) {
   var t=this;
-  t.filter["filterKategorien"]=new CC_MultiSelect(masterData.category, function(id, selected) {
+  
+  t.filter["filterKategorien"]=new CC_MultiSelect(t.prepareCategoriesForSelect(true), function(id, selected) {
     masterData.settings.filterCategory=this.getSelectedAsArrayString();
     churchInterface.jsendWrite({func:"saveSetting", sub:"filterCategory", val:masterData.settings.filterCategory});
     t.renderList();
@@ -2626,6 +2666,13 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
     return false;
   });
 
+  $(cssid+" a.show-agenda").click(function() {
+    t.currentEvent=allEvents[$(this).parents("tr").attr("id")];
+    agendaView.currentAgenda=null;
+    churchInterface.setCurrentView(agendaView, true);
+  });
+
+  
   $(cssid+" a").click(function (a) {
     var cssid=$(this).attr("id");
     // Person zu einer Kleingruppe dazu nehmen
@@ -2642,11 +2689,6 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
         delete t.filter["filterMeine Filter"];
       else t.setFilter("filterMeine Filter",2);
       t.renderView();
-    }
-    else if (cssid=="show_agenda") {
-      t.currentEvent=allEvents[$(this).parents("tr").attr("id")];
-      agendaView.currentAgenda=null;
-      churchInterface.setCurrentView(agendaView, true);
     }
     else if (cssid.indexOf("editNote")==0) {
       t.editNote(allEvents[cssid.substr(8,99)]);
@@ -2843,6 +2885,7 @@ ListView.prototype.renderCalendar = function() {
                       return [checkable,myday];
     },
     onSelect : function(dateText, inst) {
+      if (debug) console.log("onSelect "+dateText);
       t.currentDate=dateText.toDateDe();
       //    t.currentDate.addDays(-1);
       t.listOffset=0;
@@ -2854,6 +2897,7 @@ ListView.prototype.renderCalendar = function() {
       t.addAbsentButton();
     },
     onChangeMonthYear:function(year, month, inst) {
+      if (debug) console.log("onChangeMonthYear "+year+" "+month);
       var dt = new Date();
       if (t.allDataLoaded) {
         // Wenn es der aktuelle Monat ist, dann gehe auf den heutigen Tag
@@ -3163,13 +3207,6 @@ ListView.prototype.checkFilter = function(a) {
   // Es gibt noch keine Daten, soll er aber laden ueber Details
   if (a.bezeichnung==null) return true;
 
-  /*
-  if (this.filter["searchFuture"]) {
-    var d = new Date(); 
-    d.addDays(-1);
-    if (a.startdate.toDateEn()<d) return false;
-  }*/
-  
   if (this.currentDate>a.startdate.toDateEn())
     return false;
   

@@ -765,7 +765,7 @@ AgendaView.prototype.loadAgendaForEvent = function(event_id, func) {
         });
       }
       else 
-        if (func!=null) func(t.currentAgenda);
+        if (func!=null) window.setTimeout(function() {func(t.currentAgenda);}, 10);
     }
   }
 
@@ -790,6 +790,7 @@ AgendaView.prototype.getListHeader = function () {
   var t=this;
   t.listViewTableHeight=null;
   
+  // When allAgenda is null, start loading Songs and Templates
   if (allAgendas==null) {
     songView.loadSongData();
     t.loadTemplates();
@@ -838,6 +839,7 @@ AgendaView.prototype.getListHeader = function () {
         t.loadAgendaForEvent(listView.currentEvent.id, function(data) {
           t.renderView();          
         });
+        return;
       } 
       // There is no agenda, please select one
       else {
@@ -942,8 +944,11 @@ AgendaView.prototype.getListHeader = function () {
       if (allEvents[a]!=null && allEvents[a].startdate.toDateEn(false)>startdate)
         startdate=allEvents[a].startdate.toDateEn(false);
     });
-    listView.currentDate=startdate;
-    churchInterface.setCurrentView(listView);
+    churchInterface.setCurrentView(listView, true);
+    window.setTimeout(function() {
+      listView.currentDate=startdate;
+      listView.renderList();      
+    },10);
     return false;
   });
   
@@ -954,14 +959,16 @@ AgendaView.prototype.getListHeader = function () {
 AgendaView.prototype.getAllowedServiceGroupsWithComments = function() {
   var t=this;
   var groups=new Object();
-  $.each(t.currentAgenda.items, function(k,a) {
-    if (a.servicegroup!=null) {
-      $.each(a.servicegroup, function(i,s) {
-        if (s!="" && masterData.auth.viewgroup[i])  
-          groups[i]=masterData.servicegroup[i];
-      });
-    }
-  });
+  if (t.currentAgenda.items!=null) {
+    $.each(t.currentAgenda.items, function(k,a) {
+      if (a.servicegroup!=null) {
+        $.each(a.servicegroup, function(i,s) {
+          if (s!="" && masterData.auth.viewgroup[i])  
+            groups[i]=masterData.servicegroup[i];
+        });
+      } 
+    });
+  }
   return t.sortMasterData(groups);
 };
 
@@ -970,10 +977,14 @@ AgendaView.prototype.renderListHeader = function(smallVersion) {
   if (smallVersion==null) smallVersion=false;
   var rows = new Array();
   if (t.currentAgenda.template_yn==0 && t.currentAgenda.event_ids!=null) {
-    $.each(t.currentAgenda.event_ids, function(k,a) {
-      if (allEvents[a]!=null)
-        rows.push('<th width="40px">'+allEvents[a].startdate.toDateEn(true).toStringDeTime());      
-    });
+    if (churchcore_countObjectElements(t.currentAgenda.event_ids)==1)
+      rows.push('<th width="40px">Uhrzeit'); 
+    else {      
+      $.each(t.currentAgenda.event_ids, function(k,a) {
+        if (allEvents[a]!=null)
+          rows.push('<th width="40px">'+allEvents[a].startdate.toDateEn(true).toStringDeTime());      
+      });
+    }
   }
   rows.push('<th width="45px">L&auml;nge<th style="min-width:200px">Text<th>Verantwortlich');
 

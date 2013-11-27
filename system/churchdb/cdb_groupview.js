@@ -1215,7 +1215,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
   rows[rows.length]="Zielgruppe: "+g.zielgruppe+"<br/>";
   rows[rows.length]='Gruppentyp: <a href="#" id="filterGruppentyp'+g.gruppentyp_id+'">'
             +(masterData.groupTypes[g.gruppentyp_id]!=null?
-                masterData.groupTypes[g.gruppentyp_id]:'<font color="red">Gruppentyp-Id:'+g.gruppentyp_id+'?</font>')+'</a>';
+                masterData.groupTypes[g.gruppentyp_id].bezeichnung:'<font color="red">Gruppentyp-Id:'+g.gruppentyp_id+'?</font>')+'</a>';
 
   if ((g.max_teilnehmer!=null)) 
     rows[rows.length]="<p>Max. Teilnehmer: "+g.max_teilnehmer+"";
