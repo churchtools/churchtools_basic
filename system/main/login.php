@@ -32,7 +32,8 @@ function login_main() {
       } 
       else {              
         $newpwd=random_string(8);
-        db_query("update {cdb_person} set password='".md5($newpwd)."' where email='".$_GET["email"]."'");
+        $scrambled_password=scramble_password($newpwd);
+        db_query("update {cdb_person} set password='".$scrambled_password."' where email='".$_GET["email"]."'");
         $content="<h3>Hallo!</h3><p>Ein neues Passwort wurde f&uuml;r die E-Mail-Adresse <i>".$_GET["email"]."</i> angefordert: $newpwd";
         churchcore_systemmail($_GET["email"], "[".variable_get('site_name')."] Neues Passwort", $content, true, 1);
         churchcore_sendMails(1);
