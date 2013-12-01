@@ -1721,6 +1721,15 @@ function shorten_string($str, $l=20) {
   else return $str;    
 }
 
+if (!function_exists('password_hash') && function_exists('crypt')) {
+  /* try if we can use the polyfill */
+  $hash = '$2y$04$usesomesillystringfore7hnbRJHxXVLeakoG8K30oukPsA.ztMG';
+  $test = crypt("password", $hash);
+  if ($test == $hash) {
+    require_once('system/assets/password_hash-polyfill/password.php');
+  }
+}
+
 function scramble_password($plain_password) {
   if (($plain_password==null) || ($plain_password=="")) return null;
   if (function_exists('password_hash')) {
