@@ -71,6 +71,7 @@ CalView.prototype.getCountCols = function() {
 
 CalView.prototype.getListHeader = function () {
   var rows = new Array();
+  $("#cdb_group").html("");
   
   this.shiftCurrentDate();
   

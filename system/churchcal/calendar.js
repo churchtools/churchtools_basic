@@ -95,6 +95,7 @@ function _eventDrop(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, u
       alert(data);
       revertFunc();
     }
+    if (o.bookings!=null) calResourceType.refreshView();    
   }, true, false);
 }
 

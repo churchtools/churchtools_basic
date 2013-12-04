@@ -888,7 +888,7 @@ StandardTableView.prototype.renderFilelist = function(header, filecontainer, spe
       if ((files!=null) && (churchcore_countObjectElements(files)>0)) {
         var txt=header;
         if (txt!="") txt=txt+"<br/>"; 
-        $.each(files, function(k,a) {
+        $.each(churchcore_sortData(files, "bezeichnung"), function(k,a) {
           txt=txt+t.renderFile(a,filename_length);
         });
         $(this).html(txt);

@@ -44,6 +44,10 @@ FactView.prototype.renderMenu = function() {
   }
 };
 
+FactView.prototype.renderEntryDetail = function (event_id) {
+  
+};
+
 
 FactView.prototype.getCountCols = function() {
   return 2;
@@ -144,6 +148,8 @@ FactView.prototype.addFurtherListCallbacks = function() {
 
 FactView.prototype.getListHeader = function () {
   var this_object=this;
+  
+  $("#cdb_group").html("");
   
   if ((masterData.settings.filterCategory=="") || (masterData.settings.filterCategory==null))
     delete masterData.settings.filterCategory;

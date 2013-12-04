@@ -963,7 +963,7 @@ AgendaView.prototype.getAllowedServiceGroupsWithComments = function() {
     $.each(t.currentAgenda.items, function(k,a) {
       if (a.servicegroup!=null) {
         $.each(a.servicegroup, function(i,s) {
-          if (s!="" && masterData.auth.viewgroup[i])  
+          if (s!="" && s!="\n" && masterData.auth.viewgroup[i])  
             groups[i]=masterData.servicegroup[i];
         });
       } 
