@@ -1721,10 +1721,51 @@ function shorten_string($str, $l=20) {
   else return $str;    
 }
 
-function user_check_password($pwd, $user) {
-  if (($pwd!=null) && ($pwd!="") && (md5(trim($pwd))==$user->password))
-    return true;
-  else return false;
+if (!function_exists('password_hash') && function_exists('crypt')) {
+  /* try if we can use the polyfill */
+  $hash = '$2y$04$usesomesillystringfore7hnbRJHxXVLeakoG8K30oukPsA.ztMG';
+  $test = crypt("password", $hash);
+  if ($test == $hash) {
+    require_once('system/assets/password_hash-polyfill/password.php');
+  }
+}
+
+function scramble_password($plain_password) {
+  if (($plain_password==null) || ($plain_password=="")) return null;
+  if (function_exists('password_hash')) {
+    $val = password_hash($plain_password, PASSWORD_DEFAULT);
+    if ($val == FALSE) return null;
+    return $val;
+  } else
+    return md5(trim($plain_password));
+}
+
+function user_check_password($plain_password, $user) {
+  $stored_password = $user->password;
+  if (($plain_password==null) || ($plain_password=="")) return null;
+  if (function_exists('password_verify')) {
+    if (password_verify($plain_password, $stored_password)) {
+      /* maybe the parameters changed, so we should rekey */
+      if (password_needs_rehash($stored_password, PASSWORD_DEFAULT)) {
+        $new_stored_password = scramble_password($plain_password);
+        db_query("update {cdb_person} set password=:password where id=:id", array(":id"=>$user->id, ":password"=>$new_stored_password), false);
+      }
+      return true;
+    } else {
+      /* maybe the password is still MD5? If so, rekey */
+      $compare = md5(trim($plain_password));
+      if ($compare == $stored_password) {
+        $new_stored_password = scramble_password($plain_password);
+        db_query("update {cdb_person} set password=:password where id=:id", array(":id"=>$user->id, ":password"=>$new_stored_password), false);
+        return true;
+      }
+      return false;
+    }
+  } else {
+    /* no password_verify, use old md5 method */
+    $compare = md5(trim($plain_password));
+    return $compare == $stored_password;
+  }
 }
 
 function user_save() {

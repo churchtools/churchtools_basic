@@ -1001,10 +1001,11 @@ function churchdb_activatePerson($id) {
 }
 
 function churchdb_setPersonPassword($id, $password) {
-  if ((!isset($password)) || ($password==null) || ($password==""))
+  $scrambled_password=scramble_password($password);
+  if ($scrambled_password == null)
     throw new CTFail("Password nicht akzeptiert");
         
-  db_query("update {cdb_person} set password=md5(:password) where id=:id", array(":id"=>$id, ":password"=>$password), false);
+  db_query("update {cdb_person} set password=:password where id=:id", array(":id"=>$id, ":password"=>$scrambled_password), false);
 }
 
 

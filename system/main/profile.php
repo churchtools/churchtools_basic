@@ -21,8 +21,9 @@ function prooveOldPassword($form) {
     $form->fields["password"]->setError(t("password.is.incorrect"));    
   } 
   else {
+    $scrambled_password=scramble_password($form->fields["newpassword1"]->getValue());
     $res=db_query("update {cdb_person} set password=:password where id=:id", 
-       array(":id"=>$_SESSION["user"]->id, ":password"=>md5($form->fields["newpassword1"]->getValue())));
+       array(":id"=>$_SESSION["user"]->id, ":password"=>$scrambled_password));
     $oldpwd=$_SESSION["user"]->password;
     addInfoMessage(t("password.changes.successfully"));
     
