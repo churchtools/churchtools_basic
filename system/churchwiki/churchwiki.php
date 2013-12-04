@@ -1,30 +1,10 @@
 <?php 
 
 
-/**
- * Erzeugt eine Uebersicht ueber alle Stammdatentabellen, die per MaintainView gepflegt werden sollen
- * Diese Infos werden per JSON an das JS uebergeben
- */
-function churchwiki_getMasterDataTablenames() {
-  $res=array();
-  $res[1]=churchcore_getMasterDataEntry(1, "Wiki-Kategorien", "wikicategory", "cc_wikicategory","sortkey,bezeichnung");
-  
-  return $res;
-}
-
-function churchwiki_getMasterDataTables() {
-  $tables=churchwiki_getMasterDataTablenames();
-  foreach ($tables as $value) {
-    $res[$value["shortname"]]=churchcore_getTableData($value["tablename"],$value["sql_order"]);
-  }
-  return $res;
-}
-
 function churchwiki_getAdminModel() {
   $model = new CC_ModulModel("churchwiki");      
   return $model;
 }
-
 
 function churchwiki_getCurrentNo($doc_id, $wikicategory_id=0) {
   $res=db_query("select max(version_no) c from {cc_wiki} where doc_id=:doc_id and wikicategory_id=:wikicategory_id",
@@ -90,6 +70,13 @@ function churchwiki__filedownload() {
 
 class CTChurchWikiModule extends CTAbstractModule {
 
+  public function getMasterDataTablenames() {
+    $res=array();
+    $res[1]=churchcore_getMasterDataEntry(1, "Wiki-Kategorien", "wikicategory", "cc_wikicategory","sortkey,bezeichnung");
+  
+    return $res;
+  }
+  
   public function getMasterData() {
     global $user, $base_url, $files_dir, $config;
     
@@ -97,7 +84,7 @@ class CTChurchWikiModule extends CTAbstractModule {
     $data["auth"]=churchwiki_getAuth();    
     
     $data["settings"]=array();
-    $data["masterDataTables"] = churchwiki_getMasterDataTablenames();
+    $data["masterDataTables"] = $this->getMasterDataTablenames();
     $data["files_url"] = $base_url.$files_dir;
     $data["files_dir"] = $files_dir;
     $data["modulename"] = "churchwiki";

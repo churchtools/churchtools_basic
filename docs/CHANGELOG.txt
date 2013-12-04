@@ -1,5 +1,9 @@
 (Legende: "+"=>Neues Feature  "-"=>Fehlerbehebung)
 
+churchtools 2.43
++ Ab PHP-Version 5.3.7 werden nun gesalzene Passwörter verwendet. Dies erhöht die Sicherheit bei der Speicherung der Passwörter.
+- Fehler in der Embedding-Sicht des Kalenders behoben
+
 churchtools 2.42
 + (Cal) Rechte optimiert: Nun kann man wählen, wer eigene Kalender erstellen kann und wer vorhandene administrieren darf.
 + (CS) Man kann nun auch ohne Admin-Rechte seine eigene hochgeladene Dateien löschen
