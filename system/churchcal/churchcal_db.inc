@@ -149,11 +149,9 @@ function churchcal_updateEvent($params, $source=null) {
           $exc[$exception["id"]]->vorhanden=true;
         }
         else {
-          $res=churchcal_addException(array("cal_id"=>$params["id"], 
+          churchcal_addException(array("cal_id"=>$params["id"], 
                                    "except_date_start"=>$exception["except_date_start"], 
                                    "except_date_end"=>$exception["except_date_end"]));
-          if ($res["status"]!="success") 
-            return $res;
         }
       }
     }  
@@ -175,11 +173,9 @@ function churchcal_updateEvent($params, $source=null) {
           $add[$addition["id"]]->vorhanden=true;
         }
         else {
-          $res=churchcal_addAddition(array("cal_id"=>$params["id"], 
+          churchcal_addAddition(array("cal_id"=>$params["id"], 
                                    "add_date"=>$addition["add_date"],
                                    "with_repeat_yn"=>$addition["with_repeat_yn"]));
-          if ($res["status"]!="success") 
-            return $res;
         }
       }
     }  

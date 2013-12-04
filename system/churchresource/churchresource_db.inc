@@ -170,8 +170,17 @@ function churchresource_updateBooking($params) {
     if (isset($params["exceptions"])) {
       $days=array();
       foreach ($params["exceptions"] as $exception) {
-        if (($exception["id"]>0) && (isset($exc[$exception["id"]]))) 
-          $exc[$exception["id"]]->vorhanden=true;
+        $current_exc=null;
+        // Look for Exc. This is not possible to make by id, cause ChurchCal Exc have other IDs
+        if ($exc!=false) {
+          foreach ($exc as $e) {
+            if (($e->except_date_start==$exception["except_date_start"]) &&
+                     ($e->except_date_end==$exception["except_date_end"]))
+              $current_exc=$e; 
+          }
+        }
+        if ($current_exc!=null) 
+          $exc[$current_exc->id]->vorhanden=true;
         else {
           $res_exceptions[$exception["id"]]=addException($params["id"], $exception["except_date_start"], $exception["except_date_end"], $user->id);
           $days[]=$exception["except_date_start"];
@@ -201,8 +210,16 @@ function churchresource_updateBooking($params) {
     if (isset($params["additions"])) {
       $days=array();
       foreach ($params["additions"] as $addition) {
-        if ($addition["id"]>0) 
-          $add[$addition["id"]]->vorhanden=true;
+        $current_add=null;
+        // Look for additions. This is not possible to make by id, cause ChurchCal Additions have other IDs
+        if ($add!=false) {
+          foreach ($add as $a) {
+            if (($a->add_date==$addition["add_date"]) && ($a->with_repeat_yn==$addition["with_repeat_yn"]))
+              $current_add=$a; 
+          }
+        }
+        if ($current_add!=null) 
+          $add[$current_add->id]->vorhanden=true;
         else {
           $res_additions[$addition["id"]]=addAddition($params["id"], $addition["add_date"], $addition["with_repeat_yn"], $user->id);
           $days[]=$addition["add_date"];
@@ -262,6 +279,7 @@ function _shiftDate($date, $minutes) {
 
 function churchresource_updateResourcesFromChurchCal($params, $source) {
   global $user;
+    
   $resources=churchcore_getTableData("cr_resource");
   $db=db_query('select * from {cr_booking} where cc_cal_id=:cal_id', 
       array(":cal_id"=>$params["id"]));
@@ -350,7 +368,7 @@ function addException($booking_id, $date_start, $date_end, $pid) {
      "except_date_start"=>$date_start,
      "except_date_end"=>$date_end,
      "modified_pid"=>$pid,
-     "modified_date"=>$dt->format('Y-m-d H:i:s')))->execute();
+     "modified_date"=>$dt->format('Y-m-d H:i:s')))->execute(false);
 }
 function churchresource_delException($params) {
   $exc_id=$params["id"];

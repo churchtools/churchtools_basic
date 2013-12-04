@@ -246,8 +246,12 @@ function churchcal_addAddition($params) {
 }
 
 function churchcal_delAddition($params) {
+  ct_log("del add", 1);
+  $db=db_query("select cal_id from {cc_cal_add} where id=:id", array(":id"=>$params["id"]))->fetch();
   
-  if (!churchcal_isAllowedToEditEvent($params["id"]))
+  if ($db==false)
+    throw new CTException("Manuellen Termin #"+$params["id"]+" nicht gefunden!");
+  if (!churchcal_isAllowedToEditEvent($db->cal_id))
     throw new CTNoPermission("AllowToEditEvent", "churchcal");
     
   $i = new CTInterface();

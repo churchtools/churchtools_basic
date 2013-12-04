@@ -1,15 +1,5 @@
 <?php
 
-/*  db_query("DROP TABLE {cdb_newsletter}");
-  db_query("CREATE TABLE  drupal7_intern.cdb_newsletter (
-id INT( 11 ) NOT NULL AUTO_INCREMENT ,
-bezeichnung VARCHAR( 50 ) NOT NULL ,
-filter BLOB NOT NULL ,
-PRIMARY KEY (  id )
-) ENGINE = INNODB;");  
-  db_query("INSERT INTO  {cc_auth} (id, auth, modulename, bezeichnung, datenfeld) values (131, 'edit newsletter', 'churchdb', 'Newsletter-Abos editieren und Newsletter schreiben', 'cdb_newsletter')");
-  */
-
 function set_version($db_version) {
   db_query("update {cc_config} set value='$db_version' where name='version'");
   set_time_limit(300);

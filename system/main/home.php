@@ -41,7 +41,7 @@ function home_main() {
     <ul class="nav nav-pills nav-stacked">';
     
     foreach ($btns as $key) {
-      if (($config[$key."_name"]!="") && (user_access("view", $key)))  {   
+      if ((isset($config[$key."_name"])) && ($config[$key."_name"]!="") && (user_access("view", $key)))  {   
         include_once("system/".$mapping[$key]);
         $txt.=  
         '<li><a class="btn btn-prima_ry btn-large" href="?q='.$key.'">
