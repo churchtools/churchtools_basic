@@ -239,13 +239,25 @@ function churchcal_getAuthForAjax() {
       }        
     }
   }
-  $ret["view churchservice"]=user_access("view", "churchservice") && user_access("edit events", "churchservice");
-  $ret["view churchdb"]=user_access("view", "churchdb");  
-  $ret["view alldata"]=user_access("view alldata", "churchdb")!=null;  
-
-  $ret["view churchresource"]=user_access("view", "churchresource");
-  $ret["create bookings"]=user_access("create bookings", "churchresource");
-  $ret["administer bookings"]=user_access("administer bookings", "churchresource");
+  
+  if (user_access("view", "churchservice") && user_access("edit events", "churchservice"))
+    $ret["view churchservice"]=true;
+  
+  if (user_access("view", "churchdb")) {
+    $ret["view churchdb"]=true;
+    if (user_access("view alldata", "churchdb")!=null)
+      $ret["view alldata"]=true;
+  }
+  
+  if (user_access("view", "churchresource"))
+    $ret["view churchresource"]=true;
+  
+  if (user_access("create bookings", "churchresource"))
+    $ret["create bookings"]=true;
+  
+  if (user_access("administer bookings", "churchresource"))
+    $ret["administer bookings"]=true;
+  
   return $ret;    
 }
 

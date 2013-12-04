@@ -659,7 +659,7 @@ function churchcal__ical() {
           $txt.="DTEND:".$enddate->format('Ymd\THis')."\r\n";
         }
         
-        $txt.="DESCRIPTION:Kalender:".$cat_names[$res->category_id]->bezeichnung."; Cal[$res->id]\r\n"; 
+        $txt.='DESCRIPTION:Kalender:'.$cat_names[$res->category_id]->bezeichnung.' - Cal['.$res->id.']'."\r\n"; 
         $txt.="END:VEVENT\r\n";
       } 
     }

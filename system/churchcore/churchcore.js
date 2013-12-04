@@ -30,7 +30,7 @@ function user_access(auth, datafield) {
   $auth_arr=auth.split("||");
   var res=false;
   $.each($auth_arr, function(k,a) {
-    if (masterData.auth!=null && masterData.auth[a.trim()]!=null)
+    if (masterData.auth!=null && masterData.auth[a.trim()])
       if (datafield==null) res=true;
       else if (masterData.auth[a.trim()][datafield]!=null) res=true;          
   });
