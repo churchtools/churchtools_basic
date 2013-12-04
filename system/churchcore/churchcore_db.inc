@@ -799,72 +799,37 @@ function churchcore_sendEMailToPersonids($ids, $betreff, $inhalt, $from=null, $h
 
 
 function checkForDBUpdates() {
-  global $config, $mapping, $base_url, $user;
+  global $mapping;
+
+  if ($mapping["churchtools_version"]==null)
+    die("churchtools_version nicht gefunden!");
+  $software_version=$mapping["churchtools_version"];
+
+  $db_version="nodb";
+
   try {
-    // Checke, ob CC_CONFIG vorhanden
+    // test if cc_config table is present
     $a=db_query("select * from {cc_config} where name='version'",null,false);
-    // Wenn er hier ankommt, dann ist so vorhanden und fürhe Updates durch
-    if ($mapping["churchtools_version"]==null)
-      die("churchtools_version nicht gefunden!");
-    $software_version=$mapping["churchtools_version"];
+    // if we arrive here, it is, so fetch current database version
     $db_version=$a->fetch()->value;
-    $old_db_version=$db_version;
-    $counter=100; // Zum Sicherstellen, dass er hier nicht festhängt.
-    while (($counter>0) && ($software_version!=$db_version)) {
-      include_once("system/includes/db_updates.php");
-      $counter--;
-      // Zerlege die Version in Hauptversion und Unterversion.
-      $arr=explode(".",$db_version);
-      // Addiere 1 zur Unterversion
-      $arr[1]=$arr[1]+1; if (strlen($arr[1])==1) $arr[1]="0".$arr[1];
-      $db_version=$arr[0].".".$arr[1];
-      // Rufe Funktion auf, wenn es eine gibt.
-      $func_name="updateDB_".$arr[0].$arr[1];
-      if (function_exists($func_name)) call_user_func($func_name);
-      // Aktualisiere DB
-      $a=db_query("update {cc_config} set value=:value where name='version'", array(":value"=>$db_version));
-    }
-    if ($counter==0) {
-      addErrorMessage("Fehler beim Update der Datenbank von ".$old_db_version." auf $software_version: Zu viele &Auml;nderungen. Bitte versuchen Sie es erneut. Wenn es immer noch zum Fehler kommt wenden Sie sich bitte an Ihren Administrator.");
-      return false;
-    }
-    else if ($counter<100) {      
-      addInfoMessage("Datenbankupdates ausgef&uuml;hrt von ChurchTools v$old_db_version auf v".$software_version);
-      cleanI18nFiles();
-      $sitename=$config["site_name"];
-      churchcore_systemmail("info@churchtools.de", "Neue Version auf ".$sitename, "Datenbankupdates ausgefuehrt von ChurchTools v$old_db_version auf v".$software_version."\n".$base_url);
-      churchcore_systemmail($config["site_mail"], "Neue Version auf ".$config["site_name"], "Datenbankupdates ausgefuehrt von ChurchTools v$old_db_version auf v".$software_version."\n".$base_url);
-      if (userLoggedIn()) {
-        $user=$_SESSION["user"];
-        $user->auth=getUserAuthorization($user->id);
-        $_SESSION["user"]=$user;
-      }      
-    }
-    return true;
   }
   catch (Exception $e) {
-    include_once("system/includes/db_updates.php");
     try {
-      // Prüfe, ob überhaupt schon Tabellen vorliegen, dann Neuinstallation, ansonsten Update von 1.XX
+      /* if cdb_person is present, but not cc_config, it's a pre-2.0 database */
       $a=db_query("select * from {cdb_person}",null,false);    
-      initTablesFor20();
-      addInfoMessage("Installiere Tabellen f&uuml;r Version 2.00");
-      return checkForDBUpdates();
+      $db_version="pre-2.0";
     }
     catch (Exception $e) {
-      if (isset($_GET["installdb"])) {
-        if (installDataTables()) {
-          addInfoMessage("Installiere Datenbanktabellen");
-          return checkForDBUpdates();
-        }  
-        else return false;
-      }
-      else {
-        addInfoMessage('Keine Datenbank-Tabellen gefunden. Soll ich sie nun anlegen?<p><a href="?installdb=true" class="btn">Tabellen jetzt anlegen</a>');
-        return false;
-      }      
+      /* still not? start from scratch */
+      $db_version="nodb";
     }
   }
+  /* anything to do? */
+  if ($db_version == $software_version)
+    return true;
+
+  include_once("system/includes/db_updates.php");
+  return run_db_updates($db_version);
 }
 
 function variable_get($var, $default=null) {
@@ -1778,7 +1743,7 @@ function user_save() {
 // --- DATENBANK_TOOLS
 // ----------------------------------------
 
-$mysqli;
+$db_pdo;
 
 class SQLException extends Exception {
   // Die Exceptionmitteilung neu definieren, damit diese nicht optional ist
@@ -1795,42 +1760,31 @@ class SQLException extends Exception {
   
 }
 
+/* TODO: remove all users */
 function escape_string($str) {
-  global $mysqli;
-  //return str_replace("'","\'",$txt);
-  return $mysqli->real_escape_string($str);
+  global $db_pdo;
+  return $db_pdo->quote($str);
 }
 
 /*
  * Connect to the MySQL database.
  */
 function db_connect() {
-    global $config, $mysqli;
-    $mysqli = new mysqli($config["db_server"], $config["db_user"], $config["db_password"], $config["db_name"]);
-    
-    if ($mysqli->connect_errno) {
-        $error_message = "<h3>" . "Database connection error" . "</h3>";
-        $error_message .= "<p><strong>" . "Reason: " . "</strong>" . $mysqli->connect_error . "</p>";
-        $error_message .= "<div class=\"alert alert-info\">";
-        $error_message .= sprintf("Please edit your default configuration file <code>%s</code>, perhaps?", $config["_current_config_file"]);
+    global $config, $db_pdo;
+    try {
+        $db_pdo = new PDO("mysql:hostname=${config["db_server"]};dbname=${config["db_name"]};charset=utf8", $config["db_user"], $config["db_password"], array(PDO::ATTR_PERSISTENT => TRUE, PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
+    } catch(PDOException $e) {
+        $error_message = "<h3>Database connection error</h3>";
+        $error_message .= "<p><strong>Reason: </strong>" . $e->getMessage() . "</p>";
+        $error_message .= "<div class='alert alert-info'>";
+        $error_message .= "Please edit your default configuration file <code>".$config["_current_config_file"]."</code>, perhaps?";
         $error_message .= "</div>";
         
         addErrorMessage($error_message);
         return false;
     }
     
-    if (!$mysqli->set_charset("utf8")) {
-        addErrorMessage("Error loading character set UTF-8: %s\n", $mysqli->error);
-        
-        return false;
-    }
-    
     return true;
-}
-
-function db_close() {
-  global $mysqli;
-  $mysqli->close();
 }
 
 /**
@@ -1840,29 +1794,20 @@ function db_close() {
  * @param unknown_type $print_error true=>echo the error message, otherwise SQLException will be thrown 
  */
 function db_query($sql, $params=null, $print_error=true) {
-  global $mysqli, $config;
+  global $db_pdo, $config;
   
   $sql=str_replace("{",$config["prefix"],$sql);
   $sql=str_replace("}","",$sql);
-  if ($params!=null) { 
-    foreach ($params as $key=>$val) {
-      $val=escape_string($val);
-      if (($key==":id") && (strpos($val," ") !== false) && ($val>=1))
-        echo $mysqli->error."\nStrange Id: ".$sql;    
-      
-      if (gettype($val)=="string")
-        $val="'".$val."'";
-      $sql=str_replace($key,$val,$sql);      
+  $res = $db_pdo->prepare($sql);
+  if ($res === FALSE) {
+    $err = $db_pdo->errorInfo();
+    if ($print_error) {
+      echo $err[2]."\nGesamtes SQL: ".$sql;
     }
-  }
-  $res = $mysqli->query($sql);
-  if (!$res) {
-    if ($print_error)
-      echo $mysqli->error."\nGesamtes SQL: ".$sql;    
-    else throw new SQLException($mysqli->error."\nGesamtes SQL: ".$sql);  
+    else throw new SQLException($err[2]."\nGesamtes SQL: ".$sql);
     return false;
-  } 
-  $d = new db_accessor($res);
+  }
+  $d = new db_accessor($res, $params, $sql);
   return $d;
 }
 
@@ -1872,15 +1817,16 @@ class db_accessor implements Iterator {
   private $res=null;
   private $current=null;
 
-  public function __construct($_res) {
+  public function __construct($_res, $params = null, $sql = null) {
     $this->res = $_res;
-    if ($this->res==null)
-      die("db_test::fetch - res = null");
-    if (!$this->res instanceof mysqli_result) {
+    if (!$this->res instanceof PDOStatement) {
       return null;
     }
-    else
-      $this->current=$this->res->fetch_object();
+    if (!$this->res->execute($params)) {
+      $err = $this->res->errorInfo();
+      throw new SQLException($err[2]."\nSQL: $sql\n".print_r($params, true));
+    }
+    $this->next();
   }    
   public function fetch() {
     return $this->current;
@@ -1898,13 +1844,14 @@ class db_accessor implements Iterator {
   }
 
   function next() {
-    $this->current=$this->res->fetch_object();
+    $this->current=$this->res->fetchObject();
   }
 
   function valid() {
     return $this->current!=null;
   }  
   
+  /* FIXME: unused, but also not useful right now in "basic" version */
   function getResult() {
     return $this->res; 
   }
@@ -1940,13 +1887,13 @@ class db_updatefields extends db_fields {
       if (!isset($val))
         $sql.="null";
       else {
-        if (gettype($val)=="string")
-          $sql.="'".escape_string($val)."'";
+        if (is_string($val))
+          $sql.=escape_string($val);
         else  
           $sql.="$val";
       }      
     }
-    $sql.=" WHERE 1=1 ";
+    $sql.=" WHERE 1 ";
     return new db_execute($sql);
   }
 }
@@ -1974,8 +1921,8 @@ class db_insertfields extends db_fields {
       if (!isset($val))
         $sql.="null";
       else {
-        if (gettype($val)=="string")
-          $sql.="'".escape_string($val)."'";
+        if (is_string($val))
+          $sql.=escape_string($val);
         else  
           $sql.="$val";
       }  

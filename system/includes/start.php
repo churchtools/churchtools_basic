@@ -25,7 +25,6 @@ function handleShutdown() {
     $info = "[ERROR] file:".$error['file'].":".$error['line']." <br/><i>".$error['message'] .'</i>'.PHP_EOL;
     echo '<div class="alert alert-error">'.$info.'</div>';
   }
-  db_close();
 }
 
 /**
