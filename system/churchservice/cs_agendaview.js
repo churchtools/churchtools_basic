@@ -40,7 +40,6 @@ AgendaView.prototype.groupingFunction = function(event) {
 };
 
 AgendaView.prototype.renderMenu = function() {
-  this_object=this;
 
   menu = new CC_Menu("Men&uuml;");
 
@@ -208,17 +207,15 @@ AgendaView.prototype.saveAgenda = function(agenda, func) {
  * Render the field dataField of object o
  * @param o
  * @param dataField
- * @param fullVersion - Render with full infos like Song-Name, Duration etc.
  * @returns string
  */
-AgendaView.prototype.renderField = function(o, dataField, fullVersion) {
+AgendaView.prototype.renderField = function(o, dataField) {
   var t=this;
   var rows=new Array();
-  if (fullVersion==null) fullVersion=true;
   
   if (dataField=="duration")
     rows.push(o.duration.formatMS());
-  else if (dataField=="bezeichnung" && fullVersion) {
+  else if (dataField=="bezeichnung") {
     if (o.header_yn==1) {
       rows.push('<b>'+o.bezeichnung+'</b>');
       if (o.duration!=0) {
@@ -265,10 +262,7 @@ AgendaView.prototype.renderField = function(o, dataField, fullVersion) {
   }
   else if (dataField.indexOf("servicegroup")==0) {
     if (o.servicegroup!=null && o.servicegroup[dataField.substr(12,99)]!=null)
-      if (fullVersion)
-        rows.push('<small>'+o.servicegroup[dataField.substr(12,99)]+'</small>');
-      else
-        rows.push(o.servicegroup[dataField.substr(12,99)]);
+      rows.push('<small>'+o.servicegroup[dataField.substr(12,99)]+'</small>');
   }
   else rows.push(o[dataField]);
   
@@ -287,53 +281,6 @@ AgendaView.prototype.rerenderField = function(input, dataField) {
   return input; 
 };
 
-AgendaView.prototype.startEditMode = function (editable) {
-  var t=this;
-  
-  // Check if this class has not already started the edit mode
-  if (!editable.hasClass("editmode")) { 
-    var data=t.getData();
-    var id=editable.parents("tr").attr("id");
-    var col=editable.attr("data-field");
-
-    // Take off editor, when there are there is an old editable
-    $(".editmode").each(function(k,a) {
-      t.saveEditMode(data[$(a).parents("tr").attr("id")],$(a));
-    });          
-    editable.addClass("editmode");
-    var elem=null;
-    if (editable.hasClass("textarea")) {
-      elem=editable.html('<textarea class="editor" maxlength=200 style="margin:0;width:'+(editable.width()-10)+'px" '
-          +'>'+t.renderField(data[id], col, false)+'</textarea>')
-        .find("textarea");
-      // Limit max character to given maxlength
-      elem.keyup(function(){
-        var max = parseInt($(this).attr('maxlength'));   
-        if($(this).val().length > max){
-           $(this).val($(this).val().substr(0, max));
-        }        
-        $(this).parent().find('.charleft').html(max - $(this).val().length);
-     });  
-    }
-    else {
-      elem=editable.html('<input type="text" class="editor" style="margin:0;width:'+(editable.width()-10)+'px" '
-           +'value="'+t.renderField(data[id], col, false)+'"/>')
-         .find("input");
-    }
-    elem.focus();
-    elem.keyup(function(e) {
-      // Enter
-      if (e.keyCode == 13) {
-        t.saveEditMode(data[id], editable);
-      }
-      // Escape
-      else if (e.keyCode == 27) {
-        t.cancelEditMode(data[id], editable)
-      }
-    });
-  }  
-};
-
 AgendaView.prototype.saveServiceGroupNote = function (data, servicegroup_id) {
   churchInterface.jsendWrite({func:"saveServiceGroupNote", item_id:data.id, servicegroup_id:servicegroup_id,
       note:data.servicegroup[servicegroup_id]}, function(ok, data) {
@@ -341,47 +288,6 @@ AgendaView.prototype.saveServiceGroupNote = function (data, servicegroup_id) {
       });
 };
 
-AgendaView.prototype.saveEditMode = function(data, editable) {
-  var t=this;
-  var col=editable.attr("data-field");
-  if (col=="bezeichnung") { 
-    data[col]=t.rerenderField(editable.find("input").val(), col);
-    t.saveItem(data);
-    var pos=$(document).scrollTop();
-    t.renderList();
-    window.setTimeout(function() { $(document).scrollTop(pos);}, 10);
-  } 
-  else if (col.indexOf("servicegroup")==0) {
-    if (data.servicegroup==null) data.servicegroup=new Object();
-    data.servicegroup[col.substr(12,99)]=t.rerenderField(editable.find("textarea").val(), col);
-    editable.html(t.renderField(data, col));
-    editable.removeClass("editmode");
-    t.saveServiceGroupNote(data, col.substr(12,99));
-    
-    //t.saveItem(data);    
-  }
-  else {
-    data[col]=t.rerenderField(editable.find("input").val(), col);
-    t.saveItem(data);
-    editable.html(t.renderField(data, col));
-    editable.removeClass("editmode");  
-    t.renderTimes();
-  }
-};
-
-AgendaView.prototype.cancelEditMode = function(data, editable) {
-  var t=this;
-  var col=editable.attr("data-field");
-  if (col=="bezeichnung") {
-    t.renderList();
-  }
-  else {
-    t.renderTimes();
-    editable.html(t.renderField(data, col));
-    editable.removeClass("editmode");  
-    t.renderTimes();
-  }
-};
 
 AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
   var t=this;
@@ -390,8 +296,6 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
   t.renderTimes();
   
   if (!smallVersion) {
-    $(cssid+" a.dropdown-toggle").dropdown();
-    
     $(cssid+" a").click(function (a) {
       // Person zu einer Kleingruppe dazu nehmen
       if ($(this).attr("id")==null) 
@@ -409,26 +313,6 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
       }
     });
     
-    
-    $(cssid+" a.edit-item").click(function() {
-      t.editItem(t.currentAgenda.items[$(this).attr("data-id")]);
-      return false;
-    });
-    $(cssid+" a.delete-item").click(function() {
-      if (churchcore_countObjectElements(t.currentAgenda.items)==1) {
-        alert("Position kann nicht gelöscht werden. Es muß mindestens eine Position bestehen bleiben!");
-      }
-      else {
-        var id=$(this).parents("span.dropdown").attr("data-id");
-        if (confirm("Position "+t.currentAgenda.items[id].bezeichnung+" wirklich löschen?")) {
-          t.deleteItem(t.currentAgenda.items[id], function() {
-            t.renderList();
-          });
-        }
-      }
-      return false;
-    });
-    
     $(cssid+" a.attachement").click(function() {
       var id=$(this).parents("tr").attr("id");
       var arr_id=t.currentAgenda.items[id].arrangement_id;
@@ -440,33 +324,126 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
       }
     });
     
-    $(cssid+" a.add-item").click(function() {
-      var elem=$(this);
-      var orig_item_id=elem.parents("span.dropdown").attr("data-id");
-      // When addings songs it will lead to the songView, where I can select a song
-      if (elem.hasClass("song")) {
-        songView.songselect={post:elem.hasClass("post"), orig_item_id:orig_item_id};
-        churchInterface.setCurrentView(songView);
-      }
-      else {
-        t.addItem(orig_item_id, elem.hasClass("post"), elem.hasClass("header"));
-      }
-  
-      return false;
-    });
-  
     if (t.currentAgenda!=null && user_access("edit agenda", t.currentAgenda.calcategory_id)
       && (t.currentAgenda.template_yn==0 || user_access("edit agenda templates", t.currentAgenda.calcategory_id))) {
-      $(cssid+" td.editable,"+cssid+" td.clickable").hover(function() {
+
+      $(cssid+" td.clickable").hover(function() {
           $(this).addClass("active");
         },
         function() {
           $(this).removeClass("active");
         }
       );
-      $(cssid+" td.editable").click(function() {
-        t.startEditMode($(this));
+
+      // Implements editable
+      $(cssid+" td.editable").each(function(k,a) {
+        var id=$(this).parents("tr").attr("id");
+        var field=$(this).attr("data-field");
+        $(this).editable({
+          
+          type: ($(this).hasClass("textarea")?"textarea":"input"),
+          
+          data: {id:id, field:field},
+          
+          success:
+            function(newval, data) {
+              item=t.currentAgenda.items[data.id];           
+              if (data.field=="bezeichnung") { 
+                item[data.field]=newval;
+                t.saveItem(item);
+              } 
+              else if (data.field.indexOf("servicegroup")==0) {
+                if (item.servicegroup==null) item.servicegroup=new Object();
+                item.servicegroup[data.field.substr(12,99)]=newval;
+                t.saveServiceGroupNote(item, data.field.substr(12,99));
+              }
+              else {
+                item[data.field]=newval;
+                t.saveItem(item);
+              }            
+            },
+          
+          value: (field.indexOf("servicegroup")==0
+                   ?(t.currentAgenda.items[id].servicegroup!=null?t.currentAgenda.items[id].servicegroup[field.substr(12,99)]:"")
+                   :t.currentAgenda.items[id][field]),
+                   
+          render: 
+            function(txt, data) {
+              return t.renderField(t.currentAgenda.items[data.id], data.field, true);
+            },
+            
+          rerenderEditor:
+            function(txt, data) {
+              if (data.field=="duration") {
+                var a=txt.split(":");
+                if (a.length==1)
+                  return a[0]*60+"";
+                else
+                  return (a[0]*60+a[1]*1)+"";
+              }
+              else return txt;            
+            },
+            
+          renderEditor:
+            function(txt, data) {
+              if (data.field=="duration") return txt.formatMS();
+              else return txt;
+            },
+            
+          afterRender:
+            function(element, data) {
+              // Now implement callbacks
+              if (data.field=="bezeichnung") {
+                
+                element.find("a.dropdown-toggle").dropdown();
+                
+                element.find("a.add-item").click(function() {
+                  var elem=$(this);
+                  var orig_item_id=elem.parents("span.dropdown").attr("data-id");
+                  // When addings songs it will lead to the songView, where I can select a song
+                  if (elem.hasClass("song")) {
+                    songView.songselect={post:elem.hasClass("post"), orig_item_id:orig_item_id};
+                    churchInterface.setCurrentView(songView);
+                  }
+                  else {
+                    t.addItem(orig_item_id, elem.hasClass("post"), elem.hasClass("header"));
+                  }
+                  return false;
+                });
+                
+                element.find("a.edit-item").click(function() {
+                  t.editItem(t.currentAgenda.items[$(this).attr("data-id")]);
+                  return false;
+                });
+                
+                element.find("a.delete-item").click(function() {
+                  if (churchcore_countObjectElements(t.currentAgenda.items)==1) {
+                    alert("Position kann nicht gelöscht werden. Es muß mindestens eine Position bestehen bleiben!");
+                  }
+                  else {
+                    if (confirm("Position "+t.currentAgenda.items[id].bezeichnung+" wirklich löschen?")) {
+                      t.deleteItem(t.currentAgenda.items[id], function() {
+                        t.renderList();
+                      });
+                    }
+                  }
+                  return false;
+                });
+                
+                element.find("a.view-song").click(function() {
+                  var song_id=$(this).attr("data-song-id");
+                  var arrangement_id=$(this).attr("data-arrangement-id");
+                  allSongs[song_id].active_arrangement_id=arrangement_id;
+                  songView.filter["searchEntry"]="#"+song_id;
+                  churchInterface.setCurrentView(songView, false);
+                  return false;
+                });
+                
+              }              
+            }
+        });
       });
+
       $(cssid+" td.clickable").click(function() {
         var data=t.getData();
         var id=$(this).parents("tr").attr("id");
@@ -485,8 +462,6 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
           t.renderTimes();
         }    
       });
-    
-    
       
       $("tbody").sortable({
           helper: function(e, tr) {
@@ -510,14 +485,6 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
       }).disableSelection();
     }
   }
-  $(cssid+" a.view-song").click(function() {
-    var song_id=$(this).attr("data-song-id");
-    var arrangement_id=$(this).attr("data-arrangement-id");
-    allSongs[song_id].active_arrangement_id=arrangement_id;
-    songView.filter["searchEntry"]="#"+song_id;
-    churchInterface.setCurrentView(songView, false);
-    return false;
-  });
   
 
 };

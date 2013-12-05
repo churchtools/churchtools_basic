@@ -98,6 +98,7 @@ ListView.prototype.renderMenu = function() {
 };
 
 ListView.prototype.renderListMenu = function() {
+  var this_object=this;
   
   var navi = new CC_Navi();
   navi.addEntry(churchInterface.isCurrentView("ListView"),"alistview","Dienstplan");

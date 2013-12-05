@@ -1804,3 +1804,109 @@ function form_renderHelpLink(link, invert) {
   else
     return '<a href="http://intern.churchtools.de?q=help&doc='+link+'" target="_clean"><i class="icon-question-sign icon-white"></i></a>';
 }
+
+/**
+ * options:
+ *   create()
+ *   success()
+ *   cancel()
+ */
+$.widget("ct.editable", {
+  
+  options: {
+    value:null,
+    data:null,
+    type:"input",
+    renderEditor: function(txt, data) {return txt; },
+    rerenderEditor: function(txt, data) {return txt; },
+    afterRender: function(data) {},
+    render: function(txt, data) {return txt; }
+  },
+  
+  _create: function() {
+    var t=this;
+    if (t.options.value==null) t.options.value="";
+    t._renderField();
+    this.element.click(function() {
+      t._startEditor();     
+    });
+    this.element.hover(function() {
+      $(this).addClass("active");
+    },
+    function() {
+      $(this).removeClass("active");
+    }
+  );
+
+    
+  },
+  
+  success: function() {
+    this.options.value=this.options.rerenderEditor(this.element.find(this.options.type).val(), this.options.data);
+    this.options.success(this.options.value, this.options.data);
+    this.element.removeClass("editmode");  
+    this._renderField();    
+  },
+  
+  cancel: function() {
+    this.element.removeClass("editmode");  
+    this._renderField();    
+  },
+  
+  _renderField: function() {
+    this.element.html(this.options.render(this.options.value, this.options.data));
+    this.options.afterRender(this.element, this.options.data);
+  },
+  
+  _renderEditor: function() {
+    return this.options.renderEditor(this.options.value, this.options.data);
+  },
+  
+  _startEditor: function() {
+    var t=this;
+    editable=this.element;
+    // Check if this class has not already started the edit mode
+    if (!editable.hasClass("editmode")) { 
+      // Take off editor, when there are there is an old editable
+      $(".editmode").each(function(k,a) {
+        $(a).editable("success");
+      });          
+      editable.addClass("editmode");
+      var elem=null;
+      if (t.options.type=="textarea") {
+        elem=editable.html('<textarea class="editor" maxlength=200 style="margin:0;width:'+(editable.width()-10)+'px" '
+            +'>'+t._renderEditor()+'</textarea>')
+          .find(t.options.type);
+        // Limit max character to given maxlength
+        elem.keyup(function(){
+          var max = parseInt($(this).attr('maxlength'));   
+          if($(this).val().length > max){
+             $(this).val($(this).val().substr(0, max));
+          }        
+          $(this).parent().find('.charleft').html(max - $(this).val().length);
+       });  
+      }
+      // Type=input
+      else {
+        elem=editable.html('<input type="text" class="editor" style="margin:0;width:'+(editable.width()-10)+'px" '
+             +'value="'+t._renderEditor()+'"/>')
+           .find(t.options.type);
+      }
+      elem.focus();
+      elem.keyup(function(e) {
+        // Enter
+        if (e.keyCode == 13) {
+          t.success();
+        }
+        // Escape
+        else if (e.keyCode == 27) {
+          t.cancel();
+        }
+      }); 
+    }
+  }
+  
+});
+
+
+
