@@ -1820,7 +1820,8 @@ $.widget("ct.editable", {
     renderEditor: function(txt, data) {return txt; },
     rerenderEditor: function(txt, data) {return txt; },
     afterRender: function(data) {},
-    render: function(txt, data) {return txt; }
+    render: function(txt, data) {return txt; },
+    validate: function(txt, data) {return true; }
   },
   
   _create: function() {
@@ -1831,21 +1832,22 @@ $.widget("ct.editable", {
       t._startEditor();     
     });
     this.element.hover(function() {
-      $(this).addClass("active");
-    },
-    function() {
-      $(this).removeClass("active");
-    }
-  );
-
-    
+        $(this).addClass("active");
+      },
+      function() {
+        $(this).removeClass("active");
+      }
+    );    
   },
   
   success: function() {
-    this.options.value=this.options.rerenderEditor(this.element.find(this.options.type).val(), this.options.data);
-    this.options.success(this.options.value, this.options.data);
-    this.element.removeClass("editmode");  
-    this._renderField();    
+    var newval=this.options.rerenderEditor(this.element.find(this.options.type).val(), this.options.data);
+    if (this.options.validate(newval, this.options.data)) {
+      this.options.value=newval;
+      this.options.success(this.options.value, this.options.data);
+      this.element.removeClass("editmode");  
+      this._renderField();    
+    }
   },
   
   cancel: function() {

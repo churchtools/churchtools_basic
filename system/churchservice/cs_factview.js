@@ -75,74 +75,55 @@ FactView.prototype.groupingFunction = function (event) {
   return txt;
 };
 
-function _processInputFact() {
-  var event_id=$("#inputFact").parents("td.editable").attr("event_id");
-  var fact_id=$("#inputFact").parents("td.editable").attr("fact_id");
-  if ((event_id!=null) && ($("#inputFact").val()!=null)) {
-    if (!($("#inputFact").val().replace(",",".")>=0)) {
-      alert("Wert muss >=0 sein!");
-      $("#inputFact").focus();
-      return false;
-    }
-    if (allEvents[event_id].facts==null)
-      allEvents[event_id].facts=new Object();
-    var o = new Object();
-    o.fact_id=fact_id;
-    o.value=$("#inputFact").val().replace(",",".");
-    churchInterface.jsendWrite({func:"saveFact",event_id:event_id,fact_id:fact_id,value:o.value}, function(ok, data) {
-      if (!ok) alert("Fehler beim Speichern: "+data);
-      else {
-        allEvents[event_id].facts[fact_id]=o;
-        $("#inputFact").parent().html(o.value);
-      }  
-    });
-  }
-  return true;
-}
-
-FactView.prototype.addFurtherListCallbacks = function() {
+FactView.prototype.addFurtherListCallbacks = function(cssid) {
   var t=this;
   
   if (masterData.auth.editfacts) {
-  
-    $("td.editable").hover(function() {
-        $(this).addClass("active");
-      },
-      function() {
-        $(this).removeClass("active");
-      }
-    );
-  
-  
-    $("td.editable").click(function(k) {
-  
-      // Wenn der Wert in Ordnung ist bzw. kein Wert da ist
-      if (_processInputFact(event_id, fact_id)) {
-        var event_id=$(this).attr("event_id");
-        var fact_id=$(this).attr("fact_id");
-        var _value="";
-        if ((event_id!=null) && (allEvents[event_id].facts!=null) && (allEvents[event_id].facts[fact_id]!=null)) {
-          _value=allEvents[event_id].facts[fact_id].value;
-        }
-        $(this).html(form_renderInput({value:_value, type:"mini", cssid:"inputFact"}));
-        $("#inputFact").focus();
-        $('#inputFact').keyup(function(e) {
-          // Enter
-          if (e.keyCode == 13) {
-            _processInputFact(event_id, fact_id);
-          }
-          // Escape
-          else if (e.keyCode == 27) {
-            var event_id=$("#inputFact").parents("td.editable").attr("event_id");
-            var fact_id=$("#inputFact").parents("td.editable").attr("fact_id");
-            if ((allEvents[event_id].facts!=null) && (allEvents[event_id].facts[fact_id]!=null))
-              $("#inputFact").parent().html(allEvents[event_id].facts[fact_id].value);
-            else
-              $("#inputFact").remove();
-          }
-        });
-      }
-    });
+
+    // Implements editable
+    $(cssid+" td.editable").each(function(k,a) {
+      var event_id=$(this).attr("event_id");
+      var fact_id=$(this).attr("fact_id");
+      $(this).editable({
+        
+        type: ($(this).hasClass("textarea")?"textarea":"input"),
+        
+        data: {event_id:event_id, fact_id:fact_id},
+        
+        rerenderEditor: 
+          function(txt) {
+            return txt.replace(",",".");
+          },
+        
+        validate:
+          function(newval, data) {
+            if (!isNumber(newval)) {
+              alert("Wert muss >=0 sein!");
+              return false;
+            }
+            return true;
+          },
+        
+        success:
+          function(newval, data) {
+            if (allEvents[data.event_id].facts==null)
+              allEvents[data.event_id].facts=new Object();
+            o=$.extend({}, data);
+            o.value=newval;
+            o.func="saveFact";
+            churchInterface.jsendWrite(o, function(ok, data) {
+              if (!ok) alert("Fehler beim Speichern: "+data);
+              else {
+                allEvents[event_id].facts[fact_id]=o;
+              }  
+            });
+          },
+        
+        value: ((event_id!=null) && (allEvents[event_id].facts!=null) && (allEvents[event_id].facts[fact_id]!=null)?
+            allEvents[event_id].facts[fact_id].value:null),
+                 
+      });
+    });    
   }
 };
 
