@@ -40,6 +40,7 @@ AgendaView.prototype.groupingFunction = function(event) {
 };
 
 AgendaView.prototype.renderMenu = function() {
+  var t=this;
 
   menu = new CC_Menu("Men&uuml;");
 
@@ -56,10 +57,10 @@ AgendaView.prototype.renderMenu = function() {
   else {
       $("#cdb_menu a").click(function () {
       if ($(this).attr("id")=="anewentry") {
-        this_object.renderAddEntry();
+        t.renderAddEntry();
       }
       else if ($(this).attr("id")=="anewtemplate") {
-        this_object.editAgenda(null, true);
+        t.editAgenda(null, true);
       }
       else if ($(this).attr("id")=="aexport") {
         churchcore_openNewWindow("?q=churchservice/exportfacts");
@@ -78,6 +79,7 @@ AgendaView.prototype.renderMenu = function() {
 };
 
 AgendaView.prototype.editAgenda = function(agenda, template) {
+  var t=this;
   var form = new CC_Form((template?"Vorlage für Ablaufpläne editieren":"Ablaufplan editieren"), agenda);
   form.addInput({label:"Bezeichnung", cssid:"bezeichnung"});
   form.addInput({label:"Predigtserie", cssid:"series"});
@@ -111,8 +113,8 @@ AgendaView.prototype.editAgenda = function(agenda, template) {
         elem.dialog("close");
         if (allAgendas==null) allAgendas=new Object();
         allAgendas[data.id]=data;
-        this_object.currentAgenda=data;
-        this_object.renderView();        
+        t.currentAgenda=data;
+        t.renderView();        
       });
     },
     "Abbruch":function() {
@@ -152,7 +154,7 @@ AgendaView.prototype.deleteAgenda = function(agenda) {
           t.currentAgenda=null;
         }
         delete allAgendas[agenda.id];       
-        this_object.renderView();
+        t.renderView();
       }
     });
   }

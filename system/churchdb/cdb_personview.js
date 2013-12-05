@@ -1628,7 +1628,7 @@ function _checkGroupFilter(a, filter, z) {
       dabei=false;
       $.each(a.gruppe, function (b,k) {
         // Erstmal muß der Typ stimmen
-        if (filter["filterTyp "+z]!="") {
+        if (filter["filterTyp "+z]!="" && filter["filterGruppe "+z]==null) {
           if (masterData.groups[k.id].gruppentyp_id==filter["filterTyp "+z]) {
             // Wenn auch noch Leitertyp angegeben ist?
             if (filter["filterTeilnehmerstatus "+z]!=null) {
@@ -1898,7 +1898,7 @@ PersonView.prototype.checkFilter = function(a) {
   if (filter["filterOr"]!=null)
     or=false;
 
-  while (filter["filterTyp "+z]!=null) {
+  while (filter["filterOn "+z]!=null) {
     var res=_checkGroupFilter(a, filter, z);
     // UND-Verknüpfung
     if (filter["filterOr"]==null) {
@@ -3935,20 +3935,17 @@ PersonView.prototype.renderPersonFilter = function() {
 PersonView.prototype.renderGroupFilter = function() {
 
   var rows = new Array();
-  //rows.push("<legend>Gruppenfilter</legend>");
   rows.push('<div style="float:right;margin-top:10px;margin-right:10px;"><a href="#" title="Filter zur&uuml;cksetzen" id="reset_groupfilter"><img style="vertical-align:middle" width=20px src="'+masterData.modulespath+'/images/delete_2.png"/></a></div>'); 
-
   rows.push('<div class="well"><table cellpadding="5px" class="">');
   
-  if (this.filter["filterTyp 1"]==null) this.filter["filterTyp 1"]=""; 
+  if (this.filter["filterOn 1"]==null) this.filter["filterOn 1"]=true; 
   
   k=1;
-  while (this.filter["filterTyp "+k]!=null) {
+  while (this.filter["filterOn "+k]!=null) {
     rows.push("<tr><td>");
     rows.push(form_renderSelect({
       data:masterData.groupFilterTypes,
       label:"Filter "+k,
-//       separator:": ",
       selected:this.filter["filterFilter "+k],
       cssid:"filterFilter "+k,
       controlgroup:true, type:"small"
@@ -3956,7 +3953,6 @@ PersonView.prototype.renderGroupFilter = function() {
     rows.push('<td>'+form_renderSelect({
       data:masterData.groupTypes,
       label:"Typ "+k,
-//      separator:": ",
       selected:this.filter["filterTyp "+k],
       cssid:"filterTyp "+k,
       controlgroup:true, freeoption:true, type:"medium"
@@ -3966,12 +3962,11 @@ PersonView.prototype.renderGroupFilter = function() {
     rows.push(form_renderSelect({
       data:masterData.groups,
       label:"Gruppe "+k,
-//      separator:": ",
       selected:this.filter["filterGruppe "+k],
       cssid:"filterGruppe "+k,
       controlgroup:true, freeoption:true, type:"medium",
       func:     function(a) {
-        return (((t.filter["filterTyp "+k]=="") || (a.gruppentyp_id==t.filter["filterTyp "+k])) 
+        return (((t.filter["filterTyp "+k]=="") || t.filter["filterTyp "+k]==null || (a.gruppentyp_id==t.filter["filterTyp "+k])) 
             && (groupView.isAllowedToSee(a.id))
             && (masterData.groups[a.id].valid_yn==1)
             && ((t.filter["filterDistrikt "+k]==null) || (t.filter["filterDistrikt "+k]=="") || (t.filter["filterDistrikt "+k]==a.distrikt_id) ));
@@ -3983,7 +3978,6 @@ PersonView.prototype.renderGroupFilter = function() {
     rows.push(form_renderSelect({
       data:masterData.districts,
       label:"Distrikt "+k,
-//       separator:": ",
       selected:this.filter["filterDistrikt "+k],
       cssid:"filterDistrikt "+k,
       controlgroup:true, freeoption:true, type:"medium"
@@ -3994,7 +3988,6 @@ PersonView.prototype.renderGroupFilter = function() {
     rows.push(form_renderSelect({
       data:masterData.groupMemberTypes,
       label:"Teilnehmerstatus "+k,
-//       separator:": ",
       selected:this.filter["filterTeilnehmerstatus "+k],
       cssid:"filterTeilnehmerstatus "+k,
       controlgroup:true, freeoption:true, type:"medium",
@@ -4027,6 +4020,7 @@ PersonView.prototype.renderGroupFilter = function() {
       var i=$(this).attr("id").substr(19,99);
       var k=i*1+1;
       while (t.filter["filterTyp "+k]!=null) {
+        t.filter["filterOn "+i]=t.filter["filterOn "+k];
         t.filter["filterTyp "+i]=t.filter["filterTyp "+k];
         t.filter["filterFilter "+i]=t.filter["filterFilter "+k];
         t.filter["filterGruppe "+i]=t.filter["filterGruppe "+k];
@@ -4039,6 +4033,7 @@ PersonView.prototype.renderGroupFilter = function() {
         i=k;
         k=k+1;
       }
+      delete t.filter["filterOn "+i];
       delete t.filter["filterTyp "+i];
       delete t.filter["filterFilter "+i];
       delete t.filter["filterGruppe "+i];
@@ -4051,8 +4046,8 @@ PersonView.prototype.renderGroupFilter = function() {
     }
     else if ($(this).attr("id").indexOf("add-groupfilter")==0) {
       var k=1;
-      while (t.filter["filterTyp "+k]!=null) k=k+1;
-      t.filter["filterTyp "+k]="";
+      while (t.filter["filterOn "+k]!=null) k=k+1;
+      t.filter["filterOn "+k]="";
     }
   });
 };
@@ -4169,17 +4164,6 @@ PersonView.prototype.renderFurtherFilter = function () {
       return false;
     });
     
-
-    // Voriger Callback schaut, ob der Filtertyp geaendert wurde, denn dann muessen wir Distrikt und Gruppe zurücksetzen
-    $("#addfilter select").change(function(c) {
-      /*if ($(this).attr("id").indexOf("filterTyp ")==0) {
-        delete t.filter["filterFilter "+$(this).attr("id").substr(10,99)];        
-        delete t.filter["filterGruppe "+$(this).attr("id").substr(10,99)];        
-        delete t.filter["filterDistrikt "+$(this).attr("id").substr(10,99)];        
-        delete t.filter["filterTeilnehmerstatus "+$(this).attr("id").substr(10,99)];        
-      }*/
-    });
-
     this.implantStandardFilterCallbacks(this, "addfilter");
   
     $("#furtherFilterDetail select").change(function(c) {

@@ -2891,8 +2891,9 @@ ListView.prototype.renderCalendar = function() {
       //    t.currentDate.addDays(-1);
       t.listOffset=0;
       if (t.filter["searchEntry"]!=null) {
-        t.filter["searchEntry"]="";
+        delete t.filter["searchEntry"];
         t.renderFilter();
+        t.renderListMenu();
       }
       t.renderList();
       t.addAbsentButton();
