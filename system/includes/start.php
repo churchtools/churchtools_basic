@@ -208,6 +208,9 @@ function churchtools_main() {
         // Admin should act accordingly, default suggestion is 0755.
         addErrorMessage(t("permission.denied.write.dir", $files_dir));
       }
+      else {
+        session_save_path($files_dir."/tmp");
+      }
       session_name("ChurchTools_".$config["db_name"]);
       session_start();    
       register_shutdown_function('handleShutdown');
