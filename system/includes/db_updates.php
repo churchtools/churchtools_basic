@@ -1714,7 +1714,10 @@ function run_db_updates($db_version) {
       db_query("update {cdb_nationalitaet} set bezeichnung='Wei&szlig;russland' where bezeichnung='Wei?russland'");
       db_query("update {cc_config} set value=1 where name='cronjob_dbdump' and value=0");
       db_query("update {cc_config} set value=60 where name='cronjob_delay' and value=0");
-    }
+    case '2.43':
+      set_version("2.43");
+  }
+	  
     $a=db_query("select * from {cc_config} where name='version'",null,false);
     $software_version=$a->fetch()->value;
     if ($db_version == "nodb")

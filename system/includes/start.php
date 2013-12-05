@@ -36,17 +36,6 @@ function loadConfig() {
     global $files_dir;
     // Unix default. Should have ".conf" extension as per standards.
     $config = null;
-    $cnf_location = "/etc/churchtools/default.conf";
-    if (file_exists($cnf_location)) {
-        $config = parse_ini_file($cnf_location);
-    }
-
-    // Package installed, per domain.
-    // All possible virt-hosts in HTTP server has to be symlinked to it.
-    $cnf_location = "/etc/churchtools/hosts/" . $_SERVER["SERVER_NAME"] . ".conf";
-    if ($config == null && file_exists($cnf_location)) {
-        $config = parse_ini_file($cnf_location);
-    }
 
     // Config, based on subdomain.
     // WARNING: This code will break per IP address access and supports only last subdomain.
@@ -64,7 +53,20 @@ function loadConfig() {
     if ($config == null && file_exists($cnf_location)) {
         $config = parse_ini_file($cnf_location);
     }
-  
+
+    // Config in default linux etc location
+    $cnf_location = "/etc/churchtools/default.conf";
+    if ($config == null && file_exists($cnf_location)) {
+      $config = parse_ini_file($cnf_location);
+    }
+    
+    // Package installed, per domain.
+    // All possible virt-hosts in HTTP server has to be symlinked to it.
+    $cnf_location = "/etc/churchtools/hosts/" . $_SERVER["SERVER_NAME"] . ".conf";
+    if ($config == null && file_exists($cnf_location)) {
+      $config = parse_ini_file($cnf_location);
+    }
+    
     if ($config == null) {
         $error_message = "<h3>" . "Error: Configuration file was not found." . "</h3>";
         $error_message .= "<p>" . "Expected locations are:
