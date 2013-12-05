@@ -516,7 +516,7 @@ function php_quot_print_encode($str) {
 }
 
 
-function churchcore_getModulesSorted($withCoreModule=false) {
+function churchcore_getModulesSorted($withCoreModule=false, $withOfflineModules=false) {
   global $config;
 
   // Get the module names out of the file system in directory system/*
@@ -532,7 +532,7 @@ function churchcore_getModulesSorted($withCoreModule=false) {
   $sort_arr=array();    
   $mysort=1000;
   foreach ($arr as $module) {
-    if ((!isset($config[$module."_name"]) || ($config[$module."_name"]!=""))) {
+    if ((!isset($config[$module."_name"]) || ($config[$module."_name"]!="") || $withOfflineModules)) {
       if ((!isset($config[$module."_sortcode"])) || isset($sort_arr[$config[$module."_sortcode"]])) {
         $mysort++;
         $sort_arr[$mysort]=$module;        

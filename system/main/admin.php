@@ -55,7 +55,7 @@ function admin_main() {
     $model->fields["site_mail"]->setValue($config["site_mail"]);
 
   // Now iterate through each module for naming the module
-  $modules=churchcore_getModulesSorted();
+  $modules=churchcore_getModulesSorted(false, true);
   foreach ($modules as $module) {
     $model->addField($module."_name","", "INPUT_OPTIONAL","Name f&uuml;r <i>$module</i> (Bitte Feld leerlassen, wenn das Modul nicht ben&ouml;tigt wird)");
       $model->fields[$module."_name"]->setValue($config[$module."_name"]);       
