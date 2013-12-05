@@ -90,6 +90,8 @@ FactView.prototype.addFurtherListCallbacks = function(cssid) {
         
         data: {event_id:event_id, fact_id:fact_id},
         
+        autosaveSeconds: 5,
+        
         rerenderEditor: 
           function(txt) {
             return txt.replace(",",".");

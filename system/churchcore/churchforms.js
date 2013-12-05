@@ -1817,12 +1817,15 @@ $.widget("ct.editable", {
     value:null,
     data:null,
     type:"input",
+    autosaveSeconds:0,
     renderEditor: function(txt, data) {return txt; },
     rerenderEditor: function(txt, data) {return txt; },
     afterRender: function(data) {},
     render: function(txt, data) {return txt; },
-    validate: function(txt, data) {return true; }
+    validate: function(txt, data) {return true; },
   },
+  
+  _autosave:null,
   
   _create: function() {
     var t=this;
@@ -1841,6 +1844,7 @@ $.widget("ct.editable", {
   },
   
   success: function() {
+    this._clearTimer();
     var newval=this.options.rerenderEditor(this.element.find(this.options.type).val(), this.options.data);
     if (this.options.validate(newval, this.options.data)) {
       this.options.value=newval;
@@ -1851,8 +1855,15 @@ $.widget("ct.editable", {
   },
   
   cancel: function() {
+    this._clearTimer();
     this.element.removeClass("editmode");  
     this._renderField();    
+  },
+  
+  _clearTimer: function() {
+    if (this._autosave!=null) 
+      window.clearTimeout(this._autosave);
+    this._autosave=null;
   },
   
   _renderField: function() {
@@ -1896,6 +1907,12 @@ $.widget("ct.editable", {
       }
       elem.focus();
       elem.keyup(function(e) {
+        if (t.options.autosaveSeconds>0) {
+          if (t._autosave!=null)
+            window.clearTimeout(t._autosave);
+          t._autosave=window.setTimeout(function() { t.success(); }, t.options.autosaveSeconds*1000);
+        }
+        
         // Enter
         if (e.keyCode == 13) {
           t.success();
@@ -1905,8 +1922,8 @@ $.widget("ct.editable", {
           t.cancel();
         }
       }); 
-    }
-  }
+     }
+   },
   
 });
 
