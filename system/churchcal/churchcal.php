@@ -547,7 +547,7 @@ class CTChurchCalModule extends CTAbstractModule {
     if (user_access("view","churchdb")) {
       $ret["absent_reason"]=churchcore_getTableData("cs_absent_reason");
     }
-    if (user_access("view","churchresource")) {
+    if (user_access("view","churchresource") || user_access("create bookings","churchresource")) {
       $ret["resources"]=churchcore_getTableData("cr_resource");
       $ret["resourceTypes"]=churchcore_getTableData("cr_resourcetype");
       $ret["bookingStatus"]=churchcore_getTableData("cr_status");

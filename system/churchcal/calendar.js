@@ -169,17 +169,19 @@ function _renderViewChurchResource(elem) {
 
   if (currentEvent.bookings!=null) {    
     if (allBookings==null) {
-      allBookings=new Object();
-      $.getCTScript("system/churchresource/cr_loadandmap.js", function() {
-        $.getCTScript("system/churchresource/cr_weekview.js", function() {
-          churchInterface.setModulename("churchresource");
-          cr_loadBookings(function() {
-            weekView.buildDates(allBookings);
-            _renderViewChurchResource(elem);      
+      if (user_access("view churchresource")) {
+        allBookings=new Object();
+        $.getCTScript("system/churchresource/cr_loadandmap.js", function() {
+          $.getCTScript("system/churchresource/cr_weekview.js", function() {
+            churchInterface.setModulename("churchresource");
+            cr_loadBookings(function() {
+              weekView.buildDates(allBookings);
+              _renderViewChurchResource(elem);      
+            });
+            churchInterface.setModulename("churchcal");
           });
-          churchInterface.setModulename("churchcal");
         });
-      });
+      }
     }
     
     form.addHtml('<legend>Vorhandene Buchungen</legend>');
@@ -213,7 +215,7 @@ function _renderViewChurchResource(elem) {
         var conflicts=weekView.calcConflicts(c, a.resource_id);
         if (conflicts!="") form.addHtml('<tr><td colspan="5"><div class="alert alert-error">Konflikte: '+conflicts+"</div>");
       }
-      else {
+      else if (user_access("view churchresource")) {
         form.addHtml('<tr><td colspan="5">');
         form.addImage({src:"loading.gif"});
       }
