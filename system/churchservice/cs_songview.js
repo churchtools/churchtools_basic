@@ -582,7 +582,7 @@ SongView.prototype.getListHeader = function () {
   rows.push('<th>Bezeichnung');
   if (t.filter["filterSongcategory"]==null)
     rows.push('<th>Kategorie');
-  rows.push('<th>Tonart<th>BPM<th>Takt');
+  rows.push('<th class="hidden-phone">Tonart<th class="hidden-phone">BPM<th class="hidden-phone">Takt');
 
   return rows.join("");
 };
@@ -629,9 +629,9 @@ SongView.prototype.renderListEntry = function (list) {
 
   if (this_object.filter["filterSongcategory"]==null)
     rows.push('<td>'+masterData.songcategory[song.songcategory_id].bezeichnung);
-  rows.push('<td>'+arr.tonality);
-  rows.push('<td>'+arr.bpm);
-  rows.push('<td>'+arr.beat);
+  rows.push('<td class="hidden-phone">'+arr.tonality);
+  rows.push('<td class="hidden-phone">'+arr.bpm);
+  rows.push('<td class="hidden-phone">'+arr.beat);
 
   return rows.join("");
 };
