@@ -9,6 +9,7 @@ viewName="calView";
 filterName="";
 monthNames= ['Januar', 'Februar', 'M&auml;rz', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
 filterCategoryIds=null;
+var saveSettingTimer=null;
 var filter=new Object();
 
 var embedded=false;
@@ -634,8 +635,19 @@ function delEvent(event, func) {
 }
 
 function _viewChanged(view) {
-  if ((masterData.settings["viewName"]==null) || (masterData.settings["viewName"]!=view.name))
-    churchInterface.jsendWrite({func:"saveSetting", sub:"viewName", val:view.name});
+  if (saveSettingTimer!=null) window.clearTimeout(saveSettingTimer);
+  saveSettingTimer=window.setTimeout(function() {
+    if ((masterData.settings["viewName"]==null) || (masterData.settings["viewName"]!=view.name)) {
+      masterData.settings["viewName"]=view.name;
+      churchInterface.jsendWrite({func:"saveSetting", sub:"viewName", val:view.name});
+    }
+    if ((masterData.settings["startDate"]==null) || (masterData.settings["startDate"]!=view.start.toStringEn(false))) {
+      
+      masterData.settings["startDate"]=view.start.toStringEn(false);
+      churchInterface.jsendWrite({func:"saveSetting", sub:"startDate", val:view.start.toStringEn(false)});
+    }
+    saveSettingTimer=null;
+  },1000);
 }
 
 function categoryEditable(category_id) {
@@ -692,9 +704,14 @@ var tooltip_inhide=false;
 
 function initCalendarView() {
   calendar=$('#calendar');
-  
+  var d=new Date();
+  if (masterData.settings.startDate!=null)
+    d=masterData.settings.startDate.toDateEn();
   if (viewName=="calView") {
     calendar.fullCalendar({
+      year: d.getFullYear(),
+      month:d.getMonth(),
+      date:  d.getDate(),
       header: {
         left: 'prev,next today',
         center: 'title',
@@ -741,7 +758,7 @@ function initCalendarView() {
       eventResizeStart:  function() {clearTooltip(true);},
       eventDrop: _eventDrop,
       eventResize: _eventResize,
-      viewDisplay: _viewChanged,
+      viewRender: _viewChanged,
       eventClick: _eventClick,
       eventMouseover: _eventMouseover,
       eventMouseout: function(calEvent, jsEvent) {
