@@ -8,6 +8,7 @@ allBookings=null;
 viewName="calView";
 filterName="";
 monthNames= ['Januar', 'Februar', 'M&auml;rz', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+previousBookings=null;
 filterCategoryIds=null;
 var saveSettingTimer=null;
 var filter=new Object();
@@ -167,6 +168,8 @@ function _renderViewChurchResource(elem) {
           label:"Ressource ausw&auml;hlen", data:arr, sort:false, func:function(a) {
             return a.id=="" || currentEvent.bookings==null || currentEvent.bookings[a.id]==null;
           }});
+  if (currentEvent.bookings==null && previousBookings!=null && previousBookings!=currentEvent.bookings)
+    form.addButton({controlgroup:true, label:"Vorherige Buchungen hinzufügen", htmlclass:"use-previous-bookings"});
 
   if (currentEvent.bookings!=null) {    
     if (allBookings==null) {
@@ -253,6 +256,10 @@ function _renderViewChurchResource(elem) {
       currentEvent.bookings[$(this).attr("id").substr(7,99)].status_id=$(this).val();
       _renderEditEventContent(elem, currentEvent);
     }
+  });
+  elem.find("input.use-previous-bookings").click(function() {
+    currentEvent.bookings=previousBookings;
+    _renderEditEventContent(elem, currentEvent);    
   });
   elem.find("#trash").click(function() {
     // Is booking created but not saved (fresh), then I can delete it.
@@ -495,6 +502,8 @@ function saveEvent(event) {
   else
     o.func="createEvent";
   
+  previousBookings=$.extend({}, o.bookings);
+  
   churchInterface.jsendWrite(o, function(ok, data) {
     if (!ok) alert("Fehler beim Anpassen des Events: "+data);
     else {
@@ -517,6 +526,7 @@ function editEvent(event, month, currentDate) {
   // Clone object
   currentEvent = jQuery.extend({}, event);
   currentEvent.view="view-main";
+  if (previousBookings==null && currentEvent.bookings!=null) previousBookings=$.extend({}, currentEvent.bookings);
   
   
   if ((month) && (currentEvent.allDay==null) && (currentEvent.startdate.getHours()==0) && (currentEvent.startdate.getDate()==currentEvent.enddate.getDate()))
