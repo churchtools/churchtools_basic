@@ -147,8 +147,8 @@ ChurchInterface.prototype.throwFatalError=function(errorText){
   modal.dialog({  
     autoOpen:true, 
     modal:true,
-    height:400,
-    width:500,
+    height:500,
+    width:600,
     title:"Fehler beim Laden",
     buttons: {
       "Neu laden":function() {modal.dialog("close");}

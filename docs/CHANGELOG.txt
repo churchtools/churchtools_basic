@@ -4,7 +4,10 @@ churchtools 2.43
 + Ab PHP-Version 5.3.7 werden nun gesalzene Passwšrter verwendet. Dies erhšht die Sicherheit bei der Speicherung der Passwšrter.
 - (Cal) Fehler in der Embedding-Sicht des Kalenders behoben
 - (CR) Fehler beim Erstellen von Terminen aus dem Kalender mit manuellen Zusatzterminen behoben.
+- (CR) Fehler bei der Anzeige in den Stammdatenpflege behoben
 - (CW) Es kšnnen wieder neue Kategorien erstellt werden.
+- (CS) Automatische Datenspeicherung bei Fakten
+- Admin-Page zeigt nun wieder auch deaktvierte Module
 - Dateien werden nun alphabetisch sortiert angezeigt
 
 churchtools 2.42

@@ -11,7 +11,7 @@ MaintainView.prototype = new Temp();
 maintainView = new MaintainView();
 
 MaintainView.prototype.getData = function() {
-  masterData.resourcetype=masterData.resTypes;
+  masterData.resourcetype=masterData.resourceTypes;
 
   return masterData.masterDataTables;
 };
