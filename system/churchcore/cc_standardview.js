@@ -16,10 +16,6 @@ function StandardTableView(options) {
   // Der letzte gešffnet Eintrag, wird gemerkt, damit er nach einem renderList()
   // auch wieder angezeigt wird.
   
-  this.tooltipTimer=null;
-  this.tooltip_hold=false;
-  this.tooltip_elem=null;
-  
   this.testTimer=null; // Zeitmessung
   this.renderListTimer=null;
   this.listViewAggregate=false;
@@ -545,24 +541,6 @@ StandardTableView.prototype.addTableContentCallbacks = function(cssid) {
       this_object.renderList();
     }
     return false;
-  });
-  var drin=false;
-  $(cssid+" span[tooltip],a[tooltip]").hover(
-    function() {
-      drin=true;
-      this_object.prepareTooltip($(this), null, $(this).attr("data-tooltiptype"));
-    }, 
-    function() {
-      drin=false;
-      window.setTimeout(function() {
-        if (!drin)
-          this_object.clearTooltip();
-      },100);
-    }
-  );   
-  $(cssid+" span[tooltip],a[tooltip]").click(function(c) {
-    this_object.tooltip_hold=false;
-    this_object.clearTooltip(true);
   });
   $(".hoveractor").off("hover");
   $(".hoveractor").hover(

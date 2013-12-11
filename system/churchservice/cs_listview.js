@@ -10,6 +10,7 @@ function ListView(options) {
   this.allDataLoaded=false;
   this.renderTimer=null;
   this.serviceGroupPersonWeight=null;
+  this.currentTooltip=null;
 }
 
 Temp.prototype = StandardTableView.prototype;
@@ -818,11 +819,11 @@ ListView.prototype.renderEventServiceEntry = function(event_id, services, bin_ic
       edit=true;
   
     var seeHistory=isLeaderOfOneGroup || (masterData.auth.editservice[services.service_id]) || bin_ich_admin;
-    var tooltip='tooltip="'+event_id+"_"+services.id+'" '+(seeHistory?"history=true":"")+' '+(isMemberOfGroup?"member=true":""+' ');
+    var tooltip='data-tooltip-id="'+event_id+"_"+services.id+'" '+(seeHistory?"history=true":"")+' '+(isMemberOfGroup?"member=true":""+' ');
     
     rows.push('<small>');
     if (edit) 
-      rows.push('<a href="#" '+tooltip+' id="edit_es_'+event_id+'" eventservice_id="'+services.id+'" style="text-decoration:none">');
+      rows.push('<a href="#" class="tooltips" '+tooltip+' id="edit_es_'+event_id+'" eventservice_id="'+services.id+'" style="text-decoration:none">');
     else 
       rows.push('<span '+tooltip+'>');
     _class='';
@@ -2019,101 +2020,72 @@ ListView.prototype.getEventService = function(event_id, eventservice_id) {
   return _eventservice;
 };
 
-ListView.prototype.renderTooltip = function(elem) {
-  var id=elem.attr("tooltip");
-  var event_id=elem.parents("tr").attr("id");
+ListView.prototype.renderTooltip = function(id, event_id, withLastDates, withHistory) {
   var _bin_ich_admin=bin_ich_admin(allEvents[event_id].admin);
-  
-  if (elem.hasClass("file")) {
-    return this.renderTooltipForFiles(elem, null, allEvents[event_id].files[id], 
-         (masterData.auth.admin || allEvents[event_id].files[id].modified_pid==masterData.user_pid 
-             || _bin_ich_admin));
+  var eventservice_id=id.substr(id.indexOf("_")+1,99);
+  var txt="";
+  var a = this.getEventService(event_id, eventservice_id);
+  if (a.name!=null) {
+    txt="<h4>"+a.name;
+    txt=txt+"</h4>";
   }
-  else {
-  
-    var eventservice_id=id.substr(id.indexOf("_")+1,99);
-    
-      var txt="";
-      var a = this.getEventService(event_id, eventservice_id);
-      if (a.name!=null) {
-        txt="<h4>"+a.name;
-        txt=txt+"</h4>";
-      }
-    
-      var info=false;
-      if (masterData.service[a.service_id].cdb_gruppen_ids!=null) {
-        var info=this_object.getMemberOfOneGroup(masterData.service[a.service_id].cdb_gruppen_ids, [a.cdb_person_id]);
-      }
-    
-      if (elem.attr("member")!=null) {
-        if (a.zugesagt_yn==1)
-          txt=txt+"<font style=\"color:green\">Zusage am "+a.datum.toDateEn().toStringDe()+"</font>";
-        else if (a.name!=null) 
-          txt=txt+"<font style=\"color:red\">Anfrage vom "+a.datum.toDateEn().toStringDe()+"</font>";
-        else
-          txt=txt+"<font style=\"color:red\">Offen seit "+a.datum.toDateEn().toStringDe()+"</font>";
-        if (a.mailsenddate!=null)
-          txt=txt+'&nbsp;<span title="Letzte Erinnerung gesendet am '+a.mailsenddate.toDateEn(true).toStringDe(true)+'">'+form_renderImage({src:"email.png",width:12})+'</span>';
-        txt=txt+'<br/>';
-      }
-      //txt=txt+"</div>";
-      if (info!=false) {
-        if (info.imageurl!=null)
-          txt='<div style="float:right">&nbsp;<img src="'+masterData.files_url+"/fotos/"+info.imageurl+'" style="max-width:70px" width="70"></div>'+txt;
-      }
-      var _cdb_person_id = this.getEventService(event_id, eventservice_id).cdb_person_id;
-      if ((masterData.auth.admin) || (masterData.auth.leaderservice[a.service_id]) || (_bin_ich_admin)) {
-        var t2=this.renderPersonAuslastung(_cdb_person_id, event_id, a.service_id);
-        if (t2!="")
-          txt=txt+"Auslastung: "+t2;
-      }
-      if (_cdb_person_id!=null) {
-        txt=txt+"<br/><br/>";
-        if (user_access("administer persons")) {
-          txt=txt+form_renderImage({src:"person_simulate.png",label:"Person simulieren", data:[{name:"id", value:_cdb_person_id}], width:18, 
-                  link:true, htmlclass:"simulate-person"})+"&nbsp;";
-        }
-        if (info!=false && info.email!="") {
-          txt=txt+form_renderImage({src:"email.png",label:"Person eine E-Mail senden", data:[{name:"id", value:_cdb_person_id}], width:18, 
-            link:true, htmlclass:"email-person"})+"&nbsp;";
-        }
-      }
-      
-      if (txt!="") {
-        txt='<div>'+txt+"</div>";
-        txt=txt+'<div style="clear:both"></div>';  
-      }
-    
-    
-    if ((elem.attr("history")) || (masterData.auth.viewhistory) || (_bin_ich_admin))
-      txt=txt+"<p>"+this.renderEntryHistory(event_id, a.service_id, a.counter, null, (masterData.auth.leaderservice[a.service_id]) || (masterData.auth.admin) || (_bin_ich_admin), true);
-  
-    if (txt!="") {
-      var title=masterData.service[a.service_id].bezeichnung;
-      if (masterData.service[a.service_id].notiz!="")
-        title=title+' <small> ('+masterData.service[a.service_id].notiz+")</small></p>";
-      return [txt,title];
+
+  var info=false;
+  if (masterData.service[a.service_id].cdb_gruppen_ids!=null) {
+    var info=this_object.getMemberOfOneGroup(masterData.service[a.service_id].cdb_gruppen_ids, [a.cdb_person_id]);
+  }
+
+  if (withLastDates) {
+    if (a.zugesagt_yn==1)
+      txt=txt+"<font style=\"color:green\">Zusage am "+a.datum.toDateEn().toStringDe()+"</font>";
+    else if (a.name!=null) 
+      txt=txt+"<font style=\"color:red\">Anfrage vom "+a.datum.toDateEn().toStringDe()+"</font>";
+    else
+      txt=txt+"<font style=\"color:red\">Offen seit "+a.datum.toDateEn().toStringDe()+"</font>";
+    if (a.mailsenddate!=null)
+      txt=txt+'&nbsp;<span title="Letzte Erinnerung gesendet am '+a.mailsenddate.toDateEn(true).toStringDe(true)+'">'+form_renderImage({src:"email.png",width:12})+'</span>';
+    txt=txt+'<br/>';
+  }
+  //txt=txt+"</div>";
+  if (info!=false) {
+    if (info.imageurl!=null)
+      txt='<div style="float:right">&nbsp;<img src="'+masterData.files_url+"/fotos/"+info.imageurl+'" style="max-width:70px" width="70"></div>'+txt;
+  }
+  var _cdb_person_id = this.getEventService(event_id, eventservice_id).cdb_person_id;
+  if ((masterData.auth.admin) || (masterData.auth.leaderservice[a.service_id]) || (_bin_ich_admin)) {
+    var t2=this.renderPersonAuslastung(_cdb_person_id, event_id, a.service_id);
+    if (t2!="")
+      txt=txt+"Auslastung: "+t2;
+  }
+  if (_cdb_person_id!=null) {
+    txt=txt+"<br/><br/>";
+    if (user_access("administer persons")) {
+      txt=txt+form_renderImage({src:"person_simulate.png",label:"Person simulieren", data:[{name:"id", value:_cdb_person_id}], width:18, 
+              link:true, htmlclass:"simulate-person"})+"&nbsp;";
+    }
+    if (info!=false && info.email!="") {
+      txt=txt+form_renderImage({src:"email.png",label:"Person eine E-Mail senden", data:[{name:"id", value:_cdb_person_id}], width:18, 
+        link:true, htmlclass:"email-person"})+"&nbsp;";
     }
   }
-    
-  return null;
-};
-
-ListView.prototype.tooltipCallback = function(id, tooltip) {
-  var t=this;
-  $("a.simulate-person").click(function() {
-    window.location.href="?q=simulate&id="+$(this).attr("data-id")+"&location=churchservice";
-    return false;
-  });
-  $("a.email-person").click(function() {
-    t.clearTooltip();
-    t.mailPerson($(this).attr("data-id"));
-    return false;
-  });
-  if (tooltip.find("#file").val()) {
-    var event_id=tooltip.parents("tr.data").attr("id");
-    return this.tooltipCallbackForFiles(id, tooltip, allEvents, event_id);
+  
+  if (txt!="") {
+    txt='<div>'+txt+"</div>";
+    txt=txt+'<div style="clear:both"></div>';  
   }
+
+  
+  if ((withHistory) || (masterData.auth.viewhistory) || (_bin_ich_admin))
+    txt=txt+"<p>"+this.renderEntryHistory(event_id, a.service_id, a.counter, null, (masterData.auth.leaderservice[a.service_id]) || (masterData.auth.admin) || (_bin_ich_admin), true);
+
+  if (txt!="") {
+    var title=masterData.service[a.service_id].bezeichnung;
+    if (masterData.service[a.service_id].notiz!="")
+      title=title+' <small> ('+masterData.service[a.service_id].notiz+")</small></p>";
+    txt='<div style="min-width:250px; max-width:300px;">'+txt+'</div>';
+    return [txt,title];
+  }
+  return null;
 };
 
 ListView.prototype.countActiveServices = function(event, service_id) {
@@ -2630,29 +2602,54 @@ ListView.prototype.renderFiles = function () {
     }
     else t.renderFilelist("Dateien zum Event:", allEvents);
   }
-  var drin=false;
-  $("#cdb_content span[tooltip].file").hover(
-      function() {
-          drin=true;
-          this_object.prepareTooltip($(this));
-        }, 
-        function() {
-          drin=false;
-          window.setTimeout(function() {
-            if (!drin)
-              this_object.clearTooltip();
-          },100);
-        }
-      );   
-    
 
+  $("#cdb_content span.file").each(function() {
+    var tooltip=$(this);
+    tooltip.tooltips({
+      data:{id:tooltip.attr("tooltip"), event_id:tooltip.parents("tr").attr("id")},
+      render:function(data) {        
+        return t.renderTooltipForFiles(tooltip, null, allEvents[data.event_id].files[data.id], 
+            (masterData.auth.admin || allEvents[data.event_id].files[data.id].modified_pid==masterData.user_pid 
+              || bin_ich_admin(allEvents[data.event_id].admin)));
+      },      
+      afterRender: function(element, data) {
+        return t.tooltipCallbackForFiles(data.id, element, allEvents, data.event_id);
+      }
+    });    
+  });  
 };
 
 
 ListView.prototype.addFurtherListCallbacks = function(cssid) {
-  t=this;
+  var t=this;
   if (cssid==null) cssid="#cdb_content";
   t.renderFiles();
+
+  $("#cdb_content a.tooltips").each(function() {
+    var tooltip=$(this);
+    tooltip.tooltips({
+      data:{id:tooltip.attr("data-tooltip-id"), event_id:tooltip.parents("tr").attr("id")},
+      render:function(data) {
+        return t.renderTooltip(data.id, data.event_id, tooltip.attr("member")!=null, tooltip.attr("member")!=null);
+      },
+      
+      afterRender: function(element, data) {
+        t.currentTooltip=$(tooltip);
+        element.find("a.simulate-person").click(function() {
+          window.location.href="?q=simulate&id="+$(this).attr("data-id")+"&location=churchservice";
+          return false;
+        });
+        element.find("a.email-person").click(function() {
+          if (t.currentTooltip!=null) t.currentTooltip.tooltips("hide");
+          t.mailPerson($(this).attr("data-id"));
+          return false;
+        });     
+      }
+    });    
+  });
+  
+  /*
+  
   $(".hover").hover(
       function () {
         $('#headerspan'+$(this).attr("id").substr(6,99)).fadeIn('fast',function() {});
@@ -2661,8 +2658,9 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
         $('#headerspan'+$(this).attr("id").substr(6,99)).fadeOut('fast');
       }
     );
-  
+  */
   $(cssid+" a.edit-event").click(function() {
+    if (t.currentTooltip!=null) t.currentTooltip.tooltips("hide");
     t.renderEditEvent(allEvents[$(this).parents("tr").attr("id")]);
     return false;
   });
@@ -2675,8 +2673,8 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
 
   
   $(cssid+" a").click(function (a) {
+    if (t.currentTooltip!=null) t.currentTooltip.tooltips("hide");
     var cssid=$(this).attr("id");
-    // Person zu einer Kleingruppe dazu nehmen
     if (cssid==null) 
       return true;
     else if (cssid.indexOf("editEvent")==0) {

@@ -117,6 +117,21 @@ WikiView.prototype.renderFiles = function() {
   else {
     t.renderFilelist("", currentPage.file, null, null, 50);
   }
+
+  $("div.filelist span[tooltip],a[tooltip]").each(function() {
+    var tooltip=$(this);
+    tooltip.tooltips({
+      data:{id:tooltip.attr("tooltip") 
+           },
+      render:function(data) {
+        return t.renderTooltipForFiles(tooltip, null, currentPage.file[0].files[data.id], masterData.auth.edit[currentPage.wikicategory_id]);  
+      },      
+      afterRender: function(element, data) {
+        return t.tooltipCallbackForFiles(data.id, element, currentPage.file, 0);
+      }
+    });    
+  });    
+  
   t.addTableContentCallbacks("#cdb_content");
 };
 
@@ -411,16 +426,6 @@ WikiView.prototype.renderView = function() {
       return false;
     });
   }
-};
-
-WikiView.prototype.renderTooltip = function(tooltip, divid) {
-  var id=tooltip.attr("tooltip");
-  var f=currentPage.file[0].files[id];
-  return this.renderTooltipForFiles(tooltip, divid, f, masterData.auth.edit[currentPage.wikicategory_id]);  
-};
-
-WikiView.prototype.tooltipCallback = function(id, tooltip) {
-  return this.tooltipCallbackForFiles(id, tooltip, currentPage.file, 0);
 };
 
 WikiView.prototype.initView = function() {

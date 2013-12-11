@@ -118,23 +118,8 @@ SongView.prototype.checkFilter = function(a) {
   return true;
 };
 
-SongView.prototype.renderTooltip = function(tooltip, divid) {
-  var song_id=tooltip.parents("div.entrydetail").attr("data-song-id");
-  var ar_id=tooltip.parent().attr("data-id");
-  var id=tooltip.attr("tooltip");
-  
-  return this.renderTooltipForFiles(tooltip, divid, allSongs[song_id].arrangement[ar_id].files[id], masterData.auth.editsong);  
-};
-
-SongView.prototype.tooltipCallback = function(id, tooltip) {
-  var song_id=tooltip.parents("div.entrydetail").attr("data-song-id");
-  var ar_id=tooltip.parent().attr("data-id");
-  return this.tooltipCallbackForFiles(id, tooltip, allSongs[song_id].arrangement, ar_id);
-};
-
 SongView.prototype.renderFiles = function(filecontainer, arrangement_id) {
   var t=this;
-  t.clearTooltip(true);
   if (masterData.auth.editsong) {
     t.renderFilelist("", filecontainer, arrangement_id, function(file_id) {
       delete filecontainer[arrangement_id].files[file_id];
@@ -145,19 +130,21 @@ SongView.prototype.renderFiles = function(filecontainer, arrangement_id) {
     t.renderFilelist("", filecontainer, arrangement_id);
   }
   if (!churchcore_touchscreen()) {
-    $("div.filelist[data-id="+arrangement_id+"] span[tooltip],a[tooltip]").hover(
-        function() {
-          drin=true;
-          this_object.prepareTooltip($(this), null, $(this).attr("data-tooltiptype"));
-        }, 
-        function() {
-          drin=false;
-          window.setTimeout(function() {
-            if (!drin)
-              this_object.clearTooltip();
-          },250);
+    $("div.filelist[data-id="+arrangement_id+"] span[tooltip],a[tooltip]").each(function() {
+      var tooltip=$(this);
+      tooltip.tooltips({
+        data:{id:tooltip.attr("tooltip"), 
+              ar_id:tooltip.parent().attr("data-id"),
+              song_id:tooltip.parents("div.entrydetail").attr("data-song-id")
+             },
+        render:function(data) {
+          return t.renderTooltipForFiles(tooltip, null, allSongs[data.song_id].arrangement[data.ar_id].files[data.id], masterData.auth.editsong);            
+        },      
+        afterRender: function(element, data) {
+          return t.tooltipCallbackForFiles(data.id, element, allSongs[data.song_id].arrangement, data.ar_id);          
         }
-      );
+      });    
+    });  
   }
 };
 
