@@ -439,9 +439,9 @@ function renderBookings(bookings) {
     if (color!="") {
       if ((!this.printview) && 
            ((masterData.auth.write) && (a.person_id==masterData.user_pid)) || ((masterData.auth.editall)))
-        txt=txt+"<a href=\"#"+a.viewing_date.toStringEn()+"\" id=\"edit"+a.id+"\" tooltip=\""+a.id+"\" style=\"font-weight:normal;"+color+"\">"+starttxt+"-"+endtxt+"h "+text+ort+"</a>";
+        txt=txt+"<a href=\"#"+a.viewing_date.toStringEn()+"\" class=\"tooltips\" id=\"edit"+a.id+"\" data-tooltip-id=\""+a.id+"\" style=\"font-weight:normal;"+color+"\">"+starttxt+"-"+endtxt+"h "+text+ort+"</a>";
       else 
-        txt=txt+"<span style=\"cursor:default;font-weight:normal;"+color+"\" tooltip=\""+a.id+"\">"+starttxt+"-"+endtxt+"h "+text+ort+"</span>";
+        txt=txt+"<span style=\"cursor:default;font-weight:normal;"+color+"\" class=\"tooltips\" data-tooltip-id=\""+a.id+"\">"+starttxt+"-"+endtxt+"h "+text+ort+"</span>";
 //      if (a.repeat_id>0) txt=txt+" {R}";
       if (a.repeat_id>0) txt=txt+" "+weekView.renderImage("recurring",12);
       txt=txt+"<br/>";
@@ -450,89 +450,15 @@ function renderBookings(bookings) {
   return txt;
 }
 
-WeekView.prototype.renderTooltip = function(elem) {
-  var id = elem.attr("tooltip");
-  a=allBookings[id];
-  txt="";
-  txt=txt+"<table class=\"table table-condensed\">";        
-  if (a.category_id!=null) {
-    txt=txt+"<tr><td>Kalender<td>";
-    txt=txt+'<span title="Kalender: Hauptgottesdienst" style="display:inline-block; background-color:'+masterData.category[a.category_id].color+'; margin-bottom:-2px; margin-right:4px; width:3px; height:11px"></span>';
-    txt=txt+"<b>"+churchcore_getBezeichnung("category", a.category_id)+"</b>";    
-  }
-  txt=txt+"<tr><td>Start<td>"+a.startdate.toStringDe(true);
-  txt=txt+"<tr><td>Ende<td>"+a.enddate.toStringDe(true);
-  if (a.location!="")
-    txt=txt+"<tr><td>Ort<td>"+a.location;
-  if (a.repeat_id!=0) {
-    txt=txt+"<tr><td>Wiederholung<td>";
-    if (a.repeat_frequence>1)
-      txt=txt+a.repeat_frequence+" "; 
-    txt=txt+(masterData.repeat[a.repeat_id]!=null?masterData.repeat[a.repeat_id].bezeichnung:"id:"+a.repeat_id);
-    if (a.repeat_id!=999)
-      txt=txt+"<br/>bis "+a.repeat_until.toStringDe();
-  }  
-  else 
-    txt=txt+"<tr><td>Wiederholung<td>-";
-  txt=txt+"<tr><td>Status<td><b>"+masterData.status[a.status_id].bezeichnung+"</b>";
-  txt=txt+"<tr><td>Ersteller<td>"+a.person_name;
-  if (a.note!="") {
-    txt=txt+"<tr><td>Notiz<td>"+a.note;
-  }  
-  txt=txt+"</table>";
-  title=a.text;
-  if ((masterData.auth.editall) || ((masterData.auth.write) && (a.person_id==masterData.user_pid))) {
-    if ((a.status_id==1) || (a.status_id==2) || (a.status_id==3)) {
-      title=title+'<span class="pull-right">';
-      if ((a.status_id==1) && (masterData.auth.editall)) {
-        title=title+form_renderImage({label:"Bestätigen", cssid:"confirm", src:"check-64.png", width:20})+"&nbsp; ";
-        title=title+form_renderImage({label:"Ablehnen", cssid:"deny", src:"delete_2.png", width:20})+"&nbsp; ";
-      }
-      if (a.status_id!=3) 
-        title=title+form_renderImage({label:"Kopieren", cssid:"copy", src:"copy.png", width:20})+"&nbsp; ";
-      if (a.status_id!=1)
-        title=title+form_renderImage({label:"Löschen", cssid:"delete", src:"trashbox.png", width:20})+"&nbsp; ";
-      title=title+'</span>';
-    }
-    //txt=txt+form_renderButton({label:"L&ouml;schen", cssid:"copy", htmlclass:"btn-danger btn-small"});
-  }
-  
-
-  return [txt, title];
-};
-
 WeekView.prototype.updateBookingStatus = function(id, new_status) {
-  t.clearTooltip(true);
   var oldStatus=allBookings[id].status_id;
   allBookings[id].status_id=new_status;
   allBookings[id].func="updateBooking";
-  churchInterface.jsendWrite(a, function(ok) {
+  churchInterface.jsendWrite(allBookings[id], function(ok) {
     if (!ok) allBookings[id].status_id=oldStatus;
     t.renderList();
   }, false, false);
   t.renderList();  
-};
-
-
-WeekView.prototype.tooltipCallback = function(id, tooltip) {
-  var t=this;
-  tooltip.find("#copy").click(function() {
-    t.clearTooltip(true);
-    t.showBookingDetails("copy", id);
-    return false;
-  });
-  tooltip.find("#delete").click(function() {
-    t.updateBookingStatus(id, 99);
-    return false;
-  });
-  tooltip.find("#confirm").click(function() {
-    t.updateBookingStatus(id, 2);
-    return false;
-  });
-  tooltip.find("#deny").click(function() {
-    t.updateBookingStatus(id, 3);
-    return false;
-  });
 };
 
 
@@ -727,6 +653,53 @@ WeekView.prototype.checkConflicts = function() {
   }
 };
 
+WeekView.prototype.renderTooltip = function(id) {
+  var a=allBookings[id];
+  txt="";
+  txt=txt+"<table style=\"min-width:220px;max-width:300px\" class=\"table table-condensed\">";        
+  if (a.category_id!=null) {
+    txt=txt+"<tr><td>Kalender<td>";
+    txt=txt+'<span title="Kalender: Hauptgottesdienst" style="display:inline-block; background-color:'+masterData.category[a.category_id].color+'; margin-bottom:-2px; margin-right:4px; width:3px; height:11px"></span>';
+    txt=txt+"<b>"+churchcore_getBezeichnung("category", a.category_id)+"</b>";    
+  }
+  txt=txt+"<tr><td>Start<td>"+a.startdate.toStringDe(true);
+  txt=txt+"<tr><td>Ende<td>"+a.enddate.toStringDe(true);
+  if (a.location!="")
+    txt=txt+"<tr><td>Ort<td>"+a.location;
+  if (a.repeat_id!=0) {
+    txt=txt+"<tr><td>Wiederholung<td>";
+    if (a.repeat_frequence>1)
+      txt=txt+a.repeat_frequence+" "; 
+    txt=txt+(masterData.repeat[a.repeat_id]!=null?masterData.repeat[a.repeat_id].bezeichnung:"id:"+a.repeat_id);
+    if (a.repeat_id!=999)
+      txt=txt+"<br/>bis "+a.repeat_until.toStringDe();
+  }  
+  else 
+    txt=txt+"<tr><td>Wiederholung<td>-";
+  txt=txt+"<tr><td>Status<td><b>"+masterData.status[a.status_id].bezeichnung+"</b>";
+  txt=txt+"<tr><td>Ersteller<td>"+a.person_name;
+  if (a.note!="") {
+    txt=txt+"<tr><td>Notiz<td>"+a.note;
+  }  
+  txt=txt+"</table>";
+  title=a.text;
+  if ((masterData.auth.editall) || ((masterData.auth.write) && (a.person_id==masterData.user_pid))) {
+    if ((a.status_id==1) || (a.status_id==2) || (a.status_id==3)) {
+      title=title+'<span class="pull-right">';
+      if ((a.status_id==1) && (masterData.auth.editall)) {
+        title=title+form_renderImage({label:"Bestätigen", cssid:"confirm", src:"check-64.png", width:20})+"&nbsp; ";
+        title=title+form_renderImage({label:"Ablehnen", cssid:"deny", src:"delete_2.png", width:20})+"&nbsp; ";
+      }
+      if (a.status_id!=3) 
+        title=title+form_renderImage({label:"Kopieren", cssid:"copy", src:"copy.png", width:20})+"&nbsp; ";
+      if (a.status_id!=1)
+        title=title+form_renderImage({label:"Löschen", cssid:"delete", src:"trashbox.png", width:20})+"&nbsp; ";
+      title=title+'</span>';
+    }
+  }
+  return [txt, title];       
+};
+
 WeekView.prototype.calcConflicts = function(new_b, resource_id) {
   var t=this;
   var rows=Array();
@@ -808,13 +781,50 @@ WeekView.prototype.closeAndSaveBookingDetail = function (elem) {
   }, false, false);  
 };
 
+
 WeekView.prototype.addFurtherListCallbacks = function() {
   var t=this;
+  var currentTooltip=null;
+  
+  $("#cdb_content a.tooltips").each(function() {
+    var tooltip=$(this);
+    tooltip.tooltips({
+      data:{id:$(this).attr("data-tooltip-id")},
+      minwidth:250,
+      render:function(data) {
+        return t.renderTooltip(data.id);
+      },
+      
+      afterRender: function(element, data) {
+        currentTooltip=$(tooltip);
+        element.find("#copy").click(function() {
+          currentTooltip.tooltips("hide");
+          t.showBookingDetails("copy", data.id);
+          return false;
+        });
+        element.find("#delete").click(function() {
+          t.updateBookingStatus(data.id, 99);
+          return false;
+        });
+        element.find("#confirm").click(function() {
+          t.updateBookingStatus(data.id, 2);
+          return false;
+        });
+        element.find("#deny").click(function() {
+          t.updateBookingStatus(data.id, 3);
+          return false;
+        });
+        
+      }
+    });    
+  });
 
   $("#cdb_content a").click(function(c) {
     // id ist bei Create=Resource_id, bei Edit ist es booking_id
     id=$(this).attr("id").substr(4,99);
     date=$(this).attr("href").substr(1,99);
+    if (currentTooltip!=null)
+      currentTooltip.tooltips("hide");
     
     if ($(this).attr("id").indexOf("edit")==0)
       t.showBookingDetails("edit", id, date);
@@ -871,7 +881,7 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
   }
   else if (func=="copy") {
     t.currentBooking=t.cloneBooking(allBookings[id]);
-    txt=t.renderEditBookingFields(a);
+    txt=t.renderEditBookingFields(allBookings[id]);
     title="Buchungsanfrage kopieren";
     t.currentBooking["func"]="createBooking";
     t.currentBooking.exceptionids=0;

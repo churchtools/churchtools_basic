@@ -1928,4 +1928,103 @@ $.widget("ct.editable", {
 });
 
 
+$.widget("ct.tooltips", {
+  
+  options: {
+    data:null,
+    render:function(data) {return ["content","title"];},
+    afterRender:function(element, data) {},
+    getTitle:function(data) {return null;}
+  },
+
+  _showTimer:null,
+  _hideTimer:null,
+  _visible:false,
+  
+  _create:function() {
+    var t=this;
+    this.element.hover(
+      function() {
+        t._prepareTooltip();
+      },
+      function() {
+        t._removeTooltip();
+      }
+    ); 
+  },
+  
+  // public function to immediate hide the tooltip
+  hide: function() {
+    if (this._hideTimer!=null) _clearHideTimer();
+    if (this._showTimer!=null) _clearShowTimer();
+    this._hideTooltip();
+  },
+  
+  _clearHideTimer: function() {
+    window.clearTimeout(this._hideTimer);
+    this._hideTimer=null;    
+  },
+  _clearShowTimer: function() {
+    window.clearTimeout(this._showTimer);
+    this._showTimer=null;    
+  },
+  
+  _hideTooltip: function() {
+    this._visible=false;
+    this.element.popover("hide");
+    this.element.data("popover", null);    
+  },
+  _showTooltip: function() {
+    var t=this;
+    t._visible=true;
+    var content=t.options.render(this.options.data);
+    if (content instanceof(Array))         
+      t.element.popover({ 
+        content:content[0], html:true, title:content[1], 
+         placement:"bottom", trigger:"manual", animation:true}).popover("show");
+    else 
+        t.element.popover({ 
+          content:content, html:true, title:t.getTitle(t.options.data), 
+           placement:"bottom", trigger:"manual", animation:true}).popover("show");
+    t.options.afterRender(t.element.next(".popover"), this.options.data);
+  },
+  
+  
+  _prepareTooltip: function() {
+    var t=this;
+    if (t._hideTimer!=null) t._clearHideTimer();
+    if (t._showTimer==null && !t._visible) {
+      t._showTimer=window.setTimeout(function() {
+        t._showTooltip();           
+        t.element.next(".popover").hover(
+          function() {
+            if (t._hideTimer!=null) t._clearHideTimer();
+          }, 
+          function() {
+            t._removeTooltip();
+        });        
+        t._showTimer=null;        
+      }, 200);
+    }
+  },
+  
+  _removeTooltip: function() {
+    var t=this;
+
+    // When showTimer is running, cancel immediate!
+    if (t._showTimer!=null) {
+      t._clearShowTimer();
+      t._hideTooltip();
+    }                
+    else {
+      if (t._hideTimer==null) {
+        t._hideTimer=window.setTimeout(function() {
+          t._hideTooltip();
+          t._hideTimer=null;
+        },200);
+      }
+    }
+  }
+    
+});
 
