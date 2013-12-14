@@ -1797,7 +1797,7 @@ PersonView.prototype.checkFilter = function(a) {
     return false;
 
   // Suchfeld
-  searchEntry=this.getFilter("searchEntry").toUpperCase();
+  var searchEntry=this.getFilter("searchEntry").toUpperCase();
   if (searchEntry!="") {
     
     // Split by " ", but not masked with a "
