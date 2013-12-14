@@ -583,7 +583,7 @@ ListView.prototype.renderEditEvent = function(event) {
 
   var this_object=this;
 
-  var elem = this.showDialog("Ver&auml;nderung des Events", rows.join(""), (event.id==null?680:450), (event.id==null?600:500), {
+  var elem = this.showDialog("Veränderung des Events", rows.join(""), (event.id==null?680:450), (event.id==null?600:500), {
     "Speichern": function() {
       if ($("#Inputcategory").val()<0) alert("Bitte einen Kalender auswählen!");
       else if ($("#InputBezeichnung").val()=="") alert("Bitte eine Bezeichnung angeben!");
@@ -704,13 +704,13 @@ ListView.prototype.renderEditEvent = function(event) {
             }
           });  
         },
-      "Abbruch": function() {
+      "Abbrechen": function() {
         elem2.dialog("close");      
       }
       });
     });
   }
-  elem.dialog('addbutton',"Abbruch", function() {
+  elem.dialog('addbutton',"Abbrechen", function() {
     $(this).dialog("close");
   });
 
@@ -1597,7 +1597,7 @@ ListView.prototype.renderEditEventService = function(event_id, eventservice_id, 
   
   var elem = form_showCancelDialog("Anfrage "+
        masterData.servicegroup[masterData.service[service_id].servicegroup_id].bezeichnung+
-       " f&uuml;r den "+allEvents[event_id].startdate.toDateEn(true).toStringDe(true), 
+       " für den "+allEvents[event_id].startdate.toDateEn(true).toStringDe(true), 
       rows.join(""), 550,450);
 
   
@@ -2132,7 +2132,7 @@ ListView.prototype.editService = function(service_id, sg_id) {
     }); 
   }
   else {
-    var form = new CC_Form((service_id!=null?"Service editieren":"Service erstellen"), arr);
+    var form = new CC_Form(null, arr);
     form.addInput({label:"Bezeichnung",cssid:"bezeichnung",required:true});
     form.addInput({label:"Notiz",cssid:"notiz",required:false});
     form.addSelect({label:"Servicegruppe", cssid:"servicegroup_id", data:masterData.servicegroup, 
@@ -2154,7 +2154,7 @@ ListView.prototype.editService = function(service_id, sg_id) {
     form.addInput({label:"Sortierungsnummer (sortkey)",cssid:"sortkey",required:true});
     form.addHtml('<p class="pull-right"><small>Id: '+service_id);
   
-    var elem = form_showDialog("Service editieren", form.render(false, "horizontal"), 600,580);
+    var elem = form_showDialog((service_id!=null?"Service editieren":"Service erstellen"), form.render(false, "horizontal"), 600,580);
     elem.dialog('addbutton', 'Speichern', function() {
       obj=form.getAllValsAsObject();
       obj.cdb_gruppen_ids=arr.gruppen.join(",");
@@ -2171,8 +2171,9 @@ ListView.prototype.editService = function(service_id, sg_id) {
       obj.id=service_id;
       if (obj!=null) {
         obj.func="editService";
-        churchInterface.jsendWrite(obj, function(res) {
-          window.location.reload();
+        churchInterface.jsendWrite(obj, function(ok, data) {
+          if (!ok) alert("Fehler beim Speichern: "+data);
+          else window.location.reload();
         });
       }
     });
@@ -2213,7 +2214,7 @@ ListView.prototype.renderAddServiceToServicegroup = function(event, sg_id, user_
     if (masterData.service[s.id].notiz!="")
       rows.push('&nbsp; <small>('+masterData.service[s.id].notiz+")</small>");
       if ((masterData.auth.editgroup!=null) && (masterData.auth.editgroup[sg_id])) {
-        rows.push('<td>'+form_renderImage({cssid:"editService", data:[{name:"service-id", value:s.id}], src:"options.png", width:20}));
+        rows.push('<td>'+form_renderImage({htmlclass:"edit-service", link:true, data:[{name:"service-id", value:s.id}], src:"options.png", width:20}));
       }
     
   });
@@ -2223,7 +2224,7 @@ ListView.prototype.renderAddServiceToServicegroup = function(event, sg_id, user_
   }
   rows.push("</table></div>");
   
-  var elem = this.showDialog("Welcher Service soll ver&auml;ndert werden?", rows.join(""), 600, 580, {
+  var elem = this.showDialog("Service zum Event hinzufügen oder entfernen", rows.join(""), 600, 580, {
       "Speichern": function() {
         obj=new Object();
         auto=new Array();
@@ -2255,7 +2256,7 @@ ListView.prototype.renderAddServiceToServicegroup = function(event, sg_id, user_
           }
         });  
       },
-      "Abbruch": function() {
+      "Abbrechen": function() {
         $(this).dialog("close");
       }
     });
@@ -2324,7 +2325,7 @@ ListView.prototype.renderAddServiceToServicegroup = function(event, sg_id, user_
     t.editService(null, sg_id);
     return false;
   });
-  elem.find("#editService").click(function() {
+  elem.find("a.edit-service").click(function() {
     t.editService($(this).attr("data-service-id"), sg_id);
     return false;
   });
@@ -3167,7 +3168,7 @@ ListView.prototype.editAbsent = function(pid, name, fullday) {
         cssid:"inputPerson"
       }));
       var elemPerson=this_object.showDialog("Andere Person ausw&auml;hlen", rows.join(""), 400, 400, {
-        "Abbruch": function() {
+        "Abbrechen": function() {
           $(this).dialog("close");
         }
       });

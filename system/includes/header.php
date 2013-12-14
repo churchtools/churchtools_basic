@@ -8,8 +8,9 @@
     <meta name="author" content="">
 
 	
-	<link href="system/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="system/assets/ui/jquery-ui-1.8.18.custom.css" rel="stylesheet">
+    <link href="system/assets/ui/custom-theme/jquery-ui-1.10.3.custom.css" rel="stylesheet">
+    <link href="system/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!--  link href="system/assets/ui/jquery-ui-1.8.18.custom.css" rel="stylesheet"-->
     <link href="system/includes/churchtools.css" rel="stylesheet">
     
    <?php if (!$embedded) {?>
@@ -26,11 +27,14 @@
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-<script src="system/assets/js/jquery.js"></script>
+<script src="system/assets/js/jquery-1.10.2.min.js"></script>
+<script src="system/assets/js/jquery-migrate-1.2.1.min.js"></script>
+
 <script src="system/churchcore/shortcut.js"></script>
 <script src="system/assets/ui/jquery.ui.core.min.js"></script>
 <script src="system/assets/ui/jquery.ui.position.min.js"></script>
 <script src="system/assets/ui/jquery.ui.widget.min.js"></script>
+<script src="system/assets/ui/jquery.ui.menu.min.js"></script>
 <script src="system/assets/ui/jquery.ui.autocomplete.min.js"></script>
 <script src="system/assets/ui/jquery.ui.datepicker.min.js"></script>
 <script src="system/assets/ui/jquery.ui.dialog.min.js"></script>

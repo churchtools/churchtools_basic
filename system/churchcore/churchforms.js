@@ -14,9 +14,9 @@ function form_renderYesNo(nr, width) {
 }
 
 /**
- * Rendert eine schöne Labelliste mit plus und trahsbox zeichen
- * Es muß ein Div definiert sein, der so heißt wie name. 
- * current=Object, was das Array [name] enthält.
+ * Rendert eine sch√∂ne Labelliste mit plus und trahsbox zeichen
+ * Es mu√ü ein Div definiert sein, der so hei√üt wie name. 
+ * current=Object, was das Array [name] enth√§lt.
  * data=MasterData
  */
 function form_renderLabelList(current, name, data) {
@@ -223,7 +223,7 @@ function form_autocompletePersonSelect (divid, withMyDeps, func) {
  * 
  * @param elem
  * @param options  
- * deselectable: Mit Klick kann man das Ding wieder deselektieren. Standardm��ig nicht m�glich!
+ * deselectable: Mit Klick kann man das Ding wieder deselektieren. StandardmÔøΩÔøΩig nicht mÔøΩglich!
  */
 function form_renderSelectable(elem, options) {
   var rows = new Array();
@@ -497,17 +497,17 @@ function form_prepareDataEntry(id, bezeichnung, sortkey) {
  * label: Title
  * separator: default " "
  * cssid: cssid
- * fields: weitere Felder f�r Dateninhalte, e.g. {test:"jo", id:123}
+ * fields: weitere Felder fÔøΩr Dateninhalte, e.g. {test:"jo", id:123}
  * htmlclass: html-klasse
  * disabled: default false
  * freeoption: default false (ein leere Option)
  * selected: vorauswahl
- * controlgroup: default true (ob es ein bootstrap div-control-group wird, v.a. f�r formular-horizontal wichtig)
+ * controlgroup: default true (ob es ein bootstrap div-control-group wird, v.a. fÔøΩr formular-horizontal wichtig)
  * controlgroup_start: default false, wenn true, dann wird controlgroup auf false gesetzt
  * controlgroup_end
  * type: small, medium, large (default)
  * func: 
- * html: wird nach dem /select hinzugfef�gt
+ * html: wird nach dem /select hinzugfefÔøΩgt
  * multiple: default false
  * @param options
  * @return txt
@@ -1066,7 +1066,7 @@ function CC_MultiSelect(data, func) {
   this.func=func;
   this.data=data;
   this.allSelected=true;
-  // Zus�tztliche Aufruffunktionen, wie "Nur Mitglieder" 
+  // ZusÔøΩtztliche Aufruffunktionen, wie "Nur Mitglieder" 
   this.addFunctions=new Array();
 }
 
@@ -1247,7 +1247,7 @@ CC_MultiSelect.prototype.selectAll = function() {
 
 
 /**
- * Setzt die Selected-Werte, Achtung, rendert nicht neu, daf�r mu� z.B. render2Div aufgerufen werden
+ * Setzt die Selected-Werte, Achtung, rendert nicht neu, dafÔøΩr muÔøΩ z.B. render2Div aufgerufen werden
  * @param arrayString  Array mit Idsm die selektiert werden sollen z.b. [1,3,5]
  */
 CC_MultiSelect.prototype.setSelectedAsArrayString = function(arrayString) {
@@ -1272,7 +1272,7 @@ CC_MultiSelect.prototype.addFunction= function(name, func) {
 
 
 /**
- * Gibt true zur�ck (d.h. er soll es wegfiltern), wenn mind. einer selektiert ist und wenn es nicht die Id ist.
+ * Gibt true zurÔøΩck (d.h. er soll es wegfiltern), wenn mind. einer selektiert ist und wenn es nicht die Id ist.
  * @param id
  */
 CC_MultiSelect.prototype.filter = function(id) {
@@ -1330,9 +1330,9 @@ CC_Menu.prototype.renderDiv = function(divId, asButton) {
 var form_count=0;
 /**
  * 
- * @param label  �berschrift
- * @param value_container = Value Object mit allen Daten. Wird f�r die Value der Fields genutzt, wenn kein Value angegeben wird.
- * @param cssid  cssid f�r die cssid des Forms und Prefix f�r Formularfelder, wenn dort keine cssid angegeben ist.
+ * @param label  ÔøΩberschrift
+ * @param value_container = Value Object mit allen Daten. Wird fÔøΩr die Value der Fields genutzt, wenn kein Value angegeben wird.
+ * @param cssid  cssid fÔøΩr die cssid des Forms und Prefix fÔøΩr Formularfelder, wenn dort keine cssid angegeben ist.
  */
 function CC_Form(label, value_container, cssid) {
   this.rows=new Array();
@@ -1426,8 +1426,8 @@ CC_Form.prototype.addStandardField = function(field, authArray) {
 };
 
 /**
- * Holt sich anhand der vorher �bergebenen cssids die Daten innerhalb der FORM zusammen
- * @param withEmpty default:true, sollen auch Felder mit gef�llt werden, die leer sind.
+ * Holt sich anhand der vorher ÔøΩbergebenen cssids die Daten innerhalb der FORM zusammen
+ * @param withEmpty default:true, sollen auch Felder mit gefÔøΩllt werden, die leer sind.
  * @return object
  */
 CC_Form.prototype.getAllValsAsObject = function(withEmpty) {
@@ -1503,7 +1503,7 @@ CC_Form.prototype.renderField = function(field) {
     alert("Fieldtype "+field.fieldtype+" nicht gefunden!");
     success=false;
   }
-  // Nun noch der Liste hinzuf�gen, damit es sp�ter ausgelesen werden kann
+  // Nun noch der Liste hinzufÔøΩgen, damit es spÔøΩter ausgelesen werden kann
   if (success) this.fields.push(field);
 };
 
@@ -1692,9 +1692,10 @@ CC_Navi.prototype.activate = function(id) {
  * @return jQuery-Element
  */
 function form_showDialog (title, text, width, height, buttons) {
-  var elem =$("<div id=\"cdb_dialog\">"+text+"</div>").appendTo("#page");
+  var elem =$('<div id="cdb_dialog">'+text+"</div>").appendTo("#page");
   
   if (width>$(window).width()) width=$(window).width();
+  if (buttons==null) buttons=new Object();
   
   elem.dialog({
     autoOpen:true, 
@@ -1705,11 +1706,10 @@ function form_showDialog (title, text, width, height, buttons) {
     buttons:buttons,
     close: function() {
       elem.empty().remove();
+      elem=null;
     }
-  });  
-  shortcut.add("esc", function() {
-    elem.dialog("close");
-  });  
+  });
+  $("div.ui-dialog-buttonpane button").addClass("btn");
   return elem;
 };
 
@@ -1725,8 +1725,8 @@ function form_showCancelDialog (title, text, width, height) {
   if (width==null) width=350;
   if (height==null) height=400;
   return form_showDialog(title, text, width, height, {
-    "Abbruch": function() {
-    $(this).dialog("close");
+   "Abbruch": function() {
+      $(this).dialog("close");
   }});
 };
 
@@ -1747,6 +1747,19 @@ function form_showOkDialog(title, text, width, height) {
     $(this).dialog("close");
   }});
 };
+
+/**
+ * Add the possibility to add buttons to the jQuery UI Dialog
+ */
+jQuery.extend(jQuery.ui.dialog.prototype, { 
+  'addbutton': function(buttonName, func) { 
+      var buttons = this.element.dialog('option', 'buttons'); 
+      buttons[buttonName] = func;
+      console.log(buttons);
+      this.element.dialog('option', 'buttons', buttons); 
+      $("div.ui-dialog-buttonpane button").addClass("btn");
+  } 
+}); 
 
 /**
  * 

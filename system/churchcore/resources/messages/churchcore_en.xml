@@ -68,6 +68,7 @@
   <entry key="email.or.username.unknown">Your e-mail or username was not recognized.</entry>
   <entry key="forgot.password">Forgot password?</entry>
   <entry key="want.to.receive.new.password">Do you really want to receive a new password?</entry>
+  <entry key="wrong.password">Wrong password.</entry>  
   
   <!-- MAIL-ARCHIV -->	  
   <entry key="archive.of.sent.messages">Archive of sent messages</entry>

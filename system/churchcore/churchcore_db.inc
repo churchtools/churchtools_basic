@@ -2065,7 +2065,7 @@ function churchcore_deleteMasterData($id, $tablename) {
  */
 function churchcore_saveMasterData($id, $table) {
   // id gibt es schon, also UPDATE
-  if ($id!="null") {
+  if ($id!="null" && $id!="") {
     $i=0;
     $sql="update {".$table."} set ";
     while (isset($_GET["col".$i])) {

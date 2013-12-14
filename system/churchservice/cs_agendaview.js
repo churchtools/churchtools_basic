@@ -706,7 +706,7 @@ AgendaView.prototype.loadTemplates = function () {
               allAgendas[a.id]=a;
             });
           }
-          t.renderFilter();
+          t.renderView();
         }
       });
     }

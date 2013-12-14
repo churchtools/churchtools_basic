@@ -8,11 +8,6 @@ function home_main() {
   
   checkFilesDir();
   
-/* $user=$_SESSION["user"];  
- $user->auth=getUserAuthorization($user->id);
- print_r($user->auth);
- $_SESSION["user"]=$user;*/
-  
   $btns=churchcore_getModulesSorted();
   
   if (isset($_SESSION["family"])) {

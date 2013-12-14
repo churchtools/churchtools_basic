@@ -400,8 +400,12 @@ function churchservice_deleteService($params) {
 
 function churchservice_editService($params) {
   $auth=churchservice_getAuthorization();
-  if (!isset($auth["editservice"]) || (!isset($auth["editservice"][$params["id"]])))
+
+  if (!isset($auth["editgroup"]) || (!isset($auth["editgroup"][$params["servicegroup_id"]])))
     throw new CTNoPermission("editservice", "churchservice"); 
+  if (($params["id"]!="null") && ($params["id"]!=""))
+    if (!isset($auth["editservice"]) || (!isset($auth["editservice"][$params["id"]])))
+      throw new CTNoPermission("editservice", "churchservice"); 
   
   $i=new CTInterface();
   $i->setParam("id",false);
@@ -414,7 +418,7 @@ function churchservice_editService($params) {
   $i->setParam("allowtonotebyconfirmation_yn");
   $i->setParam("sortkey");
   
-  if ($params["id"]=="null") {
+  if ($params["id"]=="null" || $params["id"]=="") {
     db_insert("cs_service")
       ->fields($i->getDBInsertArrayFromParams($params))
       ->execute(false);          

@@ -153,7 +153,7 @@ function prooveLogin($form) {
   }
   // Kein Passwort stimmte
   else {
-    $form->fields["password"]->setError('<a href="#" id="newpwd">'.t('forgot.password').'</a>');
+    $form->fields["password"]->setError(t('wrong.password').' <a href="#" id="newpwd">'.t('forgot.password').'</a>');
     ct_log("Login vergeblich: ".$form->fields["email"]->getValue()." mit falschem Passwort",2,"-1", "login");
     return false;                
   }

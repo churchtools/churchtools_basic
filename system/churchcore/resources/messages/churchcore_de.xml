@@ -68,6 +68,7 @@
   <entry key="email.or.username.unknown">Die EMail-Adresse oder Benutzername ist nicht bekannt!</entry>
   <entry key="forgot.password">Neues Passwort anfordern?</entry>
   <entry key="want.to.receive.new.password">Wirklich neues Passwort anfordern?</entry>
+  <entry key="wrong.password">Das Passwort ist nicht korrekt.</entry>
 
   <!-- MAIL-ARCHIVE -->  
   <entry key="archive.of.sent.messages">Archiv der gesendeten E-Mails/SMS</entry>

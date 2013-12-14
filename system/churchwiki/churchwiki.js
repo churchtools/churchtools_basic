@@ -351,7 +351,7 @@ WikiView.prototype.loadDoc = function(doc_id, wikicategory_id, version_no) {
   edit=false;
   churchInterface.jsendWrite({func:"load", doc_id:doc_id, wikicategory_id:wikicategory_id, version_no:version_no}, function(ok, data) {
     if (ok) {
-      if (data==null) {
+      if (data==null || !data) {
         currentPage = new Object();
         currentPage.text="Neue Seite";
         currentPage.wikicategory_id=wikicategory_id;

@@ -672,13 +672,6 @@ jQuery.extend({
   }
 });
 
-jQuery.extend(jQuery.ui.dialog.prototype, { 
-  'addbutton': function(buttonName, func) { 
-          var buttons = this.element.dialog('option', 'buttons'); 
-          buttons[buttonName] = func; 
-          this.element.dialog('option', 'buttons', buttons); 
-  } 
-}); 
 
 // Kann Text in der TextArea einfügen an der Cursorposition
 jQuery.fn.extend({

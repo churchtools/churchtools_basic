@@ -217,7 +217,6 @@ function churchtools_main() {
       session_start();    
       register_shutdown_function('handleShutdown');
       
-      
       if (isset($_GET["q"])) {
         $q=$_GET["q"];  
       }

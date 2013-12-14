@@ -890,7 +890,7 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
 
   // D.h. entweder Erstelle oder Editiere    
   if (title!="") {
-    var elem = this.showDialog(title, txt, 600, 640, {});
+    var elem = this.showDialog(title, txt, 600, 600, {});
    if (masterData.auth.editall) {
      form_renderDates({elem:$("#dates"), data:t.currentBooking, disabled:t.currentBooking.cc_cal_id!=null,
        authexceptions:masterData.auth.editall,
@@ -925,7 +925,7 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
    this.checkConflicts();
     
     var log=$("#cr_logs");
-    if (log!=null) {
+    if (log!=null && id!=null) {
       // Hole die Log-Daten
       churchInterface.jsendRead({ func: "getLogs", id:id }, function(ok, json) {
         if (json!=null) {

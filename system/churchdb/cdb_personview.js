@@ -145,7 +145,7 @@ PersonView.prototype.renderMenu = function() {
 PersonView.prototype.renderListMenu = function() {
   var t=this;
   
-  // MenŸleiste oberhalb
+  // Menï¿½leiste oberhalb
   if ($("searchEntry").val()!=null) 
     searchEntry=$("searchEntry").val();
   else
@@ -175,7 +175,7 @@ PersonView.prototype.renderListMenu = function() {
           ul.append( "<li class='ui-autocompldete-category'><small><b> " + item.category + "<b></small></li>" );
           currentCategory = item.category;
         }
-        that._renderItem( ul, item );
+        that._renderItemData( ul, item );
       });
     }
   });  
@@ -223,7 +223,7 @@ PersonView.prototype.renderListMenu = function() {
         },10);
       }
       else {
-        // Leider mu§ ich hier TimeOut setzen, denn sonst ist der Wert noch nicht in der OberflŠche angekommen...
+        // Leider muï¿½ ich hier TimeOut setzen, denn sonst ist der Wert noch nicht in der Oberflï¿½che angekommen...
         window.setTimeout(function(){        
           $("#searchEntry").trigger( "keyup" );
           // For iOS to close the virtual keyboard
@@ -479,7 +479,7 @@ PersonView.prototype.addPersonGroupRelation = function(id, g_id, memberstatus_no
 
 PersonView.prototype.addSecondMenu = function() {
   rows = new Array();
-  // Gruppenfunktionen sind nur erlaubt, wenn ich Leiter der ausgewŠhlten Gruppe bin, oder ich Schreibrechte habe
+  // Gruppenfunktionen sind nur erlaubt, wenn ich Leiter der ausgewï¿½hlten Gruppe bin, oder ich Schreibrechte habe
   rows.push("<p></p>");
   if ((this.filter["filterMeine Gruppen"]>0) && 
        ((groupView.isPersonLeaderOfGroup(masterData.user_pid,this.filter["filterMeine Gruppen"])) || (masterData.auth.write))) { 
@@ -808,8 +808,8 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
 };
 
 /**
- * value: Welche Aktion wurde gewŠhlt
- * param: ein belibiegr Parameter zur †bergabe
+ * value: Welche Aktion wurde gewï¿½hlt
+ * param: ein belibiegr Parameter zur ï¿½bergabe
  */
 PersonView.prototype.personFunction = function (value, param) {
   var t=this;
@@ -1053,7 +1053,7 @@ PersonView.prototype.renderListEntry = function(a) {
           // Supervisor
           else if (b.leiter==3)
           style="font-weight:bold;color:gray";
-          // Zu lšschen
+          // Zu lï¿½schen
           else if (b.leiter==-1)
             style="color:gray;text-decoration:line-through;";
           // Aufnahem beantragt
@@ -1161,7 +1161,7 @@ PersonView.prototype.createMultiselect = function(name, data) {
 PersonView.prototype.getListHeader = function() {  
   var t = this;
   var g_id=t.filter["filterMeine Gruppen"];
-  // Diese Zeilen dienen beim ersten Aufruf Ÿber Direkteinstieg mit Id dafŸr, dass der Datenssatz
+  // Diese Zeilen dienen beim ersten Aufruf ï¿½ber Direkteinstieg mit Id dafï¿½r, dass der Datenssatz
   // angelegt wird, so dass sofort PersonDetails geladen werden.
   if ((this.filter["searchEntry"]!=null) && (this.filter["searchEntry"]>0)
       && (allPersons[this.filter["searchEntry"]]==null)) {
@@ -1608,7 +1608,7 @@ function _checkGroupFilter(a, filter, z) {
       if (a.gruppe==null) return false;
       else {
         dabei=false;
-        // Hier ist kein Zusammenhang zwischen den anderen, d.h. hier mu§ ich auch noch suchen, 
+        // Hier ist kein Zusammenhang zwischen den anderen, d.h. hier muï¿½ ich auch noch suchen, 
         // wer z.B. Leiter bei dem Distrikt ist
         $.each(a.gruppe, function (b,k) {
           if ((filter["filterTyp "+z]=="") || (filter["filterTyp "+z]==masterData.groups[k.id].gruppentyp_id))
@@ -1627,7 +1627,7 @@ function _checkGroupFilter(a, filter, z) {
     if (a.gruppe!=null) {
       dabei=false;
       $.each(a.gruppe, function (b,k) {
-        // Erstmal mu§ der Typ stimmen
+        // Erstmal muï¿½ der Typ stimmen
         if (filter["filterTyp "+z]!="" && filter["filterGruppe "+z]==null) {
           if (masterData.groups[k.id].gruppentyp_id==filter["filterTyp "+z]) {
             // Wenn auch noch Leitertyp angegeben ist?
@@ -1683,13 +1683,13 @@ function _checkGroupFilter(a, filter, z) {
               || ((filter["filterGruppe "+z]==null) && ((filter["filterDistrikt "+z])==null) 
                  && (masterData.groups[og.gp_id]!=null) && (masterData.groups[og.gp_id].gruppentyp_id==filter["filterTyp "+z]))) {
             if ((filter["filterGruppeWarInVon "+z]==null) && (filter["filterGruppeWarInBis "+z]==null)) {
-              // Ohne Datum mu§ ich nur schauen, dass es einen Status -99 gibt, also dass er raus ist.
-              // bzw. ob der Teilnehmerstatus erfŸllt wurde, 
+              // Ohne Datum muï¿½ ich nur schauen, dass es einen Status -99 gibt, also dass er raus ist.
+              // bzw. ob der Teilnehmerstatus erfï¿½llt wurde, 
               if (((filter["filterTeilnehmerstatus "+z]==null) && (og.leiter==-99))
                 || (og.leiter==filter["filterTeilnehmerstatus "+z])) dabei=true;
             } 
             else {
-              // Wenn es ein Datum gibt, dann speichere ich mir die Daten fŸr jede Gruppen-ID in ein Array, s.u. 
+              // Wenn es ein Datum gibt, dann speichere ich mir die Daten fï¿½r jede Gruppen-ID in ein Array, s.u. 
               if (arr2[og.gp_id]==null) arr2[og.gp_id]=new Array();
               arr2[og.gp_id].push(og);                
             }              
@@ -1697,18 +1697,18 @@ function _checkGroupFilter(a, filter, z) {
           
         }                            
       });
-      // Wenn es Datumsfilterung gibt, dann mŸssen wir alle alten EintrŠge sortieren und interpretieren
+      // Wenn es Datumsfilterung gibt, dann mï¿½ssen wir alle alten Eintrï¿½ge sortieren und interpretieren
       if (filter["filterGruppeWarInBis "+z]!=null) {
         $.each(arr2, function(k,og) {
           // Sortiere nach Datum
           var b=churchcore_sortData(og,"d");
           var startdatum="";
           $.each(b, function(i,c) {            
-            // Entweder wird nicht nach TNStatus gefiltert, dann ist >0 wichtig, oder es mu§ eben vergleichen werden.
+            // Entweder wird nicht nach TNStatus gefiltert, dann ist >0 wichtig, oder es muï¿½ eben vergleichen werden.
             if (((filter["filterTeilnehmerstatus "+z]==null) && (c.leiter>=0))
                 || (filter["filterTeilnehmerstatus "+z]==c.leiter)) 
               startdatum=c.d;
-            // Wenn auch ein -99 da ist bzw. der TN-Status sich geŠndert hat, dann haben wir einen gŸltiges Bundle, also los!
+            // Wenn auch ein -99 da ist bzw. der TN-Status sich geï¿½ndert hat, dann haben wir einen gï¿½ltiges Bundle, also los!
             else if ((startdatum!="") && ((c.leiter==-99) || filter["filterTeilnehmerstatus "+z]!=null)) {
               if (((filter["filterGruppeWarInBis "+z]==null) || (startdatum.toDateEn()<=filter["filterGruppeWarInBis "+z].toDateDe()))
                  &&
@@ -1804,7 +1804,7 @@ PersonView.prototype.checkFilter = function(a) {
         if (!dabei) res=false;
         return false;    
       }
-      // Wenn kein Tag, dann nun andere Mšglichkeiten testen
+      // Wenn kein Tag, dann nun andere Mï¿½glichkeiten testen
       else if ((a.name.toUpperCase().indexOf(search)<0) &&
                  (a.vorname.toUpperCase().indexOf(search)<0) &&
                  ((a.email==null) || (a.email.toUpperCase().indexOf(search)!=0)) &&
@@ -1900,11 +1900,11 @@ PersonView.prototype.checkFilter = function(a) {
 
   while (filter["filterOn "+z]!=null) {
     var res=_checkGroupFilter(a, filter, z);
-    // UND-VerknŸpfung
+    // UND-Verknï¿½pfung
     if (filter["filterOr"]==null) {
       if (!res) return false;
     }  
-    // ODER-VerknŸpfung
+    // ODER-Verknï¿½pfung
     else if (res) or=true;   
     z=z+1;  
   }
@@ -2124,14 +2124,14 @@ function _renderRelationList(id,del_link) {
         if (b.beziehungstyp_id==relType.id) {
           if (b.kind_id==id) {
             _text=_text+masterData.relationType[b.beziehungstyp_id].bez_vater;
-            // Checken ob er Ÿberhaupt die Person sehen darf, kann anderer Bereich sein.
+            // Checken ob er ï¿½berhaupt die Person sehen darf, kann anderer Bereich sein.
             if (allPersons[b.vater_id]!=null) {
               _text=_text+': <a href="#" id="person_'+b.vater_id+'" '+(masterData.auth.viewalldata?'tooltip="'+b.vater_id+'">':'>')+allPersons[b.vater_id].vorname+" "+allPersons[b.vater_id].name+"</a>";
             } 
           }
           else { 
             _text=_text+masterData.relationType[b.beziehungstyp_id].bez_kind;
-            // Checken ob er Ÿberhaupt die Person sehen darf, kann anderer Bereich sein.
+            // Checken ob er ï¿½berhaupt die Person sehen darf, kann anderer Bereich sein.
             if (allPersons[b.kind_id]!=null) {
               _text=_text+': <a href="#" id="person_'+b.kind_id+'" '+(masterData.auth.viewalldata?'tooltip="'+b.kind_id+'">':'>')+allPersons[b.kind_id].vorname+" "+allPersons[b.kind_id].name+"</a>";
             }
@@ -2204,16 +2204,16 @@ PersonView.prototype.getGroupEntries = function (p_id, gt_id, func) {
     }
   });
   
-  // Sortiere nach Datum rŸckwŠrts
+  // Sortiere nach Datum rï¿½ckwï¿½rts
   res.sort(function(a,b){if (a.d>b.d) return -1; else return 1;});
 
-  // Nehem soviele heraus, bis 4 Ÿbrig bleiben
+  // Nehem soviele heraus, bis 4 ï¿½brig bleiben
   if (t.showGroupDetailsId!=gt_id) {    
     var count=res.length;
     var d=new Date(); d.addDays(-1*masterData.groupnotchoosable);
     var i=res.length;
     
-    // Erst die Filtern, bei denen die Gruppe ein Abschlu§datum hat
+    // Erst die Filtern, bei denen die Gruppe ein Abschluï¿½datum hat
     while ((i>0) && (count>4)) {
       i=i-1;
       if ((masterData.groups[res[i].id].abschlussdatum!=null) && (masterData.groups[res[i].id].abschlussdatum.toDateEn()<d)) {
@@ -2298,7 +2298,7 @@ PersonView.prototype.getGroupEntries = function (p_id, gt_id, func) {
 };
 
 /**
- * Ist es Ÿberhaupt eine Followup-Gruppe?
+ * Ist es ï¿½berhaupt eine Followup-Gruppe?
  * group=Person.group
  */
 function _isFollowUpGroup(group) {
@@ -2331,7 +2331,7 @@ function _getNextFollowupCountNo(followup_typ_id, followup_count_no) {
 /**
  * 
  * @param group - Ein Gruppeneintrag von allPerson.groups[]
- * @return null oder Anzahl Tage von heute bis zum FollowUp, negativ wenn schon ŸberfŠllig
+ * @return null oder Anzahl Tage von heute bis zum FollowUp, negativ wenn schon ï¿½berfï¿½llig
  */
 function _getPersonGroupFollowupDiffDays(group) {
   if (!_isFollowUpGroup(group))
@@ -2581,7 +2581,7 @@ PersonView.prototype.renderDetails = function (id) {
       
       if (masterData.auth.viewalldetails)
         _text=_text + t.renderFields(masterData.fields.f_category, a, masterData.auth.write);
-      // Die kein Recht auf alle Daten haben mŸssen auch nur wissen, ob Mitglied oder nicht. Nicht die einzelnen Statis.
+      // Die kein Recht auf alle Daten haben mï¿½ssen auch nur wissen, ob Mitglied oder nicht. Nicht die einzelnen Statis.
       else {
         _text=_text+"<p><b><i>Kategorie</i></b><br/><small>Mitglied: ";
         if (masterData.status[a.status_id].mitglied_yn==1)
@@ -2701,7 +2701,7 @@ PersonView.prototype.renderDetails = function (id) {
             }
   
   
-            // Erst mal alle auf Unused setzen, damit ich hinterher wei§, welche Archiv-Gruppe noch nicht gezeigt wurde
+            // Erst mal alle auf Unused setzen, damit ich hinterher weiï¿½, welche Archiv-Gruppe noch nicht gezeigt wurde
             if ((allPersons[id].oldGroups!=null) && (t.showGroupDetailsId==a.id) && (t.showGroupDetailsWithHistory)) {
               $.each(allPersons[id].oldGroups,function(y,d) {
                 d.used=false;
@@ -2809,7 +2809,7 @@ PersonView.prototype.renderDetails = function (id) {
   });
   
   $("td[id=detailTD"+id+"] a").click(function() {
-    // Lšsche den Tooltip, falls es ihn gibt
+    // Lï¿½sche den Tooltip, falls es ihn gibt
     t.clearTooltip(true);
     if (($(this).parents("td").attr("id")!=null) && ($(this).parents("td").attr("id")!=""))
       var id=$(this).parents("td").attr("id").substring(8,100);
@@ -2945,7 +2945,7 @@ PersonView.prototype.renderDetails = function (id) {
       });
     }
     else if (fieldname.indexOf("f_followup_")==0) {
-      // FollowUp ErgŠnzen, falls die aktuelle Person hier ein FollowUp durchfŸhren soll
+      // FollowUp Ergï¿½nzen, falls die aktuelle Person hier ein FollowUp durchfï¿½hren soll
       g_id=fieldname.substring(11,99);
       var rows=new Array();
       b=allPersons[id].gruppe[g_id];
@@ -3163,7 +3163,7 @@ PersonView.prototype.getAvailableAddGroupsForGrouptype = function(gt_id) {
 PersonView.prototype.editPersonAuth = function (id) {
   var t=this;
   this.editDomainAuth(id, allPersons[id].auth, "person", function(id) {
-    // Hole mir neue Details fŸr die Person mit der Auth-infos
+    // Hole mir neue Details fï¿½r die Person mit der Auth-infos
     churchInterface.jsendRead({func:"getPersonDetails", id:id}, function(ok, json) {
       allPersons[json.id]=cdb_mapJsonDetails(json, allPersons[json.id]);
       // Rendere die View neu, da auch die Tablle Zugriffsrechte anzeigen kann
@@ -3209,7 +3209,7 @@ PersonView.prototype.delPersonFromGroup = function (id, g_id, withoutConfirmatio
       });
     }
   } 
-  // Nicht erlaubt, d.h. es handelt sich um einen KG-Leiter, der nur auf "Zu Lšschen" setzen darf
+  // Nicht erlaubt, d.h. es handelt sich um einen KG-Leiter, der nur auf "Zu Lï¿½schen" setzen darf
   else {
     var form = new CC_Form("Person in der Gruppe als zu l&ouml;schen markieren");
     form.addCaption({label:'Person', text:a.vorname+" "+a.name});
@@ -3304,11 +3304,11 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
       diff_date.addDays(-1*masterData.groupnotchoosable);
     
       $.each(churchcore_sortData(masterData.groups, "bezeichnung"), function(k,a) {
-        // Es sollen nur Gruppen auswŠhlbar sein, deren Abschlu§datum zu alt ist
+        // Es sollen nur Gruppen auswï¿½hlbar sein, deren Abschluï¿½datum zu alt ist
         if ((a.gruppentyp_id==gt_id) 
             && (a.valid_yn==1) 
             && ((a.abschlussdatum==null) || (a.abschlussdatum.toDateEn()>diff_date))) {
-            // Wenn ich die Gruppe sehen darf, darf ich sie auch zuordnen. Und natŸrlich auf editgroups
+            // Wenn ich die Gruppe sehen darf, darf ich sie auch zuordnen. Und natï¿½rlich auf editgroups
             if ((groupView.isAllowedToSee(a.id)) || ((masterData.auth.editgroups) && (a.versteckt_yn==0)) ) {
             // Es sollen nur Gruppen angezeigt werden, in denen die Person noch nicht ist.
             var dabei=false;
@@ -3421,7 +3421,7 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
 
   rows[rows.length]='<input type="hidden" id="fields" value="'+fieldname+'"/><br/>';
   
-  var elem = this.showDialog("Ver&auml;nderung des Datensatzes", rows.join(""), width, height, {
+  var elem = this.showDialog("VerÃ¤nderung des Datensatzes", rows.join(""), width, height, {
     "Speichern": function() {
       t._saveEditEntryData(id, fieldname, renderViewNecessary, $(this));
     },
@@ -3662,7 +3662,7 @@ PersonView.prototype._saveEditEntryData = function (id, fieldname, renderViewNec
 };   
 
 /**
- * Bereitet die Daten fŸr ein renderSelect vor
+ * Bereitet die Daten fï¿½r ein renderSelect vor
  * withDataAuth: Auch die Datenautorisierung nehmen, default=ja
  */
 function getAuthAsDataArray(withDataAuth) {
@@ -3682,20 +3682,20 @@ function getAuthAsDataArray(withDataAuth) {
 PersonView.prototype.msg_filterChanged = function (id, oldVal) {
   var t=this;
 
-  // Wenn nicht "Meine Gruppen" geŠndert wurden, ich aber Meine Gruppen ein intelligente Gruppe gefiltert habe
+  // Wenn nicht "Meine Gruppen" geï¿½ndert wurden, ich aber Meine Gruppen ein intelligente Gruppe gefiltert habe
   if ((id!="filterMeine Gruppen") && (this.filter["filterMeine Gruppen"]!=null) && 
                  (this.filter["filterMeine Gruppen"].indexOf("filter")==0)) {
     delete this.filter["filterMeine Gruppen"];
     this.msg_filterChanged("filterMeine Gruppen",null);
   } 
-  // Wenn "Meine Gruppen" geŠndert wurde
+  // Wenn "Meine Gruppen" geï¿½ndert wurde
   else if (id=="filterMeine Gruppen") {
     $("#cdb_group").html("");
     if (masterData.settings.selectedMyGroup!=t.filter['filterMeine Gruppen']) {
       masterData.settings.selectedMyGroup=t.filter['filterMeine Gruppen'];
       churchInterface.jsendWrite({func:"saveSetting", sub:"selectedMyGroup", val:(masterData.settings.selectedMyGroup==null?"null":masterData.settings.selectedMyGroup)});
     }
-    // Wenn es mit "filter" anfŠngt, dann handelt es sich jetzt um intelligente Gruppen
+    // Wenn es mit "filter" anfï¿½ngt, dann handelt es sich jetzt um intelligente Gruppen
     if ((typeof t.filter['filterMeine Gruppen']=="string") && (t.filter['filterMeine Gruppen'].indexOf("filter")==0)) {
       // Nun kopiere intelligente Gruppe in die Filter
       var merker=t.filter['filterMeine Gruppen'];
@@ -3708,7 +3708,7 @@ PersonView.prototype.msg_filterChanged = function (id, oldVal) {
       t.renderFurtherFilter();
       t.renderTodos();
     }
-    // Wenn es vorher eine intelligente Gruppe war, mu§ ich nun Filter wieder lšschen
+    // Wenn es vorher eine intelligente Gruppe war, muï¿½ ich nun Filter wieder lï¿½schen
     else if ((typeof oldVal=="string") && (oldVal.indexOf("filter")==0)) {
       var merker=t.filter['filterMeine Gruppen'];
       t.resetPersonFilter();
@@ -4411,7 +4411,7 @@ PersonView.prototype.renderGroupContent = function(g_id) {
           return false;
         } 
       });
-      // Kein zu pflegende Gruppe gefunden, also rows wieder löschen.
+      // Kein zu pflegende Gruppe gefunden, also rows wieder lï¿½schen.
       if (gruppentreffen_id==-1)                 
         rows2 = new Array();
     }
@@ -4492,7 +4492,7 @@ PersonView.prototype.renderGroupContent = function(g_id) {
     }
     else {
       churchInterface.jsendWrite({ func: "GroupMeeting", sub:"canceled", gt_id: gruppentreffen_id }, function(oi, json) {
-        // info löschen, damit er neue Infos holt.
+        // info lï¿½schen, damit er neue Infos holt.
         masterData.groups[t.filter['filterMeine Gruppen']].meetingList=null;
         t.renderGroupEntry();
         t.renderList();
@@ -4576,7 +4576,7 @@ PersonView.prototype.mailer = function() {
     if ((counter<=maxMails) && (t.checkFilter(a))) {
       if ((a.email!=null) && (a.email!="")) {
         counter++;
-        // Wenn ich das in ein Extra Fenster ausgeben, kšnnen auch die Namen dazu
+        // Wenn ich das in ein Extra Fenster ausgeben, kï¿½nnen auch die Namen dazu
         mailTo=mailTo+$.trim(a.email)+separator;
         ids=ids+a.id+",";
       }  
