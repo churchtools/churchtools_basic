@@ -554,83 +554,6 @@ StandardTableView.prototype.addTableContentCallbacks = function(cssid) {
   this.addFurtherListCallbacks(cssid);
 };
 
-
-StandardTableView.prototype.renderTooltip2Div = function(tooltip, divid) {
-  var txt=this.renderTooltip(tooltip, divid);
-  if (txt instanceof(Array)) {    
-    $("#"+divid).html(txt[0]);
-    $("#"+divid+'_title').html(txt[1]);
-  }
-  else $("#"+divid).html(txt);
-};
-
-StandardTableView.prototype.tooltipCallback = function(divid) {
-};
-
-/**
- * Wird automatisch aufgerufen, sobald ein Element ein attribute "tooltip=$id" hat.
- * @param elem Das HTML-Element, wofür das Tooltip erscheinen soll
- * @param delay Die Verzögerung, nach wann das Element angezeigt werden soll
- */
-StandardTableView.prototype.prepareTooltip = function(elem, delay, htmlclass) {
-  var this_object=this;
-  if (delay==null) delay=200;
-  if (htmlclass==null) htmlclass=this.name;
-  var txt = '<div id="tooltip_inner" class="'+htmlclass+'"></div>';
-  this_object.clearTooltip();
-  this_object.tooltip_elem=elem;
-  this_object.tooltipTimer=window.setTimeout(function() {
-    var pos="bottom";
-    if (this_object.tooltip_elem!=null) {
-      this_object.tooltip_elem.popover({ 
-        content:txt, html:true, title:'<span id="tooltip_inner_title"/>', 
-         placement:pos, trigger:"manual", animation:true}).popover("show");
-      this_object.renderTooltip2Div(this_object.tooltip_elem, "tooltip_inner");
-      this_object.tooltipCallback(elem.attr("tooltip"), this_object.tooltip_elem.next(".popover"));
-      $(".popover").hover(
-        function() {
-          if (this_object.tooltip_elem!=null) this_object.tooltip_hold=true;
-        }, 
-        function() {
-          if (this_object.tooltip_hold) {
-            this_object.tooltip_hold=false;
-            this_object.clearTooltip();
-          }
-        });
-      this_object.tooltipTimer=null;
-    }
-  }, delay);
-};
-
-
-
-
-/**
- * 
- * @param elem - Das Tooltip-Element, kann mit elem.html beschrieben werden.
- * @return Das fertige HTML
- */
-StandardTableView.prototype.renderTooltip = function(elem) {
-  return "noch nicht implementiert!";
-};
-
-// force bedeutet sofort löschen, egal ob hold oder nicht
-StandardTableView.prototype.clearTooltip = function(force) {
-  var t=this;
-  if ((force) || (!t.tooltip_hold)) {
-    t.tooltip_hold=false;
-    if ((t.tooltip_elem!=null) && (t.tooltip_elem.data("popover")!=null)) {
-      t.tooltip_elem.popover("hide");
-      t.tooltip_elem.data("popover",null);
-      t.tooltip_elem=null;
-    }  
-    if (t.tooltipTimer!=null) {
-      window.clearTimeout(t.tooltipTimer);
-      t.tooltipTimer=null;
-    }
-  }
-};
-
 StandardTableView.prototype.mailPerson = function (personId, name, subject) {
   var t=this;
   var rows = new Array();
@@ -691,7 +614,7 @@ StandardTableView.prototype.mailPerson = function (personId, name, subject) {
 StandardTableView.prototype.renderFile = function(file, filename_length) {
   txt="";
   if (file!=null) {
-    txt=txt+'<span class="file" tooltip="'+file.id+'" data-id="'+file.id+'">';
+    txt=txt+'<span class="tooltip-file file" data-id="'+file.id+'">';
     var i = file.bezeichnung.lastIndexOf(".");
     if (i>0) {
       switch (file.bezeichnung.substr(i,99)) {
@@ -732,10 +655,9 @@ StandardTableView.prototype.renderFile = function(file, filename_length) {
   return txt;
 };
 
-StandardTableView.prototype.renderTooltipForFiles = function (tooltip, divid, f, editauth) {
+StandardTableView.prototype.renderTooltipForFiles = function (tooltip, f, editauth) {
   var t=this;
   var rows = new Array();
-//    rows.push("am "+);
   var i = f.bezeichnung.lastIndexOf(".");
   if (i>0)
     

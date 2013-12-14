@@ -2604,12 +2604,12 @@ ListView.prototype.renderFiles = function () {
     else t.renderFilelist("Dateien zum Event:", allEvents);
   }
 
-  $("#cdb_content span.file").each(function() {
+  $("#cdb_content span.tooltip-file").each(function() {
     var tooltip=$(this);
     tooltip.tooltips({
-      data:{id:tooltip.attr("tooltip"), event_id:tooltip.parents("tr").attr("id")},
+      data:{id:tooltip.attr("data-id"), event_id:tooltip.parents("tr").attr("id")},
       render:function(data) {        
-        return t.renderTooltipForFiles(tooltip, null, allEvents[data.event_id].files[data.id], 
+        return t.renderTooltipForFiles(tooltip, allEvents[data.event_id].files[data.id], 
             (masterData.auth.admin || allEvents[data.event_id].files[data.id].modified_pid==masterData.user_pid 
               || bin_ich_admin(allEvents[data.event_id].admin)));
       },      
@@ -2649,17 +2649,6 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
     });    
   });
   
-  /*
-  
-  $(".hover").hover(
-      function () {
-        $('#headerspan'+$(this).attr("id").substr(6,99)).fadeIn('fast',function() {});
-      }, 
-      function () {
-        $('#headerspan'+$(this).attr("id").substr(6,99)).fadeOut('fast');
-      }
-    );
-  */
   $(cssid+" a.edit-event").click(function() {
     if (t.currentTooltip!=null) t.currentTooltip.tooltips("hide");
     t.renderEditEvent(allEvents[$(this).parents("tr").attr("id")]);

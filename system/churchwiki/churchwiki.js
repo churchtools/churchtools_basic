@@ -118,13 +118,13 @@ WikiView.prototype.renderFiles = function() {
     t.renderFilelist("", currentPage.file, null, null, 50);
   }
 
-  $("div.filelist span[tooltip],a[tooltip]").each(function() {
+  $("div.filelist span.tooltip-file").each(function() {
     var tooltip=$(this);
     tooltip.tooltips({
-      data:{id:tooltip.attr("tooltip") 
+      data:{id:tooltip.attr("data-id") 
            },
       render:function(data) {
-        return t.renderTooltipForFiles(tooltip, null, currentPage.file[0].files[data.id], masterData.auth.edit[currentPage.wikicategory_id]);  
+        return t.renderTooltipForFiles(tooltip, currentPage.file[0].files[data.id], masterData.auth.edit[currentPage.wikicategory_id]);  
       },      
       afterRender: function(element, data) {
         return t.tooltipCallbackForFiles(data.id, element, currentPage.file, 0);

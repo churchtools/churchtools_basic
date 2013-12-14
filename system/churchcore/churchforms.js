@@ -1966,11 +1966,28 @@ $.widget("ct.tooltips", {
     ); 
   },
   
-  // public function to immediate hide the tooltip
+  /**
+   *  public function to immediate hide the tooltip
+   */
   hide: function() {
     if (this._hideTimer!=null) _clearHideTimer();
     if (this._showTimer!=null) _clearShowTimer();
     this._hideTooltip();
+  },
+  
+  /*
+   * Refresh content of tooltip without hide and show it again
+   */
+  refresh: function() {
+    var t=this;
+    var content=t.options.render(this.options.data);
+    if (content instanceof(Array)) {        
+      $("div.popover-content").html(content[0]);
+      $("div.popover-title").html(content[1]);
+    }
+    else 
+      $("div.popover-content").html(content);
+    t.options.afterRender(t.element.next(".popover"), this.options.data);    
   },
   
   _clearHideTimer: function() {
@@ -1987,6 +2004,8 @@ $.widget("ct.tooltips", {
     this.element.popover("hide");
     this.element.data("popover", null);    
   },
+
+  
   _showTooltip: function() {
     var t=this;
     t._visible=true;
@@ -1997,7 +2016,7 @@ $.widget("ct.tooltips", {
          placement:"bottom", trigger:"manual", animation:true}).popover("show");
     else 
         t.element.popover({ 
-          content:content, html:true, title:t.getTitle(t.options.data), 
+          content:content, html:true, 
            placement:"bottom", trigger:"manual", animation:true}).popover("show");
     t.options.afterRender(t.element.next(".popover"), this.options.data);
   },

@@ -130,15 +130,15 @@ SongView.prototype.renderFiles = function(filecontainer, arrangement_id) {
     t.renderFilelist("", filecontainer, arrangement_id);
   }
   if (!churchcore_touchscreen()) {
-    $("div.filelist[data-id="+arrangement_id+"] span[tooltip],a[tooltip]").each(function() {
+    $("div.filelist[data-id="+arrangement_id+"] span.tooltip-file").each(function() {
       var tooltip=$(this);
       tooltip.tooltips({
-        data:{id:tooltip.attr("tooltip"), 
+        data:{id:tooltip.attr("data-id"), 
               ar_id:tooltip.parent().attr("data-id"),
               song_id:tooltip.parents("div.entrydetail").attr("data-song-id")
              },
         render:function(data) {
-          return t.renderTooltipForFiles(tooltip, null, allSongs[data.song_id].arrangement[data.ar_id].files[data.id], masterData.auth.editsong);            
+          return t.renderTooltipForFiles(tooltip, allSongs[data.song_id].arrangement[data.ar_id].files[data.id], masterData.auth.editsong);            
         },      
         afterRender: function(element, data) {
           return t.tooltipCallbackForFiles(data.id, element, allSongs[data.song_id].arrangement, data.ar_id);          

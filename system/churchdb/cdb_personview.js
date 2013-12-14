@@ -19,6 +19,7 @@ function PersonView() {
   this.sortedData=null;
   this.currentTodoTimer=null;
   this.gruppenteilnehmerdatum=new Date();
+  this.currentTooltip=null;
 }
 
 Temp.prototype = CDBStandardTableView.prototype;
@@ -506,7 +507,7 @@ PersonView.prototype.addSecondMenu = function() {
 };
 
 
-PersonView.prototype.renderTooltip = function(tooltip, divid) {
+PersonView.prototype.renderPersonTooltip = function(id) {
   var t=this;
   
   function _renderTooltipDetails(id) {
@@ -533,11 +534,11 @@ PersonView.prototype.renderTooltip = function(tooltip, divid) {
     return txt;
   }
   var txt="";
-  var id=tooltip.attr("tooltip");
+  var id;
   
   if (id>0) {
     txt=txt+this.renderPersonImage(id);
-    txt='<br/><div class="tooltip_gesamt"><div class="tooltip_foto">'+txt+'</div><div id="cdb_tooltipdetail" class="tooltip_address">';
+    txt='<br/><div class="tooltip_gesamt" style="min-width:300px"><div class="tooltip_foto">'+txt+'</div><div id="cdb_tooltipdetail" class="tooltip_address">';
     
     if (allPersons[id].details) {
       txt=txt+_renderTooltipDetails(id)+'</div><div style="clear:both"></div></div>';
@@ -548,7 +549,7 @@ PersonView.prototype.renderTooltip = function(tooltip, divid) {
         if (json!="no access") {
           allPersons[json.id]=cdb_mapJsonDetails(json, allPersons[json.id]);       
           //t.prepareTooltip(tooltip, 0);
-          t.renderTooltip2Div(tooltip, divid);
+          t.currentTooltip.tooltips("refresh");
           txt=null;
         }
         else $("#cdb_tooltipdetail").html("<i>Keine Berechtigung</i>");
@@ -556,32 +557,33 @@ PersonView.prototype.renderTooltip = function(tooltip, divid) {
     }
     return [txt, ""];
   }
-  // Gruppentreffen
-  else if (id==-1) {
-    var txt="<p>";
-    var meeting=t.getMeetingFromMeetingList(tooltip.attr("data-group-id"), tooltip.attr("data-gruppentreffen-id"));
-    if (meeting!=null) {
-      if (meeting.kommentar!=null) {
-          txt=txt+'<div class="well"><i>Kommentar: </i><br><small><i>'+meeting.kommentar;
-          txt=txt+'<p>'+meeting.modified_date.toDateEn(false).toStringDe(false);
-          if (allPersons[meeting.modified_pid]!=null)
-            txt=txt+" "+allPersons[meeting.modified_pid].vorname+" "+allPersons[meeting.modified_pid].name+"";
-          else
-            txt=txt+" ["+meeting.modified_pid+"]";
-          txt=txt+"</i></small></div>";
-      }
-      else
-        txt=txt+"Kein Kommentar vorhanden";
-      if (meeting.anzahl_gaeste!=null)
-          txt=txt+"<p>Anzahl G&auml;ste: "+meeting.anzahl_gaeste;
-      txt=txt+"<p>"+form_renderButton({label:"Editieren", htmlclass:"edit btn-success", type:"small"})+" ";
-      txt=txt+""+form_renderButton({label:"Entfernen", htmlclass:"delete btn-danger", type:"small"});
-      txt=txt+form_renderHidden({cssid:"data-group-id", value:tooltip.attr("data-group-id")});
-      txt=txt+form_renderHidden({cssid:"data-datum", value:tooltip.attr("data-datum")});
-      txt=txt+form_renderHidden({cssid:"data-gruppentreffen-id", value:meeting.id});
-      return [txt];
-    };
-  }
+};
+
+PersonView.prototype.renderGroupmeetingTooltip = function(group_id, groupmeeting_id, meetingdate) {
+  var t=this;
+  var txt="<p>";
+  var meeting=t.getMeetingFromMeetingList(group_id, groupmeeting_id);
+  if (meeting!=null) {
+    if (meeting.kommentar!=null) {
+        txt=txt+'<div class="well"><i>Kommentar: </i><br><small><i>'+meeting.kommentar;
+        txt=txt+'<p>'+meeting.modified_date.toDateEn(false).toStringDe(false);
+        if (allPersons[meeting.modified_pid]!=null)
+          txt=txt+" "+allPersons[meeting.modified_pid].vorname+" "+allPersons[meeting.modified_pid].name+"";
+        else
+          txt=txt+" ["+meeting.modified_pid+"]";
+        txt=txt+"</i></small></div>";
+    }
+    else
+      txt=txt+"Kein Kommentar vorhanden";
+    if (meeting.anzahl_gaeste!=null)
+        txt=txt+"<p>Anzahl G&auml;ste: "+meeting.anzahl_gaeste;
+    txt=txt+"<p>"+form_renderButton({label:"Editieren", htmlclass:"edit btn-success", type:"small"})+" ";
+    txt=txt+""+form_renderButton({label:"Entfernen", htmlclass:"delete btn-danger", type:"small"});
+    txt=txt+form_renderHidden({cssid:"data-group-id", value:group_id});
+    txt=txt+form_renderHidden({cssid:"data-datum", value:meetingdate});
+    txt=txt+form_renderHidden({cssid:"data-gruppentreffen-id", value:meeting.id});
+    return [txt];
+  };
 };
 
 PersonView.prototype.getMeetingFromMeetingList = function (g_id, gruppentreffen_id) {
@@ -593,30 +595,6 @@ PersonView.prototype.getMeetingFromMeetingList = function (g_id, gruppentreffen_
     }
   });
   return res;
-};
-
-PersonView.prototype.tooltipCallback = function(id, tooltip) {
-  var t=this;
-  tooltip.find("input.delete").click(function() {
-    t.clearTooltip(true);
-    var g_id=$("#data-group-id").val();
-    var gt_id=$("#data-gruppentreffen-id").val();
-    if (confirm("Wirklich das Treffen vom "+$("#data-datum").val().toDateEn(true).toStringDe()+" entfernen?")) {
-      churchInterface.jsendWrite({func:"GroupMeeting", sub:"delete", id:gt_id}, function(ok) {
-        if (ok) {
-          cdb_loadGroupMeetingStats(churchInterface.getCurrentView().filter, g_id, function() {
-            masterData.groups[g_id].meetingList=null;
-            personView.renderList();
-          });
-        }
-      });
-      
-    }
-  });
-  tooltip.find("input.edit").click(function() {
-    t.clearTooltip(true);
-    t.editMeetingProperties($("#data-group-id").val(), $("#data-gruppentreffen-id").val());
-  });
 };
 
 PersonView.prototype.editMeetingProperties = function(g_id, treffen_id) {
@@ -649,7 +627,7 @@ PersonView.prototype.editMeetingProperties = function(g_id, treffen_id) {
         t.renderList();
         $(this).dialog("close");
       },
-      "Abbruch": function() {
+      "Abbrechen": function() {
         $(this).dialog("close");
       }
     });
@@ -660,6 +638,55 @@ PersonView.prototype.editMeetingProperties = function(g_id, treffen_id) {
 
 PersonView.prototype.addFurtherListCallbacks = function(cssid) {
   var t=this;
+  
+  
+  $("#cdb_content a.tooltip-person").each(function() {
+    var tooltip=$(this);
+    tooltip.tooltips({
+      data:{id:$(this).attr("data-tooltip-id")},
+      render:function(data) {
+        return t.renderPersonTooltip(data.id);
+      },      
+      afterRender: function(element, data) {
+        t.currentTooltip=$(tooltip);
+      }
+    });    
+  });
+  $("#cdb_content span.tooltip-groupmeeting").each(function() {
+    var tooltip=$(this);
+    tooltip.tooltips({
+      data:{group_id:$(this).attr("data-tooltip-id"),
+            groupmeeting_id:$(this).attr("data-gruppentreffen-id"),
+            meetingdate:$(this).attr("data-datum")
+      },
+      render:function(data) {
+        return t.renderGroupmeetingTooltip(data.group_id, data.groupmeeting_id, data.meetingdate);
+      },
+      
+      afterRender: function(element, data) {
+        t.currentTooltip=$(tooltip);
+        element.find("input.delete").click(function() {
+          if (confirm("Wirklich das Treffen vom "+data.meetingdate.toDateEn(true).toStringDe()+" entfernen?")) {
+            churchInterface.jsendWrite({func:"GroupMeeting", sub:"delete", id:data.groupmeeting_id}, function(ok) {
+              if (ok) {
+                cdb_loadGroupMeetingStats(churchInterface.getCurrentView().filter, data.group_id, function() {
+                  masterData.groups[data.group_id].meetingList=null;
+                  personView.renderList();
+                });
+              }
+            });
+            
+          }
+        });
+        element.find("input.edit").click(function() {
+          if (t.currentTooltip!=null) t.currentTooltip.tooltips("hide");
+          t.editMeetingProperties(data.group_id, data.groupmeeting_id);
+        });        
+      }
+    });    
+  });
+
+
   
   $("#cdb_content a").click(function (a) {
     if ($(this).attr("id")==null)
@@ -740,7 +767,7 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
             t.loadGroupMeetingList(t.filter["filterMeine Gruppen"]);            
           });
         },
-        "Abbruch": function() {
+        "Abbrechen": function() {
           $(this).dialog("close");
         }
       });
@@ -748,7 +775,6 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
   });
   if (cssid=="#cdb_content") { 
     $("#cdb_content span.clickyesno").click(function() {
-      console.log("cli");
       var m=t.getMeetingFromMeetingList(t.filter["filterMeine Gruppen"], $(this).attr("data-gruppentreffen-id"));
       var p_id=$(this).attr("data-person-id");
       var entry=null;
@@ -922,7 +948,7 @@ PersonView.prototype.personFunction = function (value, param) {
            $.each(allPersons, function(k,a) {allPersons[a.id].checked=null; });
          }
       },          
-      "Abbruch": function() {
+      "Abbrechen": function() {
         $(this).dialog("close");
       }
     });
@@ -938,15 +964,15 @@ PersonView.prototype.renderListEntry = function(a) {
   var t=this;
   rows=new Array();
   
-  var _class="status_";
+  var _class="tooltip-person status_";
   if (masterData.status[a.status_id]!=null) {
     _class=_class+masterData.status[a.status_id].kuerzel.toLowerCase();
     if (masterData.status[a.status_id].mitglied_yn==1) _class=_class+" member";
   }  
   
-  rows.push("<td><a href=\"\" class=\""+_class+"\" tooltip=\""+a.id+"\" id=\"detail" + a.id + "\">" + a.vorname);
+  rows.push("<td><a href=\"\" class=\""+_class+"\" data-tooltip-id=\""+a.id+"\" id=\"detail" + a.id + "\">" + a.vorname);
   if (a.spitzname!="") rows.push(" ("+a.spitzname+")");
-  rows.push("</a><td><a href=\"\" class=\""+_class+"\" tooltip=\""+a.id+"\" id=\"detail" + a.id + "\">" + a.name+"</a>");
+  rows.push("</a><td><a href=\"\" class=\""+_class+"\" data-tooltip-id=\""+a.id+"\" id=\"detail" + a.id + "\">" + a.name+"</a>");
 
   // Nicht anzeigen bei Gruppenteilnahmenstatus
   if (masterData.settings.selectedGroupType!=-4) {
@@ -1227,7 +1253,7 @@ PersonView.prototype.getListHeader = function() {
             (m.datumvon.toDateEn(false).getFullYear()==t.gruppenteilnehmerdatum.getFullYear()) &&
              (m.datumvon.toDateEn(false).getMonth()==t.gruppenteilnehmerdatum.getMonth())) {
           var d=m.datumvon.toDateEn(true);
-          tableHeader=tableHeader+'<th><span tooltip="-1" data-tooltiptype="gruppenteilnahme" data-gruppentreffen-id="'+m.id+'" data-group-id="'+g_id+'" data-datum="'+m.datumvon+'">'+d.getDate()+"."+(d.getMonth()+1)+".";
+          tableHeader=tableHeader+'<th><span class="tooltip-groupmeeting" data-gruppentreffen-id="'+m.id+'" data-tooltip-id="'+g_id+'" data-datum="'+m.datumvon+'">'+d.getDate()+"."+(d.getMonth()+1)+".";
           if (d.getHours()!=0)
             tableHeader=tableHeader+" <small>"+d.getHours()+":"+((d.getMinutes()+"").length==1?"0"+d.getMinutes():d.getMinutes())+"h</small><br>";
           tableHeader=tableHeader+form_renderImage(
@@ -1549,7 +1575,7 @@ PersonView.prototype.renderFilter = function() {
             });
             $(this).dialog("close");
           },
-          "Abbruch": function() {
+          "Abbrechen": function() {
             $(this).dialog("close");
           }
       });
@@ -1955,8 +1981,6 @@ PersonView.prototype.checkFilter = function(a) {
           flt.setFullYear(2000);
           src.setFullYear(2000);
         }  
-        console.log(flt);
-        console.log(src);
         if (flt>src) return false;
       } 
       else return false;
@@ -2441,7 +2465,7 @@ PersonView.prototype.renderAuthDialog = function (id) {
           });                
           $(this).dialog("close");
         },
-        "Abbruch": function() {
+        "Abbrechen": function() {
           $(this).dialog("close");
         }
       });      
@@ -3227,7 +3251,7 @@ PersonView.prototype.delPersonFromGroup = function (id, g_id, withoutConfirmatio
         });                      
         $(this).dialog("close");            
       },          
-      "Abbruch": function() {
+      "Abbrechen": function() {
         $(this).dialog("close");
       }
     });
@@ -3425,7 +3449,7 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
     "Speichern": function() {
       t._saveEditEntryData(id, fieldname, renderViewNecessary, $(this));
     },
-    "Abbruch": function() {
+    "Abbrechen": function() {
       $(this).dialog("close");
     }
   });
@@ -3485,7 +3509,7 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
           t.renderList();
           $(this).dialog("close");
         },
-        "Abbruch": function() {
+        "Abbrechen": function() {
           $(this).dialog("close");
         }    
      });
@@ -4459,7 +4483,7 @@ PersonView.prototype.renderGroupContent = function(g_id) {
           });        
           $(this).dialog("close");
         },
-        "Abbruch": function() {
+        "Abbrechen": function() {
           $(this).dialog("close");
         }
       });
@@ -4543,7 +4567,7 @@ PersonView.prototype.smsPerson = function(arr) {
         });
       $(this).dialog("close");            
     },          
-    "Abbruch": function() {
+    "Abbrechen": function() {
       $(this).dialog("close");
     }
   });
