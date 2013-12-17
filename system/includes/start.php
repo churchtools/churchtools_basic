@@ -56,14 +56,14 @@ function loadConfig() {
 
     // Config in default linux etc location
     $cnf_location = "/etc/churchtools/default.conf";
-    if ($config == null && file_exists($cnf_location)) {
+    if ($config == null && @file_exists($cnf_location)) {
       $config = parse_ini_file($cnf_location);
     }
     
     // Package installed, per domain.
     // All possible virt-hosts in HTTP server has to be symlinked to it.
     $cnf_location = "/etc/churchtools/hosts/" . $_SERVER["SERVER_NAME"] . ".conf";
-    if ($config == null && file_exists($cnf_location)) {
+    if ($config == null && @file_exists($cnf_location)) {
       $config = parse_ini_file($cnf_location);
     }
     
