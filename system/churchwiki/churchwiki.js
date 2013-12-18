@@ -60,7 +60,7 @@ WikiView.prototype.editMode = function (setToEdit) {
                         { name: 'editing', groups: [ 'find', 'spellchecker' ], items: [ 'Find', 'Replace', '-', 'Scayt' ] },
                         { name: 'links', items: [ 'Link', 'Unlink'] },
                         { name: 'insert', items: [ 'Image', /*'Flash', */'Table', 'HorizontalRule', 'Smiley', 'SpecialChar', 'PageBreak', 'Iframe', 'MediaEmbed' ] },
-                        { name: 'tools', items: [ 'Maximize', 'ShowBlocks', 'filebrowser' ] },
+                        { name: 'tools', items: [ 'Maximize', 'ShowBlocks', 'filebrowser', 'Source' ] },
                         { name: 'others', items: [ '-' ] },
                         '/',
                         { name: 'styles', items: [ 'Format', 'Font', 'FontSize' ] },
