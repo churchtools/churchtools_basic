@@ -1941,6 +1941,14 @@ $.widget("ct.editable", {
   
 });
 
+var currentTooltip=null;
+
+function clearTooltip() {
+  if (currentTooltip!=null) {
+    currentTooltip.tooltips("hide");
+    currentTooltip=null;
+  }
+}
 
 $.widget("ct.tooltips", {
   
@@ -2017,7 +2025,8 @@ $.widget("ct.tooltips", {
     this._visible=false;
     this.element.removeClass("tooltips-active");
     this.element.popover("hide");
-    this.element.data("popover", null);    
+    this.element.data("popover", null);  
+    currentTooltip=null;
   },
 
   
@@ -2039,6 +2048,7 @@ $.widget("ct.tooltips", {
   
   _prepareTooltip: function() {
     var t=this;
+    currentTooltip=t.element;
     if (t._hideTimer!=null) t._clearHideTimer();
     if (t._showTimer==null && !t._visible) {
       t._showTimer=window.setTimeout(function() {

@@ -127,7 +127,7 @@ GroupView.prototype.renderDistrict = function() {
     else {
       rows.push('<table class="table table-condensed"><tr><th>Zugeordnete Personen<th>');
       $.each(churchcore_sortData(ps, "name"), function(k,a) {
-        rows.push('<tr><td><a href="#" class="visit-person" tooltip="'+a.id+'" >'+a.vorname+" "+a.name+'</a>');
+        rows.push('<tr><td><a href="#" class="visit-person tooltip-person" data-tooltip-id="'+a.id+'" >'+a.vorname+" "+a.name+'</a>');
         if (masterData.auth.admingroups) {
           rows.push('<td><a href="#" class="del-person"data-id="'+a.id+'">'+this_object.renderImage("trashbox")+'</a>'); 
         }
@@ -254,7 +254,7 @@ GroupView.prototype.renderGrouptype = function() {
     else {
       rows.push('<table class="table table-condensed"><tr><th>Zugeordnete Personen<th>');
       $.each(churchcore_sortData(ps, "name"), function(k,a) {
-        rows.push('<tr><td><a href="#" class="visit-person" tooltip="'+a.id+'" >'+a.vorname+" "+a.name+'</a>');
+        rows.push('<tr><td><a href="#" class="visit-person tooltip-person" data-tooltip-id="'+a.id+'" >'+a.vorname+" "+a.name+'</a>');
         if (masterData.auth.admingroups) {
           rows.push('<td><a href="#" class="del-person"data-id="'+a.id+'">'+this_object.renderImage("trashbox")+'</a>'); 
         }
@@ -1108,7 +1108,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
       if ((_filterChecker(a))||(a.leiter==3)) style="color:gray";
       if (a.leiter==-1) style="color:red;text-decoration:line-through;";
       else if (a.leiter==-2) style="color:#3a87ad;";
-      rows[rows.length]='<a href="#" style="'+style+'" id="person_'+a.id+'" '+(masterData.auth.viewalldata?"tooltip=\""+a.id+"\"":"")+'>'+a.vorname+" "+a.name;
+      rows[rows.length]='<a href="#" style="'+style+'" id="person_'+a.id+'" class="tooltip-person" '+(masterData.auth.viewalldata?"data-tooltip-id=\""+a.id+"\"":"")+'>'+a.vorname+" "+a.name;
       if (a.leiter>0)
         rows.push(" ("+masterData.groupMemberTypes[a.leiter].bezeichnung+")");
       if (a.leiter==-2) rows.push("?");
@@ -1298,7 +1298,6 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
           churchInterface.getCurrentView().renderView();
         });        
       });      
-      return false;
     } 
     else if ($(this).attr("id")=="deleteGroup") {
       var del = false;
@@ -1340,12 +1339,12 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
           $(this).dialog("close");
         }
       });      
-      return false;
     }  
+    return false;
  });  
   $("#groupinfosTD"+p_id+" a").click(function() {
     // Lšsche den Tooltip, falls es ihn gibt
-    this_object.clearTooltip(true);
+    clearTooltip();
     if ($(this).attr("id")=="grp_to_filter") {
       $("#cdb_group").html("");
       churchInterface.setCurrentView(personView);
@@ -1512,21 +1511,10 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
       return false;      
     }
   });
-  
-  $("#cdb_content a[tooltip]").mouseover(function(c) {
-    this_object.prepareTooltip($(this));
-  });
-  $("#cdb_content a[tooltip]").mouseout(function(c) {
-    this_object.clearTooltip();
-  });
 
+  personView.addPersonsTooltip($("#groupinfosTD"+p_id));
   cdb_showGeoGruppe(g.treffpunkt, g.id); 
 };
-
-GroupView.prototype.renderTooltip = function(tooltip, divid) {
-  return personView.renderTooltip(tooltip, divid);
-};
-
 
 GroupView.prototype.renderEditEntry = function (id, fieldname) {
   var this_object=this;

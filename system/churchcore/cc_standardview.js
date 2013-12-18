@@ -1096,10 +1096,6 @@ StandardTableView.prototype.renderSelect = function(selected, elem, masterData, 
 
 StandardTableView.prototype.renderPersonImage = function(id, width) {
   return  form_renderPersonImage(allPersons[id].imageurl, width);
-/*  if (width==null) width=180;
-  var a = allPersons[id];
-  if (a.imageurl==null) a.imageurl="nobody.gif";
-  return "<img style=\"max-width:"+width+"px;\"src=\""+masterData.files_url+"/fotos/"+a.imageurl+"\"/>";*/          
 };
 
 

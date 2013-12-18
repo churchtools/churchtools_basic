@@ -19,7 +19,6 @@ function PersonView() {
   this.sortedData=null;
   this.currentTodoTimer=null;
   this.gruppenteilnehmerdatum=new Date();
-  this.currentTooltip=null;
 }
 
 Temp.prototype = CDBStandardTableView.prototype;
@@ -507,9 +506,7 @@ PersonView.prototype.addSecondMenu = function() {
 };
 
 
-PersonView.prototype.renderPersonTooltip = function(id) {
-  var t=this;
-  
+function renderPersonTooltip(id) {
   function _renderTooltipDetails(id) {
     var a=allPersons[id];
     txt="<b>"+a.vorname+" "+a.name;
@@ -537,7 +534,7 @@ PersonView.prototype.renderPersonTooltip = function(id) {
   var id;
   
   if (id>0) {
-    txt=txt+this.renderPersonImage(id);
+    txt=txt+personView.renderPersonImage(id);
     txt='<br/><div class="tooltip_gesamt" style="min-width:300px"><div class="tooltip_foto">'+txt+'</div><div id="cdb_tooltipdetail" class="tooltip_address">';
     
     if (allPersons[id].details) {
@@ -548,8 +545,8 @@ PersonView.prototype.renderPersonTooltip = function(id) {
       churchInterface.jsendRead({func:"getPersonDetails", id:id}, function(ok, json) {
         if (json!="no access") {
           allPersons[json.id]=cdb_mapJsonDetails(json, allPersons[json.id]);       
-          //t.prepareTooltip(tooltip, 0);
-          t.currentTooltip.tooltips("refresh");
+          if (currentTooltip!=null)
+            currentTooltip.tooltips("refresh");
           txt=null;
         }
         else $("#cdb_tooltipdetail").html("<i>Keine Berechtigung</i>");
@@ -584,11 +581,6 @@ PersonView.prototype.renderGroupmeetingTooltip = function(group_id, groupmeeting
     txt=txt+form_renderHidden({cssid:"data-gruppentreffen-id", value:meeting.id});
     return [txt];
   };
-};
-
-PersonView.prototype.clearTooltip = function() {
-  if (this.currentTooltip!=null)
-    this.currentTooltip.tooltips("hide");
 };
 
 PersonView.prototype.getMeetingFromMeetingList = function (g_id, gruppentreffen_id) {
@@ -641,22 +633,24 @@ PersonView.prototype.editMeetingProperties = function(g_id, treffen_id) {
   
 };
 
-PersonView.prototype.addFurtherListCallbacks = function(cssid) {
-  var t=this;
-  
-  
-  $("#cdb_content a.tooltip-person").each(function() {
+
+PersonView.prototype.addPersonsTooltip = function(element) {
+  element.find(".tooltip-person").each(function() {
     var tooltip=$(this);
     tooltip.tooltips({
       data:{id:$(this).attr("data-tooltip-id")},
       render:function(data) {
-        return t.renderPersonTooltip(data.id);
-      },      
-      afterRender: function(element, data) {
-        t.currentTooltip=$(tooltip);
-      }
+        return renderPersonTooltip(data.id);
+      }      
     });    
-  });
+  });  
+}
+
+PersonView.prototype.addFurtherListCallbacks = function(cssid) {
+  var t=this;
+  
+  t.addPersonsTooltip($("#cdb_content"));
+  
   $("#cdb_content span.tooltip-groupmeeting").each(function() {
     var tooltip=$(this);
     tooltip.tooltips({
@@ -684,7 +678,7 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
           }
         });
         element.find("input.edit").click(function() {
-          if (t.currentTooltip!=null) t.currentTooltip.tooltips("hide");
+          clearTooltip();
           t.editMeetingProperties(data.group_id, data.groupmeeting_id);
         });        
       }
@@ -694,6 +688,7 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
 
   
   $("#cdb_content a").click(function (a) {
+    clearTooltip();
     if ($(this).attr("id")==null)
       return true;
     else if ($(this).attr("id")=="addtogroup") {
@@ -752,7 +747,7 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
       r.renderView();
     }
     else if ($(this).attr("id")=="editGruppentreffenProperties") {
-      t.clearTooltip(true);
+      clearTooltip(true);
       t.editMeetingProperties($(this).attr("data-group-id"), $(this).attr("data-gruppentreffen-id"));
     }
     else if ($(this).attr("id")=="addGruppenteilnehmerdatum") {
@@ -2156,14 +2151,14 @@ function _renderRelationList(id,del_link) {
             _text=_text+masterData.relationType[b.beziehungstyp_id].bez_vater;
             // Checken ob er �berhaupt die Person sehen darf, kann anderer Bereich sein.
             if (allPersons[b.vater_id]!=null) {
-              _text=_text+': <a href="#" id="person_'+b.vater_id+'" '+(masterData.auth.viewalldata?'tooltip="'+b.vater_id+'">':'>')+allPersons[b.vater_id].vorname+" "+allPersons[b.vater_id].name+"</a>";
+              _text=_text+': <a href="#" class="tooltip-person" id="person_'+b.vater_id+'" '+(masterData.auth.viewalldata?'data-tooltip-id="'+b.vater_id+'">':'>')+allPersons[b.vater_id].vorname+" "+allPersons[b.vater_id].name+"</a>";
             } 
           }
           else { 
             _text=_text+masterData.relationType[b.beziehungstyp_id].bez_kind;
             // Checken ob er �berhaupt die Person sehen darf, kann anderer Bereich sein.
             if (allPersons[b.kind_id]!=null) {
-              _text=_text+': <a href="#" id="person_'+b.kind_id+'" '+(masterData.auth.viewalldata?'tooltip="'+b.kind_id+'">':'>')+allPersons[b.kind_id].vorname+" "+allPersons[b.kind_id].name+"</a>";
+              _text=_text+': <a href="#" class="tooltip-person" id="person_'+b.kind_id+'" '+(masterData.auth.viewalldata?'data-tooltip-id="'+b.kind_id+'">':'>')+allPersons[b.kind_id].vorname+" "+allPersons[b.kind_id].name+"</a>";
             }
           }
           if ((masterData.auth.write) && (del_link)) 
@@ -2564,7 +2559,7 @@ PersonView.prototype.renderDetails = function (id) {
       if ((masterData.auth.write) || (personLeader))
         _text=_text+"<p><a id=\"f_image\" href=\"\">"+this.renderPersonImage(a.id)+"</a>";
       else
-        _text=_text+"<p>"+this.renderPersonImage(a.id);
+        _text=_text+"<p>"+form_renderPersonImage(allPersons[id].imageurl, width);;
       
       _text=_text+"<p style='line-height:100%;color:black'>";
       if (a.geburtsdatum!=null) {
@@ -2680,7 +2675,7 @@ PersonView.prototype.renderDetails = function (id) {
               _comments=_comments+'<tr>'+'<td class="'+_class+'"><p><small>'+_text;
               _comments=_comments+"<br/><font color=\"grey\"><i>(";
               if (allPersons[b.person_id]!=null)
-                _comments=_comments+'<a href="#" id="person_'+b.person_id+'" tooltip="'+b.person_id+'">'+allPersons[b.person_id].vorname+" "+allPersons[b.person_id].name+'</a>';
+                _comments=_comments+'<a href="#" id="person_'+b.person_id+'" class="tooltip-person" data-tooltip-id="'+b.person_id+'">'+allPersons[b.person_id].vorname+" "+allPersons[b.person_id].name+'</a>';
               else   
                 _comments=_comments+"["+b.person_id+"]";
               _comments=_comments+"/"+masterData.comment_viewer[b.comment_viewer_id].bezeichnung+" "+b.datum.toDateEn().toStringDe()+")</i></font></small>";
@@ -2840,7 +2835,7 @@ PersonView.prototype.renderDetails = function (id) {
   
   $("td[id=detailTD"+id+"] a").click(function() {
     // L�sche den Tooltip, falls es ihn gibt
-    t.clearTooltip();
+    clearTooltip();
     if (($(this).parents("td").attr("id")!=null) && ($(this).parents("td").attr("id")!=""))
       var id=$(this).parents("td").attr("id").substring(8,100);
     else 
@@ -3156,12 +3151,7 @@ PersonView.prototype.renderDetails = function (id) {
       t.renderEditEntry(id, fieldname);
     return false;
   });
-  $("#cdb_content a[tooltip]").mouseover(function(c) {
-      t.prepareTooltip($(this));
-  });
-  $("#cdb_content a[tooltip]").mouseout(function(c) {
-     t.clearTooltip();
-  });
+  t.addPersonsTooltip($("#detailTD"+id));
 };
 
 

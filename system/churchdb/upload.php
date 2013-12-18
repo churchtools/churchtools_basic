@@ -108,7 +108,7 @@ class qqFileUploader {
     function handleUpload($uploadDirectory, $replaceOldFile = FALSE){
       global $files_dir;
         if (!is_writable($uploadDirectory)){
-            return array('error' => "Server error. Upload directory isn't writable.");
+            return array('error' => "Server error. Upload directory $uploadDirectory isn't writable.");
         }
         
         if (!$this->file){
@@ -183,15 +183,17 @@ class qqFileUploader {
 }
 
 function churchdb__uploadImage() {
+  global $files_dir;
+  
   // list of valid extensions, ex. array("jpeg", "xml", "bmp")
   $allowedExtensions = array();
   // max file size in bytes
   $sizeLimit = 6 * 1024 * 1024;
   
   $uploader = new qqFileUploader($allowedExtensions, $sizeLimit);
-  if (!file_exists("uploads/"))
-    mkdir("uploads/",0777,true);
-  $result = $uploader->handleUpload('uploads/');
+  if (!file_exists("$files_dir/tmp"))
+    mkdir("$files_dir/tmp",0777,true);
+  $result = $uploader->handleUpload("$files_dir/tmp/");
   // to pass data through iframe you will need to encode all html tags
   echo htmlspecialchars(json_encode($result), ENT_NOQUOTES);
 }
