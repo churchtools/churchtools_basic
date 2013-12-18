@@ -570,7 +570,7 @@ function run_db_updates($db_version) {
          ('welcome_subtext', 'Das ist die Startseite von ChurchTools 2.0');");
       db_query("create table {cc_session} (person_id int(11) not null, session varchar(255) not null, hostname varchar(255) not null, datum datetime not null) CHARSET=utf8");
 
-      db_query("CREATE TABLE {cc_auth} (id int(11) NOT NULL, auth varchar(255) NOT NULL, modulename varchar(255) NOT NULL, datenfeld varchar(255) DEFAULT NULL, bezeichnung varchar(255) NOT NULL,PRIMARY KEY (id)) CHARSET=utf8");
+      db_query("CREATE TABLE {cc_auth} (id int(11) NOT NULL, auth varchar(80) NOT NULL, modulename varchar(80) NOT NULL, datenfeld varchar(255) DEFAULT NULL, bezeichnung varchar(255) NOT NULL,PRIMARY KEY (id)) CHARSET=utf8");
 
       db_query("insert into {cc_auth}  VALUES(1, 'administer settings', 'churchcore', NULL, 'Stammdaten pflegen, Logfile einsehen, Einstellung, ...')");
       db_query("insert into {cc_auth}  VALUES(2, 'administer persons', 'churchcore', NULL, 'Berechtigungen setzen, löschen und Benutzer simulieren')");

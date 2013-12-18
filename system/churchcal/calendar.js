@@ -12,6 +12,7 @@ previousBookings=null;
 filterCategoryIds=null;
 var saveSettingTimer=null;
 var filter=new Object();
+var currentTooltip=null;
 
 var embedded=false;
 var minical=false;
@@ -579,7 +580,7 @@ function editEvent(event, month, currentDate) {
     // Erst mal checken, ob eine Wiederholung angeklickt wurde
     if ((currentDate!=null) && (currentEvent.startdate.toStringDe()!=currentDate.toStringDe())) {
       elem.dialog('addbutton', 'Nur aktuellen Termin entfernen', function() {
-        if (confirm("Termin wirklich entfernen?")) {
+        if (confirm("Termin '"+currentEvent.title+"' wirklich entfernen?")) {
           // Erstmal schauen, ob es vielleicht ein AdditionDate ist? (also manuell hinzugef�gt?)
           var additionDate=false;
           if (currentEvent.additions!=null) {
@@ -634,7 +635,7 @@ function delEvent(event, func) {
     alert("Es sind in "+masterData.churchservice_name+" noch ein Event vorhanden bitte erst das löschen!");
     return;
   }
-  if (confirm("Termin wirklich entfernen?")) {
+  if (confirm("Termin "+event.title+" wirklich entfernen?")) {
     calCCType.hideData(event.category_id);
     churchInterface.jsendWrite({func:"deleteEvent", id:event.id}, function() {
       calCCType.needData(event.category_id, true);
@@ -708,10 +709,6 @@ function _eventClick(event, jsEvent, view ) {
   
 }
 
-var tooltip_elem=null;
-var tooltip_hold=false;
-var tooltip_inhide=false;
-
 function initCalendarView() {
   calendar=$('#calendar');
   var d=new Date();
@@ -772,7 +769,7 @@ function initCalendarView() {
       eventClick: _eventClick,
       eventMouseover: _eventMouseover,
       eventMouseout: function(calEvent, jsEvent) {
-        clearTooltip();
+        clearTooltip(false);
       },
       eventRender: function (event, element) {
         element.find('div.fc-event-title').html(element.find('div.fc-event-title').text());           
@@ -834,131 +831,110 @@ function send2Calendar(a,b) {
   
 }
 
+function renderTooltip(event) {
+  var rows = new Array();
+  var title = event.title;
+  rows.push('<div id="tooltip_inner" class="CalView">');
+  rows.push('<ul><li>');
+  
+  if (event.end==null)
+    rows.push(event.start.toStringDe(!event.allDay));
+  else {
+    if (event.end.toStringDe(false)!=event.start.toStringDe(false))        
+      rows.push(event.start.toStringDe(!event.allDay)+' - '+event.end.toStringDe(!event.allDay));
+    else {
+      var min=((""+event.end.getMinutes()).length==1?"0"+event.end.getMinutes():event.end.getMinutes()); 
+      rows.push(event.start.toStringDe(!event.allDay)+' - '+event.end.getHours()+":"+min);
+    }
+  }
+  
+  var myEvent=getEventFromEventSource(event);
+  if (myEvent!=null) {
+    myEvent.allDay=event.allDay;
+    title=myEvent.bezeichnung;
+    if (myEvent.intern_yn==1) title=title+" (intern)";
+
+    if (categoryEditable(myEvent.category_id)) {
+      title=title+'<span class="pull-right">&nbsp;<nobr>'+form_renderImage({cssid:"copyevent", label:"Kopieren", src:"copy.png", width:20});
+      title=title+"&nbsp;"+form_renderImage({cssid:"delevent", label:'Löschen', src:"trashbox.png", width:20})+"</nobr></span>";
+    }
+    if ((myEvent.ort!=null) && (myEvent.ort!=""))
+      rows.push('<li>Ort: '+myEvent.ort);
+    if (myEvent.category_id!=null)
+      rows.push("<li>Kategorie: <i>"+masterData.category[myEvent.category_id].bezeichnung+'</i>');
+    if ((myEvent.notizen!=null) && (myEvent.notizen!=""))
+      rows.push('<li>Notizen: <small> '+myEvent.notizen.trim(60)+'</small>');
+    if ((myEvent.link!=null) && (myEvent.link!=""))
+      rows.push('<li>Link: <small> <a href="'+myEvent.link+'" target="_clean">'+myEvent.link+'</a></small>');
+  }
+  if (event.status!=null)
+    rows.push('<li>Status: '+event.status);
+  rows.push('</ul>');
+  if (myEvent!=null) {
+    if ((!embedded) && (myEvent.booking_id!=null) && (masterData.auth["view churchresource"])) 
+      rows.push('<a href="?q=churchresource&id='+myEvent.booking_id+'"><span class="label label-info">'+masterData.churchresource_name+'</label></a>&nbsp;');
+    if ((!embedded) && (myEvent.event_id!=null)) 
+      rows.push('<a href="?q=churchservice&id='+myEvent.event_id+'"><span class="label label-info">'+masterData.churchservice_name+'</label></a>&nbsp;');
+  } 
+  else {
+    if (event.bezeichnung!=null)
+      title=title+" ("+event.bezeichnung+")";
+
+    rows.push("<small><i>Termin von ");
+    rows.push(event.source.container.data[event.source.category_id].name);
+    rows.push("</i></small>");
+  }
+
+  rows.push('</div>');
+  
+  return [rows.join(""), title];
+}
+
 function _eventMouseover(event, jsEvent, view) {
-  if (!tooltip_hold) {
-    if (tooltip_elem!=null) {
-      clearTooltip(true);
-    }
-    tooltip_elem=$(this);    
-    
-    var rows = new Array();
-    var title = event.title;
-    rows.push('<div id="tooltip_inner" class="CalView">');
-    rows.push('<ul><li>');
-    
-    if (event.end==null)
-      rows.push(event.start.toStringDe(!event.allDay));
-    else {
-      if (event.end.toStringDe(false)!=event.start.toStringDe(false))        
-        rows.push(event.start.toStringDe(!event.allDay)+' - '+event.end.toStringDe(!event.allDay));
-      else {
-        var min=((""+event.end.getMinutes()).length==1?"0"+event.end.getMinutes():event.end.getMinutes()); 
-        rows.push(event.start.toStringDe(!event.allDay)+' - '+event.end.getHours()+":"+min);
-      }
-    }
-    
-    var myEvent=getEventFromEventSource(event);
-    if (myEvent!=null) {
-      myEvent.allDay=event.allDay;
-      title=myEvent.bezeichnung;
-      if (myEvent.intern_yn==1) title=title+" (intern)";
+  var placement="bottom";  
+  if (jsEvent.pageX>$("#calendar").width()+$("#calendar").position().left-100)
+    placement="left";
+  else if (jsEvent.pageY>$("#calendar").height()+$("#calendar").position().top-200)
+    placement="top";
+  else if (jsEvent.pageX<$("#calendar").position().left+130)
+    placement="right";
 
-      if (categoryEditable(myEvent.category_id)) {
-        title=title+'<span class="pull-right">&nbsp;<nobr>'+form_renderImage({cssid:"copyevent", label:"Kopieren", src:"copy.png", width:20});
-        title=title+"&nbsp;"+form_renderImage({cssid:"delevent", label:'Löschen', src:"trashbox.png", width:20})+"</nobr></span>";
-      }
-      if ((myEvent.ort!=null) && (myEvent.ort!=""))
-        rows.push('<li>Ort: '+myEvent.ort);
-      if (myEvent.category_id!=null)
-        rows.push("<li>Kategorie: <i>"+masterData.category[myEvent.category_id].bezeichnung+'</i>');
-      if ((myEvent.notizen!=null) && (myEvent.notizen!=""))
-        rows.push('<li>Notizen: <small> '+myEvent.notizen.trim(60)+'</small>');
-      if ((myEvent.link!=null) && (myEvent.link!=""))
-        rows.push('<li>Link: <small> <a href="'+myEvent.link+'" target="_clean">'+myEvent.link+'</a></small>');
+  $(this).tooltips({
+    data:{id:"1", event:event},
+    show:true,
+    placement:placement,
+    auto:false,
+    render:function(data) {
+      return renderTooltip(data.event);
+    },
+    afterRender:function(element, data) {  
+      var event=getEventFromEventSource(data.event);
+      $("#copyevent").click(function() {
+        clearTooltip(true);
+        copyEvent(event);
+        return false;
+      });
+      $("#editevent").click(function() {
+        clearTooltip(true);
+        editEvent(event);
+        return false;
+      });
+      $("#delevent").click(function() {
+        clearTooltip(true);
+        delEvent(event);
+        return false;
+      });
+            
     }
-    if (event.status!=null)
-      rows.push('<li>Status: '+event.status);
-    rows.push('</ul>');
-    if (myEvent!=null) {
-      if ((!embedded) && (myEvent.booking_id!=null) && (masterData.auth["view churchresource"])) 
-        rows.push('<a href="?q=churchresource&id='+myEvent.booking_id+'"><span class="label label-info">'+masterData.churchresource_name+'</label></a>&nbsp;');
-      if ((!embedded) && (myEvent.event_id!=null)) 
-        rows.push('<a href="?q=churchservice&id='+myEvent.event_id+'"><span class="label label-info">'+masterData.churchservice_name+'</label></a>&nbsp;');
-    } 
-    else {
-      if (event.bezeichnung!=null)
-        title=title+" ("+event.bezeichnung+")";
-
-      rows.push("<small><i>Termin von ");
-      rows.push(event.source.container.data[event.source.category_id].name);
-      rows.push("</i></small>");
-    }
-
-    rows.push('</div>');
     
-    var placement="bottom";
-    
-    if (jsEvent.pageX>$("#calendar").width()+$("#calendar").position().left-100)
-      placement="left";
-    else if (jsEvent.pageY>$("#calendar").height()+$("#calendar").position().top-200)
-      placement="top";
-    else if (jsEvent.pageX<$("#calendar").position().left+130)
-      placement="right";
-    
-    tooltip_elem.popover({title:title,trigger:"manual",html:true,content:rows.join(""),placement:placement}).popover("show");
-    
-    $("#copyevent").click(function() {
-      clearTooltip(true);
-      copyEvent(myEvent);
-      return false;
-    });
-    $("#editevent").click(function() {
-      clearTooltip(true);
-      editEvent(myEvent);
-      return false;
-    });
-    $("#delevent").click(function() {
-      clearTooltip(true);
-      delEvent(myEvent);
-      return false;
-    });
-    
-    
-    tooltip_indraw=true;
-    $(".popover").hover(
-      function() {
-        tooltip_hold=true;
-      }, 
-      function() {
-        tooltip_hold=false;
-        clearTooltip();
-      }
-    );            
-  }         
+  });
+  currentTooltip=$(this);
+  $(this).tooltips("show");
 }
 
 function clearTooltip(force) {
-  if (tooltip_elem==null) return;  
-
-  tooltip_indraw=false;
-  if (force==null) force=false;
-  if (force) tooltip_hold=false;
-  
-  if (force) {
-    tooltip_elem.popover("hide");
-    tooltip_elem.data("popover",null);
-    tooltip_elem=null;
-  }
-  else {  
-    window.setTimeout(function() {
-      if ((!tooltip_hold) && (!tooltip_indraw) && (tooltip_elem!=null)) {
-        tooltip_elem.popover("hide");
-        tooltip_elem.data("popover",null);
-        tooltip_elem=null;
-      }
-    }
-    ,200);
-  }
+  if (currentTooltip!=null) currentTooltip.tooltips("hide", force);
+  currentTooltip=null;
 }
   
 function createMultiselect(name, data) {
@@ -1419,7 +1395,7 @@ function renderChurchCategories() {
       }
       if (masterData.auth["view alldata"]) {
         form_addEntryToSelectArray(oeff_cals,4,'Geburtstage (Gruppen)',sortkey);  sortkey++;
-        form_addEntryToSelectArray(oeff_cals,6,'Geburtstage (Alle)',sortkey);  sortkey++;
+        form_addEntryToSelectArray(oeff_cals,6,'Geburtstage (Alle)',sortkey, true);  sortkey++;
       }
       else {
         form_addEntryToSelectArray(oeff_cals,6,'Geburtstage',sortkey);  sortkey++;

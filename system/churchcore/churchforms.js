@@ -1240,7 +1240,7 @@ CC_MultiSelect.prototype.selectAll = function() {
   var t=this;
   t.selected=new Array();
   $.each(t.data, function(k,a) {
-    if ((a!=null) && (a.bezeichnung!='-'))
+    if ((a!=null) && (a.bezeichnung!='-') && (a.notSelectable==null || !a.notSelectable))
       t.selected.push(a.id);
   }); 
 };
@@ -1755,7 +1755,6 @@ jQuery.extend(jQuery.ui.dialog.prototype, {
   'addbutton': function(buttonName, func) { 
       var buttons = this.element.dialog('option', 'buttons'); 
       buttons[buttonName] = func;
-      console.log(buttons);
       this.element.dialog('option', 'buttons', buttons); 
       $("div.ui-dialog-buttonpane button").addClass("btn");
   } 
@@ -1769,12 +1768,14 @@ jQuery.extend(jQuery.ui.dialog.prototype, {
  * @param sortkey
  * @return erweitertes array
  */
-function form_addEntryToSelectArray (arr, id, bez, sortkey) {
+function form_addEntryToSelectArray (arr, id, bez, sortkey, notSelectable) {
   var new_arr=new Object(); 
   new_arr["id"]=id;
   new_arr["bezeichnung"]=bez;
   if (sortkey!=null)
     new_arr["sortkey"]=sortkey;
+  if (notSelectable!=null) 
+    new_arr["notSelectable"]=notSelectable;
   arr[id]=new_arr;
 };
 /*
@@ -1945,6 +1946,8 @@ $.widget("ct.tooltips", {
   
   options: {
     data:null,
+    auto:true,
+    placement:"bottom",
     render:function(data) {return ["content","title"];},
     afterRender:function(element, data) {},
     getTitle:function(data) {return null;}
@@ -1956,23 +1959,34 @@ $.widget("ct.tooltips", {
   
   _create:function() {
     var t=this;
-    this.element.hover(
-      function() {
-        t._prepareTooltip();
-      },
-      function() {
-        t._removeTooltip();
-      }
-    ); 
+    t.element.addClass("tooltips-active");
+    if (t.options.auto) {
+      this.element.hover(
+        function() {
+          t._prepareTooltip();
+        },
+        function() {
+          t._removeTooltip();
+        }
+      );
+    }
   },
   
   /**
-   *  public function to immediate hide the tooltip
+   *  public function to immediate or slow hide the tooltip
    */
-  hide: function() {
-    if (this._hideTimer!=null) _clearHideTimer();
-    if (this._showTimer!=null) _clearShowTimer();
-    this._hideTooltip();
+  hide: function(immediate) {
+    if (immediate==null || immediate) {
+      if (this._hideTimer!=null) this._clearHideTimer();
+      if (this._showTimer!=null) this._clearShowTimer();
+      this._hideTooltip();
+    }
+    else {
+      this._removeTooltip();
+    }
+  },
+  show: function() {
+    this._prepareTooltip();
   },
   
   /*
@@ -2001,6 +2015,7 @@ $.widget("ct.tooltips", {
   
   _hideTooltip: function() {
     this._visible=false;
+    this.element.removeClass("tooltips-active");
     this.element.popover("hide");
     this.element.data("popover", null);    
   },
@@ -2013,11 +2028,11 @@ $.widget("ct.tooltips", {
     if (content instanceof(Array))         
       t.element.popover({ 
         content:content[0], html:true, title:content[1], 
-         placement:"bottom", trigger:"manual", animation:true}).popover("show");
+         placement:t.options.placement, trigger:"manual", animation:true}).popover("show");
     else 
         t.element.popover({ 
           content:content, html:true, 
-           placement:"bottom", trigger:"manual", animation:true}).popover("show");
+           placement:t.options.placement, trigger:"manual", animation:true}).popover("show");
     t.options.afterRender(t.element.next(".popover"), this.options.data);
   },
   

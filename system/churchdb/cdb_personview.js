@@ -586,6 +586,11 @@ PersonView.prototype.renderGroupmeetingTooltip = function(group_id, groupmeeting
   };
 };
 
+PersonView.prototype.clearTooltip = function() {
+  if (this.currentTooltip!=null)
+    this.currentTooltip.tooltips("hide");
+};
+
 PersonView.prototype.getMeetingFromMeetingList = function (g_id, gruppentreffen_id) {
   var res=null;
   $.each(masterData.groups[g_id].meetingList, function(k,a) {
@@ -1186,6 +1191,7 @@ PersonView.prototype.createMultiselect = function(name, data) {
 
 PersonView.prototype.getListHeader = function() {  
   var t = this;
+  t.currentTooltip=null;
   var g_id=t.filter["filterMeine Gruppen"];
   // Diese Zeilen dienen beim ersten Aufruf �ber Direkteinstieg mit Id daf�r, dass der Datenssatz
   // angelegt wird, so dass sofort PersonDetails geladen werden.
@@ -2834,7 +2840,7 @@ PersonView.prototype.renderDetails = function (id) {
   
   $("td[id=detailTD"+id+"] a").click(function() {
     // L�sche den Tooltip, falls es ihn gibt
-    t.clearTooltip(true);
+    t.clearTooltip();
     if (($(this).parents("td").attr("id")!=null) && ($(this).parents("td").attr("id")!=""))
       var id=$(this).parents("td").attr("id").substring(8,100);
     else 
