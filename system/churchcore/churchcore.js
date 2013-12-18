@@ -645,7 +645,10 @@ jQuery.extend({
   getCTScript: function(url, callback) {
     var head = document.getElementsByTagName("head")[0] || document.documentElement;
     var script = document.createElement("script");
-    script.src = url+"?"+version;
+    if (url.indexOf("?")==-1)
+      script.src = url+"?"+version;
+    else
+      script.src = url+"&"+version;
   
     // Handle Script loading
     var done = false;
