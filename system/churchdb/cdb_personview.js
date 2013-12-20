@@ -2557,9 +2557,9 @@ PersonView.prototype.renderDetails = function (id) {
       var _text ="<div class=\"left-column-person span4\">";
       
       if ((masterData.auth.write) || (personLeader))
-        _text=_text+"<p><a id=\"f_image\" href=\"\">"+this.renderPersonImage(a.id)+"</a>";
+        _text=_text+"<p><a id=\"f_image\" href=\"\">"+form_renderPersonImage(allPersons[a.id].imageurl)+"</a>";
       else
-        _text=_text+"<p>"+form_renderPersonImage(allPersons[id].imageurl, width);;
+        _text=_text+"<p>"+form_renderPersonImage(allPersons[a.id].imageurl);
       
       _text=_text+"<p style='line-height:100%;color:black'>";
       if (a.geburtsdatum!=null) {

@@ -1136,7 +1136,7 @@ function shareCategory(cat_id, privat_yn, oeffentlich_yn) {
       form.addHtml('<div class="controls" id="gruppeWrite">');
       
 
-      var elem = form_showDialog("Kalender <i>"+masterData.category[cat_id].bezeichnung+" </i>freigeben", form.render(false, "horizontal"), 500, 500, {
+      var elem = form_showDialog("Kalender '"+masterData.category[cat_id].bezeichnung+"' freigeben", form.render(false, "horizontal"), 500, 500, {
         "Speichern": function() {
           var obj = form.getAllValsAsObject();
           obj["person"]=new Object();
@@ -1189,11 +1189,11 @@ function editCategories(privat_yn, oeffentlich_yn, reload) {
     if ((cat.oeffentlich_yn==oeffentlich_yn) && (cat.privat_yn==privat_yn)) {
       rows.push('<tr><td>'+form_renderColor(cat.color));
       rows.push('<td>'+cat.bezeichnung);
-      rows.push('<td><a href="#" id="ical" data-id="'+cat.id+'"><span class="label">iCal</span></a>');
+      rows.push('<td><a href="#" class="ical" data-id="'+cat.id+'"><span class="label">iCal</span></a>');
       if (categoryAdminable(cat.id)) { 
-        rows.push('<td>'+form_renderImage({src:"persons.png", width:20, cssid:"share", data:[{name:"id", value:cat.id}]}));
-        rows.push('<td>'+form_renderImage({src:"options.png", width:20, cssid:"options", data:[{name:"id", value:cat.id}]}));
-        rows.push('<td>'+form_renderImage({src:"trashbox.png", width:20, cssid:"delete", data:[{name:"id", value:cat.id}]}));
+        rows.push('<td>'+form_renderImage({src:"persons.png", width:20, htmlclass:"share", link:true, data:[{name:"id", value:cat.id}]}));
+        rows.push('<td>'+form_renderImage({src:"options.png", width:20, htmlclass:"options", link:true, data:[{name:"id", value:cat.id}]}));
+        rows.push('<td>'+form_renderImage({src:"trashbox.png", width:20, htmlclass:"delete", link:true, data:[{name:"id", value:cat.id}]}));
       }
       else rows.push('<td><td><td>');
     }
@@ -1204,7 +1204,7 @@ function editCategories(privat_yn, oeffentlich_yn, reload) {
        || ((privat_yn==0) && (oeffentlich_yn==0) && (user_access("create group category || admin group category")))
        || ((privat_yn==0) && (oeffentlich_yn==1) && (user_access("admin church category")))
       )
-    rows.push('<tr><td><td><a href="#" id="options"><i>Neuen Kalender erstellen</i></a><td><td><td>'+form_renderImage({cssid:"options", src:"plus.png", width:20})+"<td>");
+    rows.push('<tr><td><td><a href="#" class="add"><i>Neuen Kalender erstellen</i></a><td><td><td>'+form_renderImage({link:true, htmlclass:"add", src:"plus.png", width:20})+"<td>");
   
   rows.push('</table>');  
   var elem = form_showDialog("Kalender verwalten", rows.join(""), 500, 500, {
@@ -1214,17 +1214,17 @@ function editCategories(privat_yn, oeffentlich_yn, reload) {
     }      
   });
   
-  elem.find("#options").click(function() {
+  elem.find("a.options, a.add").click(function() {
     elem.dialog("close");
     editCategory($(this).attr("data-id"), privat_yn, oeffentlich_yn);
     return false;
   });   
-  elem.find("#share").click(function() {
+  elem.find("a.share").click(function() {
     elem.dialog("close");
     shareCategory($(this).attr("data-id"), privat_yn, oeffentlich_yn);
     return false;
   });   
-  elem.find("#ical").click(function() {
+  elem.find("a.ical").click(function() {
     var rows=new Array(); 
     rows.push('<legend>Kalender abonnieren</legend>Der Kalender kann abonniert werden. Hierzu kann die Adresse anbei in einen beliebigen Kalender importiert werden,'+
                ' der iCal unterst&uuml;tzt.<br><br>');
@@ -1233,7 +1233,7 @@ function editCategories(privat_yn, oeffentlich_yn, reload) {
     form_showOkDialog("Kalender abonnieren", rows.join(""));
     return false;
   });   
-  elem.find("#delete").click(function() {
+  elem.find("a.delete").click(function() {
     var id=$(this).attr("data-id");
     if (confirm("Wirklich den Kalender "+masterData.category[id].bezeichnung+" und alle seine Daten entfernen?")) {
       churchInterface.jsendWrite({func:"deleteCategory", id:id}, function(ok, info) {

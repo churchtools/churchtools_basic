@@ -99,8 +99,8 @@ FactView.prototype.addFurtherListCallbacks = function(cssid) {
         
         validate:
           function(newval, data) {
-            if (!isNumber(newval)) {
-              alert("Wert muss >=0 sein!");
+            if (!isNumber(newval) && newval!="") {
+              alert("Bitte Zahl angeben oder Feld leer lassen!");
               return false;
             }
             return true;

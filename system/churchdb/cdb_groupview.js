@@ -1525,7 +1525,7 @@ GroupView.prototype.renderEditEntry = function (id, fieldname) {
       
       obj=this_object.getSaveObjectFromInputFields(id, "f_group", masterData.groups[id]);
       
-      if (obj.max_teilnehmer=="") obj.max_teilnehmer=null;
+      if (obj.max_teilnehmer=="") delete obj.max_teilnehmer;
       if (masterData.groups[id].max_teilnehmer=="") masterData.groups[id].max_teilnehmer=null; 
   
       // Lšsche die Geoinfos, falls es da ein Update bei der Adresse gab.
