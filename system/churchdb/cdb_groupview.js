@@ -987,20 +987,15 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
   this_object=this;
   function _getGroupStats(p_id, g_id) {
     info="";
-      if (((masterData.auth.viewgroupstats) || (this_object.filter['filterMeine Gruppen']==g_id)) 
-            && (groupMeetingStats!=null) && (groupMeetingStats[p_id]!=null) && (groupMeetingStats[p_id][g_id]!=null)) {
-        stats_dabei=stats_dabei+parseInt(groupMeetingStats[p_id][g_id].dabei);
-        stats_stattgefunden=stats_stattgefunden+parseInt(groupMeetingStats[p_id][g_id].stattgefunden);
+      if ((masterData.auth.viewgroupstats) || 
+          (this_object.isPersonLeaderOfGroup(masterData.user_pid, pos_id))) {
         info=info+"<br/>";
-        info=info+'<div title="';
-        info=info+groupMeetingStats[p_id][g_id].dabei+" v. "+groupMeetingStats[p_id][g_id].stattgefunden+" Treffen, letztes am ";
-        info=info+(groupMeetingStats[p_id][g_id].datum==0?"":groupMeetingStats[p_id][g_id].datum.toDateEn().toStringDe());
-        info=info+'">';
-        
-        if ((masterData.groups[g_id].meetingList!=null) && (masterData.groups[g_id].meetingList!="get data"))
+        if ((masterData.groups[g_id].meetingList!=null) && (masterData.groups[g_id].meetingList!="get data")) {
+          var count_dabei=0;
+          var count_stattgefunden=0;
           $.each(churchcore_sortData(masterData.groups[g_id].meetingList,"datumvon"), function(k,a) {
             if (a.eintragerfolgt_yn=="0") 
-              info=info+'<img src="'+masterData.modulespath+'/images/box_white.png'+'"/>';
+              info=info+'<img title="Eintrag noch nicht erfolgt für '+a.datumvon.toDateEn().toStringDe(false)+'" src="'+masterData.modulespath+'/images/box_white.png'+'"/>';
             if (a.ausgefallen_yn=="1") 
               info=info+"x";
             else {  
@@ -1008,18 +1003,22 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
               $.each(a.entries, function(i,b) {
                 if (b.p_id==p_id) {
                   dabei=true;
-                  if (b.treffen_yn=="1") 
-                    info=info+'<img src="'+masterData.modulespath+'/images/box_green.png'+'"/>';
+                  count_stattgefunden=count_stattgefunden+1;
+                  if (b.treffen_yn=="1") {
+                    count_dabei=count_dabei+1;
+                    info=info+'<img title="Dabei am '+a.datumvon.toDateEn().toStringDe(false)+'" src="'+masterData.modulespath+'/images/box_green.png'+'"/>';
+                  }
                   else 
-                    info=info+'<img src="'+masterData.modulespath+'/images/box_red.png'+'"/>';
+                    info=info+'<img title="Abwesend am '+a.datumvon.toDateEn().toStringDe(false)+'" src="'+masterData.modulespath+'/images/box_red.png'+'"/>';
                 }
               });
               if ((!dabei) && (a.eintragerfolgt_yn=="1"))
-                info=info+'<img src="'+masterData.modulespath+'/images/box_grey.png'+'"/>';
+                info=info+'<img title="Am '+a.datumvon.toDateEn().toStringDe(false)+' noch nicht dabei gewesen." src="'+masterData.modulespath+'/images/box_grey.png'+'"/>';
             }            
           });
         
-        info=info+" <small>"+Math.round(100*groupMeetingStats[p_id][g_id].dabei/groupMeetingStats[p_id][g_id].stattgefunden)+"%</small>";
+          info=info+" <small>"+Math.round(100*count_dabei/count_stattgefunden)+"%</small>";
+        }
         info=info+'</div>';        
       }
     return info;
@@ -1039,12 +1038,10 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
   var editGroup = (masterData.auth.admingroups) || (this_object.isPersonLeaderOfGroup(masterData.user_pid,g_id));
   
   // Prüfe ob es Treffen-Pflege gibt, wenn ja: Prüfe ob Statistik-List schon vorhanden ist, ansonsten holen
-  if ((masterData.auth.viewgroupstats) || 
-      ((this_object.filter['filterMeine Gruppen']==g_id) && (groupView.isPersonLeaderOfGroup(masterData.user_pid, g_id)))
-      ) { 
+  if ((masterData.auth.viewgroupstats) || (this_object.isPersonLeaderOfGroup(masterData.user_pid, g_id))) { 
     if ((masterData.groups[g_id].meetingList==null)) {
       masterData.groups[g_id].meetingList="get data";
-      churchInterface.jsendWrite({ func: "GroupMeeting", sub:"getList", g_id: g_id }, function(ok, json) {
+      churchInterface.jsendRead({ func: "GroupMeeting", sub:"getList", g_id: g_id }, function(ok, json) {
         if (json!=null) {
           masterData.groups[g_id].meetingList=json;
           $("#groupinfosTD"+p_id).html("");

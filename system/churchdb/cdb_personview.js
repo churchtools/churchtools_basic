@@ -1232,7 +1232,8 @@ PersonView.prototype.getListHeader = function() {
       c.bezeichnung="Zugriffsrechte";
       b[-3]=(_createEntry(-3, "Zugriffsrechte"));
     }
-    if ((masterData.auth.viewgroupstats) || (t.filter['filterMeine Gruppen']!=null) && (groupView.isPersonLeaderOfGroup(masterData.user_pid, t.filter['filterMeine Gruppen']))) {
+    if ((masterData.auth.viewgroupstats) || 
+         (t.filter['filterMeine Gruppen']!=null && groupView.isPersonLeaderOfGroup(masterData.user_pid, t.filter['filterMeine Gruppen']))) {
       var c = new Object();
       c.id=-4;
       c.bezeichnung="Gruppenteilnahme";
@@ -1240,8 +1241,8 @@ PersonView.prototype.getListHeader = function() {
     }
     tableHeader=tableHeader+"<th class=\"hidden-phone\">";
     tableHeader=tableHeader+form_renderSelect({data:b, controlgroup:false, cssid:"filterGruppentyp", type:"medium", selected:masterData.settings.selectedGroupType, func:function(a) {
-       // -2 = Tag-Ansicht
-        return ((a.id==-2) || (a.anzeigen_in_meinegruppen_teilnehmer_yn==1) || (masterData.auth.viewalldata));
+       // -2 = Tag-Ansicht   -4 = Gruppenteilnahme
+        return ((a.id==-2) || (a.id==-4) || (a.anzeigen_in_meinegruppen_teilnehmer_yn==1) || (masterData.auth.viewalldata));
       }
     });
   }
