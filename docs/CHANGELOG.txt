@@ -2,8 +2,11 @@
 
 churchtools 2.43
 + Ab PHP-Version 5.3.7 werden nun gesalzene Passwörter verwendet. Dies erhöht die Sicherheit bei der Speicherung der Passwörter.
-+ (Cal) Aktualisiere auf Calender 1.6.4. und speichere aktuelles Datum
-+ (Cal) Man kann nun vorherige Ressourcenanfragen erneut zum Termin hinzufügen
++ Aktualisiere auf jQuery 10.2 und jQuery UI 10.3, dadurch neues Design für die Dialoge
++ Aktualisiere WYSIWYG-Editor CKEditor auf aktuelle Version 4.3.1.
++ (Cal) Aktualisiere auf Calender 1.6.4.
++ (Cal) Das aktuelle Datum wird nun immer gespeichert und beim nächsten Aufruf widerhergestellt
++ (Cal) Man kann nun die beim vorigen Termin angefragten Ressourcen wiederverwenden
 + (CDB) Man kann nun auch versteckte Gruppen sehen, wenn man manuell View-Rechte auf die Gruppe hat
 + (CDB) Gruppenleiter können nun auch die Gruppenstatistik sehen und Gruppenteilnahme pflegen
 - (Cal) Fehler in der Embedding-Sicht des Kalenders behoben

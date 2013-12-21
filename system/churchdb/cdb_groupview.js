@@ -989,8 +989,8 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
     info="";
       if ((masterData.auth.viewgroupstats) || 
           (this_object.isPersonLeaderOfGroup(masterData.user_pid, pos_id))) {
-        info=info+"<br/>";
         if ((masterData.groups[g_id].meetingList!=null) && (masterData.groups[g_id].meetingList!="get data")) {
+          info=info+"<br/>";
           var count_dabei=0;
           var count_stattgefunden=0;
           $.each(churchcore_sortData(masterData.groups[g_id].meetingList,"datumvon"), function(k,a) {
@@ -1016,10 +1016,9 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
                 info=info+'<img title="Am '+a.datumvon.toDateEn().toStringDe(false)+' noch nicht dabei gewesen." src="'+masterData.modulespath+'/images/box_grey.png'+'"/>';
             }            
           });
-        
-          info=info+" <small>"+Math.round(100*count_dabei/count_stattgefunden)+"%</small>";
+          if (count_stattgefunden>0)
+            info=info+" <small>"+Math.round(100*count_dabei/count_stattgefunden)+"%</small>";
         }
-        info=info+'</div>';        
       }
     return info;
   }  
