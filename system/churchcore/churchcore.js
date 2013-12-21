@@ -13,6 +13,13 @@ function _(s) {
   return res;  
 }
 
+function log(s) {
+  if (console!=null) {
+    var d=new Date();
+    console.log(d.toStringDe(true)+":"+d.getMilliseconds()+" - "+s);
+  }
+}
+
 function churchcore_handyformat() {
   return $(window).width()<767;  
 }

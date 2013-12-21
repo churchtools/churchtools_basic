@@ -1902,7 +1902,7 @@ PersonView.prototype.checkFilter = function(a) {
   if ((this.filter["filterStation"]!=null) && (this.filter["filterStation"].filter(a.station_id)))
     return false;
   
-  if ((filter["filterBereich"]!=null)) {
+  if ((filter["filterBereich"]!=null && filter["filterBereich"].isSomethingSelected())) {
     dabei=false;
     if (a.access!=null)
     $.each(a.access, function (b,k) {

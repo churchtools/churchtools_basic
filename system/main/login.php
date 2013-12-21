@@ -179,8 +179,8 @@ function login_user($ret, $rember_me=false) {
   $ret->auth=getUserAuthorization($ret->id);
   $_SESSION["user"]=$ret;
 
-  // 7 Tage hält der Login
-  $ablaufDesCookies = time() + 60 * 60 * 24 * 7;
+  // 6 Tage hält der Login
+  $ablaufDesCookies = time() + 60 * 60 * 24 * 6;
   
   setcookie("RememberMe", $rember_me, $ablaufDesCookies);            
   $_SESSION["sessionid"]=random_string();

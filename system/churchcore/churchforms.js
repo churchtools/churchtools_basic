@@ -1270,6 +1270,10 @@ CC_MultiSelect.prototype.addFunction= function(name, func) {
   this.addFunctions.push({bezeichnung:name, func:func, checked:""});
 };
 
+CC_MultiSelect.prototype.isSomethingSelected = function() {
+  return this.selected.length!=0;
+};
+
 
 /**
  * Gibt true zurÔøΩck (d.h. er soll es wegfiltern), wenn mind. einer selektiert ist und wenn es nicht die Id ist.
@@ -1693,10 +1697,9 @@ CC_Navi.prototype.activate = function(id) {
  */
 function form_showDialog (title, text, width, height, buttons) {
   var elem =$('<div id="cdb_dialog">'+text+"</div>").appendTo("#page");
-  
-  if (width>$(window).width()) width=$(window).width();
+  if (width>window.innerWidth) width=window.innerWidth;
   if (buttons==null) buttons=new Object();
-  
+
   elem.dialog({
     autoOpen:true, 
     width:width, 
@@ -1710,6 +1713,7 @@ function form_showDialog (title, text, width, height, buttons) {
     }
   });
   $("div.ui-dialog-buttonpane button").addClass("btn");
+
   return elem;
 };
 

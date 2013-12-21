@@ -504,7 +504,7 @@ GroupView.prototype.checkFilter = function(a) {
 
 GroupView.prototype.isAllowedToSee = function(g_id) {
   if ((masterData.groups!=null) && (masterData.groups[g_id]!=null)) {
-    if ((masterData.auth.viewgroups!=null) && (masterData.auth.viewgroups[g_id]!=null) && (masterData.groups[g_id].versteckt_yn==0))
+    if (user_access("viewgroups", g_id))
       return true;
     
     if ((masterData.auth.viewalldetails) || (masterData.auth.admingroups) || (groupView.isPersonLeaderOfGroup(masterData.user_pid, g_id)) 

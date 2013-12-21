@@ -1092,6 +1092,8 @@ ListView.prototype.makeFilterCategories = function(start_string) {
 ListView.prototype.getListHeader = function() {
   var this_object=this;
   $("#cdb_group").html("");
+  this.currentTooltip=null;
+
 
   if (masterData.settings.listViewTableHeight==null) masterData.settings.listViewTableHeight=1;
   
@@ -2488,7 +2490,7 @@ ListView.prototype.attachFile = function(event) {
             cssid:"file_informServiceGroup"+a.id}));
       }
     });    
-    rows.push('<p>Hier kann ein Kommentar angeben werden:<div class="well" contenteditable="true" id="editor">&nbsp;</div>');    
+   rows.push('<p>Hier kann ein Kommentar angeben werden:<div class="well" contenteditable="true" id="editor">&nbsp;</div>');    
     
   }
   if (rows.length==1) { 
@@ -2500,7 +2502,7 @@ ListView.prototype.attachFile = function(event) {
   
   rows.push("<p><div id=\"upload_button\">Nochmal bitte...</div><p>");
   
-  var elem = this_object.showDialog("Datei zum Event "+event.bezeichnung+" hochladen",rows.join(""), 520, 500, {
+  var elem = form_showDialog("Datei zum Event "+event.bezeichnung+" hochladen",rows.join(""), 520, 500, {
     "Abbrechen": function() {
       $(this).dialog("close");
     }
@@ -2589,7 +2591,6 @@ ListView.prototype.attachFile = function(event) {
       else alert("Sorry, es ist ein Fehler beim Hochladen aufgetreten!");
     }
   });    
-  
 };
 
 ListView.prototype.renderFiles = function () {
