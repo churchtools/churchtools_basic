@@ -1643,7 +1643,10 @@ CC_Navi.prototype.addEntry = function(active, id, label) {
 };
 
 CC_Navi.prototype.addSearch = function(searchEntry) {
-  this.search='<input type="text" id="searchEntry" placeholder="Suche" class="input-medium search-query pull-right" value="'+searchEntry+'"/>';
+  if (churchcore_handyformat())
+    this.search='<input type="text" id="searchEntry" placeholder="Suche" class="input-small search-query pull-right" value="'+searchEntry+'"/>';
+  else 
+    this.search='<input type="text" id="searchEntry" placeholder="Suche" class="input-medium search-query pull-right" value="'+searchEntry+'"/>';
 };
 
 CC_Navi.prototype.render = function(asButton) {
@@ -1697,7 +1700,7 @@ CC_Navi.prototype.activate = function(id) {
  */
 function form_showDialog (title, text, width, height, buttons) {
   var elem =$('<div id="cdb_dialog">'+text+"</div>").appendTo("#page");
-  if (width>window.innerWidth) width=window.innerWidth;
+  if (width>window.innerWidth) width=window.innerWidth-16;
   if (buttons==null) buttons=new Object();
 
   elem.dialog({
@@ -1959,6 +1962,7 @@ $.widget("ct.tooltips", {
   options: {
     data:null,
     auto:true,
+    showontouchscreen:true,
     placement:"bottom",
     render:function(data) {return ["content","title"];},
     afterRender:function(element, data) {},
@@ -1972,7 +1976,7 @@ $.widget("ct.tooltips", {
   _create:function() {
     var t=this;
     t.element.addClass("tooltips-active");
-    if (t.options.auto) {
+    if (t.options.auto && (t.options.showontouchscreen || !churchcore_touchscreen())) {
       this.element.hover(
         function() {
           t._prepareTooltip();

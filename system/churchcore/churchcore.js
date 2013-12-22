@@ -21,7 +21,7 @@ function log(s) {
 }
 
 function churchcore_handyformat() {
-  return $(window).width()<767;  
+  return window.innerWidth<767;  
 }
 
 function churchcore_touchscreen() {

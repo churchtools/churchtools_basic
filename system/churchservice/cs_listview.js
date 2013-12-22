@@ -1713,8 +1713,8 @@ ListView.prototype.renderEditEventService = function(event_id, eventservice_id, 
             if (res==null) return null;
             obj.reason=res;
           }
-          obj.name=null;
-          obj.cdb_person_id=null;
+          delete obj.name;
+          delete obj.cdb_person_id;
           obj.zugesagt_yn=0;
         }
         elem.html("<p><br/><b>Daten werden gespeichert...</b><br/><br/>");
@@ -2631,6 +2631,7 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
     var tooltip=$(this);
     tooltip.tooltips({
       data:{id:tooltip.attr("data-tooltip-id"), event_id:tooltip.parents("tr").attr("id")},
+      showontouchscreen:false,
       render:function(data) {
         return t.renderTooltip(data.id, data.event_id, tooltip.attr("member")!=null, tooltip.attr("member")!=null);
       },
