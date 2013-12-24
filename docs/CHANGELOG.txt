@@ -9,13 +9,16 @@ churchtools 2.43
 + (Cal) Man kann nun die beim vorigen Termin angefragten Ressourcen wiederverwenden
 + (CDB) Man kann nun auch versteckte Gruppen sehen, wenn man manuell View-Rechte auf die Gruppe hat
 + (CDB) Gruppenleiter können nun auch die Gruppenstatistik sehen und Gruppenteilnahme pflegen
+- (CDB) Gruppenleiter sieht die Aufgabe "Zu löschen" nicht mehr, wenn er nicht die Rechte dazu hat.
 - (Cal) Fehler in der Embedding-Sicht des Kalenders behoben
 - (CR) Fehler beim Erstellen von Terminen aus dem Kalender mit manuellen Zusatzterminen behoben.
 - (CR) Fehler bei der Anzeige in den Stammdatenpflege behoben
 - (CW) Es können wieder neue Kategorien erstellt werden.
-- (CS) Automatische Datenspeicherung bei Fakten
+- (CW) Leere Seiten führten bei der Pro-Version zu Problemen.
+- (CS) Automatische Datenspeicherung bei Fakten, wenn die Eingabe nach einiger Zeit nicht beendet wird.
+- (CS) Kalender passt nun auch auf dem iPad im Hochformat
 - Admin-Page zeigt nun wieder auch deaktvierte Module
-- Dateien werden nun alphabetisch sortiert angezeigt
+- Dateien werden nun überall alphabetisch sortiert angezeigt
 
 churchtools 2.42
 + (Cal) Rechte optimiert: Nun kann man wählen, wer eigene Kalender erstellen kann und wer vorhandene administrieren darf.

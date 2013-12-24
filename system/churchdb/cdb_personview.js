@@ -1387,7 +1387,8 @@ PersonView.prototype.renderTodos = function() {
         if ((b.leiter==-2) && (groupView.isPersonLeaderOfGroup(masterData.user_pid, b.id))) {
           _gruppenantrag++;
         }
-        if ((b.leiter==-1) && (groupView.isPersonLeaderOfGroup(masterData.user_pid, b.id))) {
+        if ((b.leiter==-1) && 
+            ((masterData.auth.editgroups) || (groupView.isPersonSuperLeaderOfGroup(masterData.user_pid, b.id)))) {
           _gruppenloeschung++;
         }
       });
@@ -4748,18 +4749,6 @@ PersonView.prototype.getMyGroupsSelector = function(withIntelligentGroups) {
         arr=arr.concat(churchcore_sortArray(_owngroups_intelligent,"bezeichnung"));
       }  
     }
-    /*
-    if ((withIntelligentGroups) && (masterData.newsletter!=null) && (masterData.auth.newsletter!=null)) {
-      var _newsgroup=new Array();
-      $.each(masterData.auth.newsletter, function(k,a) {
-        _newsgroup.push(_createEntry('newsletter'+a, '&nbsp; '+masterData.newsletter[a].bezeichnung));
-      });
-      if (_newsgroup.length>0) {
-        arr.push(_createEntry(-1, "-- Newsletter --"));
-        arr=arr.concat(churchcore_sortArray(_newsgroup,"bezeichnung"));
-      }        
-    }*/
-    
     
     if (arr.length==0) 
       arr.push(_createEntry(-1, "Keine eigene Gruppe"));
