@@ -1388,7 +1388,7 @@ PersonView.prototype.renderTodos = function() {
           _gruppenantrag++;
         }
         if ((b.leiter==-1) && 
-            ((masterData.auth.editgroups) || (groupView.isPersonSuperLeaderOfGroup(masterData.user_pid, b.id)))) {
+            ((groupView.isPersonSuperLeaderOfGroup(masterData.user_pid, b.id)))) {
           _gruppenloeschung++;
         }
       });
@@ -1627,7 +1627,7 @@ function _checkGroupFilter(a, filter, z) {
         dabei=false;
         $.each(a.gruppe, function (b,k) {
           if ((masterData.groups[k.id]!=null) && (masterData.groups[k.id].distrikt_id==filter["filterDistrikt "+z])
-              && (((filter["filterTyp "+z]=="") || (filter["filterTyp "+z]==masterData.groups[k.id].gruppentyp_id))))
+              && (((filter["filterTyp "+z]=="") || (filter["filterTyp "+z]==null) || (filter["filterTyp "+z]==masterData.groups[k.id].gruppentyp_id))))
               dabei=_checkDate(z,k);
         });
         if (!dabei) return false;
@@ -1640,7 +1640,7 @@ function _checkGroupFilter(a, filter, z) {
         // Hier ist kein Zusammenhang zwischen den anderen, d.h. hier mu� ich auch noch suchen, 
         // wer z.B. Leiter bei dem Distrikt ist
         $.each(a.gruppe, function (b,k) {
-          if ((filter["filterTyp "+z]=="") || (filter["filterTyp "+z]==masterData.groups[k.id].gruppentyp_id))
+          if (filter["filterTyp "+z]=="" || filter["filterTyp "+z]==null || filter["filterTyp "+z]==masterData.groups[k.id].gruppentyp_id)
             if ((filter["filterGruppe "+z]==null) || (filter["filterGruppe "+z]==k.id))
               if ((filter["filterDistrikt "+z]==null) || (filter["filterDistrikt "+z]==masterData.groups[k.id].distrikt_id))
             if (k.leiter==filter["filterTeilnehmerstatus "+z]) dabei=_checkDate(z,k);
