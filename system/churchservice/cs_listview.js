@@ -10,7 +10,6 @@ function ListView(options) {
   this.allDataLoaded=false;
   this.renderTimer=null;
   this.serviceGroupPersonWeight=null;
-  this.currentTooltip=null;
 }
 
 Temp.prototype = StandardTableView.prototype;
@@ -1092,7 +1091,7 @@ ListView.prototype.makeFilterCategories = function(start_string) {
 ListView.prototype.getListHeader = function() {
   var this_object=this;
   $("#cdb_group").html("");
-  this.currentTooltip=null;
+  currentTooltip=null;
 
 
   if (masterData.settings.listViewTableHeight==null) masterData.settings.listViewTableHeight=1;
@@ -2637,13 +2636,12 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
       },
       
       afterRender: function(element, data) {
-        t.currentTooltip=$(tooltip);
         element.find("a.simulate-person").click(function() {
           window.location.href="?q=simulate&id="+$(this).attr("data-id")+"&location=churchservice";
           return false;
         });
         element.find("a.email-person").click(function() {
-          if (t.currentTooltip!=null) t.currentTooltip.tooltips("hide");
+          clearTooltip();
           t.mailPerson($(this).attr("data-id"));
           return false;
         });     
@@ -2652,7 +2650,7 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
   });
   
   $(cssid+" a.edit-event").click(function() {
-    if (t.currentTooltip!=null) t.currentTooltip.tooltips("hide");
+    clearTooltip();
     t.renderEditEvent(allEvents[$(this).parents("tr").attr("id")]);
     return false;
   });
@@ -2665,7 +2663,7 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
 
   
   $(cssid+" a").click(function (a) {
-    if (t.currentTooltip!=null) t.currentTooltip.tooltips("hide");
+    clearTooltip();
     var cssid=$(this).attr("id");
     if (cssid==null) 
       return true;

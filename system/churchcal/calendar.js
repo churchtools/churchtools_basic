@@ -12,8 +12,6 @@ previousBookings=null;
 filterCategoryIds=null;
 var saveSettingTimer=null;
 var filter=new Object();
-var currentTooltip=null;
-
 var embedded=false;
 var minical=false;
 var max_entries=50;
@@ -932,11 +930,6 @@ function _eventMouseover(event, jsEvent, view) {
   $(this).tooltips("show");
 }
 
-function clearTooltip(force) {
-  if (currentTooltip!=null) currentTooltip.tooltips("hide", force);
-  currentTooltip=null;
-}
-  
 function createMultiselect(name, data) {
   var t=this;
   filter[name]=new CC_MultiSelect(data, function(id, selected) {

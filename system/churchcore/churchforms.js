@@ -1643,7 +1643,7 @@ CC_Navi.prototype.addEntry = function(active, id, label) {
 };
 
 CC_Navi.prototype.addSearch = function(searchEntry) {
-  if (churchcore_handyformat())
+  if (churchcore_tabletformat())
     this.search='<input type="text" id="searchEntry" placeholder="Suche" class="input-small search-query pull-right" value="'+searchEntry+'"/>';
   else 
     this.search='<input type="text" id="searchEntry" placeholder="Suche" class="input-medium search-query pull-right" value="'+searchEntry+'"/>';
@@ -1950,9 +1950,9 @@ $.widget("ct.editable", {
 
 var currentTooltip=null;
 
-function clearTooltip() {
+function clearTooltip(force) {
   if (currentTooltip!=null) {
-    currentTooltip.tooltips("hide");
+    currentTooltip.tooltips("hide", force);
     currentTooltip=null;
   }
 }

@@ -784,8 +784,7 @@ WeekView.prototype.closeAndSaveBookingDetail = function (elem) {
 
 WeekView.prototype.addFurtherListCallbacks = function() {
   var t=this;
-  var currentTooltip=null;
-  
+
   $("#cdb_content a.tooltips").each(function() {
     var tooltip=$(this);
     tooltip.tooltips({
@@ -798,7 +797,7 @@ WeekView.prototype.addFurtherListCallbacks = function() {
       afterRender: function(element, data) {
         currentTooltip=$(tooltip);
         element.find("#copy").click(function() {
-          currentTooltip.tooltips("hide");
+          clearTooltip();
           t.showBookingDetails("copy", data.id);
           return false;
         });
@@ -823,8 +822,7 @@ WeekView.prototype.addFurtherListCallbacks = function() {
     // id ist bei Create=Resource_id, bei Edit ist es booking_id
     id=$(this).attr("id").substr(4,99);
     date=$(this).attr("href").substr(1,99);
-    if (currentTooltip!=null)
-      currentTooltip.tooltips("hide");
+    clearTooltip();
     
     if ($(this).attr("id").indexOf("edit")==0)
       t.showBookingDetails("edit", id, date);

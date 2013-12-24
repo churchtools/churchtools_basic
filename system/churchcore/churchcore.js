@@ -24,6 +24,10 @@ function churchcore_handyformat() {
   return window.innerWidth<767;  
 }
 
+function churchcore_tabletformat() {
+  return window.innerWidth<900;  
+}
+
 function churchcore_touchscreen() {
   return "ontouchstart" in document.documentElement;
 }

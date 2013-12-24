@@ -63,7 +63,8 @@ StandardTableView.prototype.renderView = function(withMenu) {
     }
     this.renderListMenu();    
     this.renderFilter();
-    $("#searchEntry").focus();
+    if (!churchcore_touchscreen())
+      $("#searchEntry").focus();
   }
   else {
     this.renderMenu();    

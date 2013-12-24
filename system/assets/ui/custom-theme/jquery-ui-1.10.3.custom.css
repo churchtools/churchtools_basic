@@ -236,11 +236,11 @@
 
 .ui-widget {
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-size: 13px;
+	font-size: 12px;
 }
 
 .ui-widget .ui-widget {
-	font-size: 13px;
+	font-size: 12px;
 }
 
 .ui-widget input,
@@ -284,7 +284,7 @@
 	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#e6e6e6', GradientType=0); /* IE8 */
 	text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
 	color: #333333;
-	font-size: 13px;
+	font-size: 12px;
 	line-height: normal;
 	border: 1px solid #ccc;
 	border-bottom-color: #bbb;
