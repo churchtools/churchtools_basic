@@ -99,12 +99,14 @@ class CTChurchWikiModule extends CTAbstractModule {
     if (($auth["edit"]==false) || ($auth["edit"][$params["wikicategory_id"]]!=$params["wikicategory_id"]))
         throw new CTNoPermission("edit", "churchwiki");
     $dt = new DateTime();
+    $text=$_POST["val"];
+    if ($text=="") $text=" "; // Save an emtpy string, so I know there is some data
     $sql="insert into {cc_wiki} (doc_id, version_no, wikicategory_id, text, modified_date, modified_pid)
       values (:doc_id, :version_no, :wikicategory_id, :text, :modified_date, :modified_pid)";
     db_query($sql,array(":doc_id"=>$_POST["doc_id"], 
       ":version_no"=>churchwiki_getCurrentNo($_POST["doc_id"],$_POST["wikicategory_id"])+1, 
       ":wikicategory_id"=>$_POST["wikicategory_id"],
-      ":text"=>$_POST["val"], 
+      ":text"=>$text, 
       ":modified_date"=>$dt->format('Y-m-d H:i:s'), 
       ":modified_pid"=>$user->id), false);                
   }
