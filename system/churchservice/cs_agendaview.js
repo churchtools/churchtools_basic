@@ -362,6 +362,7 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
               else {
                 item[data.field]=newval;
                 t.saveItem(item);
+                if (data.field=="duration") t.renderTimes();
               }            
             },
           
@@ -945,7 +946,10 @@ AgendaView.prototype.renderListHeader = function(smallVersion) {
   var t=this;
   if (smallVersion==null) smallVersion=false;
   var rows = new Array();
-  if (t.currentAgenda.template_yn==0 && t.currentAgenda.event_ids!=null) {
+  if (t.currentAgenda.template_yn==1) {
+    rows.push('<th width="40px">Gesamt');     
+  } 
+  else if (t.currentAgenda.event_ids!=null) {
     if (churchcore_countObjectElements(t.currentAgenda.event_ids)==1)
       rows.push('<th width="40px">Uhrzeit'); 
     else {      
@@ -1065,7 +1069,10 @@ AgendaView.prototype.renderListEntry = function (event, smallVersion) {
     rows.push(t.renderField(event, "bezeichnung"));
   }
   else {    
-    if (t.currentAgenda.template_yn==0 && t.currentAgenda.event_ids!=null) {
+    if (t.currentAgenda.template_yn==1) {
+      rows.push('<td class="clickable" data-field="time-1"></td>');              
+    }
+    else if (t.currentAgenda.event_ids!=null) {
       $.each(t.currentAgenda.event_ids, function(i,a) {
         if (allEvents[a]!=null)
           rows.push('<td class="clickable" data-field="time'+a+'"></td>');        
@@ -1117,28 +1124,32 @@ AgendaView.prototype.renderListEntry = function (event, smallVersion) {
 
 AgendaView.prototype.renderTimes = function() {
   var t=this;
-  if (t.currentAgenda==null || t.currentAgenda.event_ids==null || t.currentAgenda.items==null) return;
+  if (t.currentAgenda==null || t.currentAgenda.items==null) return;
   
   var preservice_seconds=0;
   $.each(t.getData(), function(k,item) {
     if (item.preservice_yn==1)
       preservice_seconds=preservice_seconds+item.duration*1;
   });
+  
+  if (t.currentAgenda.template_yn==1) t.currentAgenda.event_ids=[-1];
 
   // Get Starttimes from all Events
   var time = new Array();
   $.each(t.currentAgenda.event_ids, function(k,a) {
-    if (allEvents[a]!=null) {
+    if (allEvents[a]!=null) 
       time[a]=allEvents[a].startdate.toDateEn(true);
-      time[a].setSeconds(time[a].getSeconds() - preservice_seconds);
+    else {
+      time[a]=new Date();
+      time[a]=time[a].withoutTime();
     }
+    time[a].setSeconds(time[a].getSeconds() - preservice_seconds);
   });
-  
   var elem=$("table.AgendaView");
   // Now go through the Items and render the times
   $.each(t.getData(true), function(k,item) {
     $.each(t.currentAgenda.event_ids, function(i,a) {
-      if (churchcore_inArray(a, item.event_ids) && item.header_yn==0 && allEvents[a]!=null) {
+      if ((t.currentAgenda.template_yn==1 || churchcore_inArray(a, item.event_ids)) && item.header_yn==0) {
         var rows=new Array();
         rows.push(time[a].toStringDeTime()+"h");
         time[a].setSeconds(time[a].getSeconds() + item.duration*1);
@@ -1147,6 +1158,8 @@ AgendaView.prototype.renderTimes = function() {
       else elem.find('tr[id="'+item.id+'"] td[data-field=time'+a+']').html("");
     });
   });
+  
+  if (t.currentAgenda.template_yn==1) delete t.currentAgenda.event_ids;
 };
 
 AgendaView.prototype.messageReceiver = function(message, args) {
