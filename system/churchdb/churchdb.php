@@ -419,7 +419,7 @@ function churchdb_getTodos() {
   $mygroups=churchdb_getMyGroups($user->id, true, true, false);
   $mysupergroups=churchdb_getMyGroups($user->id, true, true, true);
   if ($mygroups==null) return "";
-  if ($mysupergroups==null) $mysupergroups=[-1];
+  if ($mysupergroups==null) $mysupergroups=array(-1);
   $db=db_query("select p.id, p.vorname, p.name, g.bezeichnung, gpg.status_no, s.bezeichnung status
            from {cdb_person} p, {cdb_gruppe} g, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg, {cdb_gruppenteilnehmerstatus} s 
            where s.intern_code=gpg.status_no and
