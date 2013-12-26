@@ -50,11 +50,14 @@ function home_main() {
   // blocks[] : label, col(1,2,3) sortkey, html
   $blocks=null;
   foreach ($btns as $key) {
+    
+    
     if ((isset($config[$key."_name"])) && ($config[$key."_name"]!="")) {
-      //include_once("system/$key/$key.php");
       include_once("system/".$mapping[$key]);
       if (function_exists($key."_blocks")) {
+//        $time=microtime();
         $arr=call_user_func($key."_blocks");
+//        echo "<br>$key".(microtime()-$time);
         foreach ($arr as $block) {
           $blocks[$block["col"]][]=$block;
         }

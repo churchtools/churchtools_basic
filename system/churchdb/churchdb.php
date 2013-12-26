@@ -416,13 +416,17 @@ function churchdb_getBlockBirthdays() {
 
 function churchdb_getTodos() {
   global $user;
-  $mygroups=churchdb_getMyGroups($user->id, true, true);
+  $mygroups=churchdb_getMyGroups($user->id, true, true, false);
+  $mysupergroups=churchdb_getMyGroups($user->id, true, true, true);
   if ($mygroups==null) return "";
+  if ($mysupergroups==null) $mysupergroups=[-1];
   $db=db_query("select p.id, p.vorname, p.name, g.bezeichnung, gpg.status_no, s.bezeichnung status
            from {cdb_person} p, {cdb_gruppe} g, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg, {cdb_gruppenteilnehmerstatus} s 
            where s.intern_code=gpg.status_no and
-           gpg.gemeindeperson_id=gp.id and gp.person_id=p.id and gpg.status_no<0 and gpg.gruppe_id=g.id and
-           gpg.gruppe_id in (".implode(',',$mygroups).") order by status");
+           gpg.gemeindeperson_id=gp.id and gp.person_id=p.id and gpg.gruppe_id=g.id and
+           ((gpg.gruppe_id in (".implode(',',$mygroups).") and gpg.status_no<-1) 
+           or (gpg.gruppe_id in (".implode(',',$mysupergroups).") and gpg.status_no=-1))
+           order by status");
 
   $arr=array();
   if ($db==false) return "";

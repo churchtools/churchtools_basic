@@ -151,49 +151,54 @@ function churchdb_getAllowedGroups() {
  * Wenn ich keine "view alldetails"-Rechte habe, dann nur wo ich Leiter bin und Abschlu§datum nicht lŠnger als groupnotchoosable ist 
  * oder auch anzeigene_in_meine_gruppen_teilnehmer_yn=1 ist.
  * @param $user_pid
+ * @param $only_ids default=false, only return array of IDs, otherweise array of person data
+ * @param $onlyIAmLeader default=false, only where I am a leader in the group
+ * @param $onlySuperGroups default=false, only where I am a district or grouptype leader
  */
-function churchdb_getMyGroups($user_pid, $only_ids=false, $onlyIAmLeader=false) {
+function churchdb_getMyGroups($user_pid, $only_ids=false, $onlyIAmLeader=false, $onlySuperGroups=false) {
   global $user, $config;
   if ($user_pid==null) return array();
   
-  $res=db_query("select g.*, gpg.status_no, gt.anzeigen_in_meinegruppen_teilnehmer_yn, datediff(current_date, g.abschlussdatum) abschlusstage
-         from {cdb_gruppe} g, {cdb_gemeindeperson_gruppe} gpg, {cdb_gemeindeperson} gp, {cdb_gruppentyp} gt
-         where gp.person_id=$user_pid and gpg.gemeindeperson_id=gp.id and gpg.gruppe_id=g.id and g.gruppentyp_id=gt.id");
   $arrs=array();
-  foreach ($res as $a) {
-    // Entweder nicht nur Leitergruppen oder ich eben Leiter Status>0
-    if ((!$onlyIAmLeader) || ($a->status_no>0)) {
-      // Entweder auch fŸr TN sichtbar und Status nicht zum lšschen markiert
-      if ((($a->anzeigen_in_meinegruppen_teilnehmer_yn==1) && ($a->status_no!=-1))
-      // oder wenn ich Leiter bin (status_no>0) und Abschlussdatum nicht zu lange her ist 
-          || (($a->status_no>0) && (($a->abschlusstage==null) || ($a->abschlusstage<$config["churchdb_groupnotchoosable"])))
-  // => Habe ich erst mal rausgenommen, denn sonst sieht man plštzlich  mit alldetails Leute aus Freizeiten oder mit gleichen Merkmalen!        
-          // oder wenn ich alle Details sehen darf 
-          //|| ((isset($user->auth["churchdb"])) && (isset($user->auth["churchdb"]["view alldetails"]))))
-          )
-          // Wenn die Gruppe versteckt ist oder ich Leiter bin
-        if (($a->versteckt_yn==0) || (($a->status_no>0) && ($a->status_no<4)))
-        if ($only_ids)
-            $arrs[$a->id]=$a->id;
-          else  
-            $arrs[$a->id]=$a;
-    }
-  }  
-  
-  // Hole mir nun die Gruppen, wo ich durch View-Berechtitgun habe
-  if (!$onlyIAmLeader) {
-    $auth=user_access("view group", "churchdb");
-    if ($auth!=null) {
-      $res=db_query("select g.* from {cdb_gruppe} g where g.id in (".implode(",",$auth).")");
-      foreach ($res as $a) {
-        if (!isset($arrs[$a->id]))
+  if (!$onlySuperGroups) {
+    $res=db_query("select g.*, gpg.status_no, gt.anzeigen_in_meinegruppen_teilnehmer_yn, datediff(current_date, g.abschlussdatum) abschlusstage
+           from {cdb_gruppe} g, {cdb_gemeindeperson_gruppe} gpg, {cdb_gemeindeperson} gp, {cdb_gruppentyp} gt
+           where gp.person_id=$user_pid and gpg.gemeindeperson_id=gp.id and gpg.gruppe_id=g.id and g.gruppentyp_id=gt.id");
+    foreach ($res as $a) {
+      // Entweder nicht nur Leitergruppen oder ich eben Leiter Status>0
+      if ((!$onlyIAmLeader) || ($a->status_no>0)) {
+        // Entweder auch fŸr TN sichtbar und Status nicht zum lšschen markiert
+        if ((($a->anzeigen_in_meinegruppen_teilnehmer_yn==1) && ($a->status_no!=-1))
+        // oder wenn ich Leiter bin (status_no>0) und Abschlussdatum nicht zu lange her ist 
+            || (($a->status_no>0) && (($a->abschlusstage==null) || ($a->abschlusstage<$config["churchdb_groupnotchoosable"])))
+    // => Habe ich erst mal rausgenommen, denn sonst sieht man plštzlich  mit alldetails Leute aus Freizeiten oder mit gleichen Merkmalen!        
+            // oder wenn ich alle Details sehen darf 
+            //|| ((isset($user->auth["churchdb"])) && (isset($user->auth["churchdb"]["view alldetails"]))))
+            )
+            // Wenn die Gruppe versteckt ist oder ich Leiter bin
+          if (($a->versteckt_yn==0) || (($a->status_no>0) && ($a->status_no<4)))
           if ($only_ids)
-            $arrs[$a->id]=$a->id;
-          else  
-            $arrs[$a->id]=$a;
-      }    
-    }
-  }  
+              $arrs[$a->id]=$a->id;
+            else  
+              $arrs[$a->id]=$a;
+      }
+    }  
+    
+    // Hole mir nun die Gruppen, wo ich durch View-Berechtitgun habe
+    if (!$onlyIAmLeader) {
+      $auth=user_access("view group", "churchdb");
+      if ($auth!=null) {
+        $res=db_query("select g.* from {cdb_gruppe} g where g.id in (".implode(",",$auth).")");
+        foreach ($res as $a) {
+          if (!isset($arrs[$a->id]))
+            if ($only_ids)
+              $arrs[$a->id]=$a->id;
+            else  
+              $arrs[$a->id]=$a;
+        }    
+      }
+    }  
+  }
   
   // Hole mir nun die Gruppen, wo ich als Distriktleiter eingsetzt bin
   $res=db_query("select g.* from {cdb_gruppe} g, {cdb_person_distrikt} pd

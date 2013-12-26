@@ -79,18 +79,18 @@ function churchresource_getOpenBookings() {
 function churchresource_getCurrentBookings() {
   $txt="";
   if (user_access("view","churchresource")) {      
-
     include_once("churchresource_db.inc");       
     
 	// Alle buchungen ab jetzt bis morgen mit Status 2
 	$res=getBookings(0, 1, "2");
-	
 	if ($res!=null) {
-  	$arr=array();
-      foreach ($res as $r) {
+  	  $arr=array();
+      $counter=0;
+  	  foreach ($res as $r) {
         $r->startdate=new DateTime($r->startdate);
         $r->enddate=new DateTime($r->enddate);
         foreach (getAllDatesWithRepeats($r,0,1) as $d) {
+          $counter=$counter+1;
           $a=array();
           $a["realstart"]=new DateTime($d->format('Y-m-d H:i:s'));
           $a["startdate"]=$r->startdate;
@@ -102,7 +102,7 @@ function churchresource_getCurrentBookings() {
           $a["id"]=$r->id;
           $arr[]=$a;
         }
-      }
+  	  }
       
       if ($arr!=null) {
         $resources=churchcore_getTableData("cr_resource");
@@ -112,6 +112,7 @@ function churchresource_getCurrentBookings() {
             if ($a["realstart"]>$b["realstart"]) return 1; else -1;
         }
         usort($arr, "cmp");
+        
         foreach ($arr as $val) {
           $txt.="<li><p><a href=\"?q=churchresource&id=".$val["id"]."\">".$val["text"]."</a> ";
           if ($val["repeat_id"]>0) $txt.='<img title="Serie startet vom '.$val["startdate"]->format('d.m.Y H:i').'" src="system/churchresource/images/recurring.png" width="16px"/> ';        
@@ -121,6 +122,7 @@ function churchresource_getCurrentBookings() {
           $txt="<ul>$txt</ul>"; 
       }
 	}
+	
   }	
   return $txt;
 }

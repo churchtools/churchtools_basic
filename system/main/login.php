@@ -212,6 +212,8 @@ function login_user($ret, $rember_me=false) {
   if ($q!=$q_orig) {
     header("Location: ?q=$q_orig");
   }
+  else if ($q=="login")
+    header("Location: ?q=home");
 }
 
 ?>

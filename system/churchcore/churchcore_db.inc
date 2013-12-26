@@ -1352,7 +1352,7 @@ function churchcore_stringToDateICal($string) {
 function isFullDay($start, $end) {
   if (($start->format('H:i:s')=="00:00:00") && ($end==null || $end->format('H:i:s')=="00:00:00"))
     return true;
-  return false;
+  return false;  
 }
 
 function datesInConflict($startdate, $enddate, $startdate2, $enddate2) {
@@ -1365,7 +1365,7 @@ function datesInConflict($startdate, $enddate, $startdate2, $enddate2) {
   if (isFullDay($startdate2, $enddate2)) {
     $_enddate2->modify("+1 day");
     $_enddate2->modify("-1 second");
-  }  
+  }
   // Enddatum2 liegt innerhalb des Datums
   if ((($_enddate2>$startdate) && ($_enddate2<$_enddate))
       // oder Startdatum 2liegt innerhalb des Datums
@@ -1409,16 +1409,21 @@ function getAllDatesWithRepeats($r, $_von=-1, $_bis=1) {
   //array_unshift($additions, $my);
   foreach($additions as $key=>$add) {
     $d=new DateTime(substr($add->add_date,0,10)." ".$d->format('H:i:s'));
-    $e=new DateTime(substr($add->add_date,0,10)." ".$e->format('H:i:s'));
-        
+    $e=new DateTime(substr($add->add_date,0,10)." ".$e->format('H:i:s'));        
+    
+    // Mark exception as used, so the "datesInConflict" will be called only for fresh exceptions to save time!
+    if (isset($r->exceptions)) 
+      foreach($r->exceptions as $exc) $exc->used=false;
+    
     do {
       $exception=false;
       if (isset($r->exceptions)) {
         foreach($r->exceptions as $exc) {
-          // wenn der Tag der gleiche ist, Ausnahme!
-          if (datesInConflict(new DateTime($exc->except_date_start), new DateTime($exc->except_date_end), 
-                  $d, $e)) {
+          // only is exception not used then proove conflict with exception date
+          if ((!$exception) && (!$exc->used) && (datesInConflict(new DateTime($exc->except_date_start), new DateTime($exc->except_date_end), 
+                  $d, $e))) {
             $exception=true;
+            $exc->used=true;
           }
         }
       }
