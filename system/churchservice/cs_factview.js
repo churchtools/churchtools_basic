@@ -122,7 +122,7 @@ FactView.prototype.addFurtherListCallbacks = function(cssid) {
           },
         
         value: ((event_id!=null) && (allEvents[event_id].facts!=null) && (allEvents[event_id].facts[fact_id]!=null)?
-            allEvents[event_id].facts[fact_id].value:null),
+            allEvents[event_id].facts[fact_id].value:null)
                  
       });
     });    

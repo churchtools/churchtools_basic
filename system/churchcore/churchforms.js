@@ -1843,7 +1843,7 @@ $.widget("ct.editable", {
     rerenderEditor: function(txt, data) {return txt; },
     afterRender: function(data) {},
     render: function(txt, data) {return txt; },
-    validate: function(txt, data) {return true; },
+    validate: function(txt, data) {return true; }
   },
   
   _autosave:null,
@@ -1944,7 +1944,7 @@ $.widget("ct.editable", {
         }
       }); 
      }
-   },
+   }
   
 });
 
