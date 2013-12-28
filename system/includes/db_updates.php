@@ -1716,6 +1716,8 @@ function run_db_updates($db_version) {
       db_query("update {cc_config} set value=60 where name='cronjob_delay' and value=0");
     case '2.43':
       set_version("2.43");
+    case '2.44':
+      set_version("2.44");
   }
 	  
     $a=db_query("select * from {cc_config} where name='version'",null,false);

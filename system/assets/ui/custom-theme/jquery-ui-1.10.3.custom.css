@@ -1274,6 +1274,11 @@ button.ui-button::-moz-focus-inner {
 	padding: 1px .4em;
 }
 
+.ui-menu .ui-menu-item a.ui-state-hover {
+	background:#0064CD;
+	color:white;
+}
+
 .ui-menu .ui-state-disabled {
 	font-weight: normal;
 	margin: .4em 0 .2em;
