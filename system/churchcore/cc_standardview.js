@@ -472,7 +472,8 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
       $("#cdb_content a.changemaxrow").click(function () {    
         masterData.settings["listMaxRows"+t.name]=$(this).attr("data-id");
         t.renderList();
-        churchInterface.jsendWrite({func:"saveSetting", sub:"listMaxRows"+t.name, val:$(this).attr("data-id")});    
+        churchInterface.jsendWrite({func:"saveSetting", sub:"listMaxRows"+t.name, val:$(this).attr("data-id")});
+        return false;
       });
       
       t.addTableContentCallbacks("#cdb_content");

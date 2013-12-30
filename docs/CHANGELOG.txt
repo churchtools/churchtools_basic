@@ -1,7 +1,7 @@
 (Legende: "+"=>Neues Feature  "-"=>Fehlerbehebung)
 
 churchtools 2.44
-
+- Fehler bei Darstellung Checkin behoben
 
 churchtools 2.43
 + Ab PHP-Version 5.3.7 werden nun gesalzene Passwšrter verwendet. Dies erhšht die Sicherheit bei der Speicherung der Passwšrter.

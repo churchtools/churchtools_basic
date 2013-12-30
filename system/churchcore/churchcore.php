@@ -75,6 +75,7 @@ function getMimeTypes() {
   "m13" => "application/x-msmediaview",
   "m14" => "application/x-msmediaview",
   "m3u" => "audio/x-mpegurl",
+  "m4a" => "audio/x-m4a",
   "man" => "application/x-troff-man",
   "mdb" => "application/x-msaccess",
   "me" => "application/x-troff-me",

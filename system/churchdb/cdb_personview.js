@@ -1899,6 +1899,11 @@ PersonView.prototype.checkFilter = function(a) {
     if (!dabei) return false;     
   }
 
+  if (this.filter["isMember"]!=null) {
+    if (masterData.status[a.status_id]!=null && (masterData.status[a.status_id].mitglied_yn==0))
+      return false;    
+  } 
+  
   if ((this.filter["filterStatus"]!=null) && (this.filter["filterStatus"].filter(a.status_id)))
     return false;
   if ((this.filter["filterStation"]!=null) && (this.filter["filterStation"].filter(a.station_id)))
@@ -3826,6 +3831,12 @@ PersonView.prototype.renderPersonFilter = function() {
   });
   
   rows.push('<td width="190px">');    
+  rows.push(form_renderCheckbox({
+    cssid:"isMember",
+    checked:this.filter["isMember"],
+    controlgroup:false,
+    label:"Ist Mitglied"     
+  }));        
    rows.push(form_renderCheckbox({
     cssid:"withoutEMail",
     checked:this.filter["withoutEMail"],
@@ -4230,6 +4241,7 @@ PersonView.prototype.resetPersonFilter = function() {
   delete this.filter["dateIgnoreYear"];
   delete this.filter["filterNationalitaet"];
   delete this.filter["geburtsort"];
+  delete this.filter["isMember"];
   delete this.filter["withoutPicture"];
   delete this.filter["withoutEMail"];
   delete this.filter["dateNotSet"];
