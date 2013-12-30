@@ -72,17 +72,24 @@ function eventCalendar(element, options, eventSources) {
           $.each(s.events, function(i,event) {
             event.container=s.container;
             event.category_id=s.category_id;
-            var i=event.start.getFullYear()+""+event.start.getMonth()+""+event.start.getDate();
-            if (allData[i]==null)
-              allData[i]=new Array(); 
-            else {
-              
-            }
-            allData[i].push(event);
+            event.compare=s.category_id+"_"+event.start.toStringEn(false)+"_"+event.title;
+            var drin=false;
+            $.each(allData, function(i,b) {
+              if (b.start!=event.start && b.compare==event.compare) {
+                drin=true;
+                if (b.multi==null) {
+                  b.multi=new Array();
+                  b.multi.push(b.start);
+                }
+                b.multi.push(event.start);
+                return false;
+              }
+            });
+            if (!drin)
+              allData.push(event);
           });
         }
       });
-      console.log(allData);
       
       rows.push('<table class="table table-condensed">');
       var _filter=filterName.toUpperCase();
@@ -109,15 +116,24 @@ function eventCalendar(element, options, eventSources) {
               }
               rows.push('</small>');
             }
+            // MiniCalender
             else {
               rows.push('<p><small>');
-              rows.push(a.start.toStringDe(!a.allDay));
-              if (a.end!=null) {
-                if (a.end.getDate()!=a.start.getDate()) {
-                  rows.push(" - "+a.end.toStringDe(!a.allDay));
+              if (a.multi==null) {
+                rows.push(a.start.toStringDe(!a.allDay));
+                if (a.end!=null) {
+                  if (a.end.getDate()!=a.start.getDate()) {
+                    rows.push(" - "+a.end.toStringDe(!a.allDay));
+                  }
+                  else 
+                    rows.push(" - "+a.end.toStringDeTime());
                 }
-                else 
-                  rows.push(" - "+a.end.toStringDeTime());
+              }
+              else { 
+                rows.push(a.start.toStringDe()+" - ");
+                $.each(churchcore_sortData(a.multi, null, true), function(i,b) {
+                  rows.push(b.toStringDeTime()+" | ");
+                });
               }
               rows.push('</small><br>');
               if (a.link!=null) 
