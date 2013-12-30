@@ -1145,7 +1145,8 @@ PersonView.prototype.renderListEntry = function(a) {
       });
       bereich=bereich+'">';
       $.each(a.access, function (i, b) {
-        bereich=bereich+masterData.dep[i].kuerzel;
+        if (masterData.dep[i]!=null)
+          bereich=bereich+masterData.dep[i].kuerzel;
       });
       bereich=bereich+'</font>';
     }

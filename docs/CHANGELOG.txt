@@ -1,7 +1,9 @@
 (Legende: "+"=>Neues Feature  "-"=>Fehlerbehebung)
 
 churchtools 2.44
++ (CDB) Neuer Filter bei weitere Filter "ist Mitglied". Für Personen interessant, die den Status nicht sehen dürfen.
 - Fehler bei Darstellung Checkin behoben
+- Fehlender Bereich in den Stammdaten führt nicht mehr zum Fehler
 
 churchtools 2.43
 + Ab PHP-Version 5.3.7 werden nun gesalzene Passwörter verwendet. Dies erhöht die Sicherheit bei der Speicherung der Passwörter.

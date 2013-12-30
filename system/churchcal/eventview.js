@@ -72,10 +72,17 @@ function eventCalendar(element, options, eventSources) {
           $.each(s.events, function(i,event) {
             event.container=s.container;
             event.category_id=s.category_id;
-            allData.push(event);
+            var i=event.start.getFullYear()+""+event.start.getMonth()+""+event.start.getDate();
+            if (allData[i]==null)
+              allData[i]=new Array(); 
+            else {
+              
+            }
+            allData[i].push(event);
           });
         }
       });
+      console.log(allData);
       
       rows.push('<table class="table table-condensed">');
       var _filter=filterName.toUpperCase();
