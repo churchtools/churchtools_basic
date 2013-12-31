@@ -1063,8 +1063,12 @@ ListView.prototype.prepareCategoriesForSelect = function(multiselect) {
     }
   });
   if (churchcore_countObjectElements(data)>0) {
-    if (!multiselect) form_addEntryToSelectArray(data, -2 , '== Gruppenkalender ==', 0);
-    form_addEntryToSelectArray(data, -1 , '== Gemeinedekalender ==', sortkey);
+    if (multiselect) 
+      form_addEntryToSelectArray(data, -1 , '-', sortkey);
+    else {
+      form_addEntryToSelectArray(data, -2 , '== Gruppenkalender ==', 0);
+      form_addEntryToSelectArray(data, -1 , '== Gemeindekalender == ', sortkey);
+    }
     sortkey++;
   }
   $.each(churchcore_sortMasterData(masterData.category), function(k,c) {

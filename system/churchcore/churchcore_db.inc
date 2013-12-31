@@ -559,9 +559,9 @@ function churchcore_mail($from, $to, $subject, $content, $htmlmail=false, $witht
 
   $header="";
   $body="";
-//  $header.='MIME-Version: 1.0' . "\r\n";
+//  $header.='MIME-Version: 1.0' . "\n";
   if ($htmlmail) {
-  //  $header.='Content-type: text/html; charset=utf-8' . "\r\n";    //'Content-Transfer-Encoding: quoted-printable'. "\r\n" .
+  //  $header.='Content-type: text/html; charset=utf-8' . "\n";    //'Content-Transfer-Encoding: quoted-printable'. "\n" .
     if ($withtemplate) {
       if (file_exists("$files_dir/mailtemplate.html"))
         $body=file_get_contents("$files_dir/mailtemplate.html");
@@ -571,7 +571,7 @@ function churchcore_mail($from, $to, $subject, $content, $htmlmail=false, $witht
     else $body="%content";
   }
   else {   
-//    $header.='Content-type: text/plain; charset=utf-8' . "\r\n";    //'Content-Transfer-Encoding: quoted-printable'. "\r\n" .
+//    $header.='Content-type: text/plain; charset=utf-8' . "\n";    //'Content-Transfer-Encoding: quoted-printable'. "\n" .
     if ($withtemplate) {
       if (file_exists("$files_dir/mailtemplate.plain"))
         $body=file_get_contents("$files_dir/mailtemplate.plain");
@@ -580,7 +580,7 @@ function churchcore_mail($from, $to, $subject, $content, $htmlmail=false, $witht
     }
     else $body="%content";
   }
-//  $header.="From: $from\r\n";
+//  $header.="From: $from\n";
   
   
 //  $header.='X-Mailer: PHP/' . phpversion();
@@ -598,7 +598,7 @@ function churchcore_mail($from, $to, $subject, $content, $htmlmail=false, $witht
   $variables["%content"]=$content;
   
   ct_log("Speichere Mail an $to von $from - $subject",2,-1,"mail");  
-  //mail($to, "=?utf-8?Q?".php_quot_print_encode($subject)."?=\r\n", strtr($body, $variables), $header);
+  //mail($to, "=?utf-8?Q?".php_quot_print_encode($subject)."?=\n", strtr($body, $variables), $header);
   $dt=new DateTime();
   if ($to==null) $to="";
   db_query("insert into {cc_mail_queue} 
@@ -644,22 +644,22 @@ function churchcore_sendMails_PHPMAIL($maxmails=10) {
       $counter=0;
       $counter_error=0;
       foreach ($db as $mail) {
-        $header='MIME-Version: 1.0' . "\r\n";
+        $header='MIME-Version: 1.0' . "\n";
         $body=$mail->body;
         if ($mail->htmlmail_yn==1) {
-          $header.='Content-type: text/html; charset=utf-8' . "\r\n";    //'Content-Transfer-Encoding: quoted-printable'. "\r\n" .
+          $header.='Content-type: text/html; charset=utf-8' . "\n";    //'Content-Transfer-Encoding: quoted-printable'. "\n" .
           $body.='<img src="'.$base_url.'?q=cron&standby=true&mailqueue_id='.$mail->id.'"/>';
         }
         else  
-          $header.='Content-type: text/plain; charset=utf-8' . "\r\n";    //'Content-Transfer-Encoding: quoted-printable'. "\r\n" .
+          $header.='Content-type: text/plain; charset=utf-8' . "\n";    //'Content-Transfer-Encoding: quoted-printable'. "\n" .
         
-        $header.="From: $mail->sender\r\n";
+        $header.="From: $mail->sender\n";
         $header.='X-Mailer: PHP/' . phpversion();
         $error=0;
         $counter++;
         // Wenn test gesetzt ist, soll er keine Mails senden, sondern nur so tun!
         if (!isset($config["test"])) {
-          if (!mail($mail->receiver, "=?utf-8?Q?".$mail->subject."?=\r\n", $body, $header)) {
+          if (!mail($mail->receiver, "=?utf-8?Q?".$mail->subject."?=\n", $body, $header)) {
             $counter_error++;
             $error=1; 
           }

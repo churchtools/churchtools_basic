@@ -153,7 +153,6 @@ function check_db_constraints($small=true) {
    array('cdb_gruppentreffen', 'gruppe_id', 'cdb_gruppe', 'id'),
    array('cdb_gruppentreffen_gemeindeperson', 'gruppentreffen_id', 'cdb_gruppentreffen', 'id'),
    array('cdb_gruppentreffen_gemeindeperson', 'gemeindeperson_id', 'cdb_gemeindeperson', 'id'),
-   array('cdb_log', 'person_id', 'cdb_person', 'id'),
    array('cdb_person', 'geschlecht_no', 'cdb_geschlecht', 'id')
 //TODO allow value null when checking (null must not be found in id field of referenced table)
 );

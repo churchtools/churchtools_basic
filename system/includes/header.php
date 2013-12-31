@@ -64,10 +64,10 @@
     <?php echo $add_header; ?>
 </head>
 
-<body>
-
    <?php if (!$embedded) {?>
+    <body>
 
+   
     <div class="navbar navbar-fixed-top <?php if (!isset($_SESSION["simulate"])) echo "navbar-inverse" ?>">
       <div class="navbar-inner">
         <div class="container-fluid">
@@ -163,8 +163,10 @@
     </div>    
     <div class="container-fluid" id="page">
   <?php 
-    } else     
-    echo '<div>';
+    } else {
+      echo '<body style="background:none">';    
+      echo '<div>';
+    }
     if ((isset($config["site_offline"]) && ($config["site_offline"]==1))) {   
       echo '<div class="alert alert-info">'.t("offline.mode.is.active").'</div>';
     } 

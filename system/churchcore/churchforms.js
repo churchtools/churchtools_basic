@@ -2033,8 +2033,9 @@ $.widget("ct.tooltips", {
     this._visible=false;
     this.element.removeClass("tooltips-active");
     this.element.popover("hide");
-    this.element.data("popover", null);  
-    currentTooltip=null;
+    this.element.data("popover", null);
+    if (currentTooltip!=null && currentTooltip==this.element)
+      currentTooltip=null;
   },
 
   
