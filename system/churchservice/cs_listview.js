@@ -685,11 +685,12 @@ ListView.prototype.renderEditEvent = function(event) {
     
   
   if (event.id!=null) {
-    elem.dialog('addbutton', 'Entfernen', function() {
-      var form = new CC_Form("Eintrag wirklich entfernen?");
-      form.addCheckbox({cssid:"deleteCalEntry", label:"Auch Kalendereintrag löschen"});
-      var elem2 = form_showDialog("Löschen des Events", form.render(null, "horizontal"), 400, 400, {
-        "Löschen": function() {    
+    elem.dialog('addbutton', 'Event absagen', function() {
+      var form = new CC_Form();
+      form.addCheckbox({cssid:"informDeleteEvent", label:"Alle angefragten Personen über die Absage informieren?", checked:true});
+      form.addCheckbox({cssid:"deleteCalEntry", label:"Auch Kalendereintrag entfernen"});
+      var elem2 = form_showDialog("Absagen des Events", form.render(null, "vertical"), 300, 300, {
+        "Absagen": function() {    
           obj=form.getAllValsAsObject();
           obj.func="deleteEvent";
           obj.id=event.id;       

@@ -1,9 +1,11 @@
 (Legende: "+"=>Neues Feature  "-"=>Fehlerbehebung)
 
 churchtools 2.44
++ (CS) Events kšnnen nun abgesagt werden, so das angefragte Personen informiert werden.
 + (CDB) Neuer Filter bei weitere Filter "ist Mitglied". FŸr Personen interessant, die den Status nicht sehen dŸrfen.
-- Fehler bei Darstellung Checkin behoben
+- Fehler bei Darstellung von markierten EintrŠgen (z.B. beim Checkin) behoben
 - Fehlender Bereich in den Stammdaten fŸhrt nicht mehr zum Fehler
+- Bei entfernten MySQL-Hosts ist das Problem mit dem neuen PDO-Treiber behoben.
 
 churchtools 2.43
 + Ab PHP-Version 5.3.7 werden nun gesalzene Passwšrter verwendet. Dies erhšht die Sicherheit bei der Speicherung der Passwšrter.

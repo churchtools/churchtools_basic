@@ -1777,7 +1777,7 @@ function escape_string($str) {
 function db_connect() {
     global $config, $db_pdo;
     try {
-        $db_pdo = new PDO("mysql:hostname=${config["db_server"]};dbname=${config["db_name"]};charset=utf8", $config["db_user"], $config["db_password"], array(PDO::ATTR_PERSISTENT => TRUE, PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
+        $db_pdo = new PDO("mysql:host=${config["db_server"]};dbname=${config["db_name"]};charset=utf8", $config["db_user"], $config["db_password"], array(PDO::ATTR_PERSISTENT => TRUE, PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
     } catch(PDOException $e) {
         $error_message = "<h3>Database connection error</h3>";
         $error_message .= "<p><strong>Reason: </strong>" . $e->getMessage() . "</p>";

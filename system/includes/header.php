@@ -142,7 +142,6 @@
                   <?php   
                     $arr=churchcore_getModulesSorted();
                     foreach ($arr as $key) {
-                      include_once("system/".$mapping[$key]);
                       if ((isset($config[$key."_name"])) && (isset($config[$key."_inmenu"])) && ($config[$key."_inmenu"]=="1") 
                              && ((user_access("view", $key)) || (in_array($key,$mapping["page_with_noauth"])))) {
                         echo "<li ";
