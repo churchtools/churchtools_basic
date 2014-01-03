@@ -3,7 +3,7 @@
 <properties>
   <comment>Test messages</comment>
   <entry key="permission.denied.write.dir">Verzeichnis {0} muss beschreibbar sein!</entry>
-  <entry key="site.is.down">Diese Seite wird gerade gewartet. Bitte versuche es später noch einmal.</entry>
+  <entry key="site.is.down">Diese Seite wird gerade gewartet. Bitte versuche es in einigen Minuten noch einmal.</entry>
   <entry key="datasecurity.accept.thanks">Danke für das Akzeptieren der Datenschutzbestimmungen!</entry>
   <entry key="datasecurity.accept">Datenschutzbestimmungen akzeptieren</entry>
   <entry key="no.permission.for">Keine Berechtigung für {0}</entry>

@@ -195,14 +195,6 @@ function churchtools_main() {
       $i18n = new TextBundle("system/churchcore/resources/messages");
       $i18n->load("churchcore", ($config["language"]!=null ? $config["language"] : null));
       
-      // PrŸfe auf Offline-Modus !
-      if ((isset($config["site_offline"]) && ($config["site_offline"]==1))) {
-        if ((!isset($_SESSION["user"]) || (!in_array($_SESSION["user"]->id, $config["admin_ids"])))) {
-          echo t("site.is.down");
-          return false;
-        }
-      }
-      
       // Session Init
       if (!file_exists($files_dir."/tmp")) 
         @mkdir($files_dir."/tmp",0775,true);  
@@ -216,6 +208,15 @@ function churchtools_main() {
       session_name("ChurchTools_".$config["db_name"]);
       session_start();    
       register_shutdown_function('handleShutdown');
+
+      // PrŸfe auf Offline-Modus !
+      if ((isset($config["site_offline"]) && ($config["site_offline"]==1))) {
+        if ((!isset($_SESSION["user"]) || (!in_array($_SESSION["user"]->id, $config["admin_ids"])))) {
+          echo t("site.is.down");
+          print_r($_SESSION["user"]);
+          return false;
+        }
+      }
       
       if (isset($_GET["q"])) {
         $q=$_GET["q"];  
