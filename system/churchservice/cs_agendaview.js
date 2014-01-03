@@ -211,7 +211,7 @@ AgendaView.prototype.saveAgenda = function(agenda, func) {
  * @param dataField
  * @returns string
  */
-AgendaView.prototype.renderField = function(o, dataField) {
+AgendaView.prototype.renderField = function(o, dataField, smallVersion) {
   var t=this;
   var rows=new Array();
   
@@ -261,10 +261,16 @@ AgendaView.prototype.renderField = function(o, dataField) {
       rows.push('</ul></span>');
       rows.push('</span>');
     }
+    if (o.note!="") {
+      rows.push('<div class="event_info">');
+      rows.push(o.note.trim((!smallVersion && $("#printview").val()==null?200:40)));
+      rows.push("</div>");
+    }
+    
   }
   else if (dataField.indexOf("servicegroup")==0) {
     if (o.servicegroup!=null && o.servicegroup[dataField.substr(12,99)]!=null)
-      rows.push('<small>'+o.servicegroup[dataField.substr(12,99)]+'</small>');
+      rows.push('<small>'+o.servicegroup[dataField.substr(12,99)].htmlize()+'</small>');
   }
   else rows.push(o[dataField]);
   
@@ -1063,10 +1069,10 @@ AgendaView.prototype.renderListEntry = function (event, smallVersion) {
   var t=this;
   if (smallVersion==null) smallVersion=false;
   var rows = new Array();  
-  
+
   if (event.header_yn==1) {
     rows.push('<td id="'+event.id+'" class="hoveractor editable grouping" data-field="bezeichnung" colspan="12">');
-    rows.push(t.renderField(event, "bezeichnung"));
+    rows.push(t.renderField(event, "bezeichnung", smallVersion));
   }
   else {    
     if (t.currentAgenda.template_yn==1) {
@@ -1082,15 +1088,14 @@ AgendaView.prototype.renderListEntry = function (event, smallVersion) {
     rows.push('<td class="editable" data-field="duration">');
     rows.push(t.renderField(event, "duration"));
     rows.push('<td class="hoveractor editable" data-field="bezeichnung">');
-    rows.push(t.renderField(event, "bezeichnung"));
+
+    rows.push(t.renderField(event, "bezeichnung", smallVersion));
   }
 
   if (debug) rows.push("&nbsp;" +event.sortkey);
  
 
   if (event.header_yn==0) {
-    if (event.note!="")
-      rows.push('<div class="event_info">'+(!smallVersion&&$("#printview").val()==null?event.note.trim(40):event.note)+"</div>");
     rows.push('<td class="editable" data-field="responsible">'+event.responsible);
   
     var groups=new Object();
@@ -1110,7 +1115,7 @@ AgendaView.prototype.renderListEntry = function (event, smallVersion) {
       rows.push(t.renderField(event, "servicegroup"+a.id, true));
     });
     if (!smallVersion && $("#printview").val()==null) {
-    rows.push('<td><td>');
+      rows.push('<td><td>');
       if (event.arrangement_id!=null && event.arrangement_id>0) {
         var song=songView.getSongFromArrangement(event.arrangement_id);
         if (song!=null && song.files!=null)
