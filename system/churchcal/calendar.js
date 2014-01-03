@@ -1456,7 +1456,7 @@ function renderChurchCategories() {
     else if (!embedded){
       form.addHtml('<div id="filterGemeindekalendar"></div>');        
     }
-    if (masterData.auth["view churchresource"]) {
+    if ((filterCategoryIds==null || !embedded) && (masterData.auth["view churchresource"])) {
       createMultiselect("filterRessourcen", masterData.resources);
       form.addHtml('<div id="filterRessourcen"></div>');
       $.each(masterData.resourceTypes, function(k,a) {
@@ -1494,8 +1494,10 @@ $(document).ready(function() {
     if ((viewName=="eventView") && (!embedded)) {
       rows.push('<div id="minicalendar" style="height:240px; max-width:350px"></div><br/><br/><br/>');
     }    
-    rows.push(renderPersonalCategories());    
-    rows.push(renderGroupCategories());    
+    if (filterCategoryIds==null || !embedded) {
+      rows.push(renderPersonalCategories());    
+      rows.push(renderGroupCategories());
+    }
     rows.push(renderChurchCategories());
 
     $("#cdb_filter").html(rows.join(""));

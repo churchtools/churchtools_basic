@@ -213,7 +213,6 @@ function churchtools_main() {
       if ((isset($config["site_offline"]) && ($config["site_offline"]==1))) {
         if ((!isset($_SESSION["user"]) || (!in_array($_SESSION["user"]->id, $config["admin_ids"])))) {
           echo t("site.is.down");
-          print_r($_SESSION["user"]);
           return false;
         }
       }

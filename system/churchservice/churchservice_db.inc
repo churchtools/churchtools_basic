@@ -93,7 +93,7 @@ function churchservice_createEventFromChurchCal($params, $source=null) {
       churchservice_copyEventByCalId($params["orig_id"], $new_id, $params["startdate"], true);
     }
     // Ansonsten eben neu anlegen
-    else {
+    else if (isset($params["eventTemplate"])) {
       churchservice_saveEvent($params, "churchcal");
     }
   }  
