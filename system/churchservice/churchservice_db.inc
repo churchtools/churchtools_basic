@@ -59,21 +59,120 @@ function churchservice_copyEventByCalId($orig_cal_id, $new_cal_id, $new_startdat
   }
 }
 
+
+function _convertCTDateTimeToObjects($params) {
+  $o=(object) $params;
+  $o->startdate=new DateTime($o->startdate);
+  $o->enddate=new DateTime($o->enddate);
+  $o->diff=$o->enddate->format("U")-$o->startdate->format("U");
+  if (!isset($o->repeat_until)) $o->repeat_until=$o->enddate->format('Y-m-d H:i:s');
+  
+  // Convert Exceptions and Additions to Object
+  if (isset($o->exceptions) && $o->exceptions!=null) {
+    foreach ($o->exceptions as $key=>$exc) {
+      $o->exceptions[$key]=(object) $exc;
+    }
+  }
+  if (isset($o->additions) && $o->additions!=null) {
+    foreach ($o->additions as $key=>$exc) {
+      $o->additions[$key]=(object) $exc;
+    }
+  }
+  return $o;  
+}
+
+function churchservice_createEventFromChurchCal($params, $source=null) {
+  $o=_convertCTDateTimeToObjects($params);  
+  foreach (getAllDatesWithRepeats(_convertCTDateTimeToObjects($params),-1000,+1000) as $d) {
+    $params["startdate"]=$d->format('Y-m-d H:i:s');
+    $enddate=clone $d;
+    $enddate->modify("+$o->diff seconds");
+    $params["enddate"]=$enddate->format('Y-m-d H:i:s');
+    // Wenn es kopiert werden soll
+    if ((isset($params["copychurchservice"])) && ($params["copychurchservice"]=="true")) {
+      churchservice_copyEventByCalId($params["orig_id"], $new_id, $params["startdate"], true);
+    }
+    // Ansonsten eben neu anlegen
+    else {
+      churchservice_saveEvent($params, "churchcal");
+    }
+  }  
+}
+
+
+/*
+ * This function is called by ChurchCal when changes in calendar entries 
+ * First it will use old_startdate to move all events. Then it checks if there is create or delete
+ * event through changes in repeats, exceptions or additions
+ */
+function churchservice_updateEventFromChurchCal($params, $source=null) {
+  $diff=null;
+  // When $params["old_startdate"] is set, first the events are moved 
+  // to the diff of startdate-old_startdate
+  if (isset($params["old_startdate"])) {
+    $startdate=new DateTime($params["startdate"]);
+    $old_startdate=new DateTime($params["old_startdate"]);
+    $diff=$startdate->format("U")-$old_startdate->format("U");    
+    $db=db_query("select id, startdate from {cs_event} e where e.cc_cal_id=:cal_id", array(":cal_id"=>$params["cal_id"]));
+    foreach ($db as $e) {
+      $sd=new DateTime($e->startdate);
+      $sd->modify("+$diff seconds");
+      db_update("cs_event")
+        ->fields(array("startdate"=>$sd->format('Y-m-d H:i:s')))
+        ->condition('id',$e->id,"=")
+        ->execute();      
+    }    
+  }
+  
+  // When repeat_id is not given, this is only a time shift. So we can end the processing here.
+  if (!isset($params["repeat_id"])) return;  
+  
+  // Collect events in one array to collect the info which has to be created/deleted/updated
+  $events=array();
+  // Get all mapped events from DB
+  $db=db_query("select id, startdate from {cs_event} e where e.cc_cal_id=:cal_id", array(":cal_id"=>$params["cal_id"]));
+  foreach ($db as $e) {
+    $sd=new DateTime($e->startdate);
+    $events[$sd->format('Y-m-d')]=array("status"=>"delete", "id"=>$e->id);
+  }
+  $o=_convertCTDateTimeToObjects($params);
+  foreach (getAllDatesWithRepeats($o,-1000,+1000) as $d) {
+    $sd=$d->format('Y-m-d');
+    if (isset($events[$sd])) {
+      // Event was already moved above through old_startdate
+      $events[$sd]["status"]="ok";
+    }
+    else          
+      $events[$sd]=array("status"=>"create");    
+    $events[$sd]["startdate"]=$d->format('Y-m-d H:i:s');
+  }
+  $template=null;
+  if (isset($params["eventTemplate"])) $template=$params["eventTemplate"];
+  foreach ($events as $key=>$do) {
+    if ($do["status"]=="delete") {
+      $params["id"]=$do["id"];
+      $params["informDeleteEvent"]=1;
+      $params["deleteCalEntry"]=0;
+      churchservice_deleteEvent($params, $source);
+    }
+    else if ($do["status"]=="create") {
+      $params["id"]=null;
+      $params["startdate"]=$do["startdate"];
+      $params["eventTemplate"]=$template;
+      churchservice_saveEvent($params, $source);
+    }
+  }
+}
+
+
 // Erstellt oder Updated ein Event
 // Wenn eventTemplate Ÿbergeben wird, dann holt er die Daten aus dem Template, ansonsten nutzt er services 
 function churchservice_saveEvent($params, $source=null) {
   global $user;
+  
   include_once(drupal_get_path('module', 'churchcal') .'/churchcal_db.inc');
   $cal_id=null;
   if (($source=="churchcal") && ($params["id"]==null)) {
-    $db=false;
-    if (isset($params["old_startdate"])) {
-      $db=db_query("select id from {cs_event} where startdate=:startdate and cc_cal_id=:id", 
-          array(":startdate"=>$params["old_startdate"], ":id"=>$params["cal_id"]))->fetch();
-    }
-    if ($db!=false) $params["id"]=$db->id;
-    // Wenn es keinen Datensatz gibt und auch kein eventTemplate angelegt werden soll, dann verabschiede ich mich hier
-    else if ((!isset($params["eventTemplate"])) || ($params["eventTemplate"]=="")) return;
     $cal_id=$params["cal_id"];  
   }
   else {
@@ -123,10 +222,12 @@ function churchservice_saveEvent($params, $source=null) {
       $params["intern_yn"]=0;
       $params["notizen"]=$params["special"];
       $params["link"]="";
-      $params["ort"]="";
+      $params["ort"]="";        
       $cal_id=churchcal_createEvent($params, "churchservice");
     }
-    $fields["cc_cal_id"]=$cal_id;  
+    $fields["cc_cal_id"]=$cal_id;
+    if (isset($params["eventTemplate"]))
+      $fields["created_by_template_id"]=$params["eventTemplate"];
     $event_id=db_insert("cs_event")->fields($fields)->execute();
   }  
   
@@ -159,8 +260,10 @@ function churchservice_saveEvent($params, $source=null) {
   }
   // Also wenn ein Template Ÿbergeben wurde
   else if (isset($params["eventTemplate"])){
-    if (isset($params["id"])) 
-      throw new CTException("Es kann kein Template uebergeben werden, wenn der Service schon existiert!");
+    if (isset($params["id"])) {
+      print_r($params);
+      throw new CTException("Es kann kein Template uebergeben werden, wenn der Service schon existiert!");      
+    } 
       
     $fields=array();
     $fields["event_id"]=$event_id;
@@ -211,3 +314,64 @@ function churchservice_getUserCurrentServices($user_id) {
   }     
   return $res;  
 }
+
+
+/**
+ *
+ * @param $subject
+ * @param $message
+ * @param $to
+ */
+function churchservice_send_mail ($subject, $message, $to) {
+  churchcore_systemmail($to, $subject, $message, true);
+}
+
+/**
+ * Delete CS-Event and inform people about deleted event and delete calender entry
+ *
+ * @param $params["id"] id of Event
+ * @param $params["informDeleteEvent"] 1=inform people. Default=0
+ * @param $params["deleteCalEntry"] 1=delete Calender entry. Default=0
+ * @throws CTException if Event or Calender Entry could not be found
+ * @throws CTNoPermission
+ */
+function churchservice_deleteEvent($params, $source=null) {
+  global $user;
+
+  if ($source==null) {
+    if (!user_access("edit events", "churchservice"))
+      throw new CTNoPermission("edit events", "churchservice");
+    ct_log("[ChurchService] Entferne Event!",2,$params["id"],"service");
+  }
+    
+  $db_event=db_query("select e.*, DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') date_de from {cs_event} e where id=:event_id", array(":event_id"=>$params["id"]))->fetch();
+  if (!$db_event) {
+    if ($params["id"]!=null) 
+      throw new CTException("Event nicht gefunden!");
+    else 
+      return;
+  }
+
+  // Inform people about the deleted event
+  if (isset($params["informDeleteEvent"]) && ($params["informDeleteEvent"]==1)) {
+    $db_cal=db_query("select * from {cc_cal} where id=:cal_id", array(":cal_id"=>$db_event->cc_cal_id))->fetch();
+    if (!$db_cal) throw new CTException("Event im Kalender nicht gefunden!");
+    $db=db_query("select p.* from {cs_eventservice} es, {cdb_person} p
+         where event_id=:event_id and valid_yn=1 and
+              p.id=es.cdb_person_id and es.cdb_person_id is not null and p.email!=''",
+        array(":event_id"=>$params["id"]));
+    foreach ($db as $p) {
+      $subject="[".variable_get('site_name')."] Absage von ".$db_cal->bezeichnung." ".$db_event->date_de;
+      $txt='<h3>Hallo '.$p->vorname."!</h3>";
+      $txt.='Das Event '.$db_cal->bezeichnung." am ".$db_event->date_de.' wurde von <i>'.$user->vorname.' '.$user->name.'</i> abgesagt. Deine Dienstanfrage wurde entsprechend entfernt.';
+      churchservice_send_mail($subject, $txt, $p->email);
+    }
+  }
+
+  db_query("delete from {cs_eventservice} where event_id=:event_id", array(":event_id"=>$params["id"]), false);
+  db_query("delete from {cs_event} where id=:event_id", array(":event_id"=>$params["id"]), false);
+  if ((isset($params["deleteCalEntry"])) && ($params["deleteCalEntry"]==1)) {
+    db_query("delete from {cc_cal} where id=:id and repeat_id=0", array(":id"=>$db_event->cc_cal_id));
+  }
+}
+

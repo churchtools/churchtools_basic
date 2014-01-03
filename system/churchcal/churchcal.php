@@ -263,12 +263,33 @@ function churchcal_delAddition($params) {
     ->execute(false);
 }
 
-function churchcal_deleteEvent($params) {
+function churchcal_deleteEvent($params, $source=null) {
   $id=$params["id"];
   
   if (!churchcal_isAllowedToEditEvent($id))
     throw new CTNoPermission("AllowToEditEvent", "churchcal");
     
+  // BENACHRICHTIGE ANDERE MODULE
+  if (($source==null) || ($source!="churchresource")) {
+    include_once(drupal_get_path('module', 'churchresource') .'/churchresource_db.inc');
+    if ($source==null) $source="churchcal";
+    $params["cal_id"]=$params["id"];
+    churchresource_deleteResourcesFromChurchCal($params, $source);
+  }
+  if (($source==null) || ($source!="churchservice")) {
+    include_once(drupal_get_path('module', 'churchservice') .'/churchservice_db.inc');
+    $cs_params=array_merge(array(), $params);
+    $cs_params["cal_id"]=$params["id"];
+    $cs_params["informDeleteEvent"]=1;
+    $cs_params["deleteCalEntry"]=0;    
+    if ($source==null) $source="churchcal";
+    $db=db_query("select * from {cs_event} where cc_cal_id=:cal_id", array(":cal_id"=>$cs_params["cal_id"]));
+    foreach ($db as $cs) {
+      $cs_params["id"]=$cs->id;
+      churchservice_deleteEvent($cs_params, $source);
+    }
+  }  
+  
   db_query("delete from {cc_cal_except} where cal_id=:id", array(":id"=>$id));
   db_query("delete from {cc_cal_add} where cal_id=:id", array(":id"=>$id));
   db_query("delete from {cc_cal} where id=:id", array(":id"=>$id));

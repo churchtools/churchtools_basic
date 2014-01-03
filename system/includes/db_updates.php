@@ -1717,6 +1717,7 @@ function run_db_updates($db_version) {
     case '2.43':
       set_version("2.43");
     case '2.44':
+      db_query("ALTER TABLE {cs_event} ADD created_by_template_id INT( 11 ) NULL");
       set_version("2.44");
   }
 	  

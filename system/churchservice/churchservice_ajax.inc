@@ -166,16 +166,6 @@ function churchservice_getAuthorization() {
 }
 
 
-/**
- * 
- * @param $subject
- * @param $message
- * @param $to
- */
-function churchservice_send_mail ($subject, $message, $to) { 
-  churchcore_systemmail($to, $subject, $message, true);
-}  
-
 
 function churchservice_getModulesPath() {
   return drupal_get_path('module', 'churchservice');
@@ -374,17 +364,6 @@ global $user;
     }
     $k++;
   }
-}
-
-function churchservice_deleteEvent($params) {
-  cdb_log("[ChurchService] Entferne Event!",2,$params["id"],"service");          
-  $db=db_query("select * from {cs_event} where id=:event_id", array(":event_id"=>$params["id"]))->fetch();
-  if (!$db) throw new CTException("Event nicht gefunden!");
-  db_query("delete from {cs_eventservice} where event_id=:event_id", array(":event_id"=>$params["id"]), false);
-  db_query("delete from {cs_event} where id=:event_id", array(":event_id"=>$params["id"]), false);
-  if ((isset($params["deleteCalEntry"])) && ($params["deleteCalEntry"]==1)) {
-    db_query("delete from {cc_cal} where id=:id", array(":id"=>$db->cc_cal_id));
-  }  
 }
 
 function churchservice_deleteService($params) {

@@ -1,6 +1,7 @@
 (Legende: "+"=>Neues Feature  "-"=>Fehlerbehebung)
 
 churchtools 2.44
++ (Cal/CS) ChurchService-Events kšnnen nun auch von Wiederholungsterminen angelegt werden.
 + (CS) Events kšnnen nun abgesagt werden, so das angefragte Personen informiert werden.
 + (CDB) Neuer Filter bei weitere Filter "ist Mitglied". FŸr Personen interessant, die den Status nicht sehen dŸrfen.
 - Fehler bei Darstellung von markierten EintrŠgen (z.B. beim Checkin) behoben

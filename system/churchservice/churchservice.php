@@ -481,7 +481,8 @@ function churchservice_blocks() {
  */
 function churchservice_openservice_rememberdays() {
   global $base_url;
-  include_once(drupal_get_path('module', 'churchcore').'/churchcore_db.inc');
+  include_once("churchservice_db.inc");
+
   $delay=variable_get('churchservice_openservice_rememberdays');
   $dt = new datetime();
   
@@ -562,6 +563,8 @@ function churchservice_openservice_rememberdays() {
 
 function churchservice_remindme() {
   global $base_url;
+  include_once("churchservice_db.inc");
+  
   $set=db_query("select * from {cc_usersettings} where modulename='churchservice' and attrib='remindMe' and value=1");
   foreach ($set as $p) {
     $res=db_query("SELECT cal.bezeichnung, s.bezeichnung dienst, sg.bezeichnung sg, e.id event_id, 
@@ -609,7 +612,9 @@ function churchcore_checkUserMail($p, $mailtype, $id, $interval) {
   return false; 
 }
 function churchservice_inform_leader() {
-global $base_url;
+  global $base_url;
+  include_once("churchservice_db.inc");
+
   // Hole erst mal die Gruppen_Ids, damit ich gleich nicht alle Personen holen mu§
   $res=db_query("select cdb_gruppen_ids from {cs_service} where cdb_gruppen_ids!='' and cdb_gruppen_ids is not null and sendremindermails_yn=1");
   $arr=array();

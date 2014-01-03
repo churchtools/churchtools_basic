@@ -57,18 +57,20 @@ CalSourceType.prototype.hideData = function(category_id) {
 /**
  * 
  * @param category_id entweder eine konkrete oder null, dann werden all refreshed
+ * @param needRefresh default=false;
  */
-CalSourceType.prototype.refreshView = function(category_id) {
+CalSourceType.prototype.refreshView = function(category_id, needRefresh) {
   var t=this;
+  if (needRefresh==null) needRefresh=false;
   if (category_id!=null) {
     this.hideData(category_id);
-    this.needData(category_id, false);
+    this.needData(category_id, needRefresh);
   }
   else {
     $.each(t.data, function(k,a) {
       if (a.status=="loaded") {
         t.hideData(k);
-        t.needData(k, false);
+        t.needData(k, needRefresh);
       }
     });
   }

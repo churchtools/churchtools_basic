@@ -31,8 +31,6 @@ function churchcal_createEvent($params, $source=null) {
       $res=churchcal_addException(array("cal_id"=>$new_id, 
                                "except_date_start"=>$exception["except_date_start"], 
                                "except_date_end"=>$exception["except_date_end"]));
-      if ($res["status"]!="success") 
-        return $res;
     }
   }  
   if (isset($params["additions"])) {
@@ -40,8 +38,6 @@ function churchcal_createEvent($params, $source=null) {
       $res=churchcal_addAddition(array("cal_id"=>$new_id, 
                                "add_date"=>$addition["add_date"],
                                "with_repeat_yn"=>$addition["with_repeat_yn"]));
-      if ($res["status"]!="success") 
-        return $res;
     }
   }  
   // BENACHRICHTIGE ANDERE MODULE
@@ -51,37 +47,14 @@ function churchcal_createEvent($params, $source=null) {
     churchresource_updateResourcesFromChurchCal($params, "churchcal");           
   }
   if (($source==null) || ($source!="churchservice")) {
-    if ((!isset($params["repeat_id"]) || ($params["repeat_id"]==0))) {
-      include_once(drupal_get_path('module', 'churchservice') .'/churchservice_db.inc');
-      $cs_params=array_merge(array(), $params); 
-      $cs_params["cal_id"]=$new_id;
-      $cs_params["id"]=null; 
-
-      
-      $o=(object) $params;
-      $o->startdate=new DateTime($o->startdate);
-      $o->enddate=new DateTime($o->enddate);
-      $diff=$o->enddate->format("U")-$o->startdate->format("U");
-      if (!isset($o->repeat_until)) $o->repeat_until=$o->enddate->format('Y-m-d H:i:s');
-      // Das mit repeat_id wird noch nicht von JavaScript angesteiuert. Das ist zu kompliziert mit
-      // Wiederholungsterminen, falls es €nderungen gibt. 
-      // Ist nur schon mal pro forma drin. Gibt Probleme bei Addition wg. Array/Object-Typ...
-      foreach (getAllDatesWithRepeats($o,-1000,+1000) as $d) {
-        $cs_params["startdate"]=$d->format('Y-m-d H:i:s');
-        $enddate=clone $d;
-        $enddate->modify("+$diff seconds"); 
-        $cs_params["enddate"]=$enddate->format('Y-m-d H:i:s');
-        // Wenn es kopiert werden soll
-        if ((isset($cs_params["copychurchservice"])) && ($cs_params["copychurchservice"]=="true")) {
-          churchservice_copyEventByCalId($params["orig_id"], $new_id, $cs_params["startdate"], true);
-        } 
-        // Ansonsten eben neu anlegen
-        else {
-          churchservice_saveEvent($cs_params, "churchcal");               
-        }
-      }
-    }      
+    include_once(drupal_get_path('module', 'churchservice') .'/churchservice_db.inc');
+    $cs_params=array_merge(array(), $params); 
+    $cs_params["cal_id"]=$new_id;
+    $cs_params["id"]=null; 
+    
+    churchservice_createEventFromChurchCal($cs_params, $source);
   }
+  
   return $new_id;  
 }  
 
@@ -202,7 +175,8 @@ function churchcal_updateEvent($params, $source=null) {
     $cs_params["id"]=null;   
     $cs_params["old_startdate"]=$old_cal->startdate;
     if ($source==null) $source="churchcal";
-    churchservice_saveEvent($cs_params, $source);    
+    
+    churchservice_updateEventFromChurchCal($cs_params, $source);    
   }        
 }  
 
@@ -309,7 +283,7 @@ function churchcal_getAllowedCategories($withPrivat=true, $onlyIds=false) {
 function churchcal_getCalPerCategory($params, $withintern=true) {
   $data=array();
   
-  $res=db_query("select cal.*, e.id event_id, 
+  $res=db_query("select cal.*, e.id event_id, e.startdate event_startdate, e.created_by_template_id event_template_id, 
                  b.id booking_id, b.startdate booking_startdate, b.enddate booking_enddate, b.resource_id booking_resource_id, b.status_id booking_status_id 
                from {cc_cal} cal
                left join {cs_event} e on (cal.id=e.cc_cal_id) 
@@ -319,7 +293,7 @@ function churchcal_getCalPerCategory($params, $withintern=true) {
                order by category_id");
   $data=null;
   
-  // Agreggiere, falls es mehrere Bookings pro calendareintrag gibt.
+  // Agreggiere, falls es mehrere Bookings oder Events pro calendareintrag gibt.
   foreach ($res as $arr) {
     if (isset($data[$arr->id])) {
       $elem=$data[$arr->id];
@@ -330,6 +304,9 @@ function churchcal_getCalPerCategory($params, $withintern=true) {
         array("id"=>$arr->booking_id, "minpre"=>(strtotime($arr->startdate)-strtotime($arr->booking_startdate))/60, 
                                       "minpost"=>(strtotime($arr->booking_enddate)-strtotime($arr->enddate))/60, 
                 "resource_id"=>$arr->booking_resource_id, "status_id"=>$arr->booking_status_id);
+    }
+    if ($arr->event_id!=null) { 
+      $elem->events[$arr->event_id]=array("id"=>$arr->event_id, "startdate"=>$arr->event_startdate);
     }
     $data[$arr->id]=$elem;      
   }

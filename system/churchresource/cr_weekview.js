@@ -690,7 +690,7 @@ WeekView.prototype.renderTooltip = function(id) {
         title=title+form_renderImage({label:"Bestätigen", cssid:"confirm", src:"check-64.png", width:20})+"&nbsp; ";
         title=title+form_renderImage({label:"Ablehnen", cssid:"deny", src:"delete_2.png", width:20})+"&nbsp; ";
       }
-      if (a.status_id!=3) 
+      if (a.status_id!=3 && a.cc_cal_id==null) 
         title=title+form_renderImage({label:"Kopieren", cssid:"copy", src:"copy.png", width:20})+"&nbsp; ";
       if (a.status_id!=1)
         title=title+form_renderImage({label:"Löschen", cssid:"delete", src:"trashbox.png", width:20})+"&nbsp; ";
@@ -973,7 +973,7 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
         if ((t.currentBooking.status_id!=99) && (!t.currentBooking.neu)) {
           // Bei Wiederholungsterminen UND einem Eintrag, bei dem es sich um einer Wiederholung handelt: date>startdate
           if ((t.currentBooking.repeat_id>0) && (date!=null) && (date.toDateEn()>t.currentBooking.startdate)) {
-            if (t.currentBooking.repeat_id!=999)
+            if (t.currentBooking.repeat_id!=999 && t.currentBooking.cc_cal_id==null)
               elem.dialog('addbutton', 'Nur aktuellen Termin löschen', function() {
                 if (t.currentBooking.exceptions==null) t.currentBooking.exceptions=new Object();
                 t.currentBooking.exceptionids=t.currentBooking.exceptionids-1;
@@ -981,7 +981,7 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
                       ={id:t.currentBooking.exceptionids, except_date_start:date, except_date_end:date};
                 t.closeAndSaveBookingDetail(elem);          
               });
-            if (t.currentBooking.repeat_id!=999)
+            if (t.currentBooking.repeat_id!=999 && t.currentBooking.cc_cal_id==null)
               elem.dialog('addbutton', 'Diesen und nachfolgende löschen', function() {
                 d=date.toDateEn();
                 d.addDays(-1);

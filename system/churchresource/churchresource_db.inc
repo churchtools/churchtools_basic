@@ -15,7 +15,6 @@ function churchresource_send_mail ($subject, $message, $to) {
 function churchresource_createBooking($params) {
   global $base_url, $user;
 
-
   $i=new CTInterface();
   $i->setParam("resource_id");
   $i->addTypicalDateFields();
@@ -277,7 +276,20 @@ function _shiftDate($date, $minutes) {
   return $dt->format('Y-m-d H:i:s');
 }
 
-function churchresource_updateResourcesFromChurchCal($params, $source) {
+
+function churchresource_deleteResourcesFromChurchCal($params, $source=null) {
+  global $user;
+  $db=db_query('select * from {cr_booking} where cc_cal_id=:cal_id', 
+      array(":cal_id"=>$params["cal_id"]));
+  foreach($db as $b) {    
+    cr_log("UPDATE BOOKING\n"."Set status=99 from source ".$source,3,$b->id);
+    db_update("cr_booking")->fields(array("status_id"=>99, "repeat_id"=>0))
+      ->condition("id", $b->id, "=")
+      ->execute();
+  }  
+}
+
+function churchresource_updateResourcesFromChurchCal($params, $source, $newbookingstatus=1) {
   global $user;
     
   $resources=churchcore_getTableData("cr_resource");
@@ -294,7 +306,7 @@ function churchresource_updateResourcesFromChurchCal($params, $source) {
       $save["cc_cal_id"]=$params["id"];
       
       if (!isset($params["bookings"][$booking->resource_id]["status_id"]))
-        $save["status_id"]=1;
+        $save["status_id"]=$newbookingstatus;
       else $save["status_id"]=$params["bookings"][$booking->resource_id]["status_id"];
       $save["id"]=$booking->id;  
       $save["person_id"]=$user->id;
@@ -306,13 +318,16 @@ function churchresource_updateResourcesFromChurchCal($params, $source) {
       $save["startdate"]=_shiftDate($save["startdate"], -$params["bookings"][$booking->resource_id]["minpre"]);
       $save["enddate"]=_shiftDate($save["enddate"], $params["bookings"][$booking->resource_id]["minpost"]);
       
-      // Wenn es einen Unterschied im Datum gibt, setze den Status wieder auf zu genehmigen!
-      if ((strtotime($save["startdate"])!=strtotime($booking->startdate)) ||
-            (strtotime($save["enddate"])!=strtotime($booking->enddate))) {
-        // But only if I am not an admin and resource is not autoaccept!
-        if ((!user_access("administer bookings", "churchresource")) && 
-             ($resources[$booking->resource_id]->autoaccept_yn==0)) 
-          $save["status_id"]=1;
+      // Wenn es keine Lšschung ist
+      if ($save["status_id"]!=99) {
+        // Wenn es einen Unterschied im Datum gibt, setze den Status wieder auf zu genehmigen!
+        if ((strtotime($save["startdate"])!=strtotime($booking->startdate)) ||
+              (strtotime($save["enddate"])!=strtotime($booking->enddate))) {
+          // But only if I am not an admin and resource is not autoaccept!
+          if ((!user_access("administer bookings", "churchresource")) && 
+               ($resources[$booking->resource_id]->autoaccept_yn==0)) 
+            $save["status_id"]=1;
+        }
       }
         
       churchresource_updateBooking($save);
@@ -331,7 +346,7 @@ function churchresource_updateResourcesFromChurchCal($params, $source) {
       $save = array_merge(array(), $params);      
       $save["cc_cal_id"]=$params["id"];
       if (!isset($booking["status_id"]))
-        $save["status_id"]=1;
+        $save["status_id"]=$newbookingstatus;
       else $save["status_id"]=$booking["status_id"];
       $save["person_id"]=$user->id;
       $save["resource_id"]=$booking["resource_id"];

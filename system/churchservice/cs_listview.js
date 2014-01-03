@@ -688,7 +688,7 @@ ListView.prototype.renderEditEvent = function(event) {
     elem.dialog('addbutton', 'Event absagen', function() {
       var form = new CC_Form();
       form.addCheckbox({cssid:"informDeleteEvent", label:"Alle angefragten Personen über die Absage informieren?", checked:true});
-      form.addCheckbox({cssid:"deleteCalEntry", label:"Auch Kalendereintrag entfernen"});
+      form.addCheckbox({cssid:"deleteCalEntry", label:"Auch Kalendereintrag entfernen (wird bei Wiederholungsterminen ignoriert!)"});
       var elem2 = form_showDialog("Absagen des Events", form.render(null, "vertical"), 300, 300, {
         "Absagen": function() {    
           obj=form.getAllValsAsObject();
