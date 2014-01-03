@@ -176,8 +176,8 @@ function churchtools_main() {
   
   $base_url=getBaseUrl();
   
-  include("system/churchcore/churchcore_db.inc");
-  include("system/lib/i18n.php");
+  include_once("system/churchcore/churchcore_db.inc");
+  include_once("system/lib/i18n.php");
   
   $config = loadConfig();
   

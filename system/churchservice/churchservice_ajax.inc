@@ -1,7 +1,6 @@
 <?php
 include_once(drupal_get_path('module', 'churchcore') .'/churchcore_db.inc');
 include_once(drupal_get_path('module', 'churchdb') .'/churchdb_db.inc');
-//include_once("churchservice_db.inc");
 
 // Gibt array mit g_ids zurŸck
 function churchservice_getGroupsOfService($service_id) {

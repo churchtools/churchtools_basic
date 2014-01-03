@@ -15,6 +15,17 @@ function churchwiki_getCurrentNo($doc_id, $wikicategory_id=0) {
     return $res->c;  
 }
 
+function churchwiki_getAuth() {
+  $cc_auth = array();
+  $cc_auth=addAuth($cc_auth, 501,'view', 'churchwiki', null, 'ChurchWiki sehen', 1);
+  $cc_auth=addAuth($cc_auth, 502,'view category', 'churchwiki', 'cc_wikicategory', 'Einzelne Wiki-Kategorien sehen', 1);
+  $cc_auth=addAuth($cc_auth, 503,'edit category', 'churchwiki', 'cc_wikicategory', 'Einzelne Wiki-Kategorien editieren', 1);
+  $cc_auth=addAuth($cc_auth, 599,'edit masterdata', 'churchwiki', null, 'Stammdaten editieren', 1);
+  return $cc_auth;
+}
+
+
+
 function churchwiki_setShowonstartpage($params) {
   $i=new CTInterface();
   $i->setParam("doc_id");
@@ -81,7 +92,7 @@ class CTChurchWikiModule extends CTAbstractModule {
     global $user, $base_url, $files_dir, $config;
     
     $data["wikicategory"]=churchcore_getTableData("cc_wikicategory");
-    $data["auth"]=churchwiki_getAuth();    
+    $data["auth"]=churchwiki_getAuthForAjax();    
     
     $data["settings"]=array();
     $data["masterDataTables"] = $this->getMasterDataTablenames();
@@ -95,7 +106,7 @@ class CTChurchWikiModule extends CTAbstractModule {
   
   public function save($params) {
     global $user;
-    $auth=churchwiki_getAuth();  
+    $auth=churchwiki_getAuthForAjax();  
     if (($auth["edit"]==false) || ($auth["edit"][$params["wikicategory_id"]]!=$params["wikicategory_id"]))
         throw new CTNoPermission("edit", "churchwiki");
     $dt = new DateTime();
@@ -112,7 +123,7 @@ class CTChurchWikiModule extends CTAbstractModule {
   }
   
   public function load($params) {
-    $auth=churchwiki_getAuth();  
+    $auth=churchwiki_getAuthForAjax();  
     if (($auth["view"]==false) || ($auth["view"][$params["wikicategory_id"]]!=$params["wikicategory_id"]))
       throw new CTNoPermission("view", "churchwiki");
     if (!isset($params["version_no"]))
@@ -136,7 +147,7 @@ class CTChurchWikiModule extends CTAbstractModule {
   }
   
   public function showonstartpage($params) {
-    $auth=churchwiki_getAuth();
+    $auth=churchwiki_getAuthForAjax();
     if (($auth["edit"]==false) || ($auth["edit"][$_POST["wikicategory_id"]]!=$_POST["wikicategory_id"]))
       throw new CTNoPermission("edit", "churchwiki");
     return churchwiki_setShowonstartpage($params);
@@ -152,7 +163,7 @@ class CTChurchWikiModule extends CTAbstractModule {
 }
 
 
-function churchwiki_getAuth() {
+function churchwiki_getAuthForAjax() {
   $auth["view"]=user_access("view category", "churchwiki");
   $auth["edit"]=user_access("edit category", "churchwiki");
   $auth["admin"]=user_access("edit masterdata", "churchwiki");
@@ -168,7 +179,7 @@ function churchwiki_getAuth() {
 function churchwiki__ajax() {
   global $user, $files_dir, $base_url, $mapping, $config;
     
-  $auth=churchwiki_getAuth();
+  $auth=churchwiki_getAuthForAjax();
   
   if ((!user_access("view","churchwiki")) && (!in_array("churchwiki",$mapping["page_with_noauth"]))
         && (!in_array("churchwiki",$config["page_with_noauth"]))) 

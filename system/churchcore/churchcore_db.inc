@@ -111,7 +111,6 @@ function createI18nFile($modulename) {
   return $filename;  
 }
 
-
 abstract class CTAbstractModule implements CTModuleInterface {
   private $modulename="abstract";
 
@@ -519,6 +518,8 @@ function php_quot_print_encode($str) {
 function churchcore_getModulesSorted($withCoreModule=false, $withOfflineModules=false) {
   global $config;
 
+  if ($withCoreModule) $config["churchcore_sortcode"]=0;
+  
   // Get the module names out of the file system in directory system/*
   $arr=array();
   $scandir=scandir("system");
@@ -1509,35 +1510,6 @@ function getAllDatesWithRepeats($r, $_von=-1, $_bis=1) {
 }
 
 
-function _implantAuth($res, $auth) {
-  foreach ($res as $entry) {
-    if ($entry->daten_id==null) {
-      $auth[$entry->modulename][$entry->auth]=true;
-    }
-    else {
-      // Wenn ich alles sehen darf, dann ist daten_id==-1
-      if ($entry->daten_id==-1) {
-        $res2=db_query("select id from {".$entry->datenfeld."}");
-        $auth2=null;
-        foreach ($res2 as $entry2) {
-          $auth2[$entry2->id]=$entry2->id;
-        }
-        $auth[$entry->modulename][$entry->auth]=$auth2;
-      }  
-      else {
-        $arr=array();
-        if (isset($auth[$entry->modulename][$entry->auth]))
-          $arr=$auth[$entry->modulename][$entry->auth];
-        // Datenautorisierung nicht mit true, sondern mit [id]=id. 1. Implode geht und 2. Direkter Zugriff geht!
-
-        $arr[$entry->daten_id]=$entry->daten_id;
-        $auth[$entry->modulename][$entry->auth]=$arr;
-      }
-    }          
-  }
-  return $auth;
-}
-
 function createAnonymousUser() {
   $user=new stdClass();
   $user->id=-1;
@@ -1560,50 +1532,91 @@ function array_in_array($array1, $in_array2) {
   return $drin;      
 }
 
+function _implantAuth($auth_table, $IamAdmin, $res, $auth) {
+  foreach ($res as $entry) {
+    $auth_entry=null;
+    if (isset($auth_table[$entry->auth_id]))
+      $auth_entry=$auth_table[$entry->auth_id];
+    // Only when I am not admin or I am admin and admindarfsehen = false otherwise already set!
+    if ($auth_entry!=null && (!$IamAdmin || $auth_entry->admindarfsehen_yn==0)) {
+      if ($entry->daten_id==null) {
+        $auth[$auth_entry->modulename][$auth_entry->auth]=true;
+      }
+      else {
+        // Wenn ich alles sehen darf, dann ist daten_id==-1
+        if ($entry->daten_id==-1) {
+          $res2=db_query("select id from {".$auth_entry->datenfeld."}");
+          $auth2=null;
+          foreach ($res2 as $entry2) {
+            $auth2[$entry2->id]=$entry2->id;
+          }
+          $auth[$auth_entry->modulename][$auth_entry->auth]=$auth2;
+        }
+        else {
+          $arr=array();
+          if (isset($auth[$auth_entry->modulename][$auth_entry->auth]))
+            $arr=$auth[$auth_entry->modulename][$auth_entry->auth];
+          // Datenautorisierung nicht mit true, sondern mit [id]=id. 1. Implode geht und 2. Direkter Zugriff geht!
+
+          $arr[$entry->daten_id]=$entry->daten_id;
+          $auth[$auth_entry->modulename][$auth_entry->auth]=$arr;
+        }
+      }
+    }
+  }
+  return $auth;
+}
+
 function getUserAuthorization($user_id) {
   global $config;
   $auth=null;
   
   if ($user_id==null) return null;
   
-  $where="";
+  $auth_table=getAuthTable();
+  $IamAdmin=false;
+  if (in_array($user_id, $config["admin_ids"]))
+    $IamAdmin=true;
   
   // Wenn ich in den Admin-Mails bin, dann schuster ich mir alle Rechte zu, die der Admin sehen darf
-  if (in_array($user_id, $config["admin_ids"])) {
-    $res=db_query("select auth, datenfeld, modulename from {cc_auth} pa where admindarfsehen_yn=1");
-    foreach ($res as $entry) {
-      if ($entry->datenfeld==null) {
-        $auth[$entry->modulename][$entry->auth]=true;        
-      }
-      else {
-        $res2=db_query("select id from {".$entry->datenfeld."}");
-        $auth2=null;
-        foreach ($res2 as $entry2) {
-          $auth2[$entry2->id]=$entry2->id;
+  if ($IamAdmin) {
+    foreach ($auth_table as $entry) {
+      if ($entry->admindarfsehen_yn==1) {
+        if ($entry->datenfeld==null) {
+          $auth[$entry->modulename][$entry->auth]=true;        
         }
-        $auth[$entry->modulename][$entry->auth]=$auth2;
+        else {
+          $res2=db_query("select id from {".$entry->datenfeld."}");
+          $auth2=null;
+          foreach ($res2 as $entry2) {
+            $auth2[$entry2->id]=$entry2->id;
+          }
+          $auth[$entry->modulename][$entry->auth]=$auth2;
+        }
+        $auth[$entry->modulename]["view"]=true;
       }
-      $auth[$entry->modulename]["view"]=true;
     }
-    $where="and admindarfsehen_yn=0";
   } 
+  
+
+  
   // FŸr normale Benutzer und bei Admins nach Where nur die, wo es nicht fŸr Admin alles gibt.
   // Autorisierung Ÿber direkte Personenzuordnung
-  $res=db_query("select auth, daten_id, modulename, datenfeld from {cc_auth} a, {cc_domain_auth} pa 
-                where a.id=pa.auth_id and pa.domain_type='person' and pa.domain_id=$user_id $where");
-  $auth=_implantAuth($res,$auth);
+  $res=db_query("select daten_id, auth_id from {cc_domain_auth} pa 
+                    where pa.domain_type='person' and pa.domain_id=$user_id");
+  $auth=_implantAuth($auth_table, $IamAdmin, $res,$auth);
   
   // Autorisierung Ÿber Status
-  $res=db_query("select auth, daten_id, modulename, datenfeld from {cdb_gemeindeperson} gp, {cc_domain_auth} da, {cc_auth} a 
-                   where da.domain_type='status' and a.id=da.auth_id 
-                   and da.domain_id=gp.status_id and gp.person_id=$user_id $where");
-  $auth=_implantAuth($res,$auth);
+  $res=db_query("select daten_id, auth_id  from {cdb_gemeindeperson} gp, {cc_domain_auth} da 
+                   where da.domain_type='status'  
+                   and da.domain_id=gp.status_id and gp.person_id=$user_id");
+  $auth=_implantAuth($auth_table, $IamAdmin, $res,$auth);
 
   // Autorisierung Ÿber Gruppen
-  $res=db_query("select auth, daten_id, modulename, datenfeld from {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg, {cc_domain_auth} da, {cc_auth} a 
-                   where da.domain_type='gruppe' and a.id=da.auth_id and gpg.gemeindeperson_id=gp.id and gpg.status_no>=0
-                   and da.domain_id=gpg.gruppe_id and gp.person_id=$user_id $where");
-  $auth=_implantAuth($res,$auth);
+  $res=db_query("select daten_id, auth_id  from {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg, {cc_domain_auth} da 
+                   where da.domain_type='gruppe' and gpg.gemeindeperson_id=gp.id and gpg.status_no>=0
+                   and da.domain_id=gpg.gruppe_id and gp.person_id=$user_id");
+  $auth=_implantAuth($auth_table, $IamAdmin, $res,$auth);
 
   // Wenn es kein Anonymous ist
   if ($user_id>0) {
@@ -1666,6 +1679,38 @@ function user_access($auth, $modulename) {
 
 function userLoggedIn() {
   return ((isset($_SESSION['user'])) && ($_SESSION['user']->id>0));   
+}
+
+function addAuth($auth_arr, $id, $auth, $modulename, $datafield, $desc, $adminallowed=1) {
+  if (isset($auth_arr[$id]))
+    throw new CTException("Auth ID $id already set!");
+  $o=new stdClass();
+  $o->id=$id;
+  $o->auth=$auth;
+  $o->modulename=$modulename;
+  $o->datenfeld=$datafield;
+  $o->bezeichnung=$desc;
+  $o->admindarfsehen_yn=$adminallowed;
+  $auth_arr[$id]=$o;
+  return $auth_arr;
+}
+
+function getAuthTable() {
+  $modules=churchcore_getModulesSorted(true, false);
+  $auth=array();
+  $sortkey=0;
+  foreach ($modules as $module) {
+    include_once("system/$module/$module.php");
+    if (function_exists($module."_getAuth")) {
+      $res=call_user_func($module."_getAuth");
+      foreach ($res as $key=>$val) {
+        $val->sortkey=$sortkey;
+        $sortkey++;
+        $auth[$key]=$val;
+      }
+    }
+  }
+  return $auth;
 }
 
 

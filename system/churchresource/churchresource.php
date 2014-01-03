@@ -192,6 +192,15 @@ global $user;
   echo $content;
 }
 
+function churchresource_getAuth() {
+  $cc_auth = array();
+  $cc_auth=addAuth($cc_auth, 201,'view', 'churchresource', null, 'ChurchResource sehen', 1);
+  $cc_auth=addAuth($cc_auth, 306,'create bookings', 'churchresource', null, 'Eigene Buchugsanfragen erstellen', 1);
+  $cc_auth=addAuth($cc_auth, 202,'administer bookings', 'churchresource', null, 'Alle Anfragen editieren, ablehnen, etc.', 1);
+  $cc_auth=addAuth($cc_auth, 299,'edit masterdata', 'churchresource', null, 'Stammdaten editieren', 1);
+  return $cc_auth;
+}
+
 
 
 function churchresource_getAuthForAjax() {

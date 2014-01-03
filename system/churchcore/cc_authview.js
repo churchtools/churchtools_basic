@@ -56,71 +56,65 @@ AuthView.prototype.renderEntryDetail= function(pos_id) {
   var elem=$("tr[id=" + pos_id + "]").after("<tr id=\"detail" + pos_id + "\"><td colspan=\"7\" id=\"detailTD" + pos_id + "\">"+rows.join("")+"</td></tr>").next();
   
   children=new Array();
-  var modules=new Object();
-  $.each(masterData.auth_table, function(k,a) {
-    if (modules[a.modulename]==null) {
-      modules[a.modulename]=new Array();
-    }    
-    modules[a.modulename].push(a);
-  });
-  
   
   var children=new Array();
-  $.each(modules, function(k,module) {
+  $.each(masterData.modules, function(k,modulename) {
     var child=new Array();
     var expand=false;
-    $.each(module, function(i,auth) {
-      if (auth.datenfeld!=null) {
-        var expand_datenfeld=new Object();
-        var child_daten=new Array();
-        if (masterData[masterData.auth_table[auth.id].datenfeld]!=null) {
-          // Bietet noch die Möglichkeiten von Untergruppen, wie z.B. bei Kalender mit privaten, Gruppen und Öffentlich
-          var sub_child_daten=new Object();        
-
-          $.each(masterData[masterData.auth_table[auth.id].datenfeld], function(h, datenfeld) {
-
-            var select=false;
-            if ((masterData[t.currentDomain][pos_id]!=null) && (masterData[t.currentDomain][pos_id].auth!=null) 
-                 && (masterData[t.currentDomain][pos_id].auth[auth.id]!=null) && 
-                   // -1 means ALL! It comes from the authoriziation by ChurchDB
-                    ((masterData[t.currentDomain][pos_id].auth[auth.id][-1]!=null)
-                     || (masterData[t.currentDomain][pos_id].auth[auth.id][datenfeld.id]!=null))) {
-              select=true;
-              expand=true;
-              expand_datenfeld["general"]=true;
-            }
-            if (masterData.auth_table[auth.id].datenfeld=="cc_calcategory") {
-              var type="Gemeindekalender";
-              if (masterData.cc_calcategory[datenfeld.id].privat_yn==1) 
-                type="Persönlich";
-              else if (masterData.cc_calcategory[datenfeld.id].oeffentlich_yn==0)
-                type="Gruppenkalender";
-              if (sub_child_daten[type]==null)
-                sub_child_daten[type]=new Array();
-              sub_child_daten[type].push({title:datenfeld.bezeichnung, select:select, key:auth.id+"_"+datenfeld.id});
-            }
-            else {
-              child_daten.push({title:datenfeld.bezeichnung, select:select, key:auth.id+"_"+datenfeld.id});
-            }
-          });
-          // Wenn es Sub-Kategorien gibt, muss ich die hier noch einfügen.
-          $.each(sub_child_daten, function(k,a) {
-            child_daten.push({title:k, isFolder:true, children:a});
-          });
+    $.each(churchcore_sortMasterData(masterData.auth_table), function(i,auth) {
+      if (auth.modulename==modulename) {
+        if (auth.datenfeld!=null) {
+          var expand_datenfeld=new Object();
+          var child_daten=new Array();
+          if (masterData[masterData.auth_table[auth.id].datenfeld]!=null) {
+            // Bietet noch die Möglichkeiten von Untergruppen, wie z.B. bei Kalender mit privaten, Gruppen und Öffentlich
+            var sub_child_daten=new Object();        
+  
+            $.each(masterData[masterData.auth_table[auth.id].datenfeld], function(h, datenfeld) {
+  
+              var select=false;
+              if ((masterData[t.currentDomain][pos_id]!=null) && (masterData[t.currentDomain][pos_id].auth!=null) 
+                   && (masterData[t.currentDomain][pos_id].auth[auth.id]!=null) && 
+                     // -1 means ALL! It comes from the authoriziation by ChurchDB
+                      ((masterData[t.currentDomain][pos_id].auth[auth.id][-1]!=null)
+                       || (masterData[t.currentDomain][pos_id].auth[auth.id][datenfeld.id]!=null))) {
+                select=true;
+                expand=true;
+                expand_datenfeld["general"]=true;
+              }
+              if (masterData.auth_table[auth.id].datenfeld=="cc_calcategory") {
+                var type="Gemeindekalender";
+                if (masterData.cc_calcategory[datenfeld.id].privat_yn==1) 
+                  type="Persönlich";
+                else if (masterData.cc_calcategory[datenfeld.id].oeffentlich_yn==0)
+                  type="Gruppenkalender";
+                if (sub_child_daten[type]==null)
+                  sub_child_daten[type]=new Array();
+                sub_child_daten[type].push({title:datenfeld.bezeichnung, select:select, key:auth.id+"_"+datenfeld.id});
+              }
+              else {
+                child_daten.push({title:datenfeld.bezeichnung, select:select, key:auth.id+"_"+datenfeld.id});
+              }
+            });
+            // Wenn es Sub-Kategorien gibt, muss ich die hier noch einfügen.
+            $.each(sub_child_daten, function(k,a) {
+              child_daten.push({title:k, isFolder:true, children:a});
+            });
+          }
+          child.push({title:auth.bezeichnung+" ("+auth.auth+")", isFolder:true, children:child_daten, expand:!churchcore_isObjectEmpty(expand_datenfeld)});             
         }
-        child.push({title:auth.bezeichnung+" ("+auth.auth+")", isFolder:true, children:child_daten, expand:!churchcore_isObjectEmpty(expand_datenfeld)});             
-      }
-      else {
-        select=false;
-        if ((masterData[t.currentDomain]!=null) && (masterData[t.currentDomain][pos_id]!=null) && (masterData[t.currentDomain][pos_id].auth!=null) 
-            && (masterData[t.currentDomain][pos_id].auth[auth.id]!=null)) {
-          select=true;
-          expand=true;
+        else {
+          select=false;
+          if ((masterData[t.currentDomain]!=null) && (masterData[t.currentDomain][pos_id]!=null) && (masterData[t.currentDomain][pos_id].auth!=null) 
+              && (masterData[t.currentDomain][pos_id].auth[auth.id]!=null)) {
+            select=true;
+            expand=true;
+          }
+          child.push({title:auth.bezeichnung+" ("+auth.auth+")", select:select, key:auth.id});              
         }
-        child.push({title:auth.bezeichnung+" ("+auth.auth+")", select:select, key:auth.id});              
       }
     });
-    children.push({title:(masterData.names[k]!=null?masterData.names[k]:k), isFolder:true, expand:expand, children:child});
+    children.push({title:(masterData.names[modulename]!=null?masterData.names[modulename]:modulename), isFolder:true, expand:expand, children:child});
   });
   
   $("#tree").dynatree({
@@ -191,23 +185,28 @@ AuthView.prototype.renderListEntry = function(a) {
   if (a.auth!=null) {
     var modules=new Object();
     $.each(a.auth, function(auth_id,daten) {
-      var txt=masterData.auth_table[auth_id].auth;    
-      if (typeof daten=="object") {
-        var rows=new Array();
-        $.each(daten, function(i, d) {
-          if (d==-1) rows.push("<i>alle</i>");
-          else if ((masterData[masterData.auth_table[auth_id].datenfeld]==null))
-            rows.push('<font color="red">'+masterData.auth_table[auth_id].datenfeld+" nicht vorhanden!</font>");
-          else if (masterData[masterData.auth_table[auth_id].datenfeld][d]==null)
-            rows.push('<font color="red">'+masterData.auth_table[auth_id].datenfeld+" mit Id:"+d+" nicht vorhanden!</font>");
-          else
-            rows.push(masterData[masterData.auth_table[auth_id].datenfeld][d].bezeichnung);
-        });
-        txt=txt+" ("+rows.join(", ")+")";
+      if (masterData.auth_table[auth_id]==null) {
+        log('No Auth in masterData.auth_table for AuthId:'+auth_id);
       }
-      if (modules[masterData.auth_table[auth_id].modulename]==null)
-        modules[masterData.auth_table[auth_id].modulename]=new Array();
-      modules[masterData.auth_table[auth_id].modulename].push(txt);
+      else {
+        var txt=masterData.auth_table[auth_id].auth;    
+        if (typeof daten=="object") {
+          var rows=new Array();
+          $.each(daten, function(i, d) {
+            if (d==-1) rows.push("<i>alle</i>");
+            else if ((masterData[masterData.auth_table[auth_id].datenfeld]==null))
+              rows.push('<font color="red">'+masterData.auth_table[auth_id].datenfeld+" nicht vorhanden!</font>");
+            else if (masterData[masterData.auth_table[auth_id].datenfeld][d]==null)
+              rows.push('<font color="red">'+masterData.auth_table[auth_id].datenfeld+" mit Id:"+d+" nicht vorhanden!</font>");
+            else
+              rows.push(masterData[masterData.auth_table[auth_id].datenfeld][d].bezeichnung);
+          });
+          txt=txt+" ("+rows.join(", ")+")";
+        }
+        if (modules[masterData.auth_table[auth_id].modulename]==null)
+          modules[masterData.auth_table[auth_id].modulename]=new Array();
+        modules[masterData.auth_table[auth_id].modulename].push(txt);
+      }
     });
     $.each(modules, function(k,module) {
       var rows_zeile=new Array();

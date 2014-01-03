@@ -959,7 +959,7 @@ function churchdb_getAuthForAjax() {
 }
 
 function churchdb_getAuthTable() {
-  $res=db_query("select * from {cc_auth}");
+  $res=getAuthTable();
   $auth=null;
   foreach($res as $entry) {
     $auth[$entry->modulename][$entry->auth]=$entry;    

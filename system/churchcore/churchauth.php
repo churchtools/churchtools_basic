@@ -88,12 +88,13 @@ class CTChurchAuthModule extends CTAbstractModule {
       global $config;
   
     $res=array();
-    $res["auth_table"]=churchcore_getTableData("cc_auth");
+    $res["auth_table"]=getAuthTable();
     
     foreach($res["auth_table"] as $auth) {
       if (($auth->datenfeld!=null) && (!isset($res[$auth->datenfeld])))
         $res[$auth->datenfeld]=churchcore_getTableData($auth->datenfeld);    
     }
+    $res["modules"]=churchcore_getModulesSorted(true, false);
     
     $res["person"]=churchcore_getTableData("cdb_person", "name, vorname", null, "id, concat(name, ', ', vorname) as bezeichnung");
     $res["person"][-1]=new stdClass(); $res["person"][-1]->id=-1;  $res["person"][-1]->bezeichnung="- &Ouml;ffentlicher Benutzer -";

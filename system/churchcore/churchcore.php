@@ -1,4 +1,14 @@
 <?php
+
+function churchcore_getAuth() {
+  $cc_auth = array();
+  $cc_auth=addAuth($cc_auth, 1, 'administer settings', "churchcore", null, 'Admin-Einstellungen anpassen', 1);
+  $cc_auth=addAuth($cc_auth, 2, 'administer persons', 'churchcore', null, 'Berechtigungen setzen, l&ouml;schen und Benutzer simulieren', 1);
+  $cc_auth=addAuth($cc_auth, 3, 'view logfile', 'churchcore', null, 'Logfile einsehen', 1);
+  $cc_auth=addAuth($cc_auth, 4, 'view whoisonline', 'churchcore', null, 'Auf der Startseite sehen, wer aktuell online ist', 1);
+  return $cc_auth;
+}
+
 function getMimeTypes() {
   return array("323" => "text/h323",
   "acx" => "application/internet-property-stream",

@@ -20,6 +20,32 @@ function churchservice__filedownload() {
   churchcore__filedownload();  
 }
 
+function churchservice_getAuth() {
+  $cc_auth = array();
+  $cc_auth=addAuth($cc_auth, 301,'view', 'churchservice', null, 'ChurchService sehen', 1);
+  $cc_auth=addAuth($cc_auth, 304,'view servicegroup', 'churchservice', 'cs_servicegroup', 'Dienstanfragen einzelner Service-Gruppe einsehen', 1);
+  $cc_auth=addAuth($cc_auth, 305,'edit servicegroup', 'churchservice', 'cs_servicegroup', 'Dienstanfragen einzelner Service-Gruppe editieren', 1);
+  $cc_auth=addAuth($cc_auth, 302,'view history', 'churchservice', null, 'Historie der Anfragen anschauen', 1);
+  $cc_auth=addAuth($cc_auth, 303,'edit events', 'churchservice', null, 'Events erstellen, l&ouml;schen, etc.', 1);
+  $cc_auth=addAuth($cc_auth, 309,'edit template', 'churchservice', null, 'Event-Vorlagen editieren', 1);
+  
+  $cc_auth=addAuth($cc_auth, 307,'manage absent', 'churchservice', null, 'Abwesenheiten f&uuml;r alle Personen einsehen und pflegen', 1);
+  
+  $cc_auth=addAuth($cc_auth, 321,'view facts', 'churchservice', null, 'Fakten sehen', 1);
+  $cc_auth=addAuth($cc_auth, 308,'edit facts', 'churchservice', null, 'Fakten pflegen', 1);
+  $cc_auth=addAuth($cc_auth, 322,'export facts', 'churchservice', null, 'Fakten exportieren', 1);
+  
+  $cc_auth=addAuth($cc_auth, 331,'view agenda', 'churchservice', 'cc_calcategory', 'Ablaufpl&auml;ne f&uuml;r einzelne Kalender sehen', 1);
+  $cc_auth=addAuth($cc_auth, 332,'edit agenda', 'churchservice', 'cc_calcategory', 'Ablaufpl&auml;ne f&uuml;r einzelne Kalender editieren', 1);
+  $cc_auth=addAuth($cc_auth, 333,'edit agenda templates', 'churchservice', 'cc_calcategory', 'Ablaufplan-Vorlagen f&uuml;r einzelne Kalender editieren', 1);
+  
+  $cc_auth=addAuth($cc_auth, 313,'view songcategory', 'churchservice', 'cs_songcategory', 'Einzelne Song-Kategorien einsehen', 1);
+  $cc_auth=addAuth($cc_auth, 311,'view song', 'churchservice', null, 'Songs anschauen und Dateien herunterladen', 1);
+  $cc_auth=addAuth($cc_auth, 312,'edit song', 'churchservice', null, 'Songs editieren und Dateien hochladen', 1);
+  
+  $cc_auth=addAuth($cc_auth, 399,'edit masterdata', 'churchservice', null, 'Stammdaten editieren', 1);
+  return $cc_auth;
+}
  
 function churchservice_getAdminModel() {
   global $config;
