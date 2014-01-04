@@ -1601,11 +1601,11 @@ class CTChurchDBModule extends CTAbstractModule {
     }
   }
   public function deactivatePerson($params) {
-    $this->checkPerm("administer persons");
+    $this->checkPerm("administer persons", "churchcore");
     return churchdb_deactivatePerson($params["id"]);
   }
   public function activatePerson($params) {
-    $this->checkPerm("administer persons");
+    $this->checkPerm("administer persons", "churchcore");
     return churchdb_activatePerson($params["id"]);
   }
   public function getGroupAutomaticEMail($params) {

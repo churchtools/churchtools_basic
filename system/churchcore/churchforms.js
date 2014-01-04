@@ -1927,6 +1927,8 @@ $.widget("ct.editable", {
            .find(t.options.type);
       }
       elem.focus();
+      // Not by textarea, otherweise Firefox selected after editing the normal text...
+      if (t.options.type!="textarea") elem.select();
       elem.keyup(function(e) {
         if (t.options.autosaveSeconds>0) {
           if (t._autosave!=null)
