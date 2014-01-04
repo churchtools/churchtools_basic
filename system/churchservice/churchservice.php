@@ -591,25 +591,39 @@ function churchservice_remindme() {
   global $base_url;
   include_once("churchservice_db.inc");
   
+  $sql="SELECT p.vorname, p.name, p.email, 
+          cal.bezeichnung, s.bezeichnung dienst, sg.bezeichnung sg, e.id event_id, 
+           DATE_FORMAT(e.Startdate, '%d.%m.%Y %H:%i') datum, es.id eventservice_id
+         FROM {cs_eventservice} es, {cs_service} s, {cs_event} e, {cc_cal} cal, {cs_servicegroup} sg,
+              {cdb_person} p where
+           cal.id=e.cc_cal_id and es.cdb_person_id=:person_id and p.id=:person_id and p.email!='' 
+         AND es.valid_yn=1 AND es.zugesagt_yn=1
+         and UNIX_TIMESTAMP(e.startdate)-UNIX_TIMESTAMP(now())<60*60*(:hours) 
+         and UNIX_TIMESTAMP(e.startdate)-UNIX_TIMESTAMP(now())>0
+         AND s.id=es.service_id and s.sendremindermails_yn=1   
+         AND e.id=es.event_id AND s.servicegroup_id=sg.id 
+      ORDER BY datum";
   $set=db_query("select * from {cc_usersettings} where modulename='churchservice' and attrib='remindMe' and value=1");
   foreach ($set as $p) {
-    $res=db_query("SELECT cal.bezeichnung, s.bezeichnung dienst, sg.bezeichnung sg, e.id event_id, 
-           DATE_FORMAT(e.Startdate, '%d.%m.%Y %H:%i') datum, es.id eventservice_id
-       FROM {cs_eventservice} es, {cs_service} s, {cs_event} e, {cc_cal} cal, {cs_servicegroup} sg where
-         cal.id=e.cc_cal_id and  es.cdb_person_id=:person_id AND es.valid_yn=1 AND es.zugesagt_yn=1
-       and UNIX_TIMESTAMP(e.startdate)-UNIX_TIMESTAMP(now())<60*60*".variable_get('churchservice_reminderhours')." 
-       and UNIX_TIMESTAMP(e.startdate)-UNIX_TIMESTAMP(now())>0
-       AND s.id=es.service_id and s.sendremindermails_yn=1   
-       AND e.id=es.event_id AND s.servicegroup_id=sg.id",array(":person_id"=>$p->person_id));
+    $res=db_query($sql, array(":person_id"=>$p->person_id, ":hours"=>variable_get('churchservice_reminderhours')));
     foreach($res as $es) {
       if (churchcore_checkUserMail($p->person_id, "remindService", $es->eventservice_id, variable_get('churchservice_reminderhours'))) {
-        $person=db_query("SELECT vorname, name, email FROM {cdb_person} WHERE id=:person_id",
-                        array(":person_id"=>$p->person_id))->fetch();
-        $txt="<h3>Hallo ".$person->vorname."!</h3>";
-        $txt.="<p>Dies ist eine Erinnerung an den Dienst ".$es->dienst." (".$es->sg."): ".$es->bezeichnung." am ".$es->datum.".\n\n";
-        $txt.='<p><a href="'.$base_url.'?q=churchservice&id='.$es->event_id.'" class="btn btn-primary">Event aufrufen</a>';
-        $txt.='&nbsp;<a class="btn" href="'.$base_url.'?q=churchservice#SettingsView">Erinnerungen deaktivieren</a>';
-        churchservice_send_mail("[".variable_get('site_name', 'drupal')."] Erinnerung an Deinen Dienst",$txt,$person->email);                            
+        $txt="<h3>Hallo ".$es->vorname."!</h3>";
+        $txt.='<p>Dies ist eine Erinnerung an Deine n&auml;chsten Dienste:</p><br/>';
+        $txt.='<table class="table table-condensed">';
+        // Now he looks 12 hours furhter if there are other services to be reminded
+        $res2=db_query($sql, array(":person_id"=>$p->person_id, ":hours"=>variable_get('churchservice_reminderhours')+12));
+        foreach ($res2 as $es2) {
+          if ($es2->eventservice_id==$es->eventservice_id ||
+               (churchcore_checkUserMail($p->person_id, "remindService", $es2->eventservice_id, variable_get('churchservice_reminderhours')))) {
+            $txt.='<tr><td>'.$es2->datum.' '.$es2->bezeichnung.'<td>Dienst: '.$es2->dienst." (".$es2->sg.")";
+            $txt.='<td><a href="'.$base_url.'?q=churchservice&id='.$es2->event_id.'" class="btn btn-primary">Event aufrufen</a>';            
+          }
+        }        
+        
+        $txt.='</table><br/><br/><a class="btn" href="'.$base_url.'?q=churchservice#SettingsView">Erinnerungen deaktivieren</a>';
+        churchservice_send_mail("[".variable_get('site_name', 'drupal')."] Erinnerung an Deinen Dienst",$txt,$es->email);
+        break;
       }              
     }
   }  
