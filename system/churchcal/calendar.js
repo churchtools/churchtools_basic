@@ -446,9 +446,10 @@ function _renderEditEventContent(elem, currentEvent) {
         rows.push(form.render(null, "horizontal"));
       } 
       else if (currentEvent.copyevent) {
-        var form = new CC_Form();
-        form.addCheckbox({label:"Alle zugeh&ouml;rigen Event-Daten aus "+masterData.churchservice_name+" mit kopieren",
-          checked:currentEvent.copychurchservice, cssid:"copychurchservice"}  );        
+        var form = new CC_Form(masterData.churchservice_name+' kopieren oder Template nutzen?');
+        form.addCheckbox({label:"Alle Dienstanfragen mit kopieren",
+          checked:currentEvent.copychurchservice, cssid:"copychurchservice"}  );
+        form.addCaption({text:'<i>oder</i><br/><br/> '});
         form.addSelect({cssid:"eventTemplate", freeoption:true, selected:currentEvent.eventTemplate, label:"Eine Event-Vorlage w&auml;hlen", data:masterData.eventTemplate});
         rows.push(form.render(null, "horizontal"));
       }
@@ -659,6 +660,7 @@ function copyEvent(current_event) {
   var event=$.extend({},current_event);
   event.orig_id=event.id;
   event.id=null;
+  event.events=null;
   event.copyevent=true;
   event.copychurchservice=false;
   editEvent(event, "week");  

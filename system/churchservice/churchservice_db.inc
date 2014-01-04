@@ -90,7 +90,7 @@ function churchservice_createEventFromChurchCal($params, $source=null) {
     $params["enddate"]=$enddate->format('Y-m-d H:i:s');
     // Wenn es kopiert werden soll
     if ((isset($params["copychurchservice"])) && ($params["copychurchservice"]=="true")) {
-      churchservice_copyEventByCalId($params["orig_id"], $new_id, $params["startdate"], true);
+      churchservice_copyEventByCalId($params["orig_id"], $params["cal_id"], $params["startdate"], true);
     }
     // Ansonsten eben neu anlegen
     else if (isset($params["eventTemplate"])) {
