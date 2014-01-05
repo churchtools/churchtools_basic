@@ -1,6 +1,6 @@
 ; $Id$
 ; Be careful, this setting controls the database structure updates
-churchtools_version=2.44
+churchtools_version=2.45
 
 home = main/home.php
 cron = main/cron.php

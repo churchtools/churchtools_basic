@@ -1714,11 +1714,14 @@ function run_db_updates($db_version) {
       db_query("update {cdb_nationalitaet} set bezeichnung='Wei&szlig;russland' where bezeichnung='Wei?russland'");
       db_query("update {cc_config} set value=1 where name='cronjob_dbdump' and value=0");
       db_query("update {cc_config} set value=60 where name='cronjob_delay' and value=0");
-    case '2.43':
       set_version("2.43");
-    case '2.44':
+      
+    case '2.43':
       db_query("ALTER TABLE {cs_event} ADD created_by_template_id INT( 11 ) NULL");
       set_version("2.44");
+      
+    case '2.44':
+      set_version("2.45");
   }
 	  
     $a=db_query("select * from {cc_config} where name='version'",null,false);
