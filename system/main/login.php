@@ -206,7 +206,7 @@ function login_user($ret, $rember_me=false) {
     if ($family!=null) $_SESSION["family"]=$family;
   }
   
-  ct_log("Login erfolgreich: ".$ret->email." mit ".$_SERVER['HTTP_USER_AGENT'],2,-1, "login");
+  ct_log("Login erfolgreich: ".$ret->email." mit ".(isset($_SERVER['HTTP_USER_AGENT'])?$_SERVER['HTTP_USER_AGENT']:"Unkown Browser!"),2,-1, "login");
   
   // Wenn es Ummelden war, dann nicht weiterleiten, denn sonst wäre das ja wieder Login.
   if ($q!=$q_orig) {
