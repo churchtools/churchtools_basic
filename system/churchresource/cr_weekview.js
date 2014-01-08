@@ -312,7 +312,6 @@ WeekView.prototype.buildDates = function (allBookings) {
             if (day==null) day=new Array();
             
             ds.id=a.id;
-//            ds.stratdate=go_through_days;
             day.push(ds);
             month[go_through_days.getDate()]=day;
             year[go_through_days.getMonth()+1]=month;
@@ -320,11 +319,6 @@ WeekView.prototype.buildDates = function (allBookings) {
             go_through_days.addDays(1);
           }
         
-/*        var year=t.datesIndex[ds.startdate.toStringYMD()];
-        if (day==null) day=new Array();          
-        ds.id=a.id;
-        day.push(ds);
-        t.datesIndex[ds.startdate.toStringYMD()]=day;*/
         });
       }
     });
@@ -451,6 +445,7 @@ function renderBookings(bookings) {
 }
 
 WeekView.prototype.updateBookingStatus = function(id, new_status) {
+  var t=this;
   var oldStatus=allBookings[id].status_id;
   allBookings[id].status_id=new_status;
   allBookings[id].func="updateBooking";
@@ -802,7 +797,28 @@ WeekView.prototype.addFurtherListCallbacks = function() {
           return false;
         });
         element.find("#delete").click(function() {
-          t.updateBookingStatus(data.id, 99);
+          if (allBookings[data.id].repeat_id==0) {
+            if (confirm("Wirklich bei der Buchung den Status auf 'zu löschen' setzen?")) 
+              t.updateBookingStatus(data.id, 99);
+          }
+          else {
+            clearTooltip(true);
+            var txt="Es handelt sich um eine Buchung mit Wiederholungen, welche Buchungen sollen entfernt werden?"
+            var elem=form_showDialog("Was soll gelöscht werden?", txt, 300, 300, {
+              "Alle": function() {               
+                        t.updateBookingStatus(data.id, 99);
+                        elem.dialog("close"); 
+                      },
+              "Nur aktuelle": function() { 
+                                var date=tooltip.attr("href").substr(1,99);
+                                t.addException(allBookings[data.id], date.toDateEn(false));
+                                t.buildDates(allBookings);
+                                t.updateBookingStatus(data.id, allBookings[data.id].status_id);
+                                elem.dialog("close");                 
+                              },
+              "Abbrechen": function() { elem.dialog("close"); }
+            });
+          }
           return false;
         });
         element.find("#confirm").click(function() {
@@ -839,6 +855,15 @@ WeekView.prototype.cloneBooking = function(booking) {
   currentBooking.repeat_until=new Date(booking.repeat_until);
   currentBooking.id=null;
   return currentBooking;
+};
+
+WeekView.prototype.addException = function(booking, date) {
+  if (booking.exceptions==null) booking.exceptions=new Object();
+  if (booking.exceptionids==null) booking.exceptionids=0;
+  booking.exceptionids=booking.exceptionids-1;
+  booking.exceptions[booking.exceptionids]
+        ={id:booking.exceptionids, except_date_start:date.toStringEn(), except_date_end:date.toStringEn()};
+  return booking;  
 };
 
 /**
@@ -897,10 +922,7 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
          delete t.currentBooking.exceptions[exc.id];
        },
        addException:function(options, date) {
-         if (t.currentBooking.exceptions==null) t.currentBooking.exceptions=new Object();
-         t.currentBooking.exceptionids=t.currentBooking.exceptionids-1;
-         t.currentBooking.exceptions[t.currentBooking.exceptionids]
-               ={id:t.currentBooking.exceptionids, except_date_start:date.toDateDe().toStringEn(), except_date_end:date.toDateDe().toStringEn()};
+         t.addException(t.currentBooking, date.toDateDe());
          return t.currentBooking;
        },
        deleteAddition:function(add) {
@@ -973,7 +995,7 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
         if ((t.currentBooking.status_id!=99) && (!t.currentBooking.neu)) {
           // Bei Wiederholungsterminen UND einem Eintrag, bei dem es sich um einer Wiederholung handelt: date>startdate
           if ((t.currentBooking.repeat_id>0) && (date!=null) && (date.toDateEn()>t.currentBooking.startdate)) {
-            if (t.currentBooking.repeat_id!=999 && t.currentBooking.cc_cal_id==null)
+            if (t.currentBooking.repeat_id!=999)
               elem.dialog('addbutton', 'Nur aktuellen Termin löschen', function() {
                 if (t.currentBooking.exceptions==null) t.currentBooking.exceptions=new Object();
                 t.currentBooking.exceptionids=t.currentBooking.exceptionids-1;
