@@ -87,6 +87,15 @@ function churchdb_getAllowedPersonData($cond='',
     }
   }
   
+  // Now make sure, that I am loaded
+  if (!isset($allPersons[$user->id])) {
+    $p=db_query("select $fields from {cdb_gemeindeperson} gp, {cdb_person} p 
+                 where gp.person_id=p.id and p.id=:p_id", array(":p_id"=>$user->id), false)->fetch();
+    if ($p!=false) {
+      $allPersons[$user->id]=$p; 
+    }    
+  }
+  
   // Reichere sie nun an mit den Distriktleitern
   $db=db_query("select * from {cdb_person_distrikt}");
   foreach ($db as $d) {
@@ -109,7 +118,6 @@ function churchdb_getAllowedPersonData($cond='',
       $allPersons[$d->person_id]->gruppentypen=$gruppentypen;
     }
   }
-  
   
   return $allPersons;	
 }

@@ -4680,7 +4680,7 @@ PersonView.prototype.getMyGroupsSelector = function(withIntelligentGroups) {
       }
     }
 
-  // Machen wir nur, wenn die aktuelle Person schon gemappt ist mit dem Drupal User
+  // If current person already loaded and available
   if ((masterData.user_pid!=null) && (allPersons[masterData.user_pid]!=null)) {
     // Vergleichsdatum fuer die Listenauswahl, alle Gruppen wo ich Leiter bin und
     // die kein Abschlussdatum haben oder das Abschlussdatum 14 Tage zurueck liegt
