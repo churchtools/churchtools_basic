@@ -194,15 +194,19 @@ PersonView.prototype.renderListMenu = function() {
           if (n.toUpperCase().indexOf(str)>=0)
             r.push({label:a.vorname+" "+a.name, category:"", value:"#"+a.id});              
         });
-        $.each(masterData.groups, function(k,a) {
-          if (groupView.isAllowedToSee(a.id))
-            if ((str=="GRUPPE:") || (a.bezeichnung.toUpperCase().indexOf(str)>=0) || (("GRUPPE:"+a.bezeichnung.toUpperCase()).indexOf(str)>=0))
-              r.push({label:a.bezeichnung, category:"Gruppe", value:'gruppe:"'+a.bezeichnung+'"'});              
-        });
-        $.each(masterData.tags, function(k,a) {
-          if ((str=="TAG:") || (a.bezeichnung.toUpperCase().indexOf(str)>=0) || (("TAG:"+a.bezeichnung.toUpperCase()).indexOf(str)>=0))
-            r.push({label:a.bezeichnung, category:"Tag", value:'tag:"'+a.bezeichnung+'"'});              
-        });
+        if (masterData.groups!=null) {
+          $.each(masterData.groups, function(k,a) {
+            if (groupView.isAllowedToSee(a.id))
+              if ((str=="GRUPPE:") || (a.bezeichnung.toUpperCase().indexOf(str)>=0) || (("GRUPPE:"+a.bezeichnung.toUpperCase()).indexOf(str)>=0))
+                r.push({label:a.bezeichnung, category:"Gruppe", value:'gruppe:"'+a.bezeichnung+'"'});              
+          });
+        }
+        if (masterData.tags!=null) {
+          $.each(masterData.tags, function(k,a) {
+            if ((str=="TAG:") || (a.bezeichnung.toUpperCase().indexOf(str)>=0) || (("TAG:"+a.bezeichnung.toUpperCase()).indexOf(str)>=0))
+              r.push({label:a.bezeichnung, category:"Tag", value:'tag:"'+a.bezeichnung+'"'});              
+          });
+        }
         if ((r.length==0) && (str.indexOf("GRUPPE")==-1) && (str.indexOf("TAG")==-1) && (masterData.auth.write) && (str.indexOf("#")==-1))
           r.push({label:"Erstelle "+request.term, category:"", value:"CREATE:"+request.term});
         response(r);
