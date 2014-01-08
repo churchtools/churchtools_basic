@@ -89,6 +89,8 @@ GroupView.prototype.messageReceiver = function(message, args) {
   var t = this;
   if (this==churchInterface.getCurrentView()) {
     if (message=="allDataLoaded") {
+      t.renderDistrict();
+      t.renderGrouptype();
     }
     else if (message=="filterChanged") {
       this.msg_filterChanged(args[0], args[1]);
@@ -120,21 +122,26 @@ GroupView.prototype.renderDistrict = function() {
         ps.push(a);
     });
     
-    if (ps.length==0) {     
-      if (masterData.auth.admingroups) 
-        rows.push('<p><a href="#" class="add-person btn btn-small">Eine Person zuordnen</a>');
+    if (!churchInterface.isAllDataLoaded()) {
+      rows.push('<p>'+form_renderImage({src:"loading.gif"}));
     }
     else {
-      rows.push('<table class="table table-condensed"><tr><th>Zugeordnete Personen<th>');
-      $.each(churchcore_sortData(ps, "name"), function(k,a) {
-        rows.push('<tr><td><a href="#" class="visit-person tooltip-person" data-tooltip-id="'+a.id+'" >'+a.vorname+" "+a.name+'</a>');
-        if (masterData.auth.admingroups) {
-          rows.push('<td><a href="#" class="del-person"data-id="'+a.id+'">'+this_object.renderImage("trashbox")+'</a>'); 
-        }
-      });
-      rows.push('</table>');
-      if (masterData.auth.admingroups) 
-        rows.push('<p><a href="#" class="add-person btn btn-small">Weitere Person zuordnen</a>');
+      if (ps.length==0) {     
+        if (masterData.auth.admingroups) 
+          rows.push('<p><a href="#" class="add-person btn btn-small">Eine Person zuordnen</a>');
+      }
+      else {
+        rows.push('<table class="table table-condensed"><tr><th>Zugeordnete Personen<th>');
+        $.each(churchcore_sortData(ps, "name"), function(k,a) {
+          rows.push('<tr><td><a href="#" class="visit-person tooltip-person" data-tooltip-id="'+a.id+'" >'+a.vorname+" "+a.name+'</a>');
+          if (masterData.auth.admingroups) {
+            rows.push('<td><a href="#" class="del-person" data-id="'+a.id+'">'+this_object.renderImage("trashbox")+'</a>'); 
+          }
+        });
+        rows.push('</table>');
+        if (masterData.auth.admingroups) 
+          rows.push('<p><a href="#" class="add-person btn btn-small">Weitere Person zuordnen</a>');
+      }
     }
     
     rows.push('</div>');
@@ -147,6 +154,8 @@ GroupView.prototype.renderDistrict = function() {
     rows.push('</div>');
     
     $("#cdb_group").html(rows.join(""));
+    personView.addPersonsTooltip($("#cdb_group"));
+
     
     if (masterData.auth.viewhistory) {
       var renderTimer=null;
@@ -211,10 +220,11 @@ GroupView.prototype.renderDistrict = function() {
         return false; 
       }
       else if ($(this).hasClass("visit-person")) {
+        clearTooltip(true);
         $("#cdb_group").html("");
         churchInterface.setCurrentView(personView);
         personView.clearFilter();
-        personView.setFilter("searchEntry","#"+$(this).attr("tooltip"));
+        personView.setFilter("searchEntry","#"+$(this).attr("data-tooltip-id"));
         personView.renderView();
       }
       return false;    
@@ -270,6 +280,7 @@ GroupView.prototype.renderGrouptype = function() {
     rows.push('</div>');
     
     $("#cdb_group").html(rows.join(""));
+    personView.addPersonsTooltip($("#cdb_group"));
 
     $("#cdb_group a").click(function() {
       if ($(this).hasClass("del-person")) {
@@ -303,10 +314,11 @@ GroupView.prototype.renderGrouptype = function() {
         return false; 
       }
       else if ($(this).hasClass("visit-person")) {
+        clearTooltip(true);
         $("#cdb_group").html("");
         churchInterface.setCurrentView(personView);
         personView.clearFilter();
-        personView.setFilter("searchEntry","#"+$(this).attr("tooltip"));
+        personView.setFilter("searchEntry","#"+$(this).attr("data-tooltip-id"));
         personView.renderView();
       }
       return false;    
