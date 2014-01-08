@@ -95,7 +95,7 @@ function churchdb_getPersonDetails($id) {
   } 
        
   $sql="select ".join($sqlfields,",");
-  if (($iAmLeader) || (user_access('view alldetails',"churchdb")))
+  if (($iAmLeader) || (user_access('view alldetails',"churchdb")) || (user_access('administer persons',"churchcore")))
     $sql.=', p.letzteaenderung, p.aenderunguser, p.createdate, if (loginstr is null , 0 , 1) as einladung, p.active_yn, p.lastlogin';
       	
   $sql.=' FROM {cdb_person} p, {cdb_gemeindeperson} gp WHERE p.id=gp.person_id and p.id=:pid';  
