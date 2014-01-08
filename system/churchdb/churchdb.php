@@ -796,10 +796,10 @@ function churchdb__export() {
   if (user_access("view alldetails","churchdb"))
     $persons_sql = 'SELECT station.bezeichnung station, (case when geschlecht_no=1 then \'Herr\' when geschlecht_no=2 then \'Frau\' else \'\' end) "anrede", vorname, name, strasse adresse, plz,
               ort, land, n.bezeichnung nationalitaet, telefonprivat "tel. priv.", email "e-mail", telefongeschaeftlich "tel. büro", telefonhandy "handy",
-  			null bemerkung, eintrittsdatum "mitglied seit", status.kuerzel status,
-  			taufdatum getauft, taufort, getauftdurch "getauft durch", ueberwiesenvon "Überwiesen von", 
+  			null bemerkung, DATE_FORMAT(eintrittsdatum , \'%d.%m.%Y\') "mitglied seit", status.kuerzel status,
+  			DATE_FORMAT(taufdatum, \'%d.%m.%Y\') getauft, taufort, getauftdurch "getauft durch", ueberwiesenvon "Überwiesen von", 
   			day(geburtsdatum) "geb.tag", month(geburtsdatum) "geb.m.", year(geburtsdatum) "geb.jahr", f.bezeichnung "f.stand", 
-  			geburtsname "geb.name", hochzeitsdatum "hochzeitsdatum", geburtsort "geb.ort", beruf, titel "titel",
+  			geburtsname "geb.name", DATE_FORMAT(hochzeitsdatum , \'%d.%m.%Y\') "hochzeitsdatum", geburtsort "geb.ort", beruf, titel "titel",
   			(case when geschlecht_no=1 then \'Lieber\' when geschlecht_no=2 then \'Liebe\' else \'\' end) "anrede2",
   			bereich_id, b.bezeichnung "bereich", 
   			day(eintrittsdatum) "mitgliedseit.tag", month(eintrittsdatum) "mitgliedseit.m", year(eintrittsdatum) "mitgliedseit.jahr",
