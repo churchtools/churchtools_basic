@@ -61,7 +61,10 @@ ListView.prototype.renderMenu = function() {
         this_object.showAuslastung(); 
       }
       else if ($(this).attr("id")=="aprintview") {
-        fenster = window.open('?q=churchservice/printview&date='+t.currentDate.toStringEn(false)+'#ListView', "Druckansicht", "width=900,height=600,resizable=yes");
+        var filter='&date='+t.currentDate.toStringEn(false);
+        if (this_object.filter["filterMeine Filter"]!=null)
+          filter=filter+"&meineFilter="+this_object.filter["filterMeine Filter"];
+        fenster = window.open('?q=churchservice/printview'+filter+'#ListView', "Druckansicht", "width=900,height=600,resizable=yes");
         fenster.focus();
         return false;
       }
@@ -1100,6 +1103,11 @@ ListView.prototype.getListHeader = function() {
 
 
   if (masterData.settings.listViewTableHeight==null) masterData.settings.listViewTableHeight=1;
+
+  if ($("#externmeineFilter").val()!=null) {
+    this.filter["filterMeine Filter"]=$("#externmeineFilter").val();
+    $("#externmeineFilter").remove();
+  }
   
   if ((masterData.settings.filterCategory=="") || (masterData.settings.filterCategory==null)
       || ($("#externevent_id").val()!=null))

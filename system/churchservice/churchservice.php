@@ -152,6 +152,8 @@ function churchservice__printview() {
     $content=$content."<input type=\"hidden\" id=\"service_id\" value=\"".$_GET["service_id"]."\"/>";
   if (isset($_GET["date"]) && ($_GET["date"]!=null))
     $content=$content."<input type=\"hidden\" id=\"currentdate\" value=\"".$_GET["date"]."\"/>";
+  if (isset($_GET["meineFilter"]) && ($_GET["meineFilter"]!=null))
+    $content=$content."<input type=\"hidden\" id=\"externmeineFilter\" value=\"".$_GET["meineFilter"]."\"/>";
   
   $embedded=true;
   
