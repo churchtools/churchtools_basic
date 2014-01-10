@@ -202,7 +202,8 @@ function churchservice_getNewEventData($params) {
   $events=array();                   
   foreach ($arr as $data) {
     $event=churchservice_getAllEventData(array("id"=>$data->event_id));
-    $events[$data->event_id]=$event[$data->event_id];
+    if (isset($event[$data->event_id]))
+      $events[$data->event_id]=$event[$data->event_id];
   }  
   return $events;
 }

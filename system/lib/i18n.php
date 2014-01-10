@@ -77,10 +77,12 @@ class TextBundle {
                 throw new Exception("Unable to load default language file: " . $target);
             }
 
-            $dom = new DOMDocument();
-            $dom->load($target);
-            foreach($dom->getElementsByTagName("entry") as $entryNode) {
-                $this->bundle[$entryNode->getAttribute("key")] = $entryNode->nodeValue;
+            if (file_exists($target)) {
+              $dom = new DOMDocument();
+              $dom->load($target);
+              foreach($dom->getElementsByTagName("entry") as $entryNode) {
+                  $this->bundle[$entryNode->getAttribute("key")] = $entryNode->nodeValue;
+              }
             }
         }
     }
