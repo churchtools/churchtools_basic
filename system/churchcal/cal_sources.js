@@ -193,14 +193,16 @@ churchInterface.jsendRead({func:"getBirthdays", all:true}, function(ok, json) {
     var i=10;
     if (json!=null) {
       $.each(json, function(k,a) {
-        for (var i=-1;i<=1;i++) {
-          var o=Object();
-          o.title= a.name;
-          o.allDay= true;
-          var b = a.birthday.toDateEn();          
-          b.setYear(d.getFullYear()+i);
-          o.start= b;
-          cs_events.push(o);            
+        if (a.birthday!=null) {
+          for (var i=-1;i<=1;i++) {
+            var o=Object();
+            o.title= a.name;
+            o.allDay= true;
+            var b = a.birthday.toDateEn();          
+            b.setYear(d.getFullYear()+i);
+            o.start= b;
+            cs_events.push(o);
+          }
         }
       });
       if (t.data[id].status!="hide") {

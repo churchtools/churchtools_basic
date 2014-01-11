@@ -1356,7 +1356,7 @@ function renderPersonalCategories() {
       });      
     }
   }
-  if (sortkey>=0) {
+  if (sortkey>=0 || user_access("create personal category")) {
     createMultiselect("filterMeineKalender", mycals);
     form.addHtml('<div id="filterMeineKalender"></div>');
     rows.push(form.render(true));

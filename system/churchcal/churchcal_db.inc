@@ -239,7 +239,7 @@ function churchcal_getAllowedCategories($withPrivat=true, $onlyIds=false) {
 
   $res=array();
   $auth=churchcal_getAuthForAjax();
-
+  
   $privat_vorhanden=false;
     
   foreach ($db as $category) {
