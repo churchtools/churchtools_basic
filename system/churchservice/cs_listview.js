@@ -828,7 +828,7 @@ ListView.prototype.renderEventServiceEntry = function(event_id, services, bin_ic
     if (edit) 
       rows.push('<a href="#" class="tooltips" '+tooltip+' id="edit_es_'+event_id+'" eventservice_id="'+services.id+'" style="text-decoration:none">');
     else 
-      rows.push('<span '+tooltip+'>');
+      rows.push('<span class="tooltips" '+tooltip+'>');
     _class='';
     if ((services.cdb_person_id!=null) && (services.cdb_person_id==masterData.user_pid))
       if (services.zugesagt_yn==1)
@@ -2065,21 +2065,24 @@ ListView.prototype.renderTooltip = function(id, event_id, withLastDates, withHis
     if (info.imageurl!=null)
       txt='<div style="float:right">&nbsp;<img src="'+masterData.files_url+"/fotos/"+info.imageurl+'" style="max-width:70px" width="70"></div>'+txt;
   }
-  var _cdb_person_id = this.getEventService(event_id, eventservice_id).cdb_person_id;
   if ((masterData.auth.admin) || (masterData.auth.leaderservice[a.service_id]) || (_bin_ich_admin)) {
-    var t2=this.renderPersonAuslastung(_cdb_person_id, event_id, a.service_id);
+    var t2=this.renderPersonAuslastung(a.cdb_person_id, event_id, a.service_id);
     if (t2!="")
       txt=txt+"Auslastung: "+t2;
   }
-  if (_cdb_person_id!=null) {
-    txt=txt+"<br/><br/>";
+  if (a.cdb_person_id!=null) {
+    txt=txt+"<br/>";
+    var txt2="";
     if (user_access("administer persons")) {
-      txt=txt+form_renderImage({src:"person_simulate.png",label:"Person simulieren", data:[{name:"id", value:_cdb_person_id}], width:18, 
-              link:true, htmlclass:"simulate-person"})+"&nbsp;";
+      txt2=txt2+"<br/>"+form_renderImage({src:"person_simulate.png",label:"Person simulieren", data:[{name:"id", value:a.cdb_person_id}], width:18, 
+              link:true, htmlclass:"simulate-person"})+"&nbsp;Simulieren";
     }
     if (info!=false && info.email!="") {
-      txt=txt+form_renderImage({src:"email.png",label:"Person eine E-Mail senden", data:[{name:"id", value:_cdb_person_id}], width:18, 
-        link:true, htmlclass:"email-person"})+"&nbsp;";
+      txt2=txt2+"<br/>"+form_renderImage({src:"email.png",label:"Person eine E-Mail senden", data:[{name:"id", value:a.cdb_person_id}], width:18, 
+        link:true, htmlclass:"email-person"})+"&nbsp;E-Mail senden";
+    }
+    if (txt2!="") {
+      txt=txt+txt2;
     }
   }
   
@@ -2639,7 +2642,7 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
   if (cssid==null) cssid="#cdb_content";
   t.renderFiles();
 
-  $("#cdb_content a.tooltips").each(function() {
+  $("#cdb_content .tooltips").each(function() {
     var tooltip=$(this);
     tooltip.tooltips({
       data:{id:tooltip.attr("data-tooltip-id"), event_id:tooltip.parents("tr").attr("id")},

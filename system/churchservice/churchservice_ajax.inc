@@ -412,6 +412,7 @@ function churchservice_editService($params) {
 
 function churchservice_updateEventService($id, $name, $cdb_person_id, $zugesagt_yn, $reason) {
   global $user, $base_url;
+  include_once('system/churchservice/churchservice_db.inc');
   
   $res=array();
   
