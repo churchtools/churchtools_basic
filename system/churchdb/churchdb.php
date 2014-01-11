@@ -803,7 +803,7 @@ function churchdb__export() {
   			(case when geschlecht_no=1 then \'Lieber\' when geschlecht_no=2 then \'Liebe\' else \'\' end) "anrede2",
   			bereich_id, b.bezeichnung "bereich", 
   			day(eintrittsdatum) "mitgliedseit.tag", month(eintrittsdatum) "mitgliedseit.m", year(eintrittsdatum) "mitgliedseit.jahr",
-              (year(curdate())-year(geburtsdatum) - (RIGHT(CURDATE(),5)<RIGHT(geburtsdatum,5))) as "alter",p.id id, null as "e-mail_beziehung", optigem_nr, spitzname
+              (year(curdate())-year(geburtsdatum) - (RIGHT(CURDATE(),5)<RIGHT(geburtsdatum,5))) as "alter",p.id id, null as "e-mail_beziehung", null as "vorname2", optigem_nr, spitzname, zusatz
              FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_bereich_person} bp, {cdb_bereich} b,
   		        {cdb_station} station, {cdb_status} status, {cdb_familienstand} f,
   		        {cdb_nationalitaet} n
@@ -893,6 +893,7 @@ function churchdb__export() {
         // Fuegen dem Mann die andere zuerst zu
         $export[$p1]["anrede"]=$rel_types[$rel->typ_id]->export_title;
         $export[$p1]["anrede2"]=$export[$p2]["anrede2"]." ".$export[$p2]["vorname"].", ".$export[$p1]["anrede2"];
+        $export[$p1]["vorname2"]=$export[$p2]["vorname"];
         if (isset($export[$p2]["e-mail"]))
           $export[$p1]["e-mail_beziehung"]=$export[$p2]["e-mail"];
         // Und nehmen den anderen aus dem Export raus
