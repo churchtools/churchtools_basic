@@ -134,6 +134,7 @@ class CTChurchWikiModule extends CTAbstractModule {
   }
     
   public function loadHistory($params) {  
+    $auth=churchwiki_getAuthForAjax();  
     if (($params["wikicategory_id"]!=0) && (($auth["view"]==false) || ($auth["view"][$params["wikicategory_id"]]!=$params["wikicategory_id"])))
       throw new CTNoPermission("view", "churchwiki");
     $data=db_query("select version_no id, 
