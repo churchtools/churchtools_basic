@@ -462,7 +462,7 @@ function ct_log($txt,$level=3,$domainid=-1,$domaintype=CDB_LOG_PERSON,$schreibzu
          ":domain_id"=>$domainid, 
          ":domain_type"=>$domaintype,
          ":schreiben_yn"=>$schreibzugriff_yn,
-         ":txt"=>substr($txt,0,199)));
+         ":txt"=>substr($txt,0,1999)));
 }
 
 define('PHP_QPRINT_MAXL', 75);
@@ -1350,6 +1350,10 @@ function churchcore_stringToDateICal($string) {
   return $dt->format('Ymd\THis');  
 } 
 
+function churchcore_stringToDateTime($string) {  
+  return $dt=new Datetime($string);
+}
+
 function isFullDay($start, $end) {
   if (($start->format('H:i:s')=="00:00:00") && ($end==null || $end->format('H:i:s')=="00:00:00"))
     return true;
@@ -1509,6 +1513,19 @@ function getAllDatesWithRepeats($r, $_von=-1, $_bis=1) {
   return $dates;
 }
 
+function surroundWithVCALENDER($txt) {
+  global $config;
+  
+  return "BEGIN:VCALENDAR\r\n" 
+  ."VERSION:2.0\r\n"
+  ."PRODID:-//ChurchTools//DE\r\n" 
+  ."CALSCALE:GREGORIAN\r\n"
+  ."X-WR-CALNAME:".variable_get('site_name', 'ChurchTools')." ChurchCal-Kalender\r\n"
+  ."X-WR-TIMEZONE:".$config["timezone"]."\r\n"
+  ."METHOD:PUSH\r\n"
+  .$txt
+  ."END:VCALENDAR\r\n";   
+}
 
 function createAnonymousUser() {
   $user=new stdClass();

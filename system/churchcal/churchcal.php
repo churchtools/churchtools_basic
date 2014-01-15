@@ -637,14 +637,6 @@ function churchcal__ical() {
   drupal_add_http_header('Cache-Control','must-revalidate, post-check=0, pre-check=0',false);  
   drupal_add_http_header('Cache-Control','private',true);
   $content=drupal_get_header();
-
-  $txt="BEGIN:VCALENDAR\r\n"; 
-  $txt.="VERSION:2.0\r\n"; 
-  $txt.="PRODID:-//ChurchTools//DE\r\n"; 
-  $txt.="CALSCALE:GREGORIAN\r\n"; 
-  $txt.="X-WR-CALNAME:".variable_get('site_name', 'drupal')." ChurchCal-Kalender\r\n";
-  $txt.="X-WR-TIMEZONE:".$config["timezone"]."\r\n"; 
-  $txt.="METHOD:PUSH\r\n"; 
   
   $cat_names=null;
   
@@ -664,7 +656,7 @@ function churchcal__ical() {
   }
   $arr=churchcal_getCalPerCategory(array("category_ids"=>$cats), false);
   
-  
+  $txt="";
   foreach ($arr as $cats) {
     foreach ($cats as $res) {
     
@@ -703,9 +695,7 @@ function churchcal__ical() {
     }
   }
     
-  $txt.="END:VCALENDAR\r\n";
-
-  echo $txt;
+  echo surroundWithVCALENDER($txt);
 }
 
 ?>

@@ -581,18 +581,10 @@ function churchservice_ical() {
 
   $content=drupal_get_header();
 
-  $txt="BEGIN:VCALENDAR\r\n"; 
-  $txt.="VERSION:2.0\r\n"; 
-  $txt.="PRODID:-//ChurchTools//DE\r\n"; 
-  $txt.="CALSCALE:GREGORIAN\r\n"; 
-  $txt.="X-WR-CALNAME:".variable_get('site_name', 'drupal')." Service-Kalender\r\n";
-  $txt.="X-WR-TIMEZONE:".$config["timezone"]."\r\n"; 
-  $txt.="METHOD:PUSH\r\n"; 
-
-  include_once('./'. drupal_get_path('module', 'churchservice') .'/churchservice_db.inc');
-  
+  include_once('./'. drupal_get_path('module', 'churchservice') .'/churchservice_db.inc');  
   $arr=churchservice_getUserCurrentServices($id);
   
+  $txt="";
   foreach ($arr as $res) {
     $txt.="BEGIN:VEVENT\r\n"; 
     $txt.="ORGANIZER:MAILTO:".variable_get('site_mail', '')."\r\n";
@@ -613,10 +605,9 @@ function churchservice_ical() {
     $txt.="DTEND;TZID=".$config["timezone"].":".$res->datum_end."\r\n"; 
     $txt.="END:VEVENT\r\n"; 
   }
-  $txt.="END:VCALENDAR\r\n";
-
-  echo $txt;
+  echo surroundWithVCALENDER($txt);
 }
+
 function churchservice_saveNote($event_id, $text) {
   $text=str_replace("\'","'",$text);  
   $text=str_replace('\"','"',$text);  
