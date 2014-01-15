@@ -356,7 +356,7 @@ WeekView.prototype.getBookings = function(res_id, date) {
       if (churchcore_datesInConflict(a.startdate, a.enddate, date, tomorrow)) {
         filterOk=true;
         
-        if ((searchString!="") && (ar.text.toUpperCase().indexOf(searchString)!=0) &&
+        if ((searchString!="") && (arr.text.toUpperCase().indexOf(searchString)!=0) &&
             (arr.person_name.toUpperCase().indexOf(searchString)!=0) &&
             (arr.id!=searchString)) filterOk=false;
         if ((t.filter["filterStatus"]!=null) && (arr.status_id!=t.filter["filterStatus"])) filterOk=false;
