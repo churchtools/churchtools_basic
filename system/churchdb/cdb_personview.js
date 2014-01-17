@@ -1254,7 +1254,8 @@ PersonView.prototype.getListHeader = function() {
   
   // -4 = Gruppenteilnahmepflege
   if (masterData.settings.selectedGroupType==-4) {
-    if ((masterData.groups!=null) && (masterData.groups[g_id]!=null) && (masterData.groups[g_id].meetingList!=null)) {
+    if ((masterData.groups!=null) && (masterData.groups[g_id]!=null) && (masterData.groups[g_id].meetingList!=null)
+        && (masterData.groups[g_id].meetingList!="get data")) {
       $.each(masterData.groups[g_id].meetingList, function(k,m) {
         if ((m.datumvon!=null) && 
             (m.datumvon.toDateEn(false).getFullYear()==t.gruppenteilnehmerdatum.getFullYear()) &&
@@ -1330,7 +1331,8 @@ PersonView.prototype.messageReceiver = function(message, args) {
       this.msg_allDataLoaded(args[0]);
     }
     else if (message=="filterChanged") {
-      this.msg_filterChanged(args[0], args[1]);
+      if (churchInterface.getCurrentView()==personView)
+        this.msg_filterChanged(args[0], args[1]);
     }
     else if (message=="pollForNews") {
       var refresh=false;
@@ -4678,7 +4680,7 @@ PersonView.prototype.getMyGroupsSelector = function(withIntelligentGroups) {
       (currentView.filter['filterMeine Gruppen']!=masterData.settings.selectedMyGroup))
     // Wenn es keine Intelligente Gruppe gibt, sollte er sie auch nicht vorselektieren!
     if ((withIntelligentGroups) || (masterData.settings.selectedMyGroup.indexOf("filter")!=0)) {
-      if ((currentView.filter.searchEntry==null)) {
+      if ((currentView.filter.searchEntry==null && currentView==personView)) {
         currentView.filter['filterMeine Gruppen']=masterData.settings.selectedMyGroup;
         this.msg_filterChanged("filterMeine Gruppen",null);
       }

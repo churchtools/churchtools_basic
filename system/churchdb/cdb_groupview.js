@@ -421,6 +421,7 @@ GroupView.prototype.renderAddEntry = function() {
 
 GroupView.prototype.renderFilter = function() {
   var form = new CC_Form();
+  
   form.setLabel("Filterfunktionen");
   var ret=personView.getMyGroupsSelector();
   if (ret!=false) {
@@ -719,7 +720,7 @@ GroupView.prototype.isGroupOfGroupType = function (gruppe_id, gruppentyp_id) {
 };
 
 /**
- * Gibt zurŸck, ob Person Leiter, coleiter oder Supervisor ist (nicht MA) => True ansonsten false
+ * Gibt zurï¿½ck, ob Person Leiter, coleiter oder Supervisor ist (nicht MA) => True ansonsten false
  * @param p_id
  * @param g_id
  * @return true or false
@@ -887,7 +888,7 @@ GroupView.prototype.getStatsOfGroup = function(g_id) {
               stats.count_age=stats.count_age+1;
             }
           }  
-          // EintrŠge nun in ein Array packen und spŠter dann sortiert ausgeben.
+          // Eintrï¿½ge nun in ein Array packen und spï¿½ter dann sortiert ausgeben.
           var entry=new Array();
           entry.id=a.id;
           entry.vorname=a.vorname;
@@ -1007,7 +1008,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
           var count_stattgefunden=0;
           $.each(churchcore_sortData(masterData.groups[g_id].meetingList,"datumvon"), function(k,a) {
             if (a.eintragerfolgt_yn=="0") 
-              info=info+'<img title="Eintrag noch nicht erfolgt fŸr '+a.datumvon.toDateEn().toStringDe(false)+'" src="'+masterData.modulespath+'/images/box_white.png'+'"/>';
+              info=info+'<img title="Eintrag noch nicht erfolgt fï¿½r '+a.datumvon.toDateEn().toStringDe(false)+'" src="'+masterData.modulespath+'/images/box_white.png'+'"/>';
             if (a.ausgefallen_yn=="1") 
               info=info+"x";
             else {  
@@ -1048,7 +1049,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
   var g=this.getData()[g_id];
   var editGroup = (masterData.auth.admingroups) || (this_object.isPersonLeaderOfGroup(masterData.user_pid,g_id));
   
-  // PrŸfe ob es Treffen-Pflege gibt, wenn ja: PrŸfe ob Statistik-List schon vorhanden ist, ansonsten holen
+  // Prï¿½fe ob es Treffen-Pflege gibt, wenn ja: Prï¿½fe ob Statistik-List schon vorhanden ist, ansonsten holen
   if ((masterData.auth.viewgroupstats) || (this_object.isPersonLeaderOfGroup(masterData.user_pid, g_id))) { 
     if ((masterData.groups[g_id].meetingList==null)) {
       masterData.groups[g_id].meetingList="get data";
@@ -1091,7 +1092,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
   var stats=this.getStatsOfGroup(g_id);
   
   var count=100;
-  // Sortiere nun EintrŠge
+  // Sortiere nun Eintrï¿½ge
   stats.entries.sort(function(a,b){
       var arr=new Array(); arr[-1]=-1; arr[-2]=-2; arr[0]=0; arr[1]=5; arr[2]=4; arr[3]=10; arr[4]=1;
       if (arr[a.leiter]==null) return 0;
@@ -1351,7 +1352,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
     return false;
  });  
   $("#groupinfosTD"+p_id+" a").click(function() {
-    // Lšsche den Tooltip, falls es ihn gibt
+    // Lï¿½sche den Tooltip, falls es ihn gibt
     clearTooltip();
     if ($(this).attr("id")=="grp_to_filter") {
       $("#cdb_group").html("");
@@ -1379,7 +1380,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
       var res=personView.renderPersonGroupRelation($(this).attr("data-pid"), $(this).attr("data-gid"));      
       width=380; height=330;
       if (res==null) return false;      
-      var elem = this_object.showDialog("Ver&auml;nderung des Datensatzes", res, 380, 330, {
+      var elem = this_object.showDialog("VerÃ¤nderung des Datensatzes", res, 380, 330, {
         "Speichern": function() {
            personView._saveEditEntryData(id, "editPersonGroupRelation", true, $(this));
          },
@@ -1527,7 +1528,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
 GroupView.prototype.renderEditEntry = function (id, fieldname) {
   var this_object=this;
   
-  var elem = this.showDialog("Ver&auml;nderung der Gruppe", "", 500, 600, {
+  var elem = this.showDialog("VerÃ¤nderung der Gruppe", "", 500, 600, {
     "Speichern": function() {
       var s = $(this).attr("id");
       
@@ -1536,7 +1537,7 @@ GroupView.prototype.renderEditEntry = function (id, fieldname) {
       if (obj.max_teilnehmer=="") delete obj.max_teilnehmer;
       if (masterData.groups[id].max_teilnehmer=="") masterData.groups[id].max_teilnehmer=null; 
   
-      // Lšsche die Geoinfos, falls es da ein Update bei der Adresse gab.
+      // Lï¿½sche die Geoinfos, falls es da ein Update bei der Adresse gab.
       masterData.groups[id].geolat="";
         
       $("#cbn_editor").html("<p><br/><b>Daten werden gespeichert...</b><br/><br/>");
