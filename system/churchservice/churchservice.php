@@ -398,7 +398,7 @@ function churchservice_getUserNextServices($shorty=true) {
 
 function churchservice_getFactsOfLastDays() {
   $txt='';
-  if (user_access("edit facts","churchservice")) {
+  if (user_access("view facts","churchservice")) {
     $res=db_query("select e.id, cal.bezeichnung eventname, DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') datum, f.bezeichnung factname, value 
                 from {cs_fact} f, {cs_event_fact} ef, {cs_event} e, {cc_cal} cal
              where cal.id=e.cc_cal_id and ef.fact_id=f.id and ef.event_id=e.id and datediff(now(), e.startdate)<3 and datediff(now(), e.startdate)>=0

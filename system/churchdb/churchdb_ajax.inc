@@ -307,9 +307,10 @@ global $user;
     return $res;
   }
   
-  $sql="SELECT id from {cdb_person} ".
-         "where vorname like '".$params["vorname"]."%' and name like '".$params["name"]."%'";
-  $obj=db_query($sql)->fetch();
+  $obj=db_query("SELECT id from {cdb_person} ".
+         "where vorname like :vorname and name like :name",
+    array(":vorname"=>(isset($params["vorname"])?$params["vorname"]."%":""), 
+          ":name"=>(isset($params["name"])?$params["name"]."%":"")))->fetch();
   if (((!isset($params["force"])) || ($params["force"]=="")) && (isset($obj->id))) {
     $arr["result"]="exist";
     $arr["id"]=$obj->id;

@@ -1105,6 +1105,8 @@ ListView.prototype.getListHeader = function() {
 
 
   if (masterData.settings.listViewTableHeight==null) masterData.settings.listViewTableHeight=1;
+  if ($("#printview").val()!=null)
+    masterData.settings.listViewTableHeight=null;
 
   if ($("#externmeineFilter").val()!=null) {
     this.filter["filterMeine Filter"]=$("#externmeineFilter").val();
@@ -2163,9 +2165,11 @@ ListView.prototype.editService = function(service_id, sg_id) {
     form.addHtml('<div class="controls" id="gruppen">');
     form.addHtml('</div></div>');
     
-    form.addHtml('<div class="control-group"><label class="control-label">Tag-Zuordnungen</label>');
-    form.addHtml('<div class="controls" id="tags">');
-    form.addHtml('</div></div>');
+    if (masterData.tags!=null) {
+      form.addHtml('<div class="control-group"><label class="control-label">Tag-Zuordnungen</label>');
+      form.addHtml('<div class="controls" id="tags">');
+      form.addHtml('</div></div>');
+    }
     
     
     form.addCheckbox({controlgroup_start:true, label:"Sende Dienstanfragen per E-Mail", cssid:"sendremindermails_yn"});
@@ -2215,7 +2219,8 @@ ListView.prototype.editService = function(service_id, sg_id) {
     });
     
     form_renderLabelList(arr, "gruppen", masterData.groups);
-    form_renderLabelList(arr, "tags", masterData.tags);    
+    if (masterData.tags!=null)
+      form_renderLabelList(arr, "tags", masterData.tags);    
   }  
   
 };
