@@ -50,6 +50,7 @@ AgendaView.prototype.renderMenu = function() {
   if (user_access("edit agenda templates"))
     menu.addEntry("Neue Vorlage erstellen", "anewtemplate", "star");
   menu.addEntry("Druckansicht", "aprintview", "print");
+  menu.addEntry("Exportieren zu Songbeamer", "aexportsb", "share");
   menu.addEntry("Hilfe", "ahelp", "question-sign");
 
   if (!menu.renderDiv("cdb_menu",churchcore_handyformat()))
@@ -62,8 +63,8 @@ AgendaView.prototype.renderMenu = function() {
       else if ($(this).attr("id")=="anewtemplate") {
         t.editAgenda(null, true);
       }
-      else if ($(this).attr("id")=="aexport") {
-        churchcore_openNewWindow("?q=churchservice/exportfacts");
+      else if ($(this).attr("id")=="aexportsb") {
+        t.exportCurrentAgendaToSongBeamer();
       }
       else if ($(this).attr("id")=="aprintview") {
         fenster = window.open('?q=churchservice/printview&id='+t.currentAgenda.id+'#AgendaView', "Druckansicht", "width=900,height=600,resizable=yes");
@@ -76,6 +77,46 @@ AgendaView.prototype.renderMenu = function() {
       return false;
     });
   }
+};
+
+AgendaView.prototype.exportCurrentAgendaToSongBeamer = function () {
+  var rows=new Array();
+  rows.push("object AblaufPlanItems: TAblaufPlanItems");
+  rows.push("\r\n  items = <");
+  $.each(t.getData(true), function(i,a) {
+    var song=null;
+    if (a.arrangement_id>0) 
+      song=songView.getSongFromArrangement(a.arrangement_id);
+    
+    if (a.header_yn==1 || a.arrangement_id>0) {
+      rows.push("\r\n    item");
+      var bez=a.bezeichnung;
+      if (song!=null) {
+        if (bez!="") bez=bez+" - ";
+        bez=bez+song.bezeichnung;              
+      }
+      rows.push("\r\n      Caption = '"+bez+"'");
+      if (a.header_yn==0)
+        rows.push("\r\n      Color = clBlue");
+      else
+        rows.push("\r\n      Color = 4227327");
+      if (song!=null)
+        rows.push("\r\n      FileName = '"+song.bezeichnung+".sng'");              
+      rows.push("\r\n    end");
+    }
+  });
+  rows.push(">\r\nend\r\n");
+  
+  var uri = 'data:text/col;charset=utf-8,' + escape(rows.join(""));
+
+  var downloadLink = document.createElement("a");
+  downloadLink.href = uri;
+  downloadLink.download = "ablaufplan.col";
+
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+ 
 };
 
 AgendaView.prototype.editAgenda = function(agenda, template) {
@@ -239,6 +280,14 @@ AgendaView.prototype.renderField = function(o, dataField, smallVersion) {
             
           if (o.bezeichnung=="") bezeichnung="Song: <i>"+s+"</i>";
           else bezeichnung=bezeichnung+ "<i> - "+s+'</i>';
+          arr=song.arrangement[o.arrangement_id];
+          if (arr!=null && arr.tonality!="" || arr.bpm!="") {
+            bezeichnung=bezeichnung+' <span class="pull-right" style="color:grey">&nbsp; <small>';
+            if (arr.tonality!="") bezeichnung=bezeichnung+""+arr.tonality;
+            if (arr.tonality!="" && arr.bpm!="") bezeichnung=bezeichnung+", ";
+            if (arr.bpm!="") bezeichnung=bezeichnung+" "+arr.bpm+"BPM";
+            bezeichnung=bezeichnung+"&nbsp; </small></span>";
+          }
         }
       }   
       rows.push(bezeichnung);

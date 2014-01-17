@@ -1,6 +1,7 @@
 (Legende: "+"=>Neues Feature  "-"=>Fehlerbehebung)
 
 churchtools 2.45
++ (CS) SongBeamer Export der Ablaufliste für die Lieder des aktuellen Ablaufs (inkl. Überschriften) 
 + (CDB) Wenn "Meine Gruppen" ausgewählt ist, wird beim Export auch Teilnehmerstatus, Datum und Kommentar exportiert
 + (CR) Über Tooltip nun in Terminserien auch einzelne Termine absagen
 - (CDB) Kleine Bugs behoben: Gruppenliste Distriktleiterlink und Tooltip funktioniert nicht etc.
