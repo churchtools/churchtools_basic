@@ -902,6 +902,26 @@ function churchdb__export() {
     }
   }
   
+  // Now check if there is group_id which I can add group relation Infos to the export
+  if (isset($_GET["groupid"])) {
+    foreach ($export as $k=>$key) {
+      $r=db_query("select g.bezeichnung, s.bezeichnung status, DATE_FORMAT(gpg.letzteaenderung, '%d.%m.%Y') letzteaenderung, gpg.comment 
+               from {cdb_gruppe} g, {cdb_gemeindeperson} gp, 
+                     {cdb_gemeindeperson_gruppe} gpg, {cdb_gruppenteilnehmerstatus} s  
+                  where gp.id=gpg.gemeindeperson_id and g.id=:gruppe_id 
+                         and s.intern_code=status_no
+                       and gpg.gruppe_id=g.id and gp.person_id=:person_id", 
+                array(":gruppe_id"=>$_GET["groupid"], ":person_id"=>$key["id"]))->fetch();
+      if ($r!=false) {
+        $export[$k]["gruppe"]=$r->bezeichnung;
+        $export[$k]["gruppe_seit"]=$r->letzteaenderung;
+        $export[$k]["gruppe_kommentar"]=$r->comment;
+        $export[$k]["gruppe_status"]=$r->status;
+      }
+    }    
+  }
+  
+  
   // Nun werden die Daten ueber Echo ausgegeben
   $header=true;
   foreach ($export as $key) {

@@ -4360,6 +4360,9 @@ PersonView.prototype.exportData = function() {
   });  
   // Weil hinten ein Komma steht einfach eine -1 ergaenzen, die ID gibt es nicht.
   exportIds=exportIds+"-1";
+  
+  if (this.filter["filterMeine Gruppen"]!=null) 
+    exportIds=exportIds+"&groupid="+this.filter["filterMeine Gruppen"];
 
   if (i==0) alert(unescape("Es d%FCrfen nur max. "+masterData.max_exporter+" Eintr%E4ge exportiert werden. Bitte genauer filtern%21"));
   else {
