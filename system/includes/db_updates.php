@@ -839,7 +839,6 @@ function run_db_updates($db_version) {
         PRIMARY KEY (person_id,servicegroup_id)) CHARSET=utf8"
       );
       
-      echo "Anpassungen bei den Files...";
       $files=churchcore_getTableData("cc_file");
       if ($files!=null) {
         foreach($files as $file) {

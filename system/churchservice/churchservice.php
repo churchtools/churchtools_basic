@@ -426,7 +426,7 @@ function churchservice_getAbsents($year=null) {
     $groups=churchdb_getMyGroups($user->id, true, true);
     $allPersonIds=churchdb_getAllPeopleIdsFromGroups($groups);
     
-    if (count($groups)>0) {
+    if (count($groups)>0 && count($allPersonIds)>0) {
       $sql="select p.id p_id, p.name, p.vorname, DATE_FORMAT(a.startdate, '%d.%m.') startdate_short, DATE_FORMAT(a.startdate, '%d.%m.%Y') startdate, DATE_FORMAT(a.enddate, '%d.%m.%Y') enddate, a.bezeichnung, ar.bezeichnung reason 
                 from {cdb_person} p, {cs_absent} a, {cs_absent_reason} ar 
               where a.absent_reason_id=ar.id and p.id=a.person_id and p.id in (".implode(",", $allPersonIds).") ";

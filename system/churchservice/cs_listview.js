@@ -330,14 +330,16 @@ ListView.prototype.saveEditEvent = function (elem) {
   elem.html("<p>");
   
 
-  // Speichere Daten f�r das asyncrone Speichern
+  // Save Data for sending it asynchron 
   _array=new Array();
   var d=obj.startdate.toDateEn(true);
+  var e=obj.enddate.toDateEn(true);
   while (d<wiederholungbis) {
     _array.push(jQuery.extend({}, obj));
-    // Nun eine Woche draufz�hlen
-    d.addDays(7);
+    // Add one week
+    d.addDays(7); e.addDays(7);
     obj.startdate=d.toStringEn(true);
+    obj.enddate=e.toStringEn(true);
   }
   var i=0;
   
