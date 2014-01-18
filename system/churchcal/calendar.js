@@ -233,6 +233,12 @@ function _renderViewChurchResource(elem) {
       if (a.status_id!=99)
         form.addImage({src:"trashbox.png", cssid:"trash", width:20, data:[{name:"id", value:a.resource_id}]});
       if (typeof weekView!='undefined') {
+        if (allBookings[a.id]!=null && allBookings[a.id].exceptions!=null) {
+          form.addHtml('<tr><td><td colspan="4">Ausnahmen: &nbsp;');
+          $.each(churchcore_sortData(allBookings[a.id].exceptions, "except_date_start"), function(i,b) {
+            form.addHtml('<span class="label label-important">'+b.except_date_start.toDateEn(false).toStringDe(false)+'</span> &nbsp;');
+          });          
+        }
         var c=$.extend({}, currentEvent);
         c.startdate=new Date();
         c.enddate=new Date();
