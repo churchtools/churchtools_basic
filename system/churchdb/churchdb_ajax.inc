@@ -1447,7 +1447,7 @@ class CTChurchDBModule extends CTAbstractModule {
     $this->log($params);
     churchdb_send_mail($params["subject"],$params["body"],$params["to"]);
   }
-  public function delete_user($params) {
+  public function deletePerson($params) {
     if ((user_access("administer persons","churchcore")) || (user_access("edit masterdata","churchdb"))) {
       $this->logPerson($params,1);
       return deleteUser($params["id"]);

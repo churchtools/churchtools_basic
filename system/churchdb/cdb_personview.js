@@ -502,6 +502,10 @@ PersonView.prototype.addSecondMenu = function() {
       rows.push('<option value="addPersonAuth">... ein Zugriffssrecht hinzuf&uuml;gen');
     if ((masterData.auth["push/pull archive"]) && (t.name=="PersonView"))
       rows.push('<option value="archivePerson">... ins Archiv verschieben');
+    
+    if (churchInterface.isCurrentView("ArchiveView") && (masterData.auth.admin || masterData.auth.adminpersons))
+      rows.push('<option value="deletePerson">... endg&uuml;ltig l&ouml;schen');    
+    
     rows.push('</select>');
   }
   
@@ -889,6 +893,11 @@ PersonView.prototype.personFunction = function (value, param) {
         selected:t.filter["filterAuth"]
       });      
     }
+    else if (value=="deletePerson") {
+      form.setLabel("Personen endg&uuml;ltig l&ouml;schen");
+      form.addHtml("Hiermit werden die markierten Personen gel&ouml;scht. Diese Aktion kann nicht wieder r&uuml;ckg&auml;ngig gemacht werden!");
+      form.addHidden({cssid:"inputId",value:"dummy"});
+    }
     else if (value=="archivePerson") {
       form.setLabel("Personen archivieren");
       form.addHtml("Hiermit werden die markierten Personen in das Archiv verschieben. Diese sind dann nur noch mit speziellen Rechten sichtbar!");
@@ -897,7 +906,7 @@ PersonView.prototype.personFunction = function (value, param) {
     }
     form.addCheckbox({cssid:"delChecked",label:'Markierung bei den '+ids.length+' Personen wieder entfernen?'});
     
-    var elem = t.showDialog("Mehrere hinzuf&uuml;gen...", form.render(), 500, 350, {
+    var elem = t.showDialog("Batch-Anpassungen", form.render(), 500, 350, {
       "Speichern": function() {
          var id=$("#inputId").val();
          var obj=new Object();
@@ -936,6 +945,11 @@ PersonView.prototype.personFunction = function (value, param) {
                    allPersons[ids[current_id]].archiv_yn=1;
                    churchInterface.jsendWrite(obj, null, false);
                  }
+               }
+               else if (value=="deletePerson") {
+                 obj.id=ids[current_id];
+                 allPersons[ids[current_id]]=null;                                 
+                 churchInterface.jsendWrite(obj, null, false);                 
                }
                elem.find("div.bar").width((100*(current_id+1)/ids.length)+'%');
                _progress(ids, current_id+1);
@@ -2792,7 +2806,7 @@ PersonView.prototype.renderDetails = function (id) {
         if ((masterData.auth["push/pull archive"]) && (a.archiv_yn==1))
           _text=_text+"&nbsp;<a href=\"#\" title=\"Person zur&uuml;ckholen\" id=\"undoArchivePerson\">"+form_renderImage({src:"undoarchive.png", width:18})+"</a>";
         if (masterData.auth.admin || masterData.auth.adminpersons)
-          _text=_text+"&nbsp;<a href=\"#\" title=\"Person entfernen\" id=\"delete_user\">"+form_renderImage({src:"trashbox.png", width:18})+"</a>&nbsp;&nbsp;";
+          _text=_text+"&nbsp;<a href=\"#\" title=\"Person entfernen\" id=\"deletePerson\">"+form_renderImage({src:"trashbox.png", width:18})+"</a>&nbsp;&nbsp;";
       }
       _text=_text+'&nbsp;<a href="#" id="person_'+a.id+'">#'+a.id+"</a></i></small>&nbsp;&nbsp;";
 
@@ -3413,7 +3427,7 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
     rows[rows.length]="Soll der Kommentar wirklich entfernt werden?";
     buttonText="Entfernen";
   } 
-  else if (fieldname.indexOf("delete_user")==0) {
+  else if (fieldname.indexOf("deletePerson")==0) {
     width=300; height=300;
     rows[rows.length]="Soll die Person wirklich gel&ouml;scht werden? Achtung, dieses L&ouml;schen ist endg&uuml;ltig und entfernt auch alle Gruppenbeziehungen etc.!";
   }
@@ -3680,7 +3694,7 @@ PersonView.prototype._saveEditEntryData = function (id, fieldname, renderViewNec
         alert("Fehler beim Speichern: "+data);
         allPersons[id]=orig_obj;
       }
-      if (obj["func"]=="delete_user") {
+      if (obj["func"]=="deletePerson") {
         allPersons[id]=null;
         t.renderList();
       } 
@@ -4289,7 +4303,7 @@ PersonView.prototype.resetGroupFilter = function () {
   var t=this;
   k=1;
   delete t.filter["filterOr"];
-  while (t.filter["filterTyp "+k]!=null) {
+  while (t.filter["filterOn "+k]!=null) {
     delete t.filter["filterTyp "+k];
     delete t.filter["filterFilter "+k];
     delete t.filter["filterDistrikt "+k];
@@ -4298,6 +4312,9 @@ PersonView.prototype.resetGroupFilter = function () {
     delete t.filter["filterGruppeInSeit "+k];        
     delete t.filter["filterGruppeWarInVon "+k];        
     delete t.filter["filterGruppeWarInBis "+k];        
+    delete t.filter["filterGruppeWarInBis "+k];
+    if (k>0)
+      delete t.filter["filterOn "+k];
     k=k+1;  
   }  
 };
