@@ -128,9 +128,10 @@ function getBookingFields() {
 }
 
 
-function churchresource_updateBooking($params) {
+function churchresource_updateBooking($params, $changes=null) {
   global $base_url, $user;
-  
+    
+  // Only bigchange, when I get repeat_id. Otherwise it is only a time shift.
   $bigchange=isset($params["repeat_id"]);
   
   $old_arr=getBooking($params["id"]);
@@ -143,7 +144,7 @@ function churchresource_updateBooking($params) {
     
     $i=new CTInterface();
     $i->setParam("resource_id");
-      $i->setParam("status_id");
+    $i->setParam("status_id");
     if ($bigchange) {
       $i->addTypicalDateFields();
       $i->setParam("text");
@@ -162,75 +163,125 @@ function churchresource_updateBooking($params) {
       ->condition("id", $params["id"], "=")
       ->execute(false);
     
-    // Hole alle Exceptions aus der DB
-    $exc=churchcore_getTableData("cr_exception",null, "booking_id=".$params["id"]);
-    $res_exceptions=array();
-    // Vergleiche erst mal welche schon in der DB sind oder noch nicht in der DB sind.         
-    if (isset($params["exceptions"])) {
-      $days=array();
-      foreach ($params["exceptions"] as $exception) {
-        $current_exc=null;
-        // Look for Exc. This is not possible to make by id, cause ChurchCal Exc have other IDs
-        if ($exc!=false) {
-          foreach ($exc as $e) {
-            if (($e->except_date_start==$exception["except_date_start"]) &&
-                     ($e->except_date_end==$exception["except_date_end"]))
-              $current_exc=$e; 
+    // No changes mean not from Cal, so I have to check changes manuelly
+    if (is_null($changes) && $bigchange) {
+      // Hole alle Exceptions aus der DB
+      $exc=churchcore_getTableData("cr_exception",null, "booking_id=".$params["id"]);
+      // Vergleiche erst mal welche schon in der DB sind oder noch nicht in der DB sind.         
+      if (isset($params["exceptions"])) {
+        foreach ($params["exceptions"] as $exception) {
+          $current_exc=null;
+          // Look for Exc. This is not possible to make by id, cause ChurchCal Exc have other IDs
+          if ($exc!=false) {
+            foreach ($exc as $e) {
+              if (($e->except_date_start==$exception["except_date_start"]) &&
+                       ($e->except_date_end==$exception["except_date_end"]))
+                $current_exc=$e; 
+            }
+          }
+          if ($current_exc!=null) 
+            $exc[$current_exc->id]->vorhanden=true;
+          else {           
+            $changes["add_exception"][]=$exception;
           }
         }
-        if ($current_exc!=null) 
-          $exc[$current_exc->id]->vorhanden=true;
-        else {
-          $res_exceptions[$exception["id"]]=addException($params["id"], $exception["except_date_start"], $exception["except_date_end"], $user->id);
-          $days[]=$exception["except_date_start"];
+      }  
+      // Lšsche nun alle, die in der DB sind, aber nicht mehr vorhanden sind.
+      if ($exc!=false) {
+        foreach ($exc as $e) {
+          if (!isset($e->vorhanden))
+            $changes["del_exception"][]=(array) $e;
         }
       }
-      if (count($days)>0) {
-        $txt="<h3>Hallo ".$buser->vorname."!</h3><p>Bei Deiner Serien-Buchungsanfrage '".
-               $params["text"]."' fuer ".$ressources[$params["resource_id"]]->bezeichnung.
-               " mussten leider von ".$user->vorname." ".$user->name." folgende Tage abgelehnt werden: <b>".
-               implode(", ",$days)."</b><p>";
-        churchresource_send_mail("[".variable_get('site_name', 'drupal')."] Aktualisierung der Buchungsanfrage: ".$params["text"], $txt, $buser->email);
-      }
-    }  
-    // Lšsche nun alle, die in der DB sind, aber nicht mehr vorhanden sind.
-    if (($exc!=false) && ($bigchange)) {
-      foreach ($exc as $e) {
-        if (!isset($e->vorhanden))
-          churchresource_delException(array("id"=>$e->id));
+
+      // Hole alle Additions aus der DB
+      $add=churchcore_getTableData("cr_addition",null, "booking_id=".$params["id"]);
+      // Vergleiche erst mal welche schon in der DB sind oder noch nicht in der DB sind.         
+      if (isset($params["additions"])) {
+        foreach ($params["additions"] as $addition) {
+          $current_add=null;
+          // Look for additions. This is not possible to make by id, cause ChurchCal Additions have other IDs
+          if ($add!=false) {
+            foreach ($add as $a) {
+              if (($a->add_date==$addition["add_date"]) && ($a->with_repeat_yn==$addition["with_repeat_yn"]))
+                $current_add=$a; 
+            }
+          }
+          if ($current_add!=null) 
+            $add[$current_add->id]->vorhanden=true;
+          else {
+            $changes["add_addition"][]=$addition;            
+//            $res_additions[$addition["id"]]=addAddition($params["id"], $addition["add_date"], $addition["with_repeat_yn"], $user->id);
+//            $days[]=$addition["add_date"];
+          }
+        }
+      }  
+      // Lšsche nun alle, die in der DB sind, aber nicht mehr vorhanden sind.
+      if ($add!=false) {
+        foreach ($add as $a) {
+          if (!isset($a->vorhanden))
+            //churchresource_delAddition($a->id);
+            $changes["del_addition"][]=(array) $a;          
+        }
       }
     }
 
-    
-    // Hole alle Additions aus der DB
-    $add=churchcore_getTableData("cr_addition",null, "booking_id=".$params["id"]);
+    // New Exception-Ids will be saved here
+    $res_exceptions=array();
     $res_additions=array();
-    // Vergleiche erst mal welche schon in der DB sind oder noch nicht in der DB sind.         
-    if (isset($params["additions"])) {
-      $days=array();
-      foreach ($params["additions"] as $addition) {
-        $current_add=null;
-        // Look for additions. This is not possible to make by id, cause ChurchCal Additions have other IDs
-        if ($add!=false) {
-          foreach ($add as $a) {
-            if (($a->add_date==$addition["add_date"]) && ($a->with_repeat_yn==$addition["with_repeat_yn"]))
-              $current_add=$a; 
+    $days=array();
+    
+    // Now do the changes!
+    if ($changes!=null) {
+      if (isset($changes["add_exception"])) {
+        foreach ($changes["add_exception"] as $exc) {
+          // Check, if exception not alreay in DB (only when coming from Cal it is possible)
+          $db=db_query("select id from {cr_exception} where booking_id=:booking_id and except_date_start=:start",
+                  array(":booking_id"=>$params["id"], ":start"=>$exc["except_date_start"]))->fetch();
+          if ($db==false) {
+            $id=addException($params["id"], $exc["except_date_start"], $exc["except_date_end"], $user->id);
+            if (isset($exc["id"])) $res_exceptions[$exc["id"]]=$id;
+            $days[]=$exc["except_date_start"];
           }
         }
-        if ($current_add!=null) 
-          $add[$current_add->id]->vorhanden=true;
-        else {
-          $res_additions[$addition["id"]]=addAddition($params["id"], $addition["add_date"], $addition["with_repeat_yn"], $user->id);
-          $days[]=$addition["add_date"];
+        if (count($days)>0) {
+          $txt="<h3>Hallo ".$buser->vorname."!</h3><p>Bei Deiner Serien-Buchungsanfrage '".
+          $params["text"]."' fuer ".$ressources[$params["resource_id"]]->bezeichnung.
+            " mussten leider von ".$user->vorname." ".$user->name." folgende Tage abgelehnt werden: <b>".
+            implode(", ",$days)."</b><p>";
+          churchresource_send_mail("[".variable_get('site_name')."] Aktualisierung der Buchungsanfrage: ".$params["text"], $txt, $buser->email);
+        }          
+      }
+      
+      if (isset($changes["del_exception"])) {
+        foreach ($changes["del_exception"] as $exc) {
+          $db=db_query("select id from {cr_exception} where booking_id=:booking_id and except_date_start=:start",
+                  array(":booking_id"=>$params["id"], ":start"=>$exc["except_date_start"]))->fetch();
+          if ($db!=false) {        
+            churchresource_delException(array("id"=>$db->id));
+          }          
         }
       }
-    }  
-    // Lšsche nun alle, die in der DB sind, aber nicht mehr vorhanden sind.
-    if (($add!=false) && ($bigchange)) {
-      foreach ($add as $a) {
-        if (!isset($a->vorhanden))
-          churchresource_delAddition($a->id);
+      
+      if (isset($changes["add_addition"])) {
+        foreach ($changes["add_addition"] as $add) {
+          $db=db_query("select id from {cr_addition} where booking_id=:booking_id and add_date=:date",
+              array(":booking_id"=>$params["id"], ":date"=>$add["add_date"]))->fetch();
+          if ($db==false) {
+            $id=addAddition($params["id"], $add["add_date"], $add["with_repeat_yn"], $user->id);
+            if (isset($add["id"])) $res_additions[$add["id"]]=$id;
+          }
+        }
       }
+      if (isset($changes["del_addition"])) {
+        foreach ($changes["del_addition"] as $add) {
+          $db=db_query("select id from {cr_addition} where booking_id=:booking_id and add_date=:date",
+              array(":booking_id"=>$params["id"], ":date"=>$add["add_date"]))->fetch();
+          if ($db!=false) {
+            churchresource_delAddition($db->id);
+          }
+        }        
+      }      
     }
     
     $txt="";
@@ -264,7 +315,7 @@ function churchresource_updateBooking($params) {
     $txt=churchcore_getFieldChanges(getBookingFields(),$old_arr,$arr,false);
     if ($txt!=null)
       cr_log("UPDATE BOOKING\n".$txt,3,$arr->id);
-    $res=array("exceptions"=>$res_exceptions);
+    $res=array("exceptions"=>$res_exceptions, "additions"=>$res_additions);
   }
   return $res;
 }
@@ -289,9 +340,16 @@ function churchresource_deleteResourcesFromChurchCal($params, $source=null) {
   }  
 }
 
-function churchresource_updateResourcesFromChurchCal($params, $source, $newbookingstatus=1) {
+/**
+ * 
+ * @param unknown $params
+ * @param unknown $source
+ * @param unknown $changes arr["add_exception"], ...
+ */
+function churchresource_updateResourcesFromChurchCal($params, $source, $changes=null) {
   global $user;
-    
+  $newbookingstatus=1;
+  
   $resources=churchcore_getTableData("cr_resource");
   $db=db_query('select * from {cr_booking} where cc_cal_id=:cal_id', 
       array(":cal_id"=>$params["id"]));
@@ -299,8 +357,7 @@ function churchresource_updateResourcesFromChurchCal($params, $source, $newbooki
   $params["location"]="";
   $params["note"]="";      
       
-  foreach ($db as $booking) {
-    
+  foreach ($db as $booking) {   
     if ((isset($params["bookings"])) && (isset($params["bookings"][$booking->resource_id]))) {
       $save = array_merge(array(), $params);      
       $save["cc_cal_id"]=$params["id"];
@@ -330,7 +387,7 @@ function churchresource_updateResourcesFromChurchCal($params, $source, $newbooki
         }
       }
         
-      churchresource_updateBooking($save);
+      churchresource_updateBooking($save, $changes);
         
       $params["bookings"][$booking->resource_id]["updated"]=true;
     }

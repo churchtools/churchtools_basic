@@ -762,6 +762,7 @@ WeekView.prototype.closeAndSaveBookingDetail = function (elem) {
       else if (a.id!=null)
         allBookings[a.id]=a;
 
+      // Get IDs for currently created Exceptions
       if (json.exceptions!=null) {
         $.each(json.exceptions, function(i,e) {
           allBookings[a.id].exceptions[e]=allBookings[a.id].exceptions[i];

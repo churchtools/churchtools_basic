@@ -155,7 +155,7 @@ function churchservice_updateEventFromChurchCal($params, $source=null) {
       $params["deleteCalEntry"]=0;
       churchservice_deleteEvent($params, $source);
     }
-    else if ($do["status"]=="create") {
+    else if ($do["status"]=="create" && $template!=null) {
       $params["id"]=null;
       $params["startdate"]=$do["startdate"];
       $params["eventTemplate"]=$template;

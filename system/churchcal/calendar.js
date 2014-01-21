@@ -154,6 +154,29 @@ function _select(start, end, allDay, a, view) {
   calendar.fullCalendar('unselect');
 }
 
+function exceptionExists(exceptions, except_date_start) {
+  if (exceptions==null) return false;
+  var res=false;
+  $.each(exceptions, function(k,a) {
+    var s, e;
+    if (a.except_date_start instanceof(Date)) 
+      s=a.except_date_start;
+    else
+      s=a.except_date_start.toDateEn(true);
+
+    if (except_date_start instanceof(Date)) 
+      e=except_date_start;
+    else
+      e=except_date_start.toDateEn(true);
+
+    if (s.getTime()==e.getTime()) {
+      res=true;
+      return false;
+    }
+  });
+  return res;
+}
+
 function _renderViewChurchResource(elem) {  
   // Baue erst ein schönes Select zusammen
   var arr=new Array();
@@ -234,10 +257,17 @@ function _renderViewChurchResource(elem) {
         form.addImage({src:"trashbox.png", cssid:"trash", width:20, data:[{name:"id", value:a.resource_id}]});
       if (typeof weekView!='undefined') {
         if (allBookings[a.id]!=null && allBookings[a.id].exceptions!=null) {
-          form.addHtml('<tr><td><td colspan="4">Ausnahmen: &nbsp;');
-          $.each(churchcore_sortData(allBookings[a.id].exceptions, "except_date_start"), function(i,b) {
-            form.addHtml('<span class="label label-important">'+b.except_date_start.toDateEn(false).toStringDe(false)+'</span> &nbsp;');
-          });          
+          var arr=new Array();
+          $.each(churchcore_sortData(allBookings[a.id].exceptions, "except_date_start"), function(i,b) {            
+            if (!exceptionExists(currentEvent.exceptions, b.except_date_start))            
+              arr.push(b.except_date_start.toDateEn(false).toStringDe(false));
+          });
+          if (arr.length>0) {
+            form.addHtml('<tr><td><td colspan="4">Ausnahmen: &nbsp;');
+            $.each(arr, function(i,b) {            
+              form.addHtml('<span class="label label-important">'+b+'</span> &nbsp;');
+            });                      
+          }
         }
         var c=$.extend({}, currentEvent);
         c.startdate=new Date();
@@ -526,13 +556,37 @@ function getCalEditFields(o) {
   o.category_id=$("#inputCategory").val();
 }
 
-function saveEvent(event) {
+function eventDifferentDates(a, b) {
+  if (a.startdate.getTime()!=b.startdate.getTime() ||
+      a.enddate.getTime()!=b.enddate.getTime())
+    return true;
+  
+  if (a.repeat_id!=b.repeat_id)
+    return true;
+  
+  if (a.repeat_id>0) { 
+    if ((a.repeat_until==null && b.repeat_id!=null) ||
+      (a.repeat_until!=null && b.repeat_id==null) ||
+      (a.repeat_until!=null && b.repeat_until!=null && a.repeat_until.getTime()!=b.repeat_until.getTime()))
+    return true;
+  }
+
+  if (JSON.stringify(a.exceptions)!=JSON.stringify(b.exceptions))
+    return true;
+
+  if (JSON.stringify(a.additions)!=JSON.stringify(b.additions))
+    return true;
+  
+  return false;
+}
+
+function saveEvent(event) {  
   var o=currentEvent;
   var oldCat=o.category_id;
   if (currentEvent.view=="view-main")
     getCalEditFields(o);
   
-  if (currentEvent.events!=null)  {
+  if (currentEvent.events!=null && eventDifferentDates(event, currentEvent))  {
     if (!confirm("Achtung, da der Termin mit "+masterData.churchservice_name+" verknüpft ist, hat jede Änderung auch dort Auswirkungen. Dies kann auch angefragt Dienste betreffen!"))
       return null;
     if (currentEvent.eventTemplate==null) 
@@ -560,18 +614,27 @@ function saveEvent(event) {
   return true;
 }
 
+
+function cloneEvent(event) {
+  console.log(event);
+  var e=jQuery.extend(true, {}, event);
+  e.startdate=new Date(event.startdate.getTime());
+  e.enddate=new Date(event.enddate.getTime()); 
+  if (event.repeat_until!=null)
+    e.repeat_until=new Date(event.repeat_until.getTime());
+  return e;
+}
+
 /**
  * event - Event wie in der DB
  * month - Monatsansicht=true
  * currentDate - Das Datum auf das geklickt wurde, nur bei Wiederholungsterminen kann es anders sein
  */
 function editEvent(event, month, currentDate) {  
-
   // Clone object
-  currentEvent = jQuery.extend({}, event);
+  currentEvent = cloneEvent(event);
   currentEvent.view="view-main";
-  if (previousBookings==null && currentEvent.bookings!=null) previousBookings=$.extend({}, currentEvent.bookings);
-  
+  if (previousBookings==null && currentEvent.bookings!=null) previousBookings=$.extend({}, currentEvent.bookings);  
   
   if ((month) && (currentEvent.allDay==null) && (currentEvent.startdate.getHours()==0) && (currentEvent.startdate.getDate()==currentEvent.enddate.getDate()))
     currentEvent.startdate.setHours(10);
@@ -619,38 +682,25 @@ function editEvent(event, month, currentDate) {
     // Erst mal checken, ob eine Wiederholung angeklickt wurde
     if ((currentDate!=null) && (currentEvent.startdate.toStringDe()!=currentDate.toStringDe())) {
       elem.dialog('addbutton', 'Nur aktuellen Termin entfernen', function() {
-        if (!confirm("Achtung, da der Termin mit "+masterData.churchservice_name+" verknüpft ist, hat jede Änderung auch dort Auswirkungen. Dies kann auch angefragt Dienste betreffen!"))
+        if (currentEvent.events!=null && !confirm("Achtung, da der Termin mit "+masterData.churchservice_name+" verknüpft ist, hat jede Änderung auch dort Auswirkungen. Dies kann auch angefragt Dienste betreffen!"))
           return null;
-        if (confirm("Termin '"+currentEvent.bezeichnung+"' wirklich entfernen?")) {
-          // Erstmal schauen, ob es vielleicht ein AdditionDate ist? (also manuell hinzugef�gt?)
-          var additionDate=false;
-          if (currentEvent.additions!=null) {
-            $.each(currentEvent.additions, function(k,a) {
-              if (a.add_date.toDateEn().toStringDe(false)==currentDate.toStringDe(false)) {
-                additionDate=true;
-                delete currentEvent.additions[k];
-                churchInterface.jsendWrite({func:"delAddition", id:k});                                
-                return false;
-              }
-            });           
-            calCCType.refreshView(currentEvent.category_id);
-          }
-          if (!additionDate) {
-            currentEvent_addException(currentDate);
-            saveEvent();
-          }
-
+        if (confirm("Ausnahme für den "+currentDate.toStringDe()+" wirklich hinzufügen?")) {
+          currentEvent_addException(currentDate);
+          saveEvent(currentEvent);
           elem.dialog("close");
         }
       });
       
     } 
     else {        
-      //$('<i/>').html('Termin l&ouml;schen').text()/*
       elem.dialog('addbutton', 'Löschen', function() {
-        delEvent(currentEvent, function() {
-          elem.dialog("close");          
-        });
+        var txt="Termin '"+event.bezeichnung+"' wirklich entfernen?";
+        if (currentEvent.event_id) txt=txt+" Achtung, zugeordnete Dienste werden damit abgesagt!";    
+        if (confirm(txt)) {        
+          delEvent(currentEvent, function() {
+            elem.dialog("close");          
+          });
+        }
       });
     }
   }
@@ -672,21 +722,43 @@ function copyEvent(current_event) {
   editEvent(event, "week");  
 }
 
+
 function delEvent(event, func) {
-  if ((event.event_id==null && confirm("Termin '"+event.bezeichnung+"' wirklich entfernen?"))
-       || (event.event_id!=null && confirm("Es sind in "+masterData.churchservice_name+" noch Events zugeordnet, "+
-            "die dadurch abgesagt werden. Soll wirklich der Kalendereintrag gelöscht werden?"))) {
-    calCCType.hideData(event.category_id);
-    if (event.bookings!=null) {
-      $.each(event.bookings, function(k,a) {
-        a.status_id=99;
-      });
-    }
-    
-    churchInterface.jsendWrite({func:"deleteEvent", id:event.id}, function() {
-      calCCType.needData(event.category_id, true);
-      if (func!=null) func();
+  calCCType.hideData(event.category_id);
+  if (event.bookings!=null) {
+    $.each(event.bookings, function(k,a) {
+      a.status_id=99;
     });
+  }      
+  churchInterface.jsendWrite({func:"deleteEvent", id:event.id}, function() {
+    calCCType.needData(event.category_id, true);
+    if (func!=null) func();
+  });
+}
+
+function delEventFormular(event, func) {
+  if (event.repeat_id>0) {
+    var txt="Es handelt sich um einen Termin mit Wiederholungen, welche Termine sollen entfernt werden?";
+    if (event.event_id) txt=txt+" <br><b>Achtung, zugeordnete Dienste werden damit abgesagt!</b>";
+    var elem=form_showDialog("Was soll gelöscht werden?", txt, 350, 300, {
+      "Alle": function() {               
+                delEvent(event, func);
+                elem.dialog("close"); 
+              },
+      "Nur aktueller": function() {
+                         currentEvent_addException(currentDate);
+                         saveEvent(event);
+                         elem.dialog("close");                 
+                       },
+      "Abbrechen": function() { elem.dialog("close"); }
+    });
+  }    
+  else {
+    var txt="Termin '"+event.bezeichnung+"' wirklich entfernen?";
+    if (currentEvent.event_id) txt=txt+" Achtung, zugeordnete Dienste werden damit abgesagt!";    
+    if (confirm(txt)) {        
+      delEvent(event, func);
+    }
   }  
 }
 
@@ -966,7 +1038,9 @@ function _eventMouseover(event, jsEvent, view) {
       });
       $("#delevent").click(function() {
         clearTooltip(true);
-        delEvent(event);
+        currentDate=data.event.start;
+        currentEvent=event;
+        delEventFormular(event);
         return false;
       });            
     }

@@ -69,6 +69,8 @@ function churchcal_isAllowedToEditCategory($category_id) {
 
 function churchcal_updateEvent($params, $source=null) {
   $arr=array();
+  // Store all Exception and Addition changes for communication to other modules
+  $changes=array();
   
   // Nur Rechte prŸfen, wenn ich source bin, denn sonst hat das das Ursprungsmodul schon erledigt
   if ($source==null) {
@@ -122,17 +124,24 @@ function churchcal_updateEvent($params, $source=null) {
           $exc[$exception["id"]]->vorhanden=true;
         }
         else {
-          churchcal_addException(array("cal_id"=>$params["id"], 
-                                   "except_date_start"=>$exception["except_date_start"], 
-                                   "except_date_end"=>$exception["except_date_end"]));
+          $add_exc=array("cal_id"=>$params["id"], 
+                        "except_date_start"=>$exception["except_date_start"], 
+                        "except_date_end"=>$exception["except_date_end"]);
+          churchcal_addException($add_exc);
+          $changes["add_exception"][]=$add_exc;
         }
       }
     }  
     // Lšsche nun alle, die in der DB sind, aber nicht mehr vorhanden sind.
     if ($exc!=false) {
       foreach ($exc as $e) {
-        if (!isset($e->vorhanden))
-          churchcal_delException(array("id"=>$e->id));
+        if (!isset($e->vorhanden)) {
+          $del_exc=array("id"=>$e->id,
+                         "except_date_start"=>$e->except_date_start,
+                         "except_date_end"=>$e->except_date_end);
+          churchcal_delException($del_exc);
+          $changes["del_exception"][]=$del_exc;
+        }
       }
     }
 
@@ -146,17 +155,22 @@ function churchcal_updateEvent($params, $source=null) {
           $add[$addition["id"]]->vorhanden=true;
         }
         else {
-          churchcal_addAddition(array("cal_id"=>$params["id"], 
+          $add_add=array("cal_id"=>$params["id"], 
                                    "add_date"=>$addition["add_date"],
-                                   "with_repeat_yn"=>$addition["with_repeat_yn"]));
+                                   "with_repeat_yn"=>$addition["with_repeat_yn"]);
+          churchcal_addAddition($add_add);
+          $changes["add_addition"][]=$add_add;
         }
       }
     }  
     // Lšsche nun alle, die in der DB sind, aber nicht mehr vorhanden sind.
     if ($add!=false) {
       foreach ($add as $a) {
-        if (!isset($a->vorhanden))
-          churchcal_delAddition(array("id"=>$a->id));
+        if (!isset($a->vorhanden)) {
+          $del_add=array("id"=>$a->id, "add_date"=>$a->add_date);
+          churchcal_delAddition($del_add);
+          $changes["del_addition"][]=$del_add;
+        }
       }
     }
   }
@@ -166,7 +180,7 @@ function churchcal_updateEvent($params, $source=null) {
     include_once(drupal_get_path('module', 'churchresource') .'/churchresource_db.inc');
     if ($source==null) $source="churchcal";
     $params["cal_id"]=$params["id"];
-    churchresource_updateResourcesFromChurchCal($params, $source);           
+    churchresource_updateResourcesFromChurchCal($params, $source, $changes);           
   }
   if (($source==null) || ($source!="churchservice")) {
     include_once(drupal_get_path('module', 'churchservice') .'/churchservice_db.inc');

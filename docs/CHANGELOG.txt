@@ -1,10 +1,12 @@
 (Legende: "+"=>Neues Feature  "-"=>Fehlerbehebung)
 
 churchtools 2.45
-+ (CS) SongBeamer Export der Ablaufliste für die Lieder des aktuellen Ablaufs (inkl. Überschriften) 
-+ (CDB) Wenn "Meine Gruppen" ausgewählt ist, wird beim Export auch Teilnehmerstatus, Datum und Kommentar exportiert
++ (CS) Ablauf: SongBeamer Export der Ablaufliste für die Lieder des aktuellen Ablaufs (inkl. Überschriften) 
++ (CDB) Export: Wenn "Meine Gruppen" ausgewählt ist, wird beim Export auch Teilnehmerstatus, Datum und Kommentar exportiert
 + (CR) Über Tooltip nun in Terminserien auch einzelne Termine absagen
-- (CDB) Kleine Bugs behoben: Gruppenliste Distriktleiterlink und Tooltip funktioniert nicht etc.
++ (Cal) Über Tooltip kann nun auch bei einer Serie einzelne Termine gelöscht werden.
+- (Cal) Resourcen-Ausnahmen werden nicht mehr überschrieben durch das Speichern im Kalender
+- (CDB) Kleine Bugs behoben: Gruppenliste Distriktleiterlink und Tooltip funktioniert nun etc.
 - (CS) Druckansicht beachtet nun auch den Filter "Meine Dienste"
 
 churchtools 2.44
