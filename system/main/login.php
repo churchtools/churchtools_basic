@@ -60,8 +60,8 @@ function login_main() {
     // PrŸfe, ob Login Ÿber URL mit loginstr erfolgen soll
     //e.g. http://localhost:8888/bootstrap/?q=profile&loginstr=123&id=8
     else if ((isset($_GET["loginstr"])) && ($_GET["loginstr"]!="") && (isset($_GET["id"]))) {
-      // Lšsche alte cc_loginurrls die Šlter sind als 7 tage
-      db_query("delete from {cc_loginstr} where DATEDIFF( current_date, create_date ) > 5");
+      // Lšsche alte cc_loginurrls die Šlter sind als 14 tage
+      db_query("delete from {cc_loginstr} where DATEDIFF( current_date, create_date ) > 13");
       $sql="select * from {cc_loginstr} where loginstr=:loginstr and person_id=:id";      
       $res=db_query($sql, array(":loginstr"=>$_GET["loginstr"], ":id"=>$_GET["id"]))->fetch();
       if ($res==false) {

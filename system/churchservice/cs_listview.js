@@ -902,7 +902,11 @@ ListView.prototype.getAdditionalServicesToServicegroup = function (event, sg_id,
   this_object=this;
   var choseable = new Array();
   $.each(masterData.service_sorted, function(k,a) {
-    if ((a.servicegroup_id==sg_id) && ((masterData.auth.write) || (masterData.auth.leaderservice[a.id]) || (bin_ich_admin))) {      
+    if ((a.servicegroup_id==sg_id) && (
+          (masterData.auth.write)
+          || ((masterData.auth.editgroup!=null && masterData.auth.editgroup[sg_id]))
+          || (masterData.auth.leaderservice[a.id]) 
+          || (bin_ich_admin))) {      
       if ((masterData.auth.editgroup[sg_id]) || (this_object.isLeaderOfServiceGroup(sg_id)) || (bin_ich_admin)) {
         var isdrin=0;
         var isfrei=true;
@@ -1027,7 +1031,10 @@ ListView.prototype.renderListEntry = function(event) {
             }      
           });
           // Show "+" to add furhter Services
-          if (masterData.auth.write || _bin_ich_admin || is_leader) {
+          if (masterData.auth.write 
+                  || (masterData.auth.editgroup!=null && masterData.auth.editgroup[sg.id]) 
+                  || _bin_ich_admin 
+                  || is_leader) {
             rows.push('<p><a href="#" id="addService" event_id="'+event.id+'" servicegroup_id="'+sg.id+'">+</a>');
             _soll_zeigen=true;
           }

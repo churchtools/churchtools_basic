@@ -1,5 +1,9 @@
 (Legende: "+"=>Neues Feature  "-"=>Fehlerbehebung)
 
+- (CDB) Einladungslink ist nun 14 Tage gültig.
+- (CDB) Distriktleiter oder Gruppentypleiter kann nun alle jeweils enthaltenen Personen editieren  
+- (CS) Plus-Zeichnen nun auch bei einer Servicegroup verfügbar, wenn man dort das Recht "edit servicegroup" hat.
+
 churchtools 2.45
 + (CS) Ablauf: SongBeamer Export der Ablaufliste für die Lieder des aktuellen Ablaufs (inkl. Überschriften) 
 + (CDB) Export: Wenn "Meine Gruppen" ausgewählt ist, wird beim Export auch Teilnehmerstatus, Datum und Kommentar exportiert

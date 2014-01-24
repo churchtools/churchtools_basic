@@ -2529,7 +2529,14 @@ PersonView.prototype.renderDetails = function (id) {
         });
       }
     });
-  }          
+  }
+  // Check if I am SuperLeader (Distrikt- or Gruppentypleiter), for acting as a leader
+  if (personLeader==false && allPersons[id].gruppe!=null) {
+    $.each(allPersons[id].gruppe, function (b,k) {    
+      if (groupView.isPersonSuperLeaderOfGroup(masterData.user_pid, k.id))
+        personLeader=true;
+    });    
+  }
 
   var rows = new Array();
   rows.push('<div id="detail" class="detail-view-person">');
