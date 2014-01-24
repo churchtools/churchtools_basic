@@ -1,7 +1,8 @@
 (Legende: "+"=>Neues Feature  "-"=>Fehlerbehebung)
 
 - (CDB) Einladungslink ist nun 14 Tage gültig.
-- (CDB) Distriktleiter oder Gruppentypleiter kann nun alle jeweils enthaltenen Personen editieren  
+- (CDB) Distriktleiter oder Gruppentypleiter kann nun alle jeweils enthaltenen Personen editieren
+- (CDB) Geburtstagsliste wird nur noch durch das explizite Recht view birthdaylist angezeigt.   
 - (CS) Plus-Zeichnen nun auch bei einer Servicegroup verfügbar, wenn man dort das Recht "edit servicegroup" hat.
 
 churchtools 2.45

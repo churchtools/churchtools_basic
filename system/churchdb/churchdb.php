@@ -418,21 +418,21 @@ function subscribeGroup() {
 }
 
 function churchdb_getBlockBirthdays() {
-  if ((!user_access("view birthdaylist","churchdb")) && (!user_access("view","churchdb")))
-    return null;
   
   $txt="";
-  $t2=getBirthdaylistContent("",-1,-1);
-  if ($t2!="") $txt.='<tr><th colspan="3">Gestern'.$t2;
-  $t2=getBirthdaylistContent("",0,0);
-  if ($t2!="") $txt.='<tr><th colspan="3">Heute'.$t2;
-  $t2=getBirthdaylistContent("",1,1);
-  if ($t2!="") $txt.='<tr><th colspan="3">Morgen'.$t2;
-  if ($txt!="") {
-    $txt="<table class=\"table table-condensed\">".$txt."</table>";
+  if (user_access("view birthdaylist","churchdb")) {
+    $t2=getBirthdaylistContent("",-1,-1);
+    if ($t2!="") $txt.='<tr><th colspan="3">Gestern'.$t2;
+    $t2=getBirthdaylistContent("",0,0);
+    if ($t2!="") $txt.='<tr><th colspan="3">Heute'.$t2;
+    $t2=getBirthdaylistContent("",1,1);
+    if ($t2!="") $txt.='<tr><th colspan="3">Morgen'.$t2;
+    if ($txt!="") {
+      $txt="<table class=\"table table-condensed\">".$txt."</table>";
+    }
+    if ((user_access("view","churchdb")) && (user_access("view birthdaylist","churchdb"))) 
+      $txt.="<p style=\"line-height:100%\" align=\"right\"><a href=\"?q=churchdb/birthdaylist\">Weitere Geburtstage</a>";
   }
-  if ((user_access("view","churchdb")) && (user_access("view birthdaylist","churchdb"))) 
-    $txt.="<p style=\"line-height:100%\" align=\"right\"><a href=\"?q=churchdb/birthdaylist\">Weitere Geburtstage</a>";
   if (user_access("view memberliste","churchdb")) 
     $txt.="<p style=\"line-height:100%\" align=\"right\"><a href=\"?q=churchdb/memberlist\">Mitgliederliste</a>";
       
