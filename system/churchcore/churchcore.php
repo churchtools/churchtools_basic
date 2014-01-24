@@ -257,7 +257,7 @@ function churchcore__logviewer() {
     $filter="txt like '%".$_GET["filter"]."%'";
     $val=$_GET["filter"];
   }
-  $txt.='<anchor id="log1"/><h2>Wichtige Meldungen von ChurchTools-Log</h2>';
+  $txt.='<anchor id="log1"/><h2>Log-Meldungen</h2>';
   $res=db_query("select p.id p_id, p.vorname, p.name, log.datum, log.level, log.domain_type, log.domain_id, log.txt  from {cdb_person} p
                  RIGHT JOIN  
                    (select person_id, datum, level, domain_type, domain_id, txt 
@@ -271,7 +271,7 @@ function churchcore__logviewer() {
   $txt.='<input name="filter" class="input-medium" type="text" value="'.$val.'"></input> <input type="submit" class="btn" value="Filtern"/></form>';
 						
   $txt.='<table class="table table-condensed table-bordered">';
-  $txt.="<tr><th>Datum<th>#<th>Objekt<th>Person<th>Beschreibung";
+  $txt.="<tr><th>Datum<th>#<th>Objekt<th>Name<th>Meldung";
   $counter=0;
   foreach ($res as $arr) {
     $txt.="<tr><td><nobr>$arr->datum &nbsp; </nobr><td>$arr->level<td>$arr->domain_type".($arr->domain_id!=-1?"[$arr->domain_id]":"");
@@ -286,7 +286,7 @@ function churchcore__logviewer() {
   if ((!isset($_GET["showmore"])) && ($counter>=$limit))
     $txt.='<a href="?q=churchcore/logviewer&showmore=true" class="btn">Mehr Zeilen anzeigen</a> &nbsp; ';
     
-  $txt.='<anchor id="log2"><h2>Personen sortiert nach letzten Zugriffen</h2>';
+  $txt.='<anchor id="log2"><h2>Letzte Zugriffe</h2>';
   $txt.="<table class=\"table table-condensed table-bordered\"><tr><th>Name<th>Anzahl Zugriffe<th>Letzter Zugriff";
   $res=db_query("SELECT p.id pid, vorname, name, count( l.id ) count, max( lastlogin ) maxdatum
        FROM {cdb_log} l, {cdb_person} p where l.person_id=p.id GROUP BY pid, vorname, name ORDER BY max( lastlogin ) DESC ");
@@ -295,7 +295,7 @@ function churchcore__logviewer() {
   }
   $txt.="</table><br/><br/>";
   
-  $txt.='<anchor id="log3"><h2>Personen nach den meissten Zugriffen</h2>';
+  $txt.='<anchor id="log3"><h2>Häufigste Zugriffe</h2>';
   $txt.="<table class=\"table table-condensed table-bordered\"><tr><th>Name<th>Anzahl Zugriffe<th>Letzter Zugriff";
   $res=db_query("SELECT p.id pid, vorname, name, count( l.id ) count, max( lastlogin ) maxdatum
        FROM {cdb_log} l, {cdb_person} p where l.person_id=p.id GROUP BY pid, vorname, name ORDER BY count(l.id) DESC ");
