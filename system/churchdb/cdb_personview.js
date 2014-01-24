@@ -2425,7 +2425,7 @@ PersonView.prototype.renderAuthDialog = function (id) {
     _text=_text+"Person wurde noch nie eingeladen";
 
   var elem = t.showDialog("Anpassung der Berechtigungen", _text, 500, 380, {
-      "Schliessen": function() {
+      "Schließen": function() {
         $(this).dialog("close");
       }
   });
@@ -4201,7 +4201,7 @@ PersonView.prototype.renderFurtherFilter = function () {
     rows.push('<li class="'+(t.currentFurtherFilter=="gruppe"?"active":"")+'"><a href="#" data-filter="gruppe" class="filter">Gruppenfilter</a>');
     if (masterData.auth.viewalldetails)
       rows.push('<li class="'+(t.currentFurtherFilter=="beziehung"?"active":"")+'"><a href="#" data-filter="beziehung" class="filter">Beziehungsfilter</a>');
-    rows.push('<li class="pull-right"><a href="#" class="hide">Filter schliessen</a>');
+    rows.push('<li class="pull-right"><a href="#" class="hide">Filter schließen</a>');
     rows.push('</ul>');
     rows.push('<div id="furtherFilterDetail"></div>');
     
@@ -4456,7 +4456,7 @@ PersonView.prototype.renderGroupContent = function(g_id) {
       rows.push(form_renderButton({label:"<< Monat zur&uuml;ck", cssid:"btn_monatback"})+" ");
       rows.push(form_renderButton({label:"Monat vor >>", cssid:"btn_monatfurther"}));
     }
-    rows.push(form_renderButton({label:"Gruppenteilnahme schliessen", cssid:"btn_gruppenteilnahme",htmlclass:"pull-right"}));
+    rows.push(form_renderButton({label:"Gruppenteilnahme schließen", cssid:"btn_gruppenteilnahme",htmlclass:"pull-right"}));
     rows.push('</div>');
   }
   else {
@@ -4654,7 +4654,7 @@ PersonView.prototype.mailer = function() {
   if (counter>=maxMails) alert(unescape("Es d%FCrfen nur max. "+masterData.max_exporter+" Eintr%E4ge exportiert werden. Bitte genauer filtern%21"));
   else {
 //    if (noEmail) alert("Hinweis: Einige Einträge haben keine E-Mailadresse, diese wurden nicht berücksichtigt!");
-    if ((noEmail) && confirm("Einige Personen haben keine E-Mail-Adresse, sollen diese anschliessend angezeigt werden?")) {
+    if ((noEmail) && confirm("Einige Personen haben keine E-Mail-Adresse, sollen diese anschließend angezeigt werden?")) {
       t.filter["withoutEMail"]=1;
       if (!t.furtherFilterVisible) { 
         t.furtherFilterVisible=true;  
