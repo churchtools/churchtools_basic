@@ -1011,6 +1011,9 @@ function form_renderDates(options) {
     if (($("#inputRepeatFrequence").val()=="0") || ($("#inputRepeatFrequence").val()==""))
       $("#inputRepeatFrequence").val("1");
   });
+  
+  if (options.callback!=null) 
+    options.callback();
 }
 
 

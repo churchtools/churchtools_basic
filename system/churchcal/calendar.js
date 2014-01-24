@@ -616,7 +616,6 @@ function saveEvent(event) {
 
 
 function cloneEvent(event) {
-  console.log(event);
   var e=jQuery.extend(true, {}, event);
   e.startdate=new Date(event.startdate.getTime());
   e.enddate=new Date(event.enddate.getTime()); 

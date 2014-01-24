@@ -325,15 +325,34 @@ WeekView.prototype.buildDates = function (allBookings) {
   }
 };
 
-
-WeekView.prototype.getIndexedBookings = function(d) {
+/**
+ * Get Dates for startdate d. e can be null. Otherwise it will return all bookings between d and e
+ * @param d startdate
+ * @param e enddate
+ * @returns
+ */
+WeekView.prototype.getIndexedBookings = function(d, e) {
   var t=this;
-  if ((t.datesIndex==null) || (t.datesIndex[d.getFullYear()]==null) ||
-      (t.datesIndex[d.getFullYear()][d.getMonth()+1]==null)
-      || (t.datesIndex[d.getFullYear()][d.getMonth()+1][d.getDate()]==null)
-      ) 
-    return new Array();
-  return t.datesIndex[d.getFullYear()][d.getMonth()+1][d.getDate()];
+  if (e==null) {
+    if ((t.datesIndex==null) || (t.datesIndex[d.getFullYear()]==null) ||
+        (t.datesIndex[d.getFullYear()][d.getMonth()+1]==null)
+        || (t.datesIndex[d.getFullYear()][d.getMonth()+1][d.getDate()]==null)
+        ) 
+      return new Array();    
+    return t.datesIndex[d.getFullYear()][d.getMonth()+1][d.getDate()];
+  }
+  else {
+    var go=new Date(d.getTime());
+    var arr=new Array();
+    while (go.getTime()<e.getTime()) {
+      if (t.datesIndex[go.getFullYear()]!=null && 
+          t.datesIndex[go.getFullYear()][go.getMonth()+1]!=null &&
+          t.datesIndex[go.getFullYear()][go.getMonth()+1][go.getDate()]!=null)
+        arr=arr.concat(t.datesIndex[go.getFullYear()][go.getMonth()+1][go.getDate()]);
+      go.addDays(1);
+    }    
+    return arr;
+  }
 };
 
 /**
@@ -699,7 +718,7 @@ WeekView.prototype.calcConflicts = function(new_b, resource_id) {
   var t=this;
   var rows=Array();
   $.each(churchcore_getAllDatesWithRepeats(new_b), function(k,ds) {
-    $.each(t.getIndexedBookings(ds.startdate), function(i,conflict) {
+    $.each(t.getIndexedBookings(ds.startdate, ds.enddate), function(i,conflict) {
       var booking=allBookings[conflict.id];
       if ((booking!=null) && (booking.resource_id==resource_id) && (new_b.id!=booking.id)) {
         if ((booking.status_id==1) || (booking.status_id==2)) {
@@ -935,13 +954,20 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
          t.currentBooking.additions[t.currentBooking.exceptionids]
                ={id:t.currentBooking.exceptionids, add_date:date.toDateDe().toStringEn(), with_repeat_yn:with_repeat_yn};
          return t.currentBooking;
+       },
+       callback:function(){ 
+         t.implantEditBookingCallbacks("cr_fields", allBookings[id]); 
        }
      });
    }
    else  
-     form_renderDates({elem:$("#dates"), data:t.currentBooking}); 
-    
-   this.implantEditBookingCallbacks("cr_fields", allBookings[id]);
+     form_renderDates({
+       elem:$("#dates"), 
+       data:t.currentBooking, 
+       callback:function() { 
+         t.implantEditBookingCallbacks("cr_fields", allBookings[id]); 
+       }
+     }); 
     
    this.checkConflicts();
     
