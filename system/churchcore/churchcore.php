@@ -287,7 +287,7 @@ function churchcore__logviewer() {
     $txt.='<a href="?q=churchcore/logviewer&showmore=true" class="btn">Mehr Zeilen anzeigen</a> &nbsp; ';
     
   $txt.='<anchor id="log2"><h2>Personen sortiert nach letzten Zugriffen</h2>';
-  $txt.="<table class=\"table table-condensed table-bordered\"><tr><th>UserId<th>Anzahl Zugriffe<th>Letzter Zugriff";
+  $txt.="<table class=\"table table-condensed table-bordered\"><tr><th>Name<th>Anzahl Zugriffe<th>Letzter Zugriff";
   $res=db_query("SELECT p.id pid, vorname, name, count( l.id ) count, max( lastlogin ) maxdatum
        FROM {cdb_log} l, {cdb_person} p where l.person_id=p.id GROUP BY pid, vorname, name ORDER BY max( lastlogin ) DESC ");
   foreach ($res as $arr) {
@@ -296,7 +296,7 @@ function churchcore__logviewer() {
   $txt.="</table><br/><br/>";
   
   $txt.='<anchor id="log3"><h2>Personen nach den meissten Zugriffen</h2>';
-  $txt.="<table class=\"table table-condensed table-bordered\"><tr><th>UserId<th>Anzahl Zugriffe<th>Letzter Zugriff";
+  $txt.="<table class=\"table table-condensed table-bordered\"><tr><th>Name<th>Anzahl Zugriffe<th>Letzter Zugriff";
   $res=db_query("SELECT p.id pid, vorname, name, count( l.id ) count, max( lastlogin ) maxdatum
        FROM {cdb_log} l, {cdb_person} p where l.person_id=p.id GROUP BY pid, vorname, name ORDER BY count(l.id) DESC ");
   foreach ($res as $arr) {
