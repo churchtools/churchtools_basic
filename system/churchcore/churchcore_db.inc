@@ -8,7 +8,6 @@ define("CDB_LOG_TAG", 'tag');
 
 /**
  * Interface for implementing ChurchTools-Modules
- * Currently only used for ChurchResource and ChurchCal
  */
 interface CTModuleInterface {
   /**
@@ -129,7 +128,7 @@ abstract class CTAbstractModule implements CTModuleInterface {
   }
   
   public function deleteMasterData($params) {
-    if ((user_access("edit masterdata","churchresource")) && (churchcore_isAllowedMasterData($this->getMasterDataTablenames(), $params["table"]))) {
+    if ((user_access("edit masterdata",$this->modulename)) && (churchcore_isAllowedMasterData($this->getMasterDataTablenames(), $params["table"]))) {
       churchcore_deleteMasterData($params["id"], $params["table"]);
       $this->logMasterData($params);
     }
@@ -137,7 +136,7 @@ abstract class CTAbstractModule implements CTModuleInterface {
   }
   
   public function saveMasterData($params) {
-    if ((user_access("edit masterdata","churchresource")) && (churchcore_isAllowedMasterData($this->getMasterDataTablenames(), $params["table"]))) {      
+    if ((user_access("edit masterdata",$this->modulename)) && (churchcore_isAllowedMasterData($this->getMasterDataTablenames(), $params["table"]))) {      
       churchcore_saveMasterData($params["id"], $params["table"]);
       $this->logMasterData($params);
     } 
