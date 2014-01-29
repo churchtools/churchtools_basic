@@ -1027,7 +1027,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
                 }
               });
               if ((!dabei) && (a.eintragerfolgt_yn=="1"))
-                info=info+'<img title="Am '+a.datumvon.toDateEn().toStringDe(false)+' noch nicht dabei gewesen." src="'+masterData.modulespath+'/images/box_grey.png'+'"/>';
+                info=info+'<img title="Am '+a.datumvon.toDateEn().toStringDe(false)+' Offen." src="'+masterData.modulespath+'/images/box_white.png'+'"/>';
             }            
           });
           if (count_stattgefunden>0)
@@ -1143,6 +1143,32 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
   });
   if (count==0) rows[rows.length]="<tr><td>..";
   rows.push("</table></div>");
+  
+  
+  // Show 4 last comments
+  var comments=new Array();
+  if (g.meetingList!=null && g.meetingList!="get data") {
+    
+    rows.push('<p><small>');
+    rows.push(form_renderImage({src:"box_green.png"})+" Anwesend &nbsp;");
+    rows.push(form_renderImage({src:"box_red.png"})+" Abwesend &nbsp;");
+    rows.push(form_renderImage({src:"box_white.png"})+" Offen &nbsp;");
+    rows.push("x  ausgefallen</small>");
+    
+    $.each(churchcore_sortData(g.meetingList,"datumvon", true), function(k,m) {
+      if (comments.length<4 && m.kommentar!=null) {
+        comments.push(m);
+      }
+    });
+  }
+  if (comments.length>0) {
+    rows.push('<div class="detail-view-infobox">');
+    rows.push("<table><tr><td><i>Die letzten Gruppentreffen-Kommentare");
+    $.each(comments, function(k,m) {
+      rows.push("<tr><td><p><small>"+m.datumvon.toDateEn().toStringDe()+"<br>"+m.kommentar+'</small>');    
+    });
+    rows.push('</table></div>');
+  }
   
 
   if ((masterData.auth.viewhistory) && (this_object.range_startday!=null)){

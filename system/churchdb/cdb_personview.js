@@ -1482,9 +1482,14 @@ PersonView.prototype.renderFilter = function() {
     img="&nbsp; "+form_renderImage({
       label: "Aktuelle Filter als intelligente Gruppe speichern",
       cssid:"saveMyFilter", 
-      src: masterData.modulespath+'/images/save.png',
+      src:'save.png',
       htmlclass: "small"
     });
+    img=img+"&nbsp;"
+    if (groupView.isPersonLeaderOfGroup(masterData.user_pid, this.filter["filterMeine Gruppen"])) {
+      img=img+form_renderImage({label:"Gruppentreffen pflegen", cssid:"maintaingroupmeeting", src:"persons.png", width:20});  
+      img=img+"&nbsp;"
+    }
     if ((typeof this.filter["filterMeine Gruppen"]=="string") && (this.filter["filterMeine Gruppen"].indexOf("filter")==0)) {
       img=img+form_renderImage({
         label:"Intelligente Gruppe entfernen",
@@ -1587,6 +1592,11 @@ PersonView.prototype.renderFilter = function() {
         t.renderFurtherFilter();
         t.renderList();
       }
+    }
+    else if ($(this).attr("id")=="maintaingroupmeeting") {
+      masterData.settings.selectedGroupType=-4;
+      t.renderView();
+      return false;
     }
     else if ($(this).attr("id")=="saveMyFilter") {
       var rows = new Array();
@@ -4461,11 +4471,17 @@ PersonView.prototype.exportData = function() {
 };
 
 PersonView.prototype.renderGroupContent = function(g_id) {
+  var t=this;
   var json=null;
   if ((masterData.groups!=null) && (masterData.groups[g_id]!=null))
     json=masterData.groups[g_id].meetingList;  
   var rows = new Array();
   if (masterData.settings.selectedGroupType==-4) {
+    if (g_id==null) {
+      delete masterData.settings.selectedGroupType;
+      t.renderGroupContent();
+      return false;
+    }
     rows.push('<div class="well">');
       if (json!=null) {
         rows.push('<legend>Gruppentreffen <a href="#" id="a_gruppenliste">'+masterData.groups[g_id].bezeichnung+'</a> im <i>'+monthNames[t.gruppenteilnehmerdatum.getMonth()]+" "+t.gruppenteilnehmerdatum.getFullYear()+'</i></legend>');
@@ -4479,7 +4495,6 @@ PersonView.prototype.renderGroupContent = function(g_id) {
     rows.push('</div>');
   }
   else {
-
     var rows2 = new Array();
     var datumvon=new Date();
     gruppentreffen_id=-1;
