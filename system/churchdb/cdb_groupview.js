@@ -6,6 +6,7 @@ function GroupView() {
   CDBStandardTableView.call(this);
   this.name="GroupView";
   this.sortVariable="bezeichnung";
+  this.sortdetail="bezeichnung";
   this.range_startday=null;
   this.range_endday=null;
 }
@@ -1085,7 +1086,9 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
   rows.push(this_object.renderTags(g.tags, masterData.auth.admingroups, g_id));
   
   rows.push('<div class="detail-view-infobox">');
-  rows[rows.length]="<p><table><tr style=\"background:#F4F4F4;\"><td><i>In der Gruppe</i><td><i>Dabei seit</i><td><td>";  
+  rows.push('<p><table><tr style="background:#F4F4F4;">');
+  rows.push('<td><i><a href="#" id="sortdetailname">In der Gruppe</a></i>');
+  rows.push('<td><i><a href="#" id="sortdetaildate">Dabei seit</a></i><td><td>');  
   stats_dabei=0;
   stats_stattgefunden=0;
   
@@ -1100,7 +1103,13 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
       
       if (arr[a.leiter]<arr[b.leiter]) return 1;
       else if (arr[a.leiter]>arr[b.leiter]) return -1;
-      else if (a.leiter==b.leiter) return a.name>b.name;
+      else if (a.leiter==b.leiter) {
+        if (this_object.sortdetail=="bezeichnung") 
+          return (a.name+a.vorname).toUpperCase()>(b.name+b.vorname).toUpperCase();
+        else   
+          return a.date<b.date;          
+        return a[this_object.sortdetail]>b[this_object.sortdetail];
+      }
       return 0;
     });
   // Und zeige sie an
@@ -1368,6 +1377,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
       $("#cdb_group").html("");
       churchInterface.setCurrentView(personView);
       personView.clearFilter();
+      delete masterData.settings.selectedMyGroup;
       personView.furtherFilterVisible=true;
       personView.filter["filterTyp 1"]=g.gruppentyp_id;
       personView.filter["filterGruppe 1"]=g_id;
@@ -1407,6 +1417,16 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
       //if (confirm("Wirklich "+allPersons[id].vorname+" "+allPersons[id].name+" aus der Gruppe entfernen?")) {
         personView.delPersonFromGroup(id, g_id);
      // }     
+      groupView.renderList();
+      return false;
+    }
+    else if ($(this).attr("id").indexOf("sortdetailname")==0) {
+      groupView.sortdetail="bezeichnung";
+      groupView.renderList();
+      return false;
+    }
+    else if ($(this).attr("id").indexOf("sortdetaildate")==0) {
+      groupView.sortdetail="date";
       groupView.renderList();
       return false;
     }
