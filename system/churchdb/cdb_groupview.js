@@ -1137,33 +1137,43 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
   
 
   if ((masterData.auth.viewhistory) && (this_object.range_startday!=null)){
-    rows.push('<div class="detail-view-infobox">');
-    rows.push("<p><br/><table><tr><td><i>Nicht mehr in der Gruppe</i><td><i>seit</i><td>");
+    var history=new Array();
     var start=new Date(); start.addDays(this_object.range_startday);
     var end=new Date(); end.addDays(this_object.range_endday);
     $.each(allPersons, function(k,a) {
       if (a.oldGroups!=null) {
         $.each(a.oldGroups, function(i,b) {
           if ((b.gp_id==g_id) && (b.leiter==-99) && (b.d!=null) && (b.d.toDateEn()>=start) && (b.d.toDateEn()<=end))
-            rows.push('<tr><td>'+a.vorname+" "+a.name+"<td>"+b.d.toDateEn().toStringDe());
+            history.push('<tr><td>'+a.vorname+" "+a.name+"<td>"+b.d.toDateEn().toStringDe());
         });
       }
     });
-  
-    rows.push("</table></div>");
+    if (history.length>0) { 
+      rows.push('<div class="detail-view-infobox">');
+      rows.push("<p><br/><table><tr><td><i>Nicht mehr in der Gruppe</i><td><i>seit</i><td>");
+      rows.push(history.join(""));  
+      rows.push("</table></div>");
+    }
   }
   
 
   rows.push("<p></p>");
+  rows.push('<div class="ui-widget"><legend>Weitere Optionen</legend>');
+  rows.push('<p>'+form_renderImage({src:'filter.png', width:20}));
+  rows.push('&nbsp;<a href="#" id="grp_to_filter">Gruppe in der Personenliste filtern</a>');    
   if (editGroup) { 
-    if ((masterData.groups[g_id].meetingList!=null) && (masterData.groups[g_id].meetingList!="get data"))
-      rows.push('<p><i><a href="#" class="btn" id="del_last_statistic">Letzte Teilnehmerpflege zur&uuml;cksetzen</a></i>');
-    
-    if ((masterData.groups[g_id].max_teilnehmer==null) || ((masterData.groups[g_id].max_teilnehmer>stats.count_all_member)))
-      rows.push('<p><a href="#" class="btn btn-small" id="addPerson">Weitere Person hinzuf&uuml;gen</a>');
-    
+    if ((masterData.groups[g_id].max_teilnehmer==null) || ((masterData.groups[g_id].max_teilnehmer>stats.count_all_member))) {
+      rows.push('<p>'+form_renderImage({src:"person.png", width:20}));
+      rows.push('&nbsp;<a href="#" id="addPerson">Weitere Person zur Gruppe hinzuf&uuml;gen</a>');
+    }
+    rows.push('<p>'+form_renderImage({src:'persons.png', width:20}));
+    rows.push('&nbsp;<a href="#" style="width=100%" id="edit_meetinglist">Gruppentreffen pflegen</a>');
+    if ((masterData.groups[g_id].meetingList!=null) && (masterData.groups[g_id].meetingList!="get data")) {
+      rows.push('<p>'+form_renderImage({src:'trashbox.png', width:20}));
+      rows.push('&nbsp;<a href="#" id="del_last_statistic">Letztes Gruppentreffen zur&uuml;cksetzen</a>');
+    }
   }
-  rows.push('<p><a href="#" class="btn btn-small" id="grp_to_filter">Gruppe in Filter &uuml;bernehmen</a>');
+  rows.push("</div>");
 
   rows[rows.length]="</div>";
   
@@ -1255,7 +1265,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
      
   if ((masterData.auth.adminpersons) && (masterData.auth.adminpersons)) {
     rows[rows.length]="<br/><legend>Teilnehmerberechtigungen";        
-    rows[rows.length]="&nbsp;&nbsp;<a href=\"\" id=\"auth_"+g_id+"\">"+this_object.renderImage("schluessel")+"</a></legend>";
+    rows[rows.length]="&nbsp;&nbsp;<a href=\"\" id=\"auth_"+g_id+"\">"+this_object.renderImage("options")+"</a></legend>";
     if (g.auth==null)
       rows.push("keine");
     else {
@@ -1413,6 +1423,15 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
       churchInterface.setCurrentView(personView);
       personView.clearFilter();
       personView.setFilter("searchEntry","#"+$(this).attr("id").substr(7,99));
+      personView.renderView();
+    }
+    else if ($(this).attr("id").indexOf("edit_meetinglist")==0) {   
+      $("#cdb_group").html("");
+      churchInterface.setCurrentView(personView);
+      personView.clearFilter();
+      personView.setFilter("filterMeine Gruppen",g_id);
+      delete masterData.settings.selectedMyGroup;
+      masterData.settings.selectedGroupType=-4;
       personView.renderView();
     }
     else if ($(this).attr("id").indexOf("del_last_statistic")==0) {

@@ -652,7 +652,40 @@ PersonView.prototype.addPersonsTooltip = function(element) {
       }      
     });    
   });  
-}
+};
+
+PersonView.prototype.addGroupMeetingDate = function() {
+  var form=new CC_Form("Ein Gruppentreffen hinzuf&uuml;gen");
+  var dt=new Date();
+  form.addInput({label:"Datum",cssid:"inputmeetingdate", value:dt.toStringDe(false)});
+  form.addHtml("<div id=\"dp_meetingdate\" style=\"position:absolute;background:#e7eef4;z-index:12001;\"/>");
+  form.addInput({label:"Uhrzeit",value:"10:00"});
+  form.addHtml('<p><small>Hinweis: Dieses Gruppentreffen wird nur für diese Gruppe angelegt. ');
+  form.addHtml('<a href="https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc:Gruppentreffen/" target="_clean"><i class="icon-question-sign"></i></a>');
+  var elem=form_showDialog("Gruppentreffen", form.render(), 400, 400, {
+    "Speichern": function() {
+      var obj=form.getAllValsAsObject();
+      obj.datumvon=obj.inputmeetingdate.toDateDe().toStringEn(false)+" "+obj.Uhrzeit;
+      obj.datumbis=obj.datumvon;
+      obj.gruppe_id=t.filter["filterMeine Gruppen"];
+      obj.func="addEvent";
+      churchInterface.jsendWrite(obj, function(ok, data) {
+        elem.dialog("close");
+        t.loadGroupMeetingList(t.filter["filterMeine Gruppen"]);            
+      });
+    },
+    "Abbrechen": function() {
+      $(this).dialog("close");
+    }
+  }); 
+  $("#inputmeetingdate").click(function() {
+    form_implantDatePicker("dp_meetingdate", dt.toStringDe(), function(dateText) {    
+      $("#inputmeetingdate").val(dateText.toDateDe().toStringDe());
+    });
+  });
+  
+  
+};
 
 PersonView.prototype.addFurtherListCallbacks = function(cssid) {
   var t=this;
@@ -759,26 +792,7 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
       t.editMeetingProperties($(this).attr("data-group-id"), $(this).attr("data-gruppentreffen-id"));
     }
     else if ($(this).attr("id")=="addGruppenteilnehmerdatum") {
-      var form=new CC_Form("Event hinzuf&uuml;gen");
-      var dt=new Date();
-      form.addInput({label:"Datum",value:dt.toStringDe(false)});
-      form.addInput({label:"Uhrzeit",value:"10:00"});
-      var elem=form_showDialog("Gruppenteilnahme", form.render(), 400, 400, {
-        "Speichern": function() {
-          var obj=form.getAllValsAsObject();
-          obj.datumvon=obj.Datum.toDateDe().toStringEn(false)+" "+obj.Uhrzeit;
-          obj.datumbis=obj.datumvon;
-          obj.gruppe_id=t.filter["filterMeine Gruppen"];
-          obj.func="addEvent";
-          churchInterface.jsendWrite(obj, function(ok, data) {
-            elem.dialog("close");
-            t.loadGroupMeetingList(t.filter["filterMeine Gruppen"]);            
-          });
-        },
-        "Abbrechen": function() {
-          $(this).dialog("close");
-        }
-      });
+      t.addGroupMeetingDate();
     }
   });
   if (cssid=="#cdb_content") { 
@@ -1011,7 +1025,8 @@ PersonView.prototype.renderListEntry = function(a) {
     }
     rows[rows.length] = "<td class=\"hidden-phone\">";
   }
-  else if ((masterData.groups!=null) && (masterData.groups[t.filter["filterMeine Gruppen"]]!=null)) {    
+  else if ((masterData.groups!=null) && (masterData.groups[t.filter["filterMeine Gruppen"]]!=null)) {  
+    a.open=false;
     if ((masterData.groups[t.filter["filterMeine Gruppen"]].meetingList!=null)
          && (masterData.groups[t.filter["filterMeine Gruppen"]].meetingList!="get data")) {
       $.each(masterData.groups[t.filter["filterMeine Gruppen"]].meetingList, function(k,m) {
@@ -1255,18 +1270,18 @@ PersonView.prototype.getListHeader = function() {
          (t.filter['filterMeine Gruppen']!=null && groupView.isPersonLeaderOfGroup(masterData.user_pid, t.filter['filterMeine Gruppen']))) {
       var c = new Object();
       c.id=-4;
-      c.bezeichnung="Gruppenteilnahme";
-      b[-4]=(_createEntry(-4, "Gruppenteilnahme"));
+      c.bezeichnung="Gruppentreffen";
+      b[-4]=(_createEntry(-4, "Gruppentreffen"));
     }
     tableHeader=tableHeader+"<th class=\"hidden-phone\">";
     tableHeader=tableHeader+form_renderSelect({data:b, controlgroup:false, cssid:"filterGruppentyp", type:"medium", selected:masterData.settings.selectedGroupType, func:function(a) {
-       // -2 = Tag-Ansicht   -4 = Gruppenteilnahme
+       // -2 = Tag-Ansicht   -4 = Gruppentreffen
         return ((a.id==-2) || (a.id==-4) || (a.anzeigen_in_meinegruppen_teilnehmer_yn==1) || (masterData.auth.viewalldata));
       }
     });
   }
   
-  // -4 = Gruppenteilnahmepflege
+  // -4 = pflege
   if (masterData.settings.selectedGroupType==-4) {
     if ((masterData.groups!=null) && (masterData.groups[g_id]!=null) && (masterData.groups[g_id].meetingList!=null)
         && (masterData.groups[g_id].meetingList!="get data")) {
@@ -1309,6 +1324,7 @@ PersonView.prototype.getListHeader = function() {
       tableHeader=tableHeader+'<th class="hidden-phone"><a href="#" id="sortstation_id" title="Station">S';
     tableHeader=tableHeader+'<th class="hidden-phone"><font title="Bereich">B</font>';
   }
+  
   return tableHeader;
 };
 
@@ -4451,12 +4467,15 @@ PersonView.prototype.renderGroupContent = function(g_id) {
   var rows = new Array();
   if (masterData.settings.selectedGroupType==-4) {
     rows.push('<div class="well">');
-    if (json!=null) {
-      rows.push('<legend>Gruppenteilnahme <a href="#" id="a_gruppenliste">'+masterData.groups[g_id].bezeichnung+'</a> im <i>'+monthNames[t.gruppenteilnehmerdatum.getMonth()]+" "+t.gruppenteilnehmerdatum.getFullYear()+'</i></legend>');
-      rows.push(form_renderButton({label:"<< Monat zur&uuml;ck", cssid:"btn_monatback"})+" ");
-      rows.push(form_renderButton({label:"Monat vor >>", cssid:"btn_monatfurther"}));
-    }
-    rows.push(form_renderButton({label:"Gruppenteilnahme schließen", cssid:"btn_gruppenteilnahme",htmlclass:"pull-right"}));
+      if (json!=null) {
+        rows.push('<legend>Gruppentreffen <a href="#" id="a_gruppenliste">'+masterData.groups[g_id].bezeichnung+'</a> im <i>'+monthNames[t.gruppenteilnehmerdatum.getMonth()]+" "+t.gruppenteilnehmerdatum.getFullYear()+'</i></legend>');
+        rows.push(form_renderButton({label:"<< Monat zur&uuml;ck", cssid:"btn_monatback"})+" ");
+        rows.push(form_renderButton({label:"Monat vor >>", cssid:"btn_monatfurther"}));
+      }
+      rows.push('<span class="pull-right">');
+      rows.push(form_renderButton({label:"Gruppentreffen hinzuf&uuml;gen", cssid:"btn_addGroupMeetingDate"})+"&nbsp;");
+      rows.push(form_renderButton({label:"Pflege beenden", cssid:"btn_gruppentreffen"}));
+      rows.push('</span>');
     rows.push('</div>');
   }
   else {
@@ -4467,13 +4486,16 @@ PersonView.prototype.renderGroupContent = function(g_id) {
     if (json!=null) {
       $.each(churchcore_sortData(json,"datumvon"), function(k,a) {
         if (a.eintragerfolgt_yn==0) {
-          rows2.push('<input type="button" class="btn pull-right" value="Treffen ausgefallen"/>');
-          rows2.push('<input type="button" class="btn pull-right" value="Auswahl absenden"/>');
+          rows2.push('<legend>'+form_renderImage({src:"persons.png"})+'&nbsp;Bitte noch ein Gruppentreffen pflegen...</legend>');
+          rows2.push('<span class="pull-right">')
+          rows2.push('<input type="button" class="btn" value="Auswahl absenden"/>&nbsp;');
+          rows2.push('<input type="button" class="btn" value="Treffen ausgefallen"/>');
+          rows2.push('</span>');
           if (a.datumvon.toDateEn(true).toStringDe(true)==a.datumbis.toDateEn(true).toStringDe(true))
-            rows2.push("<p><b>Bitte ausw&auml;hlen: Wer war am "+a.datumvon.toDateEn(true).toStringDe(true)+" da?</b>");
+            rows2.push("<p><b>Wer war am "+a.datumvon.toDateEn(true).toStringDe(true)+" da?</b>");
           else
-            rows2.push("<p><b>Bitte ausw&auml;hlen: Wer war in der Zeit vom "+a.datumvon.toDateEn().toStringDe()+" - "+a.datumbis.toDateEn().toStringDe()+" da?</b>");
-          rows2.push('<br><small>Zuerst die Personen markieren, die bei dem Treffen dabei gewesen sind. Dann auf "Auswahl absenden" klicken.</small>');
+            rows2.push("<p><b>Wer war in der Zeit vom "+a.datumvon.toDateEn().toStringDe()+" - "+a.datumbis.toDateEn().toStringDe()+" da?</b>");
+          rows2.push('<br><small>Bitte die Personen markieren, die bei dem Treffen dabei gewesen sind. Dann auf "Auswahl absenden" klicken.</small>');
           gruppentreffen_id=a.id;
           datumvon=a.datumvon.toDateEn(true);
           return false;
@@ -4538,7 +4560,10 @@ PersonView.prototype.renderGroupContent = function(g_id) {
       churchInterface.setCurrentView(groupView);
       return false;
     }
-    else if ($(this).attr("id")=="btn_gruppenteilnahme") {
+    else if ($(this).attr("id")=="btn_addGroupMeetingDate") {
+      t.addGroupMeetingDate();
+    }
+    else if ($(this).attr("id")=="btn_gruppentreffen") {
       var gt=churchcore_getFirstElement(masterData.groupTypes);
       var id=null;
       if (gt!=null) id=gt.id;      

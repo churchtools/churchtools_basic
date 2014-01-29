@@ -189,8 +189,12 @@ abstract class CTAbstractModule implements CTModuleInterface {
 function makeParamsLoggable($params) {
   $my=array();
   foreach ($params as $key=>$param) {
-    if (($key!="q") && ($key!="func"))
-      $my[]="$key:$param";
+    if (($key!="q") && ($key!="func")) {
+      if (is_array($param))
+        $my[]="$key:".serialize($param);
+      else
+        $my[]="$key:$param";
+    }
   } 
   $str="";
   if (isset($params["func"])) $str.=$params["func"]." ";

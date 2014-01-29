@@ -1,5 +1,7 @@
 (Legende: "+"=>Neues Feature  "-"=>Fehlerbehebung)
 
+churchtools 2.46
+- (CDB) Umbennung Gruppenteilnahme in Gruppentreffen
 - (CDB) Einladungslink ist nun 14 Tage gŸltig.
 - (CDB) Distriktleiter oder Gruppentypleiter kann nun alle jeweils enthaltenen Personen editieren
 - (CDB) Geburtstagsliste wird nur noch durch das explizite Recht view birthdaylist angezeigt.   

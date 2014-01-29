@@ -1712,7 +1712,7 @@ function run_db_updates($db_version) {
       db_query("update {cdb_nationalitaet} set bezeichnung='S&atilde;o Tom&eacute; und Pr&iacute;ncipe' where bezeichnung='S?o Tom? und Pr?ncipe'");
       db_query("update {cdb_nationalitaet} set bezeichnung='Wei&szlig;russland' where bezeichnung='Wei?russland'");
       db_query("update {cc_config} set value=1 where name='cronjob_dbdump' and value=0");
-      db_query("update {cc_config} set value=60 where name='cronjob_delay' and value=0");
+      db_query("update {cc_config} set value=3600 where name='cronjob_delay' and value=0");
       set_version("2.43");
       
     case '2.43':
@@ -1721,6 +1721,13 @@ function run_db_updates($db_version) {
       
     case '2.44':
       set_version("2.45");
+      
+    case '2.45':
+      set_version("2.46");
+      // Throuh an error in the update in 2.42, the value is 60, that doesnt make sense...
+      db_query("update {cc_config} set value=3600 where name='cronjob_delay' and value=60");
+      
+      
   }
 	  
     $a=db_query("select * from {cc_config} where name='version'",null,false);
