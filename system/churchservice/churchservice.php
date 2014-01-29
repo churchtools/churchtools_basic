@@ -726,22 +726,22 @@ function churchservice_inform_leader() {
          from {cs_event} e, {cs_eventservice} es, {cs_service} s, {cc_cal} c 
          where c.id=e.cc_cal_id and es.service_id in (".implode(",",$person["service"]).")
           and es.event_id=e.id and es.service_id=s.id and es.valid_yn=1 and zugesagt_yn=0
-          and e.startdate>current_date order by e.startdate");
+          and e.startdate>current_date and datediff(e.startdate,CURRENT_DATE)<=60 order by e.startdate");
       $txt='';
       foreach ($res as $es) {
         $txt.="<li>". $es->datum." ".$es->event." - Dienst ".$es->service.": ";
+        $txt.='<font style="color:red">';
         if ($es->name==null)
           $txt.="?";
         else         
-          $txt.=$es->name."";
+          $txt.=$es->name."?";
+        $txt.='</font>';
       }
       if ($txt!='') {    
-        $txt="<h3>Hallo ".$person["person"]->vorname."!</h3><p>Hier eine Liste der noch offenen Dienste in Deinem Bereich:<ul>".$txt."</ul>";
-        $txt.="<p>Weitere Infos hierzu auf ".
-            $base_url."/?q=churchservice \n";
-        $txt.="<p>Diese Benachrichtigung deaktivieren auf ".
-            $base_url."/?q=churchservice#SettingsView/ \n\n";
-        churchservice_send_mail("[".variable_get('site_name', 'drupal')."] Offene Dienste",$txt,$person["person"]->email);
+        $txt="<h3>Hallo ".$person["person"]->vorname."!</h3><p>Es sind in den n&auml;chsten 60 Tagen noch folgende Dienste offen:<ul>".$txt."</ul>";
+        $txt.='<p><a href="'.$base_url.'/q=churchservice" class="btn">Weitere Infos</a>&nbsp';
+        $txt.='<p><a href="'.$base_url.'/?q=churchservice#SettingsView" class="btn">Benachrichtigung deaktivieren</a>';
+        churchservice_send_mail("[".variable_get('site_name')."] Offene Dienste",$txt,$person["person"]->email);
       }
     }                                
   }
