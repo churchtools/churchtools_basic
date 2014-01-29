@@ -25,6 +25,18 @@ Temp.prototype = CDBStandardTableView.prototype;
 PersonView.prototype = new Temp();
 personView = new PersonView();
 
+function f(selector) {
+  if (masterData.fields==null) return null;
+  var res="!!"+selector+"!!";
+  $.each(masterData.fields, function(i,c) {
+    if (c.fields!=null && c.fields[selector]!=null) {
+      res=c.fields[selector].text;
+      return false;
+    }
+  });
+  return res;
+}
+
 PersonView.prototype.getData = function(sorted, newSort /*default:true*/) {
   if (sorted) {
     if ((newSort==null) || (newSort==true) || (this.sortedData==null)) {
@@ -290,10 +302,10 @@ PersonView.prototype.renderAddEntry = function(prefill) {
     masterData.settings.newPersonStatus=1;
   if (masterData.settings.newPersonStation==null)
     masterData.settings.newPersonStation=1;
-  form.addSelect({data: masterData.auth.dep, selected:masterData.settings.newPersonBereich, cssid:"Inputf_dep", label:"Bereich"});
-  form.addSelect({data: masterData.status, selected:masterData.settings.newPersonStatus, cssid:"Inputf_status", label:"Status"});  
+  form.addSelect({data: masterData.auth.dep, selected:masterData.settings.newPersonBereich, cssid:"Inputf_dep", label:f("bereich_id")});
+  form.addSelect({data: masterData.status, selected:masterData.settings.newPersonStatus, cssid:"Inputf_status", label:f("status_id")});  
   if (masterData.fields.f_category.fields.station_id!=null) 
-    form.addSelect({data: masterData.station, selected:masterData.settings.newPersonStation, cssid:"Inputf_station", label:"Station"});
+    form.addSelect({data: masterData.station, selected:masterData.settings.newPersonStation, cssid:"Inputf_station", label:f("station_id")});
   _text=_text+form.render();
 
   var form = new CC_Form("Gruppen");
@@ -873,7 +885,7 @@ PersonView.prototype.personFunction = function (value, param) {
       form.setLabel("Bitte Gruppe ausw&auml;hlen");
       form.addSelect({
         freeoption:true, 
-        label:"Gruppentyp",
+        label:f("gruppentyp_id"),
         data:masterData.groupTypes, 
         cssid:"inputGruppentyp",
         selected:param
@@ -1093,7 +1105,7 @@ PersonView.prototype.renderListEntry = function(a) {
         arr.push(t.renderAuth(k));
       });
       if (arr.length>0)
-        rows.push('<b>Rechte durch Status: </b>'+arr.join(",")+'<br/>');
+        rows.push('<b>Rechte durch '+f("status_id")+': </b>'+arr.join(",")+'<br/>');
     }
   } 
   else { 
@@ -1206,7 +1218,7 @@ PersonView.prototype.makeFilterStatus = function(name, start_string, data) {
   }
 };
 
-PersonView.prototype.createMultiselect = function(name, data) {
+PersonView.prototype.createMultiselect = function(name, bezeichnung, data) {
   var t=this;
   var filterName="filter"+name;
   
@@ -1215,7 +1227,7 @@ PersonView.prototype.createMultiselect = function(name, data) {
   if (t.filter[filterName]==null) {
     t.makeFilterStatus(name, masterData.settings[filterName], data);
   }
-  t.filter[filterName].render2Div(filterName, {label:name});    
+  t.filter[filterName].render2Div(filterName, {label:bezeichnung});    
 };
 
 PersonView.prototype.getListHeader = function() {  
@@ -1230,9 +1242,9 @@ PersonView.prototype.getListHeader = function() {
     allPersons[this.filter["searchEntry"]].id=this.filter["searchEntry"];
   }
 
-  t.createMultiselect("Status", masterData.status);
-  t.createMultiselect("Station", masterData.station);
-  t.createMultiselect("Bereich", masterData.auth.dep);
+  t.createMultiselect("Status", f("status_id"), masterData.status);
+  t.createMultiselect("Station", f("station_id"), masterData.station);
+  t.createMultiselect("Bereich", f("bereich_id"), masterData.auth.dep);
   
   tableHeader='<th><a href="#" id="sortid">Nr.</a><th><a href="#" id="sortvorname">'
        +masterData.fields.f_address.fields.vorname.text
@@ -1319,10 +1331,10 @@ PersonView.prototype.getListHeader = function() {
   }
   if (masterData.settings.selectedGroupType!=-4) {    
     if (masterData.auth.viewalldetails)
-      tableHeader=tableHeader+'<th class="hidden-phone"><a href="#" id="sortstatus_id" title="Status">S';
+      tableHeader=tableHeader+'<th class="hidden-phone"><a href="#" id="sortstatus_id" title="'+f("status_id")+'">'+f("status_id").substr(0,1);
     if (masterData.fields.f_category.fields.station_id!=null) 
-      tableHeader=tableHeader+'<th class="hidden-phone"><a href="#" id="sortstation_id" title="Station">S';
-    tableHeader=tableHeader+'<th class="hidden-phone"><font title="Bereich">B</font>';
+      tableHeader=tableHeader+'<th class="hidden-phone"><a href="#" id="sortstation_id" title="'+f("station_id")+'">'+f("station_id").substr(0,1);
+    tableHeader=tableHeader+'<th class="hidden-phone"><font title="'+f("bereich_id")+'">'+f("bereich_id").substr(0,1)+'</font>';
   }
   
   return tableHeader;
@@ -1477,19 +1489,21 @@ PersonView.prototype.renderFilter = function() {
   //form.setLabel();
   
   var ret=t.getMyGroupsSelector(true);
-  var img="";
+  var img="&nbsp; ";
   if (masterData.auth.viewalldata) {
-    img="&nbsp; "+form_renderImage({
+    img=img+form_renderImage({
       label: "Aktuelle Filter als intelligente Gruppe speichern",
       cssid:"saveMyFilter", 
       src:'save.png',
       htmlclass: "small"
     });
     img=img+"&nbsp;"
-    if (groupView.isPersonLeaderOfGroup(masterData.user_pid, this.filter["filterMeine Gruppen"])) {
-      img=img+form_renderImage({label:"Gruppentreffen pflegen", cssid:"maintaingroupmeeting", src:"persons.png", width:20});  
-      img=img+"&nbsp;"
-    }
+  }
+  if (groupView.isPersonLeaderOfGroup(masterData.user_pid, this.filter["filterMeine Gruppen"])) {
+    img=img+form_renderImage({label:"Gruppentreffen pflegen", cssid:"maintaingroupmeeting", src:"persons.png", width:20});  
+    img=img+"&nbsp;"
+  }
+  if (masterData.auth.viewalldata) {
     if ((typeof this.filter["filterMeine Gruppen"]=="string") && (this.filter["filterMeine Gruppen"].indexOf("filter")==0)) {
       img=img+form_renderImage({
         label:"Intelligente Gruppe entfernen",
@@ -1511,30 +1525,11 @@ PersonView.prototype.renderFilter = function() {
     
   if (masterData.auth.viewalldetails) {
     form.addHtml('<div id="filterStatus"></div>');
-/*    form.addSelect({
-      label:"Status",
-      data:masterData.status,
-      cssid:"filterStatus",
-      type:"medium", freeoption:true,
-      func: function(d){return (masterData.settings.hideStatus==null)|| d.id!=masterData.settings.hideStatus;}
-    });*/
   }
   if (masterData.fields.f_category.fields.station_id!=null) {
     form.addHtml('<div id="filterStation"></div>');
-/*    form.addSelect({
-      label:"Station",
-      data:masterData.station,
-      cssid:"filterStation",
-      type:"medium", freeoption:true
-    });*/
   }
   form.addHtml('<div id="filterBereich"></div>');
-/*  form.addSelect({
-    label:"Bereich",
-    data:masterData.auth.dep,
-    cssid:"filterBereich",
-    type:"medium", freeoption:true
-  });*/
   form.addCheckbox({cssid:"searchChecked",label:"markierte"});  
   rows.push(form.render(true, "inline"));
   
@@ -2695,14 +2690,14 @@ PersonView.prototype.renderDetails = function (id) {
         _text=_text+txt+"</small><br/>";
         
         if (a.districts!=null) {
-          _text=_text+"<p><small><b>Zugeordnete Distrikte:</b>";
+          _text=_text+"<p><small><b>Zugeordnet in "+f("distrikt_id")+":</b>";
           $.each(a.districts, function(k,b) {
             _text=_text+"<br/>- "+masterData.districts[b.distrikt_id].bezeichnung+"";
           });
           _text=_text+"</small>";
         }      
         if (a.gruppentypen!=null) {
-          _text=_text+"<p><small><b>Zugeordnete Gruppentypen:</b>";
+          _text=_text+"<p><small><b>Zugeordnet in "+f("gruppentyp_id")+":</b>";
           $.each(a.gruppentypen, function(k,b) {
             _text=_text+"<br/>- "+masterData.groupTypes[b.gruppentyp_id].bezeichnung+"";
           });
@@ -2716,8 +2711,10 @@ PersonView.prototype.renderDetails = function (id) {
   
       // Rechte Spalte
       _text=_text+"<div class=\"right-column-person span4\">";
-  
-      _text=_text + t.renderTags(a.tags, masterData.auth.write || personLeader, id);
+      
+      if (masterData.auth.viewtags || personLeader) {
+        _text=_text + t.renderTags(a.tags, masterData.auth.write || personLeader, id);
+      }
   
       // Kommentare
       if (masterData.auth.comment_viewer!=null) {
@@ -2824,7 +2821,7 @@ PersonView.prototype.renderDetails = function (id) {
       _text=_text+"<a href=\"#\" id=\"vcard\">VCard export>></a></div><!--bottom_links-->";                
       _text=_text+"<div style=\"float:right\">";
     
-      _text=_text+"<small><i>Bereiche: </i>";
+      _text=_text+"<small><i>"+f("bereich_id")+": </i>";
         $.each(masterData.auth.dep, function(k,a) {
           if ((allPersons[id].access!=null) && (allPersons[id].access[a.id]==a.id)) {
             _text=_text+" "+a.bezeichnung+"&nbsp;";         
@@ -3272,7 +3269,7 @@ PersonView.prototype.delPersonFromGroup = function (id, g_id, withoutConfirmatio
     });
     if (!leiter_check) {
       alert("Bei "+a.vorname+" "+a.name+" nicht machbar, da es sich um den einzigen Leiter dieser Gruppe handelt. " +
-          "Gruppen des Gruppentyps '"+masterData.groupTypes[masterData.groups[g_id].gruppentyp_id].bezeichnung+
+          "Gruppen von "+f("gruppentyp_id")+" "+masterData.groupTypes[masterData.groups[g_id].gruppentyp_id].bezeichnung+
           "' muessen mindestens einen Leiter haben.");
       return false;
     } 
@@ -3441,7 +3438,7 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
   }
   else if (fieldname=="f_bereich") {      
     width=350; height=300;
-    rows.push("<h3>Anpassung der Bereiche</h3><p><small>Eine Person muss in mindestens einem Bereich sein</small>");
+    rows.push("<h3>Anpassung von "+f("bereich_id")+"</h3><p><small>Eine Person muss in mindestens einem zugeordnet sein</small>");
     $.each(masterData.auth.dep, function(k,a) {
       if (allPersons[id].access[a.id]==a.id) {
         rows[rows.length]="<p><input type=\"checkbox\" id=\"InputBereich"+a.id+"\"/ checked=\"true\"/>"; 
@@ -3547,7 +3544,7 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
       var form=new CC_Form(masterData.groupTypes[gt_id].bezeichnung+" erstellen");
       form.addInput({label:"Name der Gruppe", cssid:"name"});
       form.addHidden({cssid:"Inputf_grouptype", value:gt_id});
-      form.addSelect({label:"Distrikt", data:masterData.districts, cssid:"Inputf_district"});
+      form.addSelect({label:f("distrikt_id"), data:masterData.districts, cssid:"Inputf_district"});
       elem.dialog("close");
       var elem2=form_showDialog("Gruppe erstellen", form.render(null, "vertical"), 300, 350, {
         "Speichern": function() {
@@ -3589,7 +3586,7 @@ PersonView.prototype.renderPersonGroupRelation = function(id, g_id) {
     });
     if (!leiter_check) {
       alert("Nicht editierbar, da es sich um den einzigen Leiter der Gruppe handelt. " +
-          "Gruppen des Gruppentyps '"+masterData.groupTypes[masterData.groups[g_id].gruppentyp_id].bezeichnung+
+          "Gruppen von "+f("gruppentyp_id")+" "+masterData.groupTypes[masterData.groups[g_id].gruppentyp_id].bezeichnung+
           "' muessen mindestens einen Leiter haben.");
       return null;
     } 
@@ -4039,7 +4036,7 @@ PersonView.prototype.renderGroupFilter = function() {
     }));
     rows.push('<td>'+form_renderSelect({
       data:masterData.groupTypes,
-      label:"Typ "+k,
+      label:f("gruppentyp_id")+" "+k,
       selected:this.filter["filterTyp "+k],
       cssid:"filterTyp "+k,
       controlgroup:true, freeoption:true, type:"medium"
@@ -4064,7 +4061,7 @@ PersonView.prototype.renderGroupFilter = function() {
     
     rows.push(form_renderSelect({
       data:masterData.districts,
-      label:"Distrikt "+k,
+      label:f("distrikt_id")+" "+k,
       selected:this.filter["filterDistrikt "+k],
       cssid:"filterDistrikt "+k,
       controlgroup:true, freeoption:true, type:"medium"
@@ -4186,7 +4183,7 @@ PersonView.prototype.renderRelationFilter = function() {
 
   rows.push(form_renderSelect({
     data:masterData.groupTypes,
-    label:"in Gruppentyp ",
+    label:"in "+f("gruppentyp_id"),
     selected:this.filter["filterRelationExtGroupTyp"],
     cssid:"filterRelationExtGroupTyp",
     controlgroup:true, freeoption:true, type:"medium"

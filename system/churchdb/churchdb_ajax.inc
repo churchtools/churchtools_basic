@@ -23,9 +23,9 @@ function churchdb_getPersonDetails($id) {
   global $user;
   
   // Entweder habe ich viewall auf den Bereich oder ich bin mit dem in einer Gruppe
-  $allowed=false;
+  $allowed=$user->id==$id;
   $iAmLeader=false;
-
+  
   // Pr�fe erst, ob ich als Leiter mit dem in der Gruppe bin
   if (!$allowed) {    
     $myGroups=churchdb_getMyGroups($user->id, true, true);
@@ -688,6 +688,7 @@ function churchdb_getModulesPath() {
 
 function churchdb_getMasterDataTablenames() {
   $res=array();
+  
   // Nummern nicht �ndern, Statistik bezieht sich darauf!
   $res[1]=churchcore_getMasterDataEntry(1, "Status", "status", "cdb_status");
   $res[1]["special_func"]=array("name"=>"Berechtigungen", "image"=>"schluessel", "func"=>"editAuth");
@@ -1480,6 +1481,7 @@ class CTChurchDBModule extends CTAbstractModule {
     churchcore_saveUserSetting("churchdb",$user->id,"filter",serialize($arr));
   }
   public function delPersonTag($params) {
+    $this->logPerson($params);
     $gp_id=_churchdb_getGemeindepersonIdFromPersonId($params["id"]);
     db_query("delete from {cdb_gemeindeperson_tag} where tag_id=".$params["tag_id"]." and gemeindeperson_id=$gp_id");
   }

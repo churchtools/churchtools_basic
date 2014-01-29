@@ -68,7 +68,22 @@ MaintainStandardView.prototype.getListHeader = function() {
 
 MaintainStandardView.prototype.renderListEntry = function(a) {
   rows=new Array();
-  rows.push("<td>" + a.bezeichnung);
+
+  
+  var name=a.bezeichnung;
+  if (masterData.fields!=null)
+  $.each(masterData.fields, function(k,m) {
+    if (m.fields!=null) {
+      $.each(m.fields, function(i,n) {
+        if (n.selector==a.shortname) {
+          name=n.text;
+          return false;
+        }
+      });
+    }
+  });
+
+  rows.push("<td>" + name);
   i=0;
   if (masterData[a.shortname]!=null)
     $.each(masterData[a.shortname], function(k,a) {

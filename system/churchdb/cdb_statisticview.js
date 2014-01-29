@@ -47,7 +47,21 @@ StatisticView.prototype.renderMasterDataStatistic = function(divid, masterDatafi
   rows.push("</table></small>");
 
   if (this.filter["showTables"]==null) rows= new Array();
-  rows.unshift("<b>"+desc.bezeichnung+"</b>");  
+  
+  var name=desc.bezeichnung;
+  if (masterData.fields!=null)
+  $.each(masterData.fields, function(k,m) {
+    if (m.fields!=null) {
+      $.each(m.fields, function(i,n) {
+        if (n.selector==desc.shortname) {
+          name=n.text;
+          return false;
+        }
+      });
+    }
+  });
+  
+  rows.unshift("<b>"+name+"</b>");  
     
   if (this.filter["showCharts"]==1) {  
     rows.push('<div style="width:250px;height:250px;" id="'+divid+'_graph"/><div align="center" id="'+divid+'_hover"/>');
@@ -317,8 +331,8 @@ StatisticView.prototype.renderList = function() {
       }
     });
     if (res!=null) {
-      rows.push("<b>Distrikte des Gruppentyps "+b.bezeichnung+"</b>");
-      rows.push("<small><table cellpadding=\"2\"><tr bgcolor=\"#e7eef4\"><td><i>Distrikt</i><td width=10%><=");
+      rows.push("<b>"+f("distrikt_id")+" von "+f("gruppentyp_id")+" "+b.bezeichnung+"</b>");
+      rows.push("<small><table cellpadding=\"2\"><tr bgcolor=\"#e7eef4\"><td><i>"+f("distrikt_id")+"</i><td width=10%><=");
       for (i=current_year-how_many_years;i<=current_year;i++) {
         rows.push("<i>"+i+"</i><td width=10%>");
       }

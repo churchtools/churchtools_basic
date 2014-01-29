@@ -29,7 +29,7 @@ GroupView.prototype.renderMenu = function() {
   menu = new CC_Menu("Men&uuml;");
   menu.addEntry("Zur&uuml;ck zur Personenliste", "apersonview", "arrow-left");
 
-  if (masterData.auth.admingroups)
+  if (masterData.auth.admingroups || this_object.isPersonSuperLeader(masterData.user_pid))
     menu.addEntry("Neue Gruppe anlegen", "anewentry", "cog");  
 
   menu.addEntry("Weitere Filter", "aaddfilter", "filter");
@@ -90,6 +90,7 @@ GroupView.prototype.messageReceiver = function(message, args) {
   var t = this;
   if (this==churchInterface.getCurrentView()) {
     if (message=="allDataLoaded") {
+      t.renderMenu();
       t.renderDistrict();
       t.renderGrouptype();
     }
@@ -112,7 +113,7 @@ GroupView.prototype.renderDistrict = function() {
   }  
   else if (masterData.districts[district_id]!=null) {
     rows.push('<div class="well">');
-    rows.push('<legend>Distrikt: '+masterData.districts[district_id].bezeichnung+'</legend>');
+    rows.push('<legend>'+f("distrikt_id")+': '+masterData.districts[district_id].bezeichnung+'</legend>');
     
     rows.push('<div class="container-fluid">');
     rows.push('<div class="span4">');
@@ -247,7 +248,7 @@ GroupView.prototype.renderGrouptype = function() {
   }
   else {
     rows.push('<div class="well">');
-    rows.push('<legend>Gruppentyp: '+masterData.groupTypes[gruppentyp_id].bezeichnung+'</legend>');
+    rows.push('<legend>'+f('gruppentyp_id')+': '+masterData.groupTypes[gruppentyp_id].bezeichnung+'</legend>');
     
     rows.push('<div class="container-fluid">');
     rows.push('<div class="span5">');
@@ -367,12 +368,27 @@ GroupView.prototype.renderAddEntry = function() {
   
   var form = new CC_Form("Gruppe");
   form.surroundWithDiv("span4");
-  form.addSelect({label:"Gruppentyp", cssid:"Inputf_grouptype", data:masterData.groupTypes});
+  form.addSelect({label:f('gruppentyp_id'), cssid:"Inputf_grouptype", data:masterData.groupTypes,
+       func:function(d){
+          return masterData.auth.admingroups 
+          || (allPersons[masterData.user_pid].districts!=null 
+                 && masterData.groupTypes[d.id].anzeigen_in_meinegruppen_teilnehmer_yn==1)
+          || ( allPersons[masterData.user_pid].gruppentypen!=null 
+                 && allPersons[masterData.user_pid].gruppentypen[d.id]!=null);                
+       } 
+  });
   _text=_text+form.render();
 
-  var form = new CC_Form("Distrikt");
+  var form = new CC_Form(f("distrikt_id"));
   form.surroundWithDiv("span4");
-  form.addSelect({label:"Distrikt", cssid:"Inputf_district", data:masterData.districts});
+  form.addSelect({label:f("distrikt_id"), cssid:"Inputf_district", data:masterData.districts,
+    func:function(d) {
+      return masterData.auth.admingroups 
+      || (allPersons[masterData.user_pid].gruppentypen!=null)
+      || (allPersons[masterData.user_pid].districts!=null 
+             && allPersons[masterData.user_pid].districts[d.id]!=null);                
+   } 
+  });
   _text=_text+form.render();
 
   _text=_text+'</div><div class="row-fluid">';
@@ -438,7 +454,7 @@ GroupView.prototype.renderFilter = function() {
   }
   form.addSelect({
     freeoption:true, 
-    label:"Distrikt",
+    label:f("distrikt_id"),
     selected:personView.filter['filterDistrikt'], 
     cssid:"filterDistrikt",
     data:churchcore_sortData(masterData.districts,"bezeichnung"),
@@ -458,7 +474,7 @@ GroupView.prototype.renderFilter = function() {
   });
   form.addSelect({
     freeoption:true, 
-    label:"Gruppentyp",
+    label:f('gruppentyp_id'),
     selected:personView.filter['filterGruppentyp'], 
     cssid:"filterGruppentyp",
     data:churchcore_sortData(masterData.groupTypes,"bezeichnung"),
@@ -548,7 +564,7 @@ GroupView.prototype.initView = function() {
 
 GroupView.prototype.getListHeader = function() {
   str='<th><a href="#" id="sortid">Nr.</a><th><a href="#" id="sortbezeichnung">Gruppe</a>';
-  str=str+'<th><a href="#" id="sortdistrikt_id">Distrikt</a><th><a href="#" id="sortgruppentyp_id">Gruppentyp</a>';
+  str=str+'<th><a href="#" id="sortdistrikt_id">'+f("distrikt_id")+'</a><th><a href="#" id="sortgruppentyp_id">'+f('gruppentyp_id')+'</a>';
 
   if (this.filter["filterDistrikt"]=="null") delete this.filter["filterDistrikt"];
   
@@ -742,6 +758,15 @@ GroupView.prototype.isPersonLeaderOfGroup = function (p_id, g_id) {
   }        
   return res;
 };
+
+GroupView.prototype.isPersonSuperLeader = function (p_id) {
+  if (allPersons[p_id]==null) return false;
+  if (allPersons[p_id].districts!=null || allPersons[p_id].gruppentypen!=null)
+    return true;
+  return false;
+};  
+
+
 
 GroupView.prototype.isPersonSuperLeaderOfGroup = function (p_id, g_id) {
   if ((allPersons[p_id]==null) || (masterData.groups[g_id]==null)) return false;
@@ -1083,7 +1108,8 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
   // Rechte Spalte
   rows[rows.length]="<div class=\"right-column\">";
 
-  rows.push(this_object.renderTags(g.tags, masterData.auth.admingroups, g_id));
+  if (masterData.auth.viewtags) 
+    rows.push(this_object.renderTags(g.tags, masterData.auth.admingroups, g_id));
   
   rows.push('<div class="detail-view-infobox">');
   rows.push('<p><table><tr style="background:#F4F4F4;">');
@@ -1223,7 +1249,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
   
   rows[rows.length]="</legend><div class=well><p>";
   if (g.distrikt_id>0)
-    rows[rows.length]='Distrikt: <a href="#" id="filterDistrikt'+g.distrikt_id+'">'
+    rows[rows.length]=f("distrikt_id")+': <a href="#" id="filterDistrikt'+g.distrikt_id+'">'
             + (masterData.districts[g.distrikt_id]!=null?
                 masterData.districts[g.distrikt_id].bezeichnung
                 :"<font color=\"red\">Distrikt-Id:"+g.distrikt_id+"</font>")+'</a><br/>';
@@ -1267,7 +1293,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
     
   rows[rows.length]="<p>";
   rows[rows.length]="Zielgruppe: "+g.zielgruppe+"<br/>";
-  rows[rows.length]='Gruppentyp: <a href="#" id="filterGruppentyp'+g.gruppentyp_id+'">'
+  rows[rows.length]=f('gruppentyp_id')+': <a href="#" id="filterGruppentyp'+g.gruppentyp_id+'">'
             +(masterData.groupTypes[g.gruppentyp_id]!=null?
                 masterData.groupTypes[g.gruppentyp_id].bezeichnung:'<font color="red">Gruppentyp-Id:'+g.gruppentyp_id+'?</font>')+'</a>';
 
@@ -1657,13 +1683,13 @@ GroupView.prototype.renderFurtherFilter = function () {
     rows.push("<p class=\"addfilter-body\">");      
     rows.push("&nbsp;&nbsp;");
     
-    rows.push(this.getSelectFilter(masterData.status, "Status", this_object.filter["filterStatus"]));
-    rows.push(this.getSelectFilter(masterData.station, "Station", this_object.filter["filterStation"]));
-    rows.push(this.getSelectFilter(masterData.dep,"Bereich", this_object.filter["filterBereich"]));
+    rows.push(this.getSelectFilter(masterData.status, f("status_id"), this_object.filter["filterStatus"]));
+    rows.push(this.getSelectFilter(masterData.station, f("station_id"), this_object.filter["filterStation"]));
+    rows.push(this.getSelectFilter(masterData.dep,f("bereich_id"), this_object.filter["filterBereich"]));
   
     rows.push("<br/>&nbsp;&nbsp;");
   
-    rows.push("<i>Diesen Gruppenfilter filtern die Teilnehmer pro Gruppe, bitte vorher Distrikt oder Gruppentyp w&auml;hlen!</i>");
+    rows.push("<i>Diesen Gruppenfilter filtern die Teilnehmer pro Gruppe, bitte vorher "+f("distrikt_id")+" oder "+f('gruppentyp_id')+" w&auml;hlen!</i>");
     
     $("#addfilter").html(rows.join(""));  
   

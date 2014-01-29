@@ -13,18 +13,18 @@ function run_db_updates($db_version) {
     case 'nodb':
       if (isset($_GET["installdb"])) {
         db_query("CREATE TABLE {cc_usermails} (
-          `person_id` int(11) NOT NULL,
-          `mailtype` varchar(255) NOT NULL,
-          `domain_id` int(11) NOT NULL,
-          `letzte_mail` datetime NOT NULL,
-          PRIMARY KEY (`person_id`,`mailtype`,`domain_id`)
+          person_id int(11) NOT NULL,
+          mailtype varchar(255) NOT NULL,
+          domain_id int(11) NOT NULL,
+          letzte_mail datetime NOT NULL,
+          PRIMARY KEY (person_id,mailtype,domain_id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("CREATE TABLE {cc_usersettings} (
-          `person_id` int(11) NOT NULL,
-          `modulename` varchar(50) NOT NULL,
-          `attrib` varchar(100) NOT NULL,
-          `value` varchar(8192) DEFAULT NULL,
-          PRIMARY KEY (`person_id`,`modulename`,`attrib`)
+          person_id int(11) NOT NULL,
+          modulename varchar(50) NOT NULL,
+          attrib varchar(100) NOT NULL,
+          value varchar(8192) DEFAULT NULL,
+          PRIMARY KEY (person_id,modulename,attrib)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cc_usersettings} VALUES
            (1, 'churchcal', 'filterMeineKalender', '[104]'),
@@ -37,68 +37,68 @@ function run_db_updates($db_version) {
            (736, 'churchservice', 'lastVisited', '2013-04-18 8:27'),
            (736, 'churchservice', 'remindMe', '1')");
         db_query("CREATE TABLE {cdb_bereich} (
-          `id` int(11) NOT NULL,
-          `bezeichnung` varchar(20) NOT NULL,
-          `kuerzel` varchar(10) NOT NULL,
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL,
+          bezeichnung varchar(20) NOT NULL,
+          kuerzel varchar(10) NOT NULL,
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cdb_bereich} VALUES
            (1, 'Gemeindeliste', 'G'),
            (2, 'Jugendarbeit', 'J')");
         db_query("CREATE TABLE {cdb_bereich_person} (
-          `bereich_id` int(11) NOT NULL,
-          `person_id` int(11) NOT NULL,
-          PRIMARY KEY (`bereich_id`,`person_id`)
+          bereich_id int(11) NOT NULL,
+          person_id int(11) NOT NULL,
+          PRIMARY KEY (bereich_id,person_id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cdb_bereich_person} VALUES
            (1, 1),
            (1, 2),
            (2, 1)");
         db_query("CREATE TABLE {cdb_beziehung} (
-          `id` int(11) NOT NULL AUTO_INCREMENT,
-          `vater_id` int(11) NOT NULL,
-          `kind_id` int(11) NOT NULL,
-          `beziehungstyp_id` int(11) NOT NULL,
-          `datum` datetime NOT NULL,
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL AUTO_INCREMENT,
+          vater_id int(11) NOT NULL,
+          kind_id int(11) NOT NULL,
+          beziehungstyp_id int(11) NOT NULL,
+          datum datetime NOT NULL,
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("CREATE TABLE {cdb_beziehungstyp} (
-          `id` int(11) NOT NULL AUTO_INCREMENT,
-          `bez_vater` varchar(20) NOT NULL,
-          `bez_kind` varchar(20) NOT NULL,
-          `bezeichnung` varchar(30) NOT NULL,
-          `export_aggregation_yn` int(11) NOT NULL,
-          `export_title` varchar(20) NOT NULL,
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL AUTO_INCREMENT,
+          bez_vater varchar(20) NOT NULL,
+          bez_kind varchar(20) NOT NULL,
+          bezeichnung varchar(30) NOT NULL,
+          export_aggregation_yn int(11) NOT NULL,
+          export_title varchar(20) NOT NULL,
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM  DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cdb_beziehungstyp} VALUES
            (1, 'Elternteil', 'Kind', 'Elternteil/Kind', 0, ''),
            (2, 'Ehepartner', 'Ehepartner', 'Ehepartner', 1, 'Ehepaar')");
         db_query("CREATE TABLE {cdb_comment} (
-          `id` int(11) NOT NULL AUTO_INCREMENT,
-          `relation_id` int(11) NOT NULL,
-          `relation_name` varchar(20) NOT NULL,
-          `text` text NOT NULL,
-          `userid` varchar(20) NOT NULL,
-          `datum` datetime NOT NULL,
-          `comment_viewer_id` int(11) NOT NULL,
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL AUTO_INCREMENT,
+          relation_id int(11) NOT NULL,
+          relation_name varchar(20) NOT NULL,
+          text text NOT NULL,
+          userid varchar(20) NOT NULL,
+          datum datetime NOT NULL,
+          comment_viewer_id int(11) NOT NULL,
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("CREATE TABLE {cdb_comment_viewer} (
-          `id` int(11) NOT NULL,
-          `bezeichnung` varchar(30) NOT NULL,
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL,
+          bezeichnung varchar(30) NOT NULL,
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cdb_comment_viewer} VALUES
            (0, 'Alle'),
            (1, 'Distriktleiter'),
            (2, 'Vorstand')");
         db_query("CREATE TABLE {cdb_distrikt} (
-          `id` int(11) NOT NULL,
-          `bezeichnung` varchar(30) NOT NULL,
-          `gruppentyp_id` int(11) NOT NULL,
-          `imageurl` varchar(50) DEFAULT NULL,
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL,
+          bezeichnung varchar(30) NOT NULL,
+          gruppentyp_id int(11) NOT NULL,
+          imageurl varchar(50) DEFAULT NULL,
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cdb_distrikt} VALUES
            (1, 'Nord', 1, 'gruppe_schwarz.png'),
@@ -107,9 +107,9 @@ function run_db_updates($db_version) {
            (4, 'West', 1, 'gruppe_gruen.png'),
            (5, 'Sommerfreizeiten', 4, NULL)");
         db_query("CREATE TABLE {cdb_familienstand} (
-          `id` int(11) NOT NULL,
-          `bezeichnung` varchar(20) NOT NULL,
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL,
+          bezeichnung varchar(20) NOT NULL,
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cdb_familienstand} VALUES
            (0, 'unbekannt'),
@@ -119,23 +119,23 @@ function run_db_updates($db_version) {
            (4, 'geschieden'),
            (5, 'verwitwet')");
         db_query("CREATE TABLE {cdb_followup_typ} (
-          `id` int(1) NOT NULL,
-          `bezeichnung` varchar(50) NOT NULL,
-          `comment_viewer_id` int(11) NOT NULL DEFAULT '0',
-          PRIMARY KEY (`id`)
+          id int(1) NOT NULL,
+          bezeichnung varchar(50) NOT NULL,
+          comment_viewer_id int(11) NOT NULL DEFAULT '0',
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cdb_followup_typ} VALUES
            (0, 'Kein Followup', 0),
            (1, 'Integration Kontaktkarte', 0),
            (2, 'Ein Monat', 0)");
         db_query("CREATE TABLE {cdb_followup_typ_intervall} (
-          `id` int(11) NOT NULL AUTO_INCREMENT,
-          `followup_typ_id` int(1) NOT NULL,
-          `count_no` int(1) NOT NULL,
-          `days_diff` int(2) NOT NULL,
-          `info` varchar(500) NOT NULL,
-          PRIMARY KEY (`id`),
-          UNIQUE KEY `typ_no` (`followup_typ_id`,`count_no`)
+          id int(11) NOT NULL AUTO_INCREMENT,
+          followup_typ_id int(1) NOT NULL,
+          count_no int(1) NOT NULL,
+          days_diff int(2) NOT NULL,
+          info varchar(500) NOT NULL,
+          PRIMARY KEY (id),
+          UNIQUE KEY typ_no (followup_typ_id,count_no)
         ) ENGINE=MyISAM  DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cdb_followup_typ_intervall} VALUES
            (1, 1, 1, 7, 'Anruf 1 soll erfolgen.<br>Bitte sei nett zu der Person:)'),
@@ -143,114 +143,114 @@ function run_db_updates($db_version) {
            (3, 1, 3, 90, 'Anruf 3 soll erfolgen. <br>Wie geht es so?'),
            (4, 2, 1, 31, 'Person nachhalten nach einem Monat')");
         db_query("CREATE TABLE {cdb_gemeindeperson} (
-          `id` int(11) NOT NULL AUTO_INCREMENT,
-          `person_id` int(11) NOT NULL,
-          `beruf` varchar(50) NOT NULL,
-          `geburtsname` varchar(30) NOT NULL,
-          `geburtsdatum` datetime DEFAULT NULL,
-          `geburtsort` varchar(30) NOT NULL,
-          `nationalitaet` varchar(30) NOT NULL,
-          `familienstand_no` int(11) NOT NULL DEFAULT '0',
-          `hochzeitsdatum` datetime DEFAULT NULL,
-          `station_id` int(11) NOT NULL DEFAULT '0',
-          `status_id` int(11) NOT NULL DEFAULT '0',
-          `erstkontakt` datetime DEFAULT NULL,
-          `zugehoerig` datetime DEFAULT NULL,
-          `eintrittsdatum` datetime DEFAULT NULL,
-          `austrittsgrund` varchar(10) NOT NULL,
-          `austrittsdatum` datetime DEFAULT NULL,
-          `taufdatum` datetime DEFAULT NULL,
-          `taufort` varchar(50) NOT NULL,
-          `getauftdurch` varchar(50) NOT NULL,
-          `ueberwiesenvon` varchar(30) NOT NULL,
-          `ueberwiesennach` varchar(30) NOT NULL,
-          `imageurl` varchar(50) DEFAULT NULL,
-          `letzteaenderung` datetime DEFAULT NULL,
-          `aenderunguser` varchar(20) DEFAULT NULL,
-          PRIMARY KEY (`id`),
-          KEY `person_id` (`person_id`)
+          id int(11) NOT NULL AUTO_INCREMENT,
+          person_id int(11) NOT NULL,
+          beruf varchar(50) NOT NULL,
+          geburtsname varchar(30) NOT NULL,
+          geburtsdatum datetime DEFAULT NULL,
+          geburtsort varchar(30) NOT NULL,
+          nationalitaet varchar(30) NOT NULL,
+          familienstand_no int(11) NOT NULL DEFAULT '0',
+          hochzeitsdatum datetime DEFAULT NULL,
+          station_id int(11) NOT NULL DEFAULT '0',
+          status_id int(11) NOT NULL DEFAULT '0',
+          erstkontakt datetime DEFAULT NULL,
+          zugehoerig datetime DEFAULT NULL,
+          eintrittsdatum datetime DEFAULT NULL,
+          austrittsgrund varchar(10) NOT NULL,
+          austrittsdatum datetime DEFAULT NULL,
+          taufdatum datetime DEFAULT NULL,
+          taufort varchar(50) NOT NULL,
+          getauftdurch varchar(50) NOT NULL,
+          ueberwiesenvon varchar(30) NOT NULL,
+          ueberwiesennach varchar(30) NOT NULL,
+          imageurl varchar(50) DEFAULT NULL,
+          letzteaenderung datetime DEFAULT NULL,
+          aenderunguser varchar(20) DEFAULT NULL,
+          PRIMARY KEY (id),
+          KEY person_id (person_id)
         ) ENGINE=MyISAM  DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cdb_gemeindeperson} VALUES
            (1, 1, 'Krankenschwester', 'Meierchen', '1979-09-06 00:00:00', 'Hannover', '', 2, NULL, 1, 2, '2010-01-04 00:00:00', '2010-05-20 00:00:00', '2011-01-01 00:00:00', '', NULL, '2010-05-20 00:00:00', 'Hamburg Elim', 'Pastor Manfred', 'Mustergemeinde Hannover', '', 'imageaddr1.jpg', '2011-01-01 00:00:00', 'jmrauen'),
            (2, 2, '', '', NULL, '', '', 2, NULL, 1, 2, NULL, NULL, NULL, '', NULL, NULL, '', '', 'Mustergemeinde Hamburg', '', NULL, '2011-01-11 00:00:00', 'jmrauen')");
         db_query("CREATE TABLE {cdb_gemeindeperson_gruppe} (
-          `gemeindeperson_id` int(11) NOT NULL,
-          `gruppe_id` int(11) NOT NULL,
-          `status_no` int(1) NOT NULL DEFAULT '0',
-          `letzteaenderung` datetime DEFAULT NULL,
-          `aenderunguser` varchar(20) DEFAULT NULL,
-          `followup_count_no` int(1) DEFAULT NULL,
-          `followup_add_diff_days` int(3) DEFAULT NULL,
-          PRIMARY KEY (`gemeindeperson_id`,`gruppe_id`)
+          gemeindeperson_id int(11) NOT NULL,
+          gruppe_id int(11) NOT NULL,
+          status_no int(1) NOT NULL DEFAULT '0',
+          letzteaenderung datetime DEFAULT NULL,
+          aenderunguser varchar(20) DEFAULT NULL,
+          followup_count_no int(1) DEFAULT NULL,
+          followup_add_diff_days int(3) DEFAULT NULL,
+          PRIMARY KEY (gemeindeperson_id,gruppe_id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("CREATE TABLE {cdb_gemeindeperson_gruppe_archive} (
-          `gemeindeperson_id` int(10) NOT NULL,
-          `gruppe_id` int(10) NOT NULL,
-          `status_no` int(1) NOT NULL DEFAULT '0',
-          `letzteaenderung` datetime DEFAULT NULL,
-          `aenderunguser` varchar(20) DEFAULT NULL
+          gemeindeperson_id int(10) NOT NULL,
+          gruppe_id int(10) NOT NULL,
+          status_no int(1) NOT NULL DEFAULT '0',
+          letzteaenderung datetime DEFAULT NULL,
+          aenderunguser varchar(20) DEFAULT NULL
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("CREATE TABLE {cdb_gemeindeperson_tag} (
-          `gemeindeperson_id` int(11) NOT NULL,
-          `tag_id` int(11) NOT NULL,
-          `letzteaenderung` datetime DEFAULT NULL
+          gemeindeperson_id int(11) NOT NULL,
+          tag_id int(11) NOT NULL,
+          letzteaenderung datetime DEFAULT NULL
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("CREATE TABLE {cdb_geschlecht} (
-          `id` int(11) NOT NULL,
-          `bezeichnung` varchar(20) NOT NULL,
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL,
+          bezeichnung varchar(20) NOT NULL,
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cdb_geschlecht} VALUES
            (0, 'unbekannt'),
            (1, 'maennlich'),
            (2, 'weiblich')");
         db_query("CREATE TABLE {cdb_gruppe} (
-          `id` int(11) NOT NULL AUTO_INCREMENT,
-          `valid_yn` int(1) NOT NULL DEFAULT '1',
-          `versteckt_yn` int(1) NOT NULL DEFAULT '0',
-          `bezeichnung` varchar(100) NOT NULL,
-          `gruendungsdatum` datetime DEFAULT NULL,
-          `abschlussdatum` datetime DEFAULT NULL,
-          `treffzeit` varchar(30) NOT NULL,
-          `treffpunkt` varchar(50) NOT NULL,
-          `zielgruppe` varchar(30) NOT NULL,
-          `gruppentyp_id` int(11) NOT NULL,
-          `distrikt_id` int(11) DEFAULT NULL,
-          `geolat` varchar(20) NOT NULL,
-          `geolng` varchar(20) NOT NULL,
-          `treffname` varchar(30) NOT NULL,
-          `notiz` varchar(200) NOT NULL,
-          `treffen_yn` int(11) NOT NULL,
-          `instatistik_yn` int(1) NOT NULL,
-          `followup_typ_id` int(1) DEFAULT NULL,
-          `fu_nachfolge_typ_id` int(11) NOT NULL DEFAULT '0',
-          `fu_nachfolge_objekt_id` int(11) DEFAULT NULL,
-          `letzteaenderung` datetime DEFAULT NULL,
-          `aenderunguser` varchar(20) DEFAULT NULL,
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL AUTO_INCREMENT,
+          valid_yn int(1) NOT NULL DEFAULT '1',
+          versteckt_yn int(1) NOT NULL DEFAULT '0',
+          bezeichnung varchar(100) NOT NULL,
+          gruendungsdatum datetime DEFAULT NULL,
+          abschlussdatum datetime DEFAULT NULL,
+          treffzeit varchar(30) NOT NULL,
+          treffpunkt varchar(50) NOT NULL,
+          zielgruppe varchar(30) NOT NULL,
+          gruppentyp_id int(11) NOT NULL,
+          distrikt_id int(11) DEFAULT NULL,
+          geolat varchar(20) NOT NULL,
+          geolng varchar(20) NOT NULL,
+          treffname varchar(30) NOT NULL,
+          notiz varchar(200) NOT NULL,
+          treffen_yn int(11) NOT NULL,
+          instatistik_yn int(1) NOT NULL,
+          followup_typ_id int(1) DEFAULT NULL,
+          fu_nachfolge_typ_id int(11) NOT NULL DEFAULT '0',
+          fu_nachfolge_objekt_id int(11) DEFAULT NULL,
+          letzteaenderung datetime DEFAULT NULL,
+          aenderunguser varchar(20) DEFAULT NULL,
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("CREATE TABLE {cdb_gruppentreffen} (
-          `id` int(11) NOT NULL AUTO_INCREMENT,
-          `gruppe_id` int(11) NOT NULL,
-          `datumvon` datetime NOT NULL,
-          `datumbis` datetime NOT NULL,
-          `eintragerfolgt_yn` int(11) NOT NULL,
-          `ausgefallen_yn` int(11) NOT NULL,
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL AUTO_INCREMENT,
+          gruppe_id int(11) NOT NULL,
+          datumvon datetime NOT NULL,
+          datumbis datetime NOT NULL,
+          eintragerfolgt_yn int(11) NOT NULL,
+          ausgefallen_yn int(11) NOT NULL,
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("CREATE TABLE {cdb_gruppentreffen_gemeindeperson} (
-          `gruppentreffen_id` int(11) NOT NULL,
-          `gemeindeperson_id` int(11) NOT NULL,
-          `treffen_yn` int(11) NOT NULL,
-          UNIQUE KEY `gruppentreffen_id` (`gruppentreffen_id`,`gemeindeperson_id`)
+          gruppentreffen_id int(11) NOT NULL,
+          gemeindeperson_id int(11) NOT NULL,
+          treffen_yn int(11) NOT NULL,
+          UNIQUE KEY gruppentreffen_id (gruppentreffen_id,gemeindeperson_id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("CREATE TABLE {cdb_gruppentyp} (
-          `id` int(11) NOT NULL,
-          `bezeichnung` varchar(30) NOT NULL,
-          `anzeigen_in_meinegruppen_teilnehmer_yn` int(1) NOT NULL,
-          `muss_leiter_enthalten_yn` int(1) NOT NULL,
-          `in_neue_person_erstellen_yn` int(1) NOT NULL,
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL,
+          bezeichnung varchar(30) NOT NULL,
+          anzeigen_in_meinegruppen_teilnehmer_yn int(1) NOT NULL,
+          muss_leiter_enthalten_yn int(1) NOT NULL,
+          in_neue_person_erstellen_yn int(1) NOT NULL,
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cdb_gruppentyp} VALUES
            (1, 'Kleingruppe', 1, 1, 0),
@@ -258,77 +258,77 @@ function run_db_updates($db_version) {
            (3, 'Maßnahme', 0, 0, 1),
            (4, 'Merkmal', 0, 0, 1)");
         db_query("CREATE TABLE {cdb_gruppe_tag} (
-          `gruppe_id` int(11) NOT NULL,
-          `tag_id` int(11) NOT NULL,
-          `letzteaenderung` datetime NOT NULL
+          gruppe_id int(11) NOT NULL,
+          tag_id int(11) NOT NULL,
+          letzteaenderung datetime NOT NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
         db_query("CREATE TABLE {cdb_log} (
-          `id` int(11) NOT NULL AUTO_INCREMENT,
-          `level` int(11) NOT NULL,
-          `datum` datetime NOT NULL,
-          `userid` varchar(255) NOT NULL,
-          `domain_type` varchar(255) DEFAULT NULL,
-          `domain_id` int(11) DEFAULT NULL,
-          `schreiben_yn` int(1) DEFAULT NULL,
-          `txt` varchar(2048) NOT NULL,
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL AUTO_INCREMENT,
+          level int(11) NOT NULL,
+          datum datetime NOT NULL,
+          userid varchar(255) NOT NULL,
+          domain_type varchar(255) DEFAULT NULL,
+          domain_id int(11) DEFAULT NULL,
+          schreiben_yn int(1) DEFAULT NULL,
+          txt varchar(2048) NOT NULL,
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("CREATE TABLE {cdb_mailnotify} (
-          `id` varchar(20) NOT NULL,
-          `emails` varchar(200) NOT NULL,
-          `enabled` int(11) NOT NULL
+          id varchar(20) NOT NULL,
+          emails varchar(200) NOT NULL,
+          enabled int(11) NOT NULL
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("CREATE TABLE {cdb_newsletter} (
-          `person_id` int(11) NOT NULL,
-          `last_send` datetime DEFAULT NULL,
-          PRIMARY KEY (`person_id`)
+          person_id int(11) NOT NULL,
+          last_send datetime DEFAULT NULL,
+          PRIMARY KEY (person_id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("CREATE TABLE {cdb_person} (
-          `id` int(11) NOT NULL AUTO_INCREMENT,
-          `name` varchar(30) NOT NULL,
-          `vorname` varchar(30) NOT NULL,
-          `password` varchar(255) DEFAULT NULL,
-          `loginstr` varchar(255) DEFAULT NULL,
-          `lastlogin` datetime DEFAULT NULL,
-          `geschlecht_no` int(11) NOT NULL DEFAULT '0',
-          `titel` varchar(30) NOT NULL,
-          `strasse` varchar(30) NOT NULL,
-          `plz` varchar(6) NOT NULL,
-          `ort` varchar(40) NOT NULL,
-          `land` varchar(30) NOT NULL,
-          `zusatz` varchar(30) NOT NULL,
-          `telefonprivat` varchar(30) NOT NULL,
-          `telefongeschaeftlich` varchar(20) NOT NULL,
-          `telefonhandy` varchar(20) NOT NULL,
-          `fax` varchar(20) NOT NULL,
-          `email` varchar(50) NOT NULL,
-          `geolat` varchar(20) NOT NULL,
-          `geolng` varchar(20) NOT NULL,
-          `cmsuserid` varchar(50) NOT NULL,
-          `createdate` datetime DEFAULT NULL,
-          `letzteaenderung` datetime DEFAULT NULL,
-          `aenderunguser` varchar(20) DEFAULT NULL,
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL AUTO_INCREMENT,
+          name varchar(30) NOT NULL,
+          vorname varchar(30) NOT NULL,
+          password varchar(255) DEFAULT NULL,
+          loginstr varchar(255) DEFAULT NULL,
+          lastlogin datetime DEFAULT NULL,
+          geschlecht_no int(11) NOT NULL DEFAULT '0',
+          titel varchar(30) NOT NULL,
+          strasse varchar(30) NOT NULL,
+          plz varchar(6) NOT NULL,
+          ort varchar(40) NOT NULL,
+          land varchar(30) NOT NULL,
+          zusatz varchar(30) NOT NULL,
+          telefonprivat varchar(30) NOT NULL,
+          telefongeschaeftlich varchar(20) NOT NULL,
+          telefonhandy varchar(20) NOT NULL,
+          fax varchar(20) NOT NULL,
+          email varchar(50) NOT NULL,
+          geolat varchar(20) NOT NULL,
+          geolng varchar(20) NOT NULL,
+          cmsuserid varchar(50) NOT NULL,
+          createdate datetime DEFAULT NULL,
+          letzteaenderung datetime DEFAULT NULL,
+          aenderunguser varchar(20) DEFAULT NULL,
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM  DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cdb_person} VALUES
            (1, 'Ackermeister', 'Sabine', '21232f297a57a5a743894a0e4a801fc3', NULL, '2013-08-30 15:56:42', 2, 'Dipl.-Ing.', 'Kedenburgstr. 22', '22041', 'Hamburg', '', '', '040 12345678', '0179 12345678', '', '', 'admin@test.de', '53.5778604', '10.08704130000001', 'admin', '2011-01-01 00:00:00', '2011-01-31 00:00:00', 'Administrator'),
            (2, 'Helmut', 'Meier', NULL, NULL, NULL, 2, '', 'Bostelreihe 9', '22043', 'Hamburg', '', '', '', '', '', '', 'helmut@test.de', '53.5778604', '10.08704130000001', 'admin', '2011-01-01 00:00:00', '2011-01-31 00:00:00', 'Administrator')");
         db_query("CREATE TABLE {cdb_station} (
-          `id` int(11) NOT NULL,
-          `bezeichnung` varchar(20) NOT NULL,
-          `kuerzel` varchar(10) NOT NULL,
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL,
+          bezeichnung varchar(20) NOT NULL,
+          kuerzel varchar(10) NOT NULL,
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cdb_station} VALUES
            (0, 'unbekannt', '?'),
            (1, 'Zentrale', 'Z')");
         db_query("CREATE TABLE {cdb_status} (
-          `id` int(11) NOT NULL,
-          `bezeichnung` varchar(30) NOT NULL,
-          `kuerzel` varchar(10) NOT NULL,
-          `mitglied_yn` int(1) NOT NULL,
-          `infreitextauswahl_yn` int(1) NOT NULL DEFAULT '1',
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL,
+          bezeichnung varchar(30) NOT NULL,
+          kuerzel varchar(10) NOT NULL,
+          mitglied_yn int(1) NOT NULL,
+          infreitextauswahl_yn int(1) NOT NULL DEFAULT '1',
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cdb_status} VALUES
            (0, 'unbekannt', '?', 0, 1),
@@ -336,38 +336,38 @@ function run_db_updates($db_version) {
            (2, 'Mitglied', 'M', 1, 1),
            (3, 'zu löschen', 'X', 0, 0)");
         db_query("CREATE TABLE {cdb_tag} (
-          `id` int(11) NOT NULL AUTO_INCREMENT,
-          `bezeichnung` varchar(255) NOT NULL,
-          `letzteaenderung` datetime DEFAULT NULL,
-          `aenderunguser` varchar(60) DEFAULT NULL,
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL AUTO_INCREMENT,
+          bezeichnung varchar(255) NOT NULL,
+          letzteaenderung datetime DEFAULT NULL,
+          aenderunguser varchar(60) DEFAULT NULL,
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("CREATE TABLE {cr_booking} (
-          `id` int(11) NOT NULL AUTO_INCREMENT,
-          `resource_id` int(11) NOT NULL,
-          `userid` varchar(50) DEFAULT NULL,
-          `startdate` datetime NOT NULL,
-          `enddate` datetime NOT NULL,
-          `repeat_id` int(11) NOT NULL,
-          `repeat_frequence` int(11) NOT NULL,
-          `repeat_until` datetime NOT NULL,
-          `status_id` int(11) NOT NULL,
-          `text` varchar(30) NOT NULL,
-          `location` varchar(20) NOT NULL,
-          `note` tinytext NOT NULL,
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL AUTO_INCREMENT,
+          resource_id int(11) NOT NULL,
+          userid varchar(50) DEFAULT NULL,
+          startdate datetime NOT NULL,
+          enddate datetime NOT NULL,
+          repeat_id int(11) NOT NULL,
+          repeat_frequence int(11) NOT NULL,
+          repeat_until datetime NOT NULL,
+          status_id int(11) NOT NULL,
+          text varchar(30) NOT NULL,
+          location varchar(20) NOT NULL,
+          note tinytext NOT NULL,
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("CREATE TABLE {cr_exception} (
-          `id` int(11) NOT NULL AUTO_INCREMENT,
-          `booking_id` int(11) NOT NULL,
-          `except` datetime NOT NULL,
-          `userid` varchar(20) NOT NULL,
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL AUTO_INCREMENT,
+          booking_id int(11) NOT NULL,
+          except datetime NOT NULL,
+          userid varchar(20) NOT NULL,
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("CREATE TABLE {cr_hours} (
-          `id` int(11) NOT NULL,
-          `bezeichnung` varchar(20) NOT NULL,
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL,
+          bezeichnung varchar(20) NOT NULL,
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cr_hours} VALUES
            (0, '00'),
@@ -395,18 +395,18 @@ function run_db_updates($db_version) {
            (22, '22'),
            (23, '23')");
         db_query("CREATE TABLE {cr_log} (
-          `id` int(11) NOT NULL AUTO_INCREMENT,
-          `level` int(11) NOT NULL,
-          `datum` datetime NOT NULL,
-          `userid` varchar(20) NOT NULL,
-          `booking_id` int(11) NOT NULL,
-          `txt` varchar(400) NOT NULL,
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL AUTO_INCREMENT,
+          level int(11) NOT NULL,
+          datum datetime NOT NULL,
+          userid varchar(20) NOT NULL,
+          booking_id int(11) NOT NULL,
+          txt varchar(400) NOT NULL,
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("CREATE TABLE {cr_minutes} (
-          `id` int(11) NOT NULL,
-          `bezeichnung` varchar(20) NOT NULL,
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL,
+          bezeichnung varchar(20) NOT NULL,
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cr_minutes} VALUES
            (0, '00'),
@@ -414,14 +414,14 @@ function run_db_updates($db_version) {
            (30, '30'),
            (45, '45')");
         db_query("CREATE TABLE {cr_resource} (
-          `id` int(11) NOT NULL AUTO_INCREMENT,
-          `resourcetype_id` int(11) NOT NULL,
-          `sortkey` int(11) NOT NULL,
-          `bezeichnung` varchar(20) NOT NULL,
-          `location` varchar(20) NOT NULL,
-          `autoaccept_yn` int(1) NOT NULL,
-          `adminmails` varchar(30) DEFAULT NULL,
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL AUTO_INCREMENT,
+          resourcetype_id int(11) NOT NULL,
+          sortkey int(11) NOT NULL,
+          bezeichnung varchar(20) NOT NULL,
+          location varchar(20) NOT NULL,
+          autoaccept_yn int(1) NOT NULL,
+          adminmails varchar(30) DEFAULT NULL,
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM  DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cr_resource} VALUES
            (1, 1, 0, 'Buero-Beamer', 'Buero von Max', 1, ''),
@@ -431,18 +431,18 @@ function run_db_updates($db_version) {
            (4, 2, 0, 'Schokoraum', '', 1, ''),
            (6, 2, 0, 'Kickerraum', '', 0, '')");
         db_query("CREATE TABLE {cr_resourcetype} (
-          `id` int(11) NOT NULL AUTO_INCREMENT,
-          `bezeichnung` varchar(20) NOT NULL,
-          `sortkey` int(11) NOT NULL DEFAULT '0',
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL AUTO_INCREMENT,
+          bezeichnung varchar(20) NOT NULL,
+          sortkey int(11) NOT NULL DEFAULT '0',
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM  DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cr_resourcetype} VALUES
            (2, 'Raum', 1),
            (1, 'Gegenstand', 0)");
         db_query("CREATE TABLE {cr_status} (
-          `id` int(11) NOT NULL AUTO_INCREMENT,
-          `bezeichnung` varchar(30) NOT NULL,
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL AUTO_INCREMENT,
+          bezeichnung varchar(30) NOT NULL,
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM  DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cr_status} VALUES
            (1, 'Wartet auf Bestaetigung'),
@@ -450,65 +450,65 @@ function run_db_updates($db_version) {
            (3, 'Abgelehnt'),
            (99, 'Geloescht')");
         db_query("CREATE TABLE {cs_category} (
-          `id` int(11) NOT NULL,
-          `bezeichnung` varchar(255) NOT NULL,
-          `sortkey` int(11) NOT NULL DEFAULT '0',
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL,
+          bezeichnung varchar(255) NOT NULL,
+          sortkey int(11) NOT NULL DEFAULT '0',
+          PRIMARY KEY (id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cs_category} VALUES
            (0, 'Sonstige Veranstaltung', 8),
            (1, 'Sontagsgodis', 1),
            (2, 'Jugend', 19)");
         db_query("CREATE TABLE {cs_event} (
-          `id` int(11) NOT NULL AUTO_INCREMENT,
-          `datum` datetime NOT NULL,
-          `bezeichnung` varchar(255) NOT NULL,
-          `special` varchar(255) DEFAULT NULL,
-          `admin` varchar(255) DEFAULT NULL,
-          `category_id` int(11) NOT NULL DEFAULT '0',
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL AUTO_INCREMENT,
+          datum datetime NOT NULL,
+          bezeichnung varchar(255) NOT NULL,
+          special varchar(255) DEFAULT NULL,
+          admin varchar(255) DEFAULT NULL,
+          category_id int(11) NOT NULL DEFAULT '0',
+          PRIMARY KEY (id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
         db_query("CREATE TABLE {cs_eventservice} (
-          `id` int(11) NOT NULL AUTO_INCREMENT,
-          `event_id` int(11) NOT NULL,
-          `service_id` int(11) NOT NULL,
-          `valid_yn` int(1) NOT NULL DEFAULT '1',
-          `zugesagt_yn` int(11) NOT NULL DEFAULT '0',
-          `name` varchar(255) DEFAULT NULL,
-          `cdb_person_id` int(11) DEFAULT NULL,
-          `reason` varchar(255) DEFAULT NULL,
-          `mailsenddate` datetime DEFAULT NULL,
-          `modifieddate` datetime NOT NULL,
-          `modifieduser` varchar(255) NOT NULL,
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL AUTO_INCREMENT,
+          event_id int(11) NOT NULL,
+          service_id int(11) NOT NULL,
+          valid_yn int(1) NOT NULL DEFAULT '1',
+          zugesagt_yn int(11) NOT NULL DEFAULT '0',
+          name varchar(255) DEFAULT NULL,
+          cdb_person_id int(11) DEFAULT NULL,
+          reason varchar(255) DEFAULT NULL,
+          mailsenddate datetime DEFAULT NULL,
+          modifieddate datetime NOT NULL,
+          modifieduser varchar(255) NOT NULL,
+          PRIMARY KEY (id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
         db_query("CREATE TABLE {cs_eventtemplate} (
-          `id` int(11) NOT NULL,
-          `bezeichnung` varchar(255) NOT NULL,
-          `category_id` int(11) DEFAULT NULL,
-          `event_bezeichnung` varchar(255) DEFAULT NULL,
-          `special` varchar(255) DEFAULT NULL,
-          `stunde` int(11) DEFAULT NULL,
-          `minute` int(11) DEFAULT NULL,
-          `admin` varchar(255) DEFAULT NULL,
-          `sortkey` int(11) NOT NULL DEFAULT '0',
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL,
+          bezeichnung varchar(255) NOT NULL,
+          category_id int(11) DEFAULT NULL,
+          event_bezeichnung varchar(255) DEFAULT NULL,
+          special varchar(255) DEFAULT NULL,
+          stunde int(11) DEFAULT NULL,
+          minute int(11) DEFAULT NULL,
+          admin varchar(255) DEFAULT NULL,
+          sortkey int(11) NOT NULL DEFAULT '0',
+          PRIMARY KEY (id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cs_eventtemplate} VALUES(0, 'Standard', 1, 'Standard', 'Weitere Infos...', 12, 0, '', 0)");
         db_query("CREATE TABLE {cs_eventtemplate_service} (
-          `eventtemplate_id` int(11) NOT NULL,
-          `service_id` int(11) NOT NULL
+          eventtemplate_id int(11) NOT NULL,
+          service_id int(11) NOT NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
         db_query("CREATE TABLE {cs_service} (
-          `id` int(11) NOT NULL AUTO_INCREMENT,
-          `bezeichnung` varchar(50) NOT NULL,
-          `standard_yn` int(11) NOT NULL DEFAULT '0',
-          `servicegroup_id` int(11) NOT NULL,
-          `cdb_gruppen_ids` varchar(255) DEFAULT NULL,
-          `cdb_tag_ids` varchar(255) DEFAULT NULL,
-          `sendremindermails_yn` int(1) NOT NULL DEFAULT '0',
-          `sortkey` int(11) NOT NULL DEFAULT '0',
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL AUTO_INCREMENT,
+          bezeichnung varchar(50) NOT NULL,
+          standard_yn int(11) NOT NULL DEFAULT '0',
+          servicegroup_id int(11) NOT NULL,
+          cdb_gruppen_ids varchar(255) DEFAULT NULL,
+          cdb_tag_ids varchar(255) DEFAULT NULL,
+          sendremindermails_yn int(1) NOT NULL DEFAULT '0',
+          sortkey int(11) NOT NULL DEFAULT '0',
+          PRIMARY KEY (id)
         ) ENGINE=InnoDB  DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cs_service} VALUES
            (1, 'Predigt', 1, 1, NULL, NULL, 0, 0),
@@ -520,13 +520,13 @@ function run_db_updates($db_version) {
            (7, 'Licht', 0, 3, NULL, NULL, 0, 0),
            (8, 'Video', 0, 3, NULL, NULL, 0, 0)");
         db_query("CREATE TABLE {cr_repeat} (
-          `id` int(11) NOT NULL
+          id int(11) NOT NULL
         ) ENGINE=InnoDB  DEFAULT CHARSET=utf8");
         db_query("CREATE TABLE {cs_servicegroup} (
-          `id` int(11) NOT NULL AUTO_INCREMENT,
-          `bezeichnung` varchar(255) NOT NULL,
-          `sortkey` int(11) NOT NULL DEFAULT '0',
-          PRIMARY KEY (`id`)
+          id int(11) NOT NULL AUTO_INCREMENT,
+          bezeichnung varchar(255) NOT NULL,
+          sortkey int(11) NOT NULL DEFAULT '0',
+          PRIMARY KEY (id)
         ) ENGINE=InnoDB  DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cs_servicegroup} VALUES
            (1, 'Programm', 10),
@@ -1591,8 +1591,8 @@ function run_db_updates($db_version) {
     
     case '2.35':
     case '2.36':
-      db_query("update {cc_calcategory} set bezeichnung = replace(bezeichnung, '`', '') 
-        WHERE  bezeichnung LIKE  '%`s Kalender'");
+      db_query("update {cc_calcategory} set bezeichnung = replace(bezeichnung, '', '') 
+        WHERE  bezeichnung LIKE  '%s Kalender'");
       db_query("ALTER TABLE {cc_cal} ADD link VARCHAR( 255 ) NOT NULL AFTER notizen");
       db_query("ALTER TABLE {cc_calcategory} ADD randomurl VARCHAR( 100 ) NOT NULL AFTER privat_yn");
       db_query("update {cc_calcategory} set randomurl=MD5(RAND()) where randomurl=''");
@@ -1726,7 +1726,14 @@ function run_db_updates($db_version) {
       set_version("2.46");
       // Throuh an error in the update in 2.42, the value is 60, that doesnt make sense...
       db_query("update {cc_config} set value=3600 where name='cronjob_delay' and value=60");
-      
+      db_query("INSERT INTO {cdb_feldkategorie} (id , bezeichnung , intern_code , db_tabelle , id_name)
+      VALUES ( '5',  'Bereich',  'f_dep',  'cdb_bereich',  'id');");      
+      db_query("INSERT INTO  {cdb_feld} (id, feldkategorie_id , feldtyp_id , db_spalte , 
+         db_stammdatentabelle , aktiv_yn , inneuerstellen_yn , langtext , kurztext , zeilenende , 
+         autorisierung , laenge , sortkey )
+         VALUES (
+         NULL ,  '5',  '2',  'bereich_id',  'dep',  '1',  '0',  'BereichLANG',  'BereichKURZ',  '<br/>', NULL , NULL , 1
+      )");    
       
   }
 	  

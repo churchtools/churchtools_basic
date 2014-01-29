@@ -111,19 +111,17 @@ CDBStandardTableView.prototype.renderTag = function(a, deletable) {
 CDBStandardTableView.prototype.renderTags = function(tags, authEdit, id) {
   var rows=new Array();
   var this_object=this;
-  if (masterData.auth.viewtags) {
-    rows.push('<div class="ui-widget" style="text-align:right;position:relative;"><p>');
-    if (tags!=null) {
-      $.each(tags, function(k,a) {
-        rows.push(this_object.renderTag(a, authEdit)+"&nbsp; ");          
-      }); 
-    }
-    if (authEdit) { 
-      rows.push('&nbsp;<a href="" title="Tag hinzuf&uuml;gen" id="add_tag"><img id="add_tag_icon" width=16px src="'+masterData.modulespath+'/images/plus.png" align="absmiddle"/></a>');      
-      rows.push('<span id="add_tag_field'+id+'" style="display:none"><input type="text" id="input_tag'+id+'"></input></span>');
-    }
-    rows.push('</div>');
+  rows.push('<div class="ui-widget" style="text-align:right;position:relative;"><p>');
+  if (tags!=null) {
+    $.each(tags, function(k,a) {
+      rows.push(this_object.renderTag(a, authEdit)+"&nbsp; ");          
+    }); 
   }
+  if (authEdit) { 
+    rows.push('&nbsp;<a href="" title="Tag hinzuf&uuml;gen" id="add_tag"><img id="add_tag_icon" width=16px src="'+masterData.modulespath+'/images/plus.png" align="absmiddle"/></a>');      
+    rows.push('<span id="add_tag_field'+id+'" style="display:none"><input type="text" id="input_tag'+id+'"></input></span>');
+  }
+  rows.push('</div>');
   return rows.join("");
 };
 
