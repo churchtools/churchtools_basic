@@ -1,6 +1,7 @@
 (Legende: "+"=>Neues Feature  "-"=>Fehlerbehebung)
 
 churchtools 2.46
++ (CDB) …ffentlichen Gruppen kann nun Ÿber einen externen Link beigetreten werden
 + (CDB) Distriktleiter und Gruppentypleiter kšnnen nun dafŸr Gruppen erstellen
 + (CDB) Leiter von Personen kann nun die Tags der Personen sehen und editieren
 + (CDB) Gruppendetails sortierbar und Link zum Gruppentreffen hinzugefŸgt

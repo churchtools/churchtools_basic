@@ -170,8 +170,8 @@ function externmapview_main() {
   $content='<script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=true"></script>';
 
   // Übergabe der ID für den Direkteinstieg einer Person
-  if (isset($_GET["id"]) && ($_GET["id"]!=null))
-    $content=$content."<input type=\"hidden\" id=\"filter_id\" value=\"".$_GET["id"]."\"/>";
+  if (isset($_GET["g_id"]) && ($_GET["g_id"]!=null))
+    $content=$content."<input type=\"hidden\" id=\"g_id\" value=\"".$_GET["g_id"]."\"/>";
 
   $content=$content."
     <div id=\"cdb_content\" style=\"width:100%;height:500px\"></div>";
@@ -181,17 +181,33 @@ function externmapview_main() {
 
 
 function getExternalGroupData() {
+  global $user;
   $res=db_query("select id, bezeichnung, treffzeit, zielgruppe, max_teilnehmer, 
             geolat, geolng, treffname, versteckt_yn, valid_yn, distrikt_id, offen_yn, oeffentlich_yn
             from {cdb_gruppe} where oeffentlich_yn=1 and versteckt_yn=0 and valid_yn=1");
   $arr=array();
   foreach ($res as $g) {
+    $db=db_query("select status_no from {cdb_gemeindeperson_gruppe} gpg, {cdb_gemeindeperson} gp
+                 where gp.id=gpg.gemeindeperson_id and gpg.gruppe_id=:gruppe_id 
+                    and gp.person_id=:person_id", array(":gruppe_id"=>$g->id, ":person_id"=>$user->id))->fetch();
+    if ($db!=false)
+      $g->status_no=$db->status_no;
     $arr[$g->id]=$g;    
   }
   return $arr;
 }
 
+function sendConfirmationMail($mail, $vorname="", $g_id) {
+  $g=db_query("select * from {cdb_gruppe} where id=:id", array(":id"=>$g_id))->fetch();
+  if ($g!=false) {
+    $inhalt="<h3>Hallo $vorname!</h3><p>";
+    $inhalt.="Dein Antrag f&uuml;r die Gruppe <i>$g->bezeichnung</i> ist eingegangen. <p>Vielen Dank!";
+    $res = churchcore_mail(variable_get('site_mail'), $mail, "[".variable_get('site_name')."] Teilnahmeantrag zur Gruppe ".$g->bezeichnung, $inhalt, true, true, 2);
+  }
+}
+
 function externmapview__ajax() {
+  global $user;
   $func=$_GET["func"];
   if ($func=='loadMasterData') {
     $res["home_lat"] = variable_get('churchdb_home_lat', '53.568537');
@@ -199,7 +215,22 @@ function externmapview__ajax() {
     $res["districts"]=churchcore_getTableData("cdb_distrikt", "bezeichnung");      
     $res["groups"]=getExternalGroupData();
     $res["modulespath"] = drupal_get_path('module', 'churchdb');
+    $res["user_pid"] =$user->id;
+    $res["vorname"]=$user->vorname;
     $res=jsend()->success($res);    
+  }
+  else if ($func=='addPersonGroupRelation') {
+    include_once(drupal_get_path('module', 'churchdb').'/churchdb_ajax.inc');
+    $res=churchdb_addPersonGroupRelation($user->id, $_GET["g_id"], -2, null, null, null, "Anfrage &uuml;ber externe MapView");
+    sendConfirmationMail($user->email, $user->vorname, $_GET["g_id"]);    
+    $res=jsend()->success($res);
+  }
+  else if ($func=='editPersonGroupRelation') {
+    include_once(drupal_get_path('module', 'churchdb').'/churchdb_ajax.inc');
+    $res=_churchdb_editPersonGroupRelation($user->id,
+       $_GET["g_id"], -2,null, "null", "Anfrage ge&auml;ndert &uuml;ber externe MapView");
+    sendConfirmationMail($user->email, $user->vorname, $_GET["g_id"]);    
+    $res=jsend()->success($res);
   }
   else if ($func=='sendEMail') {
     $db=db_query('select * from {cdb_person} where upper(email) like upper(:email) and upper(vorname) like upper(:vorname) and upper(name) like upper(:name)',
@@ -211,6 +242,7 @@ function externmapview__ajax() {
     if ($db!=false) {
       include_once(drupal_get_path('module', 'churchdb').'/churchdb_ajax.inc');
       churchdb_addPersonGroupRelation($db->id, $_GET["g_id"], -2, null, null, null, "Anfrage &uuml;ber externe MapView: ".$_GET["Kommentar"]);
+      sendConfirmationMail($_GET["E-Mail-Adresse"], $_GET["Vorname"], $_GET["g_id"]);    
       $txt="Person gefunden und Anfrage wurde gesendet!";      
     } 
     else {      
@@ -229,12 +261,14 @@ function externmapview__ajax() {
         $inhalt.="<li>Telefon: ".$_GET["Telefon"];
         $inhalt.="<li>Kommentar: ".$_GET["Kommentar"];
         $inhalt.="</ul>";
-        $res = churchcore_sendEMailToPersonIds($p->id, "[".variable_get('site_name', 'drupal')."] Formular-Anfrage zur Gruppe ".$p->bezeichnung, $inhalt, null, true, true);            
+        $res = churchcore_sendEMailToPersonIds($p->id, "[".variable_get('site_name', 'drupal')."] Formular-Anfrage zur Gruppe ".$p->bezeichnung, $inhalt, variable_get('site_mail'), true, true);            
       }
       if (count($rec)==0)
         $txt="Konnte leider keinen Leiter in der Gruppe finden. Bitte versuchen Sie es auf einem anderen Wege!";
-      else     
+      else {    
         $txt="Es wurde eine E-Mail an ".implode($rec," und ")." gesendet!";
+        sendConfirmationMail($_GET["E-Mail-Adresse"], $_GET["Vorname"], $_GET["g_id"]);
+      }
     }  
     $res=jsend()->success($txt);    
   }    

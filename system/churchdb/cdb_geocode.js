@@ -302,7 +302,7 @@ function cdb_addGroupsToMap(map,near_lat,near_lng, func) {
         
         google.maps.event.addDomListener(beachMarker, 'click', function() {
           if (func!=null) func(a.id);
-          else {
+          else if (typeof(groupView)!='undefined'){
             churchInterface.setCurrentView(groupView);
             groupView.clearFilter();
             groupView.setFilter("searchEntry",a.id);

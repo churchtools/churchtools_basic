@@ -1401,7 +1401,7 @@ function hideData(filtername, id) {
 
 function renderPersonalCategories() {
   var rows = new Array();
-  var form = new CC_Form("Pers&ouml;nliche Kalender"+form_renderImage({cssid:"edit_personal", src:"options.png", top: 8, width:24, htmlclass:"pull-right"}));
+  var form = new CC_Form("Pers&ouml;nliche Kalender");
   form.setHelp("Persönliche Kalender");
   var sortkey=-1;
   var mycals=new Object();

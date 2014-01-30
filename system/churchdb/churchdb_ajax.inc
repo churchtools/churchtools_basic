@@ -490,6 +490,8 @@ function churchdb_addPersonGroupRelation($p_id, $g_id, $leader, $date, $followup
     $dt=new DateTime();
     $date=$dt->format('Y-m-d H:i:s');
   }
+  
+  if (!isset($user->cmsuserid)) $user->cmsuserid="anonymous";
 
   $fields= array(
             'gemeindeperson_id'=>$gp_id, 

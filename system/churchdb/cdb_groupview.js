@@ -610,8 +610,13 @@ GroupView.prototype.renderListEntry = function(group) {
     rows.push('<td><a href="#" id="detail'+group.id+'">' + group.bezeichnung+'</a>&nbsp; ');
     
     if ((masterData.auth.adminpersons) && (group.auth!=null)) {
-      rows.push(this.renderImage("schluessel", 16, "Berechtigungen: "+this.getAuthAsArray(group.auth).join(", ")));
+      rows.push(this.renderImage("schluessel", 18, "Berechtigungen: "+this.getAuthAsArray(group.auth).join(", "))+"&nbsp;");
     }
+    if (group.offen_yn==1 && group.oeffentlich_yn==1)
+      rows.push(form_renderImage({src:"unlock.png", width:18, label:"Offene und öffentliche Gruppe. Anmeldung über einen Link möglich"}));
+    else if (group.offen_yn==1 && group.oeffentlich_yn==0)
+      rows.push(form_renderImage({src:"unlock.png", width:18, label:"Offene Gruppe, Teilnahme kann über Startseite beantragt werden."})+"");      
+    
     if ((todo_1>0) && ((masterData.auth.admingroups) || (this_object.isPersonLeaderOfGroup(masterData.user_pid, group.id))))  
       rows.push('<span title="Person soll geloescht werden" class="badge badge-important">'+todo_1+'</span>&nbsp;');
     if ((todo_2>0) && ((masterData.auth.admingroups) || (this_object.isPersonLeaderOfGroup(masterData.user_pid, group.id))))  
@@ -1220,17 +1225,17 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
 
   rows.push("<p></p>");
   rows.push('<div class="ui-widget"><legend>Weitere Optionen</legend>');
-  rows.push('<p>'+form_renderImage({src:'filter.png', width:20}));
+  rows.push('<p>'+form_renderImage({src:'filter.png', width:18}));
   rows.push('&nbsp;<a href="#" id="grp_to_filter">Gruppe in der Personenliste filtern</a>');    
   if (editGroup) { 
     if ((masterData.groups[g_id].max_teilnehmer==null) || ((masterData.groups[g_id].max_teilnehmer>stats.count_all_member))) {
-      rows.push('<p>'+form_renderImage({src:"person.png", width:20}));
+      rows.push('<p>'+form_renderImage({src:"person.png", width:18}));
       rows.push('&nbsp;<a href="#" id="addPerson">Weitere Person zur Gruppe hinzuf&uuml;gen</a>');
     }
-    rows.push('<p>'+form_renderImage({src:'persons.png', width:20}));
+    rows.push('<p>'+form_renderImage({src:'persons.png', width:18}));
     rows.push('&nbsp;<a href="#" style="width=100%" id="edit_meetinglist">Gruppentreffen pflegen</a>');
     if ((masterData.groups[g_id].meetingList!=null) && (masterData.groups[g_id].meetingList!="get data")) {
-      rows.push('<p>'+form_renderImage({src:'trashbox.png', width:20}));
+      rows.push('<p>'+form_renderImage({src:'trashbox.png', width:18}));
       rows.push('&nbsp;<a href="#" id="del_last_statistic">Letztes Gruppentreffen zur&uuml;cksetzen</a>');
     }
   }
@@ -1303,38 +1308,46 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
   if (g.notiz!="") 
     rows[rows.length]="<br/><br/>Notiz: <i>"+g.notiz.replace(/\n/g, '<br/>')+"</i><br/>";
 
-  rows.push('</div><legend>Gruppenoptionen</legend><div>');  
+  rows.push('</div><div class="ui-widget">');  
   
   if (masterData.auth.admingroups) {
-//    rows[rows.length]="<br/><br/><h4>Gruppenadmin-Funktionen</h4>";        
-    rows[rows.length]="<p>Gruppe ausw&auml;hlbar: "+this_object.renderYesNo(g.valid_yn,16);        
-    rows[rows.length]="<br/>Gruppe versteckt: "+this_object.renderYesNo(g.versteckt_yn,16);         
-    rows[rows.length]="<br/>In Statistik: "+this_object.renderYesNo(g.instatistik_yn,16);
-    rows[rows.length]="<br/>Teilnahmenpflege: "+this_object.renderYesNo(g.treffen_yn,16)
-    rows[rows.length]="<br/>Leiter per E-Mail informieren: "+this_object.renderYesNo(g.mail_an_leiter_yn,16)
-    
-    rows[rows.length]="<br/><br/>Gruppe ist &ouml;ffentlich: "+this_object.renderYesNo(g.oeffentlich_yn,16)
-    rows[rows.length]="<br/>Gruppe ist offen: "+this_object.renderYesNo(g.offen_yn,16)+"</p>";
-    
-    rows.push('<p><a href="#" class="btn btn-small" id="editAutomaticEmails">Automatische E-Mails verwalten</a>');
+    rows[rows.length]='<legend>Gruppenadmin-Funktionen</legend>';
+    if (g.valid_yn==1)
+      rows[rows.length]="<p>"+this_object.renderYesNo(g.valid_yn,16)+"&nbsp; Gruppe ausw&auml;hlbar";        
+    if (g.versteckt_yn==1)
+      rows[rows.length]="<br/>"+this_object.renderYesNo(g.versteckt_yn,16)+"&nbsp; Gruppe versteckt";
+    if (g.instatistik_yn==1)
+    rows[rows.length]="<br/>"+this_object.renderYesNo(g.instatistik_yn,16)+"&nbsp; In Statistik";
+    if (g.treffen_yn==1)
+    rows[rows.length]="<br/>"+this_object.renderYesNo(g.treffen_yn,16)+"&nbsp; Teilnahmenpflege";
+    if (g.mail_an_leiter_yn==1)
+    rows[rows.length]="<br/>"+this_object.renderYesNo(g.mail_an_leiter_yn,16)+"&nbsp; Leiter per E-Mail informieren";
+    if (g.oeffentlich_yn==1) {
+      rows[rows.length]="<br/>"+this_object.renderYesNo(g.oeffentlich_yn,16)+"&nbsp; &Ouml;ffentliche Gruppe, Link: ";
+      rows.push(' &nbsp; <a class="extern" title="Externer Link zum Anmelden" href="?q=externmapview&g_id='+g.id+'" target="_clean">'+form_renderImage({src:"right.png", width:20})+'</a>');
+    }
+    if (g.offen_yn==1)
+    rows[rows.length]="<br/>"+this_object.renderYesNo(g.offen_yn,16)+"&nbsp; Offene Gruppe &nbsp; "+form_renderImage({src:"unlock.png", label:"Teilnahme kann auf der Startseite und bei öffentlichen Gruppen auch über einen Link beantragt werden", width:18});
+    rows.push('<br/>&nbsp;<p>'+form_renderImage({src:"email.png", width:18})+'&nbsp; <a href="#" id="editAutomaticEmails">Automatische E-Mails verwalten</a>');
     if (masterData.mailchimp)
-      rows.push('<p><a href="#" class="btn btn-small" id="editMailchimp">MailChimp-Listen zuordnen</a>');
+      rows.push('<p>'+form_renderImage({src:"mailchimp.png", width:18})+'&nbsp; <a href="#" id="editMailchimp">MailChimp-Listen zuordnen</a>');
   }
 
-  rows.push('</div>');
-  
-     
-  if ((masterData.auth.adminpersons) && (masterData.auth.adminpersons)) {
-    rows[rows.length]="<br/><legend>Teilnehmerberechtigungen";        
-    rows[rows.length]="&nbsp;&nbsp;<a href=\"\" id=\"auth_"+g_id+"\">"+this_object.renderImage("options")+"</a></legend>";
-    if (g.auth==null)
-      rows.push("keine");
-    else {
+  if (masterData.auth.adminpersons) {
+    //rows[rows.length]="<br/><legend>Teilnehmerberechtigungen";        
+    rows[rows.length]='<p style="margin-bottom:0px">'+form_renderImage({src:"schluessel.png", width:18})+"&nbsp; <a href=\"\" id=\"auth_"+g_id+"\">Gruppenteilnehmer berechtigen</a>";
+//    rows[rows.length]="&nbsp;&nbsp;<a href=\"\" id=\"auth_"+g_id+"\">"+this_object.renderImage("options")+"</a></legend>";
+    if (g.auth!=null) {
+      rows.push('<p style="margin-left:22px"><small><i>Aktuelle Berechtigungen:</i><br/>');
+      var ar = new Array();
       $.each(g.auth, function(k,a) {
-        rows.push(this_object.renderAuth(k)+"<br/>");
+        ar.push(this_object.renderAuth(k));
       }); 
+      rows.push(ar.join(", "));
     }
+    rows.push('</small></p>');
   }
+  rows.push('</div>');
   
   rows.push("</div>");
   
@@ -1371,244 +1384,253 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
   });
   
   $("#cdb_content a").click(function (a) {
-    if ($(this).attr("id").indexOf("auth_")==0) {
-      var g_id=$(this).attr("id").substr(5,99);
-      this_object.editDomainAuth(g_id, masterData.groups[g_id].auth, "gruppe", function(id) {
-        cdb_loadMasterData(function() {
-          churchInterface.getCurrentView().renderView();
-        });        
-      });      
-    } 
-    else if ($(this).attr("id")=="deleteGroup") {
-      var del = false;
-      $.each(allPersons, function(k,a) {
-        if (a.gruppe!=null) {
-          $.each(a.gruppe, function(i,b) {
-            if (b.id==p_id) del=true;
-          }); 
-        }
-      });
-      
-      var form=new CC_Form();
-      form.addHtml("<legend>Wirklich die Gruppe l&ouml;schen?</legend>");
-      
-      if (del) {
-        form.addHtml("<p>Achtung, zu der Gruppe sind noch Personen zugeordnet. Sollen diese aus der Gruppe genommen werden? Das kann nicht r&uuml;ckg&auml;ngig gemacht werden!");
-        form.addCheckbox({label:"Personen aus der Gruppe herausnehmen", cssid:"deletePersonGroup"});
-      }
-      
-      var elem=form_showDialog("Gruppe l&ouml;schen", form.render(null, "vertical"), 370, 300, {
-        "Ja": function() {
-          var obj=form.getAllValsAsObject();
-          if ((del) && (obj.deletePersonGroup==0))
-            alert("Ohne das Setzen des Hakens kann die Gruppe nicht entfernt werden!");
-          else {
-            obj.func="deleteGroup";
-            obj.id=p_id;
-            churchInterface.jsendWrite(obj, function(ok) {
-              if (ok) {        
-                delete masterData.groups[p_id];
-                churchInterface.getCurrentView().renderList();
-                elem.dialog("close");
-              }
-              else alert("Fehler aufgetreten!");
-            });
+    if ($(this).hasClass("extern")) {
+      fenster = window.open($(this).attr("href"), "Anmeldung", "width=700,height=600,resizable=yes");
+      fenster.focus();
+      return false;
+    }
+    else if ($(this).attr("id")!=null) {
+      if ($(this).attr("id").indexOf("auth_")==0) {
+        var g_id=$(this).attr("id").substr(5,99);
+        this_object.editDomainAuth(g_id, masterData.groups[g_id].auth, "gruppe", function(id) {
+          cdb_loadMasterData(function() {
+            churchInterface.getCurrentView().renderView();
+          });        
+        });      
+      } 
+      else if ($(this).attr("id")=="deleteGroup") {
+        var del = false;
+        $.each(allPersons, function(k,a) {
+          if (a.gruppe!=null) {
+            $.each(a.gruppe, function(i,b) {
+              if (b.id==p_id) del=true;
+            }); 
           }
-        },
-        "Abbruch":function() {
-          $(this).dialog("close");
+        });
+        
+        var form=new CC_Form();
+        form.addHtml("<legend>Wirklich die Gruppe l&ouml;schen?</legend>");
+        
+        if (del) {
+          form.addHtml("<p>Achtung, zu der Gruppe sind noch Personen zugeordnet. Sollen diese aus der Gruppe genommen werden? Das kann nicht r&uuml;ckg&auml;ngig gemacht werden!");
+          form.addCheckbox({label:"Personen aus der Gruppe herausnehmen", cssid:"deletePersonGroup"});
         }
-      });      
-    }  
-    return false;
+        
+        var elem=form_showDialog("Gruppe l&ouml;schen", form.render(null, "vertical"), 370, 300, {
+          "Ja": function() {
+            var obj=form.getAllValsAsObject();
+            if ((del) && (obj.deletePersonGroup==0))
+              alert("Ohne das Setzen des Hakens kann die Gruppe nicht entfernt werden!");
+            else {
+              obj.func="deleteGroup";
+              obj.id=p_id;
+              churchInterface.jsendWrite(obj, function(ok) {
+                if (ok) {        
+                  delete masterData.groups[p_id];
+                  churchInterface.getCurrentView().renderList();
+                  elem.dialog("close");
+                }
+                else alert("Fehler aufgetreten!");
+              });
+            }
+          },
+          "Abbruch":function() {
+            $(this).dialog("close");
+          }
+        });      
+      }  
+      return false;
+    }
  });  
   $("#groupinfosTD"+p_id+" a").click(function() {
-    // L�sche den Tooltip, falls es ihn gibt
-    clearTooltip();
-    if ($(this).attr("id")=="grp_to_filter") {
-      $("#cdb_group").html("");
-      churchInterface.setCurrentView(personView);
-      personView.clearFilter();
-      delete masterData.settings.selectedMyGroup;
-      personView.furtherFilterVisible=true;
-      personView.filter["filterTyp 1"]=g.gruppentyp_id;
-      personView.filter["filterGruppe 1"]=g_id;
-      personView.currentFurtherFilter="gruppe";
-      personView.renderView();
-      return false;                
-    }
-    else if ($(this).attr("id").indexOf("addPerson")==0) {
-      personView.renderPersonSelect("Nach einer Person suchen", true, function(id) {
-        if (!personView.addPersonGroupRelation(id, g_id)) 
-          alert("Fehler beim Erstellen der Person-Gruppenbeziehung. Ist die Person schon in der Gruppe?");
-        else {
-          groupView.renderList();
-        }
-      });            
-      return false;
-    }
-    else if ($(this).attr("id").indexOf("editPerson_")==0) {
-      var id=$(this).attr("data-pid");
-      var res=personView.renderPersonGroupRelation($(this).attr("data-pid"), $(this).attr("data-gid"));      
-      width=380; height=330;
-      if (res==null) return false;      
-      var elem = this_object.showDialog("Veränderung des Datensatzes", res, 380, 330, {
-        "Speichern": function() {
-           personView._saveEditEntryData(id, "editPersonGroupRelation", true, $(this));
-         },
-         "Abbruch": function() {
-           $(this).dialog("close");
-         }
-    });
-      
-      groupView.renderList();
-      return false;
-    }
-    else if ($(this).attr("id").indexOf("deletePerson_")==0) {
-      var id=$(this).attr("p_id");
-      //if (confirm("Wirklich "+allPersons[id].vorname+" "+allPersons[id].name+" aus der Gruppe entfernen?")) {
-        personView.delPersonFromGroup(id, g_id);
-     // }     
-      groupView.renderList();
-      return false;
-    }
-    else if ($(this).attr("id").indexOf("sortdetailname")==0) {
-      groupView.sortdetail="bezeichnung";
-      groupView.renderList();
-      return false;
-    }
-    else if ($(this).attr("id").indexOf("sortdetaildate")==0) {
-      groupView.sortdetail="date";
-      groupView.renderList();
-      return false;
-    }
-    else if ($(this).attr("id").indexOf("editAutomaticEmails")==0) {
-      groupView.editAutomaticEMails(p_id);
-      return false;
-    }
-    else if ($(this).attr("id").indexOf("editMailchimp")==0) {
-      groupView.editMailchimp(p_id);
-      return false;
-    }
-    else if ($(this).attr("id").indexOf("person_")==0) {   
-      $("#cdb_group").html("");
-      churchInterface.setCurrentView(personView);
-      personView.clearFilter();
-      personView.setFilter("searchEntry","#"+$(this).attr("id").substr(7,99));
-      personView.renderView();
-    }
-    else if ($(this).attr("id").indexOf("edit_meetinglist")==0) {   
-      $("#cdb_group").html("");
-      churchInterface.setCurrentView(personView);
-      personView.clearFilter();
-      personView.setFilter("filterMeine Gruppen",g_id);
-      delete masterData.settings.selectedMyGroup;
-      masterData.settings.selectedGroupType=-4;
-      personView.renderView();
-    }
-    else if ($(this).attr("id").indexOf("del_last_statistic")==0) {
-      if (confirm("Wirklich die letzte Eintragung entfernen?")) {
-        churchInterface.jsendWrite({func:"deleteLastGroupStatistic", id:g_id}, function(ok, data) {
-          if (!ok) {
-            alert("Fehler: "+data);
-          }
+    if ($(this).attr("id")!=null) {
+      // L�sche den Tooltip, falls es ihn gibt
+      clearTooltip();
+      if ($(this).attr("id")=="grp_to_filter") {
+        $("#cdb_group").html("");
+        churchInterface.setCurrentView(personView);
+        personView.clearFilter();
+        delete masterData.settings.selectedMyGroup;
+        personView.furtherFilterVisible=true;
+        personView.filter["filterTyp 1"]=g.gruppentyp_id;
+        personView.filter["filterGruppe 1"]=g_id;
+        personView.currentFurtherFilter="gruppe";
+        personView.renderView();
+        return false;                
+      }
+      else if ($(this).attr("id").indexOf("addPerson")==0) {
+        personView.renderPersonSelect("Nach einer Person suchen", true, function(id) {
+          if (!personView.addPersonGroupRelation(id, g_id)) 
+            alert("Fehler beim Erstellen der Person-Gruppenbeziehung. Ist die Person schon in der Gruppe?");
           else {
-            cdb_loadGroupMeetingStats(churchInterface.getCurrentView().filter, g_id, function() {
-              masterData.groups[g_id].meetingList=null;
-              groupView.renderList();
+            groupView.renderList();
+          }
+        });            
+        return false;
+      }
+      else if ($(this).attr("id").indexOf("editPerson_")==0) {
+        var id=$(this).attr("data-pid");
+        var res=personView.renderPersonGroupRelation($(this).attr("data-pid"), $(this).attr("data-gid"));      
+        width=380; height=330;
+        if (res==null) return false;      
+        var elem = this_object.showDialog("Veränderung des Datensatzes", res, 380, 330, {
+          "Speichern": function() {
+             personView._saveEditEntryData(id, "editPersonGroupRelation", true, $(this));
+           },
+           "Abbruch": function() {
+             $(this).dialog("close");
+           }
+      });
+        
+        groupView.renderList();
+        return false;
+      }
+      else if ($(this).attr("id").indexOf("deletePerson_")==0) {
+        var id=$(this).attr("p_id");
+        //if (confirm("Wirklich "+allPersons[id].vorname+" "+allPersons[id].name+" aus der Gruppe entfernen?")) {
+          personView.delPersonFromGroup(id, g_id);
+       // }     
+        groupView.renderList();
+        return false;
+      }
+      else if ($(this).attr("id").indexOf("sortdetailname")==0) {
+        groupView.sortdetail="bezeichnung";
+        groupView.renderList();
+        return false;
+      }
+      else if ($(this).attr("id").indexOf("sortdetaildate")==0) {
+        groupView.sortdetail="date";
+        groupView.renderList();
+        return false;
+      }
+      else if ($(this).attr("id").indexOf("editAutomaticEmails")==0) {
+        groupView.editAutomaticEMails(p_id);
+        return false;
+      }
+      else if ($(this).attr("id").indexOf("editMailchimp")==0) {
+        groupView.editMailchimp(p_id);
+        return false;
+      }
+      else if ($(this).attr("id").indexOf("person_")==0) {   
+        $("#cdb_group").html("");
+        churchInterface.setCurrentView(personView);
+        personView.clearFilter();
+        personView.setFilter("searchEntry","#"+$(this).attr("id").substr(7,99));
+        personView.renderView();
+      }
+      else if ($(this).attr("id").indexOf("edit_meetinglist")==0) {   
+        $("#cdb_group").html("");
+        churchInterface.setCurrentView(personView);
+        personView.clearFilter();
+        personView.setFilter("filterMeine Gruppen",g_id);
+        delete masterData.settings.selectedMyGroup;
+        masterData.settings.selectedGroupType=-4;
+        personView.renderView();
+      }
+      else if ($(this).attr("id").indexOf("del_last_statistic")==0) {
+        if (confirm("Wirklich die letzte Eintragung entfernen?")) {
+          churchInterface.jsendWrite({func:"deleteLastGroupStatistic", id:g_id}, function(ok, data) {
+            if (!ok) {
+              alert("Fehler: "+data);
+            }
+            else {
+              cdb_loadGroupMeetingStats(churchInterface.getCurrentView().filter, g_id, function() {
+                masterData.groups[g_id].meetingList=null;
+                groupView.renderList();
+              });
+            }
+          });
+        }        
+        return false;
+      }
+      else if ($(this).attr("id").indexOf("grp_close")==0) {
+        $("#groupinfosTD"+p_id).remove();
+        return false;
+      } 
+      else if ($(this).attr("id").indexOf("edit_")==0) {
+        this_object.renderEditEntry(g_id);
+        return false;
+      } 
+      else if ($(this).attr("id").indexOf("sendMail")==0) {
+        var ids=""; var namen=""; var erster=true; var noemail=false;
+        var mailTo="";
+        var separator=(masterData.settings.mailerSeparator==0?";":",");
+        if (masterData.settings.mailerType!=0)
+          separator=separator+" ";
+        $.each(allPersons, function(k, a) {
+          if (a.gruppe!=null) {
+            $.each(a.gruppe, function (i, b) {
+              if ((b.id==g_id) &&
+                    ((masterData.settings.hideStatus==null) || (a.status_id!=masterData.settings.hideStatus))) {
+                if (a.email=="") noemail=true;
+                else {
+                  if (erster)
+                    erster=false; 
+                  else {
+                    ids=ids+",";
+                    namen=namen+", ";
+                  }
+                  ids=ids+a.id;
+                  namen=namen+a.vorname+" "+a.name;
+                  mailTo=mailTo+$.trim(a.email)+separator;
+  
+                }
+              }
             });
           }
         });
-      }        
-      return false;
-    }
-    else if ($(this).attr("id").indexOf("grp_close")==0) {
-      $("#groupinfosTD"+p_id).remove();
-      return false;
-    } 
-    else if ($(this).attr("id").indexOf("edit_")==0) {
-      this_object.renderEditEntry(g_id);
-      return false;
-    } 
-    else if ($(this).attr("id").indexOf("sendMail")==0) {
-      var ids=""; var namen=""; var erster=true; var noemail=false;
-      var mailTo="";
-      var separator=(masterData.settings.mailerSeparator==0?";":",");
-      if (masterData.settings.mailerType!=0)
-        separator=separator+" ";
-      $.each(allPersons, function(k, a) {
-        if (a.gruppe!=null) {
-          $.each(a.gruppe, function (i, b) {
-            if ((b.id==g_id) &&
-                  ((masterData.settings.hideStatus==null) || (a.status_id!=masterData.settings.hideStatus))) {
-              if (a.email=="") noemail=true;
-              else {
-                if (erster)
-                  erster=false; 
-                else {
-                  ids=ids+",";
-                  namen=namen+", ";
-                }
-                ids=ids+a.id;
-                namen=namen+a.vorname+" "+a.name;
-                mailTo=mailTo+$.trim(a.email)+separator;
-
-              }
-            }
-          });
+        if (ids=="") 
+          alert("Keine Personen mit EMail-Adressen gefunden.");
+        else {
+          if (noemail) alert("Hinweis: Einige Einträge haben keine E-Mailadresse, diese wurden nicht berücksichtigt!");
+          
+          
+          // Und los geht es
+          if (masterData.settings.mailerType==0) {
+            if (masterData.settings.mailerBcc==null)
+              masterData.settings.mailerBcc=0;
+            var string ="";
+            if (masterData.settings.mailerBcc==0)
+              string="mailto:"+mailTo;
+            else 
+              string="mailto:"+allPersons[masterData.user_pid].email+"?bcc="+mailTo;
+            var Fenster = window.open(string,"Mailer");
+            window.setTimeout(function() {
+              Fenster.close();
+            },500);
+          } 
+          else if (masterData.settings.mailerType==1) {
+            var Fenster = window.open("", "E-Mail-Adresse","width=500,height=300");
+            Fenster.document.write(mailTo);
+            Fenster.focus();
+          }
+          else if (masterData.settings.mailerType==2) {
+            this_object.mailPerson(ids, namen.trim(80), "Gruppeninfos "+masterData.groups[g_id].bezeichnung);
+          }
+  
+          
         }
-      });
-      if (ids=="") 
-        alert("Keine Personen mit EMail-Adressen gefunden.");
-      else {
-        if (noemail) alert("Hinweis: Einige Einträge haben keine E-Mailadresse, diese wurden nicht berücksichtigt!");
-        
-        
-        // Und los geht es
-        if (masterData.settings.mailerType==0) {
-          if (masterData.settings.mailerBcc==null)
-            masterData.settings.mailerBcc=0;
-          var string ="";
-          if (masterData.settings.mailerBcc==0)
-            string="mailto:"+mailTo;
-          else 
-            string="mailto:"+allPersons[masterData.user_pid].email+"?bcc="+mailTo;
-          var Fenster = window.open(string,"Mailer");
-          window.setTimeout(function() {
-            Fenster.close();
-          },500);
-        } 
-        else if (masterData.settings.mailerType==1) {
-          var Fenster = window.open("", "E-Mail-Adresse","width=500,height=300");
-          Fenster.document.write(mailTo);
-          Fenster.focus();
-        }
-        else if (masterData.settings.mailerType==2) {
-          this_object.mailPerson(ids, namen.trim(80), "Gruppeninfos "+masterData.groups[g_id].bezeichnung);
-        }
-
-        
+        return false;
       }
-      return false;
-    }
-    else if ($(this).attr("id").indexOf("add_tag")==0) {
-      $("#add_tag_field"+g_id).toggle();
-      $("#input_tag"+g_id).focus();
-      return false;
-    }
-    else if ($(this).attr("id").indexOf("del_tag")==0) {    
-      masterData.groups[g_id].tags.splice($.inArray($(this).attr("id").substring(7,99),masterData.groups[g_id].tags),1);
-      churchInterface.jsendWrite({func:"delGroupTag", id:g_id, tag_id:$(this).attr("id").substring(7,99)}, null, false);
-      this_object.renderView();
-      this_object.renderEntryDetail(g_id);
-      return false;
-    }
-    else if ($(this).attr("id").indexOf("search_tag")==0) {
-      if (masterData.tags[$(this).attr("id").substring(10,99)]!=null) {
-        this_object.setFilter("searchEntry","tag:"+masterData.tags[$(this).attr("id").substring(10,99)].bezeichnung);
+      else if ($(this).attr("id").indexOf("add_tag")==0) {
+        $("#add_tag_field"+g_id).toggle();
+        $("#input_tag"+g_id).focus();
+        return false;
+      }
+      else if ($(this).attr("id").indexOf("del_tag")==0) {    
+        masterData.groups[g_id].tags.splice($.inArray($(this).attr("id").substring(7,99),masterData.groups[g_id].tags),1);
+        churchInterface.jsendWrite({func:"delGroupTag", id:g_id, tag_id:$(this).attr("id").substring(7,99)}, null, false);
         this_object.renderView();
+        this_object.renderEntryDetail(g_id);
+        return false;
       }
-      return false;      
+      else if ($(this).attr("id").indexOf("search_tag")==0) {
+        if (masterData.tags[$(this).attr("id").substring(10,99)]!=null) {
+          this_object.setFilter("searchEntry","tag:"+masterData.tags[$(this).attr("id").substring(10,99)].bezeichnung);
+          this_object.renderView();
+        }
+        return false;      
+      }
     }
   });
 
