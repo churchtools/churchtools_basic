@@ -329,7 +329,6 @@ WeekView.prototype.buildDates = function (allBookings) {
  * Get Dates for startdate d. e can be null. Otherwise it will return all bookings between d and e
  * @param d startdate
  * @param e enddate
- * @returns
  */
 WeekView.prototype.getIndexedBookings = function(d, e) {
   var t=this;

@@ -774,7 +774,7 @@ GroupView.prototype.isPersonSuperLeader = function (p_id) {
 
 
 GroupView.prototype.isPersonSuperLeaderOfGroup = function (p_id, g_id) {
-  if ((allPersons[p_id]==null) || (masterData.groups[g_id]==null)) return false;
+  if ((allPersons[p_id]==null) || (masterData.groups==null) || (masterData.groups[g_id]==null)) return false;
   if ((allPersons[p_id].districts!=null) && (allPersons[p_id].districts[masterData.groups[g_id].distrikt_id]!=null))
     return true;
   if ((allPersons[p_id].gruppentypen!=null) && (allPersons[p_id].gruppentypen[masterData.groups[g_id].gruppentyp_id]!=null))
@@ -1139,7 +1139,6 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
           return (a.name+a.vorname).toUpperCase()>(b.name+b.vorname).toUpperCase();
         else   
           return a.date<b.date;          
-        return a[this_object.sortdetail]>b[this_object.sortdetail];
       }
       return 0;
     });
