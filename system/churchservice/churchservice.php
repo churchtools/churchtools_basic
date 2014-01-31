@@ -619,7 +619,7 @@ function churchservice_remindme() {
           if ($es2->eventservice_id==$es->eventservice_id ||
                (churchcore_checkUserMail($p->person_id, "remindService", $es2->eventservice_id, variable_get('churchservice_reminderhours')))) {
             $txt.='<tr><td>'.$es2->datum.' '.$es2->bezeichnung.'<td>Dienst: '.$es2->dienst." (".$es2->sg.")";
-            $txt.='<td style="min-width:75px;"><a href="'.$base_url.'?q=churchservice&id='.$es2->event_id.'" class="btn btn-primary">Event aufrufen</a>';            
+            $txt.='<td style="min-width:79px;"><a href="'.$base_url.'?q=churchservice&id='.$es2->event_id.'" class="btn btn-primary">Event aufrufen</a>';            
           }
         }        
         

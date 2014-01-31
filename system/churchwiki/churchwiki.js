@@ -68,8 +68,10 @@ WikiView.prototype.editMode = function (setToEdit) {
                         { name: 'colors', items: [ 'TextColor', 'BGColor' ] },
                         { name: 'paragraph', groups: [ 'list', 'indent', 'align' ], items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock' ] }
                       ],
-      extraPlugins : 'tableresize'
-    });    
+      extraPlugins : 'tableresize',
+    });
+    CKEDITOR.config.scayt_autoStartup = true;
+    CKEDITOR.config.scayt_sLang = 'de_DE';
     $("#editor").focus();   
   }
   else if ((edit) || (!setToEdit)){

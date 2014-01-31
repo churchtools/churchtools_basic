@@ -1732,7 +1732,7 @@ function run_db_updates($db_version) {
          db_stammdatentabelle , aktiv_yn , inneuerstellen_yn , langtext , kurztext , zeilenende , 
          autorisierung , laenge , sortkey )
          VALUES (
-         NULL ,  '5',  '2',  'bereich_id',  'dep',  '1',  '0',  'BereichLANG',  'BereichKURZ',  '<br/>', NULL , NULL , 1
+         NULL ,  '5',  '2',  'bereich_id',  'dep',  '1',  '0',  'Bereich',  'Bereich',  '<br/>', NULL , NULL , 1
       )");    
       
   }
