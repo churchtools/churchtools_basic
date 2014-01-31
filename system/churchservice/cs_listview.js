@@ -1142,8 +1142,8 @@ ListView.prototype.getListHeader = function() {
     $.each(this.sortMasterData(masterData.servicegroup), function(k,a) {
       if ((masterData.settings["viewgroup"+a.id]==null) || (masterData.settings["viewgroup"+a.id]==1))
         if ((masterData.auth.viewgroup[a.id]) || (this_object.filter["filterMeine Filter"]==2)) {
-          tableHeader=tableHeader+'<th class="hover" id="header'+a.id+'">'+a.bezeichnung
-          tableHeader=tableHeader+'<span id="headerspan'+a.id+'" style="display:none;float:right">'+
+          tableHeader=tableHeader+'<th class="hoveractor" id="header'+a.id+'">'+a.bezeichnung;
+          tableHeader=tableHeader+'<span id="headerspan'+a.id+'" class="hoverreactor pull-right" >'+
                   '<a href="#" id="delCol'+a.id+'">'+this_object.renderImage("minus",16)+'</a></span>';
         }
     });

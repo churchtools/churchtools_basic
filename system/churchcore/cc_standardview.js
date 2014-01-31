@@ -347,7 +347,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
                 }
                 
                 rows.push("<tr class=\"data\" id=\"" + entry.id + "\">");                      
-                rows.push("<td><input type=\"checkbox\" class=\"checked\" id=\"check" + entry.id + "\"");
+                rows.push("<td width=\"12px\"><input type=\"checkbox\" class=\"checked\" id=\"check" + entry.id + "\"");
                 if (entry.checked) rows.push(" checked=checked"); 
                 rows.push(">");
                 
