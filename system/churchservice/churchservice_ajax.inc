@@ -410,8 +410,15 @@ function churchservice_editService($params) {
   } 
 }
 
-function churchservice_updateEventService($id, $name, $cdb_person_id, $zugesagt_yn, $reason) {
+function churchservice_updateEventService($params) {
   global $user, $base_url;
+
+  $id=$params["id"];
+  $name=isset($params["name"])?$params["name"]:null;
+  $cdb_person_id=(isset($params["cdb_person_id"])?$params["cdb_person_id"]:null);
+  $reason=(isset($params["reason"])?$params["reason"]:null);
+  $zugesagt_yn=$params["zugesagt_yn"];
+  
   include_once('system/churchservice/churchservice_db.inc');
   
   $res=array();
@@ -423,7 +430,7 @@ function churchservice_updateEventService($id, $name, $cdb_person_id, $zugesagt_
   $arr=db_query("select * from {cs_eventservice} where id=:id",array(":id"=>$id))->fetch();
   if (!$arr)
     return "Eintrag nicht gefunden, id nicht gï¿½ltig!";
-  if ($arr->valid_yn!=1)
+  if ($arr->valid_yn!=1 && !isset($params["valid_yn"]))
     return "Eintrag nicht mehr aktuell und konnte nicht angepasst, bitte neu laden!";
 
   // PrŸfe Rechte
@@ -434,19 +441,22 @@ function churchservice_updateEventService($id, $name, $cdb_person_id, $zugesagt_
     throw new CTNoPermission("editservice","churchservice");
 
     
-  // Wenn die neue €nderung vom gleichen User kommt und noch kein Cron gelaufen ist, 
+  // Wenn die neue €nderung vom gleichen User kommt und noch kein Cron gelaufen ist,
+  // Oder wenn valid_yn valide ist, denn dann soll es upgedates werden! 
   // brauchen wir kein neuen Insert, sondern machen nur ein Update.
   // Denn wahrscheinlich war es vorher nur ein Versehen.
   $dt=new datetime();
-  if (($arr->modified_pid==$user->id) && ($arr->mailsenddate==null)) {
+  if (($arr->modified_pid==$user->id && $arr->mailsenddate==null) || (isset($params["valid_yn"]))) {
+    $valid_yn=1;
+    if (isset($params["valid_yn"])) $valid_yn=$params["valid_yn"];
     db_update("cs_eventservice")
-      ->fields(array("name"=>$name, "cdb_person_id"=>$cdb_person_id, "zugesagt_yn"=>$zugesagt_yn, "reason"=>$reason, "mailsenddate"=>null,
+      ->fields(array("name"=>$name, "cdb_person_id"=>$cdb_person_id, "valid_yn"=>$valid_yn, "zugesagt_yn"=>$zugesagt_yn, "reason"=>$reason, "mailsenddate"=>null,
                 "modified_date"=>$dt->format('Y-m-d H:i:s'), "modified_pid"=>$user->id))
       ->condition("id",$id,"=")
       ->execute();    
     $new_id=$id;    
   } 
-  else {     
+  else {
     // Neuer Eintrag fŸr die €nderung wird angelegt  
     $new_id=db_insert("cs_eventservice")
       ->fields(array("event_id"=>$arr->event_id, "service_id"=>$arr->service_id, "valid_yn"=>1, "counter"=>$arr->counter,
@@ -976,12 +986,7 @@ class CTChurchServiceModule extends CTAbstractModule {
   }
   
   public function updateEventService($params) {
-    return churchservice_updateEventService(
-       $params["id"],
-       (isset($params["name"])?$params["name"]:null),
-       (isset($params["cdb_person_id"])?$params["cdb_person_id"]:null),
-       $params["zugesagt_yn"],
-       (isset($params["reason"])?$params["reason"]:null));
+    return churchservice_updateEventService($params);
   }
   
   public function getAbsent($params) {

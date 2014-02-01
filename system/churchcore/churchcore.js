@@ -329,7 +329,7 @@ function isNumber(n) {
 String.prototype.formatMS = function() {
   var s=this%60+'';
   if (s.length==1) s='0'+s;
-  return Math.round(this/60)+":"+s;
+  return Math.floor(this/60)+":"+s;
 }
 
 String.prototype.endsWith = function(suffix) {

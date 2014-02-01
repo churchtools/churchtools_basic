@@ -225,7 +225,7 @@ function churchservice_main() {
 
 
 
-function churchservice_getUserOpenServices($shorty=true) {
+function churchservice_getUserOpenServices() {
   global $user;
   
   if (isset($_GET["eventservice_id"])) {
@@ -254,12 +254,18 @@ function churchservice_getUserOpenServices($shorty=true) {
   $txt2="";
   foreach($res as $arr) {
     $nr=$nr+1;
-    if (($nr<=3) || (!$shorty)) {
-      $txt2=$txt2.'<p><a href="?q=churchservice&id='.$arr->event_id.'">';
+    if (($nr<=3)) {
+      $txt2=$txt2.'<div class="service-request" style="display:none;" '.
+           'data-id="'.$arr->eventservice_id.'" data-modified-user="'.$arr->modifieduser.'" ';
+
+      if ($arr->allowtonotebyconfirmation_yn==1)
+         $txt2.='data-comment-confirm="'.$arr->allowtonotebyconfirmation_yn.'" ';
+      if (user_access("view","churchdb"))     
+        $txt2.='data-modified-pid="'.$arr->modified_pid.'" ';
+      $txt2.=">";
+           
+      $txt2.='<a href="?q=churchservice&id='.$arr->event_id.'">';
       $txt2.=$arr->datum." - ".$arr->event."</a>: ";
-      if (!$shorty) {
-        $txt2.="<br/>&nbsp; &nbsp; ".$arr->modifieduser." hat Dich vorgeschlagen f&uuml;r ";
-      } 
       $txt2.='<a href="?q=churchservice&id='.$arr->event_id.'"><b>'.$arr->service."</b></a> (".$arr->servicegroup.")";
 
       $files=churchcore_getFilesAsDomainIdArr("service", $arr->event_id);
@@ -273,39 +279,12 @@ function churchservice_getUserOpenServices($shorty=true) {
           else $txt.="...";  
         }
       }
-      $txt.="</span>";
-      
-      if ($shorty) $txt2.="<br/>&nbsp;&nbsp; &nbsp; ";
-      if ($arr->allowtonotebyconfirmation_yn==0)
-        $txt2.=l("Zusagen",'',array("q"=>"home","eventservice_id"=>$arr->eventservice_id, "zugesagt_yn"=>1)).' | ';
-      else  
-        $txt2.='<a href="#" id="zusagen" eventserviceid="'.$arr->eventservice_id.'" onclick="askMeYes('.$arr->eventservice_id.')">Zusagen</a> | ';            
-      
-      $txt2.='<a href="#" id="absagen" eventserviceid="'.$arr->eventservice_id.'" onclick="askMeNo('.$arr->eventservice_id.')">Absagen</a>';            
-      if (!$shorty) {
-        $q=array("event_id"=>$arr->event_id, "service_id"=>$arr->service_id);            
-        $txt2.=" | ".l("Anderen vorschlagen",'churchservice',array("query"=>$q));
-      }
-      else {
-        $txt2.="&nbsp; &nbsp; <small>Anfrage von ".
-            (user_access("view","churchdb")?'<a href="?q=churchdb#PersonView/searchEntry:#'.$arr->modified_pid.'">'.$arr->modifieduser.'</a>':$arr->modifieduser).
-          "</small>";
-      }
-
-      $txt2.='<script>
-                    function askMeYes(id) { 
-             				var res=prompt("Wirklich verbindlich zusagen? Hier kannst Du noch eine Notiz angeben.","");
-             				if (res!=null) window.location.href="?q=home&zugesagt_yn=1&reason="+res+"&eventservice_id="+id;
-           			} 
-                    function askMeNo(id) { 
-             				var res=prompt("Wirklich absagen? Hier kannst Du noch einen Grund angeben.","");
-             				if (res!=null) window.location.href="?q=home&zugesagt_yn=0&reason="+res+"&eventservice_id="+id;
-           			} 
-           			</script>';
+      $txt.="</span>";     
+      $txt2.='<div style="margin-left:16px;margin-bottom:10px;" class="service-request-answer"></div>';
+      $txt2.='</div>';
     } 
   }           
   if ($txt2!="") $txt=$txt.$txt1.$txt2;
-  //if (($shorty) && ($txt!="")) $txt.='<br><p align="right">'.l("Weiter","?q=churchservice");
   return $txt;
 }
 
@@ -474,7 +453,8 @@ function churchservice_blocks() {
       "col"=>2,
       "sortkey"=>1,
       "html"=>churchservice_getUserOpenServices(),
-      "help"=>"Offene Dienstanfragen"
+      "help"=>"Offene Dienstanfragen",
+      "class"=>"service-request"
     ),  
     2=>array(
       "label"=>"Deine n&auml;chsten Dienste",

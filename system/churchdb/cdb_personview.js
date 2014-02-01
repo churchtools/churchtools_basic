@@ -4343,6 +4343,7 @@ PersonView.prototype.resetGroupFilter = function () {
     delete t.filter["filterGruppeWarInVon "+k];        
     delete t.filter["filterGruppeWarInBis "+k];        
     delete t.filter["filterGruppeWarInBis "+k];
+    delete t.filter["filterTeilnehmerstatus "+k];
     if (k>0)
       delete t.filter["filterOn "+k];
     k=k+1;  

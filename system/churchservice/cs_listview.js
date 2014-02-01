@@ -2085,12 +2085,12 @@ ListView.prototype.renderTooltip = function(id, event_id, withLastDates, withHis
     txt=txt+"<br/>";
     var txt2="";
     if (user_access("administer persons")) {
-      txt2=txt2+"<br/>"+form_renderImage({src:"person_simulate.png",label:"Person simulieren", data:[{name:"id", value:a.cdb_person_id}], width:18, 
-              link:true, htmlclass:"simulate-person"})+"&nbsp;Simulieren";
+      txt2=txt2+'<br/><a href="#" class="simulate-person" data-id="'+a.cdb_person_id+'">'
+            +form_renderImage({src:"person_simulate.png",label:"Person simulieren", width:18})+'&nbsp;Simulieren</a>';
     }
     if (info!=false && info.email!="") {
-      txt2=txt2+"<br/>"+form_renderImage({src:"email.png",label:"Person eine E-Mail senden", data:[{name:"id", value:a.cdb_person_id}], width:18, 
-        link:true, htmlclass:"email-person"})+"&nbsp;E-Mail senden";
+      txt2=txt2+'<br/><a href="#" class="email-person" data-id="'+a.cdb_person_id+'">'
+            +form_renderImage({src:"email.png",label:"Person eine E-Mail senden", width:18})+"&nbsp;E-Mail senden</a>";
     }
     if (txt2!="") {
       txt=txt+txt2;

@@ -1135,10 +1135,12 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
       if (arr[a.leiter]<arr[b.leiter]) return 1;
       else if (arr[a.leiter]>arr[b.leiter]) return -1;
       else if (a.leiter==b.leiter) {
-        if (this_object.sortdetail=="bezeichnung") 
-          return (a.name+a.vorname).toUpperCase()>(b.name+b.vorname).toUpperCase();
-        else   
-          return a.date<b.date;          
+        if (this_object.sortdetail=="bezeichnung") {
+          var r=((a.name+a.vorname).toUpperCase()>(b.name+a.vorname).toUpperCase()?1:-1);
+          return r;
+        }
+        else  
+          return (a.date.getTime()>b.date.getTime()?-1:1);          
       }
       return 0;
     });

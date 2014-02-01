@@ -3,6 +3,11 @@
 churchtools_version=2.46
 
 home = main/home.php
+home/ajax = main/home.php
+home/memberlist = main/home.php
+home/memberlist_printview = main/home.php
+home/memberlist_settings = main/home.php
+
 cron = main/cron.php
 login = main/login.php
 logout = main/logout.php

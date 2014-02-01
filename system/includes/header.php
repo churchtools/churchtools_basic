@@ -51,6 +51,10 @@
   echo "settings.files_url=\"$base_url$files_dir\";"; 
   echo "settings.base_url=\"$base_url\";"; 
   echo "settings.q=\"$q\";"; 
+  echo "settings.user=new Object();";
+  echo "settings.user.id=\"$user->id\";";
+  echo "settings.user.vorname=\"$user->vorname\";";
+  echo "settings.user.name=\"$user->name\";";
   echo 'version='.$config["version"];
   
 ?></script>
