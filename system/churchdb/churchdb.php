@@ -598,8 +598,13 @@ function churchdb__export() {
   if (isset($_GET["ids"]))
     $ids="and p.id in (".$_GET["ids"].")";
   else $ids="";  
+  
+  $ps=churchdb_getAllowedPersonData();
+  $allowed_ids=array();
+  foreach ($ps as $p) {
+    $allowed_ids[]=$p->p_id;
+  }
 
-  $allowedDeps=implode(",",churchdb_getAllowedDeps());
   if (user_access("view alldetails","churchdb"))
     $persons_sql = 'SELECT station.bezeichnung station, (case when geschlecht_no=1 then \'Herr\' when geschlecht_no=2 then \'Frau\' else \'\' end) "anrede", vorname, name, strasse adresse, plz,
               ort, land, n.bezeichnung nationalitaet, telefonprivat "tel. priv.", email "e-mail", telefongeschaeftlich "tel. büro", telefonhandy "handy",
@@ -620,8 +625,8 @@ function churchdb__export() {
   						and gp.status_id=status.id
   						and gp.station_id=station.id
   						and gp.familienstand_no=f.id
-  						and gp.nationalitaet_id=n.id
-  						and bp.bereich_id in ('.$allowedDeps.') ';
+                        and gp.nationalitaet_id=n.id
+                        and p.id in ('.implode(",", $allowed_ids).')';
   else
     $persons_sql = 'SELECT station.bezeichnung station, (case when geschlecht_no=1 then \'Herr\' when geschlecht_no=2 then \'Frau\' else \'\' end) "anrede", vorname, name, spitzname, plz,
               ort, telefonprivat "tel. priv.", email "e-mail", telefongeschaeftlich "tel. büro", telefonhandy "handy",
@@ -634,9 +639,8 @@ function churchdb__export() {
                   and p.id=bp.person_id 
                   and bp.bereich_id=b.id 
               and gp.station_id=station.id
-              and bp.bereich_id in ('.$allowedDeps.') ';
-    
-  
+              and p.id in ('.implode(",", $allowed_ids).')';
+      
 	$persons = db_query($persons_sql.$ids.' ORDER BY name, vorname, id, b.sortkey ');			  
   // Zuerst werden die Daten in ein Array gepackt und dabei nach Bereich verdichtet, 
   // so dass eine Person in mehreren Bereichen auch nur 1x aufgefuehrt wird.

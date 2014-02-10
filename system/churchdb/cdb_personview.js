@@ -208,7 +208,7 @@ PersonView.prototype.renderListMenu = function() {
         });
         if (masterData.groups!=null) {
           $.each(masterData.groups, function(k,a) {
-            if (groupView.isAllowedToSee(a.id))
+            if (groupView.isAllowedToSeeDetails(a.id))
               if ((str=="GRUPPE:") || (a.bezeichnung.toUpperCase().indexOf(str)>=0) || (("GRUPPE:"+a.bezeichnung.toUpperCase()).indexOf(str)>=0))
                 r.push({label:a.bezeichnung, category:"Gruppe", value:'gruppe:"'+a.bezeichnung+'"'});              
           });
@@ -1126,15 +1126,16 @@ PersonView.prototype.renderListEntry = function(a) {
         rows.push('<b>Rechte durch '+f("status_id")+': </b>'+arr.join(",")+'<br/>');
     }
   } 
+  // Show group membership
   else { 
     if (a.gruppe!=null) {
       var k=0;
       $.each(a.gruppe, function(j,b) {
         if ((masterData.groups[b.id]!=null) && 
-               (groupView.isGroupOfGroupType(b.id, masterData.settings.selectedGroupType)) && 
-                (groupView.isAllowedToSee(b.id))) {
+               (groupView.isGroupOfGroupType(b.id, masterData.settings.selectedGroupType))
+               && groupView.isAllowedToSeeName(b.id, a.id)) {
           if (k>0) rows[rows.length] = ", ";
-          
+          var link=groupView.isAllowedToSeeDetails(b.id);          
           var style="";
           //Leiter & Co-Leiter
           if ((b.leiter==1)||(b.leiter==2))
@@ -1148,7 +1149,9 @@ PersonView.prototype.renderListEntry = function(a) {
           // Aufnahem beantragt
           else if (b.leiter==-2)
             style="color:#3a87ad;";
-          rows[rows.length] = "<a href=\"#"+b.id+"\" id=\"groupinfos"+a.id+"\" style=\""+style+"\">";
+          
+          if (link)
+            rows[rows.length] = "<a href=\"#"+b.id+"\" id=\"groupinfos"+a.id+"\" style=\""+style+"\">";
           
           rows[rows.length] = masterData.groups[b.id].bezeichnung.trim(25);
           
@@ -1181,7 +1184,8 @@ PersonView.prototype.renderListEntry = function(a) {
             }  
             rows.push("</small>");
           }
-          rows[rows.length] ="</a>";              
+          if (link)
+            rows[rows.length] ="</a>";              
           k++;
         }
       });
@@ -2283,13 +2287,7 @@ PersonView.prototype.getGroupEntries = function (p_id, gt_id, func) {
   var res = new Array();  
   $.each(allPersons[p_id].gruppe, function(k,b) {
     if ((masterData.groups[b.id]!=null) && (masterData.groups[b.id].gruppentyp_id==gt_id) 
-        && (func(b)) 
-        && (   
-            ((masterData.auth.editgroups) && (masterData.groups[b.id].versteckt_yn==0)) 
-            || (groupView.isAllowedToSee(b.id))
-            || (groupView.isPersonLeaderOfGroup(masterData.user_pid, b.id))
-            || ((groupView.isGroupViewableForMembers(b.id)) && (t.isPersonLeaderOfPerson(masterData.user_pid, p_id))))
-           ) 
+        && (func(b)) && (groupView.isAllowedToSeeName(b.id, p_id)))
       {
       b.show=true;
       res.push(b);
@@ -2344,7 +2342,7 @@ PersonView.prototype.getGroupEntries = function (p_id, gt_id, func) {
       var grptxt=masterData.groups[b.id].bezeichnung;
       if (b.leiter==-2) grptxt=grptxt+"?";
       
-      if (groupView.isAllowedToSee(b.id))
+      if (groupView.isAllowedToSeeDetails(b.id))
         _text=_text+'<small><a href="#" title="'+_title+'" style="'+_style+'" id="grp_'+b.id+'">'+grptxt+"</a>";
       else if (b.leiter==-1) 
         _text=_text+'<small style="text-decoration:line-through;">'+grptxt;
@@ -3409,7 +3407,7 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
             && (a.valid_yn==1) 
             && ((a.abschlussdatum==null) || (a.abschlussdatum.toDateEn()>diff_date))) {
             // Wenn ich die Gruppe sehen darf, darf ich sie auch zuordnen. Und nat�rlich auf editgroups
-            if ((groupView.isAllowedToSee(a.id)) || ((masterData.auth.editgroups) && (a.versteckt_yn==0)) ) {
+            if ((groupView.isAllowedToSeeDetails(a.id)) || ((masterData.auth.editgroups) && (a.versteckt_yn==0)) ) {
             // Es sollen nur Gruppen angezeigt werden, in denen die Person noch nicht ist.
             var dabei=false;
             if (allPersons[id].gruppe!=null) {
@@ -4073,7 +4071,7 @@ PersonView.prototype.renderGroupFilter = function() {
       controlgroup:true, freeoption:true, type:"medium",
       func:     function(a) {
         return (((t.filter["filterTyp "+k]=="") || t.filter["filterTyp "+k]==null || (a.gruppentyp_id==t.filter["filterTyp "+k])) 
-            && (groupView.isAllowedToSee(a.id))
+            && (groupView.isAllowedToSeeDetails(a.id))
             && (masterData.groups[a.id].valid_yn==1)
             && ((t.filter["filterDistrikt "+k]==null) || (t.filter["filterDistrikt "+k]=="") || (t.filter["filterDistrikt "+k]==a.distrikt_id) ));
          }
@@ -4221,7 +4219,7 @@ PersonView.prototype.renderRelationFilter = function() {
     cssid:"filterRelationExtGroup",
     controlgroup:true, freeoption:true, type:"medium",
     func:     function(a) {
-      return ((a.gruppentyp_id==t.filter["filterRelationExtGroupTyp"]) && (groupView.isAllowedToSee(a.id))
+      return ((a.gruppentyp_id==t.filter["filterRelationExtGroupTyp"]) && (groupView.isAllowedToSeeDetails(a.id))
           && (masterData.groups[a.id].valid_yn==1));
        }
   }));

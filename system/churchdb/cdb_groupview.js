@@ -504,7 +504,7 @@ GroupView.prototype.renderFilter = function() {
 
 GroupView.prototype.checkFilter = function(a) {
   // Ausblenden von versteckten Gruppen
-  if (!this.isAllowedToSee(a.id))
+  if (!this.isAllowedToSeeDetails(a.id))
     return false;
   
   // Suchfeld
@@ -532,7 +532,20 @@ GroupView.prototype.checkFilter = function(a) {
   return true;
 };
 
-GroupView.prototype.isAllowedToSee = function(g_id) {
+/**
+ * is current login user is allowed to see the name of the group g_id of person p_id
+ */
+GroupView.prototype.isAllowedToSeeName = function(g_id, p_id) {
+  return ((masterData.auth.editgroups) && (masterData.groups[g_id].versteckt_yn==0)) 
+            || (groupView.isAllowedToSeeDetails(g_id))
+            || (groupView.isPersonLeaderOfGroup(masterData.user_pid, g_id))
+            || ((groupView.isGroupViewableForMembers(g_id)) && (personView.isPersonLeaderOfPerson(masterData.user_pid, p_id)));             
+};
+
+/**
+ * Is current login user is allowed to see the group details for g_id
+ */
+GroupView.prototype.isAllowedToSeeDetails = function(g_id) {
   if ((masterData.groups!=null) && (masterData.groups[g_id]!=null)) {
     if (user_access("viewgroups", g_id))
       return true;
