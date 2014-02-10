@@ -7,6 +7,8 @@ churchtools 2.46
 + (CDB) Leiter von Personen kann nun die Tags der Personen sehen und editieren
 + (CDB) Gruppendetails sortierbar und Link zum Gruppentreffen hinzugefŸgt
 + (CDB) Die Begriffe Distrikt, Gruppentyp, Bereich und Station kann nun in der "Felder" angepa§t werden (nur PRO!)
++ (CDB) Neues Recht "create person". Man kann nun Personen berechtigen, Personen zu erstellen.
++ (CDB) Geburtsdatum darf nun auch nur Jahr oder nur Tag und Monat enthalten.
 - Mitgliederliste kann nun unabhŠngig von View ChurchDB eingesehen werden.
 - (CDB) Person darf nun auch seine eigenen Details sehen, wenn der Zugriff ansich erlaubt ist.
 - (CDB) Umbennung Gruppenteilnahme in Gruppentreffen

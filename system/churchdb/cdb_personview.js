@@ -58,7 +58,7 @@ PersonView.prototype.renderMenu = function() {
   
   menu = new CC_Menu(_("menu"));
   if (menuDepth=="amain") {
-    if (masterData.auth.write)
+    if (masterData.auth["create person"])
       menu.addEntry("Neue Person anlegen", "anewentry", "star");
     if (masterData.auth.viewalldata)
       menu.addEntry("Weitere Filter", "aaddfilter", "filter");  
@@ -313,16 +313,30 @@ PersonView.prototype.renderAddEntry = function(prefill) {
   if (masterData.groups!=null) {
     var diff_date=new Date();
     diff_date.addDays(-1*masterData.groupnotchoosable);
-    $.each(masterData.groupTypes, function(k,a) {
-      if (a.in_neue_person_erstellen_yn==1) {      
-        var data=new Array(); 
+    if (masterData.auth.editgroups) {
+      $.each(masterData.groupTypes, function(k,a) {
+        if (a.in_neue_person_erstellen_yn==1) {      
+          var data=new Array(); 
+          $.each(masterData.groups, function(i,b) {
+            if ((b.gruppentyp_id==a.id) && (b.valid_yn==1) && (b.versteckt_yn==0) && ((b.abschlussdatum==null) || (b.abschlussdatum.toDateEn()>diff_date)))
+              data.push(form_prepareDataEntry(b.id, b.bezeichnung));
+          });
+          form.addSelect({data:data, freeoption:true, cssid:"createGroup", label:a.bezeichnung});
+        }  
+      });
+    }
+    else {
+      // Get groups, only where I am a leader. No free option. 
+      var data=new Array(); 
+      $.each(masterData.groupTypes, function(k,a) {
         $.each(masterData.groups, function(i,b) {
           if ((b.gruppentyp_id==a.id) && (b.valid_yn==1) && (b.versteckt_yn==0) && ((b.abschlussdatum==null) || (b.abschlussdatum.toDateEn()>diff_date)))
+            if (groupView.isPersonLeaderOfGroup(masterData.user_pid, b.id))
             data.push(form_prepareDataEntry(b.id, b.bezeichnung));
         });
-        form.addSelect({data:data, freeoption:true, cssid:"createGroup", label:a.bezeichnung});
-      }  
-    });
+      });
+      form.addSelect({data:data, freeoption:false, cssid:"createGroup", label:"Meine Gruppen"});
+    }    
   }
   _text=_text+form.render();
   
@@ -531,8 +545,12 @@ function renderPersonTooltip(id) {
     var a=allPersons[id];
     txt="<b>"+a.vorname+" "+a.name;
 
-    if (a.geburtsdatum!=null)
-      txt=txt+" ("+a.geburtsdatum.toDateEn().getAgeInYears()+")";
+    if (a.geburtsdatum!=null && a.geburtsdatum.toDateEn().getAgeInYears()!=null) {
+      var age=a.geburtsdatum.toDateEn().getAgeInYears();
+      if (age!=null) {
+        txt=txt+" ("+age+")";        
+      }
+    }
     txt=txt+"</b><br/>";
     
     if ((masterData.auth.viewaddress) || (masterData.auth.viewalldetails))
@@ -2618,11 +2636,15 @@ PersonView.prototype.renderDetails = function (id) {
         _text=_text+"<p>"+form_renderPersonImage(allPersons[a.id].imageurl);
       
       _text=_text+"<p style='line-height:100%;color:black'>";
-      if (a.geburtsdatum!=null) {
-        geb=new Date(a.geburtsdatum.substr(0,4),a.geburtsdatum.substr(5,2)-1,a.geburtsdatum.substr(8,2));      
-        _text=_text+a.vorname+" "+a.name+" ("+geb.getAgeInYears()+") &nbsp; ";
-      } else
-        _text=_text+a.vorname+" "+a.name+" &nbsp; ";
+      _text=_text+a.vorname+" "+a.name;
+
+      if (a.geburtsdatum!=null && a.geburtsdatum.toDateEn().getAgeInYears()!=null) {
+        var age=a.geburtsdatum.toDateEn().getAgeInYears();
+        if (age!=null) {
+          _text=_text+" ("+age+")";        
+        }
+      }
+      _text=_text+" &nbsp; ";
       
       if (a.email!="")
         _text=_text+"<a href=\"#\" title=\"E-Mail an Person schreiben\" id=\"mailPerson\">" +t.renderImage("email")+"</a>&nbsp;";

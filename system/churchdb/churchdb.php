@@ -21,6 +21,7 @@ function churchdb_getAuth() {
   $cc_auth=addAuth($cc_auth, 118,'push/pull archive', 'churchdb', null, 'Personen ins Archiv verschieben und zur&uuml;ckholen', 1);
   $cc_auth=addAuth($cc_auth, 109,'edit relations', 'churchdb', null, 'Beziehungen der sichtbaren Personen editieren', 1);
   $cc_auth=addAuth($cc_auth, 110,'edit groups', 'churchdb', null, 'Alle Gruppenzuordnungen der sichtbaren Personen editieren', 1);
+  $cc_auth=addAuth($cc_auth, 119,'create person', 'churchdb', null, 'Darf Personen erstellen', 1);
   $cc_auth=addAuth($cc_auth, 111,'write access', 'churchdb', null, 'Schreibzugriff auf alle sichtbaren Personen', 1);
   $cc_auth=addAuth($cc_auth, 102,'view alldata', 'churchdb', 'cdb_bereich', 'Alle Personen des jeweiligen Bereiches sichtbar machen', 1);
   $cc_auth=addAuth($cc_auth, 117,'send sms', 'churchdb', null, 'SMS-Schnittstelle verwenden', 1);
@@ -643,6 +644,17 @@ function churchdb__export() {
   $export= array();
   
   foreach ($persons as $arr) {
+    if (isset($arr->{'geb.jahr'})) { 
+      if ($arr->{'geb.jahr'}>=7000) {
+        $arr->{'geb.tag'}="";
+        $arr->{'geb.m.'}="";
+        $arr->{'geb.jahr'}=$arr->{'geb.jahr'}-7000;
+      }
+      else if ($arr->{'geb.jahr'}==1004) {
+        $arr->{'geb.jahr'}="";
+      }     
+    }
+    
     // Wenn schon benutzt, dann nehme das
     if (isset($export[$arr->id]))
       $person=$export[$arr->id];

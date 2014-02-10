@@ -377,7 +377,9 @@ String.prototype.toDateEn = function (withTime) {
 
 
 /**
-*  Formatiert den String "22.02.2008" um in den Typ Datum
+*  Format String "22.02.2008" to type Date
+*  if only day and month given, year will be 1004, cause auf leap year
+*  if only year given, date will be 01.01 plus 7000 years.
 */
 String.prototype.toDateDe = function (withTime) {
   if (this==null) return null;
@@ -391,7 +393,7 @@ String.prototype.toDateDe = function (withTime) {
   else {
     var d = new Date();
     str=str.toLowerCase();
-    // 0 hei§t heute!
+    // 0 = today!
     if (str=="0") { 
       return d;
     }
@@ -405,6 +407,15 @@ String.prototype.toDateDe = function (withTime) {
     else if (str.indexOf("m")>0) { 
       d.setMonth(d.getMonth()-str.substr(0,str.indexOf("m"))*1);
     }
+    else if (str.indexOf("j")>0) { 
+      d.setFullYear(d.getFullYear()-str.substr(0,str.indexOf("j"))*1+7000);
+    }
+    // Only Year, so I add 7000 years
+    else if (str>0) {
+      if (str<50) str=str*1+2000;
+      else if (str<100) str=str*1+1900;
+      d=new Date(7000+str*1,0,1);
+    }
     else
       d=null;
     
@@ -415,11 +426,18 @@ String.prototype.toDateDe = function (withTime) {
   i=str.indexOf(".");
   if (i>0) 
     month=str.substr(0,i);
+  else if (str>0 && str<=12) { 
+    month=str;
+    str="";
+    i=0;
+  }
   else return null; 
+  
   str=str.substr(i+1,99);
   if (str.indexOf(" ")>0)
     year=str.substr(0,str.indexOf(" "));
   else year=str;
+  if (year=="") year=1004;
   
   if (!withTime)
     return new Date(year, month-1, day);
@@ -470,14 +488,23 @@ Date.prototype.toStringDe = function (withTime) {
     else withTime=withTime+this.getMinutes();
   }
   else withTime="";
-    
-  day=this.getDate();
-  if (day<10) day="0"+day;
-  month=this.getMonth()+1;
-  if (month<10) month="0"+month;
+
+  var str="";
+
+  if (this.getFullYear()<7000) {  
+    day=this.getDate();
+    if (day<10) day="0"+day;
+    month=this.getMonth()+1;
+    if (month<10) month="0"+month;
+    str=day+"."+month+".";
+  }
+  if (this.getFullYear()>=7000)
+    str=str+this.getFullYear()-7000;
+  else if (this.getFullYear()>1004)
+    str=str+this.getFullYear();
+  str=str+withTime;
   
-  
-  return day+"."+month+"."+this.getFullYear()+withTime;
+  return str;
 };
 
 /**
@@ -527,11 +554,17 @@ Date.prototype.getKW = function() {
 };
 
 Date.prototype.getAgeInYears = function() {
+  if (this.getFullYear()==1004) return null;
   var jetzt=new Date(); 
-  jetzt=new Date(jetzt.getFullYear(),jetzt.getMonth(),jetzt.getDate()); 
-  var d=new Date(this.getTime()); 
+  var d=new Date(this.getTime());
+  var txt="";
+  if (d.getFullYear()>7000) {
+    jetzt.setFullYear(jetzt.getFullYear()+7000);
+    txt="ca. ";
+  }
   d.setYear(jetzt.getFullYear()); 
-  return d>jetzt?(jetzt.getFullYear()-this.getFullYear()-1):(jetzt.getFullYear()-this.getFullYear()); 
+  txt=txt+( d>jetzt?(jetzt.getFullYear()-this.getFullYear()-1):(jetzt.getFullYear()-this.getFullYear()));
+  return txt;
 }; 
 
 Date.prototype.getDayInText = function() {

@@ -909,7 +909,10 @@ function churchdb_getAuthForAjax() {
 
   if (isset($auth["write access"]))
     $res["write"]=true;
-    
+  
+  if (isset($auth["create person"]))
+    $res["create person"]=true;
+  
   if (isset($auth["view archive"])) {
     $res["viewarchive"]=true;
   }  
@@ -1362,7 +1365,7 @@ class CTChurchDBModule extends CTAbstractModule {
     saveGeocodeGruppe($params["id"],$params["lat"],$params["lng"]);
   }
   public function createAddress($params) {
-    $this->checkPerm("write access");
+    $this->checkPerm("create person");
     $res=createAddress($params);
     if (isset($res["id"]))
       $this->logPerson($params, 2);
