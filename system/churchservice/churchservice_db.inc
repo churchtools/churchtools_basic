@@ -220,7 +220,7 @@ function churchservice_saveEvent($params, $source=null) {
     if ($source==null) {
       $params["repeat_id"]=0;
       $params["intern_yn"]=0;
-      $params["notizen"]=$params["special"];
+      $params["notizen"]="";
       $params["link"]="";
       $params["ort"]="";        
       $cal_id=churchcal_createEvent($params, "churchservice");

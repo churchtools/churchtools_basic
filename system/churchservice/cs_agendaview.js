@@ -612,6 +612,9 @@ AgendaView.prototype.getNextItem = function(item) {
 
 AgendaView.prototype.editItem = function(item) {
   var item = $.extend({}, item);
+  item.duration_m=Math.floor(item.duration/60);
+  item.duration_s=item.duration%60;
+  if (item.duration_s<10) item.duration_s="0"+item.duration_s;
   var form = new CC_Form(null, item);
   form.addInput({cssid:"bezeichnung", label:"Titel"});
   if (item.header_yn==0) {
@@ -625,12 +628,16 @@ AgendaView.prototype.editItem = function(item) {
       form.addSelect({data:allSongs[item.song_id].arrangement, cssid:"arrangement_id", label:"Arrangement",
           htmlclass:"arrangement"});      
     }
-    form.addInput({cssid:"duration", label:"Dauer (s)"});
+    form.addInput({cssid:"duration_m", controlgroup_start:true, type:"mini", label:"Dauer (m:s)"});
+    form.addHtml(' : ');
+    form.addInput({cssid:"duration_s", controlgroup_end:true, type:"mini"});
     form.addInput({cssid:"responsible", label:"Verantwortlich"});
     form.addTextarea({cssid:"note", label:"Notiz", rows:4});
     form.addCheckbox({cssid:"preservice_yn", label:"Position liegt zeitlich vor dem Event"});
   }
-  else form.addInput({cssid:"duration", label:"ca. Dauer (s)"});
+  else {
+    form.addInput({cssid:"duration_m", controlgroup_start:true, type:"mini", label:"ca. Dauer (min)"});
+  }
 
   form.addHtml('<p class="pull-right"><small>#'+item.id+'</p>');
   var elem = form_showDialog((item.header_yn==0?"Position bearbeiten":"Überschrift bearbeiten"), form.render(null, "horizontal"), 530, 500, {
@@ -654,6 +661,8 @@ AgendaView.prototype.editItem = function(item) {
       $.each(form.getAllValsAsObject(), function(k,a) {
         item[k]=a;
       });
+      item.duration=((item.duration_m*60)+(item.duration_s*1))+"";
+      console.log(item);
       item.song_id=null;
       item.agenda_id=t.currentAgenda.id;
       t.saveItem(item, function() {
