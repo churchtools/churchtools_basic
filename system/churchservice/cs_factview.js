@@ -34,7 +34,23 @@ FactView.prototype.renderMenu = function() {
         this_object.renderAddEntry();
       }
       else if ($(this).attr("id")=="aexport") {
-        churchcore_openNewWindow("?q=churchservice/exportfacts");
+        var rows=new Array();
+        rows.push('<legend>Zeitraum des Exportes</legend>');
+        rows.push('<p>Es k&ouml;nnen entweder alle Fakten exportiert werden, '+ 
+                     'oder die Fakten ab dem aktuell ausgew&auml;hlten Datum.');
+        var elem=form_showDialog('Export von Fakten', rows.join(""), 370, 300, {
+            "Alle Fakten": function() {    
+                churchcore_openNewWindow("?q=churchservice/exportfacts");
+                elem.dialog("close");
+            },
+            "Ab aktuellem Datum": function() {    
+              churchcore_openNewWindow("?q=churchservice/exportfacts&date="+this_object.currentDate.toStringEn(false));
+              elem.dialog("close");
+            },
+            "Abbruch": function() {    
+              elem.dialog("close");
+            }
+        });
       }
       else if ($(this).attr("id")=="ahelp") {
         churchcore_openNewWindow("http://intern.churchtools.de/?q=help&doc=ChurchService");

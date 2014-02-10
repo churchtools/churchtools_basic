@@ -71,7 +71,12 @@ function churchservice__exportfacts() {
   
   $events=churchcore_getTableData("cs_event", "startdate");
   
-  $db=db_query("select e.*, c.bezeichnung, c.category_id from {cs_event} e, {cc_cal} c where e.cc_cal_id=c.id order by e.startdate");
+  $cond="";
+  if (isset($_GET["date"])) {
+    $cond=" and e.startdate>='".$_GET["date"]."'";
+  }
+  
+  $db=db_query("select e.*, c.bezeichnung, c.category_id from {cs_event} e, {cc_cal} c where e.cc_cal_id=c.id $cond order by e.startdate");
   $events=array();
   foreach ($db as $e) {
     $events[$e->id]=$e;
