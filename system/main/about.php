@@ -171,11 +171,15 @@ function check_db_constraints($small=true) {
 
 // For footer e-mail function
 function about__ajax() {
-  global $config;
+  global $config, $user;
   $params=$_POST;
   if ($params["func"]=="sendEmailToAdmin") {
     churchcore_sendEMailToPersonids(implode(",",$config["admin_ids"]), $params["subject"], $params["text"]);
     $res=jsend()->success();    
+  }
+  else if ($params["func"]=="amILoggedIn") {
+    if ($user==null) $res=jsend()->success(false);
+    else $res=jsend()->success($user->id!=-1);    
   }
   else $res=jsend()->error("Unkown call: ".$params["func"]);
   drupal_json_output($res);
