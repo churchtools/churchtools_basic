@@ -137,7 +137,9 @@ function home_getMemberList() {
   $station_id=variable_get('churchdb_memberlist_station', '1,2,3');
   if ($station_id=="") $station_id="-1";
 
-  $sql='select person_id, name, vorname, strasse, ort, plz, land, DATE_FORMAT(geburtsdatum, \'%d.%m.%Y\') geburtsdatum, DATE_FORMAT(geburtsdatum, \'%d.%m.\') geburtsdatum_compact,
+  $sql='select person_id, name, vorname, strasse, ort, plz, land,
+         year(geburtsdatum) year, month(geburtsdatum) month, day(geburtsdatum) day, 
+        DATE_FORMAT(geburtsdatum, \'%d.%m.%Y\') geburtsdatum, DATE_FORMAT(geburtsdatum, \'%d.%m.\') geburtsdatum_compact,
          (case when geschlecht_no=1 then \'Herr\' when geschlecht_no=2 then \'Frau\' else \'\' end) "anrede",
          telefonprivat, telefongeschaeftlich, telefonhandy, fax, email, imageurl
          from {cdb_person} p, {cdb_gemeindeperson} gp where gp.person_id=p.id and gp.station_id in ('.$station_id.')
@@ -181,7 +183,20 @@ function home__memberlist() {
     
     $txt.='<br/>&nbsp;</div><td><div class="dontbreak">'.$arr->strasse."<br/>".$arr->plz." ".$arr->ort."</div>";  
        
-    $txt.="<td><div class=\"dontbreak\">".($fields["memberlist_birthday_full"]->getValue()?$arr->geburtsdatum:$arr->geburtsdatum_compact)."<br/>&nbsp;</div><td><div class=\"dontbreak\">";
+    $birthday="";
+    if ($arr->geburtsdatum!=null) {
+      if ($arr->year<7000) 
+        $birthday="$arr->day.$arr->month.";
+      if ($arr->year!=1004 && $fields["memberlist_birthday_full"]->getValue()) {
+        if ($arr->year<7000)
+          $birthday=$birthday.$arr->year;
+        else  
+          $birthday=$birthday.$arr->year-7000;
+      }
+    } 
+    
+    
+    $txt.="<td><div class=\"dontbreak\">$birthday<br/>&nbsp;</div><td><div class=\"dontbreak\">";
     if (($fields["memberlist_telefonprivat"]->getValue()) && ($arr->telefonprivat!="")) 
       $txt.=$arr->telefonprivat."<br/>";
     if (($fields["memberlist_telefonhandy"]->getValue()) && ($arr->telefonhandy!="")) 
@@ -273,10 +288,19 @@ function home__memberlist_printview() {
       $pdf->Cell(13,9,$p->anrede,0,0,'L');
       $pdf->Cell(48,9,utf8_decode("$p->name, $p->vorname"),0,0,'L');
       $pdf->Cell(45,9,utf8_decode("$p->strasse"),0,0,'L');
-      if (($fields["memberlist_birthday_full"]->getValue()))  
-        $pdf->Cell(20,9,$p->geburtsdatum,0,0,'L');
-      else
-        $pdf->Cell(20,9,$p->geburtsdatum_compact,0,0,'L');
+      
+      $birthday="";
+      if ($p->geburtsdatum!=null) {
+        if ($p->year<7000)
+          $birthday="$p->day.$p->month.";
+        if ($p->year!=1004 && $fields["memberlist_birthday_full"]->getValue()) {
+          if ($p->year<7000)
+            $birthday=$birthday.$p->year;
+          else
+            $birthday=$birthday.$p->year-7000;
+        }
+      }      
+      $pdf->Cell(20,9,$birthday,0,0,'L');
       
       if (($fields["memberlist_telefonprivat"]->getValue()) && ($p->telefonprivat!="")) 
          $pdf->Cell(30,9,$p->telefonprivat,0,0,'L');

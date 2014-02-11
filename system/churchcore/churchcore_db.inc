@@ -1387,6 +1387,12 @@ function datesInConflict($startdate, $enddate, $startdate2, $enddate2) {
   return false;    
 }
 
+function churchcore_getAge($date) {
+  $d=new DateTime($date);
+  $alter = floor((date("Ymd") - date("Ymd", $d->getTimestamp())) / 10000);
+  return $alter;
+}
+
 function getAllDatesWithRepeats($r, $_von=-1, $_bis=1) {
   // $dates wird mein späterer Datumscontainer, wo alle Vorkommen enthalten sind.
   $dates=array();

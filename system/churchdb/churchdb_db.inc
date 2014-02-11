@@ -384,21 +384,27 @@ function getBirthdayList($diff_from, $diff_to) {
                   name, vorname, spitzname, DATE_FORMAT(geburtsdatum, '%d.%m.%Y') geburtsdatum_d, DATE_FORMAT(geburtsdatum, '%d.%m.') geburtsdatum_compact, geburtsdatum, 
                          (DATE_FORMAT(NOW(), '%Y') - DATE_FORMAT(geburtsdatum, '%Y') - 
                           (DATE_FORMAT(NOW(), '00-%m-%d') < DATE_FORMAT(geburtsdatum, '00-%m-%d'))) as age,
+                      year(geburtsdatum) jahr,
                      s.bezeichnung, gp.imageurl imageurl, status.bezeichnung status
                FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_station} s, {cdb_status} status
-                 where p.id=gp.person_id and status_id in (".$status_id.") and gp.station_id in (".$station_id.") and geburtsdatum is not null and status.id=gp.status_id
+                 where p.id=gp.person_id and status_id in (".$status_id.") and gp.station_id in (".$station_id.") 
+                 and geburtsdatum is not null and year(geburtsdatum)<7000
+                 and status.id=gp.status_id
                          and s.id=gp.station_id and archiv_yn=0) 
 		  as t) as t2 where ((bla>=$diff_from) and (bla<=$diff_to))
 		    order by bla, name, vorname
 		  ";
-//		   (t.diff>=$diff_from and t.diff<=$diff_to) 
-//		          or (t.diff+365>=$diff_from and t.diff+365<=$diff_to) /* Hat Anfang naechsten Jahres, also z.bsp:diff=-360*/ 
-//		          or (t.diff-365>=$diff_from and t.diff-365<=$diff_to) /* Hat Ende letzten jahres, also z.Bsp:diff=+360*/
-//		          ORDER BY MONTH(geburtsdatum), DAYOFMONTH(geburtsdatum ), name, vorname";*/
   
   $sql_bereich="select bp.person_id, bezeichnung from {cdb_bereich_person} bp, {cdb_bereich} b where bp.bereich_id=b.id and bp.person_id=:p_id order by bezeichnung";
   $res = db_query($sql);
   foreach ($res as $arr) {
+    if ($arr->jahr==1004) {
+      $arr->age="";
+      $arr->geburtsdatum_compact="";
+      $arr->geburtsdatum="";
+      $arr->geburtsdatum_d=substr($arr->geburtsdatum_d,0,6);
+    }
+    
     $res_bereich=db_query($sql_bereich,array(":p_id"=>$arr->person_id));
     $bereich="";
     foreach ($res_bereich as $arr_bereich) {
