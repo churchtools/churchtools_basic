@@ -60,8 +60,7 @@ function addServiceRequestCallback() {
     churchInterface.jsendWrite(obj, function(ok, data) {
       div_element.attr("data-new-id", data.eventservice.id);
     });
-    
-    if (obj.zugesagt_yn==0 || $(this).hasClass("data-comment-confirm")) {
+    if (obj.zugesagt_yn==0 || div_element.attr("data-comment-confirm")==1) {
       var form = new CC_Form();
       form.addInput({type:"medium", cssid:"reason", placeholder:"Bemerkung", controlgroup:false, htmlclass:"input-reason"});
       form.addHtml("&nbsp;");
