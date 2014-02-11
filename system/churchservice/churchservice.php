@@ -259,35 +259,33 @@ function churchservice_getUserOpenServices() {
   $txt2="";
   foreach($res as $arr) {
     $nr=$nr+1;
-    if (($nr<=3)) {
-      $txt2=$txt2.'<div class="service-request" style="display:none;" '.
-           'data-id="'.$arr->eventservice_id.'" data-modified-user="'.$arr->modifieduser.'" ';
+    $txt2=$txt2.'<div class="service-request" style="display:none;" '.
+         'data-id="'.$arr->eventservice_id.'" data-modified-user="'.$arr->modifieduser.'" ';
 
-      if ($arr->allowtonotebyconfirmation_yn==1)
-         $txt2.='data-comment-confirm="'.$arr->allowtonotebyconfirmation_yn.'" ';
-      if (user_access("view","churchdb"))     
-        $txt2.='data-modified-pid="'.$arr->modified_pid.'" ';
-      $txt2.=">";
-           
-      $txt2.='<a href="?q=churchservice&id='.$arr->event_id.'">';
-      $txt2.=$arr->datum." - ".$arr->event."</a>: ";
-      $txt2.='<a href="?q=churchservice&id='.$arr->event_id.'"><b>'.$arr->service."</b></a> (".$arr->servicegroup.")";
+    if ($arr->allowtonotebyconfirmation_yn==1)
+       $txt2.='data-comment-confirm="'.$arr->allowtonotebyconfirmation_yn.'" ';
+    if (user_access("view","churchdb"))     
+      $txt2.='data-modified-pid="'.$arr->modified_pid.'" ';
+    $txt2.=">";
+         
+    $txt2.='<a href="?q=churchservice&id='.$arr->event_id.'">';
+    $txt2.=$arr->datum." - ".$arr->event."</a>: ";
+    $txt2.='<a href="?q=churchservice&id='.$arr->event_id.'"><b>'.$arr->service."</b></a> (".$arr->servicegroup.")";
 
-      $files=churchcore_getFilesAsDomainIdArr("service", $arr->event_id);
-      $txt.='<span class="pull-right">';
-      if ((isset($files)) && (isset($files[$arr->event_id]))) {
-        $i=0;
-        foreach ($files[$arr->event_id] as $file) {
-          $i++;
-          if ($i<=3)
-            $txt.=churchcore_renderFile($file)."&nbsp;";
-          else $txt.="...";  
-        }
+    $files=churchcore_getFilesAsDomainIdArr("service", $arr->event_id);
+    $txt.='<span class="pull-right">';
+    if ((isset($files)) && (isset($files[$arr->event_id]))) {
+      $i=0;
+      foreach ($files[$arr->event_id] as $file) {
+        $i++;
+        if ($i<=3)
+          $txt.=churchcore_renderFile($file)."&nbsp;";
+        else $txt.="...";  
       }
-      $txt.="</span>";     
-      $txt2.='<div style="margin-left:16px;margin-bottom:10px;" class="service-request-answer"></div>';
-      $txt2.='</div>';
-    } 
+    }
+    $txt.="</span>";     
+    $txt2.='<div style="margin-left:16px;margin-bottom:10px;" class="service-request-answer"></div>';
+    $txt2.='</div>';
   }           
   if ($txt2!="") $txt=$txt.$txt1.$txt2;
   return $txt;

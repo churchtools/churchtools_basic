@@ -1,36 +1,39 @@
 
 loadPersonJS=false;
 
+function showFirstServiceRequests(max) {
+  var counter=0;
+  $("div.service-request").each(function() {
+    counter=counter+1;
+    if (counter<=max) {
+      $(this).css("display", "");
+    }
+  });  
+}
 
 function renderServiceRequests() {
-  var counter=0;
   var available=false;
   $("div.service-request").each(function() {
     available=true;
     if ($(this).attr("data-closed")==null) {
-      counter=counter+1;
-      if (counter<=3) {
-        $(this).css("display", "");
-        var txt2="";
-        txt2=txt2+'<a href="#" class="service-request request-confirm" id="zusagen">Zusagen</a> | ';              
-        txt2=txt2+'<a href="#" class="service-request request-decline" id="absagen">Absagen</a>';            
-        txt2=txt2+'&nbsp; &nbsp; <small>Anfrage von ';
-        if ($(this).attr("data-modified-pid")!=null)
-          txt2=txt2+'<a href="?q=churchdb#PersonView/searchEntry:#'+$(this).attr("data-modified-pid")+'">'+$(this).attr("data-modified-user")+'</a>';
-        else
-          txt2=txt2+$(this).attr("data-modified-user");
-        txt2=txt2+"</small>";
-        $(this).find("div.service-request-answer").html(txt2);
-      }
-      else {
-        $(this).css("display", "none");      
-      }
+      var txt2="";
+      txt2=txt2+'<a href="#" class="service-request request-confirm" id="zusagen">Zusagen</a> | ';              
+      txt2=txt2+'<a href="#" class="service-request request-decline" id="absagen">Absagen</a>';            
+      txt2=txt2+'&nbsp; &nbsp; <small>Anfrage von ';
+      if ($(this).attr("data-modified-pid")!=null)
+        txt2=txt2+'<a href="?q=churchdb#PersonView/searchEntry:#'+$(this).attr("data-modified-pid")+'">'+$(this).attr("data-modified-user")+'</a>';
+      else
+        txt2=txt2+$(this).attr("data-modified-user");
+      txt2=txt2+"</small>";
+      $(this).find("div.service-request-answer").html(txt2);
     }
   });
   if (!available) 
     $("li.service-request").remove();
-  else
-    addServiceRequestCallback();
+  else {
+    showFirstServiceRequests(3);
+    addServiceRequestCallback();    
+  }
 }
 
 function addServiceRequestCallback() {
