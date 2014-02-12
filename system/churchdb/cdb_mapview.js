@@ -18,7 +18,12 @@ MapView.prototype.getData = function() {
 };
 
 MapView.prototype.renderList = function() {
-  this_object=this;
+  t=this;
+  
+  t.createMultiselect("Status", f("status_id"), masterData.status);
+  t.createMultiselect("Station", f("station_id"), masterData.station);
+  t.createMultiselect("Bereich", f("bereich_id"), masterData.auth.dep);
+  
   $("#cdb_content").html('<div id="map_canvas" style="width: 100%; height: 480px"></div>');
   if (geocoder) {  
     var image = new google.maps.MarkerImage("http://www.google.com/intl/en_us/mapfiles/ms/micons/blue-dot.png",
@@ -33,7 +38,7 @@ MapView.prototype.renderList = function() {
     
     max=500;
     $.each(allPersons, function(k, a){
-      if ((max>0) && (this_object.checkFilter(a))) {
+      if ((max>0) && (t.checkFilter(a))) {
         if (a.geolat!="") {
           max=max-1;
           var latlng = new google.maps.LatLng(a.geolat, a.geolng);

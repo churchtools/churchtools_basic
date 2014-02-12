@@ -1222,7 +1222,7 @@ PersonView.prototype.renderListEntry = function(a) {
   return rows.join("");
 };
 
-PersonView.prototype.makeFilterStatus = function(name, start_string, data) {
+PersonView.prototype.makeMasterDataMultiselectFilter = function(name, start_string, data) {
   var t=this;
   var filterName="filter"+name;
   if (data==null) data=masterData[name.toLowerCase()];
@@ -1230,7 +1230,7 @@ PersonView.prototype.makeFilterStatus = function(name, start_string, data) {
   t.filter[filterName]=new CC_MultiSelect(data, function(id, selected) {
     masterData.settings[filterName]=this.getSelectedAsArrayString();
     churchInterface.jsendWrite({func:"saveSetting", sub:filterName, val:masterData.settings[filterName]});
-    t.renderList();
+    churchInterface.getCurrentView().renderList();
   });
   t.filter[filterName].setSelectedAsArrayString(start_string);
   if (name=="Status") {
@@ -1240,16 +1240,19 @@ PersonView.prototype.makeFilterStatus = function(name, start_string, data) {
   }
 };
 
-PersonView.prototype.createMultiselect = function(name, bezeichnung, data) {
+PersonView.prototype.createMultiselect = function(name, bezeichnung, data, refresh) {
   var t=this;
   var filterName="filter"+name;
+  if (refresh==null) refresh=false;
   
   if ((masterData.settings[filterName]=="") || (masterData.settings[filterName]==null))
     delete masterData.settings[filterName];
   if (t.filter[filterName]==null) {
-    t.makeFilterStatus(name, masterData.settings[filterName], data);
+    t.makeMasterDataMultiselectFilter(name, masterData.settings[filterName], data);
+    refresh=true;
   }
-  t.filter[filterName].render2Div(filterName, {label:bezeichnung});    
+  if (refresh)
+    t.filter[filterName].render2Div(filterName, {label:bezeichnung});    
 };
 
 PersonView.prototype.getListHeader = function() {  
@@ -1263,7 +1266,6 @@ PersonView.prototype.getListHeader = function() {
     allPersons[this.filter["searchEntry"]]=new Object();
     allPersons[this.filter["searchEntry"]].id=this.filter["searchEntry"];
   }
-
   t.createMultiselect("Status", f("status_id"), masterData.status);
   t.createMultiselect("Station", f("station_id"), masterData.station);
   t.createMultiselect("Bereich", f("bereich_id"), masterData.auth.dep);
@@ -1557,24 +1559,10 @@ PersonView.prototype.renderFilter = function() {
   
   
   $("#cdb_filter").html(rows.join(""));
-  
-  if (this.filter["filterStatus"]!=null) {
-    if (typeof(this.filter["filterStatus"])=="string")
-      t.makeFilterStatus("Status", masterData.settings.filterStatus);      
-    this.filter["filterStatus"].render2Div("filterStatus", {label:"Status"});
-  }
-  if (this.filter["filterStaton"]!=null) {
-    if (typeof(this.filter["filterStation"])=="string")
-      t.makeFilterStatus("Station", masterData.settings.filterStation);      
-    this.filter["filterStation"].render2Div("filterStation", {label:"Station"});
-  }
-  if (this.filter["filterBereich"]!=null) {
-    if (typeof(this.filter["filterBereich"])=="string")
-      t.makeFilterStatus("Bereich", masterData.settings.filterBereich, masterData.auth.dep);      
-    this.filter["filterBereich"].render2Div("filterBereich", {label:"Bereich"});
-  }
 
-  
+  t.createMultiselect("Status", f("status_id"), masterData.status, true);
+  t.createMultiselect("Station", f("station_id"), masterData.station, true);
+  t.createMultiselect("Bereich", f("bereich_id"), masterData.auth.dep, true);
   
   // Setze die Werte auf die aktuellen Filter
   $.each(this.filter, function(k,a) {
@@ -1629,9 +1617,9 @@ PersonView.prototype.renderFilter = function() {
             t.filter.filterStation=t.filter.filterStation.getSelectedAsArrayString();
             t.filter.filterBereich=t.filter.filterBereich.getSelectedAsArrayString();
             churchInterface.jsendWrite({func:"saveMyFilter", name:name, filter:t.filter}, null, false);
-            t.makeFilterStatus("Status", masterData.settings.filterStatus);
-            t.makeFilterStatus("Station", masterData.settings.filterStation);
-            t.makeFilterStatus("Bereich", masterData.settings.filterBereich, masterData.auth.dep);
+            t.makeMasterDataMultiselectFilter("Status", masterData.settings.filterStatus);
+            t.makeMasterDataMultiselectFilter("Station", masterData.settings.filterStation);
+            t.makeMasterDataMultiselectFilter("Bereich", masterData.settings.filterBereich, masterData.auth.dep);
             t.filter["filterMeine Gruppen"]="filter"+name;
             t.furtherFilterVisible=false;
             cdb_loadMasterData(function() {
@@ -3798,9 +3786,9 @@ PersonView.prototype.msg_filterChanged = function (id, oldVal) {
       // Nun kopiere intelligente Gruppe in die Filter
       var merker=t.filter['filterMeine Gruppen'];
       t.filter=new cc_copyArray(masterData.settings.filter[t.filter['filterMeine Gruppen'].substr(6,99)]);
-      t.makeFilterStatus("Status", t.filter.filterStatus);
-      t.makeFilterStatus("Station", t.filter.filterStation);
-      t.makeFilterStatus("Bereich", t.filter.filterBereich, masterData.auth.dep);
+      t.makeMasterDataMultiselectFilter("Status", t.filter.filterStatus);
+      t.makeMasterDataMultiselectFilter("Station", t.filter.filterStation);
+      t.makeMasterDataMultiselectFilter("Bereich", t.filter.filterBereich, masterData.auth.dep);
 
       t.filter["filterMeine Gruppen"]=merker;
       t.renderFurtherFilter();

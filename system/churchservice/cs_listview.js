@@ -1126,8 +1126,8 @@ ListView.prototype.getListHeader = function() {
   if (this.filter["filterKategorien"]==null) {
     this_object.makeFilterCategories(masterData.settings.filterCategory);
     this.filter["filterKategorien"].setSelectedAsArrayString(masterData.settings.filterCategory);
+    this.filter["filterKategorien"].render2Div("filterKategorien", {label:"Kalender"});
   }
-  this.filter["filterKategorien"].render2Div("filterKategorien", {label:"Kalender"});
 
 /*  if ((masterData.settings.filterMeineFilter=="") || (masterData.settings.filterMeineFilter==null))
     masterData.settings.filterMeineFilter=null;
@@ -2839,7 +2839,7 @@ ListView.prototype.renderFilter = function() {
     if (typeof(this.filter["filterKategorien"])=="string")
       this_object.makeFilterCategories(masterData.settings.filterCategory);
       
-    this.filter["filterKategorien"].render2Div("filterKategorien", {label:"Kategorien"});
+    this.filter["filterKategorien"].render2Div("filterKategorien", {label:"Kalender"});
   }
 
   $.each(this.filter, function(k,a) {

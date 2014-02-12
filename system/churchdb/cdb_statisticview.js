@@ -1,6 +1,3 @@
- (function($) {
-
-	
 // Constructor
 function StatisticView() {
 //  StandardTableView.call(this);
@@ -15,13 +12,13 @@ statisticView = new StatisticView();
 
 
 StatisticView.prototype.renderMasterDataStatistic = function(divid, masterDatafield, id_name) {
-  this_object=this; 
+  var t=this; 
   rows = new Array();
   desc=masterData.masterDataTables[masterDatafield];
   res=new Object();
   var summe=0;
   $.each(allPersons, function(k,a) {
-    if (this_object.checkFilter(a)) {
+    if (t.checkFilter(a)) {
       if (res[a[id_name]]==null)
         res[a[id_name]]=0;
       res[a[id_name]]=res[a[id_name]]+1;
@@ -73,7 +70,7 @@ StatisticView.prototype.renderMasterDataStatistic = function(divid, masterDatafi
       churchInterface.setCurrentView(personView);
       personView.clearFilter();
       personView.filter[divid.substr(5,99)]=$(this).attr("val");
-      $.each(this_object.filter,function(k,a) {
+      $.each(t.filter,function(k,a) {
         personView.filter[k]=a;
       });
     }
@@ -121,13 +118,13 @@ function sortObj(theObj, idx){
 }
 
 StatisticView.prototype.renderYearStatistic = function(datefield, name) {
-  this_object=this;
+  var t=this;
   var obj=new Array();
   var rows = new Array();
   var currentDate= new Date().getFullYear();
   var dataAvailable=false;
   $.each(allPersons, function(k,a) {
-    if ((a[datefield]!=null) && (this_object.checkFilter(a))) {
+    if ((a[datefield]!=null) && (t.checkFilter(a))) {
       dataAvailable=true;
       d=a[datefield].toDateEn().getFullYear();
       if (d<currentDate-6) d=currentDate-6;
@@ -156,12 +153,13 @@ StatisticView.prototype.renderYearStatistic = function(datefield, name) {
 };
 
 StatisticView.prototype.renderAgeGroups = function() {
+  var t=this;
   // Altersgruppen
   var rows=new Array();
   res=new Array();
   summe=0; summealter=0;
   $.each(allPersons, function(k,a) {
-    if (this_object.checkFilter(a)) {
+    if (t.checkFilter(a)) {
       if (a.geburtsdatum!=null) {
         y=a.geburtsdatum.toDateEn().getAgeInYears();
         summealter=summealter+y;
@@ -184,7 +182,11 @@ StatisticView.prototype.renderAgeGroups = function() {
 };
 
 StatisticView.prototype.renderList = function() {
-  this_object=this;
+  var t=this;
+
+  t.createMultiselect("Status", f("status_id"), masterData.status);
+  t.createMultiselect("Station", f("station_id"), masterData.station);
+  t.createMultiselect("Bereich", f("bereich_id"), masterData.auth.dep);
 
   this.filter["showTables"]=1;
   this.filter["showCharts"]=1;
@@ -230,7 +232,7 @@ StatisticView.prototype.renderList = function() {
   how_many_years=2;
 
   $.each(allPersons, function(k,a) {
-    if ((a.gruppe!=null) && (this_object.checkFilter(a)))  {
+    if ((a.gruppe!=null) && (t.checkFilter(a)))  {
       $.each(a.gruppe, function(i,b) {
         if ((masterData.groups[b.id].instatistik_yn==1) && ((b.leiter>=0) && (b.leiter<=2) || (b.leiter==4))) {
           dataAvailable=true;
@@ -278,7 +280,7 @@ StatisticView.prototype.renderList = function() {
   sumGruppentyp=new Object();
   
   $.each(allPersons, function(k,a) {
-    if ((a.gruppe!=null) && (this_object.checkFilter(a)))  {
+    if ((a.gruppe!=null) && (t.checkFilter(a)))  {
       var gruppentyp = new Object();
       $.each(a.gruppe, function(i,b) {
         // Nur wenn Teilnehmer, Mitarbeiter, Leiter und Co-Leiter
@@ -375,7 +377,7 @@ StatisticView.prototype.renderList = function() {
   
   $("#cdb_content div").each(function(k,a) {
     if ($(this).attr("id").indexOf("statsfilter")==0) {
-      this_object.renderMasterDataStatistic($(this).attr("id"), $(this).attr("arr"), $(this).attr("name"));
+      t.renderMasterDataStatistic($(this).attr("id"), $(this).attr("arr"), $(this).attr("name"));
     }
   });
   
@@ -388,7 +390,7 @@ StatisticView.prototype.renderList = function() {
       personView.filter["dateAfter"]="01.01."+$(this).attr("val");
       personView.filter["dateBefore"]="31.12."+$(this).attr("val");
       // †bernahme sŠmtlicher anderer Filter
-      $.each(this_object.filter,function(k,a) {
+      $.each(t.filter,function(k,a) {
         personView.filter[k]=a;
       });
     }
@@ -399,7 +401,7 @@ StatisticView.prototype.renderList = function() {
   if (this.getFilter("showCharts")==1) {
     var res=new Object();
     $.each(allPersons, function(k,a) {
-      if (this_object.checkFilter(a)) {
+      if (t.checkFilter(a)) {
         $.each(masterData.fields.f_church.fields, function (b,i) {
           if (i["type"]=="date") {
             n=i["sql"];
@@ -466,5 +468,3 @@ StatisticView.prototype.renderList = function() {
     plotAccordingToChoices();
   }
 };
-
-})(jQuery);
