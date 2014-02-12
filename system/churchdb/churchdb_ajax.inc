@@ -391,7 +391,7 @@ global $user;
 
 
 function _churchdb_getMembersOfGroup($group_id) {
-  $sql="select p.name, p.vorname, p.email, p.id p_id, gp.id id, gpg.status_no, g.bezeichnung , gpg.aenderunguser, DATE_FORMAT(gpg.letzteaenderung, '%d.%m.%Y') letzteaenderung, cmsuserid, gpg.comment
+  $sql="select p.name, p.vorname, p.email, p.id p_id, p.lastlogin, gp.id id, gpg.status_no, g.bezeichnung, gpg.aenderunguser, DATE_FORMAT(gpg.letzteaenderung, '%d.%m.%Y') letzteaenderung, cmsuserid, gpg.comment
               from {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg, {cdb_gruppe} g 
               where p.id=gp.person_id and gp.id=gpg.gemeindeperson_id and g.id=gpg.gruppe_id and gpg.gruppe_id=$group_id";
   $res=db_query($sql);
@@ -409,8 +409,9 @@ function informLeaderAboutNewGroupMember($group_id, $gp_id, $add_text=null) {
   global $base_url, $user;
   $personen=_churchdb_getMembersOfGroup($group_id);
   foreach ($personen as $val) {
-    // Wenn es Leiter (1), CoLeiter (2) oder SuperVisor (3) sind und ich nicht selber der bin, der es ge�ndert hat
-    if (($val->status_no>=1) && ($val->status_no<=3) && ($val->email!=null) && ($val->email!="") && 
+    // Wenn er schonmal eingelogt war und
+    // Leiter (1), CoLeiter (2) oder SuperVisor (3) sind und ich nicht selber der bin, der es ge�ndert hat
+    if (($val->lastlogin!=null) && ($val->status_no>=1) && ($val->status_no<=3) && ($val->email!=null) && ($val->email!="") && 
              (($val->cmsuserid==null || ($val->cmsuserid!=$user->cmsuserid))))  {
       $mt=getGroupMemberTypes();
       $content="<h3>Hallo ".$mt[$val->status_no]["bezeichnung"]."!</h3><p>";
@@ -434,7 +435,7 @@ function informLeaderAboutEditedGroupMember($group_id, $gp_id, $add_text=null) {
   $personen=_churchdb_getMembersOfGroup($group_id);
   foreach ($personen as $val) {
     // Wenn es Leiter (1), CoLeiter (2) oder SuperVisor (3) sind und ich nicht selber der bin, der es ge�ndert hat
-    if (($val->status_no>=1) && ($val->status_no<=3) && ($val->email!=null) && ($val->email!="") && 
+    if (($val->lastlogin!=null) && ($val->status_no>=1) && ($val->status_no<=3) && ($val->email!=null) && ($val->email!="") && 
              (($val->cmsuserid==null || ($val->cmsuserid!=$user->cmsuserid))))  {
       $mt=getGroupMemberTypes();
       $content="<h3>Hallo ".$mt[$val->status_no]["bezeichnung"]."!</h3>";
@@ -462,7 +463,7 @@ function informLeaderAboutDeletedGroupMember($group_id, $gp_id) {
   foreach ($personen as $val) {
     // Wenn es Leiter (1), CoLeiter (2) oder SuperVisor (3) sind und ich nicht selber der bin, der es ge�ndert hat
     // und ich nicht der bin, der gerade gel�scht wurde!  
-    if (($val->status_no>=1) && ($val->status_no<=3) && ($val->email!=null) && ($val->email!="") && 
+    if (($val->lastlogin!=null) && ($val->status_no>=1) && ($val->status_no<=3) && ($val->email!=null) && ($val->email!="") && 
              ($gp_id!=$val->id) && (($val->cmsuserid==null || ($val->cmsuserid!=$user->cmsuserid))))  {
       $mt=getGroupMemberTypes();
       $content="<h3>Hallo ".$mt[$val->status_no]["bezeichnung"]."!</h3>";

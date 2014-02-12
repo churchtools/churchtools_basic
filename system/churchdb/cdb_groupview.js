@@ -1126,8 +1126,8 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
   // Rechte Spalte
   rows[rows.length]="<div class=\"right-column\">";
 
-  if (masterData.auth.viewtags) 
-    rows.push(this_object.renderTags(g.tags, masterData.auth.admingroups, g_id));
+  if (masterData.auth.viewtags || this_object.isPersonLeaderOfGroup(masterData.user_pid, g_id)) 
+    rows.push(this_object.renderTags(g.tags, (masterData.auth.admingroups || this_object.isPersonLeaderOfGroup(masterData.user_pid, g_id)), g_id));
   
   rows.push('<div class="detail-view-infobox">');
   rows.push('<p><table><tr style="background:#F4F4F4;">');
