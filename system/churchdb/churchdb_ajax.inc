@@ -425,7 +425,7 @@ function informLeaderAboutNewGroupMember($group_id, $gp_id, $add_text=null) {
         $content=$content."<p>".$add_text;
       $content=$content.'<p><p><a class="btn btn-royal" href="'.$base_url.'?q=churchdb#PersonView/searchEntry:'.$personen[$gp_id]->p_id.'">Person ansehen</a>';
 
-      churchdb_send_mail("[".variable_get('site_name', 'drupal')."] Neuer Teilnehmer in der Gruppe \"".$val->bezeichnung."\"",
+      churchdb_send_mail("[".variable_get('site_name', 'drupal')."] Neuer Teilnehmer in der Gruppe ".$val->bezeichnung,
 	              $content, $val->email);
   	}
   }	
@@ -452,7 +452,7 @@ function informLeaderAboutEditedGroupMember($group_id, $gp_id, $add_text=null) {
       
       $content=$content.'<p><p><a class="btn btn-royal" href="'.$base_url.'?q=churchdb#PersonView/searchEntry:'.$personen[$gp_id]->p_id.'">Person ansehen</a>';
                      
-      churchdb_send_mail("[".variable_get('site_name', 'drupal')."] Teilnehmerstatus in der Gruppe \"".$val->bezeichnung."\" angepasst",
+      churchdb_send_mail("[".variable_get('site_name', 'drupal')."] Teilnehmerstatus in der Gruppe ".$val->bezeichnung." angepasst",
 	              $content, $val->email);
     }
   }	
@@ -476,7 +476,7 @@ function informLeaderAboutDeletedGroupMember($group_id, $gp_id) {
       
       $content=$content.'<p><p><a class="btn btn-royal" href="'.$base_url.'?q=churchdb#PersonView/searchEntry:'.$personen[$gp_id]->p_id.'">Person ansehen</a>';
                
-      churchdb_send_mail("[".variable_get('site_name', 'drupal')."] Teilnehmer in der Gruppe \"".$val->bezeichnung."\" entfernt",
+      churchdb_send_mail("[".variable_get('site_name', 'drupal')."] Teilnehmer in der Gruppe ".$val->bezeichnung." entfernt",
 	              $content, $val->email);
 
     }
