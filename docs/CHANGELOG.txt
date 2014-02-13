@@ -4,7 +4,7 @@ churchtools 2.46
 + (CS) Zusagen und absagen auf der Startseite eleganter realisiert
 + (CS) Beim Export von Fakten kann nun Zeitraum gewŠhlt werden.
 + (CDB) …ffentlichen Gruppen kann nun Ÿber einen externen Link beigetreten werden
-+ (CDB) Distriktleiter und Gruppentypleiter kšnnen nun dafŸr Gruppen erstellen
++ (CDB) Distriktleiter und Gruppentypleiter kšnnen nun Gruppen erstellen und Personen zu CT einladen
 + (CDB) Leiter von Personen kann nun die Tags der Personen sehen und editieren
 + (CDB) Gruppendetails sortierbar und Link zum Gruppentreffen hinzugefŸgt
 + (CDB) Die Begriffe Distrikt, Gruppentyp, Bereich und Station kann nun in der "Felder" angepa§t werden (nur PRO!)

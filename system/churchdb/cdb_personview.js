@@ -2425,6 +2425,21 @@ function _getPersonGroupFollowupDiffDays(group) {
   }
 }
 
+PersonView.prototype.invitePerson = function(a) {
+  if (a.email=="")
+    alert("Ohne E-Mail-Adresse kann die Person nicht eingeladen werden!");
+  else if (confirm("Wirklich "+a.vorname+" "+a.name+" einladen? Die Person bekommt eine E-Mail mit einem Link, wo sie dann das Passwort erstellen kann.")) {
+    churchInterface.jsendWrite({func:"sendInvitationMail", id:a.id}, function(ok) {
+      if (ok) {
+        alert("Einladung wurde gesendet.");
+        a.einladung=1;
+        t.renderDetails(a.id);
+      }
+      else alert("Fehler: "+res);
+    });      
+  }
+};
+
 PersonView.prototype.renderAuthDialog = function (id) {
   var t=this;
   var _text="";
@@ -2432,7 +2447,7 @@ PersonView.prototype.renderAuthDialog = function (id) {
   if (a.active_yn==1) {
     _text=_text+"<p>"+t.renderImage("schluessel")+'&nbsp;<a href="" title="Berechtigung editieren" id="personAuth">Berechtigungen anpassen</a><small> - Personen k&ouml;nen hier direkte Rechte zugewiesen werden</small>';
     _text=_text+"<p>"+t.renderImage("person_simulate")+"&nbsp;<a href=\"#\" title=\"Person simulieren\" id=\"simulatePerson\">"+"Person simulieren</a><small> - Berechtigung der Person testen</small>";
-    _text=_text+"<p>"+t.renderImage("netzwerk")+"&nbsp;<a href=\"#\" title=\"Person per E-Mail einladen\" id=\"invitatePerson\">Person einladen</a><small> - Person erh&auml;lt per E-Mail einen Anmeldelink.</small>";
+    _text=_text+"<p>"+t.renderImage("person")+"&nbsp;<a href=\"#\" title=\"Person per E-Mail einladen\" id=\"invitatePerson\">Person einladen</a><small> - Person erh&auml;lt per E-Mail einen Anmeldelink.</small>";
     _text=_text+"<p>"+t.renderImage("trashbox")+"&nbsp;<a href=\"#\" title=\"Zugang sperren\" id=\"deactivatePerson\">Zugang sperren</a><small> - Berechtigungen entfernen und der Person den Zugang sperren.</small>";
     _text=_text+"<p>"+t.renderImage("attention")+"&nbsp;<a href=\"#\" title=\"Passwort zur&uuml;cksetzen\" id=\"setPassword\">Passwort zur&uuml;cksetzen</a><small> - Der Person ein Passwort setzen.</small>";
   }
@@ -2461,18 +2476,7 @@ PersonView.prototype.renderAuthDialog = function (id) {
       return false;
     }
     else if ($(this).attr("id")=="invitatePerson") {
-      if (a.email=="")
-        alert("Ohne E-Mail-Adresse kann die Person nicht eingeladen werden!");
-      else if (confirm("Wirklich "+a.vorname+" "+a.name+" einladen? Die Person bekommt eine E-Mail mit einem Link, wo sie dann das Passwort erstellen kann.")) {
-        churchInterface.jsendWrite({func:"sendInvitationMail", id:a.id}, function(ok) {
-          if (ok) {
-            alert("Einladung wurde gesendet.");
-            a.einladung=1;
-            t.renderDetails(a.id);
-          }
-          else alert("Fehler: "+res);
-        });      
-      }
+      t.invitePerson(a);
       return false;
     }
     else if ($(this).attr("id")=="personAuth") {
@@ -2540,6 +2544,7 @@ PersonView.prototype.renderDetails = function (id) {
   // Feststellen, ob aktueller User ein Leiter einer Gruppe ist, in der die Person ist. 
   // => Dann hat der User Schreibrechte!
   personLeader=false;
+  personSuperLeader=false;
   if ((allPersons[id].gruppe!=null) && (masterData.user_pid!=null) && (allPersons[masterData.user_pid].gruppe!=null)) {
     $.each(allPersons[masterData.user_pid].gruppe, function (b,k) {    
       if ((k.leiter>=1) && (k.leiter<=2)) {
@@ -2556,10 +2561,12 @@ PersonView.prototype.renderDetails = function (id) {
     });
   }
   // Check if I am SuperLeader (Distrikt- or Gruppentypleiter), for acting as a leader
-  if (personLeader==false && allPersons[id].gruppe!=null) {
+  if (allPersons[id].gruppe!=null) {
     $.each(allPersons[id].gruppe, function (b,k) {    
-      if (groupView.isPersonSuperLeaderOfGroup(masterData.user_pid, k.id))
+      if (groupView.isPersonSuperLeaderOfGroup(masterData.user_pid, k.id)) {
         personLeader=true;
+        personSuperLeader=true;        
+      }
     });    
   }
 
@@ -2685,18 +2692,28 @@ PersonView.prototype.renderDetails = function (id) {
         _text=_text+"<h4>Berechtigungen&nbsp;&nbsp;";
         _text=_text+'<a href="#" id="auth">'+t.renderImage("options")+'</a></h4>';
         _text=_text+'<p style="line-height:100%;color:black"><small>';
-  
+      }
+      else if (personSuperLeader) {
+        _text=_text+"<br/><br/><h4>Berechtigungen&nbsp;&nbsp;</h4>";
+        _text=_text+'<p style="line-height:100%;color:black"><small>';          
+      }
+      else { 
+        _text=_text+'<p><small>';
+      }
+      
+      if (masterData.auth.adminpersons || personSuperLeader) {  
         var txt="";
         if (a.active_yn==0)
           _text=_text+"<font color=red>Zugang f&uuml;r Person gesperrt!</font>";
         else if (a.lastlogin!=null)
           txt="Zuletzt online am "+a.lastlogin.toDateEn(true).toStringDe(true);
         else if (a.einladung==1)
-          txt="Bereits eingeladen";
+          txt=a.vorname+' ist bereits eingeladen. <a href="#" style="color:black" id="invitatePerson">Erneut einladen</a>';
         else 
-          txt="Nicht eingeladen";
+          txt='<a href="#" style="color:black" id="invitatePerson">'+form_renderImage({src:"person.png", width:18})+' Zu '+masterData.site_name+' einladen</a>';
         _text=_text+txt+"</small><br/>";
-        
+      }
+      if (masterData.auth.adminpersons) {
         if (a.districts!=null) {
           _text=_text+"<p><small><b>Zugeordnet in "+f("distrikt_id")+":</b>";
           $.each(a.districts, function(k,b) {
@@ -2709,9 +2726,9 @@ PersonView.prototype.renderDetails = function (id) {
           $.each(a.gruppentypen, function(k,b) {
             _text=_text+"<br/>- "+masterData.groupTypes[b.gruppentyp_id].bezeichnung+"";
           });
-          _text=_text+"</small>";
         }      
-      }   
+      }
+      _text=_text+"</small>";
       _text=_text+"</div>";
       
       
@@ -3500,6 +3517,10 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
   }
   else if (fieldname.indexOf("smsPerson")==0) {
     t.smsPerson([id]);
+    return false;
+  }
+  else if (fieldname=="invitatePerson") {
+    t.invitePerson(allPersons[id]);
     return false;
   }
   else
