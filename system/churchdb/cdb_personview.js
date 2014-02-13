@@ -2726,7 +2726,13 @@ PersonView.prototype.renderDetails = function (id) {
           $.each(a.gruppentypen, function(k,b) {
             _text=_text+"<br/>- "+masterData.groupTypes[b.gruppentyp_id].bezeichnung+"";
           });
-        }      
+        }
+        if (a.auth!=null) {
+          var auth=t.getAuthAsArray(a.auth).join(", ");
+          if (auth!="") {
+            _text=_text+"<p><small><b>Manuelle Berechtigungen:</b><br/>"+auth.trim(100);
+          }
+        }
       }
       _text=_text+"</small>";
       _text=_text+"</div>";
