@@ -799,7 +799,7 @@ WeekView.prototype.closeAndSaveBookingDetail = function (elem) {
 WeekView.prototype.addFurtherListCallbacks = function() {
   var t=this;
 
-  $("#cdb_content a.tooltips").each(function() {
+  $("#cdb_content .tooltips").each(function() {
     var tooltip=$(this);
     tooltip.tooltips({
       data:{id:$(this).attr("data-tooltip-id")},
