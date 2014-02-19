@@ -436,6 +436,18 @@ PersonView.prototype.isPersonLeaderOfPerson = function (leader_id, p_id) {
   });  
   return res;
 };
+PersonView.prototype.isPersonSuperLeaderOfPerson = function (leader_id, p_id) {
+  if (allPersons[p_id].gruppe==null) return false;
+  var res=false;
+  $.each(allPersons[p_id].gruppe, function(k,gruppe) {
+    if (groupView.isPersonSuperLeaderOfGroup(leader_id, gruppe.id)) {
+      res=true;
+      // exit
+      return false;
+    }
+  });  
+  return res;
+};
 
 PersonView.prototype.isPersonLeaderOfOneGroupTypeOfPerson = function (leader_id, grouptype_id, p_id) {
   if (allPersons[p_id].gruppe==null) return false;
@@ -2663,10 +2675,20 @@ PersonView.prototype.renderDetails = function (id) {
       
       // Mittlere Spalte
       _text=_text+"<div id=\"detailAddress\" class=\"span4 middle-column-person\">";
-      if ((masterData.auth.viewaddress) || (masterData.auth.viewalldetails) || (personLeader))
-        _text=_text + t.renderFields(masterData.fields.f_address, a, masterData.auth.write || personLeader, ["ViewAllDetailsOrPersonLeader"]);
-      else
-        _text=_text + t.renderFields(masterData.fields.f_address, a, masterData.auth.write || personLeader, null);
+      
+      var autharr=new Array();
+      if (masterData.auth.admin) 
+        autharr.push("admin");
+      if (masterData.auth.viewalldetails) 
+        autharr.push("viewalldetails");
+      if (personLeader)
+        autharr.push("leader");
+      if (personSuperLeader)
+        autharr.push("superleader");
+      if (personLeader || masterData.auth.viewalldetails)
+        autharr.push("ViewAllDetailsOrPersonLeader");
+      
+      _text=_text + t.renderFields(masterData.fields.f_address, a, masterData.auth.write || personLeader, autharr);
       
       if (masterData.auth.viewalldetails)
         _text=_text + t.renderFields(masterData.fields.f_church, a, masterData.auth.write);
@@ -3122,7 +3144,7 @@ PersonView.prototype.renderDetails = function (id) {
       rows.push("</div>");
       
       rows[rows.length]='<p><input type="button" class="btn btn-royal" id="idFollowupSave_'+g_id+'_'+id+'" value="Speichern"/>&nbsp;';
-      rows[rows.length]='<input type="button" class="btn btn-alert" id="idFollowupAbort_'+g_id+'_'+id+'" value="FollowUp abbrechen"/>&nbsp;&nbsp;';
+      rows[rows.length]='<input type="button" class="btn btn-alert" id="idFollowupAbort_'+g_id+'_'+id+'" value="FollowUp l&ouml;schen"/>&nbsp;&nbsp;';
       rows[rows.length]='<a href="#" id="idFollowupCancel_'+g_id+'_'+id+'">Sp&auml;ter durchf&uuml;hren</a>';
 
       rows.push('</div>');
@@ -3143,11 +3165,11 @@ PersonView.prototype.renderDetails = function (id) {
         if ((allPersons[id].gruppe[g_id].followup_erfolglos_zurueck_gruppen_id!=null) 
             && (masterData.groups[allPersons[id].gruppe[g_id].followup_erfolglos_zurueck_gruppen_id])) {
           back_id=allPersons[id].gruppe[g_id].followup_erfolglos_zurueck_gruppen_id;
-          txt="Das FollowUp bei "+a.vorname+" "+a.name+" wirklich abbrechen? Das FollowUp geht zurueck an Gruppe '"+
+          txt="Das FollowUp bei "+a.vorname+" "+a.name+" wirklich entfernen? Das FollowUp geht zurueck an Gruppe '"+
              masterData.groups[back_id].bezeichnung+"'!";
         }
         else
-          txt="Das FollowUp bei "+a.vorname+" "+a.name+" wirklich abbrechen? Achtung, um das FollowUp wieder zu starten, muss die Person wieder der entsprechend Gruppen zugeordnet werden!";          
+          txt="Das FollowUp bei "+a.vorname+" "+a.name+" wirklich entfernen? Achtung, um das FollowUp wieder zu starten, muss die Person wieder der entsprechend Gruppen zugeordnet werden!";          
           
         if (confirm(txt)) {
           churchInterface.jsendWrite({func:"delPersonGroupRelation",id:id,g_id:g_id});
@@ -3381,10 +3403,19 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
   buttonText="Speichern";
   // Alle bekannten Elemente als Input rendern      
   if (masterData.fields[fieldname]!=null) {
-    if ((masterData.auth.viewalldetails) || (t.isPersonLeaderOfPerson(masterData.user_pid, id)))
-      rows.push(this.getStandardFieldsAsSelect(fieldname, a, ["ViewAllDetailsOrPersonLeader"]));
-    else  
-      rows.push(this.getStandardFieldsAsSelect(fieldname, a, []));
+    
+    var autharr=new Array();
+    if (masterData.auth.viewalldetails) 
+      autharr.push("viewalldetails");
+    if (t.isPersonLeaderOfPerson(masterData.user_pid, id))
+      autharr.push("leader");
+    if (t.isPersonSuperLeaderOfPerson(masterData.user_pid, id))
+      autharr.push("superleader");
+    if (t.isPersonLeaderOfPerson(masterData.user_pid, id)|| masterData.auth.viewalldetails)
+      autharr.push("ViewAllDetailsOrPersonLeader");
+    
+    rows.push(this.getStandardFieldsAsSelect(fieldname, a, autharr));
+    
     if (fieldname=="f_category") height=300;
   }   
   else if (fieldname=="f_note") {
@@ -3907,7 +3938,7 @@ PersonView.prototype.renderPersonFilter = function() {
     data:masterData.nationalitaet, 
     label:"Nationalit&auml;t", 
     selected: this.getFilter("filterNationalitaet"),
-    freeoption:true, type:"medium"
+    freeoption:true, type:"small"
   }));
   
   var _member="";

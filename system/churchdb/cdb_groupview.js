@@ -925,16 +925,16 @@ GroupView.prototype.getStatsOfGroup = function(g_id) {
           if ((b.leiter>=0) && (b.leiter!=3)) {
             stats.count_all_people=stats.count_all_people+1;
             if (a.geburtsdatum!=null) {
-              var geb=new Date(a.geburtsdatum.substr(0,4),a.geburtsdatum.substr(5,2)-1,a.geburtsdatum.substr(8,2));      
-              stats.sum_age_all=stats.sum_age_all+geb.getAgeInYears();
+              var geb=a.geburtsdatum.toDateEn(false);      
+              stats.sum_age_all=stats.sum_age_all+geb.getAgeInYears()*1;
               stats.count_age_all=stats.count_age_all+1;
             }
           }  
           if ((b.leiter==0)) {
             stats.count_all_member=stats.count_all_member+1;
             if (a.geburtsdatum!=null) {
-              var geb=new Date(a.geburtsdatum.substr(0,4),a.geburtsdatum.substr(5,2)-1,a.geburtsdatum.substr(8,2));      
-              stats.sum_age=stats.sum_age+geb.getAgeInYears();
+              var geb=a.geburtsdatum.toDateEn(false);      
+              stats.sum_age=stats.sum_age+geb.getAgeInYears()*1;
               stats.count_age=stats.count_age+1;
             }
           }  
@@ -1686,7 +1686,17 @@ GroupView.prototype.renderEditEntry = function (id, fieldname) {
   });
   
   var rows = new Array();  
-  this.renderStandardFieldsAsSelect(elem, "f_group", $.extend({},masterData.groups[id]), ["null"]);
+  
+  var auth=new Array();
+  if (this_object.isPersonSuperLeaderOfGroup(masterData.user_pid, id)) {
+    auth.push("superleader");
+  }
+  if (this_object.isPersonLeaderOfGroup(masterData.user_pid, id)) {
+    auth.push("ViewAllDetailsOrPersonLeader");
+    auth.push("leader");
+  }
+  
+  this.renderStandardFieldsAsSelect(elem, "f_group", $.extend({},masterData.groups[id]), auth);
   elem.find("#Inputfu_nachfolge_typ_id").change(function() {
     elem.dialog("close");
     masterData.groups[id]["fu_nachfolge_typ_id"]=$(this).val();

@@ -2129,7 +2129,7 @@ function churchcore_isAllowedMasterData($masterDataTables, $tablename) {
 }
 
 function churchcore_deleteMasterData($id, $tablename) {
-  db_query("delete from {$tablename} where id=:id", array(":id"=>$id));
+  db_query("delete from {".$tablename."} where id=:id", array(":id"=>$id));
 }
 
 

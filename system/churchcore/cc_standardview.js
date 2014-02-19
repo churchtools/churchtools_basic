@@ -860,14 +860,27 @@ StandardTableView.prototype.renderStandardFieldsAsSelect = function (elem, field
   });
 };
 
+
+StandardTableView.prototype.checkFieldPermission = function (field, authArray) {
+  var res=true;
+  if (field.auth!=null && field.auth!="") {
+    res=false;
+    $.each(churchcore_getAuthAsArray(field.auth), function(k,auth) {
+      if (auth!=null) 
+        if ((masterData.auth[auth]!=null) || (authArray!=null && churchcore_inArray(auth, authArray))) 
+          res=true;
+    });
+  }
+  return res;
+};
+
 StandardTableView.prototype.getStandardFieldAsSelect = function (field, arr, elem, authArray) {
+  var t=this;
   var value=arr[elem];
   var o = new Object();
   o.label=field.text;
   o.cssid="Input"+field.sql;
-  if ((field.auth!=null) && (masterData.auth[field.auth]==null) && (authArray!=null) && (!churchcore_inArray(field.auth, authArray))) {
-    o.disabled=true;
-  }
+  o.disabled=!t.checkFieldPermission(field, authArray);
   switch (field.type) {
     case "select":
       var data = null;
@@ -974,7 +987,7 @@ StandardTableView.prototype.renderField = function(elem, field, a, write_allowed
   if (debug) console.log(field);
   _text="";
   if ((a[elem]!=null) && (a[elem] != "") && 
-      ((field.auth==null) || (masterData.auth[field.auth]) || (churchcore_inArray(field.auth, authArray)))) {
+      (t.checkFieldPermission(field, authArray))) {
     
     var eol=field.eol;
     if (eol.indexOf("%")>-1) {

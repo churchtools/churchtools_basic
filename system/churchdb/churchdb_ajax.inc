@@ -19,26 +19,40 @@ function getSearchableData() {
   return $arrs;	
 }
 
+function churchdb_isPersonSuperLeaderOfPerson($superleader_id, $person_id) {
+  $myGroups=churchdb_getMyGroups($superleader_id, true, false, true);
+  if (count($myGroups)>0) {
+    return churchdb_isPersonInGroups($person_id, $myGroups);
+  }
+  return false;
+}
+
+function churchdb_isPersonLeaderOfPerson($leader_id, $person_id) {
+  $myGroups=churchdb_getMyGroups($leader_id, true, true);
+  if (count($myGroups)>0) {
+    return churchdb_isPersonInGroups($person_id, $myGroups);
+  }
+  return false;
+}
+
 function churchdb_getPersonDetails($id) {
   global $user;
   
   // Entweder habe ich viewall auf den Bereich oder ich bin mit dem in einer Gruppe
   $allowed=$user->id==$id;
   $iAmLeader=false;
+  $iAmSuperLeader=false;
   
+  // Am i super leader?
+  if (churchdb_isPersonSuperLeaderOfPerson($user->id, $id)) {
+    $iAmSuperLeader=true;
+    $iAmLeader=true;
+    $allowed=true;
+  }
   // Prï¿½fe erst, ob ich als Leiter mit dem in der Gruppe bin
-  if (!$allowed) {    
-    $myGroups=churchdb_getMyGroups($user->id, true, true);
-    if (count($myGroups)>0) {
-      $res=db_query("SELECT count(*) c
-               FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg 
-                      WHERE p.id=gp.person_id and gpg.gemeindeperson_id=gp.id and p.id=:id 
-                       and gpg.gruppe_id in (".implode(",", $myGroups).") ", array(':id'=>$id))->fetch();
-      if ($res->c>0) {
-        $iAmLeader=true;
-        $allowed=true;
-      }
-    }
+  if (churchdb_isPersonLeaderOfPerson($user->id, $id)) {
+    $iAmLeader=true;
+    $allowed=true;
   }
   // Prï¿½fe nun, ob ich normal mit dem in der Gruppe bin
   if (!$allowed) {
@@ -50,8 +64,8 @@ function churchdb_getPersonDetails($id) {
                        and gpg.gruppe_id in (".implode(",", $myGroups).") ", array(':id'=>$id))->fetch();
       if ($res->c>0) {
         $allowed=true;
-      }
-    }    
+       }  
+    }
   }
   if (!$allowed) {
     $allowedDeps=user_access("view alldata", "churchdb");
@@ -76,19 +90,35 @@ function churchdb_getPersonDetails($id) {
   $sqlfields[]="geolng as lng";
   $sqlfields[]="cmsuserid";
   
-  function _checkAutorisierung($auto, $iAmLeader) {
+  function _checkAutorisierung($auto, $iAmLeader, $iAmSuperLeader) {
     if ($auto==null) return true;
-    if ($auto=="ViewAllDetailsOrPersonLeader") {
-      return user_access('view address',"churchdb") || ($iAmLeader) || (user_access('view alldetails',"churchdb"));      
-    } else if ($auto=="admin") {
-      return user_access('edit masterdata',"churchdb");      
-      
+    $ret=false;
+    foreach(explode("||", $auto) as $auth) {
+      $auth=trim($auth);
+      if ($auth=="ViewAllDetailsOrPersonLeader") {
+        if (user_access('view address',"churchdb") || ($iAmLeader) || (user_access('view alldetails',"churchdb")))
+          $ret=true;
+      }
+      else if ($auth=="admin") {
+        if (user_access('edit masterdata',"churchdb")) $ret=true;
+      }
+      else if ($auth=="viewalldetails") {
+        if (user_access('view alldetails',"churchdb")) $ret=true;
+      }
+      else if ($auth=="leader") {
+        if ($iAmLeader) $ret=true;
+      }
+      else if ($auth=="superleader") {
+        if ($iAmSuperLeader) $ret=true;
+      }
+      else throw new CTException("Unbekanntes Recht: '".$auth."'");
     }
-    else echo "Unbekanntes Recht: ".$auto;      
+   
+    return $ret;    
   }
   
   foreach ($res as $res2) {    
-    if (($res2->autorisierung==null) || (_checkAutorisierung($res2->autorisierung, $iAmLeader))) {
+    if (($res2->autorisierung==null) || (_checkAutorisierung($res2->autorisierung, $iAmLeader, $iAmSuperLeader))) {
       if (($res2->intern_code=="f_address") || ($iAmLeader) || (user_access('view alldetails',"churchdb")))
         $sqlfields[]=$res2->db_spalte;  
     }
@@ -206,6 +236,20 @@ function churchdb_getGroupFilterTypes() {
 }
 
 /**
+ * Check Authorization pattern like " view all || leader " is in $permissinos
+ * @param $auth string with optional ||Êas OR combinations
+ * @param array $permissions 
+ * @return boolean
+ */
+function checkFieldAuth($auth, $permissions) {
+  if ($auth==null) return true;
+  foreach (explode('||',$auth) as $val) {
+    if (isset($permissions[trim($val)])) return true;
+  }
+  return false;  
+}
+
+/**
  * 
  * @return Gibt das alte Array zurueck
  * @param object $fields 
@@ -220,15 +264,44 @@ global $user;
   
   $error_str="";
   $auth=churchdb_getAuthForAjax();
-//  if (($auth["viewall details"]) | (isPersonIsLeaderOf($user->id, diese person hier))))
-    $auth["ViewAllDetailsOrPersonLeader"]=true;
-    $auth["ViewAddressOrViewAllDetailsOrPersonLeader"]=true;
+  
+  $person_id=null;
+  if ($fields["tablename"]=="cdb_person" || $fields["tablename"]=="cdb_gemeindeperson") {
+    $auth["ViewAddressOrViewAllDetailsOrPersonLeader"]=true; //deprecated!!
+    if (churchdb_isPersonSuperLeaderOfPerson($user->id, $primary_key)) {
+      $auth["ViewAllDetailsOrPersonLeader"]=true; //deprecated!!
+      $auth["leader"]=true;
+      $auth["superleader"]=true;
+    }
+    else if (churchdb_isPersonLeaderOfPerson($user->id, $primary_key)) {
+      $auth["ViewAllDetailsOrPersonLeader"]=true; //deprecated!!
+      $auth["leader"]=true;
+    }
+  } 
+  else if ($fields["tablename"]=="cdb_gruppe") {
+    $myGroups=churchdb_getMyGroups($user->id, true, false, true);
+    if (count($myGroups)>0) {
+      $auth["superleader"]=true;
+      $auth["leader"]=true;
+    }
+    else {
+      $myGroups=churchdb_getMyGroups($user->id, true, true);
+      if (count($myGroups)>0) {
+        $auth["leader"]=true;
+      }      
+    }
+    
+  }
+  
+  if (isset($auth["viewalldetails"])) { 
+    $auth["ViewAllDetailsOrPersonLeader"]=true;  //deprecated!!
+  }
     
   $sql="UPDATE {".$fields["tablename"]."} SET ";
   foreach ($data_arr as $key=>$param) {
   	if (isset($fields["fields"][$key])) { 
-  	  if ((!isset($fields["fields"][$key]["auth"])) 
-  	       || (isset($auth[$fields["fields"][$key]["auth"]]))) {  	
+  	  if (!isset($fields["fields"][$key]["auth"]) 
+  	       || checkFieldAuth($fields["fields"][$key]["auth"], $auth)) {  	
 	  	switch ($fields["fields"][$key]["type"]) {
 	  	  case "number":
 	        $sql=$sql.$fields["fields"][$key]["sql"]."=".$param.", ";
@@ -257,7 +330,7 @@ global $user;
     } 
   }
   if ($error_str!="")
-    return $error_str;
+    throw new CTException($error_str);
 
   // Wenn es nicht per Array ï¿½bergeben wurde, dann setze es auf jetzt
   if (isset($data_arr['letzteaenderung'])) 
@@ -977,7 +1050,6 @@ function churchdb_getAuthTable() {
 
 function churchdb_saveDomainAuth($params) {
   db_query("delete from {cc_domain_auth} where domain_id=".$params["id"]." and domain_type='".$params["domain_type"]."'");
-//  print_r($params);
   foreach($params as $key=>$val) {
     if (($val) && (strpos($key,"authid")===0)) {
       $key=substr($key,6,99);
@@ -1136,8 +1208,6 @@ function churchdb_smspromote($param) {
     }
     fclose($socket);
   }
-  
-//  print_r($output);
   
   $response_code = intval($output[count($output)-1]);
   

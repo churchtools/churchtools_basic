@@ -141,6 +141,19 @@ function getAuthForDomain($id, $domain_type) {
   return $arr_auth;
 }
 
+/**
+ * Is Person in Group
+ * @param unknown $user_id 
+ * @param unknown $groups array of group Ids
+ * @return boolean
+ */
+function churchdb_isPersonInGroups($user_id, $groups) {
+  $res=db_query("SELECT count(*) c
+               FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg
+                      WHERE p.id=gp.person_id and gpg.gemeindeperson_id=gp.id and p.id=:id
+                       and gpg.gruppe_id in (".implode(",", $groups).") ", array(':id'=>$user_id))->fetch();
+  return ($res->c>0);  
+}
 
 /**
  * Holt sich alle Gruppendaten, von den Gruppen die ich sehen darf. Also wenn ich view alldetails habe

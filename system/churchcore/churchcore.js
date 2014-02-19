@@ -32,15 +32,29 @@ function churchcore_touchscreen() {
   return "ontouchstart" in document.documentElement;
 }
 
+/**
+ * Get FieldAuth as Array, e.g. "view allÊ|| tralala" => ["view all","tralala"]
+ * @param auth
+ * @returns {Array} of perms
+ */
+function churchcore_getAuthAsArray(auth) {
+  var arr=new Array();
+  if (auth!=null && auth!="") { 
+    $.each(auth.split("||"), function(k,a) {
+      if (a.trim()!="") arr.push(a.trim());
+    });
+  }
+  return arr;
+}
+
 /*
  * Check permission of auth. When datafield is given, this will be checked, too
  * E.g. user_access("edit category", 2);
  * @return true/false
  */
 function user_access(auth, datafield) {
-  $auth_arr=auth.split("||");
   var res=false;
-  $.each($auth_arr, function(k,a) {
+  $.each(churchcore_getAuthAsArray(auth), function(k,a) {
     if (masterData.auth!=null && masterData.auth[a.trim()])
       if (datafield==null) res=true;
       else if (masterData.auth[a.trim()][datafield]!=null) res=true;          
