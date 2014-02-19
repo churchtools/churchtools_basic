@@ -560,7 +560,7 @@ StandardTableView.prototype.mailPerson = function (personId, name, subject) {
   var t=this;
   var rows = new Array();
   rows.push(form_renderInput({cssid:"betreff", label:"Betreff", type:"xlarge", text:(subject!=null?subject:"")}));
-  rows.push('<p>Inhalt<div id="inhalt" class="well">');
+  rows.push('<p>Inhalt<span class="pull-right editor-status"></span><div id="inhalt" class="well">');
   if (masterData.settings.signature!=null)
     rows.push(masterData.settings.signature);
   rows.push('</div>');
@@ -571,7 +571,7 @@ StandardTableView.prototype.mailPerson = function (personId, name, subject) {
        label:"eine BCC-Kopie an mich senden."}));
 
   
-  this.showDialog("E-Mail an "+(name!=null?name:"Person"),rows.join(""), 600,550, {
+  var elem=this.showDialog("E-Mail an "+(name!=null?name:"Person"),rows.join(""), 600,550, {
       "Senden": function() {
         var arr=personId.split(",");
         if ((arr.length<5) || (confirm("Soll wirklich eine E-Mail an "+arr.length+" Personen gesendet werden?"))) {
@@ -590,18 +590,35 @@ StandardTableView.prototype.mailPerson = function (personId, name, subject) {
           obj.domain_id=null;
           obj.func="sendEMailToPersonIds";
           churchInterface.jsendWrite(obj, function(ok, data) {
-            if (ok) alert("Die EMail wurde gesendet!");
+            if (ok) {
+              alert("Die EMail wurde gesendet!");
+              drafter.clear();
+            }
             else alert("Es ist ein Fehler aufgetreten: "+data);
           }, null, false);          
           $(this).dialog("close");
         }
       },
       "Abbrechen": function() {
+        drafter.clear();
         $(this).dialog("close");
       }        
   });
   
-  form_implantWysiwygEditor("inhalt", false);
+  form_implantWysiwygEditor('inhalt', false);
+  //Save draft
+  var drafter=new Drafter("email", {
+    setStatus : function(status) {
+      elem.find('span.editor-status').html('<small><i>'+status+'</small></i>');
+    },
+    getContent : function() {
+      return CKEDITOR.instances.inhalt.getData();
+    },
+    setContent : function(content) {
+      CKEDITOR.instances.inhalt.setData(content);
+    },
+    interval:3000
+  });
   
   if (subject!=null)
     $("#inhalt").focus();

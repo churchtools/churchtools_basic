@@ -11,6 +11,7 @@ churchtools 2.46
 + (CDB) Neues Recht "create person". Man kann nun Personen berechtigen, Personen zu erstellen.
 + (CDB) Geburtsdatum darf nun auch nur Jahr oder nur Tag und Monat enthalten.
 + (CDB) Gruppenleiter kann nun auch Tags der Gruppe anpassen
++ EMails und Wiki-Seiten werden zwischengespeichert, so dass beim Verbindungsabbruch die Daten erhalten bleiben
 - Mitgliederliste kann nun unabhŠngig von View ChurchDB eingesehen werden.
 - (CDB) Gruppenleiter werden nur noch per Mail informiert, wenn sie schon mal eingeloggt waren
 - (CDB) Person darf nun auch seine eigenen Details sehen, wenn der Zugriff ansich erlaubt ist.

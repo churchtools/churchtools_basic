@@ -2099,3 +2099,56 @@ $.widget("ct.tooltips", {
     
 });
 
+
+/**
+ * Drafter is an object to organize draft saving in local browser
+ * id = identifier for this draft, like "wiki" or "email"
+ * obj
+ *  setContent function()
+ *  getContent function()
+ *  setStatus function()
+ *  interval (default=10000)
+ */
+function Drafter(id, obj) {
+  this.timer = null;
+  this.obj = obj;
+  this.obj.id=id;
+  if (this.obj.interval==null) this.obj.interval=10000;
+  
+  var content_saves=localStorage.getObject(settings.user.id+"/"+this.obj.id);
+  if (content_saves!=null && content_saves!="") {
+    var content_now=obj.getContent();
+    if (content_now!=content_saves 
+        && confirm("Habe noch zwischengespeicherte Daten gefunden, soll ich sie wiederherstellen?")) {
+      this.obj.setContent(content_saves);
+      this.obj.setStatus("Daten wiederhergestellt.");
+      localStorage.setObject(settings.user.id+"/"+this.obj.id, null);
+    }
+    else log("Keine Widerherstellung, Daten gleich");
+  }
+  else log("Keine Zwischenspeicherung vorhanden fuer "+this.obj.id)
+  this.activateTimer();
+}
+
+Drafter.prototype.activateTimer = function() {
+  var t=this;
+  if (this.timer!=null) window.clearTimeout(this.timer);  
+  t.timer=window.setTimeout(function() {
+    var content=t.obj.getContent();
+    if (content!="") t.obj.setStatus("Speichere Daten...");
+    else t.obj.setStatus("");
+    localStorage.setObject(settings.user.id+"/"+t.obj.id, content);
+    if (content!="") t.obj.setStatus("zwischengespeichert");
+    t.timer=null;
+    t.activateTimer();
+  }, t.obj.interval);
+};
+
+/**
+ * Deactivate timer and delete draft
+ */
+Drafter.prototype.clear = function() {
+  if (this.timer!=null) window.clearTimeout(this.timer);  
+  localStorage.setObject(settings.user.id+"/"+this.obj.id, null);
+}; 
+

@@ -42,7 +42,8 @@ WikiView.prototype.cancelEditMode = function() {
     editor=false;
   }  
 };
-      
+
+
 // Turn off automatic editor creation first.
 WikiView.prototype.editMode = function (setToEdit) {
   var t=this;
@@ -72,13 +73,26 @@ WikiView.prototype.editMode = function (setToEdit) {
     });
     CKEDITOR.config.scayt_autoStartup = true;
     CKEDITOR.config.scayt_sLang = 'de_DE';
-    $("#editor").focus();   
+    $("#editor").focus();
+    drafter=new Drafter("wiki", {
+      getContent: function() {
+        if  (CKEDITOR.instances.editor!=null)
+          return CKEDITOR.instances.editor.getData();
+        else return null;
+      },
+      setContent: function(content) { 
+        CKEDITOR.instances.editor.setData(content);
+      },
+      interval:3000,
+      setStatus: function(txt) {churchInterface.setStatus(txt, true);} 
+    });
   }
   else if ((edit) || (!setToEdit)){
     edit=false;
     $("a.editwiki").html("Text editieren");
     var text=CKEDITOR.instances.editor.getData();
     if (text==currentPage.text) { 
+      drafter.clear();
       alert("Keine neue Version, da nichts angepasst wurde.");
       t.renderPage(currentPage);
     }
@@ -86,8 +100,8 @@ WikiView.prototype.editMode = function (setToEdit) {
       churchInterface.jsendWrite({func:"save", doc_id:currentPage.doc_id, wikicategory_id:currentPage.wikicategory_id, val:CKEDITOR.instances.editor.getData()},
         function(ok) {
           if (ok) {
-            //window.location.reload();
             currentPage.text=text;
+            drafter.clear();
           }
           t.renderPage(currentPage);
         }, null, false);
