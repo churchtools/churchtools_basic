@@ -835,7 +835,7 @@ GroupView.prototype.editAutomaticEMails = function(g_id) {
   rows.push('<p><small>Sobald eine automatische Mail gespeichert und aktiviert ist, werden ab dem Zeitpunkt alle'+
            ' neuen Teilnehmer mit dieser E-Mail begruesst. Absender ist automatisch der erste Leiter der Gruppe</small>');
   rows.push('<form class="form-horizontal">');
-  rows.push(form_renderSelect({label:"Teilnehmerstatus",data:masterData.groupMemberTypes, cssid:"groupMemberType"}));
+  rows.push(form_renderSelect({label:"Teilnehmerstatus",freeoption:true,data:masterData.groupMemberTypes, cssid:"groupMemberType"}));
   rows.push(form_renderCheckbox({label:"Aktivieren",checked:false, cssid:"aktiv_yn"}));
   var d=this.getLeaderOfGroup(g_id);
   rows.push(form_renderSelect({label:"Absender",data:d, cssid:"sender_pid", freeoption:true}));
@@ -845,6 +845,10 @@ GroupView.prototype.editAutomaticEMails = function(g_id) {
   
   var elem = this.showDialog("Automatische E-Mails verwalten", rows.join(""), 566, 600, {
     "Speichern": function() {
+      if ($("#groupMemberType").val()=="") {
+        alert("Bitte erst einen Teilnehmerstatus auswählen!");
+        return;
+      }
       if (($("#aktiv_yn").attr("checked")=="checked") && ($("#sender_pid").val()=="")) { 
         alert("Es muss eine Person als Absender genommen werden!");
       }
@@ -857,7 +861,7 @@ GroupView.prototype.editAutomaticEMails = function(g_id) {
           email_inhalt:CKEDITOR.instances.editor.getData()}, 
         function(ok, data) {
           if (ok) {
-            alert("E-Mail wurde gespeichert"+($("#aktiv_yn").attr("checked")=="checked"?" und ist aktiviert!":"."));
+            alert("Automatische E-Mail für "+masterData.groupMemberTypes[$("#groupMemberType").val()].bezeichnung+" wurde gespeichert"+($("#aktiv_yn").attr("checked")=="checked"?" und ist aktiviert!":"."));
           }
           else alert("Fehler: "+status);
         });
@@ -870,26 +874,28 @@ GroupView.prototype.editAutomaticEMails = function(g_id) {
   );
   form_implantWysiwygEditor("editor", false);
   function _changeGroupMemberType() {
-    churchInterface.jsendWrite({func:"getGroupAutomaticEMail", id:g_id, status_no:$("#groupMemberType").val()}, 
-      function(ok, data) {
-      if (ok) {
-        if (data==null) {
-          $("#aktiv_yn").removeAttr("checked");
-          $("#sender_pid").val("");
-          $("#email_betreff").val("Infomail zur Gruppe "+masterData.groups[g_id].bezeichnung)
-          if (masterData.settings.signature!=null)
-            CKEDITOR.instances.editor.setData(masterData.settings.signature);
+    if ($("#groupMemberType").val()!="") {
+      churchInterface.jsendWrite({func:"getGroupAutomaticEMail", id:g_id, status_no:$("#groupMemberType").val()}, 
+        function(ok, data) {
+        if (ok) {
+          if (data==null) {
+            $("#aktiv_yn").removeAttr("checked");
+            $("#sender_pid").val("");
+            $("#email_betreff").val("Infomail zur Gruppe "+masterData.groups[g_id].bezeichnung)
+            if (masterData.settings.signature!=null)
+              CKEDITOR.instances.editor.setData(masterData.settings.signature);
+          }
+          else {
+            if (data.aktiv_yn==1)
+              $("#aktiv_yn").attr("checked","checked");
+            else $("#aktiv_yn").removeAttr("checked");
+            $("#sender_pid").val(data.sender_pid);
+            $("#email_betreff").val(data.email_betreff);
+            CKEDITOR.instances.editor.setData(data.email_inhalt);            
+          }
         }
-        else {
-          if (data.aktiv_yn==1)
-            $("#aktiv_yn").attr("checked","checked");
-          else $("#aktiv_yn").removeAttr("checked");
-          $("#sender_pid").val(data.sender_pid);
-          $("#email_betreff").val(data.email_betreff);
-          CKEDITOR.instances.editor.setData(data.email_inhalt);
-        }
-      }
-    });      
+      });
+    }
   }
   _changeGroupMemberType();
   
@@ -1423,14 +1429,13 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
         });
         
         var form=new CC_Form();
-        form.addHtml("<legend>Wirklich die Gruppe l&ouml;schen?</legend>");
         
         if (del) {
-          form.addHtml("<p>Achtung, zu der Gruppe sind noch Personen zugeordnet. Sollen diese aus der Gruppe genommen werden? Das kann nicht r&uuml;ckg&auml;ngig gemacht werden!");
+          form.addHtml("<br/><p>Achtung, zu der Gruppe sind noch Personen zugeordnet. Sollen diese aus der Gruppe genommen werden? Das kann nicht r&uuml;ckg&auml;ngig gemacht werden!");
           form.addCheckbox({label:"Personen aus der Gruppe herausnehmen", cssid:"deletePersonGroup"});
         }
         
-        var elem=form_showDialog("Gruppe l&ouml;schen", form.render(null, "vertical"), 370, 300, {
+        var elem=form_showDialog("Wirklich Gruppe löschen?", form.render(null, "vertical"), 370, 300, {
           "Ja": function() {
             var obj=form.getAllValsAsObject();
             if ((del) && (obj.deletePersonGroup==0))
