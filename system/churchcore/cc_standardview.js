@@ -616,8 +616,7 @@ StandardTableView.prototype.mailPerson = function (personId, name, subject) {
     },
     setContent : function(content) {
       CKEDITOR.instances.inhalt.setData(content);
-    },
-    interval:3000
+    }
   });
   
   if (subject!=null)

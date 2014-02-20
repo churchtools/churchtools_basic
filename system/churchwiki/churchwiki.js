@@ -69,9 +69,9 @@ WikiView.prototype.editMode = function (setToEdit) {
                         { name: 'colors', items: [ 'TextColor', 'BGColor' ] },
                         { name: 'paragraph', groups: [ 'list', 'indent', 'align' ], items: [ 'NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock' ] }
                       ],
-      extraPlugins : 'tableresize',
+      extraPlugins : 'tableresize'
     });
-    CKEDITOR.config.scayt_autoStartup = true;
+    //CKEDITOR.config.scayt_autoStartup = true;
     CKEDITOR.config.scayt_sLang = 'de_DE';
     $("#editor").focus();
     drafter=new Drafter("wiki", {
@@ -83,7 +83,6 @@ WikiView.prototype.editMode = function (setToEdit) {
       setContent: function(content) { 
         CKEDITOR.instances.editor.setData(content);
       },
-      interval:3000,
       setStatus: function(txt) {churchInterface.setStatus(txt, true);} 
     });
   }
