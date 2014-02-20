@@ -149,8 +149,9 @@ global $user;
   
   $content="<html><head>";
   
-  drupal_add_js("system/assets/js/jquery.js");
-
+  drupal_add_js("system/assets/js/jquery-1.10.2.min.js");
+  drupal_add_js("system/assets/js/jquery-migrate-1.2.1.min.js");
+  
   drupal_add_js(drupal_get_path('module', 'churchcore') .'/shortcut.js'); 
   drupal_add_js('system/assets/js/jquery.history.js'); 
   
@@ -178,7 +179,7 @@ global $user;
    
   $content=$content.drupal_get_header();
   
-  $content=$content.'<link type="text/css" rel="stylesheet" media="all" href="'.drupal_get_path('module', 'churchcore').'/churchcore.css" />';
+  $content=$content.'<link type="text/css" rel="stylesheet" media="all" href="'.drupal_get_path('module', 'includes').'/churchtools.css" />';
   $content=$content.'<link type="text/css" rel="stylesheet" media="all" href="'.drupal_get_path('module', 'churchresource').'/cr_printview.css" />';
     
   $content=$content."</head><body>";
