@@ -6,7 +6,9 @@ function login_main() {
   
   if ((isset($config["admin_message"])) && ($config["admin_message"]!=""))
     addErrorMessage($config["admin_message"]);
-    
+  if ((isset($_GET["message"])) && ($_GET["message"]!=""))
+    addInfoMessage($_GET["message"]);
+  
   // Sicherstellen, dass keiner eingelogt ist!
   if (!userLoggedIn()) {    
     include_once("system/includes/forms.php");

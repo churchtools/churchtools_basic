@@ -307,8 +307,14 @@ function processRequest($_q) {
                 && (!in_array($_q,(isset($config["page_with_noauth"])?$config["page_with_noauth"]:array()))))  {
       // Wenn kein Benutzer angemeldet ist, dann zeige nun die Anmeldemaske
       if (!userLoggedIn()) {
-        $q="login";
-        return processRequest("login");
+        if (strrpos($q, "ajax")===false) { 
+          $q="login";
+          return processRequest("login");
+        }
+        else {
+          drupal_json_output(jsend()->error("Session expired!"));
+          die();
+        }
       }
       else {
         $name=$_q;

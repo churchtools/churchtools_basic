@@ -200,8 +200,12 @@ ChurchInterface.prototype.jsend = function (name, obj, func, async, get, overwri
       success : function(json) {
         this_object.clearStatus();
         // Error = ist was schlimmes passiert!
-        if (json.status=="error")  
-          alert("Fehler beim "+name+" in "+modulename+": "+json.message);
+        if (json.status=="error")  {
+          if (json.message=="Session expired!")
+            window.location.href="?q=home&message=Session ist abgelaufen, bitte neu anmelden!"
+          else
+            alert("Fehler beim "+name+" in "+modulename+": "+json.message);
+        }
         // Wenn es success oder fail ist, übergebe an die Anwendung zurück.
         else if (func!=null)
           func(json.status=="success", json.data);

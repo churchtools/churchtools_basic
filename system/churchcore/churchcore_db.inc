@@ -675,6 +675,14 @@ function churchcore_sendMails_PHPMAIL($maxmails=10) {
     }
     db_query("update {cc_config} set value='0' where name='currently_mail_sending'");    
   }
+  // To many errors, so the process was killed or something like that.
+  else if ($db->value>"10") {
+    db_query("update {cc_config} set value='0' where name='currently_mail_sending'");
+  }
+  else {
+    // Increment
+    db_query("update {cc_config} set value=value+1 where name='currently_mail_sending'");    
+  }
 }
 
 function churchcore_sendMails_PEARMAIL($maxmails=10) {
