@@ -2124,9 +2124,7 @@ function Drafter(id, obj) {
       this.obj.setStatus("Daten wiederhergestellt.");
       localStorage.setObject(settings.user.id+"/"+this.obj.id, null);
     }
-    else log("Keine Widerherstellung, Daten gleich");
   }
-  else log("Keine Zwischenspeicherung vorhanden fuer "+this.obj.id)
   this.activateTimer();
 }
 
@@ -2138,7 +2136,7 @@ Drafter.prototype.activateTimer = function() {
     if (content!="") t.obj.setStatus("Speichere Daten...");
     else t.obj.setStatus("");
     localStorage.setObject(settings.user.id+"/"+t.obj.id, content);
-    if (content!="") t.obj.setStatus("zwischengespeichert");
+    if (content!="") t.obj.setStatus("gespeichert");
     t.timer=null;
     t.activateTimer();
   }, t.obj.interval);

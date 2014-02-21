@@ -23,6 +23,7 @@ churchtools 2.46
 - (CDB) Geburtstagsliste wird nur noch durch das explizite Recht view birthdaylist angezeigt.   
 - (CS) Agenda-Positionen nun auch mit m:s Format in der Detailansicht
 - (CS) Plus-Zeichnen nun auch bei einer Servicegroup verfügbar, wenn man dort das Recht "edit servicegroup" hat.
+- Mediaelements update auf 2.13.2
 
 churchtools 2.45
 + (CS) Ablauf: SongBeamer Export der Ablaufliste für die Lieder des aktuellen Ablaufs (inkl. Überschriften) 
