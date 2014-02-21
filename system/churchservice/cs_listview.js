@@ -508,10 +508,12 @@ ListView.prototype.renderEditEvent = function(event) {
   if ((event.admin!=null) && (event.admin!="") && (masterData.auth.viewchurchdb)) {
     churchInterface.jsendRead({func:"getPersonById", id:event.admin}, function(ok, json) {
       var s = "";
-      $.each(json.data, function(k,a) {
-        if (s!="") s=s+"<br/>";
-        s=s+a.vorname+" "+a.name;
-      });
+      if (json.data!=null) {
+        $.each(json.data, function(k,a) {
+          if (s!="") s=s+"<br/>";
+          s=s+a.vorname+" "+a.name;
+        });
+      }
       $("#adminName").html(s);
     }, null, null, "churchdb"); 
   }
