@@ -254,7 +254,7 @@ function _renderViewChurchResource(elem) {
       });
       form.addHtml('<td>');
       if (a.status_id!=99)
-        form.addImage({src:"trashbox.png", cssid:"trash", width:20, data:[{name:"id", value:a.resource_id}]});
+        form.addImage({src:"trashbox.png", htmlclass:"delete-booking", link:true, width:20, data:[{name:"id", value:a.resource_id}]});
       if (typeof weekView!='undefined') {
         if (allBookings[a.id]!=null && allBookings[a.id].exceptions!=null) {
           var arr=new Array();
@@ -320,7 +320,7 @@ function _renderViewChurchResource(elem) {
     currentEvent.bookings=previousBookings;
     _renderEditEventContent(elem, currentEvent);    
   });
-  elem.find("#trash").click(function() {
+  elem.find("a.delete-booking").click(function() {
     // Is booking created but not saved (fresh), then I can delete it.
     if (currentEvent.bookings[$(this).attr("data-id")].fresh) {
       delete currentEvent.bookings[$(this).attr("data-id")];
