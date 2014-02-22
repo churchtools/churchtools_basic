@@ -242,7 +242,7 @@ StandardTableView.prototype.addFurtherListCallbacks = function() {
 
 StandardTableView.prototype.renderOneListEntry = function(id) {
   
-}
+};
 
 
 /*
@@ -327,7 +327,6 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
         }
         
         rows.push('<tbody>');
-        var startConcat = new Date();
         var counter = 0; 
         var lastGrouping=null;
         
@@ -519,6 +518,19 @@ function calcHeaderWidth() {
   });*/
 }
 
+StandardTableView.prototype.entryDetailClick = function(id) {
+  var t=this;
+  var a=t.getData();
+  if ($("tr[id=detail"+id+"]").text()!="") {
+    $("tr[id=detail"+id+"]").remove();
+    a[id].open=false;
+  } 
+  else {          
+    a[id].open=true;
+    t.renderEntryDetail(id);
+  }   
+};
+
 StandardTableView.prototype.addTableContentCallbacks = function(cssid) {
   var this_object=this;
   $(cssid+" a").click(function (_content_a) {
@@ -526,15 +538,7 @@ StandardTableView.prototype.addTableContentCallbacks = function(cssid) {
       return true;
     else if ($(this).attr("id").indexOf("detail")==0) {
       var id = $(this).attr("id").substr(6,99);
-      var a=this_object.getData();
-      if ($("tr[id="+$(this).attr("id")+"]").text()!="") {
-        $("tr[id="+$(this).attr("id")+"]").remove();
-        a[id].open=false;
-      } 
-      else {          
-        a[id].open=true;
-        this_object.renderEntryDetail($(this).attr("id").substr(6,99));
-      }  
+      this_object.entryDetailClick(id);
     }
     else if ($(this).attr("id")=="mailto") return true;
     else if ($(this).attr("id")=="extern") return true;
@@ -618,6 +622,9 @@ StandardTableView.prototype.mailPerson = function (personId, name, subject) {
       CKEDITOR.instances.inhalt.setData(content);
     }
   });
+  
+  CKEDITOR.instances.inhalt.on('change', function() {  elem.find('span.editor-status').html('');});
+
   
   if (subject!=null)
     $("#inhalt").focus();

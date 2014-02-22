@@ -161,7 +161,7 @@ StatisticView.prototype.renderAgeGroups = function() {
   $.each(allPersons, function(k,a) {
     if (t.checkFilter(a)) {
       if (a.geburtsdatum!=null) {
-        y=a.geburtsdatum.toDateEn().getAgeInYears();
+        y=a.geburtsdatum.toDateEn().getAgeInYears().num;
         summealter=summealter+y;
         y=Math.floor(y/10);
         if (res[y]==null) res[y]=0;
@@ -405,11 +405,13 @@ StatisticView.prototype.renderList = function() {
         $.each(masterData.fields.f_church.fields, function (b,i) {
           if (i["type"]=="date") {
             n=i["sql"];
-            if (a[n]!=null) {
+            if (a[n]!=null && a[n].toDateEn().getFullYear()>1004) {
               if (res[n]==null) res[n]=new Array();
-              if (res[n][a[n].toDateEn().getFullYear()]==null)
-                res[n][a[n].toDateEn().getFullYear()]=0;
-              res[n][a[n].toDateEn().getFullYear()]++;
+              var y=a[n].toDateEn().getFullYear();
+              if (y>=7000) y=y-7000;
+              if (res[n][y]==null)
+                res[n][y]=0;
+              res[n][y]++;
             }
           }
         });
@@ -439,8 +441,9 @@ StatisticView.prototype.renderList = function() {
 
       choiceContainer.find("input:checked").each(function () {
           var key = $(this).attr("name");
-          if (key && datasets[key])
+          if (key && datasets[key]) {
               data.push(datasets[key]);
+          }
       });
 
       if (data.length > 0)

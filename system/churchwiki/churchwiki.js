@@ -85,6 +85,8 @@ WikiView.prototype.editMode = function (setToEdit) {
       },
       setStatus: function(txt) {churchInterface.setStatus(txt, true);} 
     });
+    CKEDITOR.instances.editor.on('change', function() {  churchInterface.clearStatus();  });
+
   }
   else if ((edit) || (!setToEdit)){
     edit=false;

@@ -2688,9 +2688,15 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
   });
 
   $(cssid+" a.show-agenda").click(function() {
-    t.currentEvent=allEvents[$(this).parents("tr").attr("id")];
-    agendaView.currentAgenda=null;
-    churchInterface.setCurrentView(agendaView, true);
+    var event=allEvents[$(this).parents("tr").attr("id")];
+    if (!event.agenda) {
+      t.currentEvent=event;
+      agendaView.currentAgenda=null;
+      churchInterface.setCurrentView(agendaView, true);      
+    }
+    else {
+      t.entryDetailClick($(this).parents("tr").attr("id")); 
+    }    
   });
 
   

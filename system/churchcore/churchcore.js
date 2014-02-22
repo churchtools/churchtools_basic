@@ -567,18 +567,29 @@ Date.prototype.getKW = function() {
   return diff;
 };
 
+/**
+ * Get Age in Years 
+ * returns object:
+ *    txt: e.g. "Ca. 12" |Ê"12"
+ *    num: 12
+ *    approx: true (now date given)  
+ */
 Date.prototype.getAgeInYears = function() {
-  if (this.getFullYear()==1004) return null;
+  if (this.getFullYear()==1004) return {};
   var jetzt=new Date(); 
   var d=new Date(this.getTime());
   var txt="";
+  var i=null;
+  var approx=false;
   if (d.getFullYear()>7000) {
     jetzt.setFullYear(jetzt.getFullYear()+7000);
+    approx=true;
     txt="ca. ";
   }
-  d.setYear(jetzt.getFullYear()); 
-  txt=txt+( d>jetzt?(jetzt.getFullYear()-this.getFullYear()-1):(jetzt.getFullYear()-this.getFullYear()));
-  return txt;
+  d.setYear(jetzt.getFullYear());
+  i=( d>jetzt?(jetzt.getFullYear()-this.getFullYear()-1):(jetzt.getFullYear()-this.getFullYear()));
+  txt=txt+i;
+  return {txt:txt, num:i, approx:approx};
 }; 
 
 Date.prototype.getDayInText = function() {

@@ -557,8 +557,8 @@ function renderPersonTooltip(id) {
     var a=allPersons[id];
     txt="<b>"+a.vorname+" "+a.name;
 
-    if (a.geburtsdatum!=null && a.geburtsdatum.toDateEn().getAgeInYears()!=null) {
-      var age=a.geburtsdatum.toDateEn().getAgeInYears();
+    if (a.geburtsdatum!=null && a.geburtsdatum.toDateEn().getAgeInYears().txt!=null) {
+      var age=a.geburtsdatum.toDateEn().getAgeInYears().txt;
       if (age!=null) {
         txt=txt+" ("+age+")";        
       }
@@ -2036,10 +2036,11 @@ PersonView.prototype.checkFilter = function(a) {
       if (a.geburtsdatum==null) 
         return false;
       else {
-        geb=new Date(a.geburtsdatum.substr(0,4),a.geburtsdatum.substr(5,2)-1,a.geburtsdatum.substr(8,2));      
-        if ((filter["ageFrom"]!=null) && (geb.getAgeInYears()<filter["ageFrom"]))
+        geb=a.geburtsdatum.toDateEn();      
+        if (geb.getAgeInYears().num==null) return false;
+        if ((filter["ageFrom"]!=null) && (geb.getAgeInYears().num<filter["ageFrom"]))
           return false;
-        if ((filter["ageTo"]!=null) && (geb.getAgeInYears()>filter["ageTo"]))
+        if ((filter["ageTo"]!=null) && (geb.getAgeInYears().num>filter["ageTo"]))
           return false;
       }   
     }   
@@ -2643,8 +2644,8 @@ PersonView.prototype.renderDetails = function (id) {
       _text=_text+"<p style='line-height:100%;color:black'>";
       _text=_text+a.vorname+" "+a.name;
 
-      if (a.geburtsdatum!=null && a.geburtsdatum.toDateEn().getAgeInYears()!=null) {
-        var age=a.geburtsdatum.toDateEn().getAgeInYears();
+      if (a.geburtsdatum!=null && a.geburtsdatum.toDateEn().getAgeInYears().num!=null) {
+        var age=a.geburtsdatum.toDateEn().getAgeInYears().txt;
         if (age!=null) {
           _text=_text+" ("+age+")";        
         }
@@ -4423,13 +4424,18 @@ PersonView.prototype.renderGroupEntry = function() {
   t=this;
   // Start function renderGroupEntry()  
   $("#cdb_group").html("");
-  if ((this.filter['filterMeine Gruppen']>0) && (allPersons[masterData.user_pid]!=null) &&
-      ((allPersons[masterData.user_pid].districts!=null && allPersons[masterData.user_pid].districts[masterData.groups[this.filter['filterMeine Gruppen']].distrikt_id]!=null) || 
-      (allPersons[masterData.user_pid].gruppentypen!=null && allPersons[masterData.user_pid].gruppentypen[masterData.groups[this.filter['filterMeine Gruppen']].gruppentyp_id]!=null) || 
-         (allPersons[masterData.user_pid].gruppe[this.filter['filterMeine Gruppen']].leiter>=1) && 
-       (allPersons[masterData.user_pid].gruppe[this.filter['filterMeine Gruppen']].leiter<=2)) 
-       && (masterData.groups[this.filter['filterMeine Gruppen']].meetingList==null)) {
-
+  if ((this.filter['filterMeine Gruppen']>0) 
+      && (allPersons[masterData.user_pid]!=null) 
+      && (masterData.groups[this.filter['filterMeine Gruppen']]!=null)
+      && (masterData.groups[this.filter['filterMeine Gruppen']].meetingList==null)
+      &&
+         (
+            (allPersons[masterData.user_pid].districts!=null 
+                   && allPersons[masterData.user_pid].districts[masterData.groups[this.filter['filterMeine Gruppen']].distrikt_id]!=null) 
+            || (allPersons[masterData.user_pid].gruppentypen!=null && allPersons[masterData.user_pid].gruppentypen[masterData.groups[this.filter['filterMeine Gruppen']].gruppentyp_id]!=null) 
+            || (allPersons[masterData.user_pid].gruppe[this.filter['filterMeine Gruppen']].leiter>=1  
+                   && allPersons[masterData.user_pid].gruppe[this.filter['filterMeine Gruppen']].leiter<=2)) 
+     ) {
       t.loadGroupMeetingList(this.filter['filterMeine Gruppen']);
    } 
    else {

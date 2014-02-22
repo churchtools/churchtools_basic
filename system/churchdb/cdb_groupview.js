@@ -926,7 +926,7 @@ GroupView.prototype.getStatsOfGroup = function(g_id) {
             stats.count_all_people=stats.count_all_people+1;
             if (a.geburtsdatum!=null) {
               var geb=a.geburtsdatum.toDateEn(false);      
-              stats.sum_age_all=stats.sum_age_all+geb.getAgeInYears()*1;
+              stats.sum_age_all=stats.sum_age_all+geb.getAgeInYears().num;
               stats.count_age_all=stats.count_age_all+1;
             }
           }  
@@ -934,7 +934,7 @@ GroupView.prototype.getStatsOfGroup = function(g_id) {
             stats.count_all_member=stats.count_all_member+1;
             if (a.geburtsdatum!=null) {
               var geb=a.geburtsdatum.toDateEn(false);      
-              stats.sum_age=stats.sum_age+geb.getAgeInYears()*1;
+              stats.sum_age=stats.sum_age+geb.getAgeInYears().num;
               stats.count_age=stats.count_age+1;
             }
           }  

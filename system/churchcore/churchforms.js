@@ -2113,13 +2113,13 @@ function Drafter(id, obj) {
   this.timer = null;
   this.obj = obj;
   this.obj.id=id;
-  if (this.obj.interval==null) this.obj.interval=10000;
+  if (this.obj.interval==null) this.obj.interval=5000;
   
   var content_saves=localStorage.getObject(settings.user.id+"/"+this.obj.id);
   if (content_saves!=null && content_saves!="") {
     var content_now=obj.getContent();
     if (content_now!=content_saves 
-        && confirm("Habe noch zwischengespeicherte Daten gefunden, soll ich sie wiederherstellen?")) {
+        && confirm("Ich habe noch einen offenen Text gefunden, soll ich diesen wiederherstellen?")) {
       this.obj.setContent(content_saves);
       this.obj.setStatus("Daten wiederhergestellt.");
       localStorage.setObject(settings.user.id+"/"+this.obj.id, null);
