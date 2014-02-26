@@ -958,8 +958,9 @@ ListView.prototype.renderListEntry = function(event) {
   if (masterData.category[event.category_id].color!=null)
     rows.push('<div title="Kalender: '+masterData.category[event.category_id].bezeichnung+'" style="background-color:'+masterData.category[event.category_id].color+'; margin-top:5px; margin-left:3px; width:4px; height:15px"></div>');
   rows.push('<td class="hoveractor">');
-  
-  if (event.agenda && (user_access("view agenda", event.category_id) || t.amIInvolved(event)))
+
+  var agendaview=event.agenda && (user_access("view agenda", event.category_id) || t.amIInvolved(event));
+  if (agendaview)
     rows.push('<b><a href="#" id="detail'+event.id+'">' + event.startdate.toDateEn(true).toStringDeTime() + " "+event.bezeichnung+"</a></b>&nbsp; ");
   else
     rows.push("<b>" + event.startdate.toDateEn(true).toStringDeTime(true)+" "+event.bezeichnung+"</b>&nbsp; ");
@@ -1004,7 +1005,7 @@ ListView.prototype.renderListEntry = function(event) {
   
   if (!event.agenda && user_access("edit agenda", event.category_id))
     rows.push(form_renderImage({src:"agenda_plus.png", htmlclass:"show-agenda", link:true, label:"Ablaufplan zum Event hinzufügen", width:20}));
-  else if (event.agenda && user_access("view agenda", event.category_id))
+  else if (agendaview)
     rows.push(form_renderImage({src:"agenda.png", htmlclass:"show-agenda", link:true, label:"Ablaufplan anzeigen", width:20}));
   
   rows.push('<div class="filelist" data-id="'+event.id+'"></div>');
@@ -3308,7 +3309,9 @@ ListView.prototype.renderEntryDetail = function (event_id) {
       rows.push('<tr class="detail" id="detail'+event_id+'" data-id="'+event_id+'"><td colspan=20><div class="well">');  
       rows.push('<legend>Ablauf &nbsp;');
       if (user_access("view agenda", event.category_id))
-        rows.push(form_renderImage({src:"agenda_call.png", htmlclass:"show-agenda", data:[{name:"id", value:data.id}], link:true, label:"Ablaufplan aufrufen", width:20}));
+        rows.push(form_renderImage({src:"agenda_call.png", htmlclass:"show-agenda", data:[{name:"id", value:data.id}], link:true, label:"Ablaufplan aufrufen", width:20})+"&nbsp;");
+      rows.push(form_renderImage({src:"printer.png", htmlclass:"print-agenda", data:[{name:"id", value:data.id}], link:true, label:"Druckansicht", width:20}));
+
       rows.push('</legend>');
       rows.push('<table class="table table-mini AgendaView">');
       rows.push('<tr>'+agendaView.renderListHeader(true));
@@ -3323,6 +3326,11 @@ ListView.prototype.renderEntryDetail = function (event_id) {
       elem.find("a.show-agenda").click(function() {
         agendaView.currentAgenda=allAgendas[$(this).attr("data-id")];
         churchInterface.setCurrentView(agendaView); 
+        return false;
+      });
+      elem.find("a.print-agenda").click(function() {
+        fenster = window.open('?q=churchservice/printview&id='+$(this).attr("data-id")+'#AgendaView', "Druckansicht", "width=900,height=600,resizable=yes");
+        fenster.focus();
         return false;
       });
     });

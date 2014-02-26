@@ -137,9 +137,10 @@ AgendaView.prototype.editAgenda = function(agenda, template) {
       var obj=form.getAllValsAsObject(true);
       // If copy or copy as template I have to delete ids, so it will be copied!
       if (obj.copy==1 || obj.copy_as_template==1) {
-        obj.items=$.extend({}, agenda.items);
+        obj.items=$.extend(true, {}, agenda.items);
         $.each(obj.items, function(k,i) {
           delete i.id;
+          delete i.event_ids;
         });
       }
       else if (agenda!=null && agenda.id!=null) obj.id=agenda.id;
@@ -254,10 +255,14 @@ AgendaView.prototype.saveAgenda = function(agenda, func) {
  */
 AgendaView.prototype.renderField = function(o, dataField, smallVersion) {
   var t=this;
+  
+  if (o==null) return "";
+  
   var rows=new Array();
   
-  if (dataField=="duration")
+  if (dataField=="duration") {
     rows.push(o.duration.formatMS());
+  }
   else if (dataField=="bezeichnung") {
     if (o.header_yn==1) {
       rows.push('<b>'+o.bezeichnung+'</b>');
@@ -391,7 +396,7 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
           $(this).removeClass("active");
         }
       );
-
+      
       // Implements editable
       $(cssid+" td.editable").each(function(k,a) {
         var id=$(this).parents("tr").attr("id");
@@ -662,7 +667,6 @@ AgendaView.prototype.editItem = function(item) {
         item[k]=a;
       });
       item.duration=((item.duration_m*60)+(item.duration_s*1))+"";
-      console.log(item);
       item.song_id=null;
       item.agenda_id=t.currentAgenda.id;
       t.saveItem(item, function() {
@@ -759,6 +763,7 @@ AgendaView.prototype.renderFilter = function() {
 
 
 AgendaView.prototype.loadTemplates = function () {
+  var t=this;
   if (!t.templatesLoaded) {
     t.templatesLoaded=true; 
     if (user_access("view agenda")) {
@@ -823,18 +828,20 @@ AgendaView.prototype.loadAgendaForEvent = function(event_id, func) {
 AgendaView.prototype.getListHeader = function () {
   var t=this;
   t.listViewTableHeight=null;
+  t.loadTemplates();
   
   // When allAgenda is null, start loading Songs and Templates
   if (allAgendas==null) {
     songView.loadSongData();
-    t.loadTemplates();
 
     var ids=new Array();
     if (listView.currentEvent==null) {
-      if ($("#externevent_id").val()!=null)
-        ids.push($("#externevent_id").val());
       if (masterData.settings.currentAgenda!=null)
         ids.push(masterData.settings.currentAgenda);
+      if ($("#externevent_id").val()!=null) {
+        ids.push($("#externevent_id").val());
+        masterData.settings.currentAgenda=$("#externevent_id").val();
+      }
     }
     
     if (ids.length>0) {
@@ -893,13 +900,15 @@ AgendaView.prototype.getListHeader = function () {
                    && (allEvents[e].category_id==a.calcategory_id))
                   add=true;
               });
-              if (add) arr2.push(a);
+              if (add) {
+                arr2.push(a);
+              }
             }
           });
         }
         var arr = new Array();
         if (arr2.length>0) {
-          arr.push({id:"", bezeichnung:"-- Zum vorhandenen Ablaufplan hinzufügen --"});
+          arr.push({id:"", bezeichnung:"-- Vorhandenen Ablaufplan nutzen --"});
           arr=arr.concat(arr2);
           arr.push({id:"", bezeichnung:"-- Vorlage auswählen --"});
         }
@@ -909,7 +918,7 @@ AgendaView.prototype.getListHeader = function () {
           });
         }
         if (allAgendas!=null) {
-          arr.push({id:"", bezeichnung:"-- Vorlage andere Kalender auswählen --"});
+          arr.push({id:"", bezeichnung:"-- Vorlage anderer Kalender auswählen --"});
           $.each(allAgendas, function(k,a) {
             if (a.template_yn==1 && listView.currentEvent.category_id!=a.calcategory_id) arr.push(a);
           });
@@ -932,7 +941,32 @@ AgendaView.prototype.getListHeader = function () {
     $("select.chose-template").change(function() {
       if ($(this).val()!="") {
         if (listView.currentEvent!=null) {
-          t.startNewAgenda(allAgendas[$(this).val()]);
+          var id=$(this).val();
+          if (allAgendas[$(this).val()]!=null && allAgendas[$(this).val()].template_yn==1) {
+            t.startNewAgenda(allAgendas[id]);            
+          }
+          else {
+            var form = new CC_Form();
+            form.addHtml("<legend>Wie soll der Ablaufplan genutzt werden?</legend>");
+            form.addHtml("<ul><li><b>Kopieren</b> - Beim Kopieren wird eine Kopie angelegt, d.h. der neue Ablaufplan ist völlig unabhängig von dem alten.");
+            form.addHtml("<li><b>Integrieren</b> - Beim Integrieren wird der neue Plan in den vorhandenen eingearbeitet. Der Ablauf erhält also eine zusätzliche Startzeit. Durch einen Klick auf die jeweilge Uhrzeit kann gewählt werden, ob der Eintrag nur in einem der Events stattfinden soll.");
+            form.addHtml('</ul');
+  
+            var elem=form_showDialog("Ablaufplan nutzen",form.render(), 500,350, {
+              "Kopieren": function() {
+                t.startNewAgenda(allAgendas[id], true);
+                elem.dialog("close");
+              },
+              "Integrieren": function() {
+                t.startNewAgenda(allAgendas[id]);              
+                elem.dialog("close");
+              },
+              "Abbrechen": function() {
+                elem.dialog("close");
+                $("select.chose-template").val("");
+              }                         
+            });
+          }
         }
       }
     });
@@ -1051,14 +1085,14 @@ AgendaView.prototype.renderListHeader = function(smallVersion) {
   return rows.join("");
 };
 
-AgendaView.prototype.startNewAgenda = function(template_agenda) {
+AgendaView.prototype.startNewAgenda = function(template_agenda, copying) {
   var t=this;
   
   t.currentAgenda=$.extend({}, template_agenda);
-  var copying=false;
+  if (copying==null) copying=false;
 
   // If copying from a template delete Id
-  if (t.currentAgenda.template_yn==1) {
+  if (t.currentAgenda.template_yn==1 || copying) {
     copying=true;             
     delete t.currentAgenda.id;
   }
