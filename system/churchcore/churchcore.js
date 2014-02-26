@@ -14,7 +14,7 @@ function _(s) {
 }
 
 function log(s) {
-  if (console!=null) {
+  if (typeof(console)!=="undefined") {
     var d=new Date();
     console.log(d.toStringDe(true)+":"+d.getMilliseconds()+" - "+s);
   }
@@ -792,30 +792,39 @@ Number.prototype.maskWithZero = function(length) {
     s="0"+s;
   }
   return s;
-}
+};
 
-Storage.prototype.setObject = function(key, value) {
+function churchcore_storeObject(key, value) {
   if (typeof(localStorage) == 'object' ) {
     try {
-      this.setItem(key, JSON.stringify(value));
+      localStorage.setItem(key, JSON.stringify(value));
     }  
     catch (e) {
-      console.log("Fehler bei setObject von "+key+": "+e);
+      log("Fehler bei setObject von "+key+": "+e);
 //      if (e == QUOTA_EXCEEDED_ERR) {
 //      }
     }
-  }
+  }  
+}
+
+function churchcore_retrieveObject(key) {
+  try {
+    if (typeof(localStorage) == 'object' ) 
+      return JSON.parse(localStorage.getItem(key));
+    else return null;
+    } 
+  catch (e) {
+    log("Fehler beim einladen von "+key+"!");
+    return null;
+  }  
+}
+
+Storage.prototype.setObject = function(key, value) {
+  churchcore_storeObject(key, value);
 };
  
 Storage.prototype.getObject = function(key) {
-  try {
-  if (typeof(localStorage) == 'object' ) 
-    return JSON.parse(this.getItem(key));
-  else return null;
-  } catch (e) {
-    console.log("Fehler beim einladen von "+key+"!");
-    return null;
-  }
+  return churchcore_retrieveObject(key);
 };
 
 function churchcore_openPopupWindow(url) {

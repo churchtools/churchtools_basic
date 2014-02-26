@@ -585,6 +585,9 @@ GroupView.prototype.getListHeader = function() {
     str=str+"<th>Teilnehmer";
     if (this.range_startday!=null)
       str=str+"<th>Hinzugef&uuml;gt<th>Herausgenommen";
+    else {
+      str=str+"<th>Mitglied-Status<th>Nicht Mitglied";      
+    }
   }
   str=str+"<th>Tags";    
   return str;
@@ -693,6 +696,23 @@ GroupView.prototype.renderListEntry = function(group) {
           }
         });
         rows.push('<td>'+count);
+      }
+      // Member or not
+      if (this_object.range_startday==null) {
+        var member=0;
+        var not_member=0;
+        $.each(allPersons,function(k,a) {
+          if (a.gruppe!=null) {
+            $.each(a.gruppe, function(i,b) {
+              if ((b.id==group.id) && (b.leiter==0)) {
+                if (masterData.status[a.status_id].mitglied_yn==1)
+                  member=member+1;
+                else not_member=not_member+1;    
+              }
+            });
+          }
+        });
+        rows.push("<td>"+member+"<td>"+not_member);
       }
     }
     

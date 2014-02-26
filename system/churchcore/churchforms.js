@@ -2120,14 +2120,14 @@ function Drafter(id, obj) {
   this.obj.id=id;
   if (this.obj.interval==null) this.obj.interval=5000;
   
-  var content_saves=localStorage.getObject(settings.user.id+"/"+this.obj.id);
+  var content_saves=churchcore_retrieveObject(settings.user.id+"/"+this.obj.id);
   if (content_saves!=null && content_saves!="") {
     var content_now=obj.getContent();
     if (content_now!=content_saves 
         && confirm("Ich habe noch einen offenen Text gefunden, soll ich diesen wiederherstellen?")) {
       this.obj.setContent(content_saves);
       this.obj.setStatus("Daten wiederhergestellt.");
-      localStorage.setObject(settings.user.id+"/"+this.obj.id, null);
+      churchcore_storeObject(settings.user.id+"/"+this.obj.id, null);
     }
   }
   this.activateTimer();
@@ -2140,7 +2140,7 @@ Drafter.prototype.activateTimer = function() {
     var content=t.obj.getContent();
     if (content!="") t.obj.setStatus("Speichere Daten...");
     else t.obj.setStatus("");
-    localStorage.setObject(settings.user.id+"/"+t.obj.id, content);
+    churchcore_storeObject(settings.user.id+"/"+t.obj.id, content);
     if (content!="") t.obj.setStatus("gespeichert");
     t.timer=null;
     t.activateTimer();
@@ -2151,7 +2151,7 @@ Drafter.prototype.activateTimer = function() {
  * Deactivate timer and delete draft
  */
 Drafter.prototype.clear = function() {
-  if (this.timer!=null) window.clearTimeout(this.timer);  
-  localStorage.setObject(settings.user.id+"/"+this.obj.id, null);
+  if (this.timer!=null) window.clearTimeout(this.timer); 
+  churchcore_storeObject(settings.user.id+"/"+this.obj.id, null);
 }; 
 

@@ -1,9 +1,14 @@
 (Legende: "+"=>Neues Feature  "-"=>Fehlerbehebung)
 
 + (CDB) Beim Gruppentreffen kann nun auch nachträglich das Datum geändert werden
++ (CDB) In der Gruppenliste wird nun bei Auswahl eines Gruppentypes Mitglied oder Nicht-Mitglied angezeigt
 + (CW) Man kann nun Kategorien verstecken und dann per Link direkt aufrufen.
++ (CS) Ablaufpläne können nun auch direkt aus dem Dienstplan gedruckt werden
++ (CS) Nun wählbar ob Kopieren und Integrieren von Ablaufplänen zu vorhandenen.
 + Austausch von "+" zu netteren Icons mit Hover-Funktion
 - (CDB) Kleiner Bug bei Auswahl von Personen behoben
+- (CDB) VCardExport für Mac optimiert
+- Zwischenspeichern nun kompatibel mit IE8
 
 churchtools 2.46
 + (CS) Zusagen und absagen auf der Startseite eleganter realisiert

@@ -575,18 +575,23 @@ function churchdb__vcard() {
   drupal_add_http_header('Content-Disposition','attachment; filename="vcard'.$id.'.vcf"',true);
   include_once("churchdb_db.inc");
 
-  $person = db_query("
+  $sql="
     SELECT  concat(
     'BEGIN:VCARD\n','VERSION:3.0\n',
 	'N:',name,';',vorname,'\n',
+    'NICKNAME:',spitzname,'\n',      
 	'EMAIL;TYPE=INTERNET:',email,'\n',
-	'TEL;TYPE=voice,privat:',telefonprivat,'\n',
-	'TEL;TYPE=voice,work:',telefongeschaeftlich,'\n',
-	'TEL;TYPE=voice,cell,pref:',telefonhandy,'\n',
-	'ADR;TYPE=intl,privat,postal:;',zusatz,';',strasse,';',ort,';;',plz,';',land,'\n',
-	if(geburtsdatum is null,'',concat('BDAY:',geburtsdatum,'\n')),
-	'END:VCARD'
-	) vcard FROM {cdb_person} p, {cdb_gemeindeperson} gp WHERE gp.person_id=p.id and p.id = ".$id)->fetch();
+	'TEL;type=HOME;type=VOICE:',telefonprivat,'\n',
+	'TEL;type=WORK;type=VOICE:',telefongeschaeftlich,'\n',
+	'TEL;type=CELL;type=VOICE;type=pref:',telefonhandy,'\n',";
+  
+  if (user_access("view alldetails", "churchdb"))
+    $sql.="'ADR;TYPE=HOME;type=pref:;',zusatz,';',strasse,';',ort,';;',plz,';',land,'\n',
+    if(geburtsdatum is null,'',concat('BDAY:',geburtsdatum,'\n')),";
+  $sql.="'END:VCARD'
+      ) vcard FROM {cdb_person} p, {cdb_gemeindeperson} gp WHERE gp.person_id=p.id and p.id = :id";
+    
+  $person = db_query($sql, array(":id"=>$id))->fetch();
   echo $person->vcard;
 }
   
