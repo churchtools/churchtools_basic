@@ -1735,6 +1735,11 @@ function run_db_updates($db_version) {
          NULL ,  '5',  '2',  'bereich_id',  'dep',  '1',  '0',  'Bereich',  'Bereich',  '<br/>', NULL , NULL , 1
       )");    
       
+    case '2.46':
+      set_version("2.47");
+      db_query("ALTER TABLE {cc_wikicategory} ADD in_menu_yn INT( 1 ) NOT NULL DEFAULT '1'");
+      
+      
   }
 	  
     $a=db_query("select * from {cc_config} where name='version'",null,false);

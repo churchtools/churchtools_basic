@@ -336,10 +336,17 @@ WikiView.prototype.renderNavi = function () {
     var navi = new CC_Navi();
     //navi.addEntry(currentPage.wikicategory_id==0,"alistview0","Standard");
     
+    var dabei=false;
     $.each(churchcore_sortMasterData(masterData.wikicategory), function(k,a) {
-      if (masterData.auth.view[a.id])
+      if (masterData.auth.view[a.id] && a.in_menu_yn==1) {
+        if (currentPage.wikicategory_id==a.id) dabei=true;
         navi.addEntry(currentPage.wikicategory_id==a.id,"alistview"+a.id,masterData.wikicategory[a.id].bezeichnung);
+      }
     });
+    if (!dabei && masterData.wikicategory[currentPage.wikicategory_id]!=null) 
+      navi.addEntry(true,"alistview"+currentPage.wikicategory_id,
+          masterData.wikicategory[currentPage.wikicategory_id].bezeichnung);
+    
     if (masterData.auth.admin)
       navi.addEntry(false, "editCategory", "Kategorien anpassen");
     navi.renderDiv("cdb_navi", churchcore_handyformat());
