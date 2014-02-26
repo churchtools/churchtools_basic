@@ -1692,7 +1692,6 @@ GroupView.prototype.renderEditEntry = function (id, fieldname) {
     auth.push("superleader");
   }
   if (this_object.isPersonLeaderOfGroup(masterData.user_pid, id)) {
-    auth.push("ViewAllDetailsOrPersonLeader");
     auth.push("leader");
   }
   

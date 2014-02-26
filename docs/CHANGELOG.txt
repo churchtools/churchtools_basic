@@ -1,6 +1,8 @@
 (Legende: "+"=>Neues Feature  "-"=>Fehlerbehebung)
 
++ (CDB) Beim Gruppentreffen kann nun auch nachträglich das Datum geändert werden
 + (CW) Man kann nun Kategorien verstecken und dann per Link direkt aufrufen.
++ Austausch von "+" zu netteren Icons mit Hover-Funktion
 - (CDB) Kleiner Bug bei Auswahl von Personen behoben
 
 churchtools 2.46

@@ -70,7 +70,7 @@ AuthView.prototype.renderEntryDetail= function(pos_id) {
             // Bietet noch die Möglichkeiten von Untergruppen, wie z.B. bei Kalender mit privaten, Gruppen und Öffentlich
             var sub_child_daten=new Object();        
   
-            $.each(masterData[masterData.auth_table[auth.id].datenfeld], function(h, datenfeld) {
+            $.each(churchcore_sortMasterData(masterData[masterData.auth_table[auth.id].datenfeld]), function(h, datenfeld) {
   
               var select=false;
               if ((masterData[t.currentDomain][pos_id]!=null) && (masterData[t.currentDomain][pos_id].auth!=null) 

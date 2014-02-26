@@ -503,14 +503,14 @@ WeekView.prototype.renderListEntry = function (a) {
     var _class="";
     if (d.toStringDe()==t.currentDate.toStringDe()) _class="active"
 
-    rows.push("<td valign=\"top\" class=\""+_class+"\"><p><small>");
+    rows.push("<td valign=\"top\" class=\"hoveractor "+_class+"\"><p><small>");
     bookings=this.getBookings(a.id, d);
     bookings=orderBookings(bookings);
     rows.push(renderBookings(bookings));
     
     rows.push("</small>");
     if ((masterData.auth.write) && (!this.printview))
-      rows.push("<a href=\"#"+d.toStringEn()+"\" id=\"new_"+a.id+"\">+</a>");
+      rows.push("<a href=\"#"+d.toStringEn()+"\" id=\"new_"+a.id+"\">"+form_renderImage({src:"plus.png", width:16, hover:true})+"</a>");
   }  
   return rows.join("");
 };

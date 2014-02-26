@@ -40,11 +40,12 @@ class CC_Field extends CC_HTMLElement {
   private $form;
   private $error=null;
   
-  public function __construct($form, $name, $class, $fieldType, $label) {
+  public function __construct($form, $name, $class, $fieldType, $label, $autofocus=false) {
     parent::__construct($name, $class);
     $this->form=$form;
     $this->fieldType=$fieldType;
     $this->label=$label;
+    $this->autofocus=$autofocus;
   }
   
   public function getLabel() {
@@ -116,6 +117,8 @@ class CC_Field extends CC_HTMLElement {
         
         if (isset($this->value)) $txt.=' value="'.$this->value.'" ';
         
+        if (isset($this->autofocus) && $this->autofocus) $txt.=' autofocus="autofocus"';
+        
         $txt.='/>';
       }
       
@@ -174,8 +177,8 @@ class CC_Model {
     $this->help_url=$help_url;
   }  
   
-  public function addField($name, $class, $fieldType, $label="") {
-    $field=new CC_Field($this, $name, $class, $fieldType, $label);
+  public function addField($name, $class, $fieldType, $label="", $autofocus=false) {
+    $field=new CC_Field($this, $name, $class, $fieldType, $label, $autofocus);
     if (!in_array($fieldType, $this->FieldTypes))
       echo("FieldTyp $fieldType nicht vorhanden!");
     $this->fields[$name]=$field;     

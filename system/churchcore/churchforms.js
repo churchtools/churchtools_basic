@@ -408,6 +408,11 @@ function form_renderInput (options) {
   if (options.htmlclass!=null) rows.push('class="'+options.htmlclass+'" ');
   if (options.maxlength!=null) rows.push('maxlength="'+options.maxlength+'" ');
   rows.push(disabled+' value="'+value+'"/>');  
+  
+  if (options.datepicker!=null) {
+    rows.push('<div id="'+options.datepicker+'" style="position:absolute;background:#e7eef4;z-index:12001;"/>');
+  }
+  
   if ((controlgroup) || (options.controlgroup_end!=null)) rows.push('</div></div>');
   return rows.join("");
 };

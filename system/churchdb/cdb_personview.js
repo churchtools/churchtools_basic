@@ -648,11 +648,13 @@ PersonView.prototype.editMeetingProperties = function(g_id, treffen_id) {
   var t=this;
   var meeting=t.getMeetingFromMeetingList(g_id, treffen_id);
   if (meeting!=null) {
-    var form=new CC_Form();       
+    var form=new CC_Form(null);       
+    form.addInput({label:"Datum",cssid:"inputmeetingdate", value:meeting.datumvon.toDateEn(false).toStringDe(), datepicker:"dp_meetingdate"});
+    form.addInput({label:"Uhrzeit",value:meeting.datumvon.toDateEn(true).toStringDeTime()});
     form.addInput({label:"Anzahl G&auml;ste", value:meeting.anzahl_gaeste, cssid:"anzahl_gaeste"});
     form.addTextarea({label:"Kommentar", rows:4, data:meeting.kommentar, placeholder:"Kommentar", cssid:"kommentar"});
     
-    var elem=form_showDialog("Treffen editieren", form.render(null, "vertical"), 300, 350, {
+    var elem=form_showDialog("Gruppentreffen editieren", form.render(null, "horizontal"), 500, 400, {
       "Speichern": function() {
         var obj=form.getAllValsAsObject();
         obj.func="GroupMeeting";
@@ -660,6 +662,10 @@ PersonView.prototype.editMeetingProperties = function(g_id, treffen_id) {
         obj.id=treffen_id;
         obj.g_id=g_id;
         var save=$.extend({}, meeting);
+        obj.datumvon=obj.inputmeetingdate.toDateDe().toStringEn(false)+" "+obj.Uhrzeit;
+        obj.datumbis=obj.datumvon;
+        meeting.datumvon=obj.datumvon
+        meeting.datumbis=obj.datumvon;        
         meeting.kommentar=obj.kommentar;
         meeting.anzahl_gaeste=obj.anzahl_gaeste;
         if (meeting.anzahl_gaeste=="") meeting.anzahl_gaeste=0;
@@ -678,6 +684,13 @@ PersonView.prototype.editMeetingProperties = function(g_id, treffen_id) {
         $(this).dialog("close");
       }
     });
+    $("#inputmeetingdate").click(function() {
+      form_implantDatePicker("dp_meetingdate", dt.toStringDe(), function(dateText) {    
+        $("#inputmeetingdate").val(dateText.toDateDe().toStringDe());
+      });
+    });
+    
+    
   }
   else alert("Treffen nicht gefunden!?");  
   
@@ -699,8 +712,7 @@ PersonView.prototype.addPersonsTooltip = function(element) {
 PersonView.prototype.addGroupMeetingDate = function() {
   var form=new CC_Form("Ein Gruppentreffen hinzuf&uuml;gen");
   var dt=new Date();
-  form.addInput({label:"Datum",cssid:"inputmeetingdate", value:dt.toStringDe(false)});
-  form.addHtml("<div id=\"dp_meetingdate\" style=\"position:absolute;background:#e7eef4;z-index:12001;\"/>");
+  form.addInput({label:"Datum",cssid:"inputmeetingdate", value:dt.toStringDe(false), datepicker:"dp_meetingdate"});
   form.addInput({label:"Uhrzeit",value:"10:00"});
   form.addHtml('<p><small>Hinweis: Dieses Gruppentreffen wird nur für diese Gruppe angelegt. ');
   form.addHtml('<a href="https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc:Gruppentreffen/" target="_clean"><i class="icon-question-sign"></i></a>');
@@ -2686,8 +2698,6 @@ PersonView.prototype.renderDetails = function (id) {
         autharr.push("leader");
       if (personSuperLeader)
         autharr.push("superleader");
-      if (personLeader || masterData.auth.viewalldetails)
-        autharr.push("ViewAllDetailsOrPersonLeader");
       
       _text=_text + t.renderFields(masterData.fields.f_address, a, masterData.auth.write || personLeader, autharr);
       
@@ -3412,8 +3422,6 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
       autharr.push("leader");
     if (t.isPersonSuperLeaderOfPerson(masterData.user_pid, id))
       autharr.push("superleader");
-    if (t.isPersonLeaderOfPerson(masterData.user_pid, id)|| masterData.auth.viewalldetails)
-      autharr.push("ViewAllDetailsOrPersonLeader");
     
     rows.push(this.getStandardFieldsAsSelect(fieldname, a, autharr));
     

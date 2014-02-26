@@ -582,6 +582,8 @@ function savePropertiesGroupMeetingStats($params) {
   $i->setParam("id");
   $i->setParam("anzahl_gaeste");
   $i->setParam("kommentar");
+  $i->setParam("datumvon");
+  $i->setParam("datumbis");
   $i->addModifiedParams();  
   
   $id=db_update("cdb_gruppentreffen")

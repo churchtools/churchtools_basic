@@ -16,7 +16,7 @@ function login_main() {
       addInfoMessage($config["login_message"], true);
     $model = new CC_Model("LoginForm", "prooveLogin", "Login");
     $model->setHeader(t("login.headline"), t("please.fill.following.fields"));    
-    $model->addField("email","", "INPUT_REQUIRED",t("email.or.username"));
+    $model->addField("email","", "INPUT_REQUIRED",t("email.or.username"), true);
     $model->addField("password","", "PASSWORD",t("password"));
     if ((!isset($config["show_remember_me"])) || ($config["show_remember_me"]==1)) 
       $model->addField("rememberMe","", "CHECKBOX",t("remember.me"));

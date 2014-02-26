@@ -1015,7 +1015,7 @@ ListView.prototype.renderListEntry = function(event) {
       var is_leader=false;
       if ((masterData.settings["viewgroup"+sg.id]==null) || (masterData.settings["viewgroup"+sg.id]==1)) {
         if ((masterData.auth.viewgroup[sg.id]) || (this_object.filter["filterMeine Filter"]==2)) {
-          rows.push('<td valign="top" class="service" data-servicegroup-id="'+sg.id+'" style="position:relative" width="'+width+'%">');
+          rows.push('<td valign="top" class="service hoveractor" data-servicegroup-id="'+sg.id+'" style="position:relative" width="'+width+'%">');
           $.each(masterData.service_sorted, function(i,s) {
             if (sg.id==s.servicegroup_id) {
               if (masterData.auth.leaderservice[s.id]==true) is_leader=true;
@@ -1037,7 +1037,8 @@ ListView.prototype.renderListEntry = function(event) {
                   || (masterData.auth.editgroup!=null && masterData.auth.editgroup[sg.id]) 
                   || _bin_ich_admin 
                   || is_leader) {
-            rows.push('<p><a href="#" id="addService" event_id="'+event.id+'" servicegroup_id="'+sg.id+'">+</a>');
+//            rows.push('<p><a href="#" id="addService" event_id="'+event.id+'" servicegroup_id="'+sg.id+'">'+form_renderImage({hover:true, src:"options.png", width:16})+'</a>');
+            rows.push('<p>'+form_renderImage({hover:true, htmlclass:"edit-service", src:"options.png", width:16, data:[{name:"servicegroup-id", value:sg.id}, {name:"event-id", value:event.id}], link:true}));
             _soll_zeigen=true;
           }
         }
@@ -2726,9 +2727,6 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
     else if (cssid.indexOf("edit_es_")==0) {
       t.renderEditEventService(cssid.substr(8,99),$(this).attr("eventservice_id"));      
     }
-    else if (cssid.indexOf("addService")==0) {
-      t.renderAddServiceToServicegroup(allEvents[$(this).attr("event_id")], $(this).attr("servicegroup_id"), masterData.user_pid);
-    }
     else if (cssid.indexOf("addMoreCols")==0) {
       t.addMoreCols();
     }
@@ -2738,6 +2736,9 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
       churchInterface.jsendWrite({func:"saveSetting", sub:"viewgroup"+id, val:0});
       t.renderList();
     }
+  });
+  $(cssid+" a.edit-service").click(function() {
+    t.renderAddServiceToServicegroup(allEvents[$(this).attr("data-event-id")], $(this).attr("data-servicegroup-id"), masterData.user_pid);
   });
   
   $('#ical_abo').click(function() {

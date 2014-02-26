@@ -1738,7 +1738,7 @@ function run_db_updates($db_version) {
     case '2.46':
       set_version("2.47");
       db_query("ALTER TABLE {cc_wikicategory} ADD in_menu_yn INT( 1 ) NOT NULL DEFAULT '1'");
-      
+      db_query("UPDATE {cdb_feld} set autorisierung='viewalldetails || leader' where autorisierung='ViewAllDetailsOrPersonLeader'");      
       
   }
 	  

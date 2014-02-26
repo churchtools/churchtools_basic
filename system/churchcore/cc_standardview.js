@@ -556,10 +556,10 @@ StandardTableView.prototype.addTableContentCallbacks = function(cssid) {
   $(".hoveractor").off("hover");
   $(".hoveractor").hover(
       function () {
-        $(this).children("span.hoverreactor").fadeIn('fast',function() {});
+        $(this).find("span.hoverreactor").fadeIn('fast',function() {});
       }, 
       function () {
-        $(this).children("span.hoverreactor").fadeOut('fast');
+        $(this).find("span.hoverreactor").fadeOut('fast');
       }
     );  
   this.addFurtherListCallbacks(cssid);

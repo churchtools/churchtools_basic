@@ -95,11 +95,7 @@ function churchdb_getPersonDetails($id) {
     $ret=false;
     foreach(explode("||", $auto) as $auth) {
       $auth=trim($auth);
-      if ($auth=="ViewAllDetailsOrPersonLeader") {
-        if (user_access('view address',"churchdb") || ($iAmLeader) || (user_access('view alldetails',"churchdb")))
-          $ret=true;
-      }
-      else if ($auth=="admin") {
+      if ($auth=="admin") {
         if (user_access('edit masterdata',"churchdb")) $ret=true;
       }
       else if ($auth=="viewalldetails") {
@@ -267,14 +263,11 @@ global $user;
   
   $person_id=null;
   if ($fields["tablename"]=="cdb_person" || $fields["tablename"]=="cdb_gemeindeperson") {
-    $auth["ViewAddressOrViewAllDetailsOrPersonLeader"]=true; //deprecated!!
     if (churchdb_isPersonSuperLeaderOfPerson($user->id, $primary_key)) {
-      $auth["ViewAllDetailsOrPersonLeader"]=true; //deprecated!!
       $auth["leader"]=true;
       $auth["superleader"]=true;
     }
     else if (churchdb_isPersonLeaderOfPerson($user->id, $primary_key)) {
-      $auth["ViewAllDetailsOrPersonLeader"]=true; //deprecated!!
       $auth["leader"]=true;
     }
   } 
@@ -293,10 +286,6 @@ global $user;
     
   }
   
-  if (isset($auth["viewalldetails"])) { 
-    $auth["ViewAllDetailsOrPersonLeader"]=true;  //deprecated!!
-  }
-    
   $sql="UPDATE {".$fields["tablename"]."} SET ";
   foreach ($data_arr as $key=>$param) {
   	if (isset($fields["fields"][$key])) { 
