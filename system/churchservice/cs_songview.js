@@ -5,6 +5,8 @@ function SongView() {
   this.songsLoaded=false;
   this.allDataLoaded=false;
   this.sortVariable="bezeichnung";
+  this.availableRowCounts=[10,25,50,200];
+
 }
 
 Temp.prototype = ListView.prototype;

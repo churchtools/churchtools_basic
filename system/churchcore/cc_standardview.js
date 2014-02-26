@@ -13,6 +13,7 @@ function StandardTableView(options) {
   this.furtherFilterVisible=false;
   this.listOffset=0;
   this.sortVariable="id";
+  this.availableRowCounts=[10, 25, 50, 200];
 
   // Number of entries currently visible
   this.counter=0;
@@ -379,10 +380,9 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
         if (t.showPaging) {    
           if (!churchcore_handyformat()) {
             rows.push("&nbsp; &nbsp; &nbsp; &nbsp;(Zeilenanzahl: ");
-            rows.push('<a href="#" class="changemaxrow" data-id="10">10</a>&nbsp;|&nbsp;');
-            rows.push('<a href="#" class="changemaxrow" data-id="25">25</a>&nbsp;|&nbsp;');
-            rows.push('<a href="#" class="changemaxrow" data-id="50">50</a>&nbsp;|&nbsp;');
-            rows.push('<a href="#" class="changemaxrow" data-id="200">200</a>)');
+            $.each(t.availableRowCounts, function(i,k) {
+              rows.push('<a href="#" class="changemaxrow" data-id="'+k+'">'+k+'</a>&nbsp;|&nbsp;');              
+            });
           }
           rows.push("&nbsp; &nbsp; &nbsp; ");
           if ((masterData.settings["listMaxRows"+t.name]<=20) || (t.counter<=20))

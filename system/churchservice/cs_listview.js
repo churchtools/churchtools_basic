@@ -10,6 +10,7 @@ function ListView(options) {
   this.allDataLoaded=false;
   this.renderTimer=null;
   this.serviceGroupPersonWeight=null;
+  this.availableRowCounts=[3,10,25];
 }
 
 Temp.prototype = StandardTableView.prototype;
@@ -1113,7 +1114,9 @@ ListView.prototype.getListHeader = function() {
   var this_object=this;
   $("#cdb_group").html("");
   currentTooltip=null;
-
+  
+  if (masterData.settings.listMaxRowsListView>25)
+    masterData.settings.listMaxRowsListView=25;
 
   if (masterData.settings.listViewTableHeight==null) masterData.settings.listViewTableHeight=1;
   if ($("#printview").val()!=null)
