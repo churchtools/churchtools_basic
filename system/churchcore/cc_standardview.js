@@ -13,6 +13,9 @@ function StandardTableView(options) {
   this.furtherFilterVisible=false;
   this.listOffset=0;
   this.sortVariable="id";
+
+  // Number of entries currently visible
+  this.counter=0;
   // Der letzte gešffnet Eintrag, wird gemerkt, damit er nach einem renderList()
   // auch wieder angezeigt wird.
   
@@ -327,17 +330,17 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
         }
         
         rows.push('<tbody>');
-        var counter = 0; 
+        t.counter = 0; 
         var lastGrouping=null;
         
         $.each(listObject, function(k, entry) {
           if ((entry!=null) && (t.checkFilter(entry))) {
-            counter++;
-            if ((counter>=t.listOffset) && (counter<=masterData.settings["listMaxRows"+t.name]+t.listOffset)) {
+            t.counter++;
+            if ((t.counter>=t.listOffset) && (t.counter<=masterData.settings["listMaxRows"+t.name]+t.listOffset)) {
   
               entry_txt=t.renderListEntry(entry);
               if (entry_txt==null) 
-                counter--;
+                t.counter--;
               else {
                 var r = t.groupingFunction(entry);
                 if (r!=lastGrouping) {
@@ -351,7 +354,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
                 rows.push(">");
                 
                 if (t.rowNumbering && lastGrouping==null)
-                  rows.push("<td><a href=\"\" id=\"detail" + entry.id + "\">" + counter + "</a>");         
+                  rows.push("<td><a href=\"\" id=\"detail" + entry.id + "\">" + t.counter + "</a>");         
                 rows.push(entry_txt);
                 
                 current_id = entry.id;
@@ -366,12 +369,12 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
   
         rows.push('<table class="table table-bordered table-condensed"><tr><td>');
         
-        if (counter>=masterData.settings["listMaxRows"+t.name]) {
-          rows[rows.length] = "Zeige "+masterData.settings["listMaxRows"+t.name]+" von "+counter+" gefundenen Eintr&auml;gen";
+        if (t.counter>=masterData.settings["listMaxRows"+t.name]) {
+          rows[rows.length] = "Zeige "+masterData.settings["listMaxRows"+t.name]+" von "+t.counter+" gefundenen Eintr&auml;gen";
           rows.push("&nbsp; &nbsp; &nbsp;Bl&auml;ttern: <a id=\"offset0\" href=\"#\"><<</a>&nbsp;|&nbsp;<a id=\"offsetMinus\" href=\"#\"><</a>&nbsp;|&nbsp;<a id=\"offsetPlus\" href=\"#\">></a>");
         }  
         else 
-          rows[rows.length] = "Zeige "+counter+" gefundene Eintr&auml;ge";
+          rows[rows.length] = "Zeige "+t.counter+" gefundene Eintr&auml;ge";
   
         if (t.showPaging) {    
           if (!churchcore_handyformat()) {
@@ -382,7 +385,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
             rows.push('<a href="#" class="changemaxrow" data-id="200">200</a>)');
           }
           rows.push("&nbsp; &nbsp; &nbsp; ");
-          if ((masterData.settings["listMaxRows"+t.name]<=20) || (counter<=20))
+          if ((masterData.settings["listMaxRows"+t.name]<=20) || (t.counter<=20))
             rows.push("&nbsp;<a href=\"#\" id=\"showAll\">alle &ouml;ffnen</a>");
           rows.push("&nbsp; &nbsp; <a href=\"#\" id=\"hideAll\">alle schlie&szlig;en</a>");
         }
@@ -398,7 +401,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
       
       calcHeaderWidth(current_id);
   
-      //if (counter==1) {
+      //if (t.counter==1) {
         // Entry anzeigen, wenn alles geladen ist, sonst lŠdt er die Detaildaten auch noch, obwohl spŠter vielleicht noch
         // mehr Leute kommen, die passend kšnnten. Au§er es ist eine Id, da wird es nur einen geben
        // if (t.filter["searchEntry"]>0)
@@ -406,33 +409,6 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
       //}  
     
       // Callbacks auf die Header und Footer der Tabelle
-      $("#cdb_content input.checked").click(function (_content_input) {
-        var s=$(this).attr("id");
-        if (s=="markAll") {
-          if ((counter>=masterData.settings["listMaxRows"+t.name]) && (confirm("Es sind mehr Eintraege vorhanden, als momentan angezeigt. Sollen alle Eintraege markiert werden?"))) {
-            bol=$(this).is(":checked");
-            $.each(listObject, function(k,a) {
-              if ((a!=null) && (t.checkFilter(a))) {
-                a.checked=bol;
-              }  
-            });
-          }  
-  
-          if ($(this).is(":checked")) {          
-            $("#cdb_content input.checked").not("#markAll").each(function(a) {
-              $(this).attr("checked","true");
-              t.getData(false)[$(this).attr("id").substr(5,99)]["checked"]=true;
-            });  
-          }  
-          else {   
-            $("#cdb_content input.checked").not("#markAll").each(function(a) {
-              $(this).removeAttr("checked");
-              t.getData(false)[$(this).attr("id").substr(5,99)]["checked"]=false;
-            }); 
-          }
-        }  
-        else t.getData(false)[$(this).attr("id").substr(5,99)]["checked"]=$(this).is(":checked");
-      });
       $("#cdb_content a").click(function (_content_a) {
         if ($(this).attr("id")=="orderby") loadList("","",$(this).attr("href"));
         else if ($(this).attr("id")=="offset0") {
@@ -482,7 +458,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
       if (listObject!=null)
       $.each(listObject, function(k, entry) {
         if ((entry!=null) && (t.checkFilter(entry))) 
-          if ((entry.open) || (counter==1)) t.renderEntryDetail(entry.id);
+          if ((entry.open) || (t.counter==1)) t.renderEntryDetail(entry.id);
       });
       
       if (debug) t.endTimer("renderTablecallback");
@@ -532,19 +508,48 @@ StandardTableView.prototype.entryDetailClick = function(id) {
 };
 
 StandardTableView.prototype.addTableContentCallbacks = function(cssid) {
-  var this_object=this;
+  var t=this;
+  
+  $(cssid+" input.checked").click(function (_content_input) {
+    var s=$(this).attr("id");
+    if (s=="markAll") {
+      if ((t.counter>=masterData.settings["listMaxRows"+t.name]) && (confirm("Es sind mehr Eintraege vorhanden, als momentan angezeigt. Sollen alle Eintraege markiert werden?"))) {
+        bol=$(this).is(":checked");
+        $.each(listObject, function(k,a) {
+          if ((a!=null) && (t.checkFilter(a))) {
+            a.checked=bol;
+          }  
+        });
+      }  
+
+      if ($(this).is(":checked")) {          
+        $("#cdb_content input.checked").not("#markAll").each(function(a) {
+          $(this).attr("checked","true");
+          t.getData(false)[$(this).attr("id").substr(5,99)]["checked"]=true;
+        });  
+      }  
+      else {   
+        $("#cdb_content input.checked").not("#markAll").each(function(a) {
+          $(this).removeAttr("checked");
+          t.getData(false)[$(this).attr("id").substr(5,99)]["checked"]=false;
+        }); 
+      }
+    }  
+    else t.getData(false)[$(this).attr("id").substr(5,99)]["checked"]=$(this).is(":checked");
+  });
+  
   $(cssid+" a").click(function (_content_a) {
     if ($(this).attr("id")==null)
       return true;
     else if ($(this).attr("id").indexOf("detail")==0) {
       var id = $(this).attr("id").substr(6,99);
-      this_object.entryDetailClick(id);
+      t.entryDetailClick(id);
     }
     else if ($(this).attr("id")=="mailto") return true;
     else if ($(this).attr("id")=="extern") return true;
     else if ($(this).attr("id").indexOf("sort")==0) {
-      this_object.sortVariable=$(this).attr("id").substr(4,99);
-      this_object.renderList();
+      t.sortVariable=$(this).attr("id").substr(4,99);
+      t.renderList();
     }
     return false;
   });

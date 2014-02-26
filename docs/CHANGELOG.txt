@@ -1,5 +1,8 @@
 (Legende: "+"=>Neues Feature  "-"=>Fehlerbehebung)
 
++ (CW) Man kann nun Kategorien verstecken und dann per Link direkt aufrufen.
+- (CDB) Kleiner Bug bei Auswahl von Personen behoben
+
 churchtools 2.46
 + (CS) Zusagen und absagen auf der Startseite eleganter realisiert
 + (CS) Beim Export von Fakten kann nun Zeitraum gewŠhlt werden.

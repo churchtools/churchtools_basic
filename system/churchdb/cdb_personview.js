@@ -874,27 +874,27 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
       window.setTimeout(function() { $(document).scrollTop(pos);}, 10);
       return false;
     });
-  }
   
-  // Auswahl des Gruppentyps fuer die Spalte Gruppe
-  $("#cdb_content select").change(function(c) {
-    if (this.id=="filterGruppentyp") {
-      var oldval=masterData.settings.selectedGroupType;
-      masterData.settings.selectedGroupType=$(this).val();
-      churchInterface.jsendWrite({func:"saveSetting", sub:"selectedGroupType", val:$(this).val()});
-      if ((masterData.settings.selectedGroupType==-4) && (t.filter['filterMeine Gruppen']==null)) {
-        alert('Bitte erst eine Gruppe unter "Meine Filter" einstellen');
-        masterData.settings.selectedGroupType=oldval;
+    // Auswahl des Gruppentyps fuer die Spalte Gruppe
+    $("#cdb_content select").change(function(c) {
+      if (this.id=="filterGruppentyp") {
+        var oldval=masterData.settings.selectedGroupType;
+        masterData.settings.selectedGroupType=$(this).val();
+        churchInterface.jsendWrite({func:"saveSetting", sub:"selectedGroupType", val:$(this).val()});
+        if ((masterData.settings.selectedGroupType==-4) && (t.filter['filterMeine Gruppen']==null)) {
+          alert('Bitte erst eine Gruppe unter "Meine Filter" einstellen');
+          masterData.settings.selectedGroupType=oldval;
+        }
+        else 
+          t.renderGroupEntry();
+        t.renderList();
       }
-      else 
-        t.renderGroupEntry();
-      t.renderList();
-    }
-    else if (this.id=="personFunction") {
-      t.personFunction(this.value);
-      $(this).val(-1);
-    }
-  });   
+      else if (this.id=="personFunction") {
+        t.personFunction(this.value);
+        $(this).val(-1);
+      }
+    });
+  }
 };
 
 /**

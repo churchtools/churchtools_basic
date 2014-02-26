@@ -92,6 +92,8 @@ function churchdb_getAllowedPersonData($cond='',
     $p=db_query("select $fields from {cdb_gemeindeperson} gp, {cdb_person} p 
                  where gp.person_id=p.id and p.id=:p_id", array(":p_id"=>$user->id), false)->fetch();
     if ($p!=false) {
+      if (isset($deps[$p->p_id])) $p->access=$deps[$p->p_id];
+      if (isset($arr_grps[$p->gp_id])) $p->groups=$arr_grps[$p->gp_id];
       $allPersons[$user->id]=$p; 
     }    
   }
