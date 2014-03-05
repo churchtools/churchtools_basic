@@ -80,5 +80,7 @@
   <entry key="sender">Sender</entry>
   <entry key="subject">Subject</entry>
   <entry key="read">Read</entry>
+
+  <entry key="service">Dienst</entry>
 	  
 </properties>

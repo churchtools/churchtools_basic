@@ -2116,12 +2116,28 @@ ListView.prototype.renderTooltip = function(id, event_id, withLastDates, withHis
   if (txt!="") {
     var title=masterData.service[a.service_id].bezeichnung;
     if (masterData.service[a.service_id].notiz!="")
-      title=title+' <small> ('+masterData.service[a.service_id].notiz+")</small></p>";
+      title=title+' <small> ('+masterData.service[a.service_id].notiz+")</small>";
+
+    var abonniert=false;
+    if (getNotification("service", a.service_id)!==false) {
+      abonniert=true;      
+    }
+    title=title+'&nbsp; <span class="label '+(abonniert?"label-info":"")+'">';
+    title=title+'<a href="#" class="edit-notification" data-domain-type="service" data-domain-id="'+a.service_id+'" '+'>'
+      +(abonniert?"abonniert":"abonnieren")+'</a></span>';
+    
     txt='<div style="min-width:250px; max-width:300px;">'+txt+'</div>';
     return [txt,title];
   }
   return null;
 };
+
+function getNotification(domain_type, domain_id) {
+  if (masterData.notification[domain_type]==null) return false;
+  if (masterData.notification[domain_type][domain_id]==null) return false;
+  return masterData.notification[domain_type][domain_id];  
+}
+
 
 ListView.prototype.countActiveServices = function(event, service_id) {
   var count=0;
@@ -2241,7 +2257,8 @@ ListView.prototype.editService = function(service_id, sg_id) {
 
 ListView.prototype.renderAddServiceToServicegroup = function(event, sg_id, user_pid) {
   var rows=new Array();
-  rows.push('<div id="in_edit"><table class="table table-condensed"><tr><th><input type="checkbox" id="cb_enableAll"/><th>Service');
+  rows.push('<div id="in_edit"><table class="table table-condensed">');
+  rows.push('<tr><th><input type="checkbox" id="cb_enableAll"/><th>Service');
   if ((masterData.auth.editgroup!=null) && (masterData.auth.editgroup[sg_id])) {
     rows.push('<th width="25px">');
   }
@@ -2257,12 +2274,12 @@ ListView.prototype.renderAddServiceToServicegroup = function(event, sg_id, user_
     
   });
   if ((masterData.auth.editgroup!=null) && (masterData.auth.editgroup[sg_id])) {
-    rows.push('<tr><td><td><i><a href="#" class="newService">Neuen Service erstellen</a></i><td><td>'
+    rows.push('<tr><td><td><i><a href="#" class="newService">Neuen Service erstellen</a></i><td>'
         +form_renderImage({cssid:"addService", src:"plus.png", width:20}));
   }
   rows.push("</table></div>");
   
-  var elem = this.showDialog("Service zum Event hinzufügen oder entfernen", rows.join(""), 600, 580, {
+  var elem = this.showDialog("Service zum Event hinzufügen oder entfernen", rows.join(""), 450, 500, {
       "Speichern": function() {
         obj=new Object();
         auto=new Array();
@@ -2673,6 +2690,11 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
       },
       
       afterRender: function(element, data) {
+        element.find("a.edit-notification").click(function() {
+          clearTooltip();
+          t.editNotification($(this).attr("data-domain-type"), $(this).attr("data-domain-id"));
+          return false;
+        });
         element.find("a.simulate-person").click(function() {
           window.location.href="?q=simulate&id="+$(this).attr("data-id")+"&location=churchservice";
           return false;
@@ -2749,8 +2771,81 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
     ical_abo();
     return false;
   });
+};
+
+ListView.prototype.editNotification = function(domain_type, domain_id) {
+  var t=this;
   
+  var form = new CC_Form();
+  var value=null;
+  if (domain_id!=null && getNotification(domain_type, domain_id)!==false) 
+    value=getNotification(domain_type, domain_id);
   
+  if (domain_id!=null && value==null) {
+    form.addHtml('<legend>Neues Abo f&uuml;r '+masterData[domain_type][domain_id].bezeichnung+'</legend>');
+    form.addSelect({label:"Wann soll bei Neuigkeiten f&uuml;r <b>"+masterData[domain_type][domain_id].bezeichnung+"</b> benachrichtigt werden?",
+           data:masterData.notificationtype, type:"medium", controlgroup:false, htmlclass:"new-notificationtype", selected:value, freeoption:true});
+    form.addHtml('<p><p>');
+  }
+  
+  if (masterData.notification[domain_type]!=null) {
+    form.addHtml('<legend>Vorhandene Abonnements</legend>');
+    form.addHtml('<table class="table table-condensed"><tr><th style="min-width:60px">Abo<th style="min-width:60px">Notiz<th>Wie oft?<th width="22px">');
+    $.each(masterData.notification[domain_type], function(k,a) {
+      form.addHtml('<tr data-id="'+k+'"><td>'+masterData[domain_type][k].bezeichnung+'<td>');
+      if (masterData[domain_type][k].notiz!=null)
+        form.addHtml('<small>'+masterData[domain_type][k].notiz+'</small>');        
+      form.addHtml('<td>');
+      form.addSelect({data:masterData.notificationtype, type:"medium", htmlclass:"edit-notificationtype", 
+        selected:a.notificationtype_id, controlgroup:false});
+      form.addHtml('<td>');
+      form.addImage({src:"trashbox.png", width:20, htmlclass:"delete-notification", link:true});
+    });
+  }
+  
+  var elem=form_showDialog("Abonnement bearbeiten",form.render(null, "vertical"), 460,500, {
+    "Schliessen": function() {
+      $(this).dialog("close");
+    }
+  });
+  
+  elem.find('select.new-notificationtype').change(function() {
+    if ($(this).val()!="") {
+      var notificationtype_id=$(this).val();
+      if (masterData.notification[domain_type]==null)
+        masterData.notification[domain_type]=new Object();
+      masterData.notification[domain_type][domain_id]={notificationtype_id:notificationtype_id, lastsenddate:null};
+      elem.dialog("close");
+      t.editNotification(domain_type, domain_id);        
+      churchInterface.jsendWrite({func:"editNotification", domain_type:domain_type, domain_id:domain_id, 
+           notificationtype_id:notificationtype_id}, function(ok, data) {
+        if (!ok) alert("Fehler aufgetreten: "+data);
+      });
+    }
+  });  
+  elem.find('select.edit-notificationtype').change(function() {
+    if ($(this).val()!="") {
+      var notificationtype_id=$(this).val();
+      var domain_id=$(this).parents("tr").attr("data-id");
+      masterData.notification[domain_type][domain_id]={notificationtype_id:notificationtype_id, lastsenddate:null};
+      elem.dialog("close");
+      t.editNotification(domain_type);
+      churchInterface.jsendWrite({func:"editNotification", domain_type:domain_type, domain_id:domain_id, 
+        notificationtype_id:notificationtype_id}, function(ok, data) {
+        if (!ok) alert("Fehler aufgetreten: "+data);
+      });
+    }
+  });  
+  elem.find('a.delete-notification').click(function() {
+    var domain_id=$(this).parents("tr").attr("data-id");
+    delete masterData.notification[domain_type][domain_id];
+    elem.dialog("close");
+    t.editNotification(domain_type);
+    churchInterface.jsendWrite({func:"editNotification", domain_type:domain_type, domain_id:domain_id}, function(ok, data) {
+      if (!ok) alert("Fehler aufgetreten: "+data);
+    });
+    return false;
+  });
 };
 
 function ical_abo() {

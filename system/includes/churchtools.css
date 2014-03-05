@@ -31,6 +31,10 @@ p small {
 	color:#999;
 }
 
+span.label a {
+  color:white;
+}
+
 .input-xmini {
   width: 40px;
 }

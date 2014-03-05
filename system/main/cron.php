@@ -12,6 +12,7 @@ function do_cron() {
         $arr=call_user_func($key."_cron");
     }
   } 
+  ct_sendPendingNotifications();
 }
 
 

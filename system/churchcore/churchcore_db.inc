@@ -153,6 +153,43 @@ abstract class CTAbstractModule implements CTModuleInterface {
     return churchcore_getUserSettings($this->modulename,$user->id); 
   }  
   
+  public function editNotification($params) {
+    global $user;
+    if (empty($params["person_id"]))
+      $params["person_id"]=$user->id;
+    
+    $i = new CTInterface();
+    $i->setParam("domain_type");
+    $i->setParam("domain_id");
+    $i->setParam("person_id");
+    $i->setParam("notificationtype_id", false);
+    
+    // Delete when abotype is not set
+    if (empty($params["notificationtype_id"])) {
+      db_delete("cc_notification")
+      ->fields($i->getDBInsertArrayFromParams($params))
+      ->condition("domain_type", $params["domain_type"], "=")
+      ->condition("domain_id", $params["domain_id"], "=")
+      ->condition("person_id", $user->id, "=")
+      ->execute(false);
+    }
+    else {
+      try {
+        db_insert("cc_notification")
+          ->fields($i->getDBInsertArrayFromParams($params))
+          ->execute(false);
+      }
+      catch (Exception $e) {
+        db_update("cc_notification")
+          ->fields($i->getDBInsertArrayFromParams($params))
+          ->condition("domain_type", $params["domain_type"], "=")
+          ->condition("domain_id", $params["domain_id"], "=")
+          ->condition("person_id", $user->id, "=")
+          ->execute(false);
+      }
+    }
+  }  
+  
   protected function getMasterDataTables() {
     $tables=$this->getMasterDataTablenames();
     foreach ($tables as $value) {
@@ -166,6 +203,10 @@ abstract class CTAbstractModule implements CTModuleInterface {
     $perm=user_access($auth, $modulename);
     if ((!$perm) || ($datafield!=null && !isset($perm[$datafield])))
       throw new CTNoPermission($auth, $modulename);
+  }
+  
+  public function notify($domain_type, $domain_id, $txt, $loglevel=2) {
+    ct_notify($domain_type, $domain_id, $txt, $loglevel=2);
   }
   
   public function log($params, $loglevel=2) {
@@ -184,7 +225,79 @@ abstract class CTAbstractModule implements CTModuleInterface {
   public function getMasterDataTablenames() {
     return null;
   }
+    
 }
+
+function ct_notify($domain_type, $domain_id, $txt, $loglevel=2) {
+  global $user;
+  ct_log($txt, $loglevel, $domain_id, $domain_type); 
+  
+  $notify=db_query('select * from {cc_notification} n, {cc_notificationtype} nt 
+             where n.notificationtype_id=nt.id and n.person_id=:p_id 
+              and n.domain_id=:domain_id and n.domain_type=:domain_type
+              and nt.delay_hours=0',
+         array(':p_id'=>$user->id, ":domain_id"=>$domain_id, ":domain_type"=>$domain_type))->fetch();
+  if ($notify!==false) {
+    ct_sendPendingNotifications(0); 
+  }  
+}
+
+/**
+ * Send pending notifications. 
+ * @param string $max_delayhours, can be null for all. 
+ */
+function ct_sendPendingNotifications($max_delayhours=null) {
+  $nts=churchcore_getTableData("cc_notificationtype", "delay_hours", 
+       ($max_delayhours!=null?"delay_hours<=$max_delayhours":""));
+  
+  foreach ($nts as $nt) {
+    // Check if there a pending notifications for a person and domain_type  
+    $personANDtypes=db_query('select n.person_id, n.domain_type from {cc_notification} n
+             where n.notificationtype_id=:nt_id and (lastsenddate is null or
+                    (time_to_sec(timediff(now(), lastsenddate)) / 3600)>:delay_hours)
+                  group by n.person_id, n.domain_type',
+            array(':nt_id'=>$nt->id, ':delay_hours'=>$nt->delay_hours));
+
+    // Now collect all notifications in this type for each person and domain_type
+    foreach ($personANDtypes as $personANDtype) {
+      $notis=db_query('select * from {cc_notification} n 
+                where n.person_id=:person_id and n.notificationtype_id=:nt_id and n.domain_type=:dt_id',
+              array(':person_id'=>$personANDtype->person_id, 
+                    ':nt_id'=>$nt->id, 
+                    ':dt_id'=>$personANDtype->domain_type));
+      
+      $msg="";
+      
+      // Now get all logs for each notification after each lastsenddate
+      foreach ($notis as $noti) {
+        $logs=db_query("select l.txt, DATE_FORMAT(datum, '%e.%c.%Y %H:%i') date from {cdb_log} l where domain_type=:domain_type and domain_id=:domain_id
+          and (:lastsenddate is null or time_to_sec(timediff(datum, :lastsenddate))>0) order by datum desc",
+          array(":domain_type"=>$personANDtype->domain_type, ":domain_id"=>$noti->domain_id, ":lastsenddate"=>$noti->lastsenddate));
+        foreach($logs as $log) {
+          $msg.="<li>$log->date - <i>$log->txt</i>";
+        }                        
+      }    
+      if ($msg!="") {
+        $p=churchcore_getUserById($personANDtype->person_id);
+        if ($p!=null && $p->email!="") {
+          $msg="<h3>Hallo $p->vorname!</h3>".
+               "<p>Hier Deine neuen Benachrichtigungen f&uuml;r ".t($personANDtype->domain_type).":</p>".
+               "<ul>$msg</ul>".
+               "<p><p><small>Einstellung f&uuml;r Versand: $nt->bezeichnung</small>";
+          churchcore_systemmail($p->email, "[".variable_get('site_name')."] Neue Abonnement-Benachrichtigung (".t($personANDtype->domain_type).")", $msg, true);
+          }
+      }
+      
+      // Now mark notification with current send date
+      $notis=db_query('update {cc_notification} n set lastsenddate=now()
+                where n.person_id=:person_id and n.notificationtype_id=:nt_id and n.domain_type=:dt_id',
+              array(':person_id'=>$personANDtype->person_id, 
+                    ':nt_id'=>$nt->id, 
+                    ':dt_id'=>$personANDtype->domain_type));
+    }    
+  }  
+}
+
 
 function makeParamsLoggable($params) {
   $my=array();
@@ -1151,6 +1264,15 @@ function churchcore_getPersonById($id) {
   return $res;  
 }
 
+
+function churchcore_getUserById($id) {
+  $p=db_query("select * from {cdb_person} p where id=:id", array(":id"=>$id))->fetch();
+  if ($p!==false)
+    return $p;
+  else return null;  
+}
+
+
 /**
  * 
  * @param unknown_type $CMSID
@@ -1231,6 +1353,32 @@ function _churchcore_savePidUserSetting($modulename, $pid, $attrib, $val) {
   else   
     db_query("update {cc_usersettings} set value=:val where modulename='$modulename' and person_id=$pid and attrib='$attrib'",
             array (":val"=>$val));    
+}
+
+/**
+ * Notifications for mailing by updates
+ * Optional parameters are $domain_type, $domain_id and $person_id
+ */
+function churchcore_getMyNotifications() {
+  global $user;
+  
+  $db=db_query("select id, notificationtype_id, domain_id, domain_type, lastsenddate from {cc_notification} where person_id=:p_id", array(":p_id"=>$user->id));
+  $abos=array();
+  foreach ($db as $abo) {
+    if (!isset($abos[$abo->domain_type]))
+      $domaintype=array();
+    else $domaintype=$abos[$abo->domain_type];
+    if (!isset($domaintype[$abo->domain_id]))
+      $domain_id=array();
+    else $domain_id=$domaintype[$abo->domain_id];
+
+    $domain_id["notificationtype_id"]=$abo->notificationtype_id;
+    $domain_id["lastsenddate"]=$abo->lastsenddate;
+
+    $domaintype[$abo->domain_id]=$domain_id;
+    $abos[$abo->domain_type]=$domaintype;
+  }
+  return $abos;
 }
 
 /**
@@ -1891,7 +2039,7 @@ function db_query($sql, $params=null, $print_error=true) {
     else throw new SQLException($err[2]."\nGesamtes SQL: ".$sql);
     return false;
   }
-  $d = new db_accessor($res, $params, $sql);
+  $d = new db_accessor($res, $params, $sql, $print_error);
   return $d;
 }
 
@@ -1900,15 +2048,19 @@ function db_query($sql, $params=null, $print_error=true) {
 class db_accessor implements Iterator {
   private $res=null;
   private $current=null;
+  private $print_error=false;
 
-  public function __construct($_res, $params = null, $sql = null) {
+  public function __construct($_res, $params = null, $sql = null, $print_error=false) {
     $this->res = $_res;
+    $this->print_error = $print_error;
     if (!$this->res instanceof PDOStatement) {
       return null;
     }
     if (!$this->res->execute($params)) {
       $err = $this->res->errorInfo();
-      throw new SQLException($err[2]."\nSQL: $sql\n".print_r($params, true));
+      if (!$this->print_error)
+        throw new SQLException($err[2]."\nSQL: $sql\n".print_r($params, true));
+      else echo "<p>".$err[2]."\nSQL: $sql\n".print_r($params, true);
     }
     $this->next();
   }    

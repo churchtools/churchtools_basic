@@ -469,52 +469,55 @@ function churchservice_updateEventService($params) {
       ->fields(array("valid_yn"=>0))
       ->condition("id",$id,"=")
       ->execute();
+  }
 
-    include_once("system/churchcore/churchcore_db.inc");
-    $leader=churchcore_getPersonById($arr->modified_pid);
-
+  include_once("system/churchcore/churchcore_db.inc");
+  $leader=churchcore_getPersonById($arr->modified_pid);
+  
+  
+  $event=db_query("select e.startdate datum, c.bezeichnung from {cs_event} e, {cc_cal} c
+         where e.cc_cal_id=c.id and e.id=:event_id", (array(":event_id"=>$arr->event_id)))->fetch();
+  $service=churchcore_getTableData("cs_service", "", "id=".$arr->service_id);
+  
+  if (($event!=false) && ($service!=null)) {
+    $service=$service[$arr->service_id];
+    $subject="";
+    $txt="";
+    // Sagt zu
+    if ($zugesagt_yn==1) {
+      $txt.="$user->vorname $user->name hat den Dienst $service->bezeichnung bei $event->datum $event->bezeichnung zugesagt.";
+      $subject="[".variable_get('site_name')."] $user->vorname $user->name hat eine Anfrage zugesagt";
+    }
+    // Schl�gt jemanden vor
+    else if ($name!=null) {
+      $txt.="$user->vorname $user->name hat beim Dienst $service->bezeichnung bei $event->datum $event->bezeichnung $name vorgeschlagen";
+      $subject="[".variable_get('site_name')."] $user->vorname $user->name hat jemanden vorgeschlagen";
+    }
+    // sagt ab
+    else {
+      $txt.="$user->vorname $user->name hat den Dienst $service->bezeichnung bei $event->datum $event->bezeichnung abgesagt";
+      $subject="[".variable_get('site_name')."] $user->vorname $user->name hat eine Anfrage abgesagt";
+    }    
+    if ($reason!=null)
+      $txt.="<p>Folgendes wurde als Grund angegeben: ".$reason;
+    
+    ct_notify("service", $arr->service_id, $txt);
+    
     // Benachrichtige, wenn es sich um einen anderen handelt, der hier best�tigt oder ablehnt als den Anfrager (Inquierer)
     if (($leader!=null) && ($leader->email!=null) && ($leader->email!="") && ($user!=null) && ($leader->id!=$user->id)) {
       $setting=churchcore_getUserSettings("churchservice",$leader->id);
       if (isset($setting["informInquirer"]) && ($setting["informInquirer"]==1)) {
 
-        $event=db_query("select e.startdate datum, c.bezeichnung from {cs_event} e, {cc_cal} c 
-           where e.cc_cal_id=c.id and e.id=:event_id", (array(":event_id"=>$arr->event_id)))->fetch();        
-//        $event=churchcore_getTableData("cs_event", "", "id=".$arr->event_id);
-        $service=churchcore_getTableData("cs_service", "", "id=".$arr->service_id);
-        if (($event!=false) && ($service!=null)) {                              
-//          $event=$event[$arr->event_id];
-          $service=$service[$arr->service_id];
-          $txt="<h3>Hallo ".$leader->vorname.",</h3><p>";
-          
-          $subject="";
-          // Sagt zu
-          if ($zugesagt_yn==1) { 
-            $txt.="$user->vorname $user->name hat den Dienst $service->bezeichnung bei $event->datum $event->bezeichnung zugesagt.";
-            $subject="[".variable_get('site_name')."] $user->vorname $user->name hat eine Anfrage zugesagt";
-          }
-          // Schl�gt jemanden vor
-          else if ($name!=null) {
-            $txt.="$user->vorname $user->name hat beim Dienst $service->bezeichnung bei $event->datum $event->bezeichnung $name vorgeschlagen";
-            $subject="[".variable_get('site_name')."] $user->vorname $user->name hat jemanden vorgeschlagen";                        
-          }
-          // sagt ab
-          else {
-            $txt.="$user->vorname $user->name hat den Dienst $service->bezeichnung bei $event->datum $event->bezeichnung abgesagt";
-            $subject="[".variable_get('site_name')."] $user->vorname $user->name hat eine Anfrage abgesagt";            
-          }
-          
-          if ($reason!=null)
-            $txt.="<p>Folgendes wurde als Grund angegeben: ".$reason;
-          $txt.='<p><a href="'.$base_url.'?q=churchservice&id='.$arr->event_id.'" class="btn btn-primary">Event aufrufen</a>';
-          churchservice_send_mail($subject, $txt, $leader->email);
-        }
+        $txt="<h3>Hallo ".$leader->vorname.",</h3><p>";
+        
+        $txt.='<p><a href="'.$base_url.'?q=churchservice&id='.$arr->event_id.'" class="btn btn-primary">Event aufrufen</a>';
+        churchservice_send_mail($subject, $txt, $leader->email);
       } 
       else if (!isset($setting["informInquirer"])) {
         churchcore_saveUserSetting("churchservice", $leader->id, "informInquirer", 0);
       }    
-    }          
-  }  
+    }
+  }          
 
   $arr=db_query("select es.*, concat(p.vorname,' ',p.name) as modifieduser from {cs_eventservice} es, {cdb_person} p 
                   where p.id=es.modified_pid and es.id=:id",array(":id"=>$new_id))->fetch();
@@ -971,6 +974,8 @@ class CTChurchServiceModule extends CTAbstractModule {
 	  $res["user_name"] = $user->vorname." ".$user->name;
 	  $res["userid"] = $user->cmsuserid;	  
       $res["settings"] =  churchservice_getUserSettings($user->id);
+      $res["notification"]= churchcore_getMyNotifications();
+      $res["notificationtype"]=churchcore_getTableData("cc_notificationtype");
       $res["lastLogId"] = churchservice_getLastLogId();
       $res["eventtemplate"] = churchcore_getTableData("cs_eventtemplate","sortkey");
       $res["category"] = churchcal_getAllowedCategories(false);  

@@ -1,6 +1,6 @@
 ; $Id$
 ; Be careful, this setting controls the database structure updates
-churchtools_version=2.46
+churchtools_version=2.47
 
 home = main/home.php
 home/ajax = main/home.php

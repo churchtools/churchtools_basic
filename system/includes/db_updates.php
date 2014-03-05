@@ -1723,7 +1723,6 @@ function run_db_updates($db_version) {
       set_version("2.45");
       
     case '2.45':
-      set_version("2.46");
       // Throuh an error in the update in 2.42, the value is 60, that doesnt make sense...
       db_query("update {cc_config} set value=3600 where name='cronjob_delay' and value=60");
       db_query("INSERT INTO {cdb_feldkategorie} (id , bezeichnung , intern_code , db_tabelle , id_name)
@@ -1734,12 +1733,40 @@ function run_db_updates($db_version) {
          VALUES (
          NULL ,  '5',  '2',  'bereich_id',  'dep',  '1',  '0',  'Bereich',  'Bereich',  '<br/>', NULL , NULL , 1
       )");    
+      set_version("2.46");
       
     case '2.46':
-      set_version("2.47");
       db_query("ALTER TABLE {cc_wikicategory} ADD in_menu_yn INT( 1 ) NOT NULL DEFAULT '1'");
       db_query("UPDATE {cdb_feld} set autorisierung='viewalldetails || leader' where autorisierung='ViewAllDetailsOrPersonLeader'");      
       
+      db_query("ALTER TABLE {cc_comment} ADD parent_id INT( 11 ) NULL AFTER id");
+      
+      db_query("CREATE TABLE {cc_notification} (
+        id int(11) NOT NULL AUTO_INCREMENT,
+        domain_type varchar(20) NOT NULL,
+        domain_id int(11) NOT NULL,
+        person_id int(11) NOT NULL,
+        notificationtype_id int(11) NOT NULL,
+        lastsenddate datetime DEFAULT NULL,
+        PRIMARY KEY (id),
+        UNIQUE KEY domain_type (domain_type,domain_id,person_id)
+           ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ");
+      
+      db_query("
+        CREATE TABLE {cc_notificationtype} (
+          id int(11) NOT NULL AUTO_INCREMENT,
+          bezeichnung varchar(40) NOT NULL,
+          delay_hours int(11) NOT NULL,
+          PRIMARY KEY (id)
+        ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1");
+      
+      db_query("INSERT INTO {cc_notificationtype} (id, bezeichnung, delay_hours) VALUES
+        (1,'sofort', 0),
+        (2,'jeden Tag', 24),
+        (3,'jede 3 Tage', 72),
+        (4,'jede Woche', 168)");
+      
+      set_version("2.47");
   }
 	  
     $a=db_query("select * from {cc_config} where name='version'",null,false);
