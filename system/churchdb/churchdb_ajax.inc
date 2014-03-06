@@ -290,7 +290,8 @@ global $user;
   foreach ($data_arr as $key=>$param) {
   	if (isset($fields["fields"][$key])) { 
   	  if (!isset($fields["fields"][$key]["auth"]) 
-  	       || checkFieldAuth($fields["fields"][$key]["auth"], $auth)) {  	
+  	       || checkFieldAuth($fields["fields"][$key]["auth"], $auth)) {
+  	    $param=str_replace("'","\'",$param);
 	  	switch ($fields["fields"][$key]["type"]) {
 	  	  case "number":
 	        $sql=$sql.$fields["fields"][$key]["sql"]."=".$param.", ";

@@ -82,9 +82,9 @@ function churchservice__exportfacts() {
     $events[$e->id]=$e;
   } 
   
-  $category=churchcore_getTableData("cs_category");
+  $category=churchcore_getTableData("cc_calcategory");
   $facts=churchcore_getTableData("cs_fact", "sortkey");
-  $res=db_query("select * from cs_event_fact");  
+  $res=db_query("select * from {cs_event_fact}");  
   
   $result=array();
   foreach($res as $d) {
@@ -722,7 +722,7 @@ function churchservice_inform_leader() {
       }
       if ($txt!='') {    
         $txt="<h3>Hallo ".$person["person"]->vorname."!</h3><p>Es sind in den n&auml;chsten 60 Tagen noch folgende Dienste offen:<ul>".$txt."</ul>";
-        $txt.='<p><a href="'.$base_url.'/q=churchservice" class="btn">Weitere Infos</a>&nbsp';
+        $txt.='<p><a href="'.$base_url.'/?q=churchservice" class="btn">Weitere Infos</a>&nbsp';
         $txt.='<p><a href="'.$base_url.'/?q=churchservice#SettingsView" class="btn">Benachrichtigung deaktivieren</a>';
         churchservice_send_mail("[".variable_get('site_name')."] Offene Dienste",$txt,$person["person"]->email);
       }
