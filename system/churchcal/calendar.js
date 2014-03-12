@@ -15,6 +15,7 @@ var filter=new Object();
 var embedded=false;
 var minical=false;
 var max_entries=50;
+var printview=false;
 
 function mapEvents(allEvents) {
   var cs_events= new Array();
@@ -1559,6 +1560,10 @@ $(document).ready(function() {
     filterCategoryIds=$("#filtercategory_id").val().split(",");
   }
   
+  if ($("#printview").length!=0) {
+    printview=true;
+    $("#cdb_filter").hide();
+  }
   if ($("#isembedded").length!=0) embedded=true;
   if ($("#isminical").length!=0) minical=true;
   if ($("#entries").length!=0) max_entries=$("#entries").val();

@@ -1445,20 +1445,35 @@ function churchcore_getDateField($longtext, $shorttext, $column_name, $eol='<br/
 function churchcore_getFieldChanges($fields, $oldarr, $newarr, $cut_dates=true) {
   $txt="";
   foreach($newarr as $name => $wert) {
-  	if (($oldarr!=null) && (isset($fields[$name]))) {
-      $oldval=$oldarr->$fields[$name]["sql"];
+  	$oldval=null;
+    if (isset($fields[$name])) {
+  	  if ($oldarr!=null)
+        $oldval=$oldarr->$fields[$name]["sql"];
       
-      // Beim Datum nur Jahr, Datum und Tag vergleichen, Uhrzeit egal
-      if (($cut_dates) &&($fields[$name]["type"]=="date"))
-        $oldval=substr($oldval,0,10);
+      if ($fields[$name]["type"]=="date") {
+        // Beim Datum nur Jahr, Datum und Tag vergleichen, Uhrzeit egal
+        if (($cut_dates) && ($fields[$name]["type"]=="date"))
+          $oldval=substr($oldval,0,10);
+        
+        $oldval=churchcore_stringToDateDe($oldval);
+        $wert=churchcore_stringToDateDe($wert);
+      }
       
 	  if (($oldval!=null) && ($wert!=$oldval))
-	    $txt=$txt."$name: $wert  (Vorher: $oldval)\n";       	    
+	    $txt=$txt.$fields[$name]["text"].": $wert  (Vorher: $oldval)\n";       	    
       else if (($oldval==null) && ($wert!=null))   
-        $txt=$txt."$name => $wert  (Neu)\n";
+        $txt=$txt.$fields[$name]["text"].": $wert  (Neu)\n";
   	}    
-    else      
-      $txt=$txt."$name => $wert\n";
+  	// For infos which are not in the field-set
+    else {
+      if (($oldarr!=null) && (isset($oldarr->$name))) {
+        $oldval=$oldarr->$name;
+      }      
+      if (($oldval==null) && ($wert!=null))       
+        $txt=$txt."$name: $wert (Neu)\n";
+      else if ($oldval!=$wert) 
+        $txt=$txt."$name: $wert (Vorher: $oldval)\n";
+     }
    }
    if ($txt!="")
      return $txt;
@@ -1496,6 +1511,8 @@ function churchcore_getMasterDataEntry($id, $bezeichnung, $shortname, $tablename
 
 
 function churchcore_stringToDateDe($string, $withTime=true) {
+  if ($string==null) return null;
+  
   if (strlen($string)<11) $string.=" 00:00:00"; 
   $dt=new Datetime($string);
   if ($withTime)

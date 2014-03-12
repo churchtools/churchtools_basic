@@ -14,6 +14,7 @@ function StandardTableView(options) {
   this.listOffset=0;
   this.sortVariable="id";
   this.availableRowCounts=[10, 25, 50, 200];
+  this.showCheckboxes=true;
 
   // Number of entries currently visible
   this.counter=0;
@@ -319,7 +320,9 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
       else {
         var classes='view '+t.name+' table table-bordered table-condensed ';
         rows[rows.length] = '<div style="" id="DivAddressTable"><table class="'+classes+'table-striped" style="tab_le-layout:fixed;margin-bottom:0px;" id="AddressTable">';
-        rows[rows.length] = '<thead><tr><th width="12px"><input type="checkbox" class="checked" id="markAll">';      
+        rows[rows.length] = '<thead>';
+        if (t.showCheckboxes)
+          rows.push('<tr><th width="12px"><input type="checkbox" class="checked" id="markAll">');      
           rows.push(header);
         rows.push('</thead>');
         
@@ -349,10 +352,12 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
                   rows.push('<tr class="grouping"><td class="grouping" align="center" colspan="'+(t.getCountCols())+'">'+r);
                 }
                 
-                rows.push("<tr class=\"data\" id=\"" + entry.id + "\">");                      
-                rows.push("<td width=\"12px\"><input type=\"checkbox\" class=\"checked\" id=\"check" + entry.id + "\"");
-                if (entry.checked) rows.push(" checked=checked"); 
-                rows.push(">");
+                rows.push("<tr class=\"data\" id=\"" + entry.id + "\">");   
+                if (t.showCheckboxes) {
+                  rows.push("<td width=\"12px\"><input type=\"checkbox\" class=\"checked\" id=\"check" + entry.id + "\"");
+                  if (entry.checked) rows.push(" checked=checked"); 
+                  rows.push(">");
+                }
                 
                 if (t.rowNumbering && lastGrouping==null)
                   rows.push("<td><a href=\"\" id=\"detail" + entry.id + "\">" + t.counter + "</a>");         

@@ -36,16 +36,21 @@ function churchcal_main() {
     $txt.='<input type="hidden" id="isembedded"/>';
     if (isset($_GET["title"]))
       $txt.='<input type="hidden" id="embeddedtitle" value="'.$_GET["title"].'"/>';
+    if (isset($_GET["printview"]))
+      $txt.='<input type="hidden" id="printview" value="true"/>';
     if (isset($_GET["entries"]))
       $txt.='<input type="hidden" id="entries" value="'.$_GET["entries"].'"/>';
   }
   else   
     $txt.='<div class="row-fluid">
   					<div class="span3"><div id="cdb_filter"></div></div>
-  					<div class="span9"><div id="header" class="pull-right"></div><div id="calendar"></div></div>
-  			  </div><p align=right><small><a target="_blank" href="'.$base_url.'?q=churchcal&embedded=true&category_id=null">'.$config["churchcal_name"].' einbetten</a>
+  					<div class="span9"><div id="header" class="pull-right"></div><div id="calendar"></div></div>'.
+  			  '<p align=right><small>'.
+  			   '<a target="_blank" href="'.$base_url.'?q=churchcal&embedded=true&printview=true">Druckansicht</a> &nbsp; &nbsp;&nbsp;'.
+  			  '<a target="_blank" href="'.$base_url.'?q=churchcal&embedded=true&category_id=null">'.$config["churchcal_name"].' einbetten</a>
   			  <a target="_clean" href="http://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc:ChurchCal%C2%A0einbetten/"><i class="icon-question-sign"></i></a>
-  			    &nbsp; <a id="abo" href="'.$base_url.'?q=churchcal/ical">'.$config["churchcal_name"].' abonnieren per iCal</a></small>';
+  			    &nbsp; <a id="abo" href="'.$base_url.'?q=churchcal/ical">'.$config["churchcal_name"].' abonnieren per iCal</a>'.
+  			    '</small>';
     
   if (isset($_GET["date"])) $txt.='<input type="hidden" name="viewdate" id="viewdate" value="'.$_GET["date"].'"/>';  
   if (isset($_GET["viewname"])) $txt.='<input type="hidden" name="viewname" id="viewname" value="'.$_GET["viewname"].'"/>';  

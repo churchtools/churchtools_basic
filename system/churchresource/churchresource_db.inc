@@ -290,30 +290,37 @@ function churchresource_updateBooking($params, $changes=null) {
       $info=$info." in ".$params["location"];
     $info=$info.")";  
       
+    
+    
+    $arr=getBooking($params["id"]);
+    $changes=churchcore_getFieldChanges(getBookingFields(),$old_arr,$arr,false);
+    
     if ($params["status_id"]==1) {
-      $txt="<h3>Hallo ".$buser->vorname."!</h3><p>Deine Buchungsanfrage ".$info." wurde aktualisiert und wartet auf Genehmigung.";        
-    $txt.='<p><a class="btn" href="'.$base_url."?q=churchresource&id=".$params["id"].'">Zur Buchungsanfrage &raquo;</a>';
+      $txt=" wurde aktualisiert und wartet auf Genehmigung.";        
     } 
-    else if (($params["status_id"]==2) && ($old_arr->status_id!=2)) {
-      $txt="<h3>Hallo ".$buser->vorname."!</h3><p>Deine Buchungsanfrage ".$info." wurde nun von $user->vorname $user->name genehmigt!<p>";        
-    $txt.='<p><a class="btn" href="'.$base_url."?q=churchresource&id=".$params["id"].'">Zur Buchungsanfrage &raquo;</a>';
+    else if (($params["status_id"]==2) && ($old_arr->status_id!=2 || $changes!=null)) {
+      $txt=" wurde von $user->vorname $user->name genehmigt!<p>";        
     } 
     else if ($params["status_id"]==3) {
-      $txt="<h3>Hallo ".$buser->vorname."!</h3><p>Deine Buchungsanfrage ".$info." wurde leider abgelehnt, bitte suche Dir einen anderen Termin.<p>";        
+      $txt=" wurde leider abgelehnt, bitte suche Dir einen anderen Termin.<p>";        
     }      	               
     else if ($params["status_id"]==99) {
-      $txt="<h3>Hallo ".$buser->vorname."!</h3><p>Deine Buchungsanfrage ".$info." wurde geloescht, bei Fragen dazu melde Dich bitte bei: ".variable_get('site_mail', 'Gemeinde-Buero unter info@elim-hamburg.de oder 040-2271970')."<p>";        
+      $txt=" wurde geloescht, bei Fragen dazu melde Dich bitte bei: ".variable_get('site_mail', 'Gemeinde-Buero unter info@elim-hamburg.de oder 040-2271970')."<p>";        
     }                     
     if ($txt!="") {
+      $txt="<h3>Hallo ".$buser->vorname."!</h3><p>Deine Buchungsanfrage ".$info.$txt;
+      if ($changes!=null) {
+        $txt.="<p><b>Folgende Anpassung an der Buchung wurden vorgenommen:</b><br/>".str_replace("\n", "<br>", $changes);
+      }
+      if ($params["status_id"]<3)
+        $txt.='<p><a class="btn" href="'.$base_url."?q=churchresource&id=".$params["id"].'">Zur Buchungsanfrage &raquo;</a>';
       $adminmails=explode(",",$ressources[$params["resource_id"]]->admin_person_ids);
       // Wenn der aktuelle User nicht Admin ist ODER wenn der Benutzer nicht der ist, der die Buchung erstellt hat.
       if ((!in_array($user->id, $adminmails)) || ($user->id!=$buser->id))      
         churchresource_send_mail("[".variable_get('site_name', 'drupal')."] Aktualisierung der Buchungsanfrage: ".$params["text"], $txt, $buser->email);
     }
 
-    $arr=getBooking($params["id"]);
-    $txt=churchcore_getFieldChanges(getBookingFields(),$old_arr,$arr,false);
-    if ($txt!=null)
+    if ($changes!=null)
       cr_log("UPDATE BOOKING\n".$txt,3,$arr->id);
     $res=array("exceptions"=>$res_exceptions, "additions"=>$res_additions);
   }
@@ -528,6 +535,8 @@ function churchresource_delBooking($params) {
  */
 function cr_log($txt,$level=3,$booking_id=-1) {
 	global $user;
+	$txt=str_replace("'","\'",$txt);
+	
 	db_query("insert into {cr_log} (person_id, level, datum, booking_id, txt) values ('$user->id', $level, current_timestamp(), $booking_id, '$txt')");
 }
 

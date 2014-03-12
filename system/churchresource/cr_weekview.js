@@ -267,6 +267,12 @@ WeekView.prototype.getListHeader = function () {
   var rows = new Array();
   var t=this;
   
+  if (t.printview) {
+    masterData.settings["listMaxRows"+t.name]=100;
+    t.showCheckboxes=false;
+    t.showPaging=false;
+  }
+  
   var currentDate=new Date(this.currentDate);
   var d=-currentDate.getDay()+1;
   if (d==1) d=-6;
