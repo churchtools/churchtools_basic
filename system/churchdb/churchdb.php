@@ -18,6 +18,7 @@ function churchdb_getAuth() {
   $cc_auth=addAuth($cc_auth, 105,'view address', 'churchdb', null, 'Zus&auml;tzlich Adressdaten der sichtbaren Personen einsehen (Strasse)', 1);
   $cc_auth=addAuth($cc_auth, 103,'view alldetails', 'churchdb', null, 'Alle Informationen der sichtbaren Person sehen, inkl. Adressdaten, Gruppenzuordnung, etc.', 1);
   $cc_auth=addAuth($cc_auth, 116,'view archive', 'churchdb', null, 'Personen-Archiv einsehen', 1);
+  $cc_auth=addAuth($cc_auth, 120,'complex filter', 'churchdb', null, '"Weitere Filter" darf verwendet werden', 1);
   $cc_auth=addAuth($cc_auth, 118,'push/pull archive', 'churchdb', null, 'Personen ins Archiv verschieben und zur&uuml;ckholen', 1);
   $cc_auth=addAuth($cc_auth, 109,'edit relations', 'churchdb', null, 'Beziehungen der sichtbaren Personen editieren', 1);
   $cc_auth=addAuth($cc_auth, 110,'edit groups', 'churchdb', null, 'Alle Gruppenzuordnungen der sichtbaren Personen editieren', 1);

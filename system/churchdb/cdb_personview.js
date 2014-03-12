@@ -60,7 +60,7 @@ PersonView.prototype.renderMenu = function() {
   if (menuDepth=="amain") {
     if (masterData.auth["create person"])
       menu.addEntry("Neue Person anlegen", "anewentry", "star");
-    if (masterData.auth.viewalldata)
+    if (user_access("complex filter"))
       menu.addEntry("Weitere Filter", "aaddfilter", "filter");  
     menu.addEntry("Exporter", "aexporter", "share");
     menu.addEntry("E-Mailer", "amailer", "envelope");
@@ -219,7 +219,7 @@ PersonView.prototype.renderListMenu = function() {
               r.push({label:a.bezeichnung, category:"Tag", value:'tag:"'+a.bezeichnung+'"'});              
           });
         }
-        if ((r.length==0) && (str.indexOf("GRUPPE")==-1) && (str.indexOf("TAG")==-1) && (masterData.auth.write) && (str.indexOf("#")==-1))
+        if ((r.length==0) && (str.indexOf("GRUPPE")==-1) && (str.indexOf("TAG")==-1) && (user_access("create person")) && (str.indexOf("#")==-1))
           r.push({label:"Erstelle "+request.term, category:"", value:"CREATE:"+request.term});
         response(r);
       }
@@ -1538,7 +1538,7 @@ PersonView.prototype.renderFilter = function() {
   
   var ret=t.getMyGroupsSelector(true);
   var img="&nbsp; ";
-  if (masterData.auth.viewalldata) {
+  if (user_access("complex filter")) {
     img=img+form_renderImage({
       label: "Aktuelle Filter als intelligente Gruppe speichern",
       cssid:"saveMyFilter", 
@@ -1551,7 +1551,7 @@ PersonView.prototype.renderFilter = function() {
     img=img+form_renderImage({label:"Gruppentreffen pflegen", cssid:"maintaingroupmeeting", src:"persons.png", width:20});  
     img=img+"&nbsp;"
   }
-  if (masterData.auth.viewalldata) {
+  if (user_access("complex filter")) {
     if ((typeof this.filter["filterMeine Gruppen"]=="string") && (this.filter["filterMeine Gruppen"].indexOf("filter")==0)) {
       img=img+form_renderImage({
         label:"Intelligente Gruppe entfernen",

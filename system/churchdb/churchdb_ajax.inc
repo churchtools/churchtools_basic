@@ -1016,6 +1016,10 @@ function churchdb_getAuthForAjax() {
     $res["viewalldata"]=true;
   } 
   
+  if (user_access("complex filter","churchdb"))
+    $res["complex filter"]=true;
+    
+  
   if (user_access("administer persons","churchcore"))
     $res["adminpersons"]=true;
     
