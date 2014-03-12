@@ -9,6 +9,7 @@
 - (CDB) Kleiner Bug bei Auswahl von Personen behoben
 - (CDB) VCardExport für Mac optimiert
 - Zwischenspeichern nun kompatibel mit IE8
+- Mailchimp-Problem behoben.
 
 churchtools 2.46
 + (CS) Zusagen und absagen auf der Startseite eleganter realisiert

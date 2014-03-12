@@ -51,7 +51,7 @@ SongView.prototype.renderFilter = function () {
   
   if ((masterData.settings.filterSongcategory=="") || (masterData.settings.filterSongcategory==null))
     delete masterData.settings.filterSongcategory;
-  else t.filter["filterSongcategory"]=masterData.settings.filterSongcategory;
+  else if (t.filter["searchEntry"]==null) t.filter["filterSongcategory"]=masterData.settings.filterSongcategory;
 
   if ((masterData.settings.searchStandard!="true") || (masterData.settings.searchStandard==null))
     delete masterData.settings.searchStandard;
@@ -547,8 +547,9 @@ SongView.prototype.getListHeader = function () {
     form.addButton({label:"Auswählen abbrechen", htmlclass:"cancel"});
     $("#cdb_group").html(form.render(true));
   }
-  else
+  else {
     $("#cdb_group").html("");
+  }
   
   $("#cdb_group input.cancel").click(function() {
     t.songselect=null;

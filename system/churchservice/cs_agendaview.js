@@ -355,25 +355,36 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
   var t=this;
   if (smallVersion==null) smallVersion=false;
   
+  
   t.renderTimes();
   
+  $(cssid+" a").click(function (a) {
+    if ($(this).attr("id")==null) {
+      if ($(this).hasClass("view-song")) {
+        var song_id=$(this).attr("data-song-id");
+        var arrangement_id=$(this).attr("data-arrangement-id");
+        allSongs[song_id].active_arrangement_id=arrangement_id;
+        songView.filter["searchEntry"]="#"+song_id;
+        churchInterface.setCurrentView(songView, false);
+        return false;
+      }
+      else
+        return true;    
+    }
+    else if ($(this).attr("id").indexOf("addMoreCols")==0) {
+      t.addMoreCols();
+      return false;
+    }
+    else if ($(this).attr("id").indexOf("delCol")==0) {
+      var id=$(this).attr("id").substr(6,99);
+      masterData.settings["viewgroup"+id]=0;
+      churchInterface.jsendWrite({func:"saveSetting", sub:"viewgroup"+id, val:0});
+      t.renderList();
+      return false;
+    }
+  });
+
   if (!smallVersion) {
-    $(cssid+" a").click(function (a) {
-      // Person zu einer Kleingruppe dazu nehmen
-      if ($(this).attr("id")==null) 
-        return true;
-      else if ($(this).attr("id").indexOf("addMoreCols")==0) {
-        t.addMoreCols();
-        return false;
-      }
-      else if ($(this).attr("id").indexOf("delCol")==0) {
-        var id=$(this).attr("id").substr(6,99);
-        masterData.settings["viewgroup"+id]=0;
-        churchInterface.jsendWrite({func:"saveSetting", sub:"viewgroup"+id, val:0});
-        t.renderList();
-        return false;
-      }
-    });
     
     $(cssid+" a.attachement").click(function() {
       var id=$(this).parents("tr").attr("id");
@@ -478,6 +489,15 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
                   t.editItem(t.currentAgenda.items[$(this).attr("data-id")]);
                   return false;
                 });
+                element.find("a.view-song").click(function() {
+                  var song_id=$(this).attr("data-song-id");
+                  var arrangement_id=$(this).attr("data-arrangement-id");
+                  allSongs[song_id].active_arrangement_id=arrangement_id;
+                  songView.filter["searchEntry"]="#"+song_id;
+                  delete songView.filter["filterSongcategory"];
+                  churchInterface.setCurrentView(songView, false);
+                  return false;
+                });
                 
                 element.find("a.delete-item").click(function() {
                   if (churchcore_countObjectElements(t.currentAgenda.items)==1) {
@@ -493,14 +513,7 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
                   return false;
                 });
                 
-                element.find("a.view-song").click(function() {
-                  var song_id=$(this).attr("data-song-id");
-                  var arrangement_id=$(this).attr("data-arrangement-id");
-                  allSongs[song_id].active_arrangement_id=arrangement_id;
-                  songView.filter["searchEntry"]="#"+song_id;
-                  churchInterface.setCurrentView(songView, false);
-                  return false;
-                });
+                
                 
               }              
             }

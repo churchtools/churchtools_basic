@@ -1381,11 +1381,11 @@ class CTChurchDBModule extends CTAbstractModule {
   }
   public function mailchimp($params) {
     if ($params["sub"]=="load")
-    $res = churchdb_loadMailchimp();
+    return churchdb_loadMailchimp();
     else if ($params["sub"]=="add")
-    $res = churchdb_addMailchimpRelation($params);
+    return churchdb_addMailchimpRelation($params);
     else if ($params["sub"]=="del")
-    $res = churchdb_delMailchimpRelation($params);
+    return churchdb_delMailchimpRelation($params);
   }
   public function sendsms($params) {
     $this->checkPerm("send sms");
