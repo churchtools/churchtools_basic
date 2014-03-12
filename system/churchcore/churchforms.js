@@ -1047,7 +1047,7 @@ function form_implantWysiwygEditor(id, smallmenu, inline) {
               ];
     else if (smallmenu==true) {
       toolbar= [
-                { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ], items: [ 'Bold', 'Italic', 'Underline', 'Strike', /*'Subscript', 'Superscript', */'-', 'RemoveFormat' ] },
+                { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ], items: [ 'Bold', 'Italic', 'Underline', /*'Strike', 'Subscript', 'Superscript', */'-', 'RemoveFormat' ] },
                 { name: 'colors', items: [ 'TextColor', 'BGColor' ] },
                 { name: 'insert', items: [ 'Image', 'Smiley', 'SpecialChar'] }
               ];

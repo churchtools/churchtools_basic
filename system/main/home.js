@@ -112,7 +112,7 @@ function askMeYes(id) {
 
 
 jQuery(document).ready(function() {
-  $(".span4").sortable();
+  //$(".span4").sortable();
   $(".span4").droppable({
       accept: ".ct_whitebox",
       activeClass: "ui-state-hover",
@@ -135,6 +135,45 @@ jQuery(document).ready(function() {
   churchInterface.setAllDataLoaded(true); 
   churchInterface.setModulename("home");
   renderServiceRequests();
+  renderForum();
 });
 
+function renderForum(selected, hint) {
+  churchInterface.jsendRead({func:"getMasterData"}, function(ok, data) {
+    if (ok) {
+      if (data.mygroups==null || data.mygroups.length==0) {
+        $("#cc_forum").parents("li").remove();
+      } 
+      else {
+        var form = new CC_Form();
+        form.addImage({src:"persons.png"});
+        form.addHtml("&nbsp; ");
+        form.addSelect({controlgroup:false, selected:selected, cssid: "groupid", htmlclass:"forum", freeoption:true,
+            type:"medium", data:data.mygroups});
+        if (hint!=null) form.addHtml("<br><br><i>"+hint+"</i>");
+        if (selected!=null && selected!="") {
+          form.addHtml('<div id="message" class="message well" contenteditable="true"></div>');
+          form.addButton({label:"Absenden"});
+        }
+        $("#cc_forum").html(form.render(false, "vertical"));
+        form_implantWysiwygEditor("message", false, true);
+
+        $("#cc_forum div.message").focus();
+        $("#cc_forum select.forum").change(function() {
+          renderForum($(this).val());
+        });
+        $("#cc_forum input.btn").click(function() {
+          var obj=form.getAllValsAsObject();
+          obj.func="sendEmail";
+          obj.message=CKEDITOR.instances.message.getData();
+          CKEDITOR.instances.message.destroy();
+          
+          churchInterface.jsendWrite(obj, function(ok, data) {
+            renderForum(null, "E-Mail wurde gesendet.");
+          });
+        });
+      }
+    }
+  });
+}
 

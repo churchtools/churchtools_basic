@@ -6,6 +6,9 @@ function home_main() {
   if ((isset($config["admin_message"])) && ($config["admin_message"]!=""))
     addErrorMessage($config["admin_message"]);
   
+  drupal_add_js('system/assets/ckeditor/ckeditor.js');
+  drupal_add_js('system/assets/ckeditor/lang/de.js');
+  
   checkFilesDir();
   
   $btns=churchcore_getModulesSorted();
@@ -382,7 +385,11 @@ function home__memberlist_settings() {
 
 class CTHomeModule extends CTAbstractModule {
   public function getMasterData() {
+    global $user, $base_url, $files_dir, $config;
+    include_once('./'. drupal_get_path('module', 'churchdb') .'/churchdb_db.inc');
     
+    $res["mygroups"]=churchdb_getMyGroups($user->id, false, true);
+    return $res;    
   }
   public function updateEventService($params) {
     include_once('./'. drupal_get_path('module', 'churchservice') .'/churchservice_ajax.inc');
@@ -411,7 +418,17 @@ class CTHomeModule extends CTAbstractModule {
     global $user;
     db_query('update {cs_eventservice} set reason=:reason where id=:id and modified_pid=:user_id', 
         array(':reason'=>$params["reason"], ':id'=>$params["id"], ':user_id'=>$user->id));
-  }  
+  }
+  public function sendEMail($params) {
+    global $user;
+    include_once('./'. drupal_get_path('module', 'churchdb') .'/churchdb_db.inc');
+    $groups=churchdb_getMyGroups($user->id, true, true);
+    if (empty($groups[$params["groupid"]])) 
+      throw new CTException("Gruppe nicht erlaubt!");
+    $ids=churchdb_getAllPeopleIdsFromGroups(array($params["groupid"]));
+    churchcore_sendEMailToPersonids(implode(",", $ids), "[".variable_get('site_name', 'drupal')."] Nachricht von $user->vorname $user->name", $params["message"],
+       $user->email, true);
+  }
 }
 
 function home__ajax() {

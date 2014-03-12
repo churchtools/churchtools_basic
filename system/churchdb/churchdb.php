@@ -520,6 +520,10 @@ function churchdb_getTodos() {
   return $txt;
 }
 
+function churchdb_getForum() {
+  return '<div id="cc_forum"></div>';
+}
+
 function churchdb_getBlockLookPerson() {
   if ((!user_access("view birthdaylist","churchdb")) && (!user_access("view","churchdb")))
     return null;
@@ -555,7 +559,13 @@ function churchdb_blocks() {
       "sortkey"=>1,
       "html"=>churchdb_getTodos()
     ),  
-  ));
+    5=>array(
+      "label"=>"ChurchMailer",
+      "col"=>1,
+      "sortkey"=>2,
+      "html"=>churchdb_getForum()
+    ),  
+    ));
 } 
 
 function churchdb__birthdaylist() {
