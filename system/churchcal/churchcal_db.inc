@@ -1,7 +1,86 @@
 <?php 
 
- include_once("system/churchcore/churchcore_db.inc");
+include_once("system/churchcore/churchcore_db.inc");
  
+ 
+function churchcal_handleMeetingRequest($cal_id, $params) {
+  global $base_url, $user;
+  
+  $i = new CTInterface();
+  $i->setParam("cal_id");
+  $i->setParam("person_id");
+  $i->setParam("mailsend_date");
+  $i->setParam("event_date");
+  $dt = new DateTime();
+  foreach ($params["meetingRequest"] as $id=>$param) {
+    $param["mailsend_date"]=$dt->format('Y-m-d H:i:s');
+    $param["person_id"]=$id;
+    $param["event_date"]=$params["startdate"];
+    $param["cal_id"]=$cal_id;
+    
+    $db=db_query('select mr.*, c.modified_pid from {cc_meetingrequest} mr, {cc_cal} c where 
+         c.id=mr.cal_id and mr.person_id=:person_id and mr.cal_id=:cal_id',
+       array(":person_id"=>$param["person_id"], ":cal_id"=>$param["cal_id"]))->fetch();
+    
+    if ($db==false) {
+      db_insert("cc_meetingrequest")->fields($i->getDBInsertArrayFromParams($param))->execute(false);
+      
+      $txt="<h3>Hallo [Spitzname]!</h3><p>";
+      
+      $txt.="Du wurdest auf ".variable_get('site_name', 'drupal');
+        $txt.=' von <i>'.$user->vorname." ".$user->name."</i>";
+      $txt.=" f&uuml;r einen Termin angefragt. <br/>Zum Zu- oder Absagen bitte hier klicken:";
+      
+      $loginstr=churchcore_createPersonLoginStr($id);
+      
+      $txt.='<p><a href="'.$base_url.'?q=home&id='.$id.'&loginstr='.$loginstr.'" class="btn btn-primary">%sitename aufrufen</a>';      
+      
+      churchcore_sendEMailToPersonids($id, "[".variable_get('site_name', 'drupal')."] Neue Termin-Anfrage", $txt, null, true);
+    }
+    else {
+/*      db_update("cc_meetingrequest")
+        ->fields($i->getDBInsertArrayFromParams($param))
+        ->condition("person_id", $param["person_id"], "=")
+        ->condition("cal_id", $param["cal_id"], "=")
+        ->execute(false);
+      churchcore_sendEMailToPersonids($id, "[".variable_get('site_name', 'drupal')."] Anpassung in einer Termin-Anfrage", "anpassung", null, true);*/
+    }    
+  }
+}
+
+function churchcal_updateMeetingRequest($params) {
+  global $user;
+  $i = new CTInterface();
+  $i->setParam("cal_id");
+  $i->setParam("person_id");
+  $i->setParam("mailsend_date");
+  $i->setParam("event_date");
+  $i->setParam("zugesagt_yn");
+  $i->setParam("response_date");
+  
+  $dt = new DateTime();
+
+  db_update("cc_meetingrequest")
+    ->fields($i->getDBInsertArrayFromParams($params))
+    ->condition("person_id", $params["person_id"], "=")
+    ->condition("mailsend_date", $params["mailsend_date"], "=")
+    ->condition("cal_id", $params["cal_id"], "=")
+    ->execute(false);
+}
+
+
+function churchcal_getMyMeetingRequest() {
+  global $user;
+  $db=db_query("select mr.*, mr.event_date, c.startdate, c.enddate, c.bezeichnung, concat(p.vorname,' ',p.name) as modified_name, p.id modified_pid from {cc_meetingrequest} mr, {cc_cal} c, {cdb_person} p 
+        where mr.person_id=:person_id and c.modified_pid=p.id and datediff(mr.event_date, now())>0
+      and mr.cal_id=c.id", array(":person_id"=>$user->id));
+  $res=array();
+  foreach ($db as $d) {
+    $res[$d->cal_id]=$d;
+  }
+  return $res;
+}
+
 
 // Source gibt an, ob es aus einem anderen Modul kommt. Dies steuert die Zusammenarbeit
 function churchcal_createEvent($params, $source=null) {
@@ -40,6 +119,10 @@ function churchcal_createEvent($params, $source=null) {
                                "with_repeat_yn"=>$addition["with_repeat_yn"]));
     }
   }  
+  // MeetingRequest
+  if (isset($params["meetingRequest"]))
+    churchcal_handleMeetingRequest($new_id, $params);
+  
   // BENACHRICHTIGE ANDERE MODULE
   if (($source==null) || ($source!="churchresource")) {
     include_once(drupal_get_path('module', 'churchresource') .'/churchresource_db.inc');
@@ -174,6 +257,10 @@ function churchcal_updateEvent($params, $source=null) {
       }
     }
   }
+  
+  // MeetingRequest
+  if (isset($params["meetingRequest"]))
+    churchcal_handleMeetingRequest($params["id"], $params);
   
   // BENACHRICHTIGE ANDERE MODULE
   if (($source==null) || ($source!="churchresource")) {
@@ -312,7 +399,16 @@ function churchcal_getCalPerCategory($params, $withintern=true) {
     if (isset($data[$arr->id])) {
       $elem=$data[$arr->id];
     }
-    else $elem=$arr;
+    else {
+      $elem=$arr;
+      $req=churchcore_getTableData("cc_meetingrequest", null, "cal_id=".$arr->id);
+      if ($req!=false) {
+        $elem->meetingRequest=array();
+        foreach ($req as $r) {
+          $elem->meetingRequest[$r->person_id]=$r;
+        }
+      }      
+    }
     if ($arr->booking_id!=null) {      
       $elem->bookings[$arr->booking_resource_id]=
         array("id"=>$arr->booking_id, "minpre"=>(strtotime($arr->startdate)-strtotime($arr->booking_startdate))/60, 

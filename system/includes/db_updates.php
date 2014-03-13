@@ -1739,21 +1739,18 @@ function run_db_updates($db_version) {
       db_query("ALTER TABLE {cc_wikicategory} ADD in_menu_yn INT( 1 ) NOT NULL DEFAULT '1'");
       db_query("UPDATE {cdb_feld} set autorisierung='viewalldetails || leader' where autorisierung='ViewAllDetailsOrPersonLeader'");      
       
-      db_query("ALTER TABLE {cc_comment} ADD parent_id INT( 11 ) NULL AFTER id");
-      
       db_query("CREATE TABLE {cc_notification} (
-        id int(11) NOT NULL AUTO_INCREMENT,
-        domain_type varchar(20) NOT NULL,
-        domain_id int(11) NOT NULL,
-        person_id int(11) NOT NULL,
-        notificationtype_id int(11) NOT NULL,
-        lastsenddate datetime DEFAULT NULL,
-        PRIMARY KEY (id),
-        UNIQUE KEY domain_type (domain_type,domain_id,person_id)
-           ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ");
+          id int(11) NOT NULL AUTO_INCREMENT,
+          domain_type varchar(20) NOT NULL,
+          domain_id int(11) NOT NULL,
+          person_id int(11) NOT NULL,
+          notificationtype_id int(11) NOT NULL,
+          lastsenddate datetime DEFAULT NULL,
+          PRIMARY KEY (id),
+          UNIQUE KEY domain_type (domain_type,domain_id,person_id)
+        ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ");
       
-      db_query("
-        CREATE TABLE {cc_notificationtype} (
+      db_query("CREATE TABLE {cc_notificationtype} (
           id int(11) NOT NULL AUTO_INCREMENT,
           bezeichnung varchar(40) NOT NULL,
           delay_hours int(11) NOT NULL,
@@ -1765,6 +1762,20 @@ function run_db_updates($db_version) {
         (2,'jeden Tag', 24),
         (3,'jede 3 Tage', 72),
         (4,'jede Woche', 168)");
+      
+      db_query("CREATE TABLE {cc_meetingrequest} (
+          id int(11) NOT NULL AUTO_INCREMENT,
+          cal_id int(11) NOT NULL,
+          person_id int(11) NOT NULL,
+          event_date datetime NOT NULL,
+          zugesagt_yn int(1) DEFAULT NULL,
+          mailsend_date datetime DEFAULT NULL,
+          response_date datetime DEFAULT NULL,
+          PRIMARY KEY (id),
+          UNIQUE KEY cal_id (cal_id,person_id,event_date)
+        ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1");
+      
+      db_query("UPDATE {cdb_feldkategorie} SET id_name = 'person_id' WHERE intern_code='f_category'");
       
       set_version("2.47");
   }

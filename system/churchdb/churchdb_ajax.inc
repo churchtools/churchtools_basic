@@ -3,9 +3,6 @@ include_once("churchdb_db.inc");
 
 
 
-function getAuthForPerson($id) {
-  return getAuthForDomain($id, "person");
-}
 
 function getSearchableData() {
   $persons = db_query('SELECT person_id id, geburtsdatum, familienstand_no, geschlecht_no, hochzeitsdatum, nationalitaet_id,  
@@ -19,130 +16,7 @@ function getSearchableData() {
   return $arrs;	
 }
 
-function churchdb_isPersonSuperLeaderOfPerson($superleader_id, $person_id) {
-  $myGroups=churchdb_getMyGroups($superleader_id, true, false, true);
-  if (count($myGroups)>0) {
-    return churchdb_isPersonInGroups($person_id, $myGroups);
-  }
-  return false;
-}
 
-function churchdb_isPersonLeaderOfPerson($leader_id, $person_id) {
-  $myGroups=churchdb_getMyGroups($leader_id, true, true);
-  if (count($myGroups)>0) {
-    return churchdb_isPersonInGroups($person_id, $myGroups);
-  }
-  return false;
-}
-
-function churchdb_getPersonDetails($id) {
-  global $user;
-  
-  // Entweder habe ich viewall auf den Bereich oder ich bin mit dem in einer Gruppe
-  $allowed=$user->id==$id;
-  $iAmLeader=false;
-  $iAmSuperLeader=false;
-  
-  // Am i super leader?
-  if (churchdb_isPersonSuperLeaderOfPerson($user->id, $id)) {
-    $iAmSuperLeader=true;
-    $iAmLeader=true;
-    $allowed=true;
-  }
-  // Pr�fe erst, ob ich als Leiter mit dem in der Gruppe bin
-  if (churchdb_isPersonLeaderOfPerson($user->id, $id)) {
-    $iAmLeader=true;
-    $allowed=true;
-  }
-  // Pr�fe nun, ob ich normal mit dem in der Gruppe bin
-  if (!$allowed) {
-    $myGroups=churchdb_getMyGroups($user->id, true, false);
-    if (count($myGroups)>0) {
-      $res=db_query("SELECT count(*) c
-               FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg 
-                      WHERE p.id=gp.person_id and gpg.gemeindeperson_id=gp.id and p.id=:id 
-                       and gpg.gruppe_id in (".implode(",", $myGroups).") ", array(':id'=>$id))->fetch();
-      if ($res->c>0) {
-        $allowed=true;
-       }  
-    }
-  }
-  if (!$allowed) {
-    $allowedDeps=user_access("view alldata", "churchdb");
-    if ($allowedDeps!=null) {
-      $res=db_query('select count(*) as c from {cdb_bereich_person} 
-          where person_id=:p_id and bereich_id in ('.implode(',', $allowedDeps).')'
-        , array(':p_id'=>$id), false)->fetch();
-      if ($res->c>0) $allowed=true;
-    }
-  }
-  
-  if (!$allowed) 
-    return "no access";
-    
-  $res=db_query("select f.*, fk.intern_code from {cdb_feld} f, {cdb_feldkategorie} fk where f.feldkategorie_id=fk.id
-              and fk.intern_code in ('f_address', 'f_church', 'f_category') and aktiv_yn=1");
-  $sqlfields=array();
-  $sqlfields[]="p.id id";
-  $sqlfields[]="gp.id gp_id";
-  $sqlfields[]="geolat as lat";
-  $sqlfields[]="imageurl";
-  $sqlfields[]="geolng as lng";
-  $sqlfields[]="cmsuserid";
-  
-  function _checkAutorisierung($auto, $iAmLeader, $iAmSuperLeader) {
-    if ($auto==null) return true;
-    $ret=false;
-    foreach(explode("||", $auto) as $auth) {
-      $auth=trim($auth);
-      if ($auth=="admin") {
-        if (user_access('edit masterdata',"churchdb")) $ret=true;
-      }
-      else if ($auth=="viewalldetails") {
-        if (user_access('view alldetails',"churchdb")) $ret=true;
-      }
-      else if ($auth=="leader") {
-        if ($iAmLeader) $ret=true;
-      }
-      else if ($auth=="superleader") {
-        if ($iAmSuperLeader) $ret=true;
-      }
-      else throw new CTException("Unbekanntes Recht: '".$auth."'");
-    }
-   
-    return $ret;    
-  }
-  
-  foreach ($res as $res2) {    
-    if (($res2->autorisierung==null) || (_checkAutorisierung($res2->autorisierung, $iAmLeader, $iAmSuperLeader))) {
-      if (($res2->intern_code=="f_address") || ($iAmLeader) || (user_access('view alldetails',"churchdb")))
-        $sqlfields[]=$res2->db_spalte;  
-    }
-  } 
-       
-  $sql="select ".join($sqlfields,",");
-  if (($iAmLeader) || (user_access('view alldetails',"churchdb")) || (user_access('administer persons',"churchcore")))
-    $sql.=', p.letzteaenderung, p.aenderunguser, p.createdate, if (loginstr is null , 0 , 1) as einladung, p.active_yn, p.lastlogin';
-      	
-  $sql.=' FROM {cdb_person} p, {cdb_gemeindeperson} gp WHERE p.id=gp.person_id and p.id=:pid';  
-    
-  $person=db_query($sql, array(':pid'=>$id))->fetch();  
-  $comments=db_query("select id, text, person_id, datum, comment_viewer_id, relation_name from {cdb_comment} 
-                      where relation_id=:relid and relation_name like 'person%'
-					  order by datum desc", array(':relid'=>$id));
-  $auth=user_access("view comments","churchdb");
-  if (($comments) && ($auth!=null)) {
-    $arrs=null;
-    foreach ($comments as $arr) {
-      if ((isset($auth[$arr->comment_viewer_id])) &&
-        ($auth[$arr->comment_viewer_id]==$arr->comment_viewer_id))
-        $arrs[]=$arr;		
-    }
-    $person->comments=$arrs;
-  }
-  $person->auth=getAuthForPerson($id);
-  return $person;				  	
-}
 
 function churchdb_getPersonDetailsLogs($id) {
   $arrs="";

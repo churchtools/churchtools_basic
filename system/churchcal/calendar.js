@@ -457,8 +457,96 @@ function _renderEditEventContent(elem, currentEvent) {
     });
   }
   else if (currentEvent.view=="view-invite") {
-    rows.push('<legend>Besprechungsanfrage an alle Kalenderteilnehmer</legend>');
+    rows.push('<div id="meeting-request">'+form_renderImage({src:"loading.gif"})+'</div>');
     elem.find("#cal_content").html(rows.join(""));
+    churchInterface.jsendRead({func:"getAllowedPeopleForCalender", category_id:currentEvent.category_id}, function(ok, data) {
+      var form = new CC_Form();
+      if (data.length==0)
+        form.addHtml('<p>Dem Kalender sind keine Personen oder Gruppen zugewiesen.');
+      else {
+        form.addHtml('<p><span class="pull-right">');
+        form.addButton({label:"Alle auswählen", htmlclass:"select-all"});
+        form.addHtml("&nbsp; ")
+        form.addButton({label:"Alle abwählen", htmlclass:"deselect-all"});
+        form.addHtml('</span><i>Für eine Anfrage bitte Personen auswählen</i><br><small>Bei Wiederholungen wird momentan nur der erste Termin angefragt!</small></p><div style="height:360px;overflow-y:auto">');
+        form.addHtml('<table class="table table-condensed">');
+        function _addPerson(p) {
+          var mr=null;
+          if (currentEvent.meetingRequest!=null)
+            mr=currentEvent.meetingRequest[p.id];
+          form.addHtml('<tr data-id="'+p.id+'"><td>');
+          if (p.email!="" && (mr==null || mr.invite))
+            form.addCheckbox({htmlclass:"cb-person", checked:(mr!=null&&mr.invite), data:[{name:"id", value:p.id}]});
+          form.addHtml('<td>'+form_renderPersonImage(p.imageurl, 40));
+          form.addHtml('<td>'+p.vorname+" "+p.name);
+          form.addHtml('<td><span class="status">');
+          if (p.email=="")
+            form.addHtml('<i>Keine E-Mail-Adresse!');
+          else {
+            if (mr!=null) {
+              if (mr.invite)
+                form.addHtml('wird eingeladen');
+              else if (mr.response_date==null)
+                form.addHtml('Antwort ausstehend');
+              else if (mr.zugesagt_yn==null)
+                form.addHtml('Vorbehaltlich zugesagt');
+              else if (mr.zugesagt_yn==1)
+                form.addHtml('Zugesagt');
+              else if (mr.zugesagt_yn==0)
+                form.addHtml('Abgesagt');             
+            }
+            else form.addHtml('nicht eingeladen');
+          }
+          form.addHtml('</span>');        
+        }
+        $.each(data, function(k,a) {
+          if (a.type=="gruppe") {
+            form.addHtml('<tr><td colspan=4><h4>'+a.bezeichnung+'</h4>');
+            $.each(a.data, function(i,p) {
+              _addPerson(p);
+            });
+          }
+        });
+        form.addHtml('<tr><td colspan=4><h4>Personen</h4>');
+        $.each(data, function(k,a) {
+          if (a.type=="person") {
+            _addPerson(a.data);          
+          }
+        });
+        form.addHtml('</table></div>');
+      }
+
+      elem.find("#meeting-request").html(form.render());
+      myelem=elem;
+      elem.find("input.select-all").click(function() {
+        elem.find("input.checkbox").each(function() {
+          $(this).attr("checked","checked");
+          $(this).trigger("change");
+        });
+      });
+      elem.find("input.deselect-all").click(function() {
+        elem.find("input.checkbox").each(function() {
+          $(this).removeAttr("checked");
+          $(this).trigger("change");
+        });
+      });
+      elem.find("input.cb-person").change(function() {
+        var id=$(this).attr("data-id");
+        var checked=$(this).attr("checked")=="checked";
+        if (checked) {
+          elem.find("tr[data-id="+id+"]").find("span.status").html("wird eingeladen");
+          if (currentEvent.meetingRequest==null) currentEvent.meetingRequest=new Object();
+          if (currentEvent.meetingRequest[id]==null)
+            currentEvent.meetingRequest[id]=new Object();
+          currentEvent.meetingRequest[id].invite=true;        
+        }
+        else {
+          elem.find("tr[data-id="+id+"]").find("span.status").html("nicht eingeladen");
+          if (currentEvent.meetingRequest[id]!=null)
+            delete currentEvent.meetingRequest[id];
+        }
+      });
+    });    
   }     
   else if (currentEvent.view=="view-churchresource") {
     _renderViewChurchResource(elem);    
@@ -530,9 +618,9 @@ function _renderEditEventContent(elem, currentEvent) {
 function _renderEditEventNavi(elem, currentEvent) {
   var navi = new CC_Navi();
   navi.addEntry(currentEvent.view=="view-main","view-main","Kalender");
-  /*if ((masterData.category[currentEvent.category_id].oeffentlich_yn==0)
+  if ((masterData.category[currentEvent.category_id].oeffentlich_yn==0)
         && (masterData.category[currentEvent.category_id].privat_yn==0))
-    navi.addEntry(currentEvent.view=="view-invite","view-invite","Besprechungsanfrage");*/
+    navi.addEntry(currentEvent.view=="view-invite","view-invite","Besprechungsanfrage");
   if ((masterData.category[currentEvent.category_id].privat_yn==0) && (masterData.auth["view churchservice"]))
     navi.addEntry(currentEvent.view=="view-churchservice","view-churchservice",masterData.churchservice_name);
   if (masterData.auth["create bookings"] || masterData.auth["administer bookings"])

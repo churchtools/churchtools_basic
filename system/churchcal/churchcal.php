@@ -63,6 +63,36 @@ function churchcal_getAdminModel() {
 }
 
 
+function churchcal_getUserOpenMeetingRequests() {
+  return '<div id="cc_openmeetingrequests"></div>';  
+}
+function churchcal_getUserMeetings() {
+  return '<div id="cc_nextmeetingrequests"></div>';
+}
+
+function churchcal_blocks() {
+  return (array(
+      1=>array(
+          "label"=>"Deine offenen Terminanfragen",
+          "col"=>2,
+          "sortkey"=>1,
+          "html"=>churchcal_getUserOpenMeetingRequests(),
+          "help"=>"Terminanfragen",
+          "class"=>"cal-request"
+      ),
+      2=>array(
+          "label"=>"Deine n&auml;chsten Terminzusagen",
+          "col"=>2,
+          "sortkey"=>2,
+          "html"=>churchcal_getUserMeetings(),
+          "help"=>"Terminanfragen",
+          "class"=>"cal-request"
+      )
+      
+      ));
+}
+
+
 function churchcal_getAuth() {
   $cc_auth = array();
   $cc_auth=addAuth($cc_auth, 401,'view', 'churchcal', null, 'ChurchCal sehen', 1);
@@ -601,6 +631,39 @@ class CTChurchCalModule extends CTAbstractModule {
     $ret["auth"]=churchcal_getAuthForAjax();  
     return $ret;
   } 
+  
+  
+  
+  public function getAllowedPeopleForCalender($params) {
+    include_once('./'. drupal_get_path('module', 'churchdb') .'/churchdb_db.inc');
+    $db=db_query("select * from {cc_domain_auth} where daten_id=:daten_id and auth_id=403",
+        array(":daten_id"=>$params["category_id"]));
+    $res=array();
+    foreach ($db as $d) {
+      if ($d->domain_type=="gruppe") {
+        $g=array();
+        $ids=churchdb_getAllPeopleIdsFromGroups(array($d->domain_id));
+        foreach ($ids as $id) {
+          $p=churchdb_getPersonDetails($id);
+          if ($p!="no access") {
+            $g[]=$p;
+          }
+        }
+        if (count($g)>0) {
+          $gr=churchcore_getTableData("cdb_gruppe", null, "id=".$d->domain_id);
+          if ($gr!=false)
+            $res[]=array("type"=>"gruppe", "data"=>$g, "bezeichnung"=>$gr[$d->domain_id]->bezeichnung);
+        }        
+      }
+      else if ($d->domain_type=="person") {
+        $p=churchdb_getPersonDetails($d->domain_id);
+        if ($p!="no access") {
+          $res[]=array("type"=>"person", "data"=>$p);        
+        }        
+      }
+    }
+    return $res;
+  }
 }
 
 function churchcal__ajax() {

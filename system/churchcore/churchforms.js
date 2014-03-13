@@ -298,6 +298,7 @@ function form_renderCheckbox(options) {
   }
   var rows = new Array();
   var label = (options.label!=null?options.label:"");
+  var htmlclass=(options.htmlclass!=null?" "+options.htmlclass:"");
   var controlgroup = (options.controlgroup==null) || (options.controlgroup);
   var controlgroup_class=(options.controlgroup_class==null?"control-group":options.controlgroup_class);
   var controlgroup_start=(options.controlgroup_start!=null && options.controlgroup_start);
@@ -308,8 +309,15 @@ function form_renderCheckbox(options) {
     rows.push('<div class="'+controlgroup_class+'">');
   if ((controlgroup) || (controlgroup_start)) rows.push('<div class="controls">');
   
+  data="";
+  if (options.data!=null) {
+    $.each(options.data, function(k,a) {
+      data=data+"data-"+a.name+"="+a.value+" ";
+    });
+  }
+  
   if (label!="") rows.push('<label class="checkbox">');
-  rows.push('<input type="checkbox" class="checkbox" '+(options.cssid!=null?'id="'+options.cssid+'"':''));
+  rows.push('<input '+data+' type="checkbox" class="checkbox'+htmlclass+'" '+(options.cssid!=null?'id="'+options.cssid+'"':''));
   if ((options.checked!=null) && (options.checked))
     rows.push(" checked");
   if ((options.disabled!=null) && (options.disabled==true))

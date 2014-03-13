@@ -1,5 +1,6 @@
 
 loadPersonJS=false;
+masterData=null;
 
 function showFirstServiceRequests(max) {
   var counter=0;
@@ -110,9 +111,123 @@ function askMeYes(id) {
   if (res!=null) window.location.href="?q=home&zugesagt_yn=1&reason="+res+"&eventservice_id="+id;
 } 
 
+function renderForum(selected, hint) {
+  if (masterData.mygroups==null || masterData.mygroups.length==0) {
+    $("#cc_forum").parents("li").remove();
+  } 
+  else {
+    var form = new CC_Form();
+    form.addImage({src:"persons.png"});
+    form.addHtml("&nbsp; ");
+    form.addSelect({controlgroup:false, selected:selected, cssid: "groupid", htmlclass:"forum", freeoption:true,
+        type:"medium", data:masterData.mygroups});
+    if (hint!=null) form.addHtml("<br><br><i>"+hint+"</i>");
+    if (selected!=null && selected!="") {
+      form.addTextarea({cssid:"message", placeholder:"Hier Nachricht eingeben..."});
+      form.addButton({label:"Absenden"});
+    }
+    $("#cc_forum").html(form.render(false, "vertical"));
+
+    $("#cc_forum div.message").focus();
+    $("#cc_forum select.forum").change(function() {
+      renderForum($(this).val());
+    });
+    $("#cc_forum input.btn").click(function() {
+      var obj=form.getAllValsAsObject();
+      obj.func="sendEmail";
+      obj.message=obj.message.replace(/\n/g, '<br/>');
+      
+      churchInterface.jsendWrite(obj, function(ok, data) {
+        renderForum(null, "E-Mail wurde gesendet.");
+      });
+    });
+  }
+}
+
+function renderNextMeetingRequests() {
+  if (masterData.meetingRequests==null || masterData.meetingRequests.length==0) {
+    $("#cc_nextmeetingrequests").parents("li").remove();
+  } 
+  else {
+    var rows= new Array();
+    rows.push("");
+    var c=0;
+    $.each(churchcore_sortData(masterData.meetingRequests, "event_date"), function(k,a) {
+      if (c<3 && a.response_date!=null && (a.zugesagt_yn==null || a.zugesagt_yn==1)) {
+        c++;
+        rows.push('<div class="meeting-request" data-id="'+k+'">');
+        rows.push('<p style="margin-bottom:2px">'+a.event_date.toDateEn(true).toStringDe(true)+" - "+a.bezeichnung);
+        rows.push('<br> &nbsp;&nbsp; <small>Anfrage von <a href="?q=churchdb#PersonView/searchEntry:#'+a.modified_pid+'">'+a.modified_name+'</a></small>');
+        if (a.zugesagt_yn==null)
+        rows.push('<div class="meeting-request-answer" style="padding-top:0"> &nbsp;&nbsp; Zusage mit Vorbehalt!');              
+        rows.push('</div>');
+      }
+    });
+    if (c==0) $("#cc_nextmeetingrequests").parents("li").remove();
+    $("#cc_nextmeetingrequests").html(rows.join(""));
+  }
+}
+
+function renderOpenMeetingRequests() {
+  if (masterData.meetingRequests==null || masterData.meetingRequests.length==0) {
+    $("#cc_openmeetingrequests").parents("li").remove();
+  } 
+  else {
+    var rows= new Array();
+    rows.push("");
+    var c=0;
+    $.each(churchcore_sortData(masterData.meetingRequests, "event_date"), function(k,a) {
+      if (c<3 && a.response_date==null) {
+        c++;
+        rows.push('<div class="meeting-request" data-id="'+k+'">');
+        rows.push('<p style="margin-bottom:2px">'+a.event_date.toDateEn(true).toStringDe(true)+" - "+a.bezeichnung);
+        rows.push('<br> &nbsp;&nbsp; <small>Anfrage von <a href="?q=churchdb#PersonView/searchEntry:#'+a.modified_pid+'">'+a.modified_name+'</a></small>');
+        rows.push('<div class="meeting-request-answer" style="padding-top:0"> &nbsp;&nbsp; <a href="#" class="meeting-request confirm" id="zusagen">Zusagen</a> | ');              
+        rows.push('<a href="#" class="meeting-request decline" id="absagen">Absagen</a> | ');
+        rows.push('<a href="#" class="meeting-request perhaps" id="absagen">Vielleicht</a>');
+        rows.push('</div>');
+      }
+    });
+    if (c==0) rows.push('Super, es ist keine Anfragen mehr offen!');
+    $("#cc_openmeetingrequests").html(rows.join(""));
+    $("#cc_openmeetingrequests a.meeting-request").click(function() {
+      var id=$(this).parents("div.meeting-request").attr("data-id");
+      if ($(this).hasClass("confirm")) {
+        masterData.meetingRequests[id].zugesagt_yn=1;
+        txt="Danke f&uuml;r die Zusage.";
+      }
+      else if ($(this).hasClass("decline")) {
+        masterData.meetingRequests[id].zugesagt_yn=0;
+        txt="Du hast den Termin abgesagt.";
+      }
+      else 
+        txt="Deine vorl&auml;ufige Zusage wurde gespeichert.";
+      var dt=new Date();
+      masterData.meetingRequests[id].response_date=dt.toStringEn(true);
+      masterData.meetingRequests[id].func="updateMeetingRequest";
+      var elem=$(this).parents("div.meeting-request-answer");
+      churchInterface.jsendWrite(masterData.meetingRequests[id], function(ok, data) {    
+        if (!ok) alert(data);
+        else {
+          txt=" &nbsp;&nbsp; "+txt;
+          elem.animate({opacity: 0.0}, 200, function() {
+            elem.html(txt);
+            elem.find("div").hide();
+            elem.find("div").fadeIn();
+            elem.animate({opacity: 1}, 1);
+          });
+          window.setTimeout(function() {renderMeetingRequests(); }, 3000);
+        }
+      });
+      
+      return false;
+    });
+  }  
+}
+
 
 jQuery(document).ready(function() {
-  //$(".span4").sortable();
+  $(".span4").sortable();
   $(".span4").droppable({
       accept: ".ct_whitebox",
       activeClass: "ui-state-hover",
@@ -135,45 +250,13 @@ jQuery(document).ready(function() {
   churchInterface.setAllDataLoaded(true); 
   churchInterface.setModulename("home");
   renderServiceRequests();
-  renderForum();
-});
-
-function renderForum(selected, hint) {
   churchInterface.jsendRead({func:"getMasterData"}, function(ok, data) {
     if (ok) {
-      if (data.mygroups==null || data.mygroups.length==0) {
-        $("#cc_forum").parents("li").remove();
-      } 
-      else {
-        var form = new CC_Form();
-        form.addImage({src:"persons.png"});
-        form.addHtml("&nbsp; ");
-        form.addSelect({controlgroup:false, selected:selected, cssid: "groupid", htmlclass:"forum", freeoption:true,
-            type:"medium", data:data.mygroups});
-        if (hint!=null) form.addHtml("<br><br><i>"+hint+"</i>");
-        if (selected!=null && selected!="") {
-          form.addHtml('<div id="message" class="message well" contenteditable="true"></div>');
-          form.addButton({label:"Absenden"});
-        }
-        $("#cc_forum").html(form.render(false, "vertical"));
-        form_implantWysiwygEditor("message", false, true);
-
-        $("#cc_forum div.message").focus();
-        $("#cc_forum select.forum").change(function() {
-          renderForum($(this).val());
-        });
-        $("#cc_forum input.btn").click(function() {
-          var obj=form.getAllValsAsObject();
-          obj.func="sendEmail";
-          obj.message=CKEDITOR.instances.message.getData();
-          CKEDITOR.instances.message.destroy();
-          
-          churchInterface.jsendWrite(obj, function(ok, data) {
-            renderForum(null, "E-Mail wurde gesendet.");
-          });
-        });
-      }
+      masterData=data;
+      renderForum();
+      renderOpenMeetingRequests();
+      renderNextMeetingRequests();
     }
   });
-}
+});
 
