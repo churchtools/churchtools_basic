@@ -319,7 +319,10 @@ AgendaView.prototype.renderField = function(o, dataField, smallVersion) {
     }
     if (o.note!="") {
       rows.push('<div class="event_info">');
-      rows.push(o.note.trim((!smallVersion && $("#printview").val()==null?200:40)));
+      if ($("#printview").val()!=null)
+        rows.push(o.note);
+      else        
+        rows.push(o.note.trim((!smallVersion?200:40)));
       rows.push("</div>");
     }
     
@@ -855,6 +858,7 @@ AgendaView.prototype.getAgendaForEventIdIfOnline = function (event_id) {
 AgendaView.prototype.getListHeader = function () {
   var t=this;
   t.listViewTableHeight=null;
+  masterData.settings["listMaxRows"+t.name]=9999;
   t.loadTemplates();
   
   // When allAgenda is null, start loading Songs and Templates
