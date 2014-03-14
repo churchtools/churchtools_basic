@@ -68,6 +68,7 @@ function home_main() {
     for ($i=1;$i<=3;$i++) {
       $txt.='<ul class="span4">';
       if (isset($blocks[$i])) {
+        churchcore_sort($blocks[$i], "sortkey");
         foreach($blocks[$i] as $block) {
           if (($block["html"]!=null) && ($block["html"]!="")){
             $txt.='<li class="ct_whitebox';
@@ -91,8 +92,8 @@ function home_main() {
   drupal_add_js('system/main/home.js');
   
   return $txt; 
-
 }
+
 
 function checkFilesDir() {
     global $files_dir;
