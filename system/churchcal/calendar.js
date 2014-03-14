@@ -487,13 +487,13 @@ function _renderEditEventContent(elem, currentEvent) {
               if (mr.invite)
                 form.addHtml('wird eingeladen');
               else if (mr.response_date==null)
-                form.addHtml('Antwort ausstehend');
+                form.addImage({src:"question.png",width:24, label:"Noch keine Antwort!"});
               else if (mr.zugesagt_yn==null)
-                form.addHtml('Vorbehaltlich zugesagt');
+                form.addImage({src:"check-64_sw.png",width:24, label:"Vorbehaltlich zugesagt"});
               else if (mr.zugesagt_yn==1)
-                form.addHtml('Zugesagt');
+                form.addImage({src:"check-64.png",width:24, label:"Zugesagt"});
               else if (mr.zugesagt_yn==0)
-                form.addHtml('Abgesagt');             
+                form.addImage({src:"delete_2.png",width:24, label:"Abgesagt"});
             }
             else form.addHtml('nicht eingeladen');
           }

@@ -123,6 +123,8 @@ AgendaView.prototype.editAgenda = function(agenda, template) {
   var t=this;
   var form = new CC_Form((template?"Vorlage für Ablaufpläne editieren":"Ablaufplan editieren"), agenda);
   form.addInput({label:"Bezeichnung", cssid:"bezeichnung"});
+  if (!template)
+    form.addCheckbox({label:"Ablauf ist endg&uuml;ltig", cssid:"final_yn"});
   form.addInput({label:"Predigtserie", cssid:"series"});
   form.addSelect({label:"Für Kalender", data:masterData.category, cssid:"calcategory_id"})
   if (agenda!=null && template) {
@@ -838,6 +840,18 @@ AgendaView.prototype.loadAgendaForEvent = function(event_id, func) {
   }
 };
 
+AgendaView.prototype.getAgendaForEventIdIfOnline = function (event_id) {
+  if (allAgendas==null) return null;
+  var res=null;
+  $.each(allAgendas, function(k,a) {
+    if (churchcore_inArray(event_id, a.event_ids)) {
+      res=a;
+      return false;
+    }
+  });
+  return res;
+};
+
 AgendaView.prototype.getListHeader = function () {
   var t=this;
   t.listViewTableHeight=null;
@@ -999,6 +1013,7 @@ AgendaView.prototype.getListHeader = function () {
 
   if (t.currentAgenda.template_yn==1) form.addHtml("Vorlage: ");
   form.addHtml(t.currentAgenda.bezeichnung+"&nbsp;");
+  if (t.currentAgenda.template_yn==0 && t.currentAgenda.final_yn==0) form.addHtml(" - ENTWURF &nbsp;");
   if (user_access("edit agenda", t.currentAgenda.calcategory_id) 
     && (t.currentAgenda.template_yn==0 || user_access("edit agenda templates", t.currentAgenda.calcategory_id))) {
     form.addImage({src:"options.png", hover:true, width:20, htmlclass:"edit-agenda", label:"Editieren", link:true});
@@ -1008,7 +1023,10 @@ AgendaView.prototype.getListHeader = function () {
   if (!$("#printview").val()) {
     if (churchcore_countObjectElements(t.currentAgenda.event_ids)>0) {
       form.addButton({label:"Zum Event gehen", htmlclass:"go-to-event"});
+      form.addHtml("&nbsp;");
     }
+    if (t.currentAgenda.template_yn==0 && t.currentAgenda.final_yn==0) 
+      form.addButton({label:"Als abgeschlossen markieren", htmlclass:"send-agenda"});
   }
   $("#cdb_group").html(form.render(true));
   $("#cdb_group a.edit-agenda").click(function() {
@@ -1031,6 +1049,28 @@ AgendaView.prototype.getListHeader = function () {
       listView.renderList();      
     },10);
     return false;
+  });
+  $("#cdb_group .send-agenda").click(function() {
+    var form = new CC_Form("Ablaufplan abschliessen");
+    form.addCheckbox({label: "Ablaufplan als abgeschlossen markieren", checked:true, cssid:"final_yn"});
+    form.addCheckbox({label: "Alle beteiligten per E-Mail &uuml;ber den Ablauf informieren", checked:false, cssid:"email"});
+    var elem = form_showDialog("Ablaufplan", form.render(), 500, 400, {
+      "Speichern": function() {
+        var o=form.getAllValsAsObject();
+        if (o.final_yn==1) {
+          t.currentAgenda.final_yn=1;
+          t.saveAgenda(t.currentAgenda);
+        }
+        if (o.email==1) {
+          listView.sendEMailToEvent(allEvents[t.currentAgenda.event_ids[0]]);
+        }
+        elem.dialog("close");
+        t.renderList();
+      },
+      "Abbrechen": function() {
+        elem.dialog("close");
+      }
+    });    
   });
   
   return t.renderListHeader();
@@ -1116,6 +1156,7 @@ AgendaView.prototype.startNewAgenda = function(template_agenda, copying) {
       t.currentAgenda.bezeichnung=listView.currentEvent.startdate.toDateEn(true).toStringDe(true)+
     " - Ablauf "+listView.currentEvent.bezeichnung;
     if (t.currentAgenda.series==null) t.currentAgenda.series="";
+    if (t.currentAgenda.final_yn==null) t.currentAgenda.final_yn=0;
   }
 
   if (t.currentAgenda.event_ids==null)

@@ -996,8 +996,9 @@ ListView.prototype.renderListEntry = function(event) {
   }
   
   if (_authMerker) rows.push("<a href=\"#\" id=\"attachFile" + event.id + "\" title=\"Datei zum Event anh&auml;ngen\">" +this.renderImage("paperclip")+"</a>&nbsp;");
-    
-  rows.push("<a href=\"#\" id=\"mailEvent" + event.id + "\" title=\"Erstelle E-Mail an Personen des Events\">" +this.renderImage("email")+"</a>&nbsp;");
+
+  if (event.services!=null)
+    rows.push("<a href=\"#\" id=\"mailEvent" + event.id + "\" title=\"Erstelle E-Mail an Personen des Events\">" +this.renderImage("email")+"</a>&nbsp;");
   if (event.admin!=null)
     if (_bin_ich_admin) 
       rows.push("<a href=\"#\" id=\"filterMyAdmin" + event.id + "\" title=\"Du bist Admin!\">" +this.renderImage("person")+"</a>&nbsp;");
@@ -2053,15 +2054,16 @@ ListView.prototype.getEventService = function(event_id, eventservice_id) {
 };
 
 ListView.prototype.renderTooltip = function(id, event_id, withLastDates, withHistory) {
-  var _bin_ich_admin=bin_ich_admin(allEvents[event_id].admin);
   var eventservice_id=id.substr(id.indexOf("_")+1,99);
   var txt="";
   var a = this.getEventService(event_id, eventservice_id);
+  var _bin_ich_admin=bin_ich_admin(allEvents[event_id].admin);
+  var _editor=(masterData.auth.admin) || (masterData.auth.editservice[a.service_id]) || (masterData.auth.leaderservice[a.service_id]) || (_bin_ich_admin);
   if (a.name!=null) {
     txt="<h4>"+a.name;
     txt=txt+"</h4>";
   }
-
+  
   var info=false;
   if (masterData.service[a.service_id].cdb_gruppen_ids!=null) {
     var info=this_object.getMemberOfOneGroup(masterData.service[a.service_id].cdb_gruppen_ids, [a.cdb_person_id]);
@@ -2083,7 +2085,7 @@ ListView.prototype.renderTooltip = function(id, event_id, withLastDates, withHis
     if (info.imageurl!=null)
       txt='<div style="float:right">&nbsp;<img src="'+masterData.files_url+"/fotos/"+info.imageurl+'" style="max-width:70px" width="70"></div>'+txt;
   }
-  if ((masterData.auth.admin) || (masterData.auth.leaderservice[a.service_id]) || (_bin_ich_admin)) {
+  if (_editor) {
     var t2=this.renderPersonAuslastung(a.cdb_person_id, event_id, a.service_id);
     if (t2!="")
       txt=txt+"Auslastung: "+t2;
@@ -2104,27 +2106,29 @@ ListView.prototype.renderTooltip = function(id, event_id, withLastDates, withHis
     }
   }
   
-  if (txt!="") {
+  if (txt!="" || _editor) {
     txt='<div>'+txt+"</div>";
     txt=txt+'<div style="clear:both"></div>';  
   }
 
   
   if ((withHistory) || (masterData.auth.viewhistory) || (_bin_ich_admin))
-    txt=txt+"<p>"+this.renderEntryHistory(event_id, a.service_id, a.counter, null, (masterData.auth.leaderservice[a.service_id]) || (masterData.auth.admin) || (_bin_ich_admin), true);
+    txt=txt+"<p>"+this.renderEntryHistory(event_id, a.service_id, a.counter, null, _editor, true);
 
   if (txt!="") {
     var title=masterData.service[a.service_id].bezeichnung;
     if (masterData.service[a.service_id].notiz!="")
       title=title+' <small> ('+masterData.service[a.service_id].notiz+")</small>";
 
-    var abonniert=false;
-    if (getNotification("service", a.service_id)!==false) {
-      abonniert=true;      
+    if (_editor) {
+      var abonniert=false;
+      if (getNotification("service", a.service_id)!==false) {
+        abonniert=true;      
+      }
+      title=title+'&nbsp; <span class="label '+(abonniert?"label-info":"")+'">';
+      title=title+'<a href="#" class="edit-notification" data-domain-type="service" data-domain-id="'+a.service_id+'" '+'>'
+        +(abonniert?"abonniert":"abonnieren")+'</a></span>';
     }
-    title=title+'&nbsp; <span class="label '+(abonniert?"label-info":"")+'">';
-    title=title+'<a href="#" class="edit-notification" data-domain-type="service" data-domain-id="'+a.service_id+'" '+'>'
-      +(abonniert?"abonniert":"abonnieren")+'</a></span>';
     
     txt='<div style="min-width:250px; max-width:300px;">'+txt+'</div>';
     return [txt,title];
@@ -2399,32 +2403,32 @@ ListView.prototype.sendEMailToEvent = function(event) {
   if (_dienstgruppen.length==0)
     alert("Um eine E-Mail zu senden, muss mindestens eine bekannte Person angefragt sein.");
   else {
-    rows.push('<form class="form-h_orizontal">');
-    rows.push("<legend>Schreibe E-Mail an angefragte Mitarbeiter</legend>");
-    
+    rows.push('<form class="form-inline">');    
+    rows.push('<div class="well">E-Mail an folgende Mitarbeiter senden:<br/><p><p>');
+    var c=0;
     $.each(this_object.sortMasterData(masterData.servicegroup), function(k,a) {
       if (_dienstgruppen[a.id]) {
         var checked="";
         if (this_object.isLeaderOfServiceGroup(a.id)) checked="checked";
-        rows.push(form_renderCheckbox({label:a.bezeichnung, cssid:"checkSG"+a.id,  controlgroup_class:"",
-          //controlgroup_start:(k==0), controlgroup_end:(k==churchcore_countObjectElements(masterData.servicegroup)-1), 
-                              checked:this_object.isLeaderOfServiceGroup(a.id)}));
+        rows.push(form_renderCheckbox({label:a.bezeichnung, cssid:"checkSG"+a.id,  controlgroup:false,
+                              checked:this_object.isLeaderOfServiceGroup(a.id)})+"&nbsp; &nbsp; ");
       }
     });
-    
-    //rows.push(this_object.renderInput("betreff", "Betreff:<br/>", "Infos zum "+event.bezeichnung+" am "+event.startdate.toDateEn(true).toStringDe(true), 1000));
+    rows.push('</div>');
     
     rows.push(form_renderInput({label:"Betreff", value:"Infos zum "+event.bezeichnung+" am "+event.startdate.toDateEn(true).toStringDe(true),
                 cssid:"betreff", type:"xlarge"}));
     
-    //rows.push("<br/>"+this_object.renderTextarea("inhalt", "Inhalt:<br/>", "", 100, 8));
-
-    //rows.push(form_renderTextarea({label:"Inhalt", cssid:"inhalt", type:"xlarge", rows:6}));
     var txt='<div id="inhalt" class="well" contenteditable="true">';
+    if (event.agenda && (user_access("view agenda", event.category_id) || t.amIInvolved(event))) {
+      var a=agendaView.getAgendaForEventIdIfOnline(event.id);
+      if (a!=null) 
+        txt=txt+'<br/><br/><a href="'+masterData.base_url+'?q=churchservice&id='+a.id+'#AgendaView" class="button">Ablauf aufrufen</a>';
+    }
+
     if (masterData.settings.signature!=null) txt=txt+masterData.settings.signature;
     txt=txt+'</div>';
-    rows.push(form_renderLabel(txt, 'Inhalt'));
-//    rows.push(form_renderLabel('<small>Verf&uuml;gbare Serienfelder: <a href="#" id="Vorname">[Vorname]</a> <a href="#" id="Nachname">[Nachname]</a></small>'));
+    rows.push(txt);
     
     if (masterData.settings.sendBCCMail==null)
       masterData.settings.sendBCCMail=1;
@@ -2433,7 +2437,7 @@ ListView.prototype.sendEMailToEvent = function(event) {
     
     rows.push("</form");
 
-    var elem=this_object.showDialog("E-Mail an Mitarbeiter",rows.join(""), 600,600, {
+    var elem=this_object.showDialog("E-Mail an ausgewählte Mitarbeiter",rows.join(""), 600,650, {
         "Absenden": function() {
           var obj = new Object();
           var ids="";
@@ -2516,7 +2520,7 @@ ListView.prototype.attachFile = function(event) {
     }    
   });
 
-  rows.push('<legend>1. Option zum Hochladen der Datei</legend>');
+  rows.push('<form class="form-inline"><legend>1. Option zum Hochladen der Datei</legend>');
   if (eventIds.length>0) {
     checked=masterData.settings.file_attachToAllEvents==1;
     rows.push(form_renderCheckbox({
@@ -2535,12 +2539,12 @@ ListView.prototype.attachFile = function(event) {
     });
   }
   if (_dienstgruppen.length>0) {
-    rows.push("<p>Folgende Dienstgruppen per E-Mail &uuml;ber die neue Datei informieren:");
+    rows.push("<p>Folgende Dienstgruppen per E-Mail &uuml;ber die neue Datei informieren:<p>");
     $.each(this_object.sortMasterData(masterData.servicegroup), function(k,a) {
       if (_dienstgruppen[a.id]) {
         checked=masterData.settings["file_informServiceGroup"+a.id]==1;
         rows.push(form_renderCheckbox({label:a.bezeichnung, controlgroup:false, checked:checked, 
-            cssid:"file_informServiceGroup"+a.id}));
+            cssid:"file_informServiceGroup"+a.id})+"&nbsp; &nbsp;");
       }
     });    
    rows.push('<p>Hier kann ein Kommentar angeben werden:<div class="well" contenteditable="true" id="editor">&nbsp;</div>');    
@@ -2554,6 +2558,8 @@ ListView.prototype.attachFile = function(event) {
     rows.push('<legend>2. Datei ausw&auml;hlen</legend>');
   
   rows.push("<p><div id=\"upload_button\">Nochmal bitte...</div><p>");
+  
+  rows.push("<p><small>Sobald eine Datei hochgeladen wurde, werden alle angewählten Mitarbeiter per E-Mail informiert.</form>");
   
   var elem = form_showDialog("Datei zum Event "+event.bezeichnung+" hochladen",rows.join(""), 520, 500, {
     "Abbrechen": function() {
@@ -2783,6 +2789,11 @@ ListView.prototype.editNotification = function(domain_type, domain_id) {
   
   if (domain_id!=null && value==null) {
     form.addHtml('<legend>Neues Abo f&uuml;r '+masterData[domain_type][domain_id].bezeichnung+'</legend>');
+    
+    $.each(masterData.notificationtype, function(k,a) {
+      a.sortkey=a.delay_hours;
+    });
+    
     form.addSelect({label:"Wann soll bei Neuigkeiten f&uuml;r <b>"+masterData[domain_type][domain_id].bezeichnung+"</b> benachrichtigt werden?",
            data:masterData.notificationtype, type:"medium", controlgroup:false, htmlclass:"new-notificationtype", selected:value, freeoption:true});
     form.addHtml('<p><p>');
@@ -3405,7 +3416,10 @@ ListView.prototype.renderEntryDetail = function (event_id) {
     agendaView.loadAgendaForEvent(event_id, function(data) {
       var rows=new Array();
       rows.push('<tr class="detail" id="detail'+event_id+'" data-id="'+event_id+'"><td colspan=20><div class="well">');  
-      rows.push('<legend>Ablauf &nbsp;');
+      rows.push('<legend>Ablauf ');
+      if (agendaView.currentAgenda!=null && agendaView.currentAgenda.final_yn==0)
+        rows.push(' ENTWURF');
+      rows.push('&nbsp;');
       if (user_access("view agenda", event.category_id))
         rows.push(form_renderImage({src:"agenda_call.png", htmlclass:"show-agenda", data:[{name:"id", value:data.id}], link:true, label:"Ablaufplan aufrufen", width:20})+"&nbsp;");
       rows.push(form_renderImage({src:"printer.png", htmlclass:"print-agenda", data:[{name:"id", value:data.id}], link:true, label:"Druckansicht", width:20}));

@@ -168,7 +168,7 @@ function renderNextMeetingRequests() {
   }
 }
 
-function renderOpenMeetingRequests() {
+function renderOpenMeetingRequests(refresh) {
   if (masterData.meetingRequests==null || masterData.meetingRequests.length==0) {
     $("#cc_openmeetingrequests").parents("li").remove();
   } 
@@ -179,7 +179,7 @@ function renderOpenMeetingRequests() {
     $.each(churchcore_sortData(masterData.meetingRequests, "event_date"), function(k,a) {
       if (c<3 && a.response_date==null) {
         c++;
-        rows.push('<div class="meeting-request" data-id="'+k+'">');
+        rows.push('<div class="meeting-request" data-id="'+a.id+'">');
         rows.push('<p style="margin-bottom:2px">'+a.event_date.toDateEn(true).toStringDe(true)+" - "+a.bezeichnung);
         rows.push('<br> &nbsp;&nbsp; <small>Anfrage von <a href="?q=churchdb#PersonView/searchEntry:#'+a.modified_pid+'">'+a.modified_name+'</a></small>');
         rows.push('<div class="meeting-request-answer" style="padding-top:0"> &nbsp;&nbsp; <a href="#" class="meeting-request confirm" id="zusagen">Zusagen</a> | ');              
@@ -188,7 +188,10 @@ function renderOpenMeetingRequests() {
         rows.push('</div>');
       }
     });
-    if (c==0) rows.push('Super, es ist keine Anfragen mehr offen!');
+    if (c==0) {
+      if (refresh!=null) rows.push('Super, es ist keine Anfragen mehr offen!');
+      else $("#cc_openmeetingrequests").parents("li").remove();
+    }
     $("#cc_openmeetingrequests").html(rows.join(""));
     $("#cc_openmeetingrequests a.meeting-request").click(function() {
       var id=$(this).parents("div.meeting-request").attr("data-id");
@@ -216,7 +219,7 @@ function renderOpenMeetingRequests() {
             elem.find("div").fadeIn();
             elem.animate({opacity: 1}, 1);
           });
-          window.setTimeout(function() {renderMeetingRequests(); }, 3000);
+          window.setTimeout(function() {renderOpenMeetingRequests(true); renderNextMeetingRequests()}, 3000);
         }
       });
       

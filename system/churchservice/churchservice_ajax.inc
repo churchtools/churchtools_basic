@@ -102,7 +102,8 @@ function churchservice_getAuthorization() {
   
   if (isset($auth["view servicegroup"])) 
     $res_view=$auth["view servicegroup"];
-  else $res_view=array();
+  else 
+    $res_view=array();
   // Prï¿½fe nach, ob ich irgendwo dabei bin
   $arr=churchcore_getTableData("cs_servicegroup","sortkey");
   
@@ -117,8 +118,13 @@ function churchservice_getAuthorization() {
   }
   $res["viewgroup"]=$res_view;
   
-  if (isset($auth["edit servicegroup"]))
+  if (isset($auth["edit servicegroup"])) {
     $res["editgroup"]=$auth["edit servicegroup"];
+    // Copy edit permission to view permissions!
+    foreach ($auth["edit servicegroup"] as $key=>$a) {
+      $res["viewgroup"][$key]=$a;
+    }
+  }
   else $res["editgroup"]=array();
   
   // PrŸfe nun, ob der aktuelle User Leiter oder zumindest Teilnehmer einer Gruppe ist
@@ -966,6 +972,7 @@ class CTChurchServiceModule extends CTAbstractModule {
 	  $res["masterDataTables"] = $this->getMasterDataTablenames();
 	  $res["auth"] = $auth;
 	  $res["modulespath"] = churchservice_getModulesPath();
+	  $res["base_url"] = $base_url;
 	  $res["files_url"] = $base_url.$files_dir;
 	  $res["files_dir"] = $files_dir;
 	  $res["modulename"] = "churchservice";
@@ -1310,7 +1317,8 @@ class CTChurchServiceModule extends CTAbstractModule {
   	$i->setParam("bezeichnung");
   	$i->setParam("template_yn");
   	$i->setParam("series");
-  	
+  	$i->setParam("final_yn", false);
+  	 
   	if (!isset($params["id"])) {
   	  $params["id"]=db_insert("cs_agenda")
   	  ->fields($i->getDBInsertArrayFromParams($params))

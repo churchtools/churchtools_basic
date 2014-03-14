@@ -1757,11 +1757,12 @@ function run_db_updates($db_version) {
           PRIMARY KEY (id)
         ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1");
       
-      db_query("INSERT INTO {cc_notificationtype} (id, bezeichnung, delay_hours) VALUES
-        (1,'sofort', 0),
-        (2,'jeden Tag', 24),
-        (3,'jede 3 Tage', 72),
-        (4,'jede Woche', 168)");
+      db_query("INSERT INTO {cc_notificationtype} (bezeichnung, delay_hours) VALUES
+        ('sofort', 0),
+        ('alle 3 Stunden', 3),
+        ('jeden Tag', 24),
+        ('alle 3 Tage', 72)
+        ");
       
       db_query("CREATE TABLE {cc_meetingrequest} (
           id int(11) NOT NULL AUTO_INCREMENT,
@@ -1775,7 +1776,15 @@ function run_db_updates($db_version) {
           UNIQUE KEY cal_id (cal_id,person_id,event_date)
         ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1");
       
+      // Fix bug when person_id differs from id
       db_query("UPDATE {cdb_feldkategorie} SET id_name = 'person_id' WHERE intern_code='f_category'");
+
+      // Copy permission from viewalldata to new perm: complex filter
+      db_query("insert into {cc_domain_auth} (
+        select domain_type, domain_id, 120, null from {cc_domain_auth} where auth_id=102
+        group by domain_id, domain_type)");
+      
+      db_query("ALTER TABLE {cs_agenda} ADD final_yn INT( 1 ) NOT NULL DEFAULT '0' AFTER series");
       
       set_version("2.47");
   }

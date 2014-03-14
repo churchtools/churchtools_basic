@@ -1047,10 +1047,11 @@ function form_implantWysiwygEditor(id, smallmenu, inline) {
   if (!churchcore_isObjectEmpty($("#"+id))) {
     if ((smallmenu==false))
       toolbar= [
-                { name: 'clipboard', groups: [ 'clipboard', 'undo' ], items: [ 'Cut', 'Copy', 'Paste', /*'PasteText', 'PasteFromWord',*/ '-', 'Undo', 'Redo' ] },
-                { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ], items: [ 'Bold', 'Italic', 'Underline', 'Strike', /*'Subscript', 'Superscript', */'-', 'RemoveFormat' ] },
+                { name: 'clipboard', groups: [ 'clipboard', 'undo' ], items: [/* 'Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord',*/ '-', 'Undo', 'Redo' ] },
+                { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ], items: [ 'Bold', 'Italic', 'Underline', /*'Strike', 'Subscript', 'Superscript', */'-', 'RemoveFormat' ] },
                 { name: 'colors', items: [ 'TextColor', 'BGColor' ] },
-                { name: 'insert', items: [ 'Image', 'Smiley'] },
+                { name: 'links', items: [ 'Link', 'Unlink'] },
+                { name: 'insert', items: [ 'Image', 'Smiley', 'Table'] },
                 { name: 'serienfeld', items: [ 'vorname', 'spitzname', 'nachname' ] }
               ];
     else if (smallmenu==true) {

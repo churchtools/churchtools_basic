@@ -5,9 +5,11 @@
 + (CDB) Neues Rechte für das Nutzen von "Weiteren Filter" (hing vorher mit viewalldata zusammen)
 + (CW) Man kann nun Kategorien verstecken und dann per Link direkt aufrufen.
 + (CS) Ablaufpläne können nun auch direkt aus dem Dienstplan gedruckt werden
++ (CS) Ablaufpläne haben nun einen Status Entwurf/Abgeschlossen
 + (CS) Nun wählbar ob Kopieren und Integrieren von Ablaufplänen zu vorhandenen.
-+ Austausch von "+" zu netteren Icons mit Hover-Funktion
 + (Cal) Es gibt nun eine Druckansicht
++ (Cal) Es können nun Besprechungsanfragen gestellt werden 
++ Austausch von "+" zu netteren Icons mit Hover-Funktion
 - (CDB) Kleiner Bug bei Auswahl von Personen behoben
 - (CDB) VCardExport für Mac optimiert
 - Zwischenspeichern nun kompatibel mit IE8

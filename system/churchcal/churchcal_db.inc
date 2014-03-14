@@ -55,16 +55,16 @@ function churchcal_updateMeetingRequest($params) {
   $i->setParam("person_id");
   $i->setParam("mailsend_date");
   $i->setParam("event_date");
-  $i->setParam("zugesagt_yn");
+  $i->setParam("zugesagt_yn", false);
   $i->setParam("response_date");
   
   $dt = new DateTime();
 
+  if ($params["zugesagt_yn"]=="") unset($params["zugesagt_yn"]);
+  
   db_update("cc_meetingrequest")
     ->fields($i->getDBInsertArrayFromParams($params))
-    ->condition("person_id", $params["person_id"], "=")
-    ->condition("mailsend_date", $params["mailsend_date"], "=")
-    ->condition("cal_id", $params["cal_id"], "=")
+    ->condition("id", $params["id"], "=")
     ->execute(false);
 }
 
@@ -76,7 +76,7 @@ function churchcal_getMyMeetingRequest() {
       and mr.cal_id=c.id", array(":person_id"=>$user->id));
   $res=array();
   foreach ($db as $d) {
-    $res[$d->cal_id]=$d;
+    $res[$d->id]=$d; //TESTEN!!
   }
   return $res;
 }
