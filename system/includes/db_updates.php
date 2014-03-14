@@ -1791,13 +1791,18 @@ function run_db_updates($db_version) {
 	  
     $a=db_query("select * from {cc_config} where name='version'",null,false);
     $software_version=$a->fetch()->value;
+    
+    $link=' <a href="https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc:changelog/" target="_clean">Neuigkeiten anschauen</a>';
+    
     if ($db_version == "nodb")
-      addInfoMessage("Datenbankupdates ausgef&uuml;hrt auf v$software_version");
+      addInfoMessage("Datenbankupdates ausgef&uuml;hrt auf v$software_version.");
     else
-      addInfoMessage("Datenbankupdates ausgef&uuml;hrt von ChurchTools v$db_version auf v$software_version");
+      addInfoMessage("Datenbankupdates ausgef&uuml;hrt von ChurchTools v$db_version auf v$software_version. $link");
     cleanI18nFiles();
     $sitename=$config["site_name"];
-    churchcore_systemmail($config["site_mail"], "Neue Version auf ".$config["site_name"], "Datenbankupdates ausgefuehrt von ChurchTools v$db_version auf v".$software_version."\n".$base_url);
+    churchcore_systemmail($config["site_mail"], "Neue Version auf ".$config["site_name"], 
+        "Datenbankupdates ausgef&uuml;hrt von ChurchTools v$db_version auf v$software_version. $link<br/><br/>".
+           "<a href=\"$base_url\" class=\"btn\">$sitename aufrufen</a>", true);
     if (userLoggedIn()) {
       $user=$_SESSION["user"];
       $user->auth=getUserAuthorization($user->id);
