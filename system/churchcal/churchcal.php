@@ -738,7 +738,13 @@ function churchcal__ical() {
         $txt.="ORGANIZER:MAILTO:".variable_get('site_mail', '')."\r\n";
         $txt.="SUMMARY:".$res->bezeichnung."\r\n";
         //$txt.="X-MICROSOFT-CDO-BUSYSTATUS:BUSY\r\n"; 
-        $txt.="URL:".$base_url."?q=churchcal\r\n";
+        if ($res->link!="")
+          $txt.="URL:".$res->link."\r\n";
+        else
+          $txt.="URL:".$base_url."?q=churchcal\r\n";
+        if ($res->ort!="")
+          $txt.="LOCATION:".$res->ort."\r\n";
+          
         $subid++; 
         $txt.="UID:".$res->id."_$subid\r\n";
         $txt.="DTSTAMP:".churchcore_stringToDateICal($res->modified_date)."\r\n";
@@ -757,7 +763,7 @@ function churchcal__ical() {
           $txt.="DTEND:".$enddate->format('Ymd\THis')."\r\n";
         }
         
-        $txt.='DESCRIPTION:Kalender:'.$cat_names[$res->category_id]->bezeichnung.' - Cal['.$res->id.']'."\r\n"; 
+        $txt.='DESCRIPTION:Kalender:'.$cat_names[$res->category_id]->bezeichnung.' - Cal['.$res->id.'] - '.$res->notizen."\r\n"; 
         $txt.="END:VEVENT\r\n";
       } 
     }

@@ -612,7 +612,9 @@ function churchservice_ical() {
     else       
       $txt.="SUMMARY:Anfrage: ".$res->dienst." (".$res->servicegroup.")?\r\n";
     $txt.="X-MICROSOFT-CDO-BUSYSTATUS:BUSY\r\n"; 
-    $txt.="URL:".$base_url."/?q=churchservice/entrylist\r\n"; 
+    $txt.="URL:".$base_url."/?q=churchservice/entrylist\r\n";
+    if  ($res->ort!="")
+      $txt.="LOCATION:".$res->ort."\r\n";
     $txt.="DESCRIPTION:".$res->dienst." (".$res->servicegroup.") bei ".$res->event.".";
     if ($res->zugesagt_yn==1)    
       $txt.="\r\n";

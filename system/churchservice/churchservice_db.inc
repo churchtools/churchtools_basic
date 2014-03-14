@@ -295,7 +295,7 @@ function churchservice_saveEvent($params, $source=null) {
 
 
 function churchservice_getUserCurrentServices($user_id) {  
-  $arr=db_query("SELECT cal.bezeichnung event, s.bezeichnung dienst, es.id eventservice_id,".
+  $arr=db_query("SELECT cal.bezeichnung event, cal.ort, s.bezeichnung dienst, es.id eventservice_id,".
                 "sg.bezeichnung servicegroup,".
                  "DATE_FORMAT(es.modified_date, '%Y%m%dT%H%i00') modified_date, ".
                 "p.vorname, p.name, es.modified_pid, zugesagt_yn,
