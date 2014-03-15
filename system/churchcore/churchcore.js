@@ -346,9 +346,6 @@ String.prototype.formatMS = function() {
   return Math.floor(this/60)+":"+s;
 }
 
-String.prototype.endsWith = function(suffix) {
-  return this.indexOf(suffix, this.length - suffix.length) !== -1;
-};
 /**
  * Trimmt den String auf die Anzahl Zeichen und ergänzt es dann mit ".."
  * @param len Anzahl Max-Zeichen
