@@ -935,7 +935,7 @@ function initCalendarView() {
       },
       //aspectRatio: 1.7,
       firstDay:1,
-      contentHeight: 600,
+      contentHeight: (!printview?600:1000),
       defaultEventMinutes:90,
       editable: true,
       monthNames: monthNames,
@@ -991,6 +991,11 @@ function initCalendarView() {
     if (!embedded) {
       $("td.fc-header-right").append('<span id="yearView" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content">Jahr</span><span class="fc-button-effect"><span></span></span></span></span>');
       $("td.fc-header-right").append('<span id="eventView" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content"><i class="icon-list"></i></span><span class="fc-button-effect"><span></span></span></span></span>');
+    }
+    if (printview) {
+      // Strange, but necessary!! 
+      $("#calendar").css("width", "670px");
+      $("#calendar").fullCalendar("render");
     }
     $("#header").html("");
     if ($("#viewdate").val()!=null) {

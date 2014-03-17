@@ -19,6 +19,7 @@ AgendaView.prototype.checkFilter = function(item) {
   return true;
 };
 
+
 AgendaView.prototype.getData = function(sorted, withHeader) {
   if (allAgendas==null || this.currentAgenda==null) return null;
   if (withHeader==null) withHeader=false;
@@ -33,6 +34,32 @@ AgendaView.prototype.getData = function(sorted, withHeader) {
   else
     return this.currentAgenda.items;
 };
+
+AgendaView.prototype.addMoreCols = function() {
+  var rows = new Array();
+  var t=this;
+  rows.push("<legend>Auswahl der Servicegruppen</legend>");
+  $.each(churchcore_sortData(masterData.servicegroup,"sortkey"), function(k,a) {
+    if (masterData.auth.viewgroup[a.id]!=null) {
+      rows.push(form_renderCheckbox({
+        cssid:"viewgroup_agenda"+a.id, label:a.bezeichnung, controlgroup:false,
+        checked: (masterData.settings["viewgroup_agenda"+a.id]==null) || (masterData.settings["viewgroup_agenda"+a.id]==1)
+      }));
+    }
+  });  
+  var elem = this.showDialog("Anpassen der Tabelle", rows.join(""), 400, 400, {
+    "Schliessen": function() {
+      $(this).dialog("close");
+    }
+  });
+  elem.find("input:checkbox").click(function(c) {
+    masterData.settings[$(this).attr("id")]=($(this).attr("checked")=="checked"?1:0);
+    churchInterface.jsendWrite({func:"saveSetting", sub:$(this).attr("id"), val:masterData.settings[$(this).attr("id")]});
+    t.renderList();
+  });  
+};
+
+
 
 AgendaView.prototype.groupingFunction = function(event) {
   return null;
@@ -382,8 +409,8 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
     }
     else if ($(this).attr("id").indexOf("delCol")==0) {
       var id=$(this).attr("id").substr(6,99);
-      masterData.settings["viewgroup"+id]=0;
-      churchInterface.jsendWrite({func:"saveSetting", sub:"viewgroup"+id, val:0});
+      masterData.settings["viewgroup_agenda"+id]=0;
+      churchInterface.jsendWrite({func:"saveSetting", sub:"viewgroup_agenda"+id, val:0});
       t.renderList();
       return false;
     }
@@ -1121,7 +1148,7 @@ AgendaView.prototype.renderListHeader = function(smallVersion) {
     groups=t.getAllowedServiceGroupsWithComments();
   else {
     $.each(t.sortMasterData(masterData.servicegroup), function(k,a) {
-      if ((masterData.settings["viewgroup"+a.id]==null) || (masterData.settings["viewgroup"+a.id]==1))
+      if ((masterData.settings["viewgroup_agenda"+a.id]==null) || (masterData.settings["viewgroup_agenda"+a.id]==1))
         if (masterData.auth.viewgroup[a.id]) {
           groups[k]=a;
         }
@@ -1253,7 +1280,7 @@ AgendaView.prototype.renderListEntry = function (event, smallVersion) {
       groups=t.getAllowedServiceGroupsWithComments();
     else {
       $.each(t.sortMasterData(masterData.servicegroup), function(k,a) {
-        if ((masterData.settings["viewgroup"+a.id]==null) || (masterData.settings["viewgroup"+a.id]==1))
+        if ((masterData.settings["viewgroup_agenda"+a.id]==null) || (masterData.settings["viewgroup_agenda"+a.id]==1))
           if (masterData.auth.viewgroup[a.id]) {
             groups[k]=a;
           }

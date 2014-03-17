@@ -11,6 +11,7 @@
 + (Cal) Es können nun Besprechungsanfragen gestellt werden 
 + Austausch von "+" zu netteren Icons mit Hover-Funktion
 - (CDB) Kleiner Bug bei Auswahl von Personen behoben
+- (CS) Spaltenauswahl in Agenda sind nun unabhängig vom Dienstplan
 - (CDB) VCardExport für Mac optimiert
 - Zwischenspeichern nun kompatibel mit IE8
 - Mailchimp-Problem behoben.

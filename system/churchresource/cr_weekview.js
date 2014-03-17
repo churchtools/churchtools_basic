@@ -79,7 +79,7 @@ WeekView.prototype.renderMenu = function() {
         churchInterface.setCurrentView(maintainView);
       }
       else if ($(this).attr("id")=="adruckansicht") {
-        fenster = window.open('?q=churchresource/printview&curdate='+t.currentDate.toStringEn(), "Druckansicht", "width=900,height=600,resizable=yes");
+        fenster = window.open('?q=churchresource/printview&curdate='+t.currentDate.toStringEn(), "Druckansicht", "width=900,height=600,resizable=yes,scrollbars=1");
         fenster.focus();
         return false;
       }
@@ -103,6 +103,7 @@ WeekView.prototype.renderListMenu = function() {
   $.each(masterData.resourceTypes, function(k,a) {
     navi.addEntry(t.filter["filterRessourcen-Typ"]==a.id,"ressourcentyp_"+a.id,a.bezeichnung);
   });
+  navi.addEntry(t.filter["filterRessourcen-Typ"]=="","","<i>Alle</i>");
   //navi.addEntry(true,"id1","Listenansicht");
   navi.addSearch(searchEntry);
   navi.renderDiv("cdb_search", churchcore_handyformat());

@@ -4,8 +4,10 @@ function churchcal_main() {
   global $config, $base_url, $config, $embedded;
   include_once("system/includes/forms.php");
   
-  
   drupal_add_css('system/assets/fullcalendar/fullcalendar.css');
+  if (isset($_GET["printview"]))
+    drupal_add_css('system/assets/fullcalendar/fullcalendar.print.css');
+  
   drupal_add_css('system/assets/simplecolorpicker/jquery.simplecolorpicker.css');
   drupal_add_js('system/assets/simplecolorpicker/jquery.simplecolorpicker.js');
   
