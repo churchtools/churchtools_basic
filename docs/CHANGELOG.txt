@@ -8,7 +8,8 @@
 + (CS) Ablaufpläne haben nun einen Status Entwurf/Abgeschlossen
 + (CS) Nun wählbar ob Kopieren und Integrieren von Ablaufplänen zu vorhandenen.
 + (Cal) Es gibt nun eine Druckansicht
-+ (Cal) Es können nun Besprechungsanfragen gestellt werden 
++ (Cal) Es können nun Besprechungsanfragen gestellt werden
++ (Cal) MiniCal neben dem Heute-Button ergänzt 
 + Austausch von "+" zu netteren Icons mit Hover-Funktion
 - (CDB) Kleiner Bug bei Auswahl von Personen behoben
 - (CS) Spaltenauswahl in Agenda sind nun unabhängig vom Dienstplan

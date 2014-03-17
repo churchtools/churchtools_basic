@@ -861,13 +861,12 @@ function _viewChanged(view) {
       masterData.settings["viewName"]=view.name;
       churchInterface.jsendWrite({func:"saveSetting", sub:"viewName", val:view.name});
     }
-    if ((masterData.settings["startDate"]==null) || (masterData.settings["startDate"]!=view.start.toStringEn(false))) {
-      
+    if ((masterData.settings["startDate"]==null) || (masterData.settings["startDate"]!=view.start.toStringEn(false))) {      
       masterData.settings["startDate"]=view.start.toStringEn(false);
       churchInterface.jsendWrite({func:"saveSetting", sub:"startDate", val:view.start.toStringEn(false)});
     }
     saveSettingTimer=null;
-  },1000);
+  },700);
 }
 
 function categoryEditable(category_id) {
@@ -989,6 +988,7 @@ function initCalendarView() {
       select: _select
     });
     if (!embedded) {
+      $("td.fc-header-left").append("&nbsp; "+form_renderImage({src:"cal.png", width:28, htmlclass:"open-cal", link:true})+'<div style="position:absolute;z-index:12001" id="dp_month"></div>');
       $("td.fc-header-right").append('<span id="yearView" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content">Jahr</span><span class="fc-button-effect"><span></span></span></span></span>');
       $("td.fc-header-right").append('<span id="eventView" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content"><i class="icon-list"></i></span><span class="fc-button-effect"><span></span></span></span></span>');
     }
@@ -1018,6 +1018,15 @@ function initCalendarView() {
   }
   else 
     alert("Unbekannter viewname!");
+  $("a.open-cal").click(function() {
+    form_implantDatePicker('dp_month', masterData.settings["startDate"].toDateEn(), function(dateText) {
+      console.log(dateText);
+      var viewdate=dateText.toDateDe();
+      calendar.fullCalendar( 'gotoDate', viewdate.getFullYear(), viewdate.getMonth(), viewdate.getDate());
+      calendar.fullCalendar('render');
+      
+    });    
+  });
   $("#calView").click(function(k) {
     window.location.href="?q=churchcal&viewname=calView";
   });
