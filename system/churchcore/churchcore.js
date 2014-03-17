@@ -346,9 +346,6 @@ String.prototype.formatMS = function() {
   return Math.floor(this/60)+":"+s;
 }
 
-String.prototype.endsWith = function(suffix) {
-  return this.indexOf(suffix, this.length - suffix.length) !== -1;
-};
 /**
  * Trimmt den String auf die Anzahl Zeichen und ergänzt es dann mit ".."
  * @param len Anzahl Max-Zeichen
@@ -667,33 +664,6 @@ function churchcore_datesInConflict(startdate, enddate, startdate2, enddate2) {
 }
 
   
-function print_r(arr,level) {
-  var dumped_text = "";
-  if(!level) level = 0;
-  if (level>10) return "";
-  
-  //The padding given at the beginning of the line.
-  var level_padding = "";
-  for(var j=0;j<level+1;j++) level_padding += "    ";
-  
-  if(typeof(arr) == 'object') { //Array/Hashes/Objects 
-    for(var item in arr) {
-      var value = arr[item];
-      
-      if(typeof(value) == 'object') { //If it is an array,
-        dumped_text += level_padding + "'" + item + "' ...\n";
-        dumped_text += print_r(value,level+1);
-      } else {
-        dumped_text += level_padding + "'" + item + "' => \"" + value + "\"\n";
-      }
-    }
-  } else { //Stings/Chars/Numbers etc.
-    dumped_text = "===>"+arr+"<===("+typeof(arr)+")";
-  }
-  return dumped_text;
-}
-
-
 function cc_copyArray(source) {
   for (i in source) {
     if (typeof source[i] == 'source') {
