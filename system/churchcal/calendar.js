@@ -468,7 +468,10 @@ function _renderEditEventContent(elem, currentEvent) {
         form.addButton({label:"Alle auswählen", htmlclass:"select-all"});
         form.addHtml("&nbsp; ")
         form.addButton({label:"Alle abwählen", htmlclass:"deselect-all"});
-        form.addHtml('</span><i>Für eine Anfrage bitte Personen auswählen</i><br><small>Bei Wiederholungen wird momentan nur der erste Termin angefragt!</small></p><div style="height:360px;overflow-y:auto">');
+        form.addHtml('</span><i>Für eine Anfrage bitte Personen auswählen</i><br>');
+        if (currentEvent.repeat_id!=0)
+          form.addHtml('<small>Bei Wiederholungsterminen wird nur der erste Termin angefragt!</small>');
+        form.addHtml('&nbsp;</p><div style="height:360px;overflow-y:auto">');
         form.addHtml('<table class="table table-condensed">');
         function _addPerson(p) {
           var mr=null;
@@ -476,7 +479,8 @@ function _renderEditEventContent(elem, currentEvent) {
             mr=currentEvent.meetingRequest[p.id];
           form.addHtml('<tr data-id="'+p.id+'"><td>');
           if (p.email!="" && (mr==null || mr.invite))
-            form.addCheckbox({htmlclass:"cb-person", checked:(mr!=null&&mr.invite), data:[{name:"id", value:p.id}]});
+            form.addCheckbox({htmlclass:"cb-person", checked:(mr!=null&&mr.invite), controlgroup:false,
+                data:[{name:"id", value:p.id}]});
           form.addHtml('<td>'+form_renderPersonImage(p.imageurl, 40));
           form.addHtml('<td>'+p.vorname+" "+p.name);
           form.addHtml('<td><span class="status">');

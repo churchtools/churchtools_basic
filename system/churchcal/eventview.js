@@ -137,7 +137,7 @@ function eventCalendar(element, options, eventSources) {
               }
               rows.push('</small><br>');
               if (a.link!=null) 
-                rows.push('<a href="'+a.link+'">'+a.title+'</a>');
+                rows.push('<a href="'+a.link+'" target="_clean">'+a.title+'</a>');
               else
                 rows.push(a.title);
               if (a.notizen!=null) rows.push("<br><small>"+a.notizen.trim(100)+'</small>');
