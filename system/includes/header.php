@@ -82,7 +82,7 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="?q=home">
+          <a class="brand" href=".">
             <?php if (isset($config["site_logo"])) echo '<img src="'.$files_dir."/files/logo/".$config["site_logo"].'" style="max-width:100px;max-height:32px;margin:-10px 4px -8px 0px"/>' ?>
             <?php echo $config["site_name"].(isset($config["test"])?" TEST ":"") ?>
           </a>
@@ -145,10 +145,20 @@
                  <li class="active"><p><div id="cdb_status" style="color:#999"></div></li>
                </ul>
              </div>
-            <?php } ?>
+            <?php } 
+            else { ?>
+             <div class="pull-right">
+               <ul class="nav">
+                  <?php echo '<li ';
+                        if ($q=="login") echo ' class="active"'; 
+                        echo '><a href="?q=login"><i class="icon-user icon-white"></i> '.t("login").'</a></li>';
+	               ?>
+               </ul>
+             </div>
+             <?php } ?>
               <div class="nav-collapse">
                 <ul class="nav">
-                  <?php   
+                  <?php
                     $arr=churchcore_getModulesSorted();
                     foreach ($arr as $key) {
                       if ((isset($config[$key."_name"])) && (isset($config[$key."_inmenu"])) && ($config[$key."_inmenu"]=="1") 

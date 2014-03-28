@@ -15,6 +15,9 @@ class CC_HTMLElement {
     if (is_bool($this->value)) {
       if ($this->value) return "1"; else return "0";
     }
+    if (!is_string($this->value)) {
+      return "";
+    }
     return $this->getValue();
   }
 
@@ -148,6 +151,7 @@ class CC_Field extends CC_HTMLElement {
       $txt.='</span>';
       $txt.='</label>';
       $txt.='<div id="upload_button">Nochmal bitte...</div>';
+      $txt.='<input type="hidden" name="'.$this->form->getName().'['.$this->getName().']" id="'.$this->form->getName().'_'.$this->getName().'" value="'.$this->value.'"/>';
       $txt.='<script> 
         jQuery(document).ready(function() {
           var uploader = new qq.FileUploader({
@@ -162,8 +166,7 @@ class CC_Field extends CC_HTMLElement {
           onComplete: function(file, response, res) {
             if (res.success) {
               $("#image_form").html("<img src=\""+settings.files_url+"/files/logo/"+res.filename+"\"/>");
-              churchInterface.setModulename("admin");
-              churchInterface.jsendWrite({func:"saveLogo", filename:res.filename});
+              $("#AdminForm_site_logo").val(res.filename);
             }
           }
         });    
@@ -256,9 +259,8 @@ class CC_Model {
       
       // Hole sie nun rein
       foreach ($_POST[$this->getName()] as $key=>$val) {
-        $this->fields[$key]->setValue($val);
+        $this->fields[$key]->setValue($val); 
       }      
-    
       // Validiere Daten
       $isValid=true;
       foreach ($this->fields as $field) {

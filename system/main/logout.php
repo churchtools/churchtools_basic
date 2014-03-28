@@ -8,7 +8,7 @@
       drupal_json_output(jsend()->success());  
     }
     else  
-      header("Location: ?q=home");
+      header("Location: ?q=".variable_get("site_startpage", "home"));
   }
 
 ?>

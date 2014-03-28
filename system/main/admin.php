@@ -26,7 +26,7 @@ class CC_ModulModel extends CC_Model {
 function admin_saveSettings($form) {
   foreach ($form->fields as $key=>$value) {
     db_query("insert into {cc_config} (name, value) values (:name,:value) on duplicate key update value=:value",
-        array(":name"=>$key, ":value"=>$value));
+       array(":name"=>$key, ":value"=>$value));
   }
   loadDBConfig();
 }
@@ -57,6 +57,10 @@ function admin_main() {
     
   $model->addField("admin_message","", "INPUT_OPTIONAL","Admin-Nachricht auf Login- und Startseite z.B. f&uuml;r geplante Downtimes");
     $model->fields["admin_message"]->setValue(isset($config["admin_message"])?$config["admin_message"]:"");
+    
+  if (!isset($config["site_startpage"])) $config["site_startpage"]="home";
+  $model->addField("site_startpage","", "INPUT_REQUIRED","Startseite beim Aufrufen von ".variable_get("site_name")." (Standard ist <i>home</i>, m&ouml;glich ist z.B. churchwiki, churchcal)");
+    $model->fields["site_startpage"]->setValue($config["site_startpage"]);
     
   $model->addField("site_mail","", "EMAIL","E-Mail-Adresse der Website (E-Mails werden von hier aus gesendet)");
     $model->fields["site_mail"]->setValue($config["site_mail"]);

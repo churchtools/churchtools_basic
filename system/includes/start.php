@@ -224,7 +224,8 @@ function churchtools_main() {
         $q=$_GET["q"];  
       }
       if ($q=="")
-        $q="home";
+        if (userLoggedIn()) $q="home";
+         else $q=variable_get("site_startpage", "home");
       
       $q_orig=$q;    
       

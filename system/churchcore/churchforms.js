@@ -1659,6 +1659,10 @@ CC_Navi.prototype.addEntry = function(active, id, label) {
   this.entries.push(entry);
 };
 
+CC_Navi.prototype.countElement = function() {
+  return this.entries.length;
+};
+
 CC_Navi.prototype.addSearch = function(searchEntry) {
   if (churchcore_tabletformat())
     this.search='<input type="text" id="searchEntry" placeholder="Suche" class="input-small search-query pull-right" value="'+searchEntry+'"/>';

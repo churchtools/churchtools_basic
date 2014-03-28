@@ -215,7 +215,7 @@ function login_user($ret, $rember_me=false) {
     header("Location: ?q=$q_orig");
   }
   else if ($q=="login")
-    header("Location: ?q=home");
+    header("Location: ?q=".variable_get("site_startpage", "home"));
 }
 
 ?>
