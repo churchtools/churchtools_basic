@@ -8,7 +8,7 @@
  */
 
 if (!version_compare(PHP_VERSION, '5.3.0', '>=')) {
-  die("ChurchTools requires PHP version 5.3.0 or newer");
+  die("Software requires PHP version 5.3.0 or newer");
 }
 
 include_once("system/includes/start.php");

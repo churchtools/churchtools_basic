@@ -132,7 +132,7 @@
                       echo '<li class="divider"></li>';
                     }                  
                     ?>   
-                  <li><a href="?q=about"><?php echo t('about.churchtools'); ?></a></li>
+                  <li><a href="?q=about"><?php echo t('about')." ".$config['site_name']; ?></a></li>
                   <li class="divider"></li>
                   <li><a href="?q=logout"><?php echo t('logout');?></a></li>
                 </ul>

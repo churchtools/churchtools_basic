@@ -22,7 +22,7 @@
   <entry key="admin.permissions">Manage permissions</entry>
   <entry key="start.cronjob">Start scheduler</entry>
   <entry key="logviewer">View logs</entry>
-  <entry key="about.churchtools">About ChurchTools {0}</entry>
+  <entry key="about">About</entry>
   <entry key="logout">Logout</entry>
   <entry key="change.to">Switch to...</entry>
   <entry key="offline.mode.is.active">Caution! Offline mode is active.</entry>  

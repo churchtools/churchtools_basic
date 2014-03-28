@@ -22,7 +22,7 @@
   <entry key="admin.permissions">Rechteverwaltung</entry>
   <entry key="start.cronjob">Cron-Job ausführen</entry>
   <entry key="logviewer">Log-Viewer</entry>
-  <entry key="about.churchtools">Über ChurchTools 2.0</entry>
+  <entry key="about">Über</entry>
   <entry key="logout">Abmelden</entry>
   <entry key="change.to">Wechseln zu...</entry>
   <entry key="offline.mode.is.active">Achtung, Offline-Modus ist aktiv!</entry>

@@ -561,13 +561,13 @@ function run_db_updates($db_version) {
          ('currently_mail_sending', '0'),
          ('last_cron', '1377871248'),
          ('last_db_dump', '1377868285'),
-         ('login_message', 'Willkommen auf dem neuen ChurchTools 2.0. Zum Anmelden bitte die Felder ausfüllen!'),
+         ('login_message', 'Willkommen auf dem neuen ".variable_get("site_name")." Zum Anmelden bitte die Felder ausfüllen!'),
          ('mail_enabled', '1'),
          ('site_mail', 'admin@example.com'),
-         ('site_name', 'ChurchTools 2.0'),
+         ('site_name', '".variable_get("site_name")."'),
          ('version', '2.00'),
          ('welcome', 'Herzlich willkommen'),
-         ('welcome_subtext', 'Das ist die Startseite von ChurchTools 2.0');");
+         ('welcome_subtext', 'Das ist die Startseite von ".variable_get("site_name")."');");
       db_query("create table {cc_session} (person_id int(11) not null, session varchar(255) not null, hostname varchar(255) not null, datum datetime not null) CHARSET=utf8");
 
       db_query("CREATE TABLE {cc_auth} (id int(11) NOT NULL, auth varchar(80) NOT NULL, modulename varchar(80) NOT NULL, datenfeld varchar(255) DEFAULT NULL, bezeichnung varchar(255) NOT NULL,PRIMARY KEY (id)) CHARSET=utf8");
@@ -1797,11 +1797,11 @@ function run_db_updates($db_version) {
     if ($db_version == "nodb")
       addInfoMessage("Datenbankupdates ausgef&uuml;hrt auf v$software_version.");
     else
-      addInfoMessage("Datenbankupdates ausgef&uuml;hrt von ChurchTools v$db_version auf v$software_version. $link");
+      addInfoMessage("Datenbankupdates ausgef&uuml;hrt von ".variable_get("site_name")." v$db_version auf v$software_version. $link");
     cleanI18nFiles();
     $sitename=$config["site_name"];
     churchcore_systemmail($config["site_mail"], "Neue Version auf ".$config["site_name"], 
-        "Datenbankupdates ausgef&uuml;hrt von ChurchTools v$db_version auf v$software_version. $link<br/><br/>".
+        "Datenbankupdates ausgef&uuml;hrt von ".variable_get("site_name")."' v$db_version auf v$software_version. $link<br/><br/>".
            "<a href=\"$base_url\" class=\"btn\">$sitename aufrufen</a>", true);
     if (userLoggedIn()) {
       $user=$_SESSION["user"];
