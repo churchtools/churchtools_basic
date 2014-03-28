@@ -1248,7 +1248,7 @@ function editCategory(cat_id, privat_yn, oeffentlich_yn) {
   var current=$.extend({}, masterData.category[cat_id]);
   if (current.sortkey==null) current.sortkey=0; 
   
-  var form = new CC_Form("Kalender editieren", current);
+  var form = new CC_Form((cat_id==null?"Kalender erstellen":"Kalender editieren"), current);
   
   if ((cat_id==null) && (privat_yn==0) && (oeffentlich_yn==0)) {
     if (masterData.groups==null) {
@@ -1576,7 +1576,7 @@ function renderGroupCategories() {
       rows.push(form.render(true));
     }
     else if (user_access("admin group category"))  {
-      form.addHtml('<i>Kein Kalender vorhanden</i>');
+      form.addHtml('<i>Kein Kalender vorhanden. <a href="#" id="create_group_cal">Erstellen?</a></i>');
       rows.push(form.render(true));
     }
 
@@ -1716,6 +1716,10 @@ $(document).ready(function() {
     });
     $("#edit_group").click(function() {
       editCategories(0, 0);
+      return false;
+    });
+    $("#create_group_cal").click(function() {
+      editCategory(null, 0, 0);
       return false;
     });
     $("#edit_church").click(function() {

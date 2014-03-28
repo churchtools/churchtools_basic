@@ -645,10 +645,12 @@ class CTChurchCalModule extends CTAbstractModule {
       if ($d->domain_type=="gruppe") {
         $g=array();
         $ids=churchdb_getAllPeopleIdsFromGroups(array($d->domain_id));
-        foreach ($ids as $id) {
-          $p=churchdb_getPersonDetails($id);
-          if ($p!="no access") {
-            $g[]=$p;
+        if ($ids!=null) {
+          foreach ($ids as $id) {
+            $p=churchdb_getPersonDetails($id);
+            if ($p!="no access") {
+              $g[]=$p;
+            }
           }
         }
         if (count($g)>0) {
