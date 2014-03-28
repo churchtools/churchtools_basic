@@ -239,6 +239,7 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
           alert("Fehler beim Speichern: "+data);
         else {  
           masterData[table.shortname][obj.id][obj.col0]=obj.value0;
+          masterData.masterDataTables[table.id].open=true;
           this_object.renderList(masterData.masterDataTables[table.id]);
         }
       });      

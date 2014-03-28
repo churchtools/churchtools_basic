@@ -311,7 +311,7 @@ function churchcal_getAuthForAjax() {
     }
   }
   
-  if (user_access("view", "churchservice") && user_access("edit events", "churchservice"))
+  if (user_access("view", "churchservice"))
     $ret["view churchservice"]=true;
   
   if (user_access("view", "churchdb")) {

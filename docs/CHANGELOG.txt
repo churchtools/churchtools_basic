@@ -1,5 +1,6 @@
 (Legende: "+"=>Neues Feature  "-"=>Fehlerbehebung)
 
+Achtung: Mindestanforderung ist nun auf PHP >= 5.3. 
 + (CDB) Beim Gruppentreffen kann nun auch nachträglich das Datum geändert werden
 + (CDB) In der Gruppenliste wird nun bei Auswahl eines Gruppentypes Mitglied oder Nicht-Mitglied angezeigt
 + (CDB) Neues Rechte für das Nutzen von "Weiteren Filter" (hing vorher mit viewalldata zusammen)

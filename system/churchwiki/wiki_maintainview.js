@@ -38,7 +38,7 @@ MaintainView.prototype.renderMenu = function() {
         churchInterface.setCurrentView(wikiView, false);
       }
       else if ($(this).attr("id")=="ahelp") {
-        churchcore_openNewWindow("http://intern.churchtools.de/?q=help&doc=ChurchWiki-Stammdaten");
+        churchcore_openNewWindow("http://intern.churchtools.de/?q=churchwiki&doc=ChurchWiki-Stammdaten");
       }
       return false;
     });

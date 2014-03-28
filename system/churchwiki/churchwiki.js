@@ -458,14 +458,14 @@ WikiView.prototype.initView = function() {
   if ($("#printview").val()=="true")
     t.printview=true;
   if (t.filter["filterWikicategory_id"]==null) {
-    t.filter["filterWikicategory_id"]=0;
     if (masterData.auth.view!=null)  {
-      var i=99999;
-      $.each(masterData.auth.view, function(k,a) {
-        if (a<i) i=a;
+      $.each(churchcore_sortMasterData(masterData.wikicategory), function(k,a) {
+        if (masterData.auth.view[a.id] && t.filter["filterWikicategory_id"]==null)
+          t.filter["filterWikicategory_id"]=a.id;
       });
-      t.filter["filterWikicategory_id"]=i;
     }
+    if (t.filter["filterWikicategory_id"]==0)
+      t.filter["filterWikicategory_id"]=0;
   }
 
   var refresh=false;

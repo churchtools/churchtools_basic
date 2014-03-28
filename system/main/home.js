@@ -4,12 +4,21 @@ masterData=null;
 
 function showFirstServiceRequests(max) {
   var counter=0;
+  var hided=false;
   $("div.service-request").each(function() {
     counter=counter+1;
     if (counter<=max) {
       $(this).css("display", "");
     }
+    else if ($(this).css("display")=="none")
+      hided=true;
   });  
+  if (hided) {
+    $("a.service-request-show-all").show();
+  }
+  else {
+    $("a.service-request-show-all").hide();
+  }
 }
 
 function renderServiceRequests() {
@@ -38,6 +47,11 @@ function renderServiceRequests() {
 }
 
 function addServiceRequestCallback() {
+  $("a.service-request-show-all").click(function() {
+    showFirstServiceRequests(99);
+    addServiceRequestCallback();   
+    return false;
+  });
   $("a.service-request").click(function() {
     
     var div_element=$(this).parents("div.service-request");

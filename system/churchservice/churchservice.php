@@ -287,7 +287,8 @@ function churchservice_getUserOpenServices() {
     $txt2.='<div style="margin-left:16px;margin-bottom:10px;" class="service-request-answer"></div>';
     $txt2.='</div>';
   }           
-  if ($txt2!="") $txt=$txt.$txt1.$txt2;
+  if ($txt2!="") $txt=$txt.$txt1.$txt2.
+        '<p align="right"><a href="#" style="display:none" class="service-request-show-all">Alle anzeigen</a>';
   return $txt;
 }
 
