@@ -60,9 +60,16 @@ function churchcal_main() {
 }
 
 function churchcal_getAdminModel() {
-  $model = new CC_ModulModel("churchcal");      
+  global $config;
+
+  $model = new CC_ModulModel("churchcal");
+  if (!isset($config["churchcal_maincalname"]))
+    $config["churchcal_maincalname"]="Gemeindekalender";
+  $model->addField("churchcal_maincalname","", "INPUT_REQUIRED","Name des Hauptkalenders");
+  $model->fields["churchcal_maincalname"]->setValue($config["churchcal_maincalname"]);
   return $model;
 }
+
 
 
 function churchcal_getUserOpenMeetingRequests() {
@@ -613,6 +620,7 @@ class CTChurchCalModule extends CTAbstractModule {
     $ret["churchservice_name"]=variable_get("churchservice_name");
     $ret["churchcal_name"]=variable_get("churchcal_name");
     $ret["churchresource_name"]=variable_get("churchresource_name");
+    $ret["maincal_name"]=variable_get("churchcal_maincalname", "Gemeindekalender");
     $ret["base_url"]=$base_url;
     $ret["user_pid"]=$user->id;
     if (user_access("view","churchdb")) {

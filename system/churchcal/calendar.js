@@ -392,7 +392,7 @@ function _renderEditEventContent(elem, currentEvent) {
     if (e.length>1) e_summe=e_summe.concat(e);
 
     var e=new Array();
-    e.push({id:-1, bezeichnung:"-- Gemeindekalender --"});
+    e.push({id:-1, bezeichnung:"-- "+masterData.maincal_name+" --"});
     $.each(churchcore_sortMasterData(masterData.category), function(k,a) {
       if ((a.oeffentlich_yn==1) && (categoryEditable(a.id))) e.push(a);
     });
@@ -1175,7 +1175,7 @@ function createMultiselect(name, data) {
         if (filter[name].isSelected(counterpart)) {
           hideData(name, counterpart);
           filter[name].toggleSelected(counterpart);
-          filterMultiselect("filterGemeindekalendar", (!embedded?"Gemeindekalender":"Kalender"));
+          filterMultiselect("filterGemeindekalendar", (!embedded?masterData.maincal_name:"Kalender"));
         }
       }
       if (selected)
@@ -1395,7 +1395,7 @@ function editCategories(privat_yn, oeffentlich_yn, reload) {
   else if (oeffentlich_yn==0)
     rows.push('<legend>Gruppenkalender</legend>');
   else
-    rows.push('<legend>Gemeindekalender verwalten</legend>');
+    rows.push('<legend>'+masterData.maincal_name+' verwalten</legend>');
   rows.push('<table class="table table-condensed">');
   rows.push('<tr><th width="20px"><th>Bezeichnung<th width="40px">');
   rows.push('<th width="25px">');
@@ -1591,7 +1591,7 @@ function renderChurchCategories() {
     var form=new CC_Form();
 
     if (!embedded) {
-      form = new CC_Form("Gemeindekalender"+form_renderImage({cssid:"edit_church", src:"options.png", top:8, width:24, htmlclass:"pull-right"}));
+      form = new CC_Form(masterData.maincal_name+" "+form_renderImage({cssid:"edit_church", src:"options.png", top:8, width:24, htmlclass:"pull-right"}));
       form.setHelp("Gemeindekalender");
     }
 
@@ -1696,7 +1696,7 @@ $(document).ready(function() {
     
     filterMultiselect("filterMeineKalender", "Meine Kalender");
     filterMultiselect("filterGruppenKalender", "Gruppenkalender");
-    filterMultiselect("filterGemeindekalendar", (!embedded?"Gemeindekalender":"Kalender"));
+    filterMultiselect("filterGemeindekalendar", (!embedded?masterData.maincal_name:"Kalender"));
     filterMultiselect("filterRessourcen", "Ressourcen");
     
     if (embedded) { 
