@@ -100,8 +100,8 @@ function churchcal_getAuth() {
   $cc_auth=addAuth($cc_auth, 401,'view', 'churchcal', null, 'ChurchCal sehen', 1);
   $cc_auth=addAuth($cc_auth, 403,'view category', 'churchcal', 'cc_calcategory', 'Einzelne Kalender sehen', 0);
   $cc_auth=addAuth($cc_auth, 404,'edit category', 'churchcal', 'cc_calcategory', 'In einzelnen Kalender Termine erstellen, editieren etc.', 0);
-  $cc_auth=addAuth($cc_auth, 407,'create personal category', 'churchcal', null, 'Pers&ouml;nlichen Kalender erstellen', 1);
-  $cc_auth=addAuth($cc_auth, 406,'admin personal category', 'churchcal', null, 'Pers&ouml;nliche Kalender administrieren', 1);
+  //$cc_auth=addAuth($cc_auth, 407,'create personal category', 'churchcal', null, 'Pers&ouml;nlichen Kalender erstellen', 1);
+  //$cc_auth=addAuth($cc_auth, 406,'admin personal category', 'churchcal', null, 'Pers&ouml;nliche Kalender administrieren', 1);
   $cc_auth=addAuth($cc_auth, 408,'create group category', 'churchcal', null, 'Gruppenkalender erstellen', 1);
   $cc_auth=addAuth($cc_auth, 405,'admin group category', 'churchcal', null, 'Gruppenkalender administrieren', 1);
   $cc_auth=addAuth($cc_auth, 402,'admin church category', 'churchcal', null, 'Gemeindekalender administrieren', 1);

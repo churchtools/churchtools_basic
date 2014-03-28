@@ -82,7 +82,10 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="?q=home"><?php echo $config["site_name"].(isset($config["test"])?" TEST ":"") ?></a>
+          <a class="brand" href="?q=home">
+            <?php if (isset($config["site_logo"])) echo '<img src="'.$files_dir."/files/logo/".$config["site_logo"].'" style="max-width:100px;max-height:32px;margin:-10px 4px -8px 0px"/>' ?>
+            <?php echo $config["site_name"].(isset($config["test"])?" TEST ":"") ?>
+          </a>
 
             <?php if (userLoggedIn()) { ?>
               <div class="btn-group pull-right">

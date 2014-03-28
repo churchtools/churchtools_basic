@@ -14,6 +14,8 @@ logout = main/logout.php
 profile = main/profile.php
 simulate = main/simulate.php
 admin = main/admin.php
+admin/uploadFile = main/admin.php
+admin/ajax = main/admin.php
 about = main/about.php
 about/ajax=main/about.php
 

@@ -91,6 +91,27 @@ class qqFileUploader {
         }        
     }
     
+    private function check_jpeg($f, $fix=false ){
+      # [070203]
+      # check for jpeg file header and footer - also try to fix it
+      if ( false !== (@$fd = fopen($f, 'r+b' )) ){
+        if ( fread($fd,2)==chr(255).chr(216) ){
+          fseek ( $fd, -2, SEEK_END );
+          if ( fread($fd,2)==chr(255).chr(217) ){
+            fclose($fd);
+            return true;
+          }else{
+            if ( $fix && fwrite($fd,chr(255).chr(217)) ){return true;}
+            fclose($fd);
+            return false;
+          }
+        }else{fclose($fd); return false;}
+      }
+      else{
+        return false;
+      }
+    }
+    
     private function toBytes($str){
         $val = trim($str);
         $last = strtolower($str[strlen($str)-1]);
@@ -136,16 +157,42 @@ class qqFileUploader {
             $these = implode(', ', $this->allowedExtensions);
             return array('error' => 'File has an invalid extension, it should be one of '. $these . '.');
         }
-        $dt = new DateTime();
-        $id=db_insert('cc_file')->fields(array(
-           "domain_type"=>$_GET["domain_type"], 
-           "domain_id"=>$_GET["domain_id"], 
-           "filename"=>$filename. '.' . $ext,
-           "bezeichnung"=>$bezeichnung. '.' . $ext,
-           "modified_date"=>$dt->format('Y-m-d H:i:s'),
-           "modified_pid"=>$user->id))->execute();
+                
+        if (isset($_GET["domain_type"]) && isset($_GET["domain_id"])) {        
+          $dt = new DateTime();
+          $id=db_insert('cc_file')->fields(array(
+             "domain_type"=>$_GET["domain_type"], 
+             "domain_id"=>$_GET["domain_id"], 
+             "filename"=>$filename. '.' . $ext,
+             "bezeichnung"=>$bezeichnung. '.' . $ext,
+             "modified_date"=>$dt->format('Y-m-d H:i:s'),
+             "modified_pid"=>$user->id))->execute();
+        }
+        else $id=null;
 
-        if ($this->file->save($uploadDirectory . $filename . '.' . $ext)){
+        $filename_absolute=$uploadDirectory . $filename . '.' . $ext;
+        if ($this->file->save($filename_absolute)){
+          
+          // If image should be resized
+          if (isset($_GET["resize"]) && $this->check_jpeg($filename_absolute)) {
+            list($width, $height) = getimagesize($filename_absolute);
+            if ($width>$height) {
+              $new_width=$_GET["resize"]; $new_height=$height*$new_width/$width;
+            } 
+            else {
+              $new_height=$_GET["resize"]; $new_width=$width*$new_height/$height;
+            }
+          
+            $image_p = imagecreatetruecolor($new_width, $new_height);
+            $image = imagecreatefromjpeg($filename_absolute);
+            imagecopyresampled($image_p, $image, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
+      
+            // Output
+            imagejpeg($image_p, $filename_absolute, 100);
+            
+          }
+          
+          
           return array('success'=>true, "id"=>$id, "filename"=>$filename.".".$ext, "bezeichnung"=>$bezeichnung.".".$ext);
           
         } else {
@@ -168,7 +215,10 @@ function churchcore__uploadfile() {
   else $sizeLimit=$config["max_uploadfile_size_kb"]*1024;
   
   $uploader = new qqFileUploader($allowedExtensions, $sizeLimit);
-  $file_dir=$files_dir."/files/".$_GET["domain_type"]."/".$_GET["domain_id"];
+  $file_dir=$files_dir."/files/";
+  $file_dir.=$_GET["domain_type"]."/";
+  if (isset($_GET["domain_id"]))
+    $file_dir.=$_GET["domain_id"];
   if (!file_exists($file_dir))
     mkdir($file_dir,0777,true);
   $result = $uploader->handleUpload($file_dir."/");

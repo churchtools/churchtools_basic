@@ -34,11 +34,18 @@ function admin_saveSettings($form) {
 function admin_main() {
   global $config;
   
+  drupal_add_css('system/assets/fileuploader/fileuploader.css'); 
+  drupal_add_js('system/assets/fileuploader/fileuploader.js');
+  
   $model = new CC_Model("AdminForm", "admin_saveSettings");
-  //$model->setHeader("Einstellungen f&uuml;r die Website", "Der Administrator kann hier Einstellung vornehmen. Diese gelten f&uuml;r alle Benutzer, bitte vorsichtig anpassen!");    
   $model->addField("site_name","", "INPUT_REQUIRED","Name der Website");
     $model->fields["site_name"]->setValue($config["site_name"]);
   
+
+  $model->addField("site_logo","", "FILEUPLOAD","Logo der Website (max. 32x32px)");
+  if (isset($config["site_logo"]))
+    $model->fields["site_logo"]->setValue($config["site_logo"]);
+    
   $model->addField("welcome","", "INPUT_REQUIRED","Willkommensnachricht");
     $model->fields["welcome"]->setValue($config["welcome"]);
     
@@ -95,7 +102,7 @@ function admin_main() {
     }
   }
     
-  $txt='<h1>Einstellungen f&uuml;r die Website</h1><p>Der Administrator kann hier Einstellung vornehmen. Diese gelten f&uuml;r alle Benutzer, bitte vorsichtig anpassen!</p>';
+  $txt='<h1>Einstellungen f&uuml;r '.variable_get("site_name").'</h1><p>Der Administrator kann hier Einstellung vornehmen. Diese gelten f&uuml;r alle Benutzer, bitte vorsichtig anpassen!</p>';
   $txt.='<div class="tabbable">';
   $txt.='<ul class="nav nav-tabs">';
     $txt.='<li class="active"><a href="#tab1" data-toggle="tab">Allgemein</a></li>';
@@ -120,5 +127,35 @@ function admin_main() {
   
   return $txt;
 }
+
+
+function admin__uploadfile() {
+  global $files_dir, $config;
+  
+  include_once("system/churchcore/uploadFile.php");
+  churchcore__uploadFile();
+}
+
+class CTAdminModule extends CTAbstractModule {
+  function getMasterData() {
+    
+  }
+  function saveLogo($params) {
+    if ($params["filename"]==null)
+      db_query("delete from {cc_config} where name='site_logo'");
+    else 
+      db_query("insert into {cc_config} (name, value) values ('site_logo', :filename) on duplicate key update value=:filename", 
+       array(":filename"=>$params["filename"]));
+  }
+}
+
+function admin__ajax() {
+  $module=new CTAdminModule("admin");
+  $ajax = new CTAjaxHandler($module);
+
+  drupal_json_output($ajax->call());
+}
+
+
 
 ?>
