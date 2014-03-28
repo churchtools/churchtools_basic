@@ -3521,7 +3521,8 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
   }
   else if (fieldname=="f_image") {
     width=300; height=300;
-    rows[rows.length]="<p><div id=\"upload_button\">Nochmal bitte...</div><p><div id=\"image_uploaded\"/>";
+    rows[rows.length]="<p>Bitte nun ein Bild im Format JPG ausw&auml;hlen.<div id=\"upload_button\">Nochmal bitte...</div><p><div id=\"image_uploaded\"/>";
+    rows.push('<p><small>max. '+Math.round(masterData.max_uploadfile_size_kb/1024)+'MB</small>');
   }
   else if (fieldname.indexOf("del_note")==0) {
     width=300; height=300;

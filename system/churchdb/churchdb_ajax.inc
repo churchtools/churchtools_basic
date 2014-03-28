@@ -1229,6 +1229,7 @@ class CTChurchDBModule extends CTAbstractModule {
     $res["modulespath"] = churchdb_getModulesPath();
     $res["files_url"] = $base_url.$files_dir;
     $res["modulename"] = "churchdb";
+    $res["max_uploadfile_size_kb"] = variable_get('max_uploadfile_size_kb');
     $res["adminemail"] = variable_get('site_mail', '');
     $res["max_exporter"] = variable_get('churchdb_maxexporter', '150');
     $res["groupnotchoosable"] = variable_get('churchdb_groupnotchoosable', 30);
