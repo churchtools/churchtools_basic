@@ -1551,7 +1551,7 @@ function renderPersonalCategories() {
 }
 
 function renderGroupCategories() {
-  form = new CC_Form("Gruppenkalender"+form_renderImage({cssid:"edit_group", src:"options.png", top:8, width:24, htmlclass:"pull-right"}));
+  form = new CC_Form((!embedded?"Gruppenkalender"+form_renderImage({cssid:"edit_group", src:"options.png", top:8, width:24, htmlclass:"pull-right"}):null));
   var sortkey=-1;
   var mycals=new Object();
   var rows = new Array();
@@ -1563,14 +1563,16 @@ function renderGroupCategories() {
     $.each(churchcore_sortMasterData(masterData.category), function(k,a) {
       if ((a.oeffentlich_yn==0) && (a.privat_yn==0)) {
         var title=a.bezeichnung;
-        if (!categoryEditable(a.id)) title=title+" (nur lesbar)";
+        if (!categoryEditable(a.id) && !embedded) title=title+" (nur lesbar)";
         form_addEntryToSelectArray(mycals,(a.id*1+100),title,sortkey);
         sortkey++;
       }
     });
     if (sortkey>=0) {
-      form_addEntryToSelectArray(mycals,3,'-',sortkey);  sortkey++;
-      form_addEntryToSelectArray(mycals,5,'Abwesenheiten pro Kalender',sortkey);  sortkey++;
+      if (user_access("view churchservice")) {
+        form_addEntryToSelectArray(mycals,3,'-',sortkey);  sortkey++;
+        form_addEntryToSelectArray(mycals,5,'Abwesenheiten pro Kalender',sortkey);  sortkey++;
+      }
       createMultiselect("filterGruppenKalender", mycals);
       form.addHtml('<div id="filterGruppenKalender"></div>');
       rows.push(form.render(true));
@@ -1597,6 +1599,19 @@ function renderChurchCategories() {
 
     oeff_cals=new Object();
     if (churchcore_countObjectElements(masterData.category)>0) {
+      if (embedded) {
+        var dabei=false;
+        $.each(churchcore_sortMasterData(masterData.category), function(k,a) {
+          if ((a.oeffentlich_yn==0) && (a.privat_yn==0) && ((filterCategoryIds==null) || (churchcore_inArray(a.id, filterCategoryIds)))) {
+            dabei=true;
+            var title=a.bezeichnung;
+            form_addEntryToSelectArray(oeff_cals,(a.id*1+100),title,sortkey);
+            sortkey++;
+          }
+        });
+        if (dabei) form_addEntryToSelectArray(oeff_cals,-2,'-',sortkey);  sortkey++;
+      }
+
       $.each(churchcore_sortMasterData(masterData.category), function(k,a) {
         if ((a.oeffentlich_yn==1) && ((filterCategoryIds==null) || (churchcore_inArray(a.id, filterCategoryIds)))) {
           var title=a.bezeichnung;
@@ -1686,11 +1701,16 @@ $(document).ready(function() {
     if ((viewName=="eventView") && (!embedded)) {
       rows.push('<div id="minicalendar" style="height:240px; max-width:350px"></div><br/><br/><br/>');
     }    
-    if (filterCategoryIds==null || !embedded) {
+    if (!embedded) {
       rows.push(renderPersonalCategories());    
       rows.push(renderGroupCategories());
+      rows.push(renderChurchCategories());
     }
-    rows.push(renderChurchCategories());
+    else {
+      // All together in one well div.
+      rows.push(renderChurchCategories());
+    }
+    
 
     $("#cdb_filter").html(rows.join(""));
     
