@@ -1838,6 +1838,10 @@ function form_implantDatePicker(divid, curDate, func, highlightDay) {
    $("#"+divid).datepicker("destroy");
    $("#"+divid).html("");        
  });  
+ $("#"+divid).mouseleave(function(){
+   $("#"+divid).datepicker("destroy");
+   $("#"+divid).html("");        
+})
 };
 
 function form_renderHelpLink(link, invert) {
