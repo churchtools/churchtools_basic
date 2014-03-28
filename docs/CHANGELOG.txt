@@ -1,20 +1,23 @@
 (Legende: "+"=>Neues Feature  "-"=>Fehlerbehebung)
 
-Achtung: Mindestanforderung ist nun auf PHP >= 5.3. 
+Achtung: Mindestvoraussetzung ist nun >= PHP 5.3
 + (CDB) Beim Gruppentreffen kann nun auch nachträglich das Datum geändert werden
 + (CDB) In der Gruppenliste wird nun bei Auswahl eines Gruppentypes Mitglied oder Nicht-Mitglied angezeigt
-+ (CDB) Neues Rechte für das Nutzen von "Weiteren Filter" (hing vorher mit viewalldata zusammen)
++ (CDB) Neues Rechte für das Nutzen von "Weiteren Filter" (hing vorher mit viewalldata zusammen. Wird automatisch beim Update gesetzt)
 + (CW) Man kann nun Kategorien verstecken und dann per Link direkt aufrufen.
+- (CS) Änderungen bei Services können nun abonniert werden.
 + (CS) Ablaufpläne können nun auch direkt aus dem Dienstplan gedruckt werden
 + (CS) Ablaufpläne haben nun einen Status Entwurf/Abgeschlossen
 + (CS) Nun wählbar ob Kopieren und Integrieren von Ablaufplänen zu vorhandenen.
 + (Cal) Es gibt nun eine Druckansicht
-+ (Cal) Es können nun Besprechungsanfragen gestellt werden
-+ (Cal) MiniCal neben dem Heute-Button ergänzt 
++ (Cal) Es können nun Besprechungsanfragen gestellt werden 
++ (Cal) Weitere Felder im iCal-Abo ergäntzt
 + Austausch von "+" zu netteren Icons mit Hover-Funktion
++ Es kann nun ein eigenes Logo hochgeladen werden.
 - (CDB) Kleiner Bug bei Auswahl von Personen behoben
-- (CS) Spaltenauswahl in Agenda sind nun unabhängig vom Dienstplan
 - (CDB) VCardExport für Mac optimiert
+- (CDB) Bug beim Editieren von Status behoben wenn in der Datenbank Ids auseinandergelaufen sind.
+- (CS) Spaltenauswahl in Agenda sind nun unabhängig vom Dienstplan
 - Zwischenspeichern nun kompatibel mit IE8
 - Mailchimp-Problem behoben.
 - Probleme mit '-Zeichen bei Ressourcen behoben

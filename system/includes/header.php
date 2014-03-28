@@ -83,7 +83,7 @@
             <span class="icon-bar"></span>
           </a>
           <a class="brand" href=".">
-            <?php if (isset($config["site_logo"])) echo '<img src="'.$files_dir."/files/logo/".$config["site_logo"].'" style="max-width:100px;max-height:32px;margin:-10px 4px -8px 0px"/>' ?>
+            <?php if (isset($config["site_logo"]) && $config["site_logo"]!="") echo '<img src="'.$files_dir."/files/logo/".$config["site_logo"].'" style="max-width:100px;max-height:32px;margin:-10px 4px -8px 0px"/>' ?>
             <?php echo $config["site_name"].(isset($config["test"])?" TEST ":"") ?>
           </a>
 
