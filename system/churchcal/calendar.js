@@ -29,7 +29,6 @@ function mapEvents(allEvents) {
           if ((a.notizen!=null) && (a.notizen!="")) o.notizen=a.notizen;
           if ((a.link!=null) && (a.link!="")) o.link=a.link;
           if ((a.ort!=null) && (a.ort!='')) o.title=o.title+' ('+a.ort+')';
-     //     o.editable=editable;
           o.start= d.startdate;
             o.end = d.enddate;
           // Tagestermin?
@@ -45,6 +44,9 @@ function mapEvents(allEvents) {
   return cs_events;
 }
 
+/*
+ * Collect database conform event vom source
+ */
 function getEventFromEventSource(event) {
   if ((event.source.container.data==null) || (event.source.category_id==0) 
              || (event.source.container.data[event.source.category_id]==null)) 
@@ -461,17 +463,12 @@ function _renderEditEventContent(elem, currentEvent) {
     elem.find("#cal_content").html(rows.join(""));
     churchInterface.jsendRead({func:"getAllowedPeopleForCalender", category_id:currentEvent.category_id}, function(ok, data) {
       var form = new CC_Form();
+      var invitable=false;
       if (data.length==0)
         form.addHtml('<p>Dem Kalender sind keine Personen oder Gruppen zugewiesen.');
       else {
-        form.addHtml('<p><span class="pull-right">');
-        form.addButton({label:"Alle auswählen", htmlclass:"select-all"});
-        form.addHtml("&nbsp; ")
-        form.addButton({label:"Alle abwählen", htmlclass:"deselect-all"});
-        form.addHtml('</span><i>Für eine Anfrage bitte Personen auswählen</i><br>');
-        if (currentEvent.repeat_id!=0)
-          form.addHtml('<small>Bei Wiederholungsterminen wird nur der erste Termin angefragt!</small>');
-        form.addHtml('&nbsp;</p><div style="height:360px;overflow-y:auto">');
+        form.addHtml('<div class="person-selector"></div>');
+        form.addHtml('<div style="height:360px;overflow-y:auto">');
         form.addHtml('<table class="table table-condensed">');
         function _addPerson(p) {
           var mr=null;
@@ -499,7 +496,10 @@ function _renderEditEventContent(elem, currentEvent) {
               else if (mr.zugesagt_yn==0)
                 form.addImage({src:"delete_2.png",width:24, label:"Abgesagt"});
             }
-            else form.addHtml('nicht eingeladen');
+            else {
+              form.addHtml('nicht eingeladen');
+              invitable=true;
+            }
           }
           form.addHtml('</span>');        
         }
@@ -521,6 +521,18 @@ function _renderEditEventContent(elem, currentEvent) {
       }
 
       elem.find("#meeting-request").html(form.render());
+      if (invitable) {
+        form = new CC_Form();
+        form.addHtml('<p><span class="pull-right">');
+        form.addButton({label:"Alle auswählen", htmlclass:"select-all"});
+        form.addHtml("&nbsp; ")
+        form.addButton({label:"Alle abwählen", htmlclass:"deselect-all"});
+        form.addHtml('</span><i>Für eine Anfrage bitte Personen auswählen</i><br>');
+        if (currentEvent.repeat_id!=0)
+          form.addHtml('<small>Bei Wiederholungsterminen wird nur der erste Termin angefragt!</small>');
+        form.addHtml('&nbsp;</p>');
+        $('div.person-selector').html(form.render());
+      }
       myelem=elem;
       elem.find("input.select-all").click(function() {
         elem.find("input.checkbox").each(function() {
@@ -1099,11 +1111,31 @@ function renderTooltip(event) {
   if (event.status!=null)
     rows.push('<li>Status: '+event.status);
   rows.push('</ul>');
+  
+  // A calender event
   if (myEvent!=null) {
     if ((!embedded) && (myEvent.booking_id!=null) && (masterData.auth["view churchresource"])) 
       rows.push('<a href="?q=churchresource&id='+myEvent.booking_id+'"><span class="label label-info">'+masterData.churchresource_name+'</label></a>&nbsp;');
     if ((!embedded) && (myEvent.event_id!=null)) 
       rows.push('<a href="?q=churchservice&id='+myEvent.event_id+'"><span class="label label-info">'+masterData.churchservice_name+'</label></a>&nbsp;');
+    if (myEvent.meetingRequest!=null) {
+      rows.push('<h5>Info Besprechungsanfrage</h5>');
+      var confirm=0, decline=0, offen=0, perhaps=0;
+      $.each(myEvent.meetingRequest, function(k,a) {
+        if (a.zugesagt_yn==1) confirm=confirm+1;
+        else if (a.zugesagt_yn==0) decline=decline+1;
+        else if (a.response_date!=null) perhaps=perhaps+1;
+        else offen=offen+1;
+      });
+      if (confirm>0)
+        rows.push('<span class="badge badge-success">'+confirm+'</span> Zusage<br/>');
+      if (perhaps>0)
+        rows.push('<span class="badge">'+perhaps+'</span> Vielleicht<br/>');
+      if (decline>0)
+        rows.push('<span class="badge badge-important">'+decline+'</span> Absage<br/>');
+      if (offen>0)
+        rows.push('<span class="badge badge-info">'+offen+'</span> Offen');
+    }
   } 
   else {
     if (event.bezeichnung!=null)
@@ -1113,7 +1145,7 @@ function renderTooltip(event) {
     rows.push(event.source.container.data[event.source.category_id].name);
     rows.push("</i></small>");
   }
-
+  
   rows.push('</div>');
   
   return [rows.join(""), title];
