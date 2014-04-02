@@ -1159,6 +1159,7 @@ StandardTableView.prototype.renderPersonSelect = function(title, searchAll, resu
   var this_object=this;
   rows.push("Suche: <input type=\"text\" size=\"10\" id=\"searchAddress\"/ value=\""+_searchString+"\">&nbsp;&nbsp;<br/>");
   rows.push("<div id=\"cdb_personselector\">"+"<i>Bitte Namen eingeben...</i>"+"</div><br/>");
+  if (searchAll) rows.push("<p><small>Gesucht wird nach den f&uuml;r Dich sichtbaren Personen sowie allen Personen aus Deinen Bereichen.</small>");
   
   //elem.html(rows.join(""));
   var elem = form_showCancelDialog("Auswahl einer Person",rows.join(""));

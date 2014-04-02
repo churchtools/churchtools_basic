@@ -176,6 +176,12 @@ function form_renderPersonImage(url, width) {
   return '<img style="max-width:'+width+'px;max-height:'+width+'px;" src="'+settings.files_url+"/fotos/"+url+"\"/>";          
 }
 
+/**
+ * 
+ * @param divid
+ * @param withMyDeps - In addition get people which are in you deps. otherwise only visible people
+ * @param func
+ */
 function form_autocompletePersonSelect (divid, withMyDeps, func) {
   if (withMyDeps==null) withMyDeps=false;
   $(divid).addClass("form-autocomplete");

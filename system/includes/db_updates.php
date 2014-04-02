@@ -1788,7 +1788,7 @@ function run_db_updates($db_version) {
       
       set_version("2.47");
     case '2.47': 
-      db_query("ALTER TABLE  `cs_service` ADD  `cal_text_template` VARCHAR( 255 ) NULL AFTER  `allowtonotebyconfirmation_yn` ;");
+      db_query("ALTER TABLE {cs_service} ADD cal_text_template VARCHAR( 255 ) NULL AFTER allowtonotebyconfirmation_yn");
       set_version("2.48");
     }
       

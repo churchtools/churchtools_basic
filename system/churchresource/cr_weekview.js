@@ -608,6 +608,13 @@ WeekView.prototype.renderEditBookingFields = function (a) {
     cols:150
   }));
 
+  if (user_access("assistance mode") && (a.neu || a.person_id==masterData.user_pid)) {
+    rows.push(form_renderInput({
+      cssid:"assistance_user",
+      label:"Im Auftrag von"
+    }));
+  }
+  
 
   rows.push("</form>");
   
@@ -749,6 +756,12 @@ WeekView.prototype.closeAndSaveBookingDetail = function (elem) {
   if (a.enddate<a.startdate) {
     alert("Das Enddatum liegt vor dem Startdatum, bitte korrigieren!");
     return null;
+  }
+  if ($("#assistance_user").val()!=null && $("#assistance_user").val()!="") { 
+    if ($("#assistance_user").attr("disabled")==null) {
+      alert("Die Person bei "+$("#assistance_user").val()+" wurde nicht gefunden!");
+      return null;
+    }
   }
 
   a.resource_id=$("select[id=InputRessource]").val();
@@ -974,6 +987,14 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
          t.implantEditBookingCallbacks("cr_fields", allBookings[id]); 
        }
      }); 
+   
+   form_autocompletePersonSelect("#assistance_user", false, function(divid, ui) {
+     $("#assistance_user").val(ui.item.label);
+     $("#assistance_user").attr("disabled",true);
+     t.currentBooking.person_id=ui.item.value;
+     t.currentBooking.person_name=ui.item.label;
+     return false;
+   });
     
    this.checkConflicts();
     
@@ -1022,8 +1043,8 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
     {
       if (((masterData.auth.write) && (t.currentBooking.person_id==masterData.user_pid)) || (masterData.auth.editall) || (t.currentBooking.neu)) {
         elem.dialog('addbutton', 'Speichern', function() {
-          t.closeAndSaveBookingDetail(elem);}
-        );
+          t.closeAndSaveBookingDetail(elem);
+        });
         
         if ((t.currentBooking.status_id!=99) && (!t.currentBooking.neu)) {
           // Bei Wiederholungsterminen UND einem Eintrag, bei dem es sich um einer Wiederholung handelt: date>startdate

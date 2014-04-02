@@ -770,8 +770,8 @@ function _churchdb_getPersonByName($searchpattern, $withMyDepartment=false) {
         (upper(name) like upper('".$searchpattern."%') or upper(vorname) like upper('".$searchpattern."%')
           or (concat(upper(vorname),' ',upper(name)) like upper('".$searchpattern."%') )
           or (concat(upper(spitzname),' ',upper(name)) like upper('".$searchpattern."%') )
-          ) 
-        
+          or (upper(email) like upper('".$searchpattern."%') )
+        )         
         order by vorname, name");
     foreach ($res as $k) {
       $arr=array();
