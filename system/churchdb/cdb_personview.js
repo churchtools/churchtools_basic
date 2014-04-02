@@ -3643,6 +3643,9 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
           $(this).dialog("close");
         }    
      });
+     elem2.find("form").submit(function() {
+       return false;
+     })
     }  
   });
 };
