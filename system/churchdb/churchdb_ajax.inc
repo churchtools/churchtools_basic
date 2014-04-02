@@ -1211,8 +1211,8 @@ class CTChurchDBModule extends CTAbstractModule {
     $res["groups"] = getAllGroups();
     $res["tags"] = getAllTags();
     $res["FUNachfolgeDomains"] = array("0"=> array ("id"=>"0", "bezeichnung"=>"Kein"),
-                                       "1"=> array ("id"=>"1", "bezeichnung"=>"Gruppentyp"),
-                                       "2"=> array ("id"=>"2", "bezeichnung"=>"Distrikt"),
+                                       "1"=> array ("id"=>"1", "bezeichnung"=>$res["fields"]["f_group"]["fields"]["gruppentyp_id"]["text"]),
+                                       "2"=> array ("id"=>"2", "bezeichnung"=>$res["fields"]["f_group"]["fields"]["distrikt_id"]["text"]),
                                        "3"=> array ("id"=>"3", "bezeichnung"=>"Gruppe")
     );
     $res["groupMemberTypes"] = getGroupMemberTypes();

@@ -35,6 +35,15 @@ span.label a {
   color:white;
 }
 
+.ct-dialog-content{
+	position: relative;
+	border: 0;
+	padding: .5em 1em;
+	background: none;
+	overflow: auto;
+}
+
+
 .input-xmini {
   width: 40px;
 }

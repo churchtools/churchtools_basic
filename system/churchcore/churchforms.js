@@ -1736,6 +1736,9 @@ function form_showDialog (title, text, width, height, buttons) {
       elem=null;
     }
   });
+  // hack around the problem with editing link and image editor when a dialog already open 
+  elem.removeClass("ui-dialog-content");
+  elem.addClass("ct-dialog-content");
   $("div.ui-dialog-buttonpane button").addClass("btn");
 
   return elem;

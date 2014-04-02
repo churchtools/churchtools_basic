@@ -423,7 +423,7 @@ button.ui-button::-moz-focus-inner {
 	padding: 1px;
 	height: 20px;
 }
-.ui-dialog .ui-dialog-content {
+.ui-dialog .ui-dialog-content{
 	position: relative;
 	border: 0;
 	padding: .5em 1em;
