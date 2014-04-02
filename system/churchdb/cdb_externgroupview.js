@@ -69,6 +69,8 @@ function editGroup(a) {
     });
   }
   else {
+    form.addHtml('<legend>'+g.bezeichnung+'</legend>');
+    form.addHtml('<p><div class="well">'+title+'</div>');
     var elem = form_showDialog("Infos zur Gruppe", form.render(null, "horizontal"), 500, 350, {
        "Schliessen": function() {
          elem.dialog("close");
@@ -122,7 +124,7 @@ jQuery(document).ready(function() {
       }
       else {
         // Logged in
-        if (masterData.user_pid>0) {
+        if (masterData.user_pid>0 && masterData.groups[gid].offen_yn==1) {
           if (masterData.groups[gid].status_no!=null && masterData.groups[gid].status_no!=-1) {
             rows.push('<div class="alert alert-error">'+masterData.vorname+", Du bist bereits f&uuml;r <i>"+masterData.groups[gid].bezeichnung+"</i> angemeldet!</div>");
           }
