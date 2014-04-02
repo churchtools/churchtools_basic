@@ -514,7 +514,7 @@ function churchservice_updateEventService($params) {
       $setting=churchcore_getUserSettings("churchservice",$leader->id);
       if (isset($setting["informInquirer"]) && ($setting["informInquirer"]==1)) {
 
-        $txt="<h3>Hallo ".$leader->vorname.",</h3><p>";
+        $txt="<h3>Hallo ".$leader->vorname.",</h3><p>".$txt;
         
         $txt.='<p><a href="'.$base_url.'?q=churchservice&id='.$arr->event_id.'" class="btn btn-primary">Event aufrufen</a>';
         churchservice_send_mail($subject, $txt, $leader->email);
