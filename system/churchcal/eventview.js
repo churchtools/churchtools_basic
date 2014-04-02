@@ -41,8 +41,9 @@ function eventCalendar(element, options, eventSources) {
   t.render=render;
   t.addEventSource=addEventSource;
   t.removeEventSource=removeEventSource;
-  t.startdate=new Date();
+  t.startdate=(options.startdate!=null?options.startdate:new Date());
   t.startdate=t.startdate.withoutTime();
+  t.enddate=options.enddate;
   
   t.eventSources=new Array();
   
@@ -67,6 +68,8 @@ function eventCalendar(element, options, eventSources) {
       var rows = new Array();  
       
       var allData= new Array();
+      
+      // Get together events with same name and category
       $.each(t.eventSources, function(k,s) {
         if (s!=null) {
           $.each(s.events, function(i,event) {
@@ -95,17 +98,18 @@ function eventCalendar(element, options, eventSources) {
       var _filter=filterName.toUpperCase();
       var count=0;
       $.each(churchcore_sortData(allData, "start"), function(k,a) {
-        if (a.start>=t.startdate) {
+        if (a.start>=t.startdate && (t.enddate==null || a.start<=t.enddate)) {
           if ((filterName=="") || (a.title.toUpperCase().indexOf(_filter)>=0)
                 || (a.notizen!=null && a.notizen.toUpperCase().indexOf(_filter)>=0)) {
             rows.push('<tr><td>');
             
             if (!minical) {
               if ((a.notizen!=null) || (a.link!=null)) 
-                rows.push('<a href="#" class="event" data-id="'+k+'">'+a.title+'</a>');
+                rows.push('<a href="#" class="event event-name" data-id="'+k+'">'+a.title+'</a>');
               else
-                rows.push(a.title);
-              rows.push(' ('+a.container.getName(a.category_id)+')<br><p><small>');
+                rows.push('<span class="event-name">'+a.title+'</span>');
+              rows.push('<span class="event-category">'+a.container.getName(a.category_id)+'</span>');
+              rows.push('<p class="event-date">');
               rows.push(a.start.toStringDe(!a.allDay));
               if (a.end!=null) {
                 if (a.end.getDate()!=a.start.getDate()) {
@@ -114,11 +118,11 @@ function eventCalendar(element, options, eventSources) {
                 else 
                   rows.push(" - "+a.end.toStringDeTime());
               }
-              rows.push('</small>');
             }
             // MiniCalender
             else {
-              rows.push('<p><small>');
+              rows.push('<p>');
+              rows.push('<span class="event-date">');
               if (a.multi==null) {
                 rows.push(a.start.toStringDe(!a.allDay));
                 if (a.end!=null) {
@@ -135,12 +139,13 @@ function eventCalendar(element, options, eventSources) {
                   rows.push(b.toStringDeTime()+" | ");
                 });
               }
-              rows.push('</small><br>');
+              rows.push('</span><br>');
+              
               if (a.link!=null) 
-                rows.push('<a href="'+a.link+'" target="_parent">'+a.title+'</a>');
+                rows.push('<a href="'+a.link+'" class="event-name" target="_parent">'+a.title+'</a>');
               else
-                rows.push(a.title);
-              if (a.notizen!=null) rows.push("<br><small>"+a.notizen.trim(100)+'</small>');
+                rows.push('<span class="event-name">'+a.title+'</span>');
+              if (a.notizen!=null) rows.push('<br><span class="event-description">'+a.notizen.trim(100)+'</span>');
               
             }
             

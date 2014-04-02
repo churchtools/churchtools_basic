@@ -2117,6 +2117,10 @@ ListView.prototype.renderTooltip = function(id, event_id, withLastDates, withHis
 
   if (txt!="") {
     var title=masterData.service[a.service_id].bezeichnung;
+    if (_bin_ich_admin || masterData.auth.admin || (masterData.auth.editservice[a.service_id])) {
+      title='<a href="#" class="edit-service" data-id="'+a.service_id+'">'+title+'</a>';
+    }
+    
     if (masterData.service[a.service_id].notiz!="")
       title=title+' <small> ('+masterData.service[a.service_id].notiz+")</small>";
 
@@ -2190,6 +2194,7 @@ ListView.prototype.editService = function(service_id, sg_id) {
     var form = new CC_Form(null, arr);
     form.addInput({label:"Bezeichnung",cssid:"bezeichnung",required:true});
     form.addInput({label:"Notiz",cssid:"notiz",required:false});
+    form.addInput({label:"Ergänzung für Kalendertext", placeholder:"mit [Vorname]", cssid:"cal_text_template",required:false});
     form.addSelect({label:"Servicegruppe", cssid:"servicegroup_id", data:masterData.servicegroup, 
       func: function(o) {return (masterData.auth.editgroup!=null) && (masterData.auth.editgroup[o.id]!=null);}
     });
@@ -2211,7 +2216,7 @@ ListView.prototype.editService = function(service_id, sg_id) {
     form.addInput({label:"Sortierungsnummer (sortkey)",cssid:"sortkey",required:true});
     form.addHtml('<p class="pull-right"><small>Id: '+service_id);
   
-    var elem = form_showDialog((service_id!=null?"Service editieren":"Service erstellen"), form.render(false, "horizontal"), 600,580);
+    var elem = form_showDialog((service_id!=null?"Service editieren":"Service erstellen"), form.render(false, "horizontal"), 600,550);
     elem.dialog('addbutton', 'Speichern', function() {
       obj=form.getAllValsAsObject();
       obj.cdb_gruppen_ids=arr.gruppen.join(",");
@@ -2710,6 +2715,10 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
           t.mailPerson($(this).attr("data-id"));
           return false;
         });     
+        element.find("a.edit-service").click(function() {
+          clearTooltip();
+          t.editService($(this).attr("data-id"));          
+        })
       }
     });    
   });

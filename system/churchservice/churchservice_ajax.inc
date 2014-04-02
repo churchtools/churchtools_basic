@@ -399,6 +399,7 @@ function churchservice_editService($params) {
   $i->setParam("servicegroup_id");
   $i->setParam("cdb_gruppen_ids", false);
   $i->setParam("cdb_tag_ids", false);
+  $i->setParam("cal_text_template", false);
   $i->setParam("sendremindermails_yn");
   $i->setParam("allowtonotebyconfirmation_yn");
   $i->setParam("sortkey");

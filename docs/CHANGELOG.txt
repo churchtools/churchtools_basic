@@ -1,5 +1,10 @@
 (Legende: "+"=>Neues Feature  "-"=>Fehlerbehebung)
 
+churchtools 2.48
++ (Cal/CS) Man kann nun Text-Templates verwenden um KalendereintrŠge noch interessanter zu gestalten, z.B. Gottesdienst mit Pastor Uwe
+- (CDB) Gruppenteilnahmenpflege Fehler behoben
+
+churchtools 2.47
 Achtung: Mindestvoraussetzung ist nun >= PHP 5.3
 + (CDB) Beim Gruppentreffen kann nun auch nachtrŠglich das Datum geŠndert werden
 + (CDB) In der Gruppenliste wird nun bei Auswahl eines Gruppentypes Mitglied oder Nicht-Mitglied angezeigt

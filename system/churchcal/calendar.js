@@ -28,6 +28,9 @@ function mapEvents(allEvents) {
           o.title= a.bezeichnung;
           if ((a.notizen!=null) && (a.notizen!="")) o.notizen=a.notizen;
           if ((a.link!=null) && (a.link!="")) o.link=a.link;
+          if (a.service_texts!=null) {
+            o.title=o.title+" "+a.service_texts.join(", ");
+          }
           if ((a.ort!=null) && (a.ort!='')) o.title=o.title+' ('+a.ort+')';
           o.start= d.startdate;
             o.end = d.enddate;
@@ -932,7 +935,9 @@ function _eventClick(event, jsEvent, view ) {
 function initCalendarView() {
   calendar=$('#calendar');
   var d=new Date();
-  if (masterData.settings.startDate!=null)
+  if ($("#init_startdate").val()!=null) 
+    d=$("#init_startdate").val().toDateEn(true);
+  if (d==null && masterData.settings.startDate!=null)
     d=masterData.settings.startDate.toDateEn();
   if (viewName=="calView") {
     calendar.fullCalendar({
@@ -1023,7 +1028,10 @@ function initCalendarView() {
     $("#header").append('<span id="eventView" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content"><i class="icon-list"></i></span><span class="fc-button-effect"><span></span></span></span></span>');
   }
   else if (viewName=="eventView") {
-    calendar.eventCalendar({});
+    var enddate=null;
+    if ($("#init_enddate").val()!=null)
+      enddate=$("#init_enddate").val().toDateEn(true);
+    calendar.eventCalendar({startdate:d, enddate:enddate});
     $("#header").append(form_renderInput({controlgroup:false, cssid:"searchEntry", placeholder:"Suche",htmlclass:"input-medium search-query"}));
     $("#header").append('<span id="calView" style="overflow:inherit" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content">Kalender</span><span class="fc-button-effect"><span></span></span></span></span>');
     $("#header").append('<span id="yearView" style="overflow:inherit" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content">Jahr</span><span class="fc-button-effect"><span></span></span></span></span>');
@@ -1098,6 +1106,9 @@ function renderTooltip(event) {
     if (categoryEditable(myEvent.category_id)) {
       title=title+'<span class="pull-right">&nbsp;<nobr>'+form_renderImage({cssid:"copyevent", label:"Kopieren", src:"copy.png", width:20});
       title=title+"&nbsp;"+form_renderImage({cssid:"delevent", label:'Löschen', src:"trashbox.png", width:20})+"</nobr></span>";
+    }
+    if (myEvent.service_texts!=null) {
+      title=title+"<br><small>"+myEvent.service_texts.join(", ")+'</small>';
     }
     if ((myEvent.ort!=null) && (myEvent.ort!=""))
       rows.push('<li>Ort: '+myEvent.ort);

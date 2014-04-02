@@ -486,4 +486,15 @@ span.tag {
   bottom: 270px;
 }
 
+.event-date {
+  font-size:85%;	
+  color:#999;
+}
 
+.event-category:before{content:" (";}  	
+.event-category:after{content:")";}  	
+
+.event-description {
+  font-size:85%;	
+  color:#999;
+}

@@ -908,10 +908,7 @@ function churchcore_sendEMailToPersonids($ids, $betreff, $inhalt, $from=null, $h
       $error[]=$p->vorname." ".$p->name;
     else {    
       $mailtxt=str_replace('\"','"',$mailtxt);
-      $mailtxt=str_replace("[Vorname]",$p->vorname,$mailtxt);
-      $mailtxt=str_replace("[Nachname]",$p->name,$mailtxt);
-      $mailtxt=str_replace("[Spitzname]",($p->spitzname==""?$p->vorname:$p->spitzname),$mailtxt);
-      $mailtxt=str_replace("[Id]",$p->id,$mailtxt);
+      $mailtxt=churchcore_replacePersonTemplate($mailtxt, $p);
       //ct_log("[ChurchCore] - Sende Mail an $p->email $mailtxt",2,-1,"mail");
       
       churchcore_mail($from, $p->email, $betreff, $mailtxt, $htmlmail, $withtemplate);  
@@ -921,6 +918,15 @@ function churchcore_sendEMailToPersonids($ids, $betreff, $inhalt, $from=null, $h
     throw new CTFail("An folgende Personen konnte wegen fehlender EMail-Adresse keine EMail gesendet werden: ".implode($error,","));    
 }
 
+function churchcore_replacePersonTemplate($txt, $p) {
+  if ($p==null) return $txt;
+  $txt=str_replace("[Vorname]",$p->vorname,$txt);
+  $txt=str_replace("[Nachname]",$p->name,$txt);
+  $txt=str_replace("[Titel]",$p->titel,$txt);
+  $txt=str_replace("[Spitzname]",($p->spitzname==""?$p->vorname:$p->spitzname),$txt);
+  $txt=str_replace("[Id]",$p->id,$txt);
+  return $txt;
+}
 
 
 function checkForDBUpdates() {

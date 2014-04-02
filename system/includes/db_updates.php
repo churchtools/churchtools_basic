@@ -1787,7 +1787,12 @@ function run_db_updates($db_version) {
       db_query("ALTER TABLE {cs_agenda} ADD final_yn INT( 1 ) NOT NULL DEFAULT '0' AFTER series");
       
       set_version("2.47");
-  }
+    case '2.47': 
+      db_query("ALTER TABLE  `cs_service` ADD  `cal_text_template` VARCHAR( 255 ) NULL AFTER  `allowtonotebyconfirmation_yn` ;");
+      set_version("2.48");
+    }
+      
+    
 	  
     $a=db_query("select * from {cc_config} where name='version'",null,false);
     $software_version=$a->fetch()->value;

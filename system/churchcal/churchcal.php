@@ -27,6 +27,13 @@ function churchcal_main() {
     $txt.='<input type="hidden" id="filtercategory_id" name="category_id" value="'.$_GET["category_id"].'"/>';
     
   if ($embedded) {
+    if (variable_get("churchcal_css", null)!=null) {
+      $txt.='<style>'.variable_get("churchcal_css", null).'</style>';
+    }
+    if (isset($_GET["cssurl"])) {
+      drupal_add_css($_GET["cssurl"]);
+    }    
+    
     if ((isset($_GET["category_select"])) && ($_GET["category_select"]!="") && ($_GET["category_select"]!="null"))
       $txt.='<input type="hidden" id="filtercategory_select" name="category_select" value="'.$_GET["category_select"].'"/>';
     if ((isset($_GET["minical"]) && ($_GET["minical"]=="true")))
@@ -42,6 +49,10 @@ function churchcal_main() {
       $txt.='<input type="hidden" id="printview" value="true"/>';
     if (isset($_GET["entries"]))
       $txt.='<input type="hidden" id="entries" value="'.$_GET["entries"].'"/>';
+    if (isset($_GET["startdate"]))
+      $txt.='<input type="hidden" id="init_startdate" value="'.$_GET["startdate"].'"/>';
+    if (isset($_GET["enddate"]))
+      $txt.='<input type="hidden" id="init_enddate" value="'.$_GET["enddate"].'"/>';
   }
   else   
     $txt.='<div class="row-fluid">
@@ -66,6 +77,12 @@ function churchcal_getAdminModel() {
     $config["churchcal_maincalname"]="Gemeindekalender";
   $model->addField("churchcal_maincalname","", "INPUT_REQUIRED","Name des Hauptkalenders");
   $model->fields["churchcal_maincalname"]->setValue($config["churchcal_maincalname"]);
+
+  if (!isset($config["churchcal_css"]))
+    $config["churchcal_css"]="";
+  $model->addField("churchcal_css","", "TEXTAREA","CSS f&uuml;r das Einbetten des Kalenders");
+  $model->fields["churchcal_css"]->setValue($config["churchcal_css"]);
+  
   return $model;
 }
 
