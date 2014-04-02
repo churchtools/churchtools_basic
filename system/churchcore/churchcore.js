@@ -644,7 +644,7 @@ function churchcore_datesInConflict(startdate, enddate, startdate2, enddate2) {
   if (churchcore_isFullDay(startdate2, enddate2)) {
     // Wenn ganztags setze Enddatum auf 23:59:59
     _enddate2.addDays(1);
-    _enddate2=new Date(_enddate.getTime()-1);
+    _enddate2=new Date(_enddate2.getTime()-1);
   }  
   // Enddatum2 liegt innerhalb des Datums
   if (((_enddate2>startdate) && (_enddate2<_enddate))

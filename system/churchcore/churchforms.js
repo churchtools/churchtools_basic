@@ -927,6 +927,7 @@ function form_renderDates(options) {
       form_getDatesInToObject(options.data);
       options.data.repeat_option_id=null;
       form_renderDates(options);
+      checkExceptionCollision(options);
     }
   });
   $("#inputStarthour").change(function() {
@@ -1029,6 +1030,22 @@ function form_renderDates(options) {
     options.callback();
 }
 
+function checkExceptionCollision(options) {
+  var data=options.data;
+  var collision=false;
+  if (data.exceptions!=null) {
+    $.each(data.exceptions, function(k,e) {
+      if (churchcore_datesInConflict(data.startdate, data.enddate, e.except_date_start.toDateEn(true), e.except_date_end.toDateEn(true))) {
+        collision=k;
+        return false;
+      }
+    });
+  }
+  if (collision!==false && confirm("Es gibt eine Ausnahme an dem Datum, soll die entfernt werden?")) {
+    delete data.exceptions[collision];
+    form_renderDates(options);
+  }  
+}
 
 
 function form_getDatesInToObject(o) {
