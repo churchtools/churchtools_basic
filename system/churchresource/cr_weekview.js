@@ -95,6 +95,49 @@ WeekView.prototype.renderMenu = function() {
   }
 };
 
+WeekView.prototype.renderCreatePerson = function(value) {
+  var form = new CC_Form();
+  form.addHidden({cssid:"func", value:"createAddress"});
+  form.addInput({label:"Vorname", cssid:"vorname", required:true, value:(value.indexOf(" ")>=0?value.substr(0,value.indexOf(" ")):"")});
+  form.addInput({label:"Nachname", cssid:"name", required:true, value:(value.indexOf(" ")>=0?value.substr(value.indexOf(" ")+1,99):"")});
+  form.addInput({label:"E-Mail", cssid:"email", value:(value.indexOf("@")>=0?value:"")});
+  form.addSelect({label:"Bereich", cssid:"Inputf_dep", htmlclass:"setting", data:churchcore_sortMasterData(masterData.cdb_bereich), selected:masterData.settings.bereich_id});
+  form.addSelect({label:"Status", cssid:"Inputf_status", htmlclass:"setting", data:churchcore_sortMasterData(masterData.cdb_status), selected:masterData.settings.status_id});
+  form.addSelect({label:"Station", cssid:"Inputf_station", htmlclass:"setting", data:churchcore_sortMasterData(masterData.cdb_station), selected:masterData.settings.station_id});
+  
+  var elem=form_showDialog("Neue Person hinzufügen", form.render(null, "horizontal"), 500, 400, {
+    "Hinzufügen": function() {
+      var obj=form.getAllValsAsObject();
+      if (obj!=null) {
+        if ((obj.vorname=="") || (obj.name=="")) {
+          alert("Bitte Vorname und Name angeben!");
+          return;
+        }
+        churchInterface.jsendWrite(obj, function(ok,data) {
+          if (ok) {
+            t.currentBooking.person_id=data.id;
+            t.currentBooking.person_name=obj.vorname+" "+obj.name;
+            $("#assistance_user").val(t.currentBooking.person_name);
+            $("#assistance_user").attr("disabled", true);
+            
+            elem.dialog("close");
+          }
+          else {
+            alert(data);
+          }
+        }, null, false, "churchdb");
+      }
+    },
+    "Abbruch": function() {
+      $(this).dialog("close");
+    }
+  });    
+  elem.find("select.setting").change(function(k) {
+    masterData.settings[$(this).attr("id")]=$(this).val();
+    churchInterface.jsendWrite({func:"saveSetting", sub:$(this).attr("id"), val:$(this).val()}, null, null, false);    
+  });  
+};
+
 WeekView.prototype.renderListMenu = function() {
   var t=this;
   
@@ -759,7 +802,13 @@ WeekView.prototype.closeAndSaveBookingDetail = function (elem) {
   }
   if ($("#assistance_user").val()!=null && $("#assistance_user").val()!="") { 
     if ($("#assistance_user").attr("disabled")==null) {
-      alert("Die Person bei "+$("#assistance_user").val()+" wurde nicht gefunden!");
+      if (user_access("create person")) {
+        if (confirm("Person "+$("#assistance_user").val()+" nicht gefunden, soll ich sie anlegen?")) {
+          t.renderCreatePerson($("#assistance_user").val());
+        }
+      }
+      else
+        alert("Die Person "+$("#assistance_user").val()+" wurde nicht gefunden!");
       return null;
     }
   }

@@ -222,6 +222,11 @@ function churchresource_getAuthForAjax() {
     $res["assistance mode"]=true;
   }
   
+  // For assistance mode
+  if (user_access("create person", "churchdb")) {
+    $res["create person"]=true;
+  }
+  
   if (isset($auth["edit masterdata"])) {
     $res["admin"]=true;
   }
@@ -254,6 +259,10 @@ class CTChurchResourceModule extends CTAbstractModule {
     $res["minutes"] = churchcore_getTableData("cr_minutes");
     $res["hours"] = churchcore_getTableData("cr_hours");
     $res["repeat"] = churchcore_getTableData("cc_repeat");
+    $res["cdb_bereich"] = churchcore_getTableData("cdb_bereich");
+    $res["cdb_status"] = churchcore_getTableData("cdb_status");
+    $res["cdb_station"] = churchcore_getTableData("cdb_station");
+   
     $res["modulename"] = $this->getModuleName();
     $res["modulespath"] = $this->getModulePath();
     $res["userid"] = $user->cmsuserid; // CMS Username#
