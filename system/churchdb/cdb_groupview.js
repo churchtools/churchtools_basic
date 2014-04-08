@@ -582,11 +582,11 @@ GroupView.prototype.getListHeader = function() {
   if (this.filter["filterDistrikt"]=="null") delete this.filter["filterDistrikt"];
   
   if ((this.filter["filterGruppentyp"]!=null) || (this.filter["filterDistrikt"]!=null)) {
-    str=str+"<th>Teilnehmer";
+    str=str+"<th>Leiter<th title=\"Gesamte Teilnehmer\">TN-Gesamt";
     if (this.range_startday!=null)
-      str=str+"<th>Hinzugef&uuml;gt<th>Herausgenommen";
+      str=str+'<th title="Hinzugef&uuml;gte Teilnehmer innerhalb des Schiebereglers">TN-Hinzugef&uuml;gt<th title="Herausgenommene Teilnehmer innerhalb des Schiebereglers">TN-Herausgenommen';
     else {
-      str=str+"<th>Mitglied-Status<th>Nicht Mitglied";      
+      str=str+'<th title="Teilnehmer die auch Mitglied sind">TN-Mitglied-Status<th>TN-Nicht Mitglied';      
     }
   }
   str=str+"<th>Tags";    
@@ -602,6 +602,7 @@ GroupView.prototype.renderListEntry = function(group) {
 
   if ((this.filter["filterGruppentyp"]!=null) || (this.filter["filterDistrikt"]!=null)) {
     counter=0;
+    leader=0;
     $.each(allPersons,function(k,a) {
       if (a.gruppe!=null) {
         if (((this_object.filter["filterStatus"]!=null) && (a.status_id!=this_object.filter["filterStatus"])) 
@@ -611,9 +612,10 @@ GroupView.prototype.renderListEntry = function(group) {
         else {
           $.each(a.gruppe, function(i,b) {           
             if (b.id==group.id) {
-              if (b.leiter==0) counter++;
+              if (b.leiter==0 || b.leiter==4) counter++;
               else if (b.leiter==-1) todo_1=todo_1+1;
               else if (b.leiter==-2) todo_2=todo_2+1;
+              else leader++;
             }
           });
         } 
@@ -629,9 +631,9 @@ GroupView.prototype.renderListEntry = function(group) {
       rows.push(this.renderImage("schluessel", 18, "Berechtigungen: "+this.getAuthAsArray(group.auth).join(", "))+"&nbsp;");
     }
     if (group.offen_yn==1 && group.oeffentlich_yn==1)
-      rows.push(form_renderImage({src:"unlock.png", width:18, label:"Offene und öffentliche Gruppe. Anmeldung über einen Link möglich"}));
+      rows.push(form_renderImage({src:"unlock.png", width:18, label:"Offene und öffentliche Gruppe. Anmeldung über einen Link möglich"})+" ");
     else if (group.offen_yn==1 && group.oeffentlich_yn==0)
-      rows.push(form_renderImage({src:"unlock.png", width:18, label:"Offene Gruppe, Teilnahme kann über Startseite beantragt werden."})+"");      
+      rows.push(form_renderImage({src:"unlock.png", width:18, label:"Offene Gruppe, Teilnahme kann über Startseite beantragt werden."})+" ");      
     
     if ((todo_1>0) && ((masterData.auth.admingroups) || (this_object.isPersonLeaderOfGroup(masterData.user_pid, group.id))))  
       rows.push('<span title="Person soll geloescht werden" class="badge badge-important">'+todo_1+'</span>&nbsp;');
@@ -651,7 +653,7 @@ GroupView.prototype.renderListEntry = function(group) {
                           :'<font color="red">Gruppentyp_Id:'+group.gruppentyp_id+'</font>')+'</a>'); 
     else rows.push("<td>-");
     if ((this.filter["filterGruppentyp"]!=null) || (this.filter["filterDistrikt"]!=null)) {
-      rows.push("<td>"+counter);
+      rows.push("<td>"+leader+"<td>"+counter);
       if (group.max_teilnehmer!=null)
         rows.push(" <small>(max. "+group.max_teilnehmer+")</small>");
     
@@ -665,10 +667,12 @@ GroupView.prototype.renderListEntry = function(group) {
         $.each(allPersons,function(k,a) {
           if (a.gruppe!=null) {
             $.each(a.gruppe, function(i,b) {
-              if ((b.id==group.id) && (b.leiter==0) && (b.d!=null)) {
+              if ((b.id==group.id) && (b.d!=null)) {
                 var d = b.d.toDateEn();
-                if ((d>=start) && (d<=end))
-                  count=count+1;
+                if ((d>=start) && (d<=end)) {
+                  if (b.leiter==0 || b.leiter==4) 
+                    count=count+1;
+                }
               }
             });
           }
@@ -704,10 +708,13 @@ GroupView.prototype.renderListEntry = function(group) {
         $.each(allPersons,function(k,a) {
           if (a.gruppe!=null) {
             $.each(a.gruppe, function(i,b) {
-              if ((b.id==group.id) && (b.leiter==0)) {
-                if (masterData.status[a.status_id].mitglied_yn==1)
-                  member=member+1;
-                else not_member=not_member+1;    
+              if (b.id==group.id) {
+                // Member or stuff
+                if (b.leiter==0 || b.leiter==4) {
+                  if (masterData.status[a.status_id].mitglied_yn==1)
+                    member=member+1;
+                  else not_member=not_member+1;    
+                }
               }
             });
           }
