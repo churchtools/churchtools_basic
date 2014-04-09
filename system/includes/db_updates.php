@@ -1789,6 +1789,8 @@ function run_db_updates($db_version) {
       set_version("2.47");
     case '2.47': 
       db_query("ALTER TABLE {cs_service} ADD cal_text_template VARCHAR( 255 ) NULL AFTER allowtonotebyconfirmation_yn");
+      // Fix bug when events was created with repeat function in ChurchService
+      db_query("update {cc_cal} set enddate=date_add(startdate, interval 1 hour) where datediff(startdate, enddate)>0");
       set_version("2.48");
     }
       

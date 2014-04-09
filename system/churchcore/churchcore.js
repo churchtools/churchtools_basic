@@ -33,7 +33,7 @@ function churchcore_touchscreen() {
 }
 
 /**
- * Get FieldAuth as Array, e.g. "view allÊ|| tralala" => ["view all","tralala"]
+ * Get FieldAuth as Array, e.g. "view allï¿½|| tralala" => ["view all","tralala"]
  * @param auth
  * @returns {Array} of perms
  */
@@ -160,7 +160,7 @@ function churchcore_sortData_alpha(data, sortVariable, reverse, sortVariable2) {
   }
   var arr = new Array();
   var i=0;
-  // Hier muss ich mit i zŠhlen und nicht mit k, weil Arrays it Neg. Index Probleme machen.
+  // Hier muss ich mit i zï¿½hlen und nicht mit k, weil Arrays it Neg. Index Probleme machen.
   jQuery.each(data,function(k,a){
     arr[i]=a;
     i=i+1;
@@ -268,7 +268,7 @@ churchcore_sortMasterData = function (data) {
       else return -1;
     }
     else {
-      // ID=0 soll als erstes stehen bleiben, denn das ist meistens "Unbekannt" o.Š.
+      // ID=0 soll als erstes stehen bleiben, denn das ist meistens "Unbekannt" o.ï¿½.
       if ((a.id!=null) && (a.id==0)) return -1;
       if ((b.id!=null) && (b.id==0)) return 1;
 
@@ -347,7 +347,7 @@ String.prototype.formatMS = function() {
 }
 
 /**
- * Trimmt den String auf die Anzahl Zeichen und ergänzt es dann mit ".."
+ * Trimmt den String auf die Anzahl Zeichen und ergï¿½nzt es dann mit ".."
  * @param len Anzahl Max-Zeichen
  * @return den beschnittenen String
  */
@@ -368,6 +368,17 @@ String.prototype.htmlize = function() {
   _text=_text.replace(/(https:\/\/\S*)/g, '<a target="_clean" href="$1">$1<\/a>');
   _text=_text.replace(/\n/g,'<br/>');
   return _text;
+};
+
+String.prototype.html2csv = function() {
+  var txt=this;
+  txt=txt.replace(/(&uuml;)/g, "Ã¼");
+  txt=txt.replace(/(&auml;)/g, "Ã¤");
+  txt=txt.replace(/(&ouml;)/g, "Ã¶");
+  txt=txt.replace(/(<t(d|h)(|[^>]+)>)/ig, ";");
+  txt=txt.replace(/(<([^>]+)>)/ig, "");
+  txt=txt.replace(/(&nbsp;)/ig, "");
+  return txt;
 };
 
 /**
@@ -567,7 +578,7 @@ Date.prototype.getKW = function() {
 /**
  * Get Age in Years 
  * returns object:
- *    txt: e.g. "Ca. 12" |Ê"12"
+ *    txt: e.g. "Ca. 12" |ï¿½"12"
  *    num: 12
  *    approx: true (now date given)  
  */
@@ -631,7 +642,7 @@ function churchcore_isFullDay(startdate, enddate) {
  return false;
 }
 
-// Gibt true zurŸck, wenn sich die DatŸmer irgendwo Ÿberschneiden
+// Gibt true zurï¿½ck, wenn sich die Datï¿½mer irgendwo ï¿½berschneiden
 // Wenn startdate=enddate und uhrzeit beides 0:00 gehe ich von ganztags aus
 function churchcore_datesInConflict(startdate, enddate, startdate2, enddate2) {
   var _enddate=enddate;
@@ -650,7 +661,7 @@ function churchcore_datesInConflict(startdate, enddate, startdate2, enddate2) {
   if (((_enddate2>startdate) && (_enddate2<_enddate))
       // oder Startdatum 2liegt innerhalb des Datums
       || ((startdate2>startdate) && (startdate2<_enddate))
-      // oder Datum2 komplett au§erhalb 1
+      // oder Datum2 komplett auï¿½erhalb 1
       || ((startdate2<=startdate) && (_enddate2>=_enddate))
       // oder Datum2 komplett innerhalb 1
       || ((startdate2>=startdate) && (_enddate2<=_enddate))) {
@@ -715,7 +726,7 @@ jQuery.extend({
 });
 
 
-// Kann Text in der TextArea einfŸgen an der Cursorposition
+// Kann Text in der TextArea einfï¿½gen an der Cursorposition
 jQuery.fn.extend({
   insertAtCaret: function(myValue){
   var obj;
@@ -805,7 +816,7 @@ function churchcore_openNewWindow(url) {
 }
 
 
-// o enthŠlt alle fŸr DatŸmer notwendige Datums-Objekte
+// o enthï¿½lt alle fï¿½r Datï¿½mer notwendige Datums-Objekte
 function churchcore_getAllDatesWithRepeats(o) {
   var dates=new Array();
   var diff=null;
@@ -813,7 +824,7 @@ function churchcore_getAllDatesWithRepeats(o) {
     diff=o.enddate.getTime()-o.startdate.getTime();    
 
 
-  // repear_until gibt mir vor, wann Schlu§ ist.
+  // repear_until gibt mir vor, wann Schluï¿½ ist.
   var _repeat_until=new Date(o.repeat_until);
   _repeat_until.addDays(1); // Da der Tag ja mit gelten soll!
 
@@ -883,8 +894,8 @@ function churchcore_getAllDatesWithRepeats(o) {
           while (counter<o.repeat_option_id) {
             var m=d.getMonth();
             d.addDays(1);
-            // PrŸfe ob ich den Monat Ÿberspringe, dann hat der Monat nicht genug Tage 
-            // und Termin fŠllt flach, v.a. beim 5.Wochentag im Monat)
+            // Prï¿½fe ob ich den Monat ï¿½berspringe, dann hat der Monat nicht genug Tage 
+            // und Termin fï¿½llt flach, v.a. beim 5.Wochentag im Monat)
             if (d.getMonth()!=m) counter=0;
             if (d.getDay()==a.add_date.toDateEn().getDay()) counter=counter+1;
           }

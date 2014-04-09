@@ -33,6 +33,7 @@ GroupView.prototype.renderMenu = function() {
     menu.addEntry("Neue Gruppe anlegen", "anewentry", "cog");  
 
   menu.addEntry("Weitere Filter", "aaddfilter", "filter");
+  menu.addEntry("Exporter", "aexport", "share");
   $("#cdb_group").html("");
   $("#cdb_todos").html("");
   this.renderDistrict();
@@ -72,6 +73,9 @@ GroupView.prototype.renderMenu = function() {
         }
         churchInterface.setCurrentView(personView);
       }
+      else if ($(this).attr("id")=="aexport") {
+        this_object.exporter();
+      }
       else if ($(this).attr("id")=="amain") {
         menuDepth="amain";
         $("#cdb_group").html("");
@@ -84,6 +88,29 @@ GroupView.prototype.renderMenu = function() {
   
 };
 
+GroupView.prototype.exporter = function() {
+  var t=this;
+  var rows=new Array();
+  var txt=t.getListHeader().substr(4,9999);
+  rows.push(txt.html2csv()+"\r\n");
+  
+  $.each(t.getData(true), function(i,a) {
+    if (t.checkFilter(a)) {
+      var txt=t.renderListEntry(a).substr(4,9999);
+      rows.push(a.id+";"+txt.html2csv()+"\r\n");
+    }
+  });
+  
+  var uri = 'data:text/csv;charset=utf-8,' + escape(rows.join(""));
+
+  var downloadLink = document.createElement("a");
+  downloadLink.href = uri;
+  downloadLink.download = "export_gruppenliste.csv";
+
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+};
 
 
 GroupView.prototype.messageReceiver = function(message, args) {
@@ -510,14 +537,31 @@ GroupView.prototype.checkFilter = function(a) {
   // Suchfeld
   searchEntry=this.getFilter("searchEntry").toUpperCase();
 
-  // Erst mal die Tags checken
-  if (searchEntry.indexOf("TAG:")==0) {
-    if (!this_object.checkFilterTag(searchEntry, a.tags))
-      return false;
+  if (searchEntry!="") {
+    // Split by " ", but not masked with a "
+    searches=searchEntry.match(/(?:[^\s"]+|"[^"]*")+/g);
+    var res=true;
+    $.each(searches, function(k,search) {
+      search=search.replace(/"/g, "");
+      // Erst mal die Tags checken
+      if (search.indexOf("TAG:")==0) {
+        if (!this_object.checkFilterTag(search, a.tags)) {
+          res=false;
+          return false;
+        }
+      }
+      // searchEntry>0 zeigt, dass es sich um eine ID handelt, soll also nicht per Text gesucht werden!
+      else if ((search!="") && ((a.bezeichnung.toUpperCase().indexOf(search)<0) || (search>0)) &&
+            (a.id!=search)) {
+        res=false;
+        return false;
+      }    
+    });
+    if (!res) return false;
   }
-  // searchEntry>0 zeigt, dass es sich um eine ID handelt, soll also nicht per Text gesucht werden!
-  else if ((searchEntry!="") && ((a.bezeichnung.toUpperCase().indexOf(searchEntry)<0) || (searchEntry>0)) &&
-        (a.id!=searchEntry)) return false;
+
+  
+  
 
   if ((this.filter["searchChecked"]!=null) && (a.checked!=true)) return false;
 
@@ -612,7 +656,7 @@ GroupView.prototype.renderListEntry = function(group) {
         else {
           $.each(a.gruppe, function(i,b) {           
             if (b.id==group.id) {
-              if (b.leiter==0 || b.leiter==4) counter++;
+              if (b.leiter==0 || b.leiter==4) counter++;
               else if (b.leiter==-1) todo_1=todo_1+1;
               else if (b.leiter==-2) todo_2=todo_2+1;
               else leader++;
@@ -726,10 +770,7 @@ GroupView.prototype.renderListEntry = function(group) {
     var t="";
     if (group.tags!=null)
       $.each(group.tags, function(k,a) {
-        if (t!="") t=t+", ";
-        if (masterData.tags[a]!=null)
-          t=t+masterData.tags[a].bezeichnung;
-        else t=t+"null["+a+"]";
+        t=t+this_object.renderTag(a,false)+"&nbsp;";
       });
     rows.push("<td>"+t);
     return rows.join("");
@@ -754,6 +795,10 @@ GroupView.prototype.addFurtherListCallbacks = function() {
         groupView.setFilter("filterGruppentyp",$(this).attr("id").substr(16,99));
         groupView.renderView();
         return false;
+      }
+      else if ($(this).attr("id").indexOf("search_tag")==0) {
+        groupView.setFilter("searchEntry",'tag:"'+masterData.tags[$(this).attr("id").substr(10,99)].bezeichnung+'"');
+        groupView.renderView();        
       }
     }
  });

@@ -1106,11 +1106,7 @@ PersonView.prototype.renderListEntry = function(a) {
     if (a.tags!=null) {
       var first=true;
       $.each(a.tags, function(k,a) {
-        if (first)
-          first=false;
-        else 
-          rows.push(", ");
-        rows.push(t.renderTag(a,false));
+        rows.push(t.renderTag(a,false)+"&nbsp;");
       });
     }
   } 
