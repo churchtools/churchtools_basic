@@ -1341,7 +1341,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
   
   if (editGroup) { 
     rows[rows.length]="&nbsp;&nbsp;<a href=\"\" id=\"edit_"+g_id+"\">"+this_object.renderImage("options")+"</a>";   
-    rows[rows.length]="&nbsp;<a href=\"\" title=\"Gruppe eine EMail senden\" id=\"sendMail\">"+this_object.renderImage("email")+"</a>";   
+    rows[rows.length]="&nbsp;<a href=\"\" title=\"Gruppenteilnehmer eine EMail senden\" id=\"sendMail\">"+this_object.renderImage("email")+"</a>";   
   }  
   
   rows[rows.length]="</legend><div class=well><p>";
@@ -1651,7 +1651,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
         $.each(allPersons, function(k, a) {
           if (a.gruppe!=null) {
             $.each(a.gruppe, function (i, b) {
-              if ((b.id==g_id) &&
+              if ((b.id==g_id) && (b.leiter!=-1) &&
                     ((masterData.settings.hideStatus==null) || (a.status_id!=masterData.settings.hideStatus))) {
                 if (a.email=="") noemail=true;
                 else {
@@ -1738,7 +1738,7 @@ GroupView.prototype.renderEditEntry = function (id, fieldname) {
       
       obj=this_object.getSaveObjectFromInputFields(id, "f_group", masterData.groups[id]);
       
-      if (obj.max_teilnehmer=="") delete obj.max_teilnehmer;
+      //if (obj.max_teilnehmer=="") delete obj.max_teilnehmer;
       if (masterData.groups[id].max_teilnehmer=="") masterData.groups[id].max_teilnehmer=null; 
   
       // L�sche die Geoinfos, falls es da ein Update bei der Adresse gab.

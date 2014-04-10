@@ -168,7 +168,10 @@ global $user;
   	    $param=str_replace("'","\'",$param);
 	  	switch ($fields["fields"][$key]["type"]) {
 	  	  case "number":
-	        $sql=$sql.$fields["fields"][$key]["sql"]."=".$param.", ";
+	  	    if ($param=="")
+	          $sql=$sql.$fields["fields"][$key]["sql"]."=null, ";
+	  	    else
+	  	      $sql=$sql.$fields["fields"][$key]["sql"]."=".$param.", ";
 			break;
 	  	  case "textarea":
 	        $sql=$sql.$fields["fields"][$key]["sql"]."='".$param."', ";
