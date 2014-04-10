@@ -58,6 +58,9 @@ function churchservice_getAdminModel() {
   $model->addField("churchservice_reminderhours","", "INPUT_REQUIRED","Wieviele Stunden im Vorfeld eine Erinnerung an den Dienst erfolgen soll");
     $model->fields["churchservice_reminderhours"]->setValue($config["churchservice_reminderhours"]);  
     
+  $model->addField("churchservice_songwithcategoryasdir","", "CHECKBOX","Kategorie als Verzeichnisangabe nutzen");
+    $model->fields["churchservice_songwithcategoryasdir"]->setValue(variable_get("churchservice_songwithcategoryasdir","0"));
+    
   return $model;
 }
 

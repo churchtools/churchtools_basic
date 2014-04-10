@@ -992,6 +992,7 @@ class CTChurchServiceModule extends CTAbstractModule {
       
       $res["eventtemplate_services"] = churchservice_getEventtemplateServices($auth);
       $res["churchcal_name"] =$config["churchcal_name"];
+      $res["songwithcategoryasdir"] = variable_get("churchservice_songwithcategoryasdir", "0");
       $res["songcategory"] = churchcore_getTableData("cs_songcategory","sortkey");
       return $res;
   }

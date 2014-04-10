@@ -127,8 +127,12 @@ AgendaView.prototype.exportCurrentAgendaToSongBeamer = function () {
         rows.push("\r\n      Color = clBlue");
       else
         rows.push("\r\n      Color = 4227327");
-      if (song!=null)
-        rows.push("\r\n      FileName = '"+song.bezeichnung+".sng'");              
+      if (song!=null) {
+        if (masterData.songwithcategoryasdir==1)
+          rows.push("\r\n      FileName = '"+masterData.songcategory[song.songcategory_id].bezeichnung+"/"+song.bezeichnung+".sng'");
+        else
+          rows.push("\r\n      FileName = '"+song.bezeichnung+".sng'");        
+      }
       rows.push("\r\n    end");
     }
   });
@@ -1358,6 +1362,9 @@ AgendaView.prototype.messageReceiver = function(message, args) {
 
 AgendaView.prototype.addSecondMenu = function() {
   return '';
+};
+
+AgendaView.prototype.renderEntryDetail = function (event_id) {
 };
 
 
