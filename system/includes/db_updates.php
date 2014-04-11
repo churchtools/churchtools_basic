@@ -1791,6 +1791,27 @@ function run_db_updates($db_version) {
       db_query("ALTER TABLE {cs_service} ADD cal_text_template VARCHAR( 255 ) NULL AFTER allowtonotebyconfirmation_yn");
       // Fix bug when events was created with repeat function in ChurchService
       db_query("update {cc_cal} set enddate=date_add(startdate, interval 1 hour) where datediff(startdate, enddate)>0");
+      // Add new report tables
+      db_query("CREATE TABLE {crp_person} (
+        date date NOT NULL,
+        status_id int(11) NOT NULL,
+        station_id int(11) NOT NULL,
+        newperson_count int(11) NOT NULL,
+        count int(11) NOT NULL,
+        PRIMARY KEY (date,status_id,station_id)
+      ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
+      
+      db_query("CREATE TABLE {crp_group} (
+        date date NOT NULL,
+        gruppe_id int(11) NOT NULL,
+        status_id int(11) NOT NULL,
+        station_id int(11) NOT NULL,
+        gruppenteilnehmerstatus_id int(11) NOT NULL,
+        newperson_count int(11) NOT NULL,
+        count int(11) NOT NULL,
+        PRIMARY KEY (date,gruppe_id,status_id,station_id,gruppenteilnehmerstatus_id)
+      ) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
+      
       set_version("2.48");
     }
       

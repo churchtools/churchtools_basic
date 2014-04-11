@@ -940,7 +940,28 @@ function churchdb_cron() {
   }
 
   // Lšsche auch die alten Mails raus
-  db_query("delete from {cc_mail_queue} where send_date is not null and datediff(send_date, now())<-60");  
+  db_query("delete from {cc_mail_queue} where send_date is not null and datediff(send_date, now())<-60");
+
+  // Do Statistics
+  $db=db_query("select max(date) max, curdate() now from {crp_person}")->fetch();
+  if ($db->max!=$db->now) {
+    db_query("insert into {crp_person} (
+                   SELECT curdate(), status_id, station_id, 
+                       sum(case when datediff(erstkontakt,'".$db->max."')>=0 then 1 else 0 end), 
+                       count(*) 
+                   FROM {cdb_person} p, {cdb_gemeindeperson} gp
+                    where p.id=gp.person_id group by status_id, station_id
+              )");
+    db_query("insert into crp_group (
+                    SELECT curdate(), gruppe_id, status_id, station_id, s.id gruppenteilnehmerstatus_id, 
+                        sum(case when datediff(gpg.letzteaenderung,'".$db->max."')>=0 then 1 else 0 end), 
+                        count(*) 
+                     from {cdb_gemeindeperson_gruppe} gpg, {cdb_gruppenteilnehmerstatus} s, {cdb_gemeindeperson} gp
+                     where  gpg.gemeindeperson_id=gp.id  and gpg.status_no=s.intern_code
+                     group by gruppe_id, status_id, station_id, gruppenteilnehmerstatus_id, s.id
+               )");
+    ct_log('ChurchDB Tagesstatistik wurde erstellt.', 2);
+  }
 }
 
 function listBatchSubscribe($api, $list_id, $batch, $optin=true) {

@@ -3679,7 +3679,9 @@ PersonView.prototype.renderPersonGroupRelation = function(id, g_id) {
   rows.push("</select>");
   
   rows.push("<tr><td>Dabei seit<td>");
-  rows.push('<input type="text" id="InputDate" size="10" value="'+allPersons[id].gruppe[g_id].d.toDateEn().toStringDe()+'"/>');
+  var d=allPersons[id].gruppe[g_id].d;
+  if (d==null) d=(new Date()).toStringEn();
+  rows.push('<input type="text" id="InputDate" size="10" value="'+d.toDateEn().toStringDe()+'"/>');
 
   rows.push("<tr><td>Notiz<td>");
   var d= new Date();
