@@ -27,15 +27,24 @@ function churchcal_handleMeetingRequest($cal_id, $params) {
       
       $txt="<h3>Hallo [Spitzname]!</h3><p>";
       
-      $txt.="Du wurdest auf ".variable_get('site_name', 'drupal');
+      $txt.="<P>Du wurdest auf ".variable_get('site_name', 'drupal');
         $txt.=' von <i>'.$user->vorname." ".$user->name."</i>";
-      $txt.=" f&uuml;r einen Termin angefragt. <br/>Zum Zu- oder Absagen bitte hier klicken:";
+      $txt.=" f&uuml;r einen Termin angefragt. ";
       
-      $loginstr=churchcore_createPersonLoginStr($id);
+      $db=db_query("select if (password is null and loginstr is null and lastlogin is null,1,0) as invite from {cdb_person}
+               where id=:id", array(":id"=>$id))->fetch();
+      if ($db!==false) {
+        if ($db->invite==1) {
+          include_once(drupal_get_path('module', 'churchdb').'/churchdb_ajax.inc');
+          churchdb_invitePersonToSystem($id);
+          $txt.="Da Du noch nicht kein Zugriff auf das System hast, bekommst Du noch eine separate E-Mail, mit der Du Dich dann anmelden kannst!";
+        }
       
-      $txt.='<p><a href="'.$base_url.'?q=home&id='.$id.'&loginstr='.$loginstr.'" class="btn btn-primary">%sitename aufrufen</a>';      
-      
-      churchcore_sendEMailToPersonids($id, "[".variable_get('site_name', 'drupal')."] Neue Termin-Anfrage", $txt, null, true);
+        $txt.="<p>Zum Zu- oder Absagen bitte hier klicken:";      
+        $loginstr=churchcore_createPersonLoginStr($id);      
+        $txt.='<p><a href="'.$base_url.'?q=home&id='.$id.'&loginstr='.$loginstr.'" class="btn btn-primary">%sitename aufrufen</a>';      
+        churchcore_sendEMailToPersonids($id, "[".variable_get('site_name', 'drupal')."] Neue Termin-Anfrage", $txt, null, true);
+      }
     }
     else {
 /*      db_update("cc_meetingrequest")

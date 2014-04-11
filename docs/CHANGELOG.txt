@@ -4,6 +4,7 @@ churchtools 2.48
 + (CR) Es gibt nun ein neues Recht "assistance mode", hiermit kann man nun für einen anderen eine Ressource buchen
 + (Cal/CS) Man kann nun Text-Templates verwenden um Kalendereinträge noch interessanter zu gestalten, z.B. Gottesdienst mit Pastor Uwe
 + (CDB) Gruppenliste: Tags sind nun anklickbar, Anzeige Anzahl Leiter und Export
++ (CDB) Interne Statistiktabllen für spätere Auswertungen ergänzt
 - (CDB) Gruppenteilnahmenpflege Fehler behoben
 - (Cal) Fehler bei Wiederholungen mit Jahren und falschem Enddatum behoben.
 
