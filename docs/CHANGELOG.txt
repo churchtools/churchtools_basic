@@ -5,6 +5,7 @@ churchtools 2.48
 + (Cal/CS) Man kann nun Text-Templates verwenden um KalendereintrŠge noch interessanter zu gestalten, z.B. Gottesdienst mit Pastor Uwe
 + (CDB) Gruppenliste: Tags sind nun anklickbar, Anzeige Anzahl Leiter und Export
 - (CDB) Gruppenteilnahmenpflege Fehler behoben
+- (Cal) Fehler bei Wiederholungen mit Jahren und falschem Enddatum behoben.
 
 churchtools 2.47
 Achtung: Mindestvoraussetzung ist nun >= PHP 5.3

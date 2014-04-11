@@ -956,8 +956,9 @@ function churchdb_cron() {
                     SELECT curdate(), gruppe_id, status_id, station_id, s.id gruppenteilnehmerstatus_id, 
                         sum(case when datediff(gpg.letzteaenderung,'".$db->max."')>=0 then 1 else 0 end), 
                         count(*) 
-                     from {cdb_gemeindeperson_gruppe} gpg, {cdb_gruppenteilnehmerstatus} s, {cdb_gemeindeperson} gp
+                     from {cdb_gemeindeperson_gruppe} gpg, {cdb_gruppenteilnehmerstatus} s, {cdb_gemeindeperson} gp, {cdb_gruppe} g
                      where  gpg.gemeindeperson_id=gp.id  and gpg.status_no=s.intern_code
+                            and gpg.gruppe_id=g.id and (g.abschlussdatum is null or datediff(g.abschlussdatum, curdate())>-366)
                      group by gruppe_id, status_id, station_id, gruppenteilnehmerstatus_id, s.id
                )");
     ct_log('ChurchDB Tagesstatistik wurde erstellt.', 2);

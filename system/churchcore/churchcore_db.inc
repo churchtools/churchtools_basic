@@ -1577,6 +1577,7 @@ function getAllDatesWithRepeats($r, $_von=-1, $_bis=1) {
         }
       }
       else if ($r->repeat_id==365) {
+        $counter=0;
         $d->modify("+ ".($counter+1*$r->repeat_frequence)." year");
         $e->modify("+ ".($counter+1*$r->repeat_frequence)." year");
       }

@@ -1017,7 +1017,7 @@ function form_renderDates(options) {
   });
   
   
-  $('#inputRepeat_id').change(function(c) {   
+  $('#inputRepeat_id').change(function(c) { 
     form_getDatesInToObject(options.data);
     form_renderDates(options);
   });
@@ -1026,6 +1026,13 @@ function form_renderDates(options) {
     form_implantDatePicker('dp_repeatuntil', options.data.repeat_until, function(dateText) {
       $("#inputRepeatUntil").val(dateText);
     });
+  });
+  $("#inputRepeatUntil").change(function() {
+    form_getDatesInToObject(options.data);
+    if (options.data.repeat_until.getFullYear()>3000) {
+      options.data.repeat_until=new Date();     
+      $("#inputRepeatUntil").val(options.data.repeat_until.toStringDe());
+    }
   });
   $("#inputRepeatFrequence").change(function() {
     if (($("#inputRepeatFrequence").val()=="0") || ($("#inputRepeatFrequence").val()==""))

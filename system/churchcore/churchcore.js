@@ -909,7 +909,7 @@ function churchcore_getAllDatesWithRepeats(o) {
     } while ((d<_repeat_until) && (max>0) && (a.with_repeat_yn==1) && (o.repeat_id>0) && (o.repeat_frequence>0));    
   }); 
   
-  if (max==0) alert("Maximale Wiederholung erreicht! ["+o.id+"]");
+  if (max==0) log("Maximale Wiederholung erreicht! ["+o.id+"]");
   return dates;
 }  
 
