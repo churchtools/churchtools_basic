@@ -499,21 +499,20 @@ PersonView.prototype.addPersonGroupRelation = function(id, g_id, memberstatus_no
     return false;
   }
   else {  
-    if (allPersons[id]==null) { 
+    arr=new Object();
+    arr.id=g_id;
+    arr.leiter=memberstatus_no;
+    arr.d=new Date().toStringEn();
+    if (allPersons[id]==null) {
+      allPersons[id]=new Object();
       churchInterface.jsendRead({func:"getPersonDetails", id:id}, function(ok, json) {
         allPersons[json.id]=cdb_mapJsonDetails(json, allPersons[json.id]);
       }, false);
     }
-    else {      
-      arr=new Object();
-      arr.id=g_id;
-      arr.leiter=memberstatus_no;
-      arr.d=new Date().toStringEn();
-      if (allPersons[id].gruppe==null)
-        allPersons[id].gruppe=new Object();
-  
-      allPersons[id].gruppe[arr.id]=arr;
-    }
+    if (allPersons[id].gruppe==null)
+      allPersons[id].gruppe=new Object();
+
+    allPersons[id].gruppe[arr.id]=arr;
     this.renderTodos();
     return true;
   }
