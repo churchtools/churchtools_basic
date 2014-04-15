@@ -129,7 +129,7 @@ AgendaView.prototype.exportCurrentAgendaToSongBeamer = function () {
         rows.push("\r\n      Color = 4227327");
       if (song!=null) {
         if (masterData.songwithcategoryasdir==1)
-          rows.push("\r\n      FileName = '"+masterData.songcategory[song.songcategory_id].bezeichnung+"/"+song.bezeichnung+".sng'");
+          rows.push("\r\n      FileName = '"+masterData.songcategory[song.songcategory_id].bezeichnung+"\\"+song.bezeichnung+".sng'");
         else
           rows.push("\r\n      FileName = '"+song.bezeichnung+".sng'");        
       }
