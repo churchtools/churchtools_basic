@@ -3266,6 +3266,11 @@ ListView.prototype.editAbsent = function(pid, name, fullday) {
   });
   elem.find("a").click(function() {
     if ($(this).attr("id").indexOf("addabsent")==0) {
+      var d=$("#inputStartdate").val();
+      new_absent.startdate=d.toDateDe(true);
+      var d=$("#inputEnddate").val();
+      new_absent.enddate=d.toDateDe(true);
+
       new_absent.func="addAbsent";
       new_absent.person_id=pid;
       new_absent.absent_reason_id=$("#inputAbsentReason").val();
