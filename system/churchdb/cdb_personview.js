@@ -1662,6 +1662,8 @@ PersonView.prototype.renderFilter = function() {
 
 function _checkGroupFilter(a, filter, z) {
   function _checkDate(z,k) {
+    if (k.d==null) return false;
+    
     if ((filter["filterGruppeInAb "+z]!=null) && (k.d.toDateEn()<filter["filterGruppeInAb "+z].toDateDe()))
       return false;
     if ((filter["filterGruppeInSeit "+z]!=null) && (k.d.toDateEn()>filter["filterGruppeInSeit "+z].toDateDe()))

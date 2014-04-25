@@ -553,7 +553,9 @@ function addInfoMessage($msg, $hide=false) {
 
 function t($txt, $p1=null) {
   global $i18n;
-  return $i18n->getText($txt, $p1);
+  if (isset($i18n))
+    return $i18n->getText($txt, $p1);
+  else return "$txt";
 }
 
 function language_default() {
