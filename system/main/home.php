@@ -41,7 +41,7 @@ function home_main() {
         $txt.=  
         '<li><a class="btn btn-prima_ry btn-large" href="?q='.$key.'">
           '.$config[$key."_name"].'
-        </a> ' ;
+        </a></li> ' ;
       }
     }
     $txt.='</ul>';
