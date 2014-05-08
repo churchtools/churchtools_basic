@@ -427,8 +427,9 @@ function churchcal_getCalPerCategory($params, $withintern=true) {
     if ($arr->event_id!=null) { 
       // Get additional Service text infos
       $elem->events[$arr->event_id]=array("id"=>$arr->event_id, "startdate"=>$arr->event_startdate);
-      $es=db_query('select es.name, s.id, es.cdb_person_id, s.cal_text_template from {cs_service} s, {cs_eventservice} es where es.event_id=:event_id and
-                       es.service_id=s.id and es.valid_yn=1 and es.zugesagt_yn=1 and s.cal_text_template is not null',
+      $es=db_query("select es.name, s.id, es.cdb_person_id, s.cal_text_template from {cs_service} s, {cs_eventservice} es where es.event_id=:event_id and
+                       es.service_id=s.id and es.valid_yn=1 and es.zugesagt_yn=1 
+                      and s.cal_text_template is not null and s.cal_text_template!=''",
             array(":event_id"=>$arr->event_id));
       foreach ($es as $e) {
         if ($e!==false) {
