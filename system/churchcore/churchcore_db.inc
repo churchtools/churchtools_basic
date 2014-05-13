@@ -1586,7 +1586,7 @@ function getAllDatesWithRepeats($r, $_von=-1, $_bis=1) {
       
       $max=$max-1;
       if ($max==0) {
-        addErrorMessage("Zu viele Wiederholungen in getAllDatesWithRepeats!");
+        addErrorMessage("Zu viele Wiederholungen in getAllDatesWithRepeats! [$r->id]");
         return false; 
       }
     } while (($d<$repeat_until) && ($add->with_repeat_yn==1) && (isset($r->repeat_id)) && ($r->repeat_id>0) 
