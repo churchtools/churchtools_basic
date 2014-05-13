@@ -83,7 +83,7 @@ FactView.prototype.groupingFunction = function (event) {
   });
   var txt=event.startdate.toDateEn(false).getDayInText()+", "+event.startdate.toDateEn(false).toStringDe();
 
-  $.each(churchcore_sortMasterData(masterData.fact), function(k,a) {
+  $.each(churchcore_sortData(masterData.fact, "sortkey"), function(k,a) {
     txt=txt+'<td class="grouping">';
     if (merker[a.id]!=null)
       txt=txt+merker[a.id];
