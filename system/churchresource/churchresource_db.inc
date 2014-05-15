@@ -421,7 +421,7 @@ function getOpenBookings() {
   $result = db_query("SELECT b.id, b.person_id, concat(p.vorname,' ',p.name) person_name, DATE_FORMAT(startdate, '%d.%m.%Y %H:%i') startdate, enddate, b.text, r.bezeichnung resource 
 	        from {cr_booking} b, {cr_resource} r, {cdb_person} p WHERE
 	        b.person_id=p.id and  
-	      status_id=1 and b.resource_id=r.id order by startdate");
+	      status_id=1 and b.resource_id=r.id and datediff(startdate, now())>=0 order by startdate");
   $arrs=array();
   foreach ($result as $arr) {
     $arrs[$arr->id]=$arr;   
