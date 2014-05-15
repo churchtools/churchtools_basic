@@ -1813,6 +1813,10 @@ function run_db_updates($db_version) {
       ) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
       
       set_version("2.48");
+      
+    case "2.48": 
+      db_query("ALTER TABLE {cs_event_fact} CHANGE value value VARCHAR( 11 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");      
+      set_version("2.49");
     }
       
     

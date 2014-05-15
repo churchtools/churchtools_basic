@@ -77,7 +77,7 @@ FactView.prototype.groupingFunction = function (event) {
       if (a.facts!=null)
         $.each(a.facts, function(i,b) {
           if (merker[i]==null) merker[i]=0;
-          merker[i]=merker[i]+b.value*1;
+          merker[i]=Math.round(merker[i]+b.value*1);
         });
     }
   });
@@ -110,12 +110,13 @@ FactView.prototype.addFurtherListCallbacks = function(cssid) {
         
         rerenderEditor: 
           function(txt) {
-            return txt.replace(",",".");
+            return txt.replace(".",",");
           },
         
         validate:
           function(newval, data) {
-            if (!isNumber(newval) && newval!="") {
+            var tester=newval.replace(",",".");
+            if (!isNumber(tester) && tester!="") {
               alert("Bitte Zahl angeben oder Feld leer lassen!");
               return false;
             }
@@ -127,7 +128,7 @@ FactView.prototype.addFurtherListCallbacks = function(cssid) {
             if (allEvents[data.event_id].facts==null)
               allEvents[data.event_id].facts=new Object();
             o=$.extend({}, data);
-            o.value=newval;
+            o.value=newval.replace(",",".");
             o.func="saveFact";
             churchInterface.jsendWrite(o, function(ok, data) {
               if (!ok) alert("Fehler beim Speichern: "+data);
@@ -138,7 +139,7 @@ FactView.prototype.addFurtherListCallbacks = function(cssid) {
           },
         
         value: ((event_id!=null) && (allEvents[event_id].facts!=null) && (allEvents[event_id].facts[fact_id]!=null)?
-            allEvents[event_id].facts[fact_id].value:null)
+            allEvents[event_id].facts[fact_id].value.replace(".", ","):null)
                  
       });
     });    
