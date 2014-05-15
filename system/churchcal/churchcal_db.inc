@@ -298,20 +298,6 @@ function churchcal_getAuthForAjax() {
   if (($user!=null) && (isset($_SESSION["user"]->auth["churchcal"]))) {
     $ret=$_SESSION["user"]->auth["churchcal"];
     
-    include_once("system/churchdb/churchdb_db.inc");
-    $mygroups=churchdb_getMyGroups($user->id, true, true);
-    if (isset($ret["view category"])) {
-      foreach ($ret["view category"] as $key=>$edit) {
-        $db=db_query("select * from {cc_domain_auth} where domain_type='gruppe'  
-                        and auth_id=403 and daten_id=:daten_id", array(":daten_id"=>$edit));
-        foreach ($db as $auth) {
-          if (in_array($auth->domain_id, $mygroups)) 
-            $ret["edit category"][$key]=$edit;
-        }
-      }        
-    }
-    
-    
     // Wenn man edit-Rechte hat, bekommt man auch automatisch View-Rechte.
     if (isset($ret["edit category"])) {
       foreach ($ret["edit category"] as $key=>$edit) {
