@@ -509,20 +509,22 @@ function churchservice_updateEventService($params) {
       $txt.="<p>Folgendes wurde als Grund angegeben: ".$reason;
     
     ct_notify("service", $arr->service_id, $txt);
-    
-    // Benachrichtige, wenn es sich um einen anderen handelt, der hier best�tigt oder ablehnt als den Anfrager (Inquierer)
-    if (($leader!=null) && ($leader->email!=null) && ($leader->email!="") && ($user!=null) && ($leader->id!=$user->id)) {
-      $setting=churchcore_getUserSettings("churchservice",$leader->id);
-      if (isset($setting["informInquirer"]) && ($setting["informInquirer"]==1)) {
 
-        $txt="<h3>Hallo ".$leader->vorname.",</h3><p>".$txt;
-        
-        $txt.='<p><a href="'.$base_url.'?q=churchservice&id='.$arr->event_id.'" class="btn btn-primary">Event aufrufen</a>';
-        churchservice_send_mail($subject, $txt, $leader->email);
-      } 
-      else if (!isset($setting["informInquirer"])) {
-        churchcore_saveUserSetting("churchservice", $leader->id, "informInquirer", 0);
+    if ($leader!=null) {
+      // Benachrichtige, wenn es sich um einen anderen handelt, der hier best�tigt oder ablehnt als den Anfrager (Inquierer)
+      if (($leader->email!=null) && ($leader->email!="") && ($user!=null) && ($leader->id!=$user->id)) {
+        $setting=churchcore_getUserSettings("churchservice",$leader->id);
+        if (isset($setting["informInquirer"]) && ($setting["informInquirer"]==1)) {
+  
+          $txt="<h3>Hallo ".$leader->vorname.",</h3><p>".$txt;
+          
+          $txt.='<p><a href="'.$base_url.'?q=churchservice&id='.$arr->event_id.'" class="btn btn-primary">Event aufrufen</a>';
+          churchservice_send_mail($subject, $txt, $leader->email);
+        } 
       }    
+      if (!isset($setting["informInquirer"])) {
+        churchcore_saveUserSetting("churchservice", $leader->id, "informInquirer", 0);
+      }
     }
   }          
 

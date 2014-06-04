@@ -645,19 +645,17 @@ function churchservice_inform_leader() {
   include_once("churchservice_db.inc");
 
   // Hole erst mal die Gruppen_Ids, damit ich gleich nicht alle Personen holen mu§
-  $res=db_query("select cdb_gruppen_ids from {cs_service} where cdb_gruppen_ids!='' and cdb_gruppen_ids is not null and sendremindermails_yn=1");
+  $res=db_query("select cdb_gruppen_ids from {cs_service} where cdb_gruppen_ids!='' and cdb_gruppen_ids is not null");
   $arr=array();
   foreach($res as $g) {
     $arr[]=$g->cdb_gruppen_ids;
   }
    
   if (count($arr)==0) return false;
-  
   // Hole nun die Person/Gruppen wo die Person Leiter oder Co-Leiter ist
   $res=db_query("select p.id person_id, gpg.gruppe_id, p.email, p.vorname, p.cmsuserid from {cdb_person} p, {cdb_gemeindeperson_gruppe} gpg, {cdb_gemeindeperson} gp
       where gpg.gemeindeperson_id=gp.id and p.id=gp.person_id and status_no>=1 and status_no<=2
       and gpg.gruppe_id in (".implode(",",$arr).")");
-
   // Aggregiere nach Person_Id P1[G1,G2,G3],P2[G3]
   $persons=array();
   foreach ($res as $p) {
@@ -667,6 +665,7 @@ function churchservice_inform_leader() {
     $auth=getUserAuthorization($p->person_id);
     if (isset($auth["churchservice"]["view"]) && 
         ((!isset($data["informLeader"])) || ($data["informLeader"]==1))) {
+      
       if (!isset($data["informLeader"])) {
         $data["informLeader"]=1;
         churchcore_saveUserSetting("churchservice",$p->person_id,"informLeader","1");
