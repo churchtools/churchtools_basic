@@ -237,17 +237,19 @@ function churchtools_main() {
       // Check for DB-Updates and loginstr only if this is not an ajax call. 
       if (strrpos($q, "ajax")===false) { 
         $success=checkForDBUpdates();
-        if ($success) {                
-          // Is there a loginstr which does not fitt to the current logged in user?
-          if ((isset($_GET["loginstr"])) && (isset($_GET["id"])) && (userLoggedIn())
-             && ($_SESSION["user"]->id!=$_GET["id"])) {           
-            logout_current_user();
-            session_start();    
-          } 
-          else      
-            loadUserObjectInSession();
-        }
       }
+      
+      if ($success) {                
+        // Is there a loginstr which does not fitt to the current logged in user?
+        if ((isset($_GET["loginstr"])) && (isset($_GET["id"])) && (userLoggedIn())
+           && ($_SESSION["user"]->id!=$_GET["id"])) {           
+          logout_current_user();
+          session_start();    
+        } 
+        else      
+          loadUserObjectInSession();
+      }
+
       if ($success) {   
         if (isset($_SESSION['user'])) $user=$_SESSION['user'];
           
