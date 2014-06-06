@@ -329,7 +329,7 @@ function churchcal_getAuthForAjax() {
 
 function churchcal_getAllowedCategories($withPrivat=true, $onlyIds=false) {
   global $user;
-
+  $withPrivat=false;
   include_once("system/churchdb/churchdb_db.inc");
   $db=db_query("select * from {cc_calcategory}");
 
