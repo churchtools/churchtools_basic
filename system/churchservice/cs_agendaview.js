@@ -96,6 +96,8 @@ AgendaView.prototype.renderMenu = function() {
       else if ($(this).attr("id")=="aprintview") {
         fenster = window.open('?q=churchservice/printview&id='+t.currentAgenda.id+'#AgendaView', "Druckansicht", "width=900,height=600,resizable=yes");
         fenster.focus();
+        fenster.print();
+        setTimeout(function() {fenster.close()}, 2000);
         return false;
       }
       else if ($(this).attr("id")=="ahelp") {
@@ -1130,6 +1132,52 @@ AgendaView.prototype.getAllowedServiceGroupsWithComments = function() {
 
 AgendaView.prototype.renderListHeader = function(smallVersion) {
   var t=this;
+  
+  if ($("#printview").val()!=null) {
+    $("#cdb_group").after('<div id="cdb_event"></div>');
+  }
+  
+  var rows = new Array();
+  if (t.currentAgenda.event_ids!=null) {
+    var servicegroups=new Array();
+    $.each(t.currentAgenda.event_ids, function(k,event_id) {
+      $.each(allEvents[event_id].services, function(s, service) {
+        if (servicegroups[masterData.service[service.service_id].servicegroup_id]==null)
+          servicegroups[masterData.service[service.service_id].servicegroup_id]=new Array();
+        servicegroups[masterData.service[service.service_id].servicegroup_id].push(service);
+      });            
+    });
+    console.log(servicegroups);
+    
+    $.each(churchcore_sortMasterData(masterData.servicegroup), function(k,sg) {
+      if (servicegroups[sg.id]!=null) {
+        rows.push('<tr><td><b>'+sg.bezeichnung+'</b><td><small>');
+        $.each(churchcore_sortMasterData(masterData.service), function(i,service) {
+          if (service.servicegroup_id==sg.id) {
+            $.each(servicegroups[sg.id], function(j, s) {
+              console.log(s);
+              if (s.service_id==service.id) {
+                rows.push(''+service.bezeichnung+": ");
+                if (s.name==null) rows.push('<font class="offen">?</font>');
+                else if (s.zugesagt_yn==0)
+                  rows.push('<font class="offen">'+s.name+'?</font>');
+                else 
+                  rows.push(s.name);
+                rows.push('&nbsp; &nbsp; ');
+              }
+            });
+          }
+        });
+        rows.push('</small>');
+      }
+    });
+    var txt=rows.join("");
+    if (txt!="") {
+      $("#cdb_event").html('<table class="table table-condensed">'+rows.join("")+'</table>');      
+    }
+    
+  }
+  
   if (smallVersion==null) smallVersion=false;
   var rows = new Array();
   if (t.currentAgenda.template_yn==1) {

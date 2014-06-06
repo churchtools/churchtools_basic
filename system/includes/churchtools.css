@@ -172,6 +172,10 @@ td.angefragt, a.angefragt, font.angefragt {
           border-radius: 4px;
 }
 
+.offen {
+	color:red
+}
+
 td.zugesagt, a.zugesagt, font.zugesagt, div.zugesagt {
   background: #a6ffb0;	
 }

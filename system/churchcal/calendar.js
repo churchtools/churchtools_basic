@@ -1050,7 +1050,11 @@ function initCalendarView() {
   });
   
   $("a.printview").click(function() {  
-    window.open("?q=churchcal&embedded=true&printview=true", '_blank', 'location=yes,height=570,width=700,scrollbars=yes,status=yes');
+    var fenster=window.open("?q=churchcal&embedded=true&printview=true", '_blank', 'location=yes,height=570,width=700,scrollbars=yes,status=yes');
+    fenster.focus();
+    window.setTimeout(function() {fenster.print()}, 1000);
+    window.setTimeout(function() {fenster.close()}, 2000);
+   
   });
       
   $("#calView").click(function(k) {

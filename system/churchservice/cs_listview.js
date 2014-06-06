@@ -67,6 +67,9 @@ ListView.prototype.renderMenu = function() {
           filter=filter+"&meineFilter="+this_object.filter["filterMeine Filter"];
         fenster = window.open('?q=churchservice/printview'+filter+'#ListView', "Druckansicht", "width=900,height=600,resizable=yes");
         fenster.focus();
+        fenster.print();
+        setTimeout(function() {fenster.close()}, 2000);
+
         return false;
       }
       else if ($(this).attr("id")=="aaddfilter") {
@@ -3457,6 +3460,9 @@ ListView.prototype.renderEntryDetail = function (event_id) {
       elem.find("a.print-agenda").click(function() {
         fenster = window.open('?q=churchservice/printview&id='+$(this).attr("data-id")+'#AgendaView', "Druckansicht", "width=900,height=600,resizable=yes");
         fenster.focus();
+        fenster.print();
+        setTimeout(function() {fenster.close()}, 2000);
+
         return false;
       });
     });

@@ -296,6 +296,9 @@ function _checkPersonAutorisierung($auto, $iAmLeader, $iAmSuperLeader) {
     else if ($auth=="viewalldetails") {
       if (user_access('view alldetails',"churchdb")) $ret=true;
     }
+    else if ($auth=="viewaddress") {
+      if (user_access('view address',"churchdb")) $ret=true;
+    }
     else if ($auth=="leader") {
       if ($iAmLeader) $ret=true;
     }
