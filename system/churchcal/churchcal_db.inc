@@ -411,7 +411,7 @@ function churchcal_getCalPerCategory($params, $withintern=true) {
                 "resource_id"=>$arr->booking_resource_id, "status_id"=>$arr->booking_status_id);
     }
     if ($arr->event_id!=null) { 
-      // Get additional Service text infos
+      // Get additional Service text infos, like "Preaching with [Vorname]"
       $elem->events[$arr->event_id]=array("id"=>$arr->event_id, "startdate"=>$arr->event_startdate);
       $es=db_query("select es.name, s.id, es.cdb_person_id, s.cal_text_template from {cs_service} s, {cs_eventservice} es where es.event_id=:event_id and
                        es.service_id=s.id and es.valid_yn=1 and es.zugesagt_yn=1 
@@ -421,16 +421,18 @@ function churchcal_getCalPerCategory($params, $withintern=true) {
         if ($e!==false) {
           if (strpos($e->cal_text_template, "[")===false) {
             if (!isset($elem->service_texts)) $elem->service_texts=array();
-            $elem->service_texts[]=$e->cal_text_template;
+            $txt=$e->cal_text_template;
           }
           if ($e->cdb_person_id!=null) {
             include_once("system/churchdb/churchdb_db.inc");
             $p=db_query("select * from {cdb_person} where id=:id", array(":id"=>$e->cdb_person_id))->fetch();          
             if ($p!==false) {
               if (!isset($elem->service_texts)) $elem->service_texts=array();
-              $elem->service_texts[]=churchcore_replacePersonTemplate($e->cal_text_template, $p);
+              $txt=churchcore_replacePersonTemplate($e->cal_text_template, $p);
             }
           }
+          if (array_search($txt, $elem->service_texts)===false)
+            $elem->service_texts[]=$txt;
         }
       }
     }
