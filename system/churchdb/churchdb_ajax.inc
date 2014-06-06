@@ -559,10 +559,12 @@ global $user;
   $arr=churchdb_getAllowedDeps();
    
   foreach ($arr as $value) {
-    db_query("DELETE FROM {cdb_bereich_person} WHERE person_id=:rel_id and bereich_id=:bereich_id", 
-      array(":rel_id"=>$rel_id, ":bereich_id"=>$value)); 
-	if ((isset($params["bereich".$value])) && ($params["bereich".$value]==1)) {
-      db_query("INSERT INTO {cdb_bereich_person} VALUES (".$value.", ".$rel_id.")");  		  	
+    if (isset($params["bereich".$value])) {
+      if ($params["bereich".$value]==0)
+        db_query("DELETE FROM {cdb_bereich_person} WHERE person_id=:rel_id and bereich_id=:bereich_id", 
+          array(":rel_id"=>$rel_id, ":bereich_id"=>$value));
+      else 
+        db_query("INSERT INTO {cdb_bereich_person} VALUES (".$value.", ".$rel_id.")");  		  	
 	}
   }  
   return "ok";	

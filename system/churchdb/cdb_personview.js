@@ -533,6 +533,8 @@ PersonView.prototype.addSecondMenu = function() {
     rows.push("<p>Personenfunktionen: Markierte Personen ... &nbsp;");
     rows.push('<select id="personFunction"><option value="-1">');
     rows.push('<option value="addToGroup">... einer Gruppe hinzuf&uuml;gen');
+    if (masterData.auth.viewalldetails)
+      rows.push('<option value="f_bereich">... einen Bereich hinzuf&uuml;gen');
     if (masterData.auth.viewtags)
       rows.push('<option value="addPersonTag">... einen Tag hinzuf&uuml;gen');
     if (masterData.auth.adminpersons)
@@ -941,6 +943,15 @@ PersonView.prototype.personFunction = function (value, param) {
                 } 
         });
     }
+    else if (value=="f_bereich") {
+      form.setLabel("Bitte Bereich ausw&auml;hlen");
+      form.addSelect({
+        freeoption:false, 
+        label:"Bereich",
+        data:masterData.dep, 
+        cssid:"inputId"
+      });
+    }
     else if (value=="addPersonTag") {
       form.setLabel("Bitte Tag ausw&auml;hlen");
       form.addSelect({
@@ -1005,6 +1016,14 @@ PersonView.prototype.personFunction = function (value, param) {
                  allPersons[ids[current_id]].auth[id]=id;
                  obj.auth_id=id;
                  churchInterface.jsendWrite(obj, null, false);                 
+               }
+               else if (value=="f_bereich") {
+                 obj.id=ids[current_id];
+                 if (allPersons[ids[current_id]].access[id]==null) {
+                   allPersons[ids[current_id]].access[id]=id;
+                   obj["bereich"+id]=1;
+                   churchInterface.jsendWrite(obj, null, false);                 
+                 }
                }
                else if (value=="archivePerson") {
                  obj.id=ids[current_id];
