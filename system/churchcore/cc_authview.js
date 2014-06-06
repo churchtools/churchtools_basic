@@ -6,6 +6,7 @@ function AuthView() {
   this.allDataLoaded=false;
   this.renderTimer=null;
   this.currentDomain="person";
+  this.clipboard=null;
 }
 
 Temp.prototype = StandardTableView.prototype;
@@ -45,6 +46,8 @@ $.widget("ct.permissioner", {
     change:function() {},
     saveSuccess:function() {}
   },
+  
+  refresh:function() {this._create()},
   
   _create:function() {
     var t=this;
@@ -190,7 +193,10 @@ AuthView.prototype.renderEntryDetail= function(domain_id) {
 
     rows.push('<div id="tree"></div>');  
     rows.push('<br> <p>'+form_renderButton({label:"&Auml;nderungen speichern", disabled:true, htmlclass:"save"})+"&nbsp;");
-    rows.push(form_renderButton({label:"Urspr&uuml;nglichen Zustand wiederherstellen", disabled:true, htmlclass:"undo"}));    
+    rows.push(form_renderButton({label:"&Auml;nderungen verwerfen", disabled:true, htmlclass:"undo"})+"&nbsp; &nbsp;");
+    rows.push(form_renderButton({label:"Berechtigung kopieren", disabled:(t.clipboard!=null && t.clipboard.id==domain_id), htmlclass:"copy"})+"&nbsp;");
+    if (t.clipboard!=null && t.clipboard.id!=domain_id)
+      rows.push(form_renderButton({label:"Berechtigung zuf&uuml;gen", disabled:false, htmlclass:"paste"}));    
   rows.push('</div>');  
   
  
@@ -218,6 +224,26 @@ AuthView.prototype.renderEntryDetail= function(domain_id) {
   elem.find("input.undo").click(function() {
     elem.remove();
     t.renderEntryDetail(domain_id);
+  });
+  elem.find("input.copy").click(function() {
+    if (elem.find("input.save").attr("disabled")!="disabled") alert("Bitte erst die aktuellen Anpassungen Speichern oder verwerfen!");
+    else {
+      t.clipboard=$.extend(true, {}, masterData[t.currentDomain][domain_id]);
+      t.renderList();      
+    }
+  });
+  elem.find("input.paste").click(function() {
+    if (confirm("Wirklich Berechtigung hier hzinzufügen? Vorhandene Berechtigungen werden dadurch nicht geändert.")) {
+      $.each(t.clipboard.auth, function(k,a) {
+        masterData[t.currentDomain][domain_id].auth[k]=a;
+      });
+      masterData[t.currentDomain][domain_id].saveable=true;
+      t.renderList(masterData[t.currentDomain][domain_id]);
+      perm.permissioner("save");
+    }
+  });
+  elem.find("input.undo").click(function() {
+    t.renderList(domain_id);
   });
 };
 

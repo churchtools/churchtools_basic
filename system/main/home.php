@@ -425,7 +425,7 @@ class CTHomeModule extends CTAbstractModule {
   public function sendEMail($params) {
     global $user;
     include_once('./'. drupal_get_path('module', 'churchdb') .'/churchdb_db.inc');
-    $groups=churchdb_getMyGroups($user->id, true, true);
+    $groups=churchdb_getMyGroups($user->id, true, false);
     if (empty($groups[$params["groupid"]])) 
       throw new CTException("Gruppe nicht erlaubt!");
     $ids=churchdb_getAllPeopleIdsFromGroups(array($params["groupid"]));

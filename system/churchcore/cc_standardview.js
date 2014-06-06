@@ -263,7 +263,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
   
   // Wenn nur ein Eintrag neu gerendert werden soll
   if (entry!=null) {
-    if (t.checkFilter(entry)) {      
+    if (t.checkFilter(entry)) {
       if (entry.checked == true) 
         rows[rows.length] = "<td><input type=\"checkbox\" id=\"check" + entry.id +
         "\" checked=\"checked\" class=\"checked\">";

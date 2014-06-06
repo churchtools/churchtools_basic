@@ -155,7 +155,7 @@ AgendaView.prototype.editAgenda = function(agenda, template) {
   var form = new CC_Form((template?"Vorlage für Ablaufpläne editieren":"Ablaufplan editieren"), agenda);
   form.addInput({label:"Bezeichnung", cssid:"bezeichnung"});
   if (!template)
-    form.addCheckbox({label:"Ablauf ist endg&uuml;ltig", cssid:"final_yn"});
+    form.addCheckbox({label:"Ablauf als abgeschlossen markieren", cssid:"final_yn"});
   form.addInput({label:"Predigtserie", cssid:"series"});
   form.addSelect({label:"Für Kalender", data:masterData.category, cssid:"calcategory_id"})
   if (agenda!=null && template) {
