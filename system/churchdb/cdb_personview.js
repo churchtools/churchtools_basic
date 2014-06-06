@@ -1375,14 +1375,18 @@ PersonView.prototype.getListHeader = function() {
                         {name:"group-id",value:g_id}
             ]})+"&nbsp;";
           var count=0;
+          var count_absent=0;
           if (m.entries!=null) {
             $.each(m.entries, function(i,b) {
               if (b.treffen_yn==1) count++;
+              else count_absent++;
             });
           }
           tableHeader=tableHeader+' <small>'+count+' </small>'+form_renderImage({src:"person.png", label:"Anzahl Teilnehmer", width:12});
-          if (m.anzahl_gaeste!=null)
+          if (m.anzahl_gaeste!=null && m.anzahl_gaeste>0)
             tableHeader=tableHeader+' <small>'+m.anzahl_gaeste+' </small>'+form_renderImage({src:"person_sw.png", label:"Anzahl G&auml;ste", width:12});
+          if (count_absent>0)
+            tableHeader=tableHeader+' <small>'+count_absent+' </small>'+form_renderImage({src:"person_red.png", label:"Abwesend", width:12});
           tableHeader=tableHeader+'</span>';          
         }
       });
