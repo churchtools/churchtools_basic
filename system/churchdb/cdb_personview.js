@@ -4739,8 +4739,10 @@ PersonView.prototype.smsPerson = function(arr) {
 
 PersonView.prototype.mailer = function() {
   
-  if ((!masterData.auth.viewalldata) && (!groupView.isPersonLeaderOfGroup(masterData.user_pid, this.getFilter("filterMeine Gruppen")))) {
-    alert("Um den E-Mailer zu nutzen muss unter 'Meine Gruppen' eine Gruppe gefiltert werden, in der Du Leiter bist.");
+  if ((!masterData.auth.viewalldata) &&
+      (masterData.groups[this.getFilter("filterMeine Gruppen")]==null || masterData.groups[this.getFilter("filterMeine Gruppen")].members_allowedmail_eachother_yn==0)
+      && (!groupView.isPersonLeaderOfGroup(masterData.user_pid, this.getFilter("filterMeine Gruppen")))) {
+    alert("Um den E-Mailer zu nutzen muss unter 'Meine Gruppen' eine Gruppe gefiltert werden, in der Du Leiter bist oder in der es entsprechend erlaubt wird.");
     return null;
   }
   

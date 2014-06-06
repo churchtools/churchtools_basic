@@ -89,18 +89,21 @@ function churchresource_getCurrentBookings() {
   	  foreach ($res as $r) {
         $r->startdate=new DateTime($r->startdate);
         $r->enddate=new DateTime($r->enddate);
-        foreach (getAllDatesWithRepeats($r,0,1) as $d) {
-          $counter=$counter+1;
-          $a=array();
-          $a["realstart"]=new DateTime($d->format('Y-m-d H:i:s'));
-          $a["startdate"]=$r->startdate;
-          $a["enddate"]=$r->enddate;
-          $a["person_name"]=$r->person_name;
-          $a["resource_id"]=$r->resource_id;
-          $a["repeat_id"]=$r->repeat_id;
-          $a["text"]=$r->text;
-          $a["id"]=$r->id;
-          $arr[]=$a;
+        $ds=getAllDatesWithRepeats($r,0,1);
+        if ($ds!=null) {
+          foreach ($ds as $d) {
+            $counter=$counter+1;
+            $a=array();
+            $a["realstart"]=new DateTime($d->format('Y-m-d H:i:s'));
+            $a["startdate"]=$r->startdate;
+            $a["enddate"]=$r->enddate;
+            $a["person_name"]=$r->person_name;
+            $a["resource_id"]=$r->resource_id;
+            $a["repeat_id"]=$r->repeat_id;
+            $a["text"]=$r->text;
+            $a["id"]=$r->id;
+            $arr[]=$a;
+          }
         }
   	  }
       

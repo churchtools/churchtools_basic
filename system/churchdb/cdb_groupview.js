@@ -1402,27 +1402,32 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
 
   rows.push('</div><div class="ui-widget">');  
   
-  if (masterData.auth.admingroups) {
-    rows[rows.length]='<legend>Gruppenadmin-Funktionen</legend>';
+  if (editGroup) {
+    rows[rows.length]='<legend>Gruppeneinstellungen</legend>';
     if (g.valid_yn==1)
       rows[rows.length]="<p>"+this_object.renderYesNo(g.valid_yn,16)+"&nbsp; Gruppe ausw&auml;hlbar";        
     if (g.versteckt_yn==1)
       rows[rows.length]="<br/>"+this_object.renderYesNo(g.versteckt_yn,16)+"&nbsp; Gruppe versteckt";
     if (g.instatistik_yn==1)
-    rows[rows.length]="<br/>"+this_object.renderYesNo(g.instatistik_yn,16)+"&nbsp; In Statistik";
+      rows[rows.length]="<br/>"+this_object.renderYesNo(g.instatistik_yn,16)+"&nbsp; In Statistik";
     if (g.treffen_yn==1)
-    rows[rows.length]="<br/>"+this_object.renderYesNo(g.treffen_yn,16)+"&nbsp; Teilnahmenpflege";
+      rows[rows.length]="<br/>"+this_object.renderYesNo(g.treffen_yn,16)+"&nbsp; Teilnahmenpflege";
     if (g.mail_an_leiter_yn==1)
-    rows[rows.length]="<br/>"+this_object.renderYesNo(g.mail_an_leiter_yn,16)+"&nbsp; Leiter per E-Mail informieren";
+      rows[rows.length]="<br/>"+this_object.renderYesNo(g.mail_an_leiter_yn,16)+"&nbsp; E-Mail an Leiter bei &Auml;nderungen";
+    if (g.members_allowedmail_eachother_yn==1)
+      rows[rows.length]="<br/>"+this_object.renderYesNo(g.members_allowedmail_eachother_yn,16)+"&nbsp; Teilnehmer d&uuml;rfen kommunizieren";
     if (g.oeffentlich_yn==1) {
       rows[rows.length]="<br/>"+this_object.renderYesNo(g.oeffentlich_yn,16)+"&nbsp; &Ouml;ffentliche Gruppe, Link: ";
       rows.push(' &nbsp; <a class="extern" title="Externer Link zum Anmelden" href="?q=externmapview&g_id='+g.id+'" target="_clean">'+form_renderImage({src:"right.png", width:20})+'</a>');
     }
     if (g.offen_yn==1)
-    rows[rows.length]="<br/>"+this_object.renderYesNo(g.offen_yn,16)+"&nbsp; Offene Gruppe &nbsp; "+form_renderImage({src:"unlock.png", label:"Teilnahme kann auf der Startseite und bei öffentlichen Gruppen auch über einen Link beantragt werden", width:18});
-    rows.push('<br/>&nbsp;<p>'+form_renderImage({src:"email.png", width:18})+'&nbsp; <a href="#" id="editAutomaticEmails">Automatische E-Mails verwalten</a>');
+      rows[rows.length]="<br/>"+this_object.renderYesNo(g.offen_yn,16)+"&nbsp; Offene Gruppe &nbsp; "+form_renderImage({src:"unlock.png", label:"Teilnahme kann auf der Startseite und bei öffentlichen Gruppen auch über einen Link beantragt werden", width:18});
+
+    if (masterData.auth.admingroups)
+      rows.push('<br/>&nbsp;<p>'+form_renderImage({src:"email.png", width:18})+'&nbsp; <a href="#" id="editAutomaticEmails">Automatische E-Mails verwalten</a>');
     if (masterData.mailchimp)
       rows.push('<p>'+form_renderImage({src:"mailchimp.png", width:18})+'&nbsp; <a href="#" id="editMailchimp">MailChimp-Listen zuordnen</a>');
+    
   }
 
   if (masterData.auth.adminpersons) {

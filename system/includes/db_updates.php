@@ -1818,7 +1818,10 @@ function run_db_updates($db_version) {
       db_query("ALTER TABLE {cs_event_fact} CHANGE value value VARCHAR( 11 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
       db_query("ALTER TABLE {cs_song_arrangement} CHANGE  note  note text");
       // Set permission to all resource_ids
-      db_query("update {cc_domain_auth} set daten_id=-1 where auth_id=202");      
+      db_query("update {cc_domain_auth} set daten_id=-1 where auth_id=202");    
+      db_query("ALTER TABLE {cdb_gruppe} ADD members_allowedmail_eachother_yn INT( 1 ) NOT NULL DEFAULT  '0' AFTER mail_an_leiter_yn");
+      db_query("INSERT INTO {cdb_feld} VALUES (null, 4, 4, 'members_allowedmail_eachother_yn', NULL, 1, 0, '<p>Kommunikation untereinandner<br/><small>Teilnehmer der Gruppe d&uuml;rfen sich gegenseitig Mails zusenden', 'Untereinander kommunizieren', '<br/>', null, 1, 19)");
+      
       set_version("2.49");
     }
       
