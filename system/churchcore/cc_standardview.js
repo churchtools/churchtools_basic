@@ -14,6 +14,7 @@ function StandardTableView(options) {
   this.listOffset=0;
   this.sortVariable="id";
   this.availableRowCounts=[10, 25, 50, 200];
+  this.overrideMaxRows=false;
   this.showCheckboxes=true;
 
   // Number of entries currently visible
@@ -309,8 +310,9 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
       
       // Wenn es Handyformat ist dann zeige immer nur 10 Zeilen, au§er bei der Ressourcen-WeekView, 
       // denn hier macht es Sinn, das man alle sieht.
-      if ((churchcore_handyformat()) && (churchInterface.getCurrentView().name!="WeekView"))
-        masterData.settings["listMaxRows"+t.name]=10;    
+      if ((!t.overrideMaxRows) && (churchcore_handyformat()) && (churchInterface.getCurrentView().name!="WeekView")) {
+        masterData.settings["listMaxRows"+t.name]=10;
+      }
   
       var header=t.getListHeader();
       
@@ -376,23 +378,36 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
         rows.push('<table class="table table-bordered table-condensed"><tr><td>');
         
         if (t.counter>=masterData.settings["listMaxRows"+t.name]) {
-          rows[rows.length] = "Zeige "+masterData.settings["listMaxRows"+t.name]+" von "+t.counter+" gefundenen Eintr&auml;gen";
-          rows.push("&nbsp; &nbsp; &nbsp;Bl&auml;ttern: <a id=\"offset0\" href=\"#\"><<</a>&nbsp;|&nbsp;<a id=\"offsetMinus\" href=\"#\"><</a>&nbsp;|&nbsp;<a id=\"offsetPlus\" href=\"#\">></a>");
+          if (!churchcore_handyformat()) {          
+            rows[rows.length] = "Zeige "+masterData.settings["listMaxRows"+t.name]+" von "+t.counter+" gefundenen Eintr&auml;gen";
+            rows.push("&nbsp; &nbsp; &nbsp;Bl&auml;ttern: <a id=\"offset0\" href=\"#\"><<</a>&nbsp;|&nbsp;<a id=\"offsetMinus\" href=\"#\"><</a>&nbsp;|&nbsp;<a id=\"offsetPlus\" href=\"#\">></a>");
+          }
+          else {
+            rows.push("Bl&auml;ttern: <a id=\"offset0\" href=\"#\"><<</a>&nbsp;|&nbsp;<a id=\"offsetMinus\" href=\"#\"><</a>&nbsp;|&nbsp;<a id=\"offsetPlus\" href=\"#\">></a>");
+            rows[rows.length] = '<span class="pull-right">'+masterData.settings["listMaxRows"+t.name]+" von "+t.counter+"  Eintr&auml;gen</span><br/>";
+          }
         }  
         else 
           rows[rows.length] = "Zeige "+t.counter+" gefundene Eintr&auml;ge";
   
         if (t.showPaging) {    
           if (!churchcore_handyformat()) {
-            rows.push("&nbsp; &nbsp; &nbsp; &nbsp;(Zeilenanzahl: ");
+            rows.push("&nbsp; &nbsp; &nbsp; &nbsp;Zeilenanzahl: ");
             $.each(t.availableRowCounts, function(i,k) {
               rows.push('<a href="#" class="changemaxrow" data-id="'+k+'">'+k+'</a>&nbsp;|&nbsp;');              
             });
+            rows.push("&nbsp; &nbsp; &nbsp; ");
+            if ((masterData.settings["listMaxRows"+t.name]<=20) || (t.counter<=20))
+              rows.push("&nbsp;<a href=\"#\" id=\"showAll\">alle &ouml;ffnen</a>");
+            rows.push("&nbsp; &nbsp; <a href=\"#\" id=\"hideAll\">alle schlie&szlig;en</a>");
+          } 
+          else {
+            rows.push("Zeige  ");
+            $.each(t.availableRowCounts, function(i,k) {
+              rows.push('<a href="#" class="changemaxrow" data-id="'+k+'">'+k+'</a> | ');              
+            });            
+            rows.push('<span class="pull-right"><a href="#" id="hideAll">alle schlie&szlig;en</a></span>');
           }
-          rows.push("&nbsp; &nbsp; &nbsp; ");
-          if ((masterData.settings["listMaxRows"+t.name]<=20) || (t.counter<=20))
-            rows.push("&nbsp;<a href=\"#\" id=\"showAll\">alle &ouml;ffnen</a>");
-          rows.push("&nbsp; &nbsp; <a href=\"#\" id=\"hideAll\">alle schlie&szlig;en</a>");
         }
         rows.push('</table>');
         
@@ -452,7 +467,9 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
       $("#cdb_content a.changemaxrow").click(function () {    
         masterData.settings["listMaxRows"+t.name]=$(this).attr("data-id");
         t.renderList();
-        churchInterface.jsendWrite({func:"saveSetting", sub:"listMaxRows"+t.name, val:$(this).attr("data-id")});
+        if (!churchcore_handyformat()) 
+          churchInterface.jsendWrite({func:"saveSetting", sub:"listMaxRows"+t.name, val:$(this).attr("data-id")});
+        t.overrideMaxRows=true;
         return false;
       });
       

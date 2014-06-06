@@ -48,7 +48,6 @@ $.widget("ct.permissioner", {
   
   _create:function() {
     var t=this;
-    console.log(t.options);
     var children=new Array();
     $.each(masterData.modules, function(k,modulename) {
       var child=new Array();
