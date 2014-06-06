@@ -68,10 +68,11 @@ AuthView.prototype.renderEntryDetail= function(pos_id) {
           var child_daten=new Array();
           if (masterData[masterData.auth_table[auth.id].datenfeld]!=null) {
             // Bietet noch die Möglichkeiten von Untergruppen, wie z.B. bei Kalender mit privaten, Gruppen und Öffentlich
-            var sub_child_daten=new Object();        
+            var sub_child_daten=new Object();  
+            
+            child_daten.push({title:"-- Alle --", select:(masterData[t.currentDomain][pos_id].auth[auth.id]!=null && masterData[t.currentDomain][pos_id].auth[auth.id][-1]!=null), key:auth.id+"_-1"});
   
             $.each(churchcore_sortMasterData(masterData[masterData.auth_table[auth.id].datenfeld]), function(h, datenfeld) {
-  
               var select=false;
               if ((masterData[t.currentDomain][pos_id]!=null) && (masterData[t.currentDomain][pos_id].auth!=null) 
                    && (masterData[t.currentDomain][pos_id].auth[auth.id]!=null) && 
@@ -117,6 +118,7 @@ AuthView.prototype.renderEntryDetail= function(pos_id) {
     children.push({title:(masterData.names[modulename]!=null?masterData.names[modulename]:modulename), isFolder:true, expand:expand, children:child});
   });
   
+  var ImadeTheChange=false;
   $("#tree").dynatree({
     onActivate: function(node) {
         // A DynaTreeNode object is passed to the activation handler
@@ -126,6 +128,20 @@ AuthView.prototype.renderEntryDetail= function(pos_id) {
     checkbox: true,
     selectMode: 3,
     onSelect: function(select, node) {
+      // If "-- Alle --" was selected then I have to enable all!"
+      if (node.data.key.indexOf("_-1")>0) {
+        $.each(node.parent.childList, function(k,c) {
+          if (c.data.key!=node.data.key && !ImadeTheChange) {
+            c.select(node.bSelected);
+          }
+        });
+      }
+      // If not "-- Alle --" was selected look, if there is a ALLE to deselect
+      else if (!node.bSelected && node.parent.childList[0].data.key.indexOf("_-1")>0) {
+        ImadeTheChange=true;
+        node.parent.childList[0].select(false);
+        ImadeTheChange=false;        
+      }
       elem.find("input").removeAttr("disabled");
     },
     onDblClick: function(node, event) {
@@ -138,9 +154,23 @@ AuthView.prototype.renderEntryDetail= function(pos_id) {
     elem.find("input").attr("disabled",true);
     var selNodes=$("#tree").dynatree("getTree").getSelectedNodes(false);
     var data = $.map(selNodes, function(node){
-      if (node.data.key.indexOf('_')==0) return null;
-      else if (node.data.key.indexOf('_')>0) return {auth_id:node.data.key.substr(0,node.data.key.indexOf("_")), daten_id:node.data.key.substr(node.data.key.indexOf("_")+1,99)};
-      else return {auth_id:node.data.key}; 
+      // Only a parent
+      if (node.data.key.indexOf('_')==0) 
+        return null;
+        // with auth ids
+      else if (node.data.key.indexOf('_')>0) {
+        if (node.data.key.indexOf('_-1')>0) {
+          return {auth_id:node.data.key.substr(0,node.data.key.indexOf("_")), 
+                 daten_id:-1};
+        }
+        else if (node.parent.childList[0].bSelected==false)  
+          return {auth_id:node.data.key.substr(0,node.data.key.indexOf("_")), 
+                daten_id:node.data.key.substr(node.data.key.indexOf("_")+1,99)};
+        else return null;
+      }
+      else 
+        // only child without ids
+        return {auth_id:node.data.key}; 
     });
     churchInterface.jsendWrite({func:"saveAuth", domain_type:t.currentDomain, domain_id:pos_id, data:data}, function(ok, data) {
       if (!ok) {
