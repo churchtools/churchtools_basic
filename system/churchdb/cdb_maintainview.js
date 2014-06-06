@@ -46,7 +46,7 @@ MaintainView.prototype.renderMenu = function() {
 
 MaintainView.prototype.editAuth = function(id, masterData_type_id) {
   var data=this.getData()[masterData_type_id];
-  personView.editDomainAuth(id, masterData[data.shortname][id].auth, data.shortname, function(id) {
+  personView.editDomainAuth(id, data.shortname, function(id) {
     cdb_loadMasterData(function() {
       churchInterface.getCurrentView().renderView();
     });        

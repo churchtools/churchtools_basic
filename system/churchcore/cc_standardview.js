@@ -138,7 +138,7 @@ StandardTableView.prototype.messageReceiver = function(message, args) {
  */
 
 _aktiv=false;
-(function($) {
+
 StandardTableView.prototype.implantStandardFilterCallbacks = function(this_object, divid) {
   var t=this;
   var myfilter=t.filter;
@@ -1236,34 +1236,6 @@ StandardTableView.prototype.getAuthAsArray = function (auth) {
   return list;
 };
 
-StandardTableView.prototype.renderEditDomainAuth = function(auth) {
-  var this_object=this;
-  var rows = new Array();
-  rows.push('<p class="pull-right">'+form_renderHelpLink("Berechtigung")+'</p>');
-  $.each(masterData.auth_table, function(k, modules) {
-    rows.push("<table>");
-    rows.push("<tr><td colspan=\"2\"><h3>"+k+"</h3>");
-    $.each(modules, function(i,auths) {
-      var checked="";
-      if ((auth!=null) && (auth[auths.id]!=null)) checked="checked";
-      rows.push('<tr><td>');
-      if (auths.datenfeld==null)
-        rows.push('<input type="checkbox" id="'+auths.id+'" '+checked+' class="cdb-checkbox"></input>');
-      else {
-        rows.push('<a href="" id="edit_'+auths.id+'">'+this_object.renderImage("options")+'</a>');
-      }
-      rows.push("&nbsp; <td>"+auths.auth+"<br><p><small>"+auths.bezeichnung+"</small>");
-      
-      if (auths.datenfeld!=null) {
-        rows.push('<tr><td><td><span data-datenfeld="'+auths.datenfeld+'" class="datenbereich" id="spanedit_'+auths.id+'" style="display:none"><p></span>');
-      }
-    });
-    rows.push("</table>");
-  });
-  return rows.join("");
-};
-
-
 StandardTableView.prototype.renderAuth = function(auth_id) {
   var res="";
   // Baumstruktur, mu§ erst mal durch die Module scannen!
@@ -1361,60 +1333,33 @@ function renderDatenfeld(elem, auth) {
  * @param domain_type person, group oder status
  * @param func return function, wenn erfolgreich gespeichert mit (id) als parameter
  */
-StandardTableView.prototype.editDomainAuth = function (id, auth, domain_type, func) {
-  var this_object=this;
-  var rows = new Array();
-
-  if (masterData.cdb_gruppe==null) {
-    var elem = this.showDialog("Lade Daten...", "Lade Autorisierungsdaten...", 300, 300);
-    churchInterface.jsendRead({func:"loadAuthData"}, function(ok, json){
-      elem.dialog("close");
-      $.each(json, function(k, a) {
-        masterData[k]=a;
+StandardTableView.prototype.editDomainAuth = function (domain_id, domain_type, func) {
+  var t=this;
+  $.getCTScript("system/assets/dynatree/jquery.dynatree-1.2.4.js", function() {
+    $.getCTScript("system/churchcore/cc_authview.js", function() {
+      loadAuthViewMasterData(function() {
+        var perm;
+        var elem = t.showDialog("Berechtigung anpassen", '<div id="tree"></div>', 700, 620, {
+          "Speichern": function() {
+            perm.permissioner("save");
+          },          
+          "Abbrechen": function() {
+            $(this).dialog("close");
+          }        
+        });
+        perm=$("#tree");
+        perm.permissioner({
+          domain_type:domain_type,
+          domain_id:domain_id,
+          change:function() {
+            elem.find("input").removeAttr("disabled");
+          },
+          saveSuccess:function() {
+            elem.dialog("close");
+            func();
+          }
+        });        
       });
-      masterData.cdb_gruppe=masterData.groups;
-      if (masterData.cdb_gruppe==null) masterData.cdb_gruppe=new Object();
-      return this_object.editDomainAuth(id, auth, domain_type, func);
     });
-  } 
-  else {    
-    var elem = this.showDialog("Editieren der Rechte", this.renderEditDomainAuth(auth), 600, 600, {
-      "Speichern": function() {
-        var obj=new Object();
-        elem.find("input[type=checkbox]").each(function(k,a) {
-          // Nur positive Ÿbertragen
-          if (a.checked)
-            obj["authid"+a.id]=true;        
-        });
-        elem.find("input[type=hidden]").each(function(k,a) {
-          obj["authid"+a.id]=true;        
-        });
-        obj.func="saveDomainAuth";
-        obj.domain_type=domain_type;
-        obj.id=id;
-        churchInterface.jsendWrite(obj, null, false);
-        if (typeof func =="function") func(id);
-        $(this).dialog("close");      
-      },
-      "Abbruch": function() {
-        $(this).dialog("close");
-      }
-    });
-    elem.find("span.datenbereich").each(function() {
-      renderDatenfeld($(this), auth);
-    });
-    // Bei Datenautorisierung nun den Inhalt zeigen
-    $("a").click(function(k) {
-      if (this.id.indexOf("edit_")==0) {
-        $("#span"+this.id).show(); 
-        return false;
-      }    
-    });
-  }
+  });
 };
-
-
-
-
-
-})(jQuery);

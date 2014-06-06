@@ -38,7 +38,8 @@ function churchauth_main() {
   drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_interface.js');
    
   drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_authview.js');
-   
+  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_authmain.js');
+  
   $content="";
    
   $content=$content."
@@ -88,9 +89,9 @@ class CTChurchAuthModule extends CTAbstractModule {
       global $config;
   
     $res=array();
-    $res["auth_table"]=getAuthTable();
+    $res["auth_table_plain"]=getAuthTable();
     
-    foreach($res["auth_table"] as $auth) {
+    foreach($res["auth_table_plain"] as $auth) {
       if (($auth->datenfeld!=null) && (!isset($res[$auth->datenfeld])))
         $res[$auth->datenfeld]=churchcore_getTableData($auth->datenfeld);    
     }

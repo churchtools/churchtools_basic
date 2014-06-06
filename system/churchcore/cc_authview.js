@@ -12,8 +12,6 @@ Temp.prototype = StandardTableView.prototype;
 AuthView.prototype = new Temp();
 authView = new AuthView();
 
-var masterData=null;
-
 
 AuthView.prototype.getData = function(sorted) {
   if (sorted)
@@ -34,124 +32,120 @@ AuthView.prototype.checkFilter = function(a) {
     if (a.bezeichnung.toUpperCase().indexOf(this.filter["searchEntry"].toUpperCase())>=0) return true;
     return false;
   }
-
   
   return true;  
 };
 
-AuthView.prototype.renderEntryDetail= function(pos_id) {
-  var t=this;
-  var rows=new Array();
-  rows.push('<div class="entrydetail" id="entrydetail_'+pos_id+'">');  
-  
-  rows.push('<div class="well">');
-    rows.push('<legend>Berechtigung</legend>');
 
-    rows.push('<div id="tree"></div>');  
-    rows.push('<br> <p>'+form_renderButton({label:"&Auml;nderungen speichern", disabled:true, htmlclass:"save"})+"&nbsp;");
-    rows.push(form_renderButton({label:"Urspr&uuml;nglichen Zustand wiederherstellen", disabled:true, htmlclass:"undo"}));    
-  rows.push('</div>');  
+// Rendering the permision table
+$.widget("ct.permissioner", {
+  options: {
+    domain_id:null,
+    domain_type:null,
+    change:function() {},
+    saveSuccess:function() {}
+  },
   
- 
-  var elem=$("tr[id=" + pos_id + "]").after("<tr id=\"detail" + pos_id + "\"><td colspan=\"7\" id=\"detailTD" + pos_id + "\">"+rows.join("")+"</td></tr>").next();
-  
-  children=new Array();
-  
-  var children=new Array();
-  $.each(masterData.modules, function(k,modulename) {
-    var child=new Array();
-    var expand=false;
-    $.each(churchcore_sortMasterData(masterData.auth_table), function(i,auth) {
-      if (auth.modulename==modulename) {
-        if (auth.datenfeld!=null) {
-          var expand_datenfeld=new Object();
-          var child_daten=new Array();
-          if (masterData[masterData.auth_table[auth.id].datenfeld]!=null) {
-            // Bietet noch die Möglichkeiten von Untergruppen, wie z.B. bei Kalender mit privaten, Gruppen und Öffentlich
-            var sub_child_daten=new Object();  
-            
-            child_daten.push({title:"-- Alle --", select:(masterData[t.currentDomain][pos_id].auth[auth.id]!=null && masterData[t.currentDomain][pos_id].auth[auth.id][-1]!=null), key:auth.id+"_-1"});
-  
-            $.each(churchcore_sortMasterData(masterData[masterData.auth_table[auth.id].datenfeld]), function(h, datenfeld) {
-              var select=false;
-              if ((masterData[t.currentDomain][pos_id]!=null) && (masterData[t.currentDomain][pos_id].auth!=null) 
-                   && (masterData[t.currentDomain][pos_id].auth[auth.id]!=null) && 
-                     // -1 means ALL! It comes from the authoriziation by ChurchDB
-                      ((masterData[t.currentDomain][pos_id].auth[auth.id][-1]!=null)
-                       || (masterData[t.currentDomain][pos_id].auth[auth.id][datenfeld.id]!=null))) {
-                select=true;
-                expand=true;
-                expand_datenfeld["general"]=true;
-              }
-              if (masterData.auth_table[auth.id].datenfeld=="cc_calcategory") {
-                var type="Gemeindekalender";
-                if (masterData.cc_calcategory[datenfeld.id].privat_yn==1) 
-                  type="Persönlich";
-                else if (masterData.cc_calcategory[datenfeld.id].oeffentlich_yn==0)
-                  type="Gruppenkalender";
-                if (sub_child_daten[type]==null)
-                  sub_child_daten[type]=new Array();
-                sub_child_daten[type].push({title:datenfeld.bezeichnung, select:select, key:auth.id+"_"+datenfeld.id});
-              }
-              else {
-                child_daten.push({title:datenfeld.bezeichnung, select:select, key:auth.id+"_"+datenfeld.id});
-              }
-            });
-            // Wenn es Sub-Kategorien gibt, muss ich die hier noch einfügen.
-            $.each(sub_child_daten, function(k,a) {
-              child_daten.push({title:k, isFolder:true, children:a});
-            });
+  _create:function() {
+    var t=this;
+    console.log(t.options);
+    var children=new Array();
+    $.each(masterData.modules, function(k,modulename) {
+      var child=new Array();
+      var expand=false;
+      $.each(churchcore_sortMasterData(masterData.auth_table_plain), function(i,auth) {
+        if (auth.modulename==modulename) {
+          if (auth.datenfeld!=null) {
+            var expand_datenfeld=new Object();
+            var child_daten=new Array();
+            if (masterData[masterData.auth_table_plain[auth.id].datenfeld]!=null) {
+              // Bietet noch die Möglichkeiten von Untergruppen, wie z.B. bei Kalender mit privaten, Gruppen und Öffentlich
+              var sub_child_daten=new Object();  
+              
+              child_daten.push({title:"-- Alle --", select:(masterData[t.options.domain_type][t.options.domain_id].auth!=null && masterData[t.options.domain_type][t.options.domain_id].auth[auth.id]!=null && masterData[t.options.domain_type][t.options.domain_id].auth[auth.id][-1]!=null), key:auth.id+"_-1"});
+    
+              $.each(churchcore_sortMasterData(masterData[masterData.auth_table_plain[auth.id].datenfeld]), function(h, datenfeld) {
+                var select=false;
+                if ((masterData[t.options.domain_type][t.options.domain_id]!=null) && (masterData[t.options.domain_type][t.options.domain_id].auth!=null) 
+                     && (masterData[t.options.domain_type][t.options.domain_id].auth[auth.id]!=null) && 
+                       // -1 means ALL! It comes from the authoriziation by ChurchDB
+                        ((masterData[t.options.domain_type][t.options.domain_id].auth[auth.id][-1]!=null)
+                         || (masterData[t.options.domain_type][t.options.domain_id].auth[auth.id][datenfeld.id]!=null))) {
+                  select=true;
+                  expand=true;
+                  expand_datenfeld["general"]=true;
+                }
+                if (masterData.auth_table_plain[auth.id].datenfeld=="cc_calcategory") {
+                  var type="Gemeindekalender";
+                  if (masterData.cc_calcategory[datenfeld.id].privat_yn==1) 
+                    type="Persönlich";
+                  else if (masterData.cc_calcategory[datenfeld.id].oeffentlich_yn==0)
+                    type="Gruppenkalender";
+                  if (sub_child_daten[type]==null)
+                    sub_child_daten[type]=new Array();
+                  sub_child_daten[type].push({title:datenfeld.bezeichnung, select:select, key:auth.id+"_"+datenfeld.id});
+                }
+                else {
+                  child_daten.push({title:datenfeld.bezeichnung, select:select, key:auth.id+"_"+datenfeld.id});
+                }
+              });
+              // Wenn es Sub-Kategorien gibt, muss ich die hier noch einfügen.
+              $.each(sub_child_daten, function(k,a) {
+                child_daten.push({title:k, isFolder:true, children:a});
+              });
+            }
+            child.push({title:auth.bezeichnung+" ("+auth.auth+")", isFolder:true, children:child_daten, expand:!churchcore_isObjectEmpty(expand_datenfeld)});             
           }
-          child.push({title:auth.bezeichnung+" ("+auth.auth+")", isFolder:true, children:child_daten, expand:!churchcore_isObjectEmpty(expand_datenfeld)});             
-        }
-        else {
-          select=false;
-          if ((masterData[t.currentDomain]!=null) && (masterData[t.currentDomain][pos_id]!=null) && (masterData[t.currentDomain][pos_id].auth!=null) 
-              && (masterData[t.currentDomain][pos_id].auth[auth.id]!=null)) {
-            select=true;
-            expand=true;
+          else {
+            select=false;
+            if ((masterData[t.options.domain_type]!=null) && (masterData[t.options.domain_type][t.options.domain_id]!=null) && (masterData[t.options.domain_type][t.options.domain_id].auth!=null) 
+                && (masterData[t.options.domain_type][t.options.domain_id].auth[auth.id]!=null)) {
+              select=true;
+              expand=true;
+            }
+            child.push({title:auth.bezeichnung+" ("+auth.auth+")", select:select, key:auth.id});              
           }
-          child.push({title:auth.bezeichnung+" ("+auth.auth+")", select:select, key:auth.id});              
         }
-      }
+      });
+      children.push({title:(masterData.names[modulename]!=null?masterData.names[modulename]:modulename), isFolder:true, expand:expand, children:child});
     });
-    children.push({title:(masterData.names[modulename]!=null?masterData.names[modulename]:modulename), isFolder:true, expand:expand, children:child});
-  });
+    
+    var ImadeTheChange=false;
+    t.element.dynatree({
+      onActivate: function(node) {
+          // A DynaTreeNode object is passed to the activation handler
+          // Note: we also get this event, if persistence is on, and the page is reloaded.
+          //alert("You activated " + node.data.title);
+      },
+      checkbox: true,
+      selectMode: 3,
+      onSelect: function(select, node) {
+        // If "-- Alle --" was selected then I have to enable all!"
+        if (node.data.key.indexOf("_-1")>0) {
+          $.each(node.parent.childList, function(k,c) {
+            if (c.data.key!=node.data.key && !ImadeTheChange) {
+              c.select(node.bSelected);
+            }
+          });
+        }
+        // If not "-- Alle --" was selected look, if there is a ALLE to deselect
+        else if (!node.bSelected && node.parent.childList[0].data.key.indexOf("_-1")>0) {
+          ImadeTheChange=true;
+          node.parent.childList[0].select(false);
+          ImadeTheChange=false;        
+        }
+        t.options.change();
+      },
+      onDblClick: function(node, event) {
+        node.toggleSelect();
+      },
+      fx: { height: "toggle", duration: 200 },
+      children:children
+    });
+  },
   
-  var ImadeTheChange=false;
-  $("#tree").dynatree({
-    onActivate: function(node) {
-        // A DynaTreeNode object is passed to the activation handler
-        // Note: we also get this event, if persistence is on, and the page is reloaded.
-        //alert("You activated " + node.data.title);
-    },
-    checkbox: true,
-    selectMode: 3,
-    onSelect: function(select, node) {
-      // If "-- Alle --" was selected then I have to enable all!"
-      if (node.data.key.indexOf("_-1")>0) {
-        $.each(node.parent.childList, function(k,c) {
-          if (c.data.key!=node.data.key && !ImadeTheChange) {
-            c.select(node.bSelected);
-          }
-        });
-      }
-      // If not "-- Alle --" was selected look, if there is a ALLE to deselect
-      else if (!node.bSelected && node.parent.childList[0].data.key.indexOf("_-1")>0) {
-        ImadeTheChange=true;
-        node.parent.childList[0].select(false);
-        ImadeTheChange=false;        
-      }
-      elem.find("input").removeAttr("disabled");
-    },
-    onDblClick: function(node, event) {
-      node.toggleSelect();
-    },
-    fx: { height: "toggle", duration: 200 },
-    children:children
-  });
-  elem.find("input.save").click(function() {
-    elem.find("input").attr("disabled",true);
+  save:function() {
+    var t=this;
     var selNodes=$("#tree").dynatree("getTree").getSelectedNodes(false);
     var data = $.map(selNodes, function(node){
       // Only a parent
@@ -172,22 +166,59 @@ AuthView.prototype.renderEntryDetail= function(pos_id) {
         // only child without ids
         return {auth_id:node.data.key}; 
     });
-    churchInterface.jsendWrite({func:"saveAuth", domain_type:t.currentDomain, domain_id:pos_id, data:data}, function(ok, data) {
+    churchInterface.jsendWrite({func:"saveAuth", domain_type:t.options.domain_type, domain_id:t.options.domain_id, data:data}, function(ok, data) {
       if (!ok) {
         alert("Fehler: "+data);
         elem.remove();
       }
       else {
-        loadMasterData(function() {
-          masterData.person[pos_id].open=true;
-          t.renderList();
+        loadAuthViewMasterData(function() {
+          t.options.saveSuccess();
         });
       }
-    },true, false);
+    },true, false, "churchauth");    
+  }
+});
+
+
+AuthView.prototype.renderEntryDetail= function(domain_id) {
+  var t=this;
+  var rows=new Array();
+  rows.push('<div class="entrydetail" id="entrydetail_'+domain_id+'">');  
+  
+  rows.push('<div class="well">');
+    rows.push('<legend>Berechtigung</legend>');
+
+    rows.push('<div id="tree"></div>');  
+    rows.push('<br> <p>'+form_renderButton({label:"&Auml;nderungen speichern", disabled:true, htmlclass:"save"})+"&nbsp;");
+    rows.push(form_renderButton({label:"Urspr&uuml;nglichen Zustand wiederherstellen", disabled:true, htmlclass:"undo"}));    
+  rows.push('</div>');  
+  
+ 
+  var elem=$("tr[id=" + domain_id + "]").after("<tr id=\"detail" + domain_id + "\"><td colspan=\"7\" id=\"detailTD" + domain_id + "\">"+rows.join("")+"</td></tr>").next();
+  
+  var perm=$("#tree");
+  
+  perm.permissioner({
+    domain_type:t.currentDomain,
+    domain_id:domain_id,
+    change:function() {
+      elem.find("input").removeAttr("disabled");
+    },
+    saveSuccess:function() {
+      masterData.person[domain_id].open=true;
+      t.renderList();
+    }
   });
+  
+  elem.find("input.save").click(function() {
+    elem.find("input").attr("disabled",true);
+    perm.permissioner("save");  
+  });      
+  
   elem.find("input.undo").click(function() {
     elem.remove();
-    t.renderEntryDetail(pos_id);
+    t.renderEntryDetail(domain_id);
   });
 };
 
@@ -215,27 +246,27 @@ AuthView.prototype.renderListEntry = function(a) {
   if (a.auth!=null) {
     var modules=new Object();
     $.each(a.auth, function(auth_id,daten) {
-      if (masterData.auth_table[auth_id]==null) {
-        log('No Auth in masterData.auth_table for AuthId:'+auth_id);
+      if (masterData.auth_table_plain[auth_id]==null) {
+        log('No Auth in masterData.auth_table_plain for AuthId:'+auth_id);
       }
       else {
-        var txt=masterData.auth_table[auth_id].auth;    
+        var txt=masterData.auth_table_plain[auth_id].auth;    
         if (typeof daten=="object") {
           var rows=new Array();
           $.each(daten, function(i, d) {
             if (d==-1) rows.push("<i>alle</i>");
-            else if ((masterData[masterData.auth_table[auth_id].datenfeld]==null))
-              rows.push('<font color="red">'+masterData.auth_table[auth_id].datenfeld+" nicht vorhanden!</font>");
-            else if (masterData[masterData.auth_table[auth_id].datenfeld][d]==null)
-              rows.push('<font color="red">'+masterData.auth_table[auth_id].datenfeld+" mit Id:"+d+" nicht vorhanden!</font>");
+            else if ((masterData[masterData.auth_table_plain[auth_id].datenfeld]==null))
+              rows.push('<font color="red">'+masterData.auth_table_plain[auth_id].datenfeld+" nicht vorhanden!</font>");
+            else if (masterData[masterData.auth_table_plain[auth_id].datenfeld][d]==null)
+              rows.push('<font color="red">'+masterData.auth_table_plain[auth_id].datenfeld+" mit Id:"+d+" nicht vorhanden!</font>");
             else
-              rows.push(masterData[masterData.auth_table[auth_id].datenfeld][d].bezeichnung);
+              rows.push(masterData[masterData.auth_table_plain[auth_id].datenfeld][d].bezeichnung);
           });
           txt=txt+" ("+rows.join(", ")+")";
         }
-        if (modules[masterData.auth_table[auth_id].modulename]==null)
-          modules[masterData.auth_table[auth_id].modulename]=new Array();
-        modules[masterData.auth_table[auth_id].modulename].push(txt);
+        if (modules[masterData.auth_table_plain[auth_id].modulename]==null)
+          modules[masterData.auth_table_plain[auth_id].modulename]=new Array();
+        modules[masterData.auth_table_plain[auth_id].modulename].push(txt);
       }
     });
     $.each(modules, function(k,module) {
@@ -263,14 +294,16 @@ AuthView.prototype.renderListEntry = function(a) {
 
 
 
-function loadMasterData(func) {
+function loadAuthViewMasterData(func) {
   churchInterface.jsendRead({func:"getMasterData"}, function(ok,data) {
     if (!ok) alert("Fehler: "+data);
     else {
-      masterData=data;
+      $.each(data, function(k,a) {
+        masterData[k]=a;
+      });
       if (func!=null) func();
     }
-  });  
+  }, null, null, "churchauth");  
 }
 
 AuthView.prototype.renderMenu = function() {
@@ -304,7 +337,7 @@ AuthView.prototype.renderFilter = function() {
   
   var data=new Array();
   var modulename="";
-  $.each(churchcore_sortData(masterData.auth_table, "modulename"), function(k,a) {
+  $.each(churchcore_sortData(masterData.auth_table_plain, "modulename"), function(k,a) {
     if (modulename!=a.modulename) {
       modulename=a.modulename;
       data.push({id:-1, bezeichnung:"-- "+a.modulename+' --'});
@@ -381,17 +414,3 @@ AuthView.prototype.renderListMenu = function() {
     return false;
   });  
 };
-
-
-
-$(document).ready(function() {
-  churchInterface.registerView("AuthView", authView);
-  churchInterface.setModulename("churchauth");
-  
-  // Lade alle Kennzeichentabellen
-  loadMasterData(function() {
-    churchInterface.activateHistory("AuthView");
-    churchInterface.sendMessageToAllViews("allDataLoaded");
-  });
-  
-});

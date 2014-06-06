@@ -2502,7 +2502,10 @@ PersonView.prototype.renderAuthDialog = function (id) {
       return false;
     }
     else if ($(this).attr("id")=="personAuth") {
-      t.editPersonAuth(id);
+      t.editDomainAuth(id, "person", function() {
+        allPersons[id].details=null ;
+        t.renderList();
+      });
       return false;
     }         
     else if ($(this).attr("id")=="deactivatePerson") {
@@ -3300,16 +3303,6 @@ PersonView.prototype.getAvailableAddGroupsForGrouptype = function(gt_id) {
 };
 
 PersonView.prototype.editPersonAuth = function (id) {
-  var t=this;
-  this.editDomainAuth(id, allPersons[id].auth, "person", function(id) {
-    // Hole mir neue Details f�r die Person mit der Auth-infos
-    churchInterface.jsendRead({func:"getPersonDetails", id:id}, function(ok, json) {
-      allPersons[json.id]=cdb_mapJsonDetails(json, allPersons[json.id]);
-      // Rendere die View neu, da auch die Tablle Zugriffsrechte anzeigen kann
-      t.renderFilter();
-      t.renderList();
-    });
-  });
 };
 
 PersonView.prototype.delPersonFromGroup = function (id, g_id, withoutConfirmation) {
