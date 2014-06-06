@@ -29,9 +29,9 @@ function mapEvents(allEvents) {
           if ((a.notizen!=null) && (a.notizen!="")) o.notizen=a.notizen;
           if ((a.link!=null) && (a.link!="")) o.link=a.link;
           if (a.service_texts!=null) {
-            o.title=o.title+" "+a.service_texts.join(", ");
+            o.title=o.title+' <span class="event-servicetext">'+a.service_texts.join(", ")+'</span>';
           }
-          if ((a.ort!=null) && (a.ort!='')) o.title=o.title+' ('+a.ort+')';
+          if ((a.ort!=null) && (a.ort!='')) o.title=o.title+' <span class="event-location">'+a.ort+'</span>';
           o.start= d.startdate;
             o.end = d.enddate;
           // Tagestermin?
@@ -136,7 +136,7 @@ function _eventResize(event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, vie
     myevent.enddate.addDays(dayDelta);
     myevent.enddate.setMinutes(myevent.enddate.getMinutes()+minuteDelta);
     churchInterface.jsendWrite({func:"updateEvent", id:event.id, startdate:myevent.startdate,
-        enddate:myevent.enddate, bezeichnung:event.title, category_id:myevent.category_id,
+        enddate:myevent.enddate, bezeichnung:myevent.bezeichnung, category_id:myevent.category_id,
          bookings:myevent.bookings}, function(ok, data) {
         if (!ok) {
           alert(data);

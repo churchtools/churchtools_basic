@@ -493,6 +493,8 @@ span.tag {
 
 .event-category:before{content:" (";}  	
 .event-category:after{content:")";}  	
+.event-location:before{content:" (";}  	
+.event-location:after{content:")";}  	
 
 .event-description {
   font-size:85%;	

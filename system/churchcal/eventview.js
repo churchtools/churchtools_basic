@@ -109,29 +109,14 @@ function eventCalendar(element, options, eventSources) {
               else
                 rows.push('<span class="event-name">'+a.title+'</span>');
               rows.push('<span class="event-category">'+a.container.getName(a.category_id)+'</span>');
-              rows.push('<p class="event-date">');
-              rows.push(a.start.toStringDe(!a.allDay));
-              if (a.end!=null) {
-                if (a.end.getDate()!=a.start.getDate()) {
-                  rows.push(" - "+a.end.toStringDe(!a.allDay));
-                }
-                else 
-                  rows.push(" - "+a.end.toStringDeTime());
-              }
+              rows.push(_renderDate(a));
             }
             // MiniCalender
             else {
               rows.push('<p>');
               rows.push('<span class="event-date">');
               if (a.multi==null) {
-                rows.push(a.start.toStringDe(!a.allDay));
-                if (a.end!=null) {
-                  if (a.end.getDate()!=a.start.getDate()) {
-                    rows.push(" - "+a.end.toStringDe(!a.allDay));
-                  }
-                  else 
-                    rows.push(" - "+a.end.toStringDeTime());
-                }
+                rows.push(_renderDate(a));
               }
               else { 
                 rows.push(a.start.toStringDe()+" - ");
@@ -184,6 +169,26 @@ function eventCalendar(element, options, eventSources) {
       
       timer=null;
     },50);
+  }
+  
+  function _renderDate(a) {
+    var rows=new Array();
+    rows.push('<p class="event-date">');
+    rows.push('<span class="date-date">');
+      rows.push(a.start.toStringDe(false)+'&nbsp;');
+    rows.push('</span>');
+    rows.push('<span class="date-time">');
+    if (!a.allDay)
+      rows.push(a.start.toStringDeTime());
+    if (a.end!=null) {
+      if (a.end.getDate()!=a.start.getDate()) {
+        rows.push(" - "+a.end.toStringDe(!a.allDay));
+      }
+      else 
+        rows.push(" - "+a.end.toStringDeTime());
+    }
+    rows.push('</span>');    
+    return rows.join("");
   }
 
   function renderCalendar() {
