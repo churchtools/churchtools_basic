@@ -296,7 +296,7 @@ AgendaView.prototype.renderField = function(o, dataField, smallVersion) {
   var rows=new Array();
   
   if (dataField=="duration") {
-    rows.push(o.duration.formatMS());
+    rows.push(o.duration.formatSM());
   }
   else if (dataField=="bezeichnung") {
     if (o.header_yn==1) {
@@ -304,7 +304,7 @@ AgendaView.prototype.renderField = function(o, dataField, smallVersion) {
       if (o.duration!=0) {
         rows.push('&nbsp; ca. ');
         if (o.duration % 60==0) rows.push(o.duration/60+"min");
-        else rows.push(o.duration.formatMS());
+        else rows.push(o.duration.formatSM());
       }
     }
     else {
@@ -364,7 +364,36 @@ AgendaView.prototype.renderField = function(o, dataField, smallVersion) {
     if (o.servicegroup!=null && o.servicegroup[dataField.substr(12,99)]!=null)
       rows.push('<small>'+o.servicegroup[dataField.substr(12,99)].htmlize()+'</small>');
   }
-  else rows.push(o[dataField]);
+  else if (dataField.indexOf("responsible")==0) {
+    // Evalute responsible, when it is e.g. [Worshipleader]
+    var txt=o[dataField]
+    if ((txt.substr(0,1)=="[") && (txt.indexOf("]")>0)) {
+      txt=o[dataField].substr(1,txt.indexOf("]")-1);
+      var service=null;
+      $.each(masterData.service, function(k,s) {
+        if (s.bezeichnung==txt) {
+          service=s;
+          return false;
+        }
+      });
+      var sgs=getServiceGroupsFromEvents(t.currentAgenda.event_ids);
+      if (service==null || sgs==null) rows.push(o[dataField]);
+      else {
+        var entries=new Array();
+        $.each(sgs[service.servicegroup_id], function(k,s) {
+          if (s.service_id==service.id) {
+            entries.push(_renderServiceEntry(s));
+          }
+        });        
+        rows.push(entries.join(", "));
+      }      
+    }
+    else
+      rows.push(o[dataField]);
+  }
+  else {
+    rows.push(o[dataField]);
+  }
   
   return rows.join(""); 
 };
@@ -375,7 +404,7 @@ AgendaView.prototype.rerenderField = function(input, dataField) {
     if (a.length==1)
       return a[0]*60+"";
     else
-      return (a[0]*60+a[1]*1)+"";    
+      return (a[0]*3600+a[1]*60)+"";    
   }
   
   return input; 
@@ -491,14 +520,14 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
                 if (a.length==1)
                   return a[0]*60+"";
                 else
-                  return (a[0]*60+a[1]*1)+"";
+                  return (a[0]*3600+a[1]*60)+"";
               }
               else return txt;            
             },
             
           renderEditor:
             function(txt, data) {
-              if (data.field=="duration") return txt.formatMS();
+              if (data.field=="duration") return txt.formatSM();
               else return txt;
             },
             
@@ -508,6 +537,9 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
               if (data.field=="bezeichnung") {
                 
                 element.find("a.dropdown-toggle").dropdown();
+                element.find("a.dropdown-toggle").mouseover(function() {
+                  element.find("a.dropdown-toggle").dropdown("toggle");
+                })
                 
                 element.find("a.add-item").click(function() {
                   var elem=$(this);
@@ -1130,6 +1162,31 @@ AgendaView.prototype.getAllowedServiceGroupsWithComments = function() {
   return t.sortMasterData(groups);
 };
 
+function getServiceGroupsFromEvents(event_ids) {
+  if (event_ids==null) return null;
+  var servicegroups=new Array();
+  $.each(t.currentAgenda.event_ids, function(k,event_id) {
+    $.each(allEvents[event_id].services, function(s, service) {
+      if (service.valid_yn==1) { 
+        if (servicegroups[masterData.service[service.service_id].servicegroup_id]==null)
+          servicegroups[masterData.service[service.service_id].servicegroup_id]=new Array();
+        servicegroups[masterData.service[service.service_id].servicegroup_id].push(service);
+      }
+    });            
+  });  
+  return servicegroups;
+}
+
+function _renderServiceEntry(entry) {
+  var rows=new Array();
+  if (entry.name==null) rows.push('<font class="offen">?</font>');
+  else if (entry.zugesagt_yn==0)
+    rows.push('<font class="offen">'+entry.name+'?</font>');
+  else 
+    rows.push(entry.name);
+  return rows.join("");
+}
+
 AgendaView.prototype.renderListHeader = function(smallVersion) {
   var t=this;
   
@@ -1137,15 +1194,8 @@ AgendaView.prototype.renderListHeader = function(smallVersion) {
     $("#cdb_group").after('<div id="cdb_event"></div>');
   
     var rows = new Array();
-    if (t.currentAgenda.event_ids!=null) {
-      var servicegroups=new Array();
-      $.each(t.currentAgenda.event_ids, function(k,event_id) {
-        $.each(allEvents[event_id].services, function(s, service) {
-          if (servicegroups[masterData.service[service.service_id].servicegroup_id]==null)
-            servicegroups[masterData.service[service.service_id].servicegroup_id]=new Array();
-          servicegroups[masterData.service[service.service_id].servicegroup_id].push(service);
-        });            
-      });
+    var servicegroups=getServiceGroupsFromEvents(t.currentAgenda.event_ids);
+    if (servicegroups!=null) {
       
       $.each(churchcore_sortMasterData(masterData.servicegroup), function(k,sg) {
         if (servicegroups[sg.id]!=null) {
@@ -1153,14 +1203,9 @@ AgendaView.prototype.renderListHeader = function(smallVersion) {
           $.each(churchcore_sortMasterData(masterData.service), function(i,service) {
             if (service.servicegroup_id==sg.id) {
               $.each(servicegroups[sg.id], function(j, s) {
-                console.log(s);
                 if (s.service_id==service.id) {
                   rows.push(''+service.bezeichnung+": ");
-                  if (s.name==null) rows.push('<font class="offen">?</font>');
-                  else if (s.zugesagt_yn==0)
-                    rows.push('<font class="offen">'+s.name+'?</font>');
-                  else 
-                    rows.push(s.name);
+                  rows.push(_renderServiceEntry(s));
                   rows.push('&nbsp; &nbsp; ');
                 }
               });

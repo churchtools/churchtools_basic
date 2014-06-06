@@ -345,6 +345,11 @@ String.prototype.formatMS = function() {
   if (s.length==1) s='0'+s;
   return Math.floor(this/60)+":"+s;
 }
+String.prototype.formatSM = function() {
+  var s=this/60%60+'';
+  if (s.length==1) s='0'+s;
+  return Math.floor(this/3600)+":"+s;
+}
 
 /**
  * Trimmt den String auf die Anzahl Zeichen und erg�nzt es dann mit ".."
