@@ -3665,10 +3665,11 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
 
 PersonView.prototype.renderPersonGroupRelation = function(id, g_id) {
   var rows = new Array();
+  var leiter_check=true;
   // Muss erst pruefen, ob es sich um einen Leiter handelt und ein Gruppentyp, wo ein Leiter bleiben muss. 
   if ((masterData.groupTypes[masterData.groups[g_id].gruppentyp_id].muss_leiter_enthalten_yn==1) 
         && (allPersons[id].gruppe[g_id].leiter==1)) {
-    var leiter_check=false;
+    leiter_check=false;
     $.each(allPersons,function(k,a) {
       if ((a.id!=id) && (a.gruppe!=null))
         $.each(a.gruppe, function(i,b) {
@@ -3676,12 +3677,6 @@ PersonView.prototype.renderPersonGroupRelation = function(id, g_id) {
             leiter_check=true;
         });
     });
-    if (!leiter_check) {
-      alert("Nicht editierbar, da es sich um den einzigen Leiter der Gruppe handelt. " +
-          "Gruppen von "+f("gruppentyp_id")+" "+masterData.groupTypes[masterData.groups[g_id].gruppentyp_id].bezeichnung+
-          "' muessen mindestens einen Leiter haben.");
-      return null;
-    } 
   }
   
   rows.push("<table><tr><td><b>"+masterData.groupTypes[masterData.groups[g_id].gruppentyp_id].bezeichnung+"</b><td>");
@@ -3689,7 +3684,7 @@ PersonView.prototype.renderPersonGroupRelation = function(id, g_id) {
   rows.push('<input type="hidden" id="InputGroupEntry" value="'+g_id+'"/>');
   rows.push("<tr><td>Teilnehmerstatus &nbsp; <td>");
   
-  rows.push("<select id=\"InputGroupLeader\">");
+  rows.push('<select id="InputGroupLeader" '+(!leiter_check?"disabled":"")+'>');
   $.each(masterData.groupMemberTypes, function(k,a) {
     rows.push("<option value=\""+k+"\""+ ((k==allPersons[id].gruppe[g_id].leiter)?"selected":"") + ">" + a.bezeichnung + "</option>");
   });

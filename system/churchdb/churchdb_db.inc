@@ -235,8 +235,10 @@ function churchdb_getMyGroups($user_pid, $only_ids=false, $onlyIAmLeader=false, 
     if (!isset($arrs[$a->id]))
       if ($only_ids)
           $arrs[$a->id]=$a->id;
-        else  
+        else {
+          $a->status_no=2; 
           $arrs[$a->id]=$a;
+        }
   }
   // Hole mir nun die Gruppen, wo ich als Gruppentyp-Leiter eingsetzt bin
   $res=db_query("select g.* from {cdb_gruppe} g, {cdb_person_gruppentyp} pd
@@ -245,8 +247,10 @@ function churchdb_getMyGroups($user_pid, $only_ids=false, $onlyIAmLeader=false, 
     if (!isset($arrs[$a->id]))
       if ($only_ids)
           $arrs[$a->id]=$a->id;
-        else  
+        else {
+          $a->status_no=2;
           $arrs[$a->id]=$a;
+        }  
   }
   return $arrs;  
 }

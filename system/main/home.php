@@ -387,7 +387,8 @@ class CTHomeModule extends CTAbstractModule {
     include_once('./'. drupal_get_path('module', 'churchdb') .'/churchdb_db.inc');
     $res["mygroups"]=churchdb_getMyGroups($user->id, false, false);
     foreach ($res["mygroups"] as $g) {
-      if ($g->members_allowedmail_eachother_yn==0 && $g->status_no!=1 && $g->status_no!=2)
+      if (!isset($g->status_no) || (($g!=null) && ($g->members_allowedmail_eachother_yn==0) 
+             && ($g->status_no!=1) && ($g->status_no!=2)))
         unset($res["mygroups"][$g->id]);
     }
     include_once('./'. drupal_get_path('module', 'churchcal') .'/churchcal_db.inc');

@@ -431,7 +431,7 @@ function churchcal_getCalPerCategory($params, $withintern=true) {
               $txt=churchcore_replacePersonTemplate($e->cal_text_template, $p);
             }
           }
-          if (array_search($txt, $elem->service_texts)===false)
+          if (isset($elem->service_texts) && array_search($txt, $elem->service_texts)===false)
             $elem->service_texts[]=$txt;
         }
       }
