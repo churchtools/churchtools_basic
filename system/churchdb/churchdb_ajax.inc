@@ -1548,6 +1548,7 @@ class CTChurchDBModule extends CTAbstractModule {
       $res["cs_songcategory"] = (object) churchcore_getTableData("cs_songcategory");
       $res["cc_wikicategory"] = (object) churchcore_getTableData("cc_wikicategory");
       $res["cc_calcategory"] = (object) churchcore_getTableData("cc_calcategory");
+      $res["cr_resource"] = (object) churchcore_getTableData("cr_resource");
       return $res;
     }
   }

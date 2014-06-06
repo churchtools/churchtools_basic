@@ -1816,7 +1816,9 @@ function run_db_updates($db_version) {
       
     case "2.48": 
       db_query("ALTER TABLE {cs_event_fact} CHANGE value value VARCHAR( 11 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
-      db_query("ALTER TABLE {cs_song_arrangement} CHANGE  note  note text");      
+      db_query("ALTER TABLE {cs_song_arrangement} CHANGE  note  note text");
+      // Set permission to all resource_ids
+      db_query("update {cc_domain_auth} set daten_id=-1 where auth_id=202");      
       set_version("2.49");
     }
       

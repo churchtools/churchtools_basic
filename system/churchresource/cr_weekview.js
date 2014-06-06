@@ -486,7 +486,7 @@ function renderBookings(bookings) {
     if (a.status_id==1) color="color:red";
     else if (a.status_id==3) color="color:gray;text-decoration:line-through;";
     else if (a.status_id==99) {
-      if (((masterData.auth.write) && (a.person_id==masterData.user_pid)) || ((masterData.auth.editall)))
+      if (((masterData.auth.write) && (a.person_id==masterData.user_pid)) || ((user_access("edit",a.resource_id))))
         color="color:lightgray;text-decoration:line-through;";
       else color="";
     }  
@@ -500,7 +500,7 @@ function renderBookings(bookings) {
       if (text!=a.text) text=text+"..";
     if (color!="") {
       if ((!this.printview) && 
-           ((masterData.auth.write) && (a.person_id==masterData.user_pid)) || ((masterData.auth.editall)))
+           ((masterData.auth.write) && (a.person_id==masterData.user_pid)) || ((user_access("edit", a.resource_id))))
         txt=txt+"<a href=\"#"+a.viewing_date.toStringEn()+"\" class=\"tooltips\" id=\"edit"+a.id+"\" data-tooltip-id=\""+a.id+"\" style=\"font-weight:normal;"+color+"\">"+starttxt+"-"+endtxt+"h "+text+ort+"</a>";
       else 
         txt=txt+"<span style=\"cursor:default;font-weight:normal;"+color+"\" class=\"tooltips\" data-tooltip-id=\""+a.id+"\">"+starttxt+"-"+endtxt+"h "+text+ort+"</span>";
@@ -637,11 +637,11 @@ WeekView.prototype.renderEditBookingFields = function (a) {
     cssid:"InputStatus", 
     label:"Status",
     selected:a.status_id,
-    disabled:!masterData.auth.editall
+    disabled:!user_access("edit", a.resource_id)
   }));
   
 //  rows.push("<tr><td>Status<td>"+
-//      this.renderSelect(a.status_id, "Status", masterData.status, !masterData.auth.editall)+"<tr><td>");
+//      this.renderSelect(a.status_id, "Status", masterData.status, !user_access("edit", a.resource_id))+"<tr><td>");
 
   rows.push(form_renderTextarea({
     data:a.note,
@@ -674,10 +674,11 @@ WeekView.prototype.implantEditBookingCallbacks = function(divid, a) {
   function _setStatus() {
     var id=$("#InputRessource").val();
     if ((id!=null) && (masterData.resources[id]!=null)) {
-      if ((masterData.resources[id].autoaccept_yn==0) && (!masterData.auth.editall)) 
+      if ((masterData.resources[id].autoaccept_yn==0) && (!user_access("edit", id))) 
         $("#"+divid+" select[id=InputStatus]").val(1);
       else if (masterData.resources[id].autoaccept_yn==1) 
         $("#"+divid+" select[id=InputStatus]").val(2);
+      $("#"+divid+" select[id=InputStatus]").prop('disabled', !user_access("edit", id));
     }
   }
  
@@ -753,10 +754,10 @@ WeekView.prototype.renderTooltip = function(id) {
   }  
   txt=txt+"</table>";
   title=a.text;
-  if ((masterData.auth.editall) || ((masterData.auth.write) && (a.person_id==masterData.user_pid))) {
+  if ((user_access("edit", a.resource_id)) || ((masterData.auth.write) && (a.person_id==masterData.user_pid))) {
     if ((a.status_id==1) || (a.status_id==2) || (a.status_id==3)) {
       title=title+'<span class="pull-right">';
-      if ((a.status_id==1) && (masterData.auth.editall)) {
+      if ((a.status_id==1) && (user_access("edit", a.resource_id))) {
         title=title+form_renderImage({label:"Bestätigen", cssid:"confirm", src:"check-64.png", width:20})+"&nbsp; ";
         title=title+form_renderImage({label:"Ablehnen", cssid:"deny", src:"delete_2.png", width:20})+"&nbsp; ";
       }
@@ -969,14 +970,14 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
       txt=txt+'<div class="alert alert-error">Achtung: Die Buchung wurde in <a href="?q=churchcal&date='+t.currentBooking.startdate.toStringEn(false)+'">'+masterData.churchcal_name+'</a> erstellt. Datum und Bezeichnung bitte im Kalendereintrag bearbeiten. Die Raumbuchung passt sich dementsprechend an.</div>';
     }
     // Pruefen, ob der Eintrag schon von einem Admin bestaetigt wurde, dann muss er auf 1 (unbestaetigt) zurueckgesetzt werden
-    if (((!masterData.auth.editall) && (masterData.auth.write) && (t.currentBooking.person_id==masterData.user_pid) &&
+    if (((!user_access("edit", t.currentBooking.resource_id)) && (masterData.auth.write) && (t.currentBooking.person_id==masterData.user_pid) &&
         (t.currentBooking.status_id!=1) && (masterData.resources[t.currentBooking.resource_id].autoaccept_yn==0))) {
-      txt=txt+"<i><div style=\"background:white\"><b>Achtung: Die Anfrage wurde schon vom Administrator bearbeitet!</b><br/>Wenn nun 'Speichern' gew&auml;hlt, muss erneut der Administrator best&auml;tigen.</i></div><br/><br/>";
+      txt=txt+"<i><div class=\"alert alert-error\"><b>Achtung: Die Anfrage wurde schon vom Administrator bearbeitet!</b><br/>Wenn nun 'Speichern' gew&auml;hlt, muss erneut der Administrator best&auml;tigen.</i></div>";
       t.currentBooking.status_id=1;
     }
     txt=txt+t.renderEditBookingFields(t.currentBooking);
     txt=txt+'<div id="cr_logs" style=""></div>';
-    if (((masterData.auth.write) && (t.currentBooking.person_id==masterData.user_pid)) || ((masterData.auth.editall)))
+    if (((masterData.auth.write) && (t.currentBooking.person_id==masterData.user_pid)) || ((user_access("edit", t.currentBooking.resource_id))))
       title="Editiere Buchungsanfrage";
     else 
       title="Anzeige der Buchungsanfrage";    
@@ -1002,10 +1003,10 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
   // D.h. entweder Erstelle oder Editiere    
   if (title!="") {
     var elem = this.showDialog(title, txt, 600, 600, {});
-   if (masterData.auth.editall) {
+   if (user_access("edit", t.currentBooking.resource_id)) {
      form_renderDates({elem:$("#dates"), data:t.currentBooking, disabled:t.currentBooking.cc_cal_id!=null,
-       authexceptions:masterData.auth.editall,
-       authadditions:masterData.auth.editall,       
+       authexceptions:user_access("edit", t.currentBooking.resource_id),
+       authadditions:user_access("edit", t.currentBooking.resource_id),       
        deleteException:function(exc) {
          delete t.currentBooking.exceptions[exc.id];
        },
@@ -1060,12 +1061,12 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
           });
           logs=logs+"</table>";
           logs=logs+"</small>";
-          if (masterData.auth.editall)
+          if (user_access("edit", t.currentBooking.resource_id))
             logs=logs+"<small><p align=\"right\"><a href=\"#\" id=\"del_complete\"><i>(Admin: Gesamten Termin l&ouml;schen)</a></small>";
           logs=logs+"</div>";
           log.html(logs);
           $("#cr_logs a").click(function(c) {
-            if (($(this).attr("id")=="del_complete") && (masterData.auth.editall)){
+            if (($(this).attr("id")=="del_complete") && (user_access("edit", a.resource_id))){
               if (confirm("Soll der Termin wirklich entfernt werden? Achtung, man kann es nicht mehr wiederherstellen!")) {          
                 churchInterface.jsendWrite({func: "delBooking", id:id}, function(ok, json) {
                   allBookings[id]=null;
@@ -1090,7 +1091,7 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
     // Keine Edit-Funktion, wenn sie vom churchCal kommt
     //if (t.currentBooking.cc_cal_id==null) 
     {
-      if (((masterData.auth.write) && (t.currentBooking.person_id==masterData.user_pid)) || (masterData.auth.editall) || (t.currentBooking.neu)) {
+      if (((masterData.auth.write) && (t.currentBooking.person_id==masterData.user_pid)) || (user_access("edit", t.currentBooking.resource_id)) || (t.currentBooking.neu)) {
         elem.dialog('addbutton', 'Speichern', function() {
           t.closeAndSaveBookingDetail(elem);
         });

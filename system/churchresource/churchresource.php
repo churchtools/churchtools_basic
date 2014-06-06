@@ -197,7 +197,7 @@ function churchresource_getAuth() {
   $cc_auth = array();
   $cc_auth=addAuth($cc_auth, 201,'view', 'churchresource', null, 'ChurchResource sehen', 1);
   $cc_auth=addAuth($cc_auth, 306,'create bookings', 'churchresource', null, 'Eigene Buchugsanfragen erstellen', 1);
-  $cc_auth=addAuth($cc_auth, 202,'administer bookings', 'churchresource', null, 'Alle Anfragen editieren, ablehnen, etc.', 1);
+  $cc_auth=addAuth($cc_auth, 202,'administer bookings', 'churchresource', 'cr_resource', 'Alle Anfragen editieren, ablehnen, etc.', 1);
   $cc_auth=addAuth($cc_auth, 203,'assistance mode', 'churchresource', null, 'Im Auftrag eines anderen Buchungen durchf&uuml;hren', 1);
   $cc_auth=addAuth($cc_auth, 299,'edit masterdata', 'churchresource', null, 'Stammdaten editieren', 1);
   return $cc_auth;
@@ -216,7 +216,8 @@ function churchresource_getAuthForAjax() {
   }  
   if (isset($auth["administer bookings"])) {
   	$res["write"]=true;
-  	$res["editall"]=true;
+  	//$res["editall"]=true;
+  	$res["edit"]=$auth["administer bookings"];
   }
   if (isset($auth["assistance mode"])) {
     $res["assistance mode"]=true;
