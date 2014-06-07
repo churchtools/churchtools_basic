@@ -913,7 +913,9 @@ StandardTableView.prototype.getStandardFieldAsSelect = function (field, arr, ele
   var o = new Object();
   o.label=field.text;
   o.cssid="Input"+field.sql;
-  o.disabled=!t.checkFieldPermission(field, authArray);
+  if (!t.checkFieldPermission(field, authArray)) return null;
+  // changed in 2.49, now elements will be hide instead of disabled
+  // o.disabled=!t.checkFieldPermission(field, authArray);
   switch (field.type) {
     case "select":
       var data = null;
@@ -978,7 +980,7 @@ StandardTableView.prototype.getSaveObjectFromInputFields = function(id, fieldnam
   if (masterData.fields[obj["func"]]!=null) {
     // Setzen der Variable im Browser und Aufbereiten des Obj fŸr Ajax
     for (var elem in masterData.fields[obj["func"]].fields) {
-      if (!$("#Input" + elem).is(':disabled')) {
+      if ($("#Input" + elem).length>0 && !$("#Input" + elem).is(':disabled')) {
         if (masterData.fields[obj["func"]].fields[elem].type=="date") {
             if (($("#Input" + elem).val()!=null)  && ($("#Input" + elem).val().toDateDe()!=null))
               arr[elem] = $("#Input" + elem).val().toDateDe().toStringEn();

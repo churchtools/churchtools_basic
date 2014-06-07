@@ -2617,6 +2617,10 @@ PersonView.prototype.renderDetails = function (id) {
       }
     });    
   }
+  
+  var changeownaddress=false;
+  if (masterData.auth.changeownaddress && masterData.user_pid==id) 
+    changeownaddress=true;
 
   var rows = new Array();
   rows.push('<div id="detail" class="detail-view-person">');
@@ -2671,7 +2675,7 @@ PersonView.prototype.renderDetails = function (id) {
       // Linke Spalte
       var _text ="<div class=\"left-column-person span4\">";
       
-      if ((masterData.auth.write) || (personLeader))
+      if ((masterData.auth.write) || (changeownaddress) || (personLeader))
         _text=_text+"<p><a id=\"f_image\" href=\"\">"+form_renderPersonImage(allPersons[a.id].imageurl)+"</a>";
       else
         _text=_text+"<p>"+form_renderPersonImage(allPersons[a.id].imageurl);
@@ -2722,14 +2726,8 @@ PersonView.prototype.renderDetails = function (id) {
       if (personSuperLeader)
         autharr.push("superleader");
       
-      _text=_text + t.renderFields(masterData.fields.f_address, a, masterData.auth.write || personLeader, autharr);
-      
-      if (masterData.auth.viewalldetails)
-        _text=_text + t.renderFields(masterData.fields.f_church, a, masterData.auth.write);
-      else if (a.geburtsdatum!=null) {
-        _text=_text+"<p><b><i>Information</i></b><br/><small>Geburtstag: ";
-        _text=_text + a.geburtsdatum.toDateEn().toStringDe()+"</small>";
-      }
+      _text=_text + t.renderFields(masterData.fields.f_address, a, changeownaddress || masterData.auth.write || personLeader, autharr);      
+      _text=_text + t.renderFields(masterData.fields.f_church, a, changeownaddress || masterData.auth.write || personLeader, autharr);
       
       if (masterData.auth.viewalldetails)
         _text=_text + t.renderFields(masterData.fields.f_category, a, masterData.auth.write);
@@ -2744,7 +2742,6 @@ PersonView.prototype.renderDetails = function (id) {
       }
       
       if (masterData.auth.adminpersons) {
-  //      _text=_text+"<p style=\"line-height:100%\"><b><i>Berechtigungen</i></b>&nbsp;&nbsp;";
         _text=_text+"<h4>Berechtigungen&nbsp;&nbsp;";
         _text=_text+'<a href="#" id="auth">'+t.renderImage("options")+'</a></h4>';
         _text=_text+'<p style="line-height:100%;color:black"><small>';
@@ -3436,9 +3433,11 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
     if (t.isPersonSuperLeaderOfPerson(masterData.user_pid, id))
       autharr.push("superleader");
     
-    rows.push(this.getStandardFieldsAsSelect(fieldname, a, autharr));
+    var f=this.getStandardFieldsAsSelect(fieldname, a, autharr);   
+    rows.push(f);
     
-    if (fieldname=="f_category") height=300;
+    height=f.split("control-group").length*43+80;
+    if (height>650) height=650;    
   }   
   else if (fieldname=="f_note") {
     width=350; height=350;

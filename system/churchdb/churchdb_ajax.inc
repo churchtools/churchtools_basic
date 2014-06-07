@@ -908,6 +908,10 @@ function churchdb_getAuthForAjax() {
   if (($config["churchdb_smspromote_apikey"]!="") && (isset($auth["send sms"])))  
     $res["sendsms"]=true;
     
+  if (isset($config["churchdb_changeownaddress"]) && $config["churchdb_changeownaddress"]==1)
+    $res["changeownaddress"]=true;
+  
+  
   return $res;
 
 }

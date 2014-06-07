@@ -1633,7 +1633,7 @@ CC_Form.prototype.addTextarea = function (options) {
 };
 
 CC_Form.prototype.addHtml =function(html) {
-  this.rows.push(html); 
+  if (html!=null) this.rows.push(html); 
 };
 
 CC_Form.prototype.setHelp = function(title) {

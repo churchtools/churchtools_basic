@@ -286,6 +286,7 @@ function churchdb_addEvent($params) {
 
 
 function _checkPersonAutorisierung($auto, $iAmLeader, $iAmSuperLeader) {
+  global $config;
   if ($auto==null) return true;
   $ret=false;
   foreach(explode("||", $auto) as $auth) {
@@ -304,6 +305,9 @@ function _checkPersonAutorisierung($auto, $iAmLeader, $iAmSuperLeader) {
     }
     else if ($auth=="superleader") {
       if ($iAmSuperLeader) $ret=true;
+    }
+    else if ($auth=="changeownaddress") {
+      if (isset($config["churchdb_changeownaddress"]) && ($config["churchdb_changeownaddress"]==1)) $ret=true;
     }
     else throw new CTException("Unbekanntes Recht: '".$auth."'");
   }

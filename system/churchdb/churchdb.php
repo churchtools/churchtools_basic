@@ -69,6 +69,10 @@ function churchdb_getAdminModel() {
   $model->addField("churchdb_sendgroupmails","", "CHECKBOX","Sende &Auml;nderungen in Gruppen an Leiter, Co-Leiter und Supervisore");
     $model->fields["churchdb_sendgroupmails"]->setValue($config["churchdb_sendgroupmails"]);
 
+  if (!isset($config["churchdb_changeownaddress"])) $config["churchdb_changeownaddress"]=false;
+  $model->addField("churchdb_changeownaddress","", "CHECKBOX","Jeder Benutzer darf seine eigenen Stammdaten anpassen");
+    $model->fields["churchdb_changeownaddress"]->setValue($config["churchdb_changeownaddress"]);
+    
   return $model;  
 }
 

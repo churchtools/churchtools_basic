@@ -827,17 +827,19 @@ GroupView.prototype.isGroupOfGroupType = function (gruppe_id, gruppentyp_id) {
 };
 
 /**
- * Gibt zur�ck, ob Person Leiter, coleiter oder Supervisor ist (nicht MA) => True ansonsten false
+ * Gibt zur�ck, ob Person Leiter, coleiter oder Supervisor ist => True ansonsten false
  * @param p_id
  * @param g_id
+ * @param withStaff mit Mitarbeiter (default false)
  * @return true or false
  */
-GroupView.prototype.isPersonLeaderOfGroup = function (p_id, g_id) {
+GroupView.prototype.isPersonLeaderOfGroup = function (p_id, g_id, withstaff) {
   var res = false;
+  if (withstaff==null) withstaff=false;
   if ((p_id!=null) && (allPersons[p_id]!=null)) {
     if (allPersons[p_id].gruppe!=null) {
       $.each(allPersons[p_id].gruppe, function (k,a) {
-        if ((a.id==g_id) && (a.leiter>0) && (a.leiter!=4)) {
+        if ((a.id==g_id) && (a.leiter>0) && (a.leiter!=4 || withstaff)) {
           res=true;
           return false;
         }
