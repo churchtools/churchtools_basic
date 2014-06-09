@@ -316,8 +316,11 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
   
       var header=t.getListHeader();
       
-      if (listObject == null) {
-        rows[rows.length] = "Keinen Eintrag gefunden.";
+      if (listObject == null || churchcore_isObjectEmpty(listObject)) {  
+        if (churchInterface.allDataLoaded)
+          rows[rows.length] = "Keinen Eintrag gefunden.";
+        else 
+          rows[rows.length] = '<br><p align="center">'+form_renderImage({src:"loading.gif"})+'<p>';
       }
       else {
         var classes='view '+t.name+' table table-bordered table-condensed ';

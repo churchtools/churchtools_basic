@@ -1124,7 +1124,7 @@ PersonView.prototype.renderListEntry = function(a) {
     if (a.tags!=null) {
       var first=true;
       $.each(a.tags, function(k,a) {
-        rows.push(t.renderTag(a,false)+"&nbsp;");
+        rows.push(t.renderTag(a,false)+"&nbsp; ");
       });
     }
   } 
