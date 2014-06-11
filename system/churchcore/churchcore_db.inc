@@ -802,6 +802,7 @@ function churchcore_sendMails_PHPMAIL($maxmails=10) {
 
 function churchcore_sendMails_PEARMAIL($maxmails=10) {
   global $config, $base_url;
+  ct_log("starte senden5");
   
   include_once 'Mail.php';
   include_once 'Mail/mime.php' ;
@@ -813,9 +814,11 @@ function churchcore_sendMails_PEARMAIL($maxmails=10) {
   }    
   
   if ($db->value=="0") {
+  ct_log("starte senden6");
     db_query("update {cc_config} set value='1' where name='currently_mail_sending'");    
     $db=db_query("select * from {cc_mail_queue} where send_date is null order by priority limit $maxmails");
     if ($db!=false) {
+                  ct_log("starte senden0"); 
       $counter=0;
       $counter_error=0;
       foreach ($db as $mail) {    
@@ -845,19 +848,20 @@ function churchcore_sendMails_PEARMAIL($maxmails=10) {
           $text = $mail->body;        
           $mime->setTXTBody($text);
         }
-        
 
         $error=0;
         $counter++;
+            ct_log("starte senden"); 
         // Wenn test gesetzt ist, soll er keine Mails senden, sondern nur so tun!
         if (!isset($config["test"])) {
           $body = $mime->get($mime_params);
           $headers = $mime->headers($headers);
           $mail_object =& Mail::factory(variable_get('mail_pear_type','mail'), (isset($config["mail_pear_args"])?$config["mail_pear_args"]:null));
-          $ret=$mail_object->send($mail->receiver, $headers, $body);
-          if ($ret!=true) {
+          $ret=@$mail_object->send($mail->receiver, $headers, $body);
+          if (@PEAR::isError($ret)) {
             $counter_error++;
-            $error=1; 
+            $error=1;
+            ct_log("Fehler beim Senden einer Mail: ".$ret->getMessage(), 1); 
           }
         }
         db_query("update {cc_mail_queue} set send_date=now(), error=$error where id=$mail->id");
