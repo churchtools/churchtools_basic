@@ -284,9 +284,9 @@ PersonView.prototype.renderAddEntry = function(prefill) {
   form_person.addHtml('<p><a href="#" class="furtherfields">Weitere Felder hinzuf&uuml;gen</a>');
   form_person.addHtml('<div id="furtherfields" style="display:none">');
   $.each(masterData.fields, function(k,fields) {
-    $.each(fields.fields, function(i,f) {
-      if (f.inneuerstellen_yn==1) {
-        form_person.addStandardField(f);
+    $.each(fields.fields, function(i,field) {
+      if (field.inneuerstellen_yn==1) {
+        form_person.addStandardField(field);
       }
     });
   });
@@ -3433,10 +3433,10 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
     if (t.isPersonSuperLeaderOfPerson(masterData.user_pid, id))
       autharr.push("superleader");
     
-    var f=this.getStandardFieldsAsSelect(fieldname, a, autharr);   
-    rows.push(f);
+    var fi=this.getStandardFieldsAsSelect(fieldname, a, autharr);   
+    rows.push(fi);
     
-    height=f.split("control-group").length*43+80;
+    height=fi.split("control-group").length*43+80;
     if (height>650) height=650;    
   }   
   else if (fieldname=="f_note") {
