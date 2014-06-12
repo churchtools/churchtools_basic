@@ -159,10 +159,14 @@ $.widget("ct.permissioner", {
           return {auth_id:node.data.key.substr(0,node.data.key.indexOf("_")), 
                  daten_id:-1};
         }
-        else if (node.parent.childList[0].bSelected==false)  
+        // if - Alle - is available and not selected, otherwise we can ignore it.
+        else if (node.parent.childList[0].data.key.indexOf('-1')==-1 
+                     || node.parent.childList[0].bSelected==false)  
           return {auth_id:node.data.key.substr(0,node.data.key.indexOf("_")), 
                 daten_id:node.data.key.substr(node.data.key.indexOf("_")+1,99)};
-        else return null;
+        else {
+          return null;          
+        }
       }
       else 
         // only child without ids
