@@ -65,10 +65,8 @@ ListView.prototype.renderMenu = function() {
         var filter='&date='+t.currentDate.toStringEn(false);
         if (this_object.filter["filterMeine Filter"]!=null)
           filter=filter+"&meineFilter="+this_object.filter["filterMeine Filter"];
-        fenster = window.open('?q=churchservice/printview'+filter+'#ListView', "Druckansicht", "width=900,height=600,resizable=yes");
-        fenster.focus();
-        fenster.print();
-        setTimeout(function() {fenster.close()}, 2000);
+        var win = window.open('?q=churchservice/printview'+filter+'#ListView', "Druckansicht", "width=900,height=600,resizable=yes");
+        win.focus();
 
         return false;
       }
@@ -3458,10 +3456,8 @@ ListView.prototype.renderEntryDetail = function (event_id) {
         return false;
       });
       elem.find("a.print-agenda").click(function() {
-        fenster = window.open('?q=churchservice/printview&id='+$(this).attr("data-id")+'#AgendaView', "Druckansicht", "width=900,height=600,resizable=yes");
-        fenster.focus();
-        fenster.print();
-        setTimeout(function() {fenster.close()}, 2000);
+        var win = window.open('?q=churchservice/printview&id='+$(this).attr("data-id")+'#AgendaView', "Druckansicht", "width=900,height=600,resizable=yes");
+        win.focus();
 
         return false;
       });

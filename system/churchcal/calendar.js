@@ -1004,9 +1004,10 @@ function initCalendarView() {
       selectHelper:true,
       select: _select
     });
-    if (!embedded) {
+    if (!embedded) 
       $("td.fc-header-left").append("&nbsp; "+form_renderImage({src:"cal.png", width:28, htmlclass:"open-cal", link:true})+'<div style="position:absolute;z-index:12001" id="dp_month"></div>');
-      $("td.fc-header-left").append(" "+form_renderImage({src:"printer.png", width:28, htmlclass:"printview", link:true})+'<div style="position:absolute;z-index:12001" id="dp_month"></div>');
+    $("td.fc-header-left").append(" "+form_renderImage({src:"printer.png", width:28, htmlclass:"printview", link:true})+'<div style="position:absolute;z-index:12001" id="dp_month"></div>');
+      if (!embedded) {
       $("td.fc-header-right").append('<span id="yearView" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content">Jahr</span><span class="fc-button-effect"><span></span></span></span></span>');
       $("td.fc-header-right").append('<span id="eventView" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content"><i class="icon-list"></i></span><span class="fc-button-effect"><span></span></span></span></span>');
     }
@@ -1049,12 +1050,14 @@ function initCalendarView() {
     });    
   });
   
-  $("a.printview").click(function() {  
-    var fenster=window.open("?q=churchcal&embedded=true&printview=true", '_blank', 'location=yes,height=570,width=700,scrollbars=yes,status=yes');
-    fenster.focus();
-    window.setTimeout(function() {fenster.print()}, 1000);
-    window.setTimeout(function() {fenster.close()}, 2000);
-   
+  $("a.printview").click(function() {
+    if (printview) {
+      window.print();
+    }
+    else {
+      var fenster=window.open("?q=churchcal&embedded=true&printview=true", '_blank', 'location=yes,height=570,width=700,scrollbars=yes,status=yes');
+      fenster.focus();
+    }
   });
       
   $("#calView").click(function(k) {

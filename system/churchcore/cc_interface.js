@@ -33,8 +33,19 @@ ChurchInterface.prototype.getLastLogId= function () {
  * @param args
  */
 ChurchInterface.prototype.sendMessageToAllViews = function (message, args) {
-  if (message=="allDataLoaded")
+  if (message=="allDataLoaded") {
     this.setAllDataLoaded(true);
+    if ($("#printview").val()!=null) {
+      window.setTimeout(function() {
+        window.print();
+        window.setTimeout(function() {
+          window.close();
+        }
+        ,500);
+      }
+      ,500);
+    }
+  }
   jQuery.each(this.getViews(), function(k,a) {
     a.messageReceiver(message, args);
   });  
