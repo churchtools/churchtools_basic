@@ -43,7 +43,7 @@ ChurchInterface.prototype.sendMessageToAllViews = function (message, args) {
         }
         ,500);
       }
-      ,500);
+      ,1000);
     }
   }
   jQuery.each(this.getViews(), function(k,a) {

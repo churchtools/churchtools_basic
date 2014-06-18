@@ -96,8 +96,6 @@ AgendaView.prototype.renderMenu = function() {
       else if ($(this).attr("id")=="aprintview") {
         fenster = window.open('?q=churchservice/printview&id='+t.currentAgenda.id+'#AgendaView', "Druckansicht", "width=900,height=600,resizable=yes");
         fenster.focus();
-        fenster.print();
-        setTimeout(function() {fenster.close()}, 2000);
         return false;
       }
       else if ($(this).attr("id")=="ahelp") {
