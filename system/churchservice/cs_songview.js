@@ -202,7 +202,7 @@ SongView.prototype.renderEntryDetail = function(pos_id) {
       rows.push('&nbsp; BPM: '+arrangement.bpm);
       rows.push('&nbsp; Takt: '+arrangement.beat);
       rows.push('<p>L&auml;nge: '+arrangement.length_min+":"+arrangement.length_sec);
-      rows.push('<p>Bemerkung:<br/><p><small> '+arrangement.note.htmlize()+'</small>');
+      rows.push('<p>Bemerkung:<br/><p><small> '+(arrangement.note!=null?arrangement.note.htmlize():"")+'</small>');
     rows.push('</div>');
     rows.push('<div class="span6">');   
     
