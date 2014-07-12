@@ -271,6 +271,8 @@ function _getEditEventFromForm() {
         services[$(this).attr("id").substr(3,99)]=1;
       else if (($(this).val()>0)) 
         services[$(this).attr("id").substr(3,99)]=$(this).val();
+      else
+        services[$(this).attr("id").substr(3,99)]=0;      
     }
   });
   obj.services=services;    
@@ -298,6 +300,7 @@ function _getTemplateIdFromName(name) {
  * @return null
  */
 ListView.prototype.saveEventAsTemplate = function (event, template_name, func) {
+  console.log(event);
   event.func="saveTemplate";
   event.event_bezeichnung=event.bezeichnung;
   event.bezeichnung=template_name;
