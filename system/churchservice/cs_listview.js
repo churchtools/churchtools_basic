@@ -2171,9 +2171,9 @@ ListView.prototype.editService = function(service_id, sg_id) {
   }
   arr.gruppen=new Array();
   arr.tags=new Array();
-  if (arr.cdb_gruppen_ids!=null)
+  if (arr.cdb_gruppen_ids)
     arr.gruppen=arr.cdb_gruppen_ids.split(","); 
-  if (arr.cdb_tag_ids!=null)
+  if (arr.cdb_tag_ids)
     arr.tags=arr.cdb_tag_ids.split(","); 
   if (arr.servicegroup_id==null) arr.servicegroup_id=sg_id;
   

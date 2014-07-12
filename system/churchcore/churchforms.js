@@ -26,7 +26,7 @@ function form_renderLabelList(current, name, data) {
     if (churchcore_inArray(a.id, current[name])) {
       rows.push('<span class="label label-default" title="id:'+a.id+'">');
       rows.push(a.bezeichnung+"&nbsp;");
-      rows.push(form_renderImage({cssid:name+"-del", data:[{name:"id", value:a.id}], src:"trashbox.png", width:16}));
+      rows.push(form_renderImage({htmlclass:name+"-del", link:true, data:[{name:"id", value:a.id}], src:"trashbox.png", width:16}));
       rows.push('</span>&nbsp; ');
     }
   });
@@ -63,7 +63,7 @@ function form_renderLabelList(current, name, data) {
       });
     }
   });
-  tag.find("#"+name+'-del').click(function() {
+  tag.find("a."+name+'-del').click(function() {
     var tagId=$(this).attr("data-id");
     $.each(current[name], function(k,a) {
       if (a==tagId) {
