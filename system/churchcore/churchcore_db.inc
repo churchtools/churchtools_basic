@@ -324,7 +324,7 @@ class CTException extends Exception {
       // sicherstellen, dass alles korrekt zugewiesen wird
       parent::__construct($message, $code);
   }
-  // ma§geschneiderte Stringdarstellung des Objektes
+  // maï¿½geschneiderte Stringdarstellung des Objektes
   public function __toString() {
       return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
   }
@@ -337,13 +337,13 @@ class CTFail extends Exception {
       // sicherstellen, dass alles korrekt zugewiesen wird
       parent::__construct($message, $code);
   }
-  // ma§geschneiderte Stringdarstellung des Objektes
+  // maï¿½geschneiderte Stringdarstellung des Objektes
   public function __toString() {
       return $this->message;
   }
 }
 
-// Nicht genug Recht die Funktion auszufŸhren
+// Nicht genug Recht die Funktion auszufï¿½hren
 class CTNoPermission extends CTFail {
   // Die Exceptionmitteilung neu definieren, damit diese nicht optional ist
   public function __construct($auth, $modulename) {
@@ -358,9 +358,9 @@ class CTNoPermission extends CTFail {
 }
 
 /**
- * Der AjaxHandler muss beim Erstellen mit dem Modulenamen gefŸttert werden.
- * Dann Functionen hinzufŸgen mit addFunction(NameDerFunction, Recht oder Null)
- * Dann spŠter einfach nur call() aufrufen. Er fŸhrt die Function aus und gibt es mit jsend()->success() zurŸck.
+ * Der AjaxHandler muss beim Erstellen mit dem Modulenamen gefï¿½ttert werden.
+ * Dann Functionen hinzufï¿½gen mit addFunction(NameDerFunction, Recht oder Null)
+ * Dann spï¿½ter einfach nur call() aufrufen. Er fï¿½hrt die Function aus und gibt es mit jsend()->success() zurï¿½ck.
  */
 class CTAjaxHandler {
   private $modulename="church";
@@ -507,7 +507,7 @@ function jsend() {
 
 class JSEND {
   function success($data=null) {
-    return array("status"=>"success", "data"=>$data);  //."" weggenommen am 26.3.2013 fŸr DatenrŸckgabe. Warum .""??
+    return array("status"=>"success", "data"=>$data);  //."" weggenommen am 26.3.2013 fï¿½r Datenrï¿½ckgabe. Warum .""??
   }
   // Hinweis es hat nicht geklappt. Z.B. keine Rechte
   function fail($data) {
@@ -713,7 +713,7 @@ function churchcore_mail($from, $to, $subject, $content, $htmlmail=false, $witht
   );
   // Content durchgehen
   $content=strtr($content, $variables);
-  // Nun durch %content honzufŸgen fŸr den Body
+  // Nun durch %content honzufï¿½gen fï¿½r den Body
   $variables["%content"]=$content;
   
   ct_log("Speichere Mail an $to von $from - $subject",2,-1,"mail");  
@@ -772,7 +772,9 @@ function churchcore_sendMails_PHPMAIL($maxmails=10) {
         else  
           $header.='Content-type: text/plain; charset=utf-8' . "\n";    //'Content-Transfer-Encoding: quoted-printable'. "\n" .
         
-        $header.="From: $mail->sender\n";
+        $header.="From: ".variable_get('site_mail', 'info@churchtools.de')."\n";
+        $header.="Reply-To: $mail->sender\n";
+        $header.="Return-Path: $mail->sender\n";
         $header.='X-Mailer: PHP/' . phpversion();
         $error=0;
         $counter++;
@@ -814,7 +816,6 @@ function churchcore_sendMails_PEARMAIL($maxmails=10) {
   }    
   
   if ($db->value=="0") {
-  ct_log("starte senden6");
     db_query("update {cc_config} set value='1' where name='currently_mail_sending'");    
     $db=db_query("select * from {cc_mail_queue} where send_date is null order by priority limit $maxmails");
     if ($db!=false) {
@@ -823,7 +824,8 @@ function churchcore_sendMails_PEARMAIL($maxmails=10) {
       $counter_error=0;
       foreach ($db as $mail) {    
         $headers = array(
-          'From'          => $mail->sender,
+          'From'          => variable_get('site_mail', 'info@churchtools.de'),
+          'Reply-To'     => $mail->sender,
           'Return-Path'   => $mail->sender,
           'Subject'       => $mail->subject,
           'Content-Type'  => 'text/html; charset=UTF-8',
@@ -1159,7 +1161,7 @@ function churchcore_renderImage($filename, $width=24) {
 }
 
 /**
- * Holt Person unabhŠngig von der Autorisierung
+ * Holt Person unabhï¿½ngig von der Autorisierung
  * @param unknown_type $id
  */
 function churchcore_getPersonById($id) {  
@@ -1403,7 +1405,7 @@ function churchcore_getMasterDataEntry($id, $bezeichnung, $shortname, $tablename
   $tabledesc=db_query($sql);
   $field=array();
   foreach ($tabledesc as $desc) {
-    // Seit Drupal 7,14 komischerweise immer in Gro§buchstaben
+    // Seit Drupal 7,14 komischerweise immer in Groï¿½buchstaben
     if (isset($desc->Field)) $desc->field=$desc->Field;
     if (isset($desc->Type)) $desc->type=$desc->Type;
     
@@ -1455,7 +1457,7 @@ function datesInConflict($startdate, $enddate, $startdate2, $enddate2) {
   if ((($_enddate2>$startdate) && ($_enddate2<$_enddate))
       // oder Startdatum 2liegt innerhalb des Datums
       || (($startdate2>$startdate) && ($startdate2<$_enddate))
-      // oder Datum2 komplett au§erhalb 1
+      // oder Datum2 komplett auï¿½erhalb 1
       || (($startdate2<=$startdate) && ($_enddate2>=$_enddate))
       // oder Datum2 komplett innerhalb 1
       || (($startdate2>=$startdate) && ($_enddate2<=$_enddate))) {
@@ -1471,7 +1473,7 @@ function churchcore_getAge($date) {
 }
 
 function getAllDatesWithRepeats($r, $_von=-1, $_bis=1) {
-  // $dates wird mein spŠterer Datumscontainer, wo alle Vorkommen enthalten sind.
+  // $dates wird mein spï¿½terer Datumscontainer, wo alle Vorkommen enthalten sind.
   $dates=array();
   // Max verhindert bei Fehlern eine Endlosschleife
   $max=999;
@@ -1546,7 +1548,7 @@ function getAllDatesWithRepeats($r, $_von=-1, $_bis=1) {
       else if ($r->repeat_id==32) {
         // letzten Wochentag finden
         if ($r->repeat_option_id==6) {
-          // Erst mal einige Tage zurŸck, damit wir nicht Ÿber die Monatsgrenze springen und ein Monat auslassen
+          // Erst mal einige Tage zurï¿½ck, damit wir nicht ï¿½ber die Monatsgrenze springen und ein Monat auslassen
           $d->modify("- 5 days");
           $e->modify("- 5 days");
           // Addiere nun die Monate
@@ -1575,8 +1577,8 @@ function getAllDatesWithRepeats($r, $_von=-1, $_bis=1) {
             $m=$d->format("m");
             $d->modify("+1 day");
             $e->modify("+1 day");
-            // PrŸfe ob ich den Monat Ÿberspringe, dann hat der Monat nicht genug Tage 
-            // und Termin fŠllt flach, v.a. beim 5.Wochentag im Monat)
+            // Prï¿½fe ob ich den Monat ï¿½berspringe, dann hat der Monat nicht genug Tage 
+            // und Termin fï¿½llt flach, v.a. beim 5.Wochentag im Monat)
             if ($d->format("m")!=$m) $counter=0;
             if ($d->format("N")==$r->startdate->format("N")) $counter=$counter+1;
           }
@@ -1704,19 +1706,19 @@ function getUserAuthorization($user_id) {
   
 
   
-  // FŸr normale Benutzer und bei Admins nach Where nur die, wo es nicht fŸr Admin alles gibt.
-  // Autorisierung Ÿber direkte Personenzuordnung
+  // Fï¿½r normale Benutzer und bei Admins nach Where nur die, wo es nicht fï¿½r Admin alles gibt.
+  // Autorisierung ï¿½ber direkte Personenzuordnung
   $res=db_query("select daten_id, auth_id from {cc_domain_auth} pa 
                     where pa.domain_type='person' and pa.domain_id=$user_id");
   $auth=_implantAuth($auth_table, $IamAdmin, $res,$auth);
   
-  // Autorisierung Ÿber Status
+  // Autorisierung ï¿½ber Status
   $res=db_query("select daten_id, auth_id  from {cdb_gemeindeperson} gp, {cc_domain_auth} da 
                    where da.domain_type='status'  
                    and da.domain_id=gp.status_id and gp.person_id=$user_id");
   $auth=_implantAuth($auth_table, $IamAdmin, $res,$auth);
 
-  // Autorisierung Ÿber Gruppen
+  // Autorisierung ï¿½ber Gruppen
   $res=db_query("select daten_id, auth_id  from {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg, {cc_domain_auth} da 
                    where da.domain_type='gruppe' and gpg.gemeindeperson_id=gp.id and gpg.status_no>=0
                    and da.domain_id=gpg.gruppe_id and gp.person_id=$user_id");
@@ -1757,7 +1759,7 @@ function logout_current_user() {
       ct_log("Logout erfolgreich: ".$user->email,2,-1, "login");
     unset($_SESSION["user"]);
   }
-  // Wenn ich mich abmelde, will ich wirklich abgemeldet sein, deshalb Cookie zurŸcksetzen auf 0!
+  // Wenn ich mich abmelde, will ich wirklich abgemeldet sein, deshalb Cookie zurï¿½cksetzen auf 0!
   setcookie("RememberMe", 0);
   // Nun bin ich wieder Anonym unterwegs
   createAnonymousUser();
@@ -1907,7 +1909,7 @@ class SQLException extends Exception {
       // sicherstellen, dass alles korrekt zugewiesen wird
       parent::__construct($message, $code);
   }
-  // ma§geschneiderte Stringdarstellung des Objektes
+  // maï¿½geschneiderte Stringdarstellung des Objektes
   public function __toString() {
       return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
   } 
