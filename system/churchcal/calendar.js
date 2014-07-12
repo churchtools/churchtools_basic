@@ -427,7 +427,13 @@ function _renderEditEventContent(elem, currentEvent) {
   
     rows.push('</form>');
         
-    if (currentEvent.id!=null) rows.push('<p align="right"><small>#'+currentEvent.id+'</small>');
+    if (currentEvent.id!=null) {
+      rows.push('<p align="right"><small>');
+      rows.push(' #'+currentEvent.id);
+      if (currentEvent.modified_name!=null) rows.push(' - Erstellt von '+currentEvent.modified_name);
+      if (currentEvent.modified_date!=null) rows.push(" am "+currentEvent.modified_date.toDateEn(true).toStringDe(true)+"&nbsp;");
+      rows.push("</small>");
+    }
 
     elem.find("#cal_content").html(rows.join(""));
 

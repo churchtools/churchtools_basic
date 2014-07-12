@@ -93,7 +93,7 @@ function churchcal_getMyMeetingRequest() {
 
 // Source gibt an, ob es aus einem anderen Modul kommt. Dies steuert die Zusammenarbeit
 function churchcal_createEvent($params, $source=null) {
-  // Wenn es von anderem Modul kommt, habe ich da die Rechte schon geprŸft!  
+  // Wenn es von anderem Modul kommt, habe ich da die Rechte schon geprï¿½ft!  
   if (($source==null) && (!churchcal_isAllowedToEditCategory($params["category_id"]))) 
     throw new CTNoPermission("Keine Rechte beim Erstellen mit Id:".$params["category_id"], "churchcal");
   
@@ -164,12 +164,12 @@ function churchcal_updateEvent($params, $source=null) {
   // Store all Exception and Addition changes for communication to other modules
   $changes=array();
   
-  // Nur Rechte prŸfen, wenn ich source bin, denn sonst hat das das Ursprungsmodul schon erledigt
+  // Nur Rechte prï¿½fen, wenn ich source bin, denn sonst hat das das Ursprungsmodul schon erledigt
   if ($source==null) {
-    // PrŸfe, ob ich auf neue Kategorie schrieben darf
+    // Prï¿½fe, ob ich auf neue Kategorie schrieben darf
     if (!churchcal_isAllowedToEditCategory($params["category_id"])) 
       return CTNoPermission("AllowedToEditCategory[".$params["category_id"]."]", "churchcal");
-    // PrŸfe, ob ich auf die vorhandene Kategorie schreiben darf
+    // Prï¿½fe, ob ich auf die vorhandene Kategorie schreiben darf
     $old_cal=db_query("select category_id, startdate from {cc_cal} where id=:id", array(":id"=>$params["id"]))->fetch();
     if (!churchcal_isAllowedToEditCategory($old_cal->category_id)) 
       return CTNoPermission("AllowedToEditCategory[".$old_cal->category_id."]", "churchcal");
@@ -224,7 +224,7 @@ function churchcal_updateEvent($params, $source=null) {
         }
       }
     }  
-    // Lšsche nun alle, die in der DB sind, aber nicht mehr vorhanden sind.
+    // Lï¿½sche nun alle, die in der DB sind, aber nicht mehr vorhanden sind.
     if ($exc!=false) {
       foreach ($exc as $e) {
         if (!isset($e->vorhanden)) {
@@ -255,7 +255,7 @@ function churchcal_updateEvent($params, $source=null) {
         }
       }
     }  
-    // Lšsche nun alle, die in der DB sind, aber nicht mehr vorhanden sind.
+    // Lï¿½sche nun alle, die in der DB sind, aber nicht mehr vorhanden sind.
     if ($add!=false) {
       foreach ($add as $a) {
         if (!isset($a->vorhanden)) {
@@ -362,7 +362,7 @@ function churchcal_getAllowedCategories($withPrivat=true, $onlyIds=false) {
     ->fields(array("bezeichnung"=>$user->vorname."s Kalender", "sortkey"=>0, 
            "oeffentlich_yn"=>0, "privat_yn"=>1, "color"=>"black", "modified_date"=>$dt->format('Y-m-d H:i:s'), "modified_pid"=>$user->id))
     ->execute();
-    // ErgŠnze noch das Recht fŸr die Person
+    // Ergï¿½nze noch das Recht fï¿½r die Person
     db_query("insert into {cc_domain_auth} (domain_type, domain_id, auth_id, daten_id)
                   values ('person', $user->id, 404, $id)");
 
@@ -379,11 +379,12 @@ function churchcal_getAllowedCategories($withPrivat=true, $onlyIds=false) {
 function churchcal_getCalPerCategory($params, $withintern=true) {
   $data=array();
   
-  $res=db_query("select cal.*, e.id event_id, e.startdate event_startdate, e.created_by_template_id event_template_id, 
+  $res=db_query("select cal.*, concat(p.vorname, ' ',p.name) modified_name, e.id event_id, e.startdate event_startdate, e.created_by_template_id event_template_id, 
                  b.id booking_id, b.startdate booking_startdate, b.enddate booking_enddate, b.resource_id booking_resource_id, b.status_id booking_status_id 
                from {cc_cal} cal
                left join {cs_event} e on (cal.id=e.cc_cal_id) 
                left join {cr_booking} b on (cal.id=b.cc_cal_id) 
+               left join {cdb_person} p on (cal.modified_pid=p.id)
                where cal.category_id in (".implode(",",$params["category_ids"]).")
                 ".(!$withintern?" and intern_yn=0":"")." 
                order by category_id");
