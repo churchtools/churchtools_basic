@@ -571,7 +571,16 @@ global $user;
 }
 
 function saveImage($id, $url) {
-  db_query("UPDATE {cdb_gemeindeperson} SET imageurl='$url' WHERE person_id=$id");
+  global $files_dir;
+  
+  $p=db_query("select imageurl from {cdb_gemeindeperson} WHERE person_id=:id", array(":id"=>$id))->fetch();
+  if ($p->imageurl!=null && file_exists("$files_dir/fotos/".$p->imageurl))
+    unlink("$files_dir/fotos/".$p->imageurl);
+  
+  if ($url=="null" || $url=="")
+    db_query("UPDATE {cdb_gemeindeperson} SET imageurl=null WHERE person_id=$id");
+  else
+    db_query("UPDATE {cdb_gemeindeperson} SET imageurl='$url' WHERE person_id=$id");
   return "ok";
 }
 

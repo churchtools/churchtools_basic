@@ -3534,7 +3534,9 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
   else if (fieldname=="f_image") {
     width=300; height=300;
     rows[rows.length]="<p>Bitte nun ein Bild im Format JPG ausw&auml;hlen.<div id=\"upload_button\">Nochmal bitte...</div><p><div id=\"image_uploaded\"/>";
-    rows.push('<p><small>max. '+Math.round(masterData.max_uploadfile_size_kb/1024)+'MB</small>');
+    rows.push('<p><small>Maximale Gr&ouml;sse: '+Math.round(masterData.max_uploadfile_size_kb/1024)+'MB</small>');
+    if (a.imageurl!=null)
+      rows.push('<P><a href="#" id="deleteimage">'+form_renderImage({src:'trashbox.png', width:16})+' Aktuelles Bild entfernen</a>');
   }
   else if (fieldname.indexOf("del_note")==0) {
     width=300; height=300;
@@ -3613,6 +3615,17 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
         $("#image_uploaded").html('<img src="'+masterData.files_url+"/fotos/"+res.filename+'"/><input type="hidden" id="uploadfilename" name="filename" value="'+res.filename+'"/>');
       }
     });    
+    $('#upload_button input').focus();
+    $("#deleteimage").click(function() {
+      if (confirm("Bild wirklich löschen?")) {
+        churchInterface.jsendWrite({func:"f_image", id:a.id, url:null});
+        allPersons[a.id].imageurl=null;
+        t.renderDetails(a.id);
+
+        elem.dialog("close");
+        return;
+      };  
+    });
   }  
   
   $("#InputGroupEntry,#InputGroupLeader").change(function(k) {
