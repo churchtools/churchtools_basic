@@ -352,7 +352,7 @@ SongView.prototype.renderMenu = function() {
 SongView.prototype.editSong = function(song_id) {
   var t=this;
   var song=allSongs[song_id];
-  var form = new CC_Form("Infos des Songs", song);
+  var form = new CC_Form("Infos zum Song", song);
 
   form.addInput({label:"Bezeichnung",cssid:"bezeichnung",required:true,disabled:!masterData.auth.editsong});
   form.addSelect({label:"Song-Kategorie",cssid:"songcategory_id",data:masterData.songcategory, disabled:!masterData.auth.editsong});
@@ -372,6 +372,23 @@ SongView.prototype.editSong = function(song_id) {
           t.loadSongData();
         });
         $(this).dialog("close");
+      }
+    });
+    elem.dialog('addbutton', 'Löschen', function() {
+      if (confirm("Song wirklich löschen? Das kann nicht mehr rückgängig gemacht werden!")) {
+        obj=form.getAllValsAsObject();
+        if (obj!=null) {
+          obj.func="delSong";
+          obj.id=song_id;
+          churchInterface.jsendWrite(obj, function(res, info) {
+            if (!res) alert(info);
+            else {
+              t.songsLoaded=false;
+              t.loadSongData();
+            }
+          });
+          $(this).dialog("close");
+        }        
       }
     });
   }

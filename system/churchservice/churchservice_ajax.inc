@@ -2,7 +2,7 @@
 include_once(drupal_get_path('module', 'churchcore') .'/churchcore_db.inc');
 include_once(drupal_get_path('module', 'churchdb') .'/churchdb_db.inc');
 
-// Gibt array mit g_ids zurŸck
+// Gibt array mit g_ids zurï¿½ck
 function churchservice_getGroupsOfService($service_id) {
   // Erst die Gruppen_Ids aus cs_service anhand der sg_id
   $res=db_query("select cdb_gruppen_ids from {cs_service} where id=$service_id");
@@ -20,7 +20,7 @@ function churchservice_getGroupsOfService($service_id) {
 }
 
 
-// Gibt array mit g_ids zurŸck
+// Gibt array mit g_ids zurï¿½ck
 function churchservice_getGroupsOfServiceGroup($servicegroup_id) {
   // Erst die Gruppen_Ids aus cs_service anhand der sg_id
   $res=db_query("select cdb_gruppen_ids from {cs_service} where servicegroup_id=$servicegroup_id");
@@ -127,7 +127,7 @@ function churchservice_getAuthorization() {
   }
   else $res["editgroup"]=array();
   
-  // PrŸfe nun, ob der aktuelle User Leiter oder zumindest Teilnehmer einer Gruppe ist
+  // Prï¿½fe nun, ob der aktuelle User Leiter oder zumindest Teilnehmer einer Gruppe ist
   // Dies hat entscheidende Auswirkung auf die Mï¿½glichkeiten beim ï¿½ndern der Eintrï¿½ge
   $arr=churchcore_getTableData("cs_service","sortkey");
   $res_member=array();
@@ -242,7 +242,7 @@ function churchservice_getAllEventData($params) {
   $events=array();
   if ($sql!=false) {
     foreach ($sql as $arr) {
-      // Hole noch Booking_Infos, damit ich wei§, dass er hier nicht das Datum Šndern darf.
+      // Hole noch Booking_Infos, damit ich weiï¿½, dass er hier nicht das Datum ï¿½ndern darf.
       $b=db_query("select * from {cr_booking} where cc_cal_id=:cal_id", array(":cal_id"=>$arr->cc_cal_id))->fetch();
       $arr->bookings=$b!=false;
       // Check if agenda items are available for this event
@@ -317,7 +317,7 @@ global $user;
         db_query("update {cs_eventservice} set counter=1 where event_id=:event_id and service_id=:service_id and counter is null",
            array(":event_id"=>$fields["event_id"], ":service_id"=>$fields["service_id"]));
       if (($ist>1) && ($soll==1))
-        // Wenn es mehrer gibt aber nun nur noch einen geben soll, dann setze den Counter auf Null damit es schšner aussieht
+        // Wenn es mehrer gibt aber nun nur noch einen geben soll, dann setze den Counter auf Null damit es schï¿½ner aussieht
         db_query("update {cs_eventservice} set counter=null where event_id=:event_id and service_id=:service_id and counter=1",
            array(":event_id"=>$fields["event_id"], ":service_id"=>$fields["service_id"]));
     }
@@ -329,7 +329,7 @@ global $user;
         $fields["counter"]=null;
       } 
       else if ($soll>1) {
-        // Nun prŸfe nach dem ersten freien Count
+        // Nun prï¿½fe nach dem ersten freien Count
         $count=1;
         $ok=false;
         while ((!$ok) && ($count<100)) {
@@ -349,8 +349,8 @@ global $user;
       cdb_log("[ChurchService] Erstelle Service ".$fields["service_id"]." fuer Event",2,$fields["event_id"],"service");
     }
     while ($ist>$soll) {
-      // Hole den hšchsten freien Count, wenn es keinen gibt, dann stimmt was nicht, denn
-      // das wird ja eigentlich Ÿber JS sichergestellt, dass nur das gelšscht werden kann, wenn was frei ist       
+      // Hole den hï¿½chsten freien Count, wenn es keinen gibt, dann stimmt was nicht, denn
+      // das wird ja eigentlich ï¿½ber JS sichergestellt, dass nur das gelï¿½scht werden kann, wenn was frei ist       
       $res=db_query("select max(counter) c from {cs_eventservice} where 
                    event_id=:event_id and service_id=:service_id and name is null and valid_yn=1",
           array(":event_id"=>$fields["event_id"], ":service_id"=>$fields["service_id"]))
@@ -440,7 +440,7 @@ function churchservice_updateEventService($params) {
   if ($arr->valid_yn!=1 && !isset($params["valid_yn"]))
     return "Eintrag nicht mehr aktuell und konnte nicht angepasst, bitte neu laden!";
 
-  // PrŸfe Rechte
+  // Prï¿½fe Rechte
   $auth=churchservice_getAuthorization();
   if ((!isset($auth["editservice"][$arr->service_id])) && (!isset($auth["memberservice"][$arr->service_id])) && (!churchService_adminOfEvent($arr->event_id))
     // Es ist trotzdem erlaubt, wenn die PersonId eingetragen ist, dann wurde er ja angefragt
@@ -448,7 +448,7 @@ function churchservice_updateEventService($params) {
     throw new CTNoPermission("editservice","churchservice");
 
     
-  // Wenn die neue €nderung vom gleichen User kommt und noch kein Cron gelaufen ist,
+  // Wenn die neue ï¿½nderung vom gleichen User kommt und noch kein Cron gelaufen ist,
   // Oder wenn valid_yn valide ist, denn dann soll es upgedates werden! 
   // brauchen wir kein neuen Insert, sondern machen nur ein Update.
   // Denn wahrscheinlich war es vorher nur ein Versehen.
@@ -464,7 +464,7 @@ function churchservice_updateEventService($params) {
     $new_id=$id;    
   } 
   else {
-    // Neuer Eintrag fŸr die €nderung wird angelegt  
+    // Neuer Eintrag fï¿½r die ï¿½nderung wird angelegt  
     $new_id=db_insert("cs_eventservice")
       ->fields(array("event_id"=>$arr->event_id, "service_id"=>$arr->service_id, "valid_yn"=>1, "counter"=>$arr->counter,
                 "name"=>$name, "cdb_person_id"=>$cdb_person_id, "zugesagt_yn"=>$zugesagt_yn, "reason"=>$reason,
@@ -788,6 +788,22 @@ function churchservice_editSong($params) {
     ->execute(false);
 }
 
+function churchservice_delSong($params) {
+  $songs=churchservice_getAllSongs();
+  if (!isset($songs["songs"][$params["id"]]))  
+    throw new CTException("Song nicht gefunden!");
+  $song=$songs["songs"][$params["id"]];
+  if (isset($song->arrangement)) {
+    foreach ($song->arrangement as $arr) {
+      churchservice_delArrangement(array("id"=>$arr->id));
+    }
+    db_delete("cs_song")
+    ->fields(array("id"=>$params["id"]))
+    ->condition("id", $params["id"], "=")
+    ->execute(false);
+  }
+}
+
 function churchservice_editArrangement($params) {
   $i=new CTInterface();
   $i->setParam("id");
@@ -821,6 +837,13 @@ function churchservice_addArrangement($params) {
 function churchservice_delArrangement($params) {
   $i=new CTInterface();
   $i->setParam("id");
+  
+  $files=churchcore_getFilesAsDomainIdArr("song_arrangement", $params["id"]);
+  if (isset($files) && isset($files[$params["id"]])) {
+    foreach ($files[$params["id"]] as $file) {
+      churchcore_delFile($file->id);
+    }
+  }
   db_delete("cs_song_arrangement")
     ->fields($i->getDBInsertArrayFromParams($params))
     ->condition("id", $params["id"], "=")
@@ -1079,6 +1102,11 @@ class CTChurchServiceModule extends CTAbstractModule {
     return churchservice_editSong($params);
   }
   
+  public function delSong($params) {
+    $this->checkPerm("edit song");
+    return churchservice_delSong($params);
+  }
+  
   public function editArrangement($params) {
     $this->checkPerm("edit song");
     return churchservice_editArrangement($params);
@@ -1156,7 +1184,7 @@ class CTChurchServiceModule extends CTAbstractModule {
    * Load agendas with ids inclusive belonging Event_ids but without the items 
    * Check if is allowed to view or if I am involved in one of the events
    * @param $params [ids] for ids to get
-   * ¨return agenda oder null if not found or not allowed
+   * ï¿½return agenda oder null if not found or not allowed
    */
   public function loadAgendas($params) {   
     $where="id in (".implode(",",$params["ids"]).")";
