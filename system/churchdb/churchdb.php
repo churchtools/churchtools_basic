@@ -802,7 +802,10 @@ function churchdb__mailviewer() {
     
   $val="";  
   if ((isset($_GET["filter"])) && ($_GET["filter"]!="")) {
-    $filter.=" and (subject like '%".$_GET["filter"]."%' or body like '%".$_GET["filter"]."%')";
+    $filter.=" and (subject like '%".$_GET["filter"]."%' ".
+             " or body like '%".$_GET["filter"]."%'".
+             " or receiver like '%".$_GET["filter"]."%'".
+             ")";
     $val=$_GET["filter"];
   }
   $txt='<anchor id="log1"/><h2>'.t("archive.of.sent.messages").'</h2>';
@@ -886,7 +889,7 @@ function churchdb_cron() {
   db_query("update {cdb_person} set loginerrorcount=0");     
 
   
-  // RŠume MAilarchiv auf
+  // Rï¿½ume MAilarchiv auf
   db_query("delete FROM {cc_mail_queue}
     WHERE (DATE_ADD( modified_date, INTERVAL 30  DAY ) < NOW( ))
     and send_date is not null
@@ -944,7 +947,7 @@ function churchdb_cron() {
     }
   }
 
-  // Lšsche auch die alten Mails raus
+  // Lï¿½sche auch die alten Mails raus
   db_query("delete from {cc_mail_queue} where send_date is not null and datediff(send_date, now())<-60");
 
   // Do Statistics
