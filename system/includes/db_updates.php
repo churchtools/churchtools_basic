@@ -1826,8 +1826,13 @@ function run_db_updates($db_version) {
       db_query("UPDATE {cdb_feld} SET autorisierung = 'viewaddress||viewalldetails||leader||changeownaddress' WHERE db_spalte='zusatz'");
       db_query("UPDATE {cdb_feld} set autorisierung = 'viewalldetails' where feldkategorie_id=2 and autorisierung is null and db_spalte!='geburtsdatum'");      
       set_version("2.49");
-    }
-      
+  	 
+  	case "2.49":
+	    db_query("insert into cc_config values('invite_email_text', 'Du wurdest zur Nutzung von %sitename eingeladen.<P>'.
+                             .'Klicke auf die folgende Schaltfläche, um Dich direkt dort anzumelden und um Dein Passwort zu wählen:')");
+
+	    set_version("2.50");
+  }
     
 	  
     $a=db_query("select * from {cc_config} where name='version'",null,false);

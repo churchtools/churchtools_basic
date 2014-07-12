@@ -527,6 +527,11 @@ function current_date() {
   return $dt->format('Y-m-d H:i:s');
 }
 
+function htmlize($text) {
+  $text = preg_replace('@(https?://([-\w\.]+)+(:\d+)?(/([-\w/_\.]*(\?\S+)?)?)?)@', '<a href="$1">$1</a>', $text);
+  $text = nl2br($text);
+  return $text;
+}
 
 function l($name, $url, $params=null) {
   if ($params==null) $param="";

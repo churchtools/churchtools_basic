@@ -54,6 +54,9 @@ function admin_main() {
     
   $model->addField("login_message","", "INPUT_REQUIRED","Willkommensnachricht vor dem Login");
     $model->fields["login_message"]->setValue($config["login_message"]);
+          
+  $model->addField("invite_email_text","", "TEXTAREA","Text der Einladungs-EMail");
+    $model->fields["invite_email_text"]->setValue($config["invite_email_text"]);
     
   $model->addField("admin_message","", "INPUT_OPTIONAL","Admin-Nachricht auf Login- und Startseite z.B. f&uuml;r geplante Downtimes");
     $model->fields["admin_message"]->setValue(isset($config["admin_message"])?$config["admin_message"]:"");

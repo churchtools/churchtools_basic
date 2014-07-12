@@ -108,7 +108,7 @@ class CC_Field extends CC_HTMLElement {
       $txt.='">';
       
       if ($this->fieldType=="TEXTAREA") {
-        $txt.='<textarea rows=12 class="span12" name="'.$this->form->getName().'['.$this->getName().']" id="'.$this->form->getName().'_'.$this->getName().'">';
+        $txt.='<textarea rows=6 class="span12" name="'.$this->form->getName().'['.$this->getName().']" id="'.$this->form->getName().'_'.$this->getName().'">';
         if (isset($this->value)) $txt.=$this->value;
         $txt.='</textarea>';        
       }
@@ -250,7 +250,7 @@ class CC_Model {
   public function render() {
     global $q_orig;
     
-    // PrŸfe ob schon Daten da sind
+    // Prï¿½fe ob schon Daten da sind
     if (isset($_POST[$this->getName()])) {
       foreach ($this->fields as $field) {
         if ($field->getFieldType()=="CHECKBOX")

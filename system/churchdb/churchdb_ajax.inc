@@ -107,7 +107,7 @@ function churchdb_getGroupFilterTypes() {
 
 /**
  * Check Authorization pattern like " view all || leader " is in $permissinos
- * @param $auth string with optional ||�as OR combinations
+ * @param $auth string with optional ||�as OR combinations
  * @param array $permissions 
  * @return boolean
  */
@@ -969,24 +969,16 @@ function churchdb_setPersonPassword($id, $password) {
 /**
  * Person mit der p_id id bekommt einen Loginstr und diesen per Mail zugestellt. Damit kann man sich einmal einloggen.
  * @param unknown_type $id
- * @param inviter = user object, wer den eingeladen hat oder null, wenn es Anonym ist.
  */
-function churchdb_invitePersonToSystem($id, $inviter=null) {
+function churchdb_invitePersonToSystem($id) {
   global $base_url;
 
   $loginstr=churchcore_createPersonLoginStr($id);
-  $content="<h3>Hallo [Vorname],</h3>";
-  if ($inviter==null)
-    $content.="<p>Du wurdest zur ";
-  else 
-    $content.="<p>".$inviter->vorname." ".$inviter->name." hat Dich zu der ";
-  $content.="Nutzung von ".variable_get('site_name', 'drupal')." eingeladen.";
-  $content.="<p>Klicke auf die folgende Schaltfl&auml;che, um Dich direkt dort anzumelden und um Dein Passwort zu w&auml;hlen:";
+  $content="<h3>Hallo [Vorname],</h3><P>";
+    
+  $content.=htmlize(variable_get('invite_email_text','Du wurdest zur Nutzung von %sitename eingeladen.<p>Klicke auf die folgende Schaltfläche, um Dich direkt dort anzumelden und um Dein Passwort zu wählen:'));
   $content.='<p><a href="'.$base_url."?q=profile&loginstr=$loginstr&id=$id".'" class="btn btn-royal">Auf %sitename anmelden</a>';
-  if ($inviter==null)
-    $res = churchcore_sendEMailToPersonIds($id, "Einladung zu ".variable_get('site_name', 'drupal'), $content, variable_get('site_mail'),true);
-  else    
-    $res = churchcore_sendEMailToPersonIds($id, "Einladung zu ".variable_get('site_name', 'drupal'), $content, $inviter->email,true);
+  $res = churchcore_sendEMailToPersonIds($id, "Einladung zu ".variable_get('site_name', 'drupal'), $content, variable_get('site_mail'),true);
     
   cdb_log("Person $id wurde zu ".variable_get('site_name', 'drupal')." eingeladen:".$content,2,$id);   
 }
