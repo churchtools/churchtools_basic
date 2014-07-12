@@ -300,7 +300,6 @@ function _getTemplateIdFromName(name) {
  * @return null
  */
 ListView.prototype.saveEventAsTemplate = function (event, template_name, func) {
-  console.log(event);
   event.func="saveTemplate";
   event.event_bezeichnung=event.bezeichnung;
   event.bezeichnung=template_name;

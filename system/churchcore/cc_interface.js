@@ -1,5 +1,5 @@
 /**
- * Stellt eine Schnittstelle zwischen Ajax-PHP-Service und dem JavaScript im Client zur VerfŸgung 
+ * Stellt eine Schnittstelle zwischen Ajax-PHP-Service und dem JavaScript im Client zur Verfï¿½gung 
  */
 
 function ChurchInterface() {
@@ -38,10 +38,6 @@ ChurchInterface.prototype.sendMessageToAllViews = function (message, args) {
     if ($("#printview").val()!=null) {
       window.setTimeout(function() {
         window.print();
-        window.setTimeout(function() {
-          window.close();
-        }
-        ,500);
       }
       ,1000);
     }
@@ -98,8 +94,8 @@ ChurchInterface.prototype.history = function (hash) {
   }
   else {  
     this.currentView=this.views[arr[0]];
-    // filter-Wiederherstellung Ÿber die Url, fŸr History(back), damit die Filter damit funktionieren.
-    // Ist momentan in der Testphase, funktioniert nur fŸr das Suchfeld, erstmal auskommentiert, 
+    // filter-Wiederherstellung ï¿½ber die Url, fï¿½r History(back), damit die Filter damit funktionieren.
+    // Ist momentan in der Testphase, funktioniert nur fï¿½r das Suchfeld, erstmal auskommentiert, 
     // Probleme mit Multiselect, da es bei ToString nicht den Wert, sondern ein Array wiedergibt.
     var doRefresh=false;
     jQuery.each(arr, function(k,a) {
@@ -148,7 +144,7 @@ ChurchInterface.prototype.getViews = function () {
 };
 
 /**
- * Wirft einen fatalen Fehler per Modal-Window und fŸhrt dann einen Reload aus.
+ * Wirft einen fatalen Fehler per Modal-Window und fï¿½hrt dann einen Reload aus.
  */
 ChurchInterface.prototype.throwFatalError=function(errorText){
   if (this.errorWindow==null) 
@@ -174,10 +170,10 @@ ChurchInterface.prototype.throwFatalError=function(errorText){
 /**
  * Schreibt Daten an die Standard-Ajax-Schnittstelle mit dem JSEND Standard
  * http://labs.omniti.com/labs/jsend
- * Es gibt status <i>error</i> fŸr fatale Geschichten (DB nicht in Ordnung)
+ * Es gibt status <i>error</i> fï¿½r fatale Geschichten (DB nicht in Ordnung)
  * <i>fail</i> und <i>success</i>
- * @param obj - EnthŠlt alle Objecte, vor allem die func
- * @param func - function erhŠlt den status und die daten
+ * @param obj - Enthï¿½lt alle Objecte, vor allem die func
+ * @param func - function erhï¿½lt den status und die daten
  * @param async - asyncron (default=true)
  * @param Get - getmethod (default=true)
  */
@@ -217,7 +213,7 @@ ChurchInterface.prototype.jsend = function (name, obj, func, async, get, overwri
           else
             alert("Fehler beim "+name+" in "+modulename+": "+json.message);
         }
-        // Wenn es success oder fail ist, Ÿbergebe an die Anwendung zurŸck.
+        // Wenn es success oder fail ist, ï¿½bergebe an die Anwendung zurï¿½ck.
         else if (func!=null)
           func(json.status=="success", json.data);
       },
