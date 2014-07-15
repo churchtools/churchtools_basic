@@ -153,7 +153,7 @@ function churchservice__printview() {
   drupal_add_js(createI18nFile("churchservice"));
 
   $content="";
-  // †bergabe der ID fŸr den Direkteinstieg einer Person
+  // ï¿½bergabe der ID fï¿½r den Direkteinstieg einer Person
   if (isset($_GET["id"]) && ($_GET["id"]!=null))
     $content=$content."<input type=\"hidden\" id=\"externevent_id\" value=\"".$_GET["id"]."\"/>";
   if (isset($_GET["service_id"]) && ($_GET["service_id"]!=null))
@@ -207,10 +207,11 @@ function churchservice_main() {
   drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_songview.js'); 
   drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_main.js'); 
     
+  drupal_add_js(createI18nFile("churchcore"));
   drupal_add_js(createI18nFile("churchservice"));
   
   $content="";
-  // †bergabe der ID fŸr den Direkteinstieg einer Person
+  // ï¿½bergabe der ID fï¿½r den Direkteinstieg einer Person
   if (isset($_GET["id"]) && ($_GET["id"]!=null))
     $content=$content."<input type=\"hidden\" id=\"externevent_id\" value=\"".$_GET["id"]."\"/>";
   if (isset($_GET["service_id"]) && ($_GET["service_id"]!=null))
@@ -492,7 +493,7 @@ function churchservice_blocks() {
 
 
 /**
- * Infos fŸr noch zu bestŠtigende Dienste
+ * Infos fï¿½r noch zu bestï¿½tigende Dienste
  */
 function churchservice_openservice_rememberdays() {
   global $base_url;
@@ -502,7 +503,7 @@ function churchservice_openservice_rememberdays() {
   $dt = new datetime();
   
   // Checken, ob EIN EventService noch nicht gesendet wurde, bzw. schon so alt ist.
-  // PrŸfe dabei, ob die Person eine EMail-Adresse hat und auch gemappt wurde.
+  // Prï¿½fe dabei, ob die Person eine EMail-Adresse hat und auch gemappt wurde.
   $sql="select es.id, p.id p_id, p.vorname, p.email, es.modified_pid, if (password is null and loginstr is null and lastlogin is null,1,0) as invite  
                     from {cs_eventservice} es, {cs_event} e, {cc_cal} cal, {cs_service} s, {cdb_person} p 
                     where e.cc_cal_id=cal.id and es.valid_yn=1 and es.zugesagt_yn=0 and es.cdb_person_id is not null
@@ -521,9 +522,9 @@ function churchservice_openservice_rememberdays() {
                   and e.startdate>=current_date
                   order by e.startdate";
   $i=0;
-  // Lasse 15 EventServices durch, dann warten bis nŠchste Cron, sonst werden es zu viele Mails
+  // Lasse 15 EventServices durch, dann warten bis nï¿½chste Cron, sonst werden es zu viele Mails
   while (($res) && ($i<15)) {
-    // Wenn einer vorhanden ist, dann suche nach weiteren offenen Diensten fŸr die Person
+    // Wenn einer vorhanden ist, dann suche nach weiteren offenen Diensten fï¿½r die Person
     $txt="<h3>Hallo ".$res->vorname.",</h3><p>";
     
     $inviter=churchcore_getPersonById($res->modified_pid);
@@ -644,7 +645,7 @@ function churchservice_inform_leader() {
   global $base_url;
   include_once("churchservice_db.inc");
 
-  // Hole erst mal die Gruppen_Ids, damit ich gleich nicht alle Personen holen mu§
+  // Hole erst mal die Gruppen_Ids, damit ich gleich nicht alle Personen holen muï¿½
   $res=db_query("select cdb_gruppen_ids from {cs_service} where cdb_gruppen_ids!='' and cdb_gruppen_ids is not null");
   $arr=array();
   foreach($res as $g) {
@@ -660,8 +661,8 @@ function churchservice_inform_leader() {
   $persons=array();
   foreach ($res as $p) {
     $data=churchcore_getUserSettings("churchservice",$p->person_id);
-    // Darf er Ÿberhaupt noch, und wenn ja dann schaue ob der Leiter es will.
-    // (Wenn noch nicht bestŠtigt, dann wird davon ausgegangen
+    // Darf er ï¿½berhaupt noch, und wenn ja dann schaue ob der Leiter es will.
+    // (Wenn noch nicht bestï¿½tigt, dann wird davon ausgegangen
     $auth=getUserAuthorization($p->person_id);
     if (isset($auth["churchservice"]["view"]) && 
         ((!isset($data["informLeader"])) || ($data["informLeader"]==1))) {

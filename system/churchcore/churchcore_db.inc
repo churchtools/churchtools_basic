@@ -105,7 +105,7 @@ function createI18nFile($modulename) {
   $filename="$files_dir/files/messages/$modulename"."_".$config["language"].".js";
   if (!file_exists($filename)) {
     $i18n=loadI18nFile($modulename);
-    $i18n->writeJSFile($filename);
+    $i18n->writeJSFile($filename, $modulename);
   }
   return $filename;  
 }

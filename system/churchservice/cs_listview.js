@@ -106,15 +106,15 @@ ListView.prototype.renderListMenu = function() {
   var this_object=this;
   
   var navi = new CC_Navi();
-  navi.addEntry(churchInterface.isCurrentView("ListView"),"alistview","Dienstplan");
+  navi.addEntry(churchInterface.isCurrentView("ListView"),"alistview",_("plan.of.services"));
   if (masterData.auth.manageabsent)
-    navi.addEntry(churchInterface.isCurrentView("CalView"),"acalview","Abwesenheiten");
+    navi.addEntry(churchInterface.isCurrentView("CalView"),"acalview",_("absence"));
   if (masterData.auth.viewfacts)
-    navi.addEntry(churchInterface.isCurrentView("FactView"),"afactview","Fakten");
+    navi.addEntry(churchInterface.isCurrentView("FactView"),"afactview",_("facts"));
   if (allAgendas!=null || user_access("view agenda"))
-    navi.addEntry(churchInterface.isCurrentView("AgendaView"),"aagendaview","Abläufe");
+    navi.addEntry(churchInterface.isCurrentView("AgendaView"),"aagendaview",_("agendas"));
   if (masterData.auth.viewsong)
-    navi.addEntry(churchInterface.isCurrentView("SongView"),"asongview","Songs");
+    navi.addEntry(churchInterface.isCurrentView("SongView"),"asongview",_("songs"));
   
   navi.addSearch(this.getFilter("searchEntry"));
   navi.renderDiv("cdb_search", churchcore_handyformat());
@@ -2938,7 +2938,7 @@ ListView.prototype.renderFilter = function() {
   
   //form.addSelectFilter(_meineDienste,"Meine Filter",this.filter["filterMeine Filter"]);
   form.addSelect({data:_meineDienste,
-                  label:"Meine Filter",
+                  label:_("my.filters"),
                   selected:this.filter["filterMeine Filter"],
                   freeoption:true,
                   cssid:"filterMeine Filter",
@@ -2947,7 +2947,7 @@ ListView.prototype.renderFilter = function() {
   
   if (this.name!="FactView") {
     form.addSelect({data:this.sortMasterData(masterData.servicegroup),
-                    label:"Dienstgruppen",
+                    label:_("servicegroups"),
                     selected:this.filter["filterDienstgruppen"],
                     freeoption:true,
                     cssid:"filterDienstgruppen",

@@ -1,12 +1,16 @@
 debug=false;
+lang=new Array();
 dayNames= ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
 
 // Contains all masterData
 var masterData=new Object();
 
 function _(s) {  
-  if (lang[s]==null) return "***"+s+"***";
-  res=lang[s];
+  res=lang["churchcore"][s];
+  if (res==null && masterData!=null)
+    res=lang[masterData.modulename][s];
+  if (res==null)
+    return "***"+s+"***";
   $.each(arguments, function(k,a) {
     if (k>0) res=res.replace("{"+(k-1), a).replace("}","");        
   });  

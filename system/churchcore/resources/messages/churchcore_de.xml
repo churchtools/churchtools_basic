@@ -83,5 +83,13 @@
   
   <entry key="service">Dienst</entry>
   
+  <!--  GENERAL MENU ENTRIES -->
+  <entry key="menu">Menü</entry>
+  <entry key="back.to.main.menu">Zurück zum Hauptmenü</entry>
+  <entry key="settings">Einstellungen</entry>
+  <entry key="maintain.masterdata">Stammdatenpflege</entry>
+  <entry key="printview">Druckansicht</entry>
+  <entry key="help">Hilfe</entry>
+  
   
 </properties>

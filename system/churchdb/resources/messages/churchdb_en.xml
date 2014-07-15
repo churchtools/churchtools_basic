@@ -2,9 +2,5 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
   <comment>ChurchDB messages</comment>
-  <entry key="menu">Menu</entry>
 
-  <entry key="simulate.person">Simulate person</entry>
-  <entry key="name.of.person">Name of person</entry>
-	  
 </properties>

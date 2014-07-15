@@ -2,16 +2,17 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
   <comment>ChurchService messages</comment>
-  <entry key="menu">Menu</entry>
   <entry key="create.new.event">Create new event</entry>
   <entry key="workload">Workload</entry>
-  <entry key="settings">Settings</entry>
-  <entry key="printview">Printview</entry>
-  <entry key="maintain.masterdata">Maintain masterdata</entry>
-  <entry key="help">Help</entry>
-  <entry key="back.to.main.menu">Back to main menu</entry>
-
-  <entry key="simulate.person">Simulate person</entry>
-  <entry key="name.of.person">Name of person</entry>
-	  
+  
+  <entry key="plan.of.services">Plan of services</entry>
+  <entry key="absence">Absense</entry>
+  <entry key="facts">Facts</entry>
+  <entry key="agendas">Agendas</entry>
+  <entry key="songs">Songs</entry>
+  
+  <entry key="my.filters">My filters</entry>
+  <entry key="servicegroups">Service groups</entry>
+  
+  
 </properties>
