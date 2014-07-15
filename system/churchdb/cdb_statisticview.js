@@ -286,7 +286,7 @@ StatisticView.prototype.renderList = function() {
         // Nur wenn Teilnehmer, Mitarbeiter, Leiter und Co-Leiter
         if (((b.leiter>=0) && (b.leiter<=2)) || (b.leiter==4)) {
 
-          // Hole Daten in grps-Array fŸr Details
+          // Hole Daten in grps-Array fï¿½r Details
           if (grps[b.id]==null) grps[b.id]=new Array();
           if (b.d==null) 
             y=current_year-how_many_years;
@@ -318,20 +318,22 @@ StatisticView.prototype.renderList = function() {
 
   $.each(masterData.groupTypes, function(i,b) {
     res=null;
-    $.each(masterData.groups, function(k,a) {
-      if ((a.gruppentyp_id==b.id) && (a.distrikt_id!=null)) {
-        for (i=current_year-how_many_years;i<=current_year;i++) {        
-          if ((grps[a.id]!=null) && (grps[a.id][i]!=null)) {
-            if (res==null) res=new Object();
-            if (res[a.distrikt_id]==null) res[a.distrikt_id]=new Array();
-            if (res[a.distrikt_id][i]==null)
-              res[a.distrikt_id][i]=0;
-            
-            res[a.distrikt_id][i]=res[a.distrikt_id][i]+grps[a.id][i];
+    if (masterData.groups!=null) {
+      $.each(masterData.groups, function(k,a) {
+        if ((a.gruppentyp_id==b.id) && (a.distrikt_id!=null)) {
+          for (i=current_year-how_many_years;i<=current_year;i++) {        
+            if ((grps[a.id]!=null) && (grps[a.id][i]!=null)) {
+              if (res==null) res=new Object();
+              if (res[a.distrikt_id]==null) res[a.distrikt_id]=new Array();
+              if (res[a.distrikt_id][i]==null)
+                res[a.distrikt_id][i]=0;
+              
+              res[a.distrikt_id][i]=res[a.distrikt_id][i]+grps[a.id][i];
+            }
           }
         }
-      }
-    });
+      });
+    }
     if (res!=null) {
       rows.push("<b>"+f("distrikt_id")+" von "+f("gruppentyp_id")+" "+b.bezeichnung+"</b>");
       rows.push("<small><table cellpadding=\"2\"><tr bgcolor=\"#e7eef4\"><td><i>"+f("distrikt_id")+"</i><td width=10%><=");
@@ -381,7 +383,7 @@ StatisticView.prototype.renderList = function() {
     }
   });
   
-  // Callback fŸr renderYearStatistics
+  // Callback fï¿½r renderYearStatistics
   $("#cdb_content a").click(function (a) {
     if ($(this).attr("id").indexOf("datefilter")==0) {
       churchInterface.setCurrentView(personView);
@@ -389,7 +391,7 @@ StatisticView.prototype.renderList = function() {
       personView.filter["filterDates"]=$(this).attr("id").substr(10,99);
       personView.filter["dateAfter"]="01.01."+$(this).attr("val");
       personView.filter["dateBefore"]="31.12."+$(this).attr("val");
-      // †bernahme sŠmtlicher anderer Filter
+      // ï¿½bernahme sï¿½mtlicher anderer Filter
       $.each(t.filter,function(k,a) {
         personView.filter[k]=a;
       });

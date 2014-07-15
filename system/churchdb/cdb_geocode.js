@@ -129,7 +129,7 @@ function cdb_prepareMap(id,latlng) {
     mapTypeId: google.maps.MapTypeId.ROADMAP
   };
   var docId=document.getElementById(id);
-  // Karte wird momentan nicht im Browser angezeigt, also brauche sie auch nicht zu fŸllen
+  // Karte wird momentan nicht im Browser angezeigt, also brauche sie auch nicht zu fï¿½llen
   if (docId==null) 
     return null;
 
@@ -265,54 +265,56 @@ function cdb_addGroupsToMap(map,near_lat,near_lng, func) {
       new google.maps.Size(25, 25)
       );
   
-  jQuery.each(masterData.groups, function(k, a){
-    if ((a.geolat!="") && (a.valid_yn==1) && (a.versteckt_yn==0)) {
-      if ((near_lat==null) || 
-           (((Math.abs(parseFloat(near_lng)-parseFloat(a.geolng))<0.2)) &&
-           (Math.abs(parseFloat(near_lat)-parseFloat(a.geolat))<0.1))) {
-
-        url = "gruppe_standard.png";
-        if ((a.distrikt_id!=null) && (masterData.districts[a.distrikt_id].imageurl!=null))
-          url = masterData.districts[a.distrikt_id].imageurl;
-        var image = new google.maps.MarkerImage(masterData.modulespath+"/images/"+url,
-            new google.maps.Size(40, 50),
-            new google.maps.Point(0, 0),
-            new google.maps.Point(10, 25),
-            new google.maps.Size(20, 25)
-            );
-        
-        
-        var myLatLng = new google.maps.LatLng(a.geolat, a.geolng);
-        
-        var title="Gruppe: "+a.bezeichnung+" ["+a.id+"]";
-        if (a.distrikt_id!=null)
-          title=title+"\n Distrikt: "+masterData.districts[a.distrikt_id].bezeichnung;
-        if (a.treffzeit!="") title=title+"\n "+a.treffzeit;
-        if ((a.treffpunkt!=null) && (a.treffpunkt!="")) title=title+"\n Ort: "+a.treffpunkt;
-        if (a.treffname!="") title=title+"\n bei: "+a.treffname;
-        if (a.zielgruppe!="") title=title+"\n Zielgruppe: "+a.zielgruppe;        
-        
-        var beachMarker = new google.maps.Marker({
-            position: myLatLng,
-            map: map,
-            icon: image,
-            shadow: shadow,
-            title: title
-        });
-        
-        google.maps.event.addDomListener(beachMarker, 'click', function() {
-          if (func!=null) func(a.id);
-          else if (typeof(groupView)!='undefined'){
-            churchInterface.setCurrentView(groupView);
-            groupView.clearFilter();
-            groupView.setFilter("searchEntry",a.id);
-            groupView.renderView();
-          }
-        });
-        
+  if (masterData.groups!=null) {
+    jQuery.each(masterData.groups, function(k, a){
+      if ((a.geolat!="") && (a.valid_yn==1) && (a.versteckt_yn==0)) {
+        if ((near_lat==null) || 
+             (((Math.abs(parseFloat(near_lng)-parseFloat(a.geolng))<0.2)) &&
+             (Math.abs(parseFloat(near_lat)-parseFloat(a.geolat))<0.1))) {
+  
+          url = "gruppe_standard.png";
+          if ((a.distrikt_id!=null) && (masterData.districts[a.distrikt_id].imageurl!=null))
+            url = masterData.districts[a.distrikt_id].imageurl;
+          var image = new google.maps.MarkerImage(masterData.modulespath+"/images/"+url,
+              new google.maps.Size(40, 50),
+              new google.maps.Point(0, 0),
+              new google.maps.Point(10, 25),
+              new google.maps.Size(20, 25)
+              );
+          
+          
+          var myLatLng = new google.maps.LatLng(a.geolat, a.geolng);
+          
+          var title="Gruppe: "+a.bezeichnung+" ["+a.id+"]";
+          if (a.distrikt_id!=null)
+            title=title+"\n Distrikt: "+masterData.districts[a.distrikt_id].bezeichnung;
+          if (a.treffzeit!="") title=title+"\n "+a.treffzeit;
+          if ((a.treffpunkt!=null) && (a.treffpunkt!="")) title=title+"\n Ort: "+a.treffpunkt;
+          if (a.treffname!="") title=title+"\n bei: "+a.treffname;
+          if (a.zielgruppe!="") title=title+"\n Zielgruppe: "+a.zielgruppe;        
+          
+          var beachMarker = new google.maps.Marker({
+              position: myLatLng,
+              map: map,
+              icon: image,
+              shadow: shadow,
+              title: title
+          });
+          
+          google.maps.event.addDomListener(beachMarker, 'click', function() {
+            if (func!=null) func(a.id);
+            else if (typeof(groupView)!='undefined'){
+              churchInterface.setCurrentView(groupView);
+              groupView.clearFilter();
+              groupView.setFilter("searchEntry",a.id);
+              groupView.renderView();
+            }
+          });
+          
+        }
       }
-    }
-  });
+    });
+  }
 }
 
 function cdb_initializeGoogleMaps() {
