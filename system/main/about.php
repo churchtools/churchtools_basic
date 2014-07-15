@@ -173,8 +173,8 @@ function check_db_constraints($small=true) {
 function about__ajax() {
   global $config, $user;
   $params=$_POST;
-  if ($params["func"]=="sendEmailToAdmin") {
-    churchcore_sendEMailToPersonids(implode(",",$config["admin_ids"]), $params["subject"], $params["text"]);
+  if ($params["func"]=="sendEmailToAdmin") {    
+    churchcore_systemmail(variable_get("admin_mail", $config["site_mail"]), $params["subject"], $params["text"], true, 1);
     $res=jsend()->success();    
   }
   else if ($params["func"]=="amILoggedIn") {

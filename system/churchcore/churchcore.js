@@ -4,7 +4,7 @@ dayNames= ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag',
 
 // Contains all masterData
 var masterData=new Object();
-
+ 
 function _(s) {  
   res=lang["churchcore"][s];
   if (res==null && masterData!=null)
@@ -925,23 +925,25 @@ function churchcore_getAllDatesWithRepeats(o) {
 $(document).ready(function() {
   $("#email_admin").click(function() {
     var form = new CC_Form();
-    form.addInput({label:"Betreff", type:"xlarge", cssid:"subject", required:true});
-    form.addTextarea({label:"Inhalt", type:"xlarge", cssid:"text", cols:120, rows:6, required:true});
-    var elem=form_showDialog("Dem Admin eine E-Mail schreiben", form.render(false, "vertical"), 400,400, {
-      "Senden": function() {      
+    form.addInput({label:_("subject"), type:"xlarge", cssid:"subject", required:true});
+    form.addTextarea({label:_("content"), type:"xlarge", cssid:"text", cols:120, rows:6, required:true});
+    var send=_("send");
+    var cancel=_("cancel");
+    var elem=form_showDialog(_("write.email.to.admin"), form.render(false, "vertical"), 400,400, {
+      send: function() {      
         var obj=form.getAllValsAsObject();
         if (obj!=null) {
           obj.func="sendEmailToAdmin";
           churchInterface.jsendWrite(obj, function(ok, data) {
             if (!ok) alert(data);
             else {
-              alert("E-Mail wurde gesendet.");
+              alert(_("email.was.sent"));
               elem.dialog("close");          
             }
           }, null, false, "about");
         }
       },
-      "Abbruch": function() {
+      cancel: function() {
         elem.dialog("close");
       }
     });

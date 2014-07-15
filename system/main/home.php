@@ -385,6 +385,7 @@ class CTHomeModule extends CTAbstractModule {
   public function getMasterData() {
     global $user, $base_url, $files_dir, $config;
     include_once('./'. drupal_get_path('module', 'churchdb') .'/churchdb_db.inc');
+    $res["modulename"]="churchcore";
     $res["mygroups"]=churchdb_getMyGroups($user->id, false, false);
     foreach ($res["mygroups"] as $g) {
       if (!isset($g->status_no) || (($g!=null) && ($g->members_allowedmail_eachother_yn==0) 

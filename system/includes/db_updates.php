@@ -1830,7 +1830,7 @@ function run_db_updates($db_version) {
   	case "2.49":
 	    db_query("insert into cc_config values('invite_email_text', 'Du wurdest zur Nutzung von %sitename eingeladen.<P>'.
                              .'Klicke auf die folgende Schaltfläche, um Dich direkt dort anzumelden und um Dein Passwort zu wählen:')");
-
+	     
 	    set_version("2.50");
   }
     

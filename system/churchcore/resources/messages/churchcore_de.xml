@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-  <comment>Test messages</comment>
   <entry key="permission.denied.write.dir">Verzeichnis {0} muss beschreibbar sein!</entry>
   <entry key="site.is.down">Diese Seite wird gerade gewartet. Bitte versuche es in einigen Minuten noch einmal.</entry>
   <entry key="datasecurity.accept.thanks">Danke für das Akzeptieren der Datenschutzbestimmungen!</entry>
@@ -28,6 +27,9 @@
   <entry key="offline.mode.is.active">Achtung, Offline-Modus ist aktiv!</entry>
   <entry key="simulate.person">Person simulieren</entry>
   <entry key="name.of.person">Personenname eingeben</entry>
+  
+  <entry key="send.email.to.admin">Dem Admin eine E-Mail schreiben"</entry>
+  
   
   <!-- AUTH -->
   <entry key="not.existent">Nicht vorhanden!</entry>
@@ -79,7 +81,10 @@
   <entry key="receiver">Empfänger</entry>
   <entry key="sender">Sender</entry>
   <entry key="subject">Betreff</entry>
+  <entry key="content">Inhalt</entry>
   <entry key="read">Gelesen</entry>
+  <entry key="email.was.sent">E-Mail wurde erfolgreich gesendet</entry>
+  <entry key="write.email.to.admin">Dem Admin eine E-Mail schreiben</entry>
   
   <entry key="service">Dienst</entry>
   

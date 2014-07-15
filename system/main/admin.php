@@ -68,6 +68,10 @@ function admin_main() {
   $model->addField("site_mail","", "EMAIL","E-Mail-Adresse der Website (E-Mails werden von hier aus gesendet)");
     $model->fields["site_mail"]->setValue($config["site_mail"]);
 
+  if (!isset($config["admin_mail"])) $config["admin_mail"]=$config["site_mail"];
+  $model->addField("admin_mail","", "EMAIL","E-Mail-Adressen der Admins f&uuml;r Anfragen von Benutzern (Kommasepariert)");
+    $model->fields["admin_mail"]->setValue($config["admin_mail"]);
+    
   // Now iterate through each module for naming the module
   $modules=churchcore_getModulesSorted(false, true);
   foreach ($modules as $module) {
