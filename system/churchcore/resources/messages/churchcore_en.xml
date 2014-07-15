@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-  <comment>Core messages</comment>
   <entry key="permission.denied.write.dir">Access denied writing to the directory &lt;i&gt;{0}&lt;/strong&gt;</entry>
   <entry key="site.is.down">The site is down, please try again later.</entry>
   <entry key="datasecurity.accept.thanks">Thank you for accepting the data security!</entry>
@@ -27,7 +26,24 @@
   <entry key="change.to">Switch to...</entry>
   <entry key="offline.mode.is.active">Caution! Offline mode is active.</entry>  
   <entry key="simulate.person">Simulate person</entry>
+  <entry key="now.will.be.simulated">Now {0} will be simulated. To come back please press 'stop simulation' in the user menu.</entry>
+  <entry key="simulate.information.text">With this the admin can test permission of other users through a simulation.</entry>
   <entry key="name.of.person">Name of person</entry>
+  <entry key="send.email.to.admin">Send email to administrator</entry>  
+  
+  <!-- HOME -->
+  <entry key="there.are.more.users.with.the.same.email">There are more users with the same E-Mail. You can change between them with the menu on top right.</entry>
+  <entry key="chose.your.possibilites">chose Your possibilities</entry>
+  <entry key="open.help">Open help</entry>
+  <entry key="salutation">Salutation</entry>
+  <entry key="name">Name</entry>
+  <entry key="address">Address</entry>
+  <entry key="birth.">Birth.</entry>
+  <entry key="contact.information">Contact informations</entry>
+  <entry key="mobile">Mobilephone</entry>
+  <entry key="page">Page</entry>
+  <entry key="general">General</entry>
+  <entry key="note">Note</entry>
   
   <!-- AUTH -->
   <entry key="not.existent">Non-existent!</entry>
@@ -69,6 +85,8 @@
   <entry key="forgot.password">Forgot password?</entry>
   <entry key="want.to.receive.new.password">Do you really want to receive a new password?</entry>
   <entry key="wrong.password">Wrong password.</entry>  
+  <entry key="account.was.locked">Account was locked!</entry>
+  <entry key="account.was.locked.cause.of.to.many.trials">Account was locked because there were too many trials! Please come back later.</entry>
   
   <!-- MAIL -->	  
   <entry key="archive.of.sent.messages">Archive of sent messages</entry>
@@ -85,8 +103,7 @@
   <entry key="cancel">Cancel</entry>
   <entry key="email.was.sent">E-Mail was sent successful</entry>
   <entry key="write.email.to.admin">Write an email to the administrator</entry>
-
-  <entry key="service">Dienst</entry>
+  <entry key="email.not.found">E-Mail not found</entry>
 
   <!--  GENERAL MENU ENTRIES -->
   <entry key="menu">Menu</entry>
@@ -94,6 +111,42 @@
   <entry key="settings">Settings</entry>
   <entry key="printview">Printview</entry>
   <entry key="maintain.masterdata">Maintain masterdata</entry>
-  <entry key="help">Help</entry>	  
+  <entry key="help">Help</entry>
+  
+  <!-- ADMIN -->
+  <entry key="settings.for">Settings for {0}</entry>
+  <entry key="name.of.website">Name of the website</entry>
+  <entry key="logo.of.website">Logo of the website (max. 32x32px)</entry>
+  <entry key="welcome.message">Welcome message</entry>	
+  
+  <!--  MODULES -->
+  <entry key="service">Dienst</entry>
+  <entry key="birthdays">Birthdays</entry>
+  <entry key="other.birthdays">Other birthdays</entry>
+  <entry key="list.of.members">List of members</entry>
+  <entry key="yesterday">Yesterday</entry>
+  <entry key="today">Today</entry>
+  <entry key="tomorrow">Tomorrow</entry>
+  <entry key="confirm">Confirm</entry>
+  <entry key="deny">Deny</entry>
+  <entry key="perhaps">Perhaps</entry>
+  <entry key="thank.you.for.confirmation">Thank you for confirmation</entry>
+  <entry key="undo.my.confirmation">Undo my confirmation</entry>
+  <entry key="service.was.denied">Service was denied</entry>
+  <entry key="undo.my.denial">Undo my denial</entry>
+  <entry key="entry.message.here">Entry message here</entry>
+  <entry key="request.from">Request from</entry>
+  <entry key="confirm.with.reservation">Confirm with reservation</entry>
+  <entry key="great.no.request.pending.anymore">Great, there is no request pending anymore</entry>
+  <entry key="you.have.denied.the.request">You have denied the request.</entry>
+  <entry key="your.confirmation.in.reservation.was.saved">Your confirmation with reservation was saved.</entry>
+  <entry key="mr.">Mr.</entry>
+  <entry key="mrs.">Mrs.</entry>
+  <entry key="who.is.online">Who is online?</entry>
+  
+  
+  
+  
+    
 	  
 </properties>

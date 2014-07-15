@@ -38,15 +38,15 @@ function admin_main() {
   drupal_add_js('system/assets/fileuploader/fileuploader.js');
   
   $model = new CC_Model("AdminForm", "admin_saveSettings");
-  $model->addField("site_name","", "INPUT_REQUIRED","Name der Website");
+  $model->addField("site_name","", "INPUT_REQUIRED",t("name.of.website"));
     $model->fields["site_name"]->setValue($config["site_name"]);
   
 
-  $model->addField("site_logo","", "FILEUPLOAD","Logo der Website (max. 32x32px)");
+  $model->addField("site_logo","", "FILEUPLOAD",t("logo.of.website"));
   if (isset($config["site_logo"]))
     $model->fields["site_logo"]->setValue($config["site_logo"]);
     
-  $model->addField("welcome","", "INPUT_REQUIRED","Willkommensnachricht");
+  $model->addField("welcome","", "INPUT_REQUIRED",t("welcome.message"));
     $model->fields["welcome"]->setValue($config["welcome"]);
     
   $model->addField("welcome_subtext","", "INPUT_REQUIRED","Untertitel der Willkommensnachricht");
@@ -113,10 +113,10 @@ function admin_main() {
     }
   }
     
-  $txt='<h1>Einstellungen f&uuml;r '.variable_get("site_name").'</h1><p>Der Administrator kann hier Einstellung vornehmen. Diese gelten f&uuml;r alle Benutzer, bitte vorsichtig anpassen!</p>';
+  $txt='<h1>'.t("settings.for", variable_get("site_name")).'</h1><p>Der Administrator kann hier Einstellung vornehmen. Diese gelten f&uuml;r alle Benutzer, bitte vorsichtig anpassen!</p>';
   $txt.='<div class="tabbable">';
   $txt.='<ul class="nav nav-tabs">';
-    $txt.='<li class="active"><a href="#tab1" data-toggle="tab">Allgemein</a></li>';
+    $txt.='<li class="active"><a href="#tab1" data-toggle="tab">'.t("general").'</a></li>';
     foreach ($modules as $module) {
       if ((isset($m[$module])) && ($config[$module."_name"]!=""))
         $txt.='<li><a href="#tab'.$module.'" data-toggle="tab">'.$config[$module."_name"].'</a></li>';

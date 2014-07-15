@@ -26,9 +26,24 @@
   <entry key="change.to">Wechseln zu...</entry>
   <entry key="offline.mode.is.active">Achtung, Offline-Modus ist aktiv!</entry>
   <entry key="simulate.person">Person simulieren</entry>
+  <entry key="now.will.be.simulated">Ab sofort wird der Benutzer {0} simuliert. Um zum vorigen Benutzer zurückzukehren, bitte im Benutzer-Menü 'Simulieren beenden' anklicken.</entry>
+  <entry key="simulate.information.text">Hierdurch kann ein Administrator die Berechtigungen eines anderen Benutzer testen, in dem er simuliert wird.</entry>  
   <entry key="name.of.person">Personenname eingeben</entry>
+  <entry key="send.email.to.admin">Dem Admin eine E-Mail schreiben</entry>  
   
-  <entry key="send.email.to.admin">Dem Admin eine E-Mail schreiben</entry>
+  <!-- HOME -->
+  <entry key="there.are.more.users.with.the.same.email">Es sind mehrere Benutzer mit der gleichen EMail-Adresse vorhanden. Diese können im Menü oben rechts gewechselt werden.</entry>
+  <entry key="chose.your.possibilites">wähle Deine Möglichkeiten</entry>
+  <entry key="open.help">Hilfe aufrufen</entry>
+  <entry key="salutation">Anrede</entry>
+  <entry key="name">Name</entry>
+  <entry key="address">Adresse</entry>
+  <entry key="birth.">Geb.</entry>
+  <entry key="contact.information">Kontaktinformationen</entry>
+  <entry key="mobile">Handy</entry>
+  <entry key="page">Seite</entry>
+  <entry key="general">Allgemein</entry>
+  <entry key="note">Bemerkung</entry>
   
   
   <!-- AUTH -->
@@ -71,6 +86,9 @@
   <entry key="forgot.password">Neues Passwort anfordern?</entry>
   <entry key="want.to.receive.new.password">Wirklich neues Passwort anfordern?</entry>
   <entry key="wrong.password">Das Passwort ist nicht korrekt.</entry>
+  <entry key="account.was.locked">Der Zugang wurde gesperrt!</entry>
+  <entry key="account.was.locked.cause.of.to.many.trials">Der Zugang ist kurzzeitig gesperrt, da es zu viele fehlerhafte Anmeldeversuche gab! Bitte später nochmal versuchen.</entry>
+  
 
   <!-- MAIL -->  
   <entry key="archive.of.sent.messages">Archiv der gesendeten E-Mails/SMS</entry>
@@ -87,8 +105,7 @@
   <entry key="cancel">Abbruch</entry>
   <entry key="email.was.sent">E-Mail wurde erfolgreich gesendet</entry>
   <entry key="write.email.to.admin">Dem Admin eine E-Mail schreiben</entry>
-  
-  <entry key="service">Dienst</entry>
+  <entry key="email.not.found">EMail-Adresse nicht vorhanden</entry>
   
   <!--  GENERAL MENU ENTRIES -->
   <entry key="menu">Menü</entry>
@@ -98,5 +115,35 @@
   <entry key="printview">Druckansicht</entry>
   <entry key="help">Hilfe</entry>
   
+  <!-- ADMIN -->
+  <entry key="settings.for">Einstellungen für {0}</entry>
+  <entry key="name.of.website">Name der Website</entry>
+  <entry key="logo.of.website">Logo der Website (max. 32x32px)</entry>
+  <entry key="welcome.message">Willkommensnachricht</entry>	
+  
+  <!--  MODULES -->
+  <entry key="service">Dienst</entry>
+  <entry key="birthdays">Geburtstage</entry>
+  <entry key="other.birthdays">Weitere Geburtstage</entry>
+  <entry key="list.of.members">Mitgliederliste</entry>
+  <entry key="yesterday">Gestern</entry>
+  <entry key="today">Heute</entry>
+  <entry key="tomorrow">Morgen</entry>
+  <entry key="confirm">Zusagen</entry>
+  <entry key="deny">Absagen</entry>
+  <entry key="perhaps">Vielleicht</entry>
+  <entry key="thank.you.for.confirmation">Danke für die Zusage.</entry>
+  <entry key="undo.my.confirmation">Zusage widerrufen</entry>
+  <entry key="service.was.denied">Der Dienst wurde abgesagt.</entry>
+  <entry key="undo.my.denial">Absage widerrufen</entry>
+  <entry key="entry.message.here">Hier Nachricht eingeben...</entry>
+  <entry key="request.from">Anfrage von</entry>
+  <entry key="confirm.with.reservation">Zusage mit Vorbehalt!</entry>
+  <entry key="great.no.request.pending.anymore">Super, es ist keine Anfragen mehr offen!</entry>
+  <entry key="you.have.denied.the.request">Du hast die Anfrage abgesagt.</entry>
+  <entry key="your.confirmation.in.reservation.was.saved">Deine vorläufige Zusage wurde gespeichert.</entry>
+  <entry key="mr.">Herr</entry>
+  <entry key="mrs.">Frau</entry>
+  <entry key="who.is.online">Wer ist online?</entry>
   
 </properties>

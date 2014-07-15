@@ -463,19 +463,19 @@ function churchdb_getBlockBirthdays() {
   $txt="";
   if (user_access("view birthdaylist","churchdb")) {
     $t2=getBirthdaylistContent("",-1,-1);
-    if ($t2!="") $txt.='<tr><th colspan="3">Gestern'.$t2;
+    if ($t2!="") $txt.='<tr><th colspan="3">'.t("yesterday").$t2;
     $t2=getBirthdaylistContent("",0,0);
-    if ($t2!="") $txt.='<tr><th colspan="3">Heute'.$t2;
+    if ($t2!="") $txt.='<tr><th colspan="3">'.t("today").$t2;
     $t2=getBirthdaylistContent("",1,1);
-    if ($t2!="") $txt.='<tr><th colspan="3">Morgen'.$t2;
+    if ($t2!="") $txt.='<tr><th colspan="3">'.t("tomorrow").$t2;
     if ($txt!="") {
       $txt="<table class=\"table table-condensed\">".$txt."</table>";
     }
     if ((user_access("view","churchdb")) && (user_access("view birthdaylist","churchdb"))) 
-      $txt.="<p style=\"line-height:100%\" align=\"right\"><a href=\"?q=churchdb/birthdaylist\">Weitere Geburtstage</a>";
+      $txt.="<p style=\"line-height:100%\" align=\"right\"><a href=\"?q=churchdb/birthdaylist\">".t("other.birthdays")."</a>";
   }
   if (user_access("view memberliste","churchdb")) 
-    $txt.="<p style=\"line-height:100%\" align=\"right\"><a href=\"?q=home/memberlist\">Mitgliederliste</a>";
+    $txt.="<p style=\"line-height:100%\" align=\"right\"><a href=\"?q=home/memberlist\">".t("list.of.members")."</a>";
       
   return $txt;
 }
@@ -541,13 +541,13 @@ function churchdb_blocks() {
   global $config;
   return (array(
     1=>array(
-      "label"=>"Geburtstage",
+      "label"=>t("birthdays"),
       "col"=>1,
       "sortkey"=>1,
       "html"=>churchdb_getBlockBirthdays()
     ),  
     2=>array(
-      "label"=>"Wer ist online?",
+      "label"=>t("who.is.online"),
       "col"=>1,
       "sortkey"=>3,
       "html"=>getWhoIsOnline()
@@ -578,7 +578,7 @@ function churchdb__birthdaylist() {
 	          getBirthdaylistContent("Heute",0, 0, true).
 	          getBirthdaylistContent("Nächsten 30 Tage", 1, 30, true)."</ul>";
   if (user_access("view memberliste","churchdb")) 
-    $txt.="<p style=\"line-height:100%\" align=\"right\"><a href=\"?q=home/memberlist\">Mitgliederliste</a>";
+    $txt.="<p style=\"line-height:100%\" align=\"right\"><a href=\"?q=home/memberlist\">".t("list.of.members")."</a>";
 	          
   return $txt;  
 }  

@@ -11,7 +11,7 @@ function home_main() {
   $btns=churchcore_getModulesSorted();
   
   if (isset($_SESSION["family"])) {
-    addInfoMessage('Es sind mehrere Benutzer mit der gleichen EMail-Adresse vorhanden. Diese k&ouml;nnen im Men&uuml; oben rechts gewechselt werden.');
+    addInfoMessage(t('there.are.more.users.with.the.same.email'));
   }
   
   $txt='
@@ -23,7 +23,7 @@ function home_main() {
     foreach ($btns as $key) {
       if ((isset($config[$key."_startbutton"])) && ($config[$key."_startbutton"]=="1") && (user_access("view", $key)))    
         $txt.=  
-        '<a class="btn btn-prim_ary btn-large" href="?q='.$key.'">
+        '<a class="btn btn-large" href="?q='.$key.'">
           '.$config[$key."_name"].'
         </a>&nbsp;' ;
       }
@@ -32,14 +32,14 @@ function home_main() {
     
   $txt.='<div class="well visible-phone">
     <h1>Willkommen!</h1>
-    <p>'.$_SESSION["user"]->vorname.', w&auml;hle Deine M&ouml;glichkeiten:</p>
+    <p>'.$_SESSION["user"]->vorname.', '.t("chose.your.possiblities").':</p>
     <ul class="nav nav-pills nav-stacked">';
     
     foreach ($btns as $key) {
       if ((isset($config[$key."_name"])) && ($config[$key."_name"]!="") && (user_access("view", $key)))  {   
         include_once("system/".$mapping[$key]);
         $txt.=  
-        '<li><a class="btn btn-prima_ry btn-large" href="?q='.$key.'">
+        '<li><a class="btn btn-large" href="?q='.$key.'">
           '.$config[$key."_name"].'
         </a> ' ;
       }
@@ -50,14 +50,10 @@ function home_main() {
   // blocks[] : label, col(1,2,3) sortkey, html
   $blocks=null;
   foreach ($btns as $key) {
-    
-    
     if ((isset($config[$key."_name"])) && ($config[$key."_name"]!="")) {
       include_once("system/".$mapping[$key]);
       if (function_exists($key."_blocks")) {
-//        $time=microtime();
         $arr=call_user_func($key."_blocks");
-//        echo "<br>$key".(microtime()-$time);
         foreach ($arr as $block) {
           $blocks[$block["col"]][]=$block;
         }
@@ -77,7 +73,7 @@ function home_main() {
             $txt.='<label class="ct_whitebox_label">'.$block["label"]."</label>";
             if (isset($block["help"])) {
               $txt.='<div style="float:right;margin:-34px -12px">';
-                $txt.='<a href="http://intern.churchtools.de?q=help&doc='.$block["help"].'" title="Hilfe aufrufen" target="_clean"><i class="icon-question-sign"></i></a>';
+                $txt.='<a href="http://intern.churchtools.de?q=help&doc='.$block["help"].'" title="'.t("open.help").'" target="_clean"><i class="icon-question-sign"></i></a>';
               $txt.='</div>';
             }
               
@@ -102,7 +98,7 @@ function checkFilesDir() {
     }
 
     if (!is_writable($files_dir."/files")) {
-        addErrorMessage("Das Verzeichnis $files_dir/files muss beschreibbar sein. Bitte Rechte daf&uuml;r setzen!");
+        addErrorMessage("The directory $files_dir/files has to be writeable. Please adjust permissions!");
     } else {
         if (!file_exists($files_dir."/files/.htaccess")) {
             $handle = fopen($files_dir."/files/.htaccess",'w+');
@@ -141,7 +137,7 @@ function home_getMemberList() {
   $sql='select person_id, name, vorname, strasse, ort, plz, land,
          year(geburtsdatum) year, month(geburtsdatum) month, day(geburtsdatum) day, 
         DATE_FORMAT(geburtsdatum, \'%d.%m.%Y\') geburtsdatum, DATE_FORMAT(geburtsdatum, \'%d.%m.\') geburtsdatum_compact,
-         (case when geschlecht_no=1 then \'Herr\' when geschlecht_no=2 then \'Frau\' else \'\' end) "anrede",
+         (case when geschlecht_no=1 then \''.t("mr.").'\' when geschlecht_no=2 then \''.t("mrs.").'\' else \'\' end) "anrede",
          telefonprivat, telefongeschaeftlich, telefonhandy, fax, email, imageurl
          from {cdb_person} p, {cdb_gemeindeperson} gp where gp.person_id=p.id and gp.station_id in ('.$station_id.')
           and gp.status_id in ('.$status_id.') and archiv_yn=0 order by name, vorname';
@@ -157,17 +153,18 @@ function home__memberlist() {
   global $base_url, $files_dir, $config;
   
   if (!user_access("view memberliste","churchdb")) { 
-     addErrorMessage("Keine Berechtigung f&uuml;r die Mitgliederliste!");
+     addErrorMessage(t("no.permission.for", t("list.of.members")));
      return " ";
   }  
   
   $fields=_home__memberlist_getSettingFields()->fields;
   
-  $txt='<small><i><a class="cdb_hidden" href="?q=home/memberlist_printview" target="_clean">Druckansicht</a></i></small>';
+  $txt='<small><i><a class="cdb_hidden" href="?q=home/memberlist_printview" target="_clean">'.t("printview").'</a></i></small>';
   if (user_access("administer settings","churchcore"))
-    $txt.='&nbsp; <small><i><a class="cdb_hidden" href="?q=home/memberlist_settings">Admin-Einstellung</a></i></small>';
+    $txt.='&nbsp; <small><i><a class="cdb_hidden" href="?q=home/memberlist_settings">'.t("admin.settings").'</a></i></small>';
   
-  $txt.="<table class=\"table table-condensed\"><tr><th><th>Anrede<th>Name<th>Adresse<th>Geb.<th>Kontaktdaten</tr><tr>";
+  $txt.='<table class="table table-condensed"><tr><th><th>'.t("salutation").'<th>'.t("name").'<th>'.t("address").'<th>'.
+     t("birth.").'<th>'.t("contact.information").'</tr><tr>';
   $link = $base_url;
   
   $res=home_getMemberList();
@@ -225,7 +222,7 @@ function home__memberlist_printview() {
 //  drupal_add_css(drupal_get_path('module', 'churchdb').'/cdb_printview.css');
 //  $content=$content.drupal_get_header();
   if (!user_access("view memberliste","churchdb")) { 
-     addErrorMessage("Keine Berechtigung f&uuml;r die Mitgliederliste!");
+     addErrorMessage(t("no.permission.for", t("list.of.members")));
      return " ";
   }  
 
@@ -243,14 +240,14 @@ function home__memberlist_printview() {
       //nach rechts gehen
       $this->Cell(12,7,'',0);
       //Titel
-      $this->Cell(13,8,'Anrede',0,0,'L');
-      $this->Cell(48,8,'Name',0,0,'L');
-      $this->Cell(45,8,'Adresse',0,0,'L');
-      $this->Cell(20,8,'Geb.',0,0,'L');
-      $this->Cell(30,8,'Kontaktdaten',0,0,'L');
+      $this->Cell(13,8,t('salutation'),0,0,'L');
+      $this->Cell(48,8,t('name'),0,0,'L');
+      $this->Cell(45,8,t('address'),0,0,'L');
+      $this->Cell(20,8,t('birth.'),0,0,'L');
+      $this->Cell(30,8,t('contact.informations'),0,0,'L');
       $fields=_home__memberlist_getSettingFields()->fields;
       if ($fields["memberlist_telefonhandy"]->getValue())
-        $this->Cell(30,8,'Handy',0,0,'L');
+        $this->Cell(30,8,t('mobile'),0,0,'L');
       //Zeilenumbruch
       $this->SetLineWidth(0.1);
       $this->SetDrawColor(200, 200, 200);
@@ -266,7 +263,7 @@ function home__memberlist_printview() {
       //Arial kursiv 8
       $this->SetFont('Arial','I',8);
       //Seitenzahl
-      $this->Cell(0,5,'Seite '.$this->PageNo().'/{nb}',0,0,'C');
+      $this->Cell(0,5,t('page').' '.$this->PageNo().'/{nb}',0,0,'C');
     }
   }
   
@@ -326,7 +323,7 @@ function home__memberlist_printview() {
       $pdf->Ln(12);
       
   }
-  $pdf->Output('mitgliederliste.pdf','I');  
+  $pdf->Output(t("list.of.members").'.pdf','I');  
 }
 
 
@@ -429,7 +426,7 @@ class CTHomeModule extends CTAbstractModule {
     include_once('./'. drupal_get_path('module', 'churchdb') .'/churchdb_db.inc');
     $groups=churchdb_getMyGroups($user->id, true, false);
     if (empty($groups[$params["groupid"]])) 
-      throw new CTException("Gruppe nicht erlaubt!");
+      throw new CTException("Group is not allowed!");
     $ids=churchdb_getAllPeopleIdsFromGroups(array($params["groupid"]));
     churchcore_sendEMailToPersonids(implode(",", $ids), "[".variable_get('site_name', 'drupal')."] Nachricht von $user->vorname $user->name", $params["message"], null, true);
   }

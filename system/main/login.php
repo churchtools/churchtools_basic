@@ -43,7 +43,7 @@ function login_main() {
         ct_log("Neues Passwort angefordert ".$_GET["email"],2,"-1", "login");
       }        
     } 
-    // Zugriff Ÿber externe Tools mit GET und zusŠtzlichen direct
+    // Zugriff ï¿½ber externe Tools mit GET und zusï¿½tzlichen direct
     else if ((isset($_POST["email"])) && (isset($_POST["password"])) && (isset($_POST["directtool"]))) {
       include_once("system/churchcore/churchcore_db.inc");
       $sql="select * from {cdb_person} where email=:email and active_yn=1 and archiv_yn=0";
@@ -59,10 +59,10 @@ function login_main() {
       else drupal_json_output(jsend()->fail("Falsches Passwort"));        
       return;
     }
-    // PrŸfe, ob Login Ÿber URL mit loginstr erfolgen soll
+    // Prï¿½fe, ob Login ï¿½ber URL mit loginstr erfolgen soll
     //e.g. http://localhost:8888/bootstrap/?q=profile&loginstr=123&id=8
     else if ((isset($_GET["loginstr"])) && ($_GET["loginstr"]!="") && (isset($_GET["id"]))) {
-      // Lšsche alte cc_loginurrls die Šlter sind als 14 tage
+      // Lï¿½sche alte cc_loginurrls die ï¿½lter sind als 14 tage
       db_query("delete from {cc_loginstr} where DATEDIFF( current_date, create_date ) > 13");
       $sql="select * from {cc_loginstr} where loginstr=:loginstr and person_id=:id";      
       $res=db_query($sql, array(":loginstr"=>$_GET["loginstr"], ":id"=>$_GET["id"]))->fetch();
@@ -70,7 +70,7 @@ function login_main() {
         $txt.='<div class="alert alert-info">Fehler: Der verwendete Login-Link ist nicht mehr aktuell und kann deshalb nicht mehr verwendet werden. Bitte mit E-Mail-Adresse und Passwort anmelden!</div>';
       }
       else {
-        // Nehme den LoginStr heraus, damit er nicht mi§braucht werden kann.
+        // Nehme den LoginStr heraus, damit er nicht miï¿½braucht werden kann.
         $sql="delete from {cc_loginstr} where loginstr=:loginstr and person_id=:id";      
         $res=db_query($sql, array(":loginstr"=>$_GET["loginstr"], ":id"=>$_GET["id"]));
         ct_log("Login User ".$_GET["id"]." erfolgreich mit loginstr ",2,"-1", "login");
@@ -90,7 +90,7 @@ function login_main() {
   }
   // Es ist schon jemand eingelogt!
   else {
-    // Wenn man sich ummelden mšchte und zur Familie gehšrt (also gleiche E-Mail-Adresse)
+    // Wenn man sich ummelden mï¿½chte und zur Familie gehï¿½rt (also gleiche E-Mail-Adresse)
     if (isset($_GET["family_id"])) {
       if (isset($_SESSION["family"][$_GET["family_id"]])) {
         //logout_current_user();
@@ -114,7 +114,7 @@ function prooveLogin($form) {
   $account_inactive=false;  
   $account_errorcountlogin=false;          
   $wrong_email=true;
-  // Hier ist eine Schleife, da E-Mail-Adressen von Familienmitgliedern mehrfach benutzt werden kšnnen.
+  // Hier ist eine Schleife, da E-Mail-Adressen von Familienmitgliedern mehrfach benutzt werden kï¿½nnen.
   foreach ($res as $ret) {
     $wrong_email=false;
     if ($ret->loginerrorcount>6) 
@@ -140,23 +140,22 @@ function prooveLogin($form) {
      
   if ($wrong_email) {
     $form->fields["email"]->setError(t('email.or.username.unknown'));
-    ct_log("Login vergeblich: Unbekannte E-Mail-Adresse ".$form->fields["email"]->getValue(),2,"-1", "login");
+    ct_log("Login failed: wrong email ".$form->fields["email"]->getValue(),2,"-1", "login");
     return false;                    
   }
   else if ($account_inactive) {
-    $form->fields["email"]->setError('Der Zugang wurde gesperrt!');
-    ct_log("Login vergeblich: Gesperrter Zugang ".$form->fields["email"]->getValue(),1,"-1", "login");
+    $form->fields["email"]->setError(t('account.was.locked'));
+    ct_log("Login failed: Access locked ".$form->fields["email"]->getValue(),1,"-1", "login");
     return false;
   }
   else if ($account_errorcountlogin) {
-    $form->fields["email"]->setError('Der Zugang ist kurzzeitig gesperrt, da es zu viele fehlerhafte Anmeldeversuche gab!');
-    ct_log("Login vergeblich: Zu viele fehlerhafte Anmeldeversuche ".$form->fields["email"]->getValue(),1,"-1", "login");
+    $form->fields["email"]->setError(t('account.was.locked.cause.of.to.many.trials'));
+    ct_log("Login failed: To many trials ".$form->fields["email"]->getValue(),1,"-1", "login");
     return false;
   }
-  // Kein Passwort stimmte
   else {
     $form->fields["password"]->setError(t('wrong.password').' <a href="#" id="newpwd">'.t('forgot.password').'</a>');
-    ct_log("Login vergeblich: ".$form->fields["email"]->getValue()." mit falschem Passwort",2,"-1", "login");
+    ct_log("Login failed: ".$form->fields["email"]->getValue()." wrong password",2,"-1", "login");
     return false;                
   }
 }
@@ -181,7 +180,7 @@ function login_user($ret, $rember_me=false) {
   $ret->auth=getUserAuthorization($ret->id);
   $_SESSION["user"]=$ret;
 
-  // 6 Tage hŠlt der Login
+  // 6 Tage hï¿½lt der Login
   $ablaufDesCookies = time() + 60 * 60 * 24 * 6;
   
   setcookie("RememberMe", $rember_me, $ablaufDesCookies);            
@@ -208,9 +207,9 @@ function login_user($ret, $rember_me=false) {
     if ($family!=null) $_SESSION["family"]=$family;
   }
   
-  ct_log("Login erfolgreich: ".$ret->email." mit ".(isset($_SERVER['HTTP_USER_AGENT'])?$_SERVER['HTTP_USER_AGENT']:"Unkown Browser!"),2,-1, "login");
+  ct_log("Login succeed: ".$ret->email." with ".(isset($_SERVER['HTTP_USER_AGENT'])?$_SERVER['HTTP_USER_AGENT']:"Unkown Browser!"),2,-1, "login");
   
-  // Wenn es Ummelden war, dann nicht weiterleiten, denn sonst wŠre das ja wieder Login.
+  // Wenn es Ummelden war, dann nicht weiterleiten, denn sonst wï¿½re das ja wieder Login.
   if ($q!=$q_orig) {
     header("Location: ?q=$q_orig");
   }

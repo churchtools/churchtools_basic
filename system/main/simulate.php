@@ -4,9 +4,9 @@
 function prooveEMail($form) {
   $res=churchcore_getPersonByEMail($form->fields["email"]);
   if ($res==false)
-    $form->fields["email"]->setError("EMail-Adresse nicht vorhanden");
+    $form->fields["email"]->setError(t("email.not.found"));
   else {
-    addInfoMessage("Ab sofort wird der Benutzer ".$form->fields["email"]." simuliert. Um zum vorigen Benutzer zur&uuml;ckzukehren, bitte im Benutzer-Men&uuml; 'Simulieren beenden' anklicken.");
+    addInfoMessage(t("now.will.be.simulated", $form->fields["email"]));
     _simulateUser($res);
   }      
 }
@@ -44,8 +44,8 @@ function simulate_main() {
     }
   }
   $model = new CC_Model("SimulateUserForm", "prooveEmail");
-  $model->setHeader("Benutzer simulieren", "Hierdurch kann ein Administrator die Berechtigungen eines anderen Benutzer testen, in dem er simuliert wird. Bitte gew&uuml;nschte E-Mail-Adresse des Benutzers eingeben:");    
-  $model->addField("email","", "EMAIL","EMail-Adresse");
+  $model->setHeader("Benutzer simulieren", t("simulate.information.text")." ".t("please.enter.valid.email").":");    
+  $model->addField("email","", "EMAIL","EMail");
   $model->addButton("Simulieren","ok");
   return $model->render();
 }

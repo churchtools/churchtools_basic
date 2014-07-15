@@ -27,8 +27,8 @@ function renderServiceRequests() {
     available=true;
     if ($(this).attr("data-closed")==null) {
       var txt2="";
-      txt2=txt2+'<a href="#" class="service-request request-confirm" id="zusagen">Zusagen</a> | ';              
-      txt2=txt2+'<a href="#" class="service-request request-decline" id="absagen">Absagen</a>';            
+      txt2=txt2+'<a href="#" class="service-request request-confirm" id="zusagen">'+_("confirm")+'</a> | ';              
+      txt2=txt2+'<a href="#" class="service-request request-decline" id="absagen">'+_("deny")+'</a>';            
       txt2=txt2+'&nbsp; &nbsp; <small>Anfrage von ';
       if ($(this).attr("data-modified-pid")!=null)
         txt2=txt2+'<a href="?q=churchdb#PersonView/searchEntry:#'+$(this).attr("data-modified-pid")+'">'+$(this).attr("data-modified-user")+'</a>';
@@ -62,15 +62,15 @@ function addServiceRequestCallback() {
     var obj=new Object();
 
     if ($(this).hasClass("request-confirm")) {
-      txt=txt+"<p>Danke f&uuml;r die Zusage.&nbsp; ";
-      txt=txt+"<a href=\"#\" class=\"service-request-undo\"><i>Zusage widerrufen</i></a>";
+      txt=txt+"<p>"+_("thank.you.for.confirmation")+"&nbsp; ";
+      txt=txt+"<a href=\"#\" class=\"service-request-undo\"><i>"+_("undo.my.confirmation")+"</i></a>";
       obj.name=settings.user.vorname+" "+settings.user.name;
       obj.cdb_person_id=settings.user.id;
       obj.zugesagt_yn=1;
     }
     else if ($(this).hasClass("request-decline")) {
-      txt=txt+"<p>Der Dienst wurde abgesagt.&nbsp; ";
-      txt=txt+"<a href=\"#\" class=\"service-request-undo\"><i>Absage widerrufen</i></a>";
+      txt=txt+"<p>"+_("service.was.denied")+"&nbsp; ";
+      txt=txt+"<a href=\"#\" class=\"service-request-undo\"><i>"+_("undo.my.denial")+"</i></a>";
       obj.zugesagt_yn=0;
     }
     obj.func="updateEventService";
@@ -80,9 +80,9 @@ function addServiceRequestCallback() {
     });
     if (obj.zugesagt_yn==0 || div_element.attr("data-comment-confirm")==1) {
       var form = new CC_Form();
-      form.addInput({type:"medium", cssid:"reason", placeholder:"Bemerkung", controlgroup:false, htmlclass:"input-reason"});
+      form.addInput({type:"medium", cssid:"reason", placeholder:_("note"), controlgroup:false, htmlclass:"input-reason"});
       form.addHtml("&nbsp;");
-      form.addButton({label:"Absenden", controlgroup:false, htmlclass:"submit"});
+      form.addButton({label:_("send"), controlgroup:false, htmlclass:"submit"});
       txt=txt+form.render(false, "inline");
     }
     txt=txt+"</div>";
@@ -120,11 +120,6 @@ function addServiceRequestCallback() {
   });
 }
 
-function askMeYes(id) {
-  var res=prompt("Wirklich verbindlich zusagen? Hier kannst Du noch eine Notiz angeben.","");
-  if (res!=null) window.location.href="?q=home&zugesagt_yn=1&reason="+res+"&eventservice_id="+id;
-} 
-
 function renderForum(selected, hint) {
   if (masterData.mygroups==null || masterData.mygroups.length==0) {
     $("#cc_forum").parents("li").remove();
@@ -137,8 +132,8 @@ function renderForum(selected, hint) {
         type:"medium", data:masterData.mygroups});
     if (hint!=null) form.addHtml("<br><br><i>"+hint+"</i>");
     if (selected!=null && selected!="") {
-      form.addTextarea({cssid:"message", placeholder:"Hier Nachricht eingeben..."});
-      form.addButton({label:"Absenden"});
+      form.addTextarea({cssid:"message", placeholder:_("entry.message.here")});
+      form.addButton({label:_("send")});
     }
     $("#cc_forum").html(form.render(false, "vertical"));
 
@@ -152,7 +147,7 @@ function renderForum(selected, hint) {
       obj.message=obj.message.replace(/\n/g, '<br/>');
       
       churchInterface.jsendWrite(obj, function(ok, data) {
-        renderForum(null, "E-Mail wurde gesendet.");
+        renderForum(null, _("email.was.sent"));
       });
     });
   }
@@ -171,9 +166,9 @@ function renderNextMeetingRequests() {
         c++;
         rows.push('<div class="meeting-request" data-id="'+k+'">');
         rows.push('<p style="margin-bottom:2px">'+a.event_date.toDateEn(true).toStringDe(true)+" - "+a.bezeichnung);
-        rows.push('<br> &nbsp;&nbsp; <small>Anfrage von <a href="?q=churchdb#PersonView/searchEntry:#'+a.modified_pid+'">'+a.modified_name+'</a></small>');
+        rows.push('<br> &nbsp;&nbsp; <small>'+_("request.from")+' <a href="?q=churchdb#PersonView/searchEntry:#'+a.modified_pid+'">'+a.modified_name+'</a></small>');
         if (a.zugesagt_yn==null)
-        rows.push('<div class="meeting-request-answer" style="padding-top:0"> &nbsp;&nbsp; Zusage mit Vorbehalt!');              
+        rows.push('<div class="meeting-request-answer" style="padding-top:0"> &nbsp;&nbsp; '+_("confirm.with.reservation"));              
         rows.push('</div>');
       }
     });
@@ -196,14 +191,14 @@ function renderOpenMeetingRequests(refresh) {
         rows.push('<div class="meeting-request" data-id="'+a.id+'">');
         rows.push('<p style="margin-bottom:2px">'+a.event_date.toDateEn(true).toStringDe(true)+" - "+a.bezeichnung);
         rows.push('<br> &nbsp;&nbsp; <small>Anfrage von <a href="?q=churchdb#PersonView/searchEntry:#'+a.modified_pid+'">'+a.modified_name+'</a></small>');
-        rows.push('<div class="meeting-request-answer" style="padding-top:0"> &nbsp;&nbsp; <a href="#" class="meeting-request confirm" id="zusagen">Zusagen</a> | ');              
-        rows.push('<a href="#" class="meeting-request decline" id="absagen">Absagen</a> | ');
-        rows.push('<a href="#" class="meeting-request perhaps" id="absagen">Vielleicht</a>');
+        rows.push('<div class="meeting-request-answer" style="padding-top:0"> &nbsp;&nbsp; <a href="#" class="meeting-request confirm" id="zusagen">'+_("confirm")+'</a> | ');              
+        rows.push('<a href="#" class="meeting-request decline" id="absagen">'+_("deny")+'</a> | ');
+        rows.push('<a href="#" class="meeting-request perhaps" id="absagen">'+_("perhaps")+'</a>');
         rows.push('</div>');
       }
     });
     if (c==0) {
-      if (refresh!=null) rows.push('Super, es ist keine Anfragen mehr offen!');
+      if (refresh!=null) rows.push('great.no.request.pending.anymore');
       else $("#cc_openmeetingrequests").parents("li").remove();
     }
     $("#cc_openmeetingrequests").html(rows.join(""));
@@ -211,14 +206,14 @@ function renderOpenMeetingRequests(refresh) {
       var id=$(this).parents("div.meeting-request").attr("data-id");
       if ($(this).hasClass("confirm")) {
         masterData.meetingRequests[id].zugesagt_yn=1;
-        txt="Danke f&uuml;r die Zusage.";
+        txt=_("thank.you.for.confirmation");
       }
       else if ($(this).hasClass("decline")) {
         masterData.meetingRequests[id].zugesagt_yn=0;
-        txt="Du hast den Termin abgesagt.";
+        txt=_("you.have.denied.the.request");
       }
       else 
-        txt="Deine vorl&auml;ufige Zusage wurde gespeichert.";
+        txt=_("your.confirmation.in.reservation.was.saved");
       var dt=new Date();
       masterData.meetingRequests[id].response_date=dt.toStringEn(true);
       masterData.meetingRequests[id].func="updateMeetingRequest";
