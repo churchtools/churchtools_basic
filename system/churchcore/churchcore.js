@@ -927,25 +927,22 @@ $(document).ready(function() {
     var form = new CC_Form();
     form.addInput({label:_("subject"), type:"xlarge", cssid:"subject", required:true});
     form.addTextarea({label:_("content"), type:"xlarge", cssid:"text", cols:120, rows:6, required:true});
-    var send=_("send");
-    var cancel=_("cancel");
-    var elem=form_showDialog(_("write.email.to.admin"), form.render(false, "vertical"), 400,400, {
-      send: function() {      
-        var obj=form.getAllValsAsObject();
-        if (obj!=null) {
-          obj.func="sendEmailToAdmin";
-          churchInterface.jsendWrite(obj, function(ok, data) {
-            if (!ok) alert(data);
-            else {
-              alert(_("email.was.sent"));
-              elem.dialog("close");          
-            }
-          }, null, false, "about");
-        }
-      },
-      cancel: function() {
-        elem.dialog("close");
+    var elem=form_showDialog(_("write.email.to.admin"), form.render(false, "vertical"), 400,400);
+    elem.dialog('addbutton', _("send"), function() {
+      var obj=form.getAllValsAsObject();
+      if (obj!=null) {
+        obj.func="sendEmailToAdmin";
+        churchInterface.jsendWrite(obj, function(ok, data) {
+          if (!ok) alert(data);
+          else {
+            alert(_("email.was.sent"));
+            elem.dialog("close");          
+          }
+        }, null, false, "about");
       }
+    });
+    elem.dialog('addbutton', _("cancel"), function() {    
+      elem.dialog("close");
     });
     return false;
   });

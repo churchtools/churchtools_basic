@@ -70,7 +70,7 @@
   <entry key="want.to.receive.new.password">Do you really want to receive a new password?</entry>
   <entry key="wrong.password">Wrong password.</entry>  
   
-  <!-- MAIL-ARCHIV -->	  
+  <!-- MAIL -->	  
   <entry key="archive.of.sent.messages">Archive of sent messages</entry>
   <entry key="filter">filter</entry>
   <entry key="back">back</entry>
@@ -81,6 +81,8 @@
   <entry key="subject">Subject</entry>  
   <entry key="content">Content</entry>
   <entry key="read">Read</entry>
+  <entry key="send">Send</entry>
+  <entry key="cancel">Cancel</entry>
   <entry key="email.was.sent">E-Mail was sent successful</entry>
   <entry key="write.email.to.admin">Write an email to the administrator</entry>
 
