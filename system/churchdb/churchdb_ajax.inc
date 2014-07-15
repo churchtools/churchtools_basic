@@ -564,7 +564,7 @@ global $user;
         db_query("DELETE FROM {cdb_bereich_person} WHERE person_id=:rel_id and bereich_id=:bereich_id", 
           array(":rel_id"=>$rel_id, ":bereich_id"=>$value));
       else 
-        db_query("INSERT INTO {cdb_bereich_person} VALUES (".$value.", ".$rel_id.")");  		  	
+        db_query("INSERT INTO {cdb_bereich_person} VALUES (".$value.", ".$rel_id.") on duplicate key update bereich_id=bereich_id");  		  	
 	}
   }  
   return "ok";	
