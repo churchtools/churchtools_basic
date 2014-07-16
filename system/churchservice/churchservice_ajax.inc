@@ -1339,6 +1339,16 @@ class CTChurchServiceModule extends CTAbstractModule {
       ->condition("id", $params["id"], "=")
       ->execute(false);
   	}
+  	if (isset($params["servicegroup"])) {
+  	  foreach ($params["servicegroup"] as $key=>$isg) {
+  	    db_query("insert into {cs_item_servicegroup} (item_id, servicegroup_id, note)". 
+  	          "values(:item_id, :servicegroup_id, :note) on duplicate key
+  	              update note=:note", 
+  	    array(":item_id"=>$params["id"], ":servicegroup_id"=>$key, ":note"=>$isg));
+  	  }
+  	}
+  	
+  	
   	// Now insert event-relation  	
     if (isset($params["event_ids"])) {
   	  foreach ($params["event_ids"] as $event_id) {
