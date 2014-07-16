@@ -357,7 +357,7 @@ function churchcal_deleteEvent($params, $source=null) {
     $cs_params=array_merge(array(), $params);
     $cs_params["cal_id"]=$params["id"];
     $cs_params["informDeleteEvent"]=1;
-    $cs_params["deleteCalEntry"]=0;    
+    $cs_params["deleteCalEntry"]=1;    
     if ($source==null) $source="churchcal";
     $db=db_query("select * from {cs_event} where cc_cal_id=:cal_id", array(":cal_id"=>$cs_params["cal_id"]));
     foreach ($db as $cs) {

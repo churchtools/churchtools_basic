@@ -214,7 +214,7 @@ function churchservice_getNewEventData($params) {
   return $events;
 }
 
-/** L�dt alle Events und nur die Services die sollen **/
+/** Load all Events and services in the current time slot **/
 function churchservice_getAllEventData($params) { 
   global $user;
   $id=null;
@@ -228,7 +228,9 @@ function churchservice_getAllEventData($params) {
   
   $lastday=-variable_get('churchservice_entries_last_days');
   //$auth=user_access("view servicegroup","churchservice");
-  $sql = db_query('SELECT e.id, e.startdate startdate, cal.enddate, e.cc_cal_id, cal.bezeichnung, e.special, cal.category_id, e.admin, datediff(e.startdate,CURRENT_DATE) datediff
+  $sql = db_query('SELECT e.id, e.startdate startdate, e.valid_yn, cal.startdate cal_startdate, cal.enddate cal_enddate, 
+          e.cc_cal_id, cal.bezeichnung, e.special, cal.category_id, e.admin, cal.repeat_id, 
+         datediff(e.startdate,CURRENT_DATE) datediff
                    FROM {cs_event} e, {cc_cal} cal where cal.id=e.cc_cal_id and '.($id!=null?"e.id=$id":"1=1").
                    " AND cal.category_id in (".implode(",",$cat).")");
   
@@ -256,6 +258,12 @@ function churchservice_getAllEventData($params) {
       else if (in_array($user->id, explode(",",$arr->admin))) $event_admin=true;
       if ($arr->special==null)
         $events[$arr->id]->special=null;
+      // We don't have an enddate in cs-event, so we calculate it from the calendar
+      $diff=strtotime($arr->cal_enddate)-strtotime($arr->cal_startdate);
+      $event_enddate=new DateTime($arr->startdate);
+      $event_enddate->modify("+".$diff." seconds");
+      $arr->enddate=$event_enddate->format('Y-m-d H:i:s');
+      
         
       if ((1==1) && ($arr->datediff>$lastday)) {
         $services=db_query($sql_s, array(":event_id"=>$arr->id));

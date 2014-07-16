@@ -108,7 +108,7 @@ function cs_loadAbsent(nextFunction) {
         if (allPersons[a.person_id]==null)
           allPersons[a.person_id]=new Object();
         if (allPersons[a.person_id].absent==null)
-          allPersons[a.person_id].absent=new Array();
+          allPersons[a.person_id].absent=new Object();
         a.startdate=a.startdate.toDateEn(true);
         a.enddate=a.enddate.toDateEn(true);
         allPersons[a.person_id].absent[a.id]=a;

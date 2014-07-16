@@ -1828,9 +1828,12 @@ function run_db_updates($db_version) {
       set_version("2.49");
   	 
   	case "2.49":
-	    db_query("insert into cc_config values('invite_email_text', 'Du wurdest zur Nutzung von %sitename eingeladen.\n\n".
+	    db_query("insert into {cc_config} values('invite_email_text', 'Du wurdest zur Nutzung von %sitename eingeladen.\n\n".
                              "Klicke auf die folgende Schaltfläche, um Dich direkt dort anzumelden und um Dein Passwort zu wählen:')");
-	     
+	    db_query("ALTER TABLE {cs_event} DROP old_category_id");
+	    db_query("ALTER TABLE {cs_event} DROP old_bezeichnung");
+	    db_query("ALTER TABLE {cr_resource} DROP adminmails_old");
+	    db_query("ALTER TABLE {cs_event} ADD valid_yn INT( 1 ) NOT NULL DEFAULT  '1' AFTER startdate");	     
 	    set_version("2.50");
   }
     

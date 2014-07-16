@@ -243,22 +243,25 @@ function _getEditEventFromForm() {
   obj.category_id=$("#Inputcategory").val();
   obj.bezeichnung=$("#InputBezeichnung").val();
   
-  
-  obj.stunde=$("#InputDatumStunde").val();
-  obj.minute=$("#InputDatumMinute").val();
-  var _datum=new Date();
-  _datum=$("#InputDatumTag").val().toDateDe();
-  _datum.setHours(obj.stunde);
-  _datum.setMinutes(obj.minute);
-  
-  obj.startdate=_datum.toStringEn(true);
-
-  if ($("#InputDatumTagEnde").val()!=null) {
+  if ($("#InputDatumTag").attr("disabled")==null) {
+    obj.stunde=$("#InputDatumStunde").val();
+    obj.minute=$("#InputDatumMinute").val();
     var _datum=new Date();
-    _datum=$("#InputDatumTagEnde").val().toDateDe();
-    _datum.setHours($("#InputDatumStundeEnde").val());
-    _datum.setMinutes($("#InputDatumMinuteEnde").val());
-    obj.enddate=_datum.toStringEn(true);
+    _datum=$("#InputDatumTag").val().toDateDe();
+    _datum.setHours(obj.stunde);
+    _datum.setMinutes(obj.minute);
+    
+    obj.startdate=_datum.toStringEn(true);
+  }
+
+  if ($("#InputDatumTagEnde").attr("disabled")==null) {
+    if ($("#InputDatumTagEnde").val()!=null) {
+      var _datum=new Date();
+      _datum=$("#InputDatumTagEnde").val().toDateDe();
+      _datum.setHours($("#InputDatumStundeEnde").val());
+      _datum.setMinutes($("#InputDatumMinuteEnde").val());
+      obj.enddate=_datum.toStringEn(true);
+    }
   }
   
   obj.special=$("#InputSpecial").val();
@@ -319,56 +322,20 @@ ListView.prototype.saveEditEvent = function (elem) {
   var obj=_getEditEventFromForm();
   obj.func="saveEvent";
   
-  if (($("#EventId").val()!=null) && (obj.startdate.toDateEn(true).getTime()!=allEvents[$("#EventId").val()].startdate.toDateEn(true).getTime()) 
+  if (($("#EventId").val()!=null) && (obj.startdate!=null) && (obj.startdate.toDateEn(true).getTime()!=allEvents[$("#EventId").val()].startdate.toDateEn(true).getTime()) 
      && (!confirm("Durch die Anpassung des Datum verschiebt sich auch der Kalendereintrag und ggfl. weitere Ressourcenanfragen. Soll wirklich gespeichert werden?")))
     return null;
   
   var repeats=$("#InputRepeats").val();
   if (repeats==null) repeats=1;
-  
-  var wiederholungbis=$("#InputDatumTagWiederholungEnde").val();
-  if (wiederholungbis==null) wiederholungbis=new Date(obj.startdate.toDateEn());
-  else wiederholungbis=wiederholungbis.toDateDe(true);
-  wiederholungbis.addDays(1);
-  
-  elem.html("<p>");
-  
-
-  // Save Data for sending it asynchron 
-  _array=new Array();
-  var d=obj.startdate.toDateEn(true);
-  var e=obj.enddate.toDateEn(true);
-  while (d<wiederholungbis) {
-    _array.push(jQuery.extend({}, obj));
-    // Add one week
-    d.addDays(7); e.addDays(7);
-    obj.startdate=d.toStringEn(true);
-    obj.enddate=e.toStringEn(true);
-  }
-  var i=0;
-  
-  function _recurs(ok, json) {
-    if (!ok) {
-      alert("Fehler: "+json);
-    } 
-    else {
-      if (_array[i]!=null) {
-        churchInterface.jsendWrite(_array[i],_recurs);
-        elem.html("<b>Daten werden gespeichert f&uuml;r Woche "+i+"...</b><br/><br/>");
-      }              
-      else {
-        // Array ist rausgeschrieben, nun kann ich neuladen
-        elem.html("<b>Lade nun Eventliste neu...</b>");  
-        cs_loadEventData(null, function(){
-          elem.dialog("close");
-          this_object.renderList();
-        });            
-      }
-    }
-    i=i+1;
-  }
-  
-  _recurs(true);
+    
+  elem.html(_("save.data"));
+  churchInterface.jsendWrite(obj, function(ok, data) {
+    cs_loadEventData(null, function(){
+      elem.dialog("close");
+      this_object.renderList();
+    });            
+  });
 };
 
 ListView.prototype.renderEditEvent = function(event) {
@@ -376,225 +343,243 @@ ListView.prototype.renderEditEvent = function(event) {
   var rows=new Array();
   var template=null;
   
-  if (event.bookings) {
-    rows.push('<div class="alert alert-error">Achtung: Das Event enth&auml;lt auch Ressourcen-Buchungen, deshalb Datum & Uhrzeit in <a href="?q=churchcal&date='+event.startdate.toDateEn(false).toStringEn(false)+'">'+masterData.churchcal_name+'</a> bearbeiten. </div>');    
+  
+  if (event.valid_yn==0) {
+    rows.push('<p><p><div class="well"><P> Das Event ist abgesagt worden.<p>');
+    rows.push(form_renderButton({label:"Event reaktivieren", cssid:"reopenEvent"}));
+    rows.push("</div>");
   }
+  else {
   
-  rows.push('<div id="in_edit">');
-  rows.push('<div style="float:left;wid_th:50%">');
-  
-  rows.push('<table>');
-  
-  // Wenn Event neu erstellt wird
-  if (event.id==null) { 
-    if (masterData.settings.aktuelleEventvorlage==null)
-      masterData.settings.aktuelleEventvorlage=0;
-    template=masterData.eventtemplate[masterData.settings.aktuelleEventvorlage];
-    if (template!=null) {
-      if (template.category_id!=null) 
-        event.category_id=template.category_id;
-      event.bezeichnung=template.event_bezeichnung;
-      event.special=template.special;
-      var d=event.startdate.toDateEn();
-      if (template.stunde!=null)
-        d.setHours(template.stunde);
-      if (template.minute!=null)
-        d.setMinutes(template.minute);
-      event.startdate=d.toStringEn(true);
-      var e=event.startdate.toDateEn(true);
-      if (template.dauer_sec!=null)
-        e.setSeconds(e.getSeconds()+template.dauer_sec);
-      else
-        e.setHours(e.getHours()+1);
-      event.enddate=e.toStringEn(true);
-      event.special=template.special;
-      event.admin=template.admin;
+    var date_blocked=false;
+    if (event.bookings) {
+      rows.push('<div class="alert alert-error">Achtung: Das Event enth&auml;lt auch Ressourcen-Buchungen, deshalb Datum & Uhrzeit in <a href="?q=churchcal&date='+event.startdate.toDateEn(false).toStringEn(false)+'">'+masterData.churchcal_name+'</a> bearbeiten. </div>');
+      date_blocked=true;
+    } 
+    else if (event.repeat_id>0) {
+      if (event.cal_startdate!=event.startdate) {
+        rows.push('<div class="alert alert-error">Achtung: Es handelt sich um eine Terminserie. '+ 
+            'Zur Anpassung der gesperrten Felder bitte das <a href="#" class="first-event">Startevent der Serie</a> editieren oder in '
+            +masterData.churchcal_name+' bearbeiten.</div>');
+        date_blocked=true;
+      }
+      else {
+        rows.push('<div class="alert alert-info">Es handelt sich um einen Serientermin. &Auml;nderungen von Kalendar und Bezeichnung &auml;ndern alle Events der Serie! Das Startdatum einer Serie kann nur in '+masterData.churchcal_name+' bearbeitet werden.</div>');      
+      }
     }
-    rows.push('<tr><td>Vorlage<td>');
-    //+this.renderSelect(masterData.settings.aktuelleEventvorlage, "eventtemplate", masterData.eventtemplate));
+    
+    rows.push('<div id="in_edit">');
+    rows.push('<div style="float:left;wid_th:50%">');
+    
+    rows.push('<table>');
+    
+    // Wenn Event neu erstellt wird
+    if (event.id==null) { 
+      if (masterData.settings.aktuelleEventvorlage==null)
+        masterData.settings.aktuelleEventvorlage=0;
+      template=masterData.eventtemplate[masterData.settings.aktuelleEventvorlage];
+      if (template!=null) {
+        if (template.category_id!=null) 
+          event.category_id=template.category_id;
+        event.bezeichnung=template.event_bezeichnung;
+        event.special=template.special;
+        var d=event.startdate.toDateEn();
+        if (template.stunde!=null)
+          d.setHours(template.stunde);
+        if (template.minute!=null)
+          d.setMinutes(template.minute);
+        event.startdate=d.toStringEn(true);
+        var e=event.startdate.toDateEn(true);
+        if (template.dauer_sec!=null)
+          e.setSeconds(e.getSeconds()+template.dauer_sec);
+        else
+          e.setHours(e.getHours()+1);
+        event.enddate=e.toStringEn(true);
+        event.special=template.special;
+        event.admin=template.admin;
+      }
+      rows.push('<tr><td>Vorlage<td>');
+      //+this.renderSelect(masterData.settings.aktuelleEventvorlage, "eventtemplate", masterData.eventtemplate));
+      
+      rows.push(form_renderSelect({
+        data:masterData.eventtemplate, 
+        cssid:"Inputeventtemplate", 
+        selected:masterData.settings.aktuelleEventvorlage, 
+        htmlclass:"input-medium", 
+        controlgroup:false
+      }));
+      
+      if (masterData.auth["edit template"]) {
+        rows.push("&nbsp; <a href=\"#\" id=\"saveTemplate\" title=\"Vorlage speichern\">" +this.renderImage("save", 20)+"</a>");
+        if (template.id!=0)
+          rows.push("&nbsp;<a href=\"#\" id=\"deleteTemplate\" title=\"Vorlage entfernen\">" +this.renderImage("delete_2", 20)+"</a>");      
+      }
+      
+    }
+  
+    var minutes = new Array();
+    form_addEntryToSelectArray(minutes, 0, "0");
+    form_addEntryToSelectArray(minutes, 15, "15");
+    form_addEntryToSelectArray(minutes, 30, "30");
+    form_addEntryToSelectArray(minutes, 45, "45");
+    var hours = new Array();
+    for (var i=0;i<24;i++) {
+      form_addEntryToSelectArray(hours, i, i, i);
+    }
+    if (event.id!=null)
+      rows.push('<input type=hidden id="EventId" value="'+event.id+'"/>');
+    
+    rows.push("<tr><td>"+form_renderInput({
+      cssid:"InputDatumTag",
+      label:"Datum",
+      controlgroup:false,
+      separator:"<td><nobr>",
+      value:event.startdate.toDateEn().toStringDe(),
+      type:"small",
+      disabled:date_blocked || event.repeat_id>0
+    })+"&nbsp;");  
     
     rows.push(form_renderSelect({
-      data:masterData.eventtemplate, 
-      cssid:"Inputeventtemplate", 
-      selected:masterData.settings.aktuelleEventvorlage, 
-      htmlclass:"input-medium", 
+      data:hours, 
+      cssid:"InputDatumStunde", 
+      selected:event.startdate.toDateEn().getHours(), 
+      htmlclass:"input-mini", 
+      disabled:date_blocked || event.repeat_id>0,
       controlgroup:false
-    }));
+    })+" : ");
     
-    if (masterData.auth["edit template"]) {
-      rows.push("&nbsp; <a href=\"#\" id=\"saveTemplate\" title=\"Vorlage speichern\">" +this.renderImage("save", 20)+"</a>");
-      if (template.id!=0)
-        rows.push("&nbsp;<a href=\"#\" id=\"deleteTemplate\" title=\"Vorlage entfernen\">" +this.renderImage("delete_2", 20)+"</a>");      
-    }
+    rows.push(form_renderSelect({
+      data:minutes, 
+      cssid:"InputDatumMinute", 
+      selected:event.startdate.toDateEn().getMinutes(), 
+      type:"mini", 
+      disabled:date_blocked || event.repeat_id>0,
+      controlgroup:false
+    }));  
+    rows.push("</nobr>");
+    rows.push("<div id=\"dp_inputdatumtag\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/>");
     
-  }
-
-  var minutes = new Array();
-  form_addEntryToSelectArray(minutes, 0, "0");
-  form_addEntryToSelectArray(minutes, 15, "15");
-  form_addEntryToSelectArray(minutes, 30, "30");
-  form_addEntryToSelectArray(minutes, 45, "45");
-  var hours = new Array();
-  for (var i=0;i<24;i++) {
-    form_addEntryToSelectArray(hours, i, i, i);
-  }
-  if (event.id!=null)
-    rows.push('<input type=hidden id="EventId" value="'+event.id+'"/>');
-  
-  rows.push("<tr><td>"+form_renderInput({
-    cssid:"InputDatumTag",
-    label:"Datum",
-    controlgroup:false,
-    separator:"<td><nobr>",
-    value:event.startdate.toDateEn().toStringDe(),
-    type:"small",
-    disabled:event.bookings
-  })+"&nbsp;");  
-  
-  rows.push(form_renderSelect({
-    data:hours, 
-    cssid:"InputDatumStunde", 
-    selected:event.startdate.toDateEn().getHours(), 
-    htmlclass:"input-mini", 
-    disabled:event.bookings,
-    controlgroup:false
-  })+" : ");
-  
-  rows.push(form_renderSelect({
-    data:minutes, 
-    cssid:"InputDatumMinute", 
-    selected:event.startdate.toDateEn().getMinutes(), 
-    type:"mini", 
-    disabled:event.bookings,
-    controlgroup:false
-  }));  
-  rows.push("</nobr>");
-  rows.push("<div id=\"dp_inputdatumtag\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/>");
-  
-  rows.push("<tr><td>"+form_renderInput({
-    cssid:"InputDatumTagEnde",
-    label:"Bis",
-    controlgroup:false,
-    separator:"<td><nobr>",
-    value:event.enddate.toDateEn().toStringDe(),
-    disabled:event.bookings,
-    type:"small"
-  })+"&nbsp;");  
-  
-  rows.push(form_renderSelect({
-    data:hours, 
-    cssid:"InputDatumStundeEnde", 
-    selected:event.enddate.toDateEn().getHours(), 
-    htmlclass:"input-mini", 
-    disabled:event.bookings,
-    controlgroup:false
-  })+" : ");
-  
-  
-  rows.push(form_renderSelect({
-    data:minutes, 
-    cssid:"InputDatumMinuteEnde", 
-    selected:event.enddate.toDateEn().getMinutes(), 
-    type:"mini", 
-    disabled:event.bookings,
-    controlgroup:false
-  }));  
-  rows.push("</nobr>");
-  rows.push("<div id=\"dp_inputdatumtagende\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/>");
-
-  
-  
-  rows.push('<tr><td>Kalender<td>'+this.renderSelect(event.category_id, "category", t.prepareCategoriesForSelect()));
-  rows.push('<tr><td>'+this.renderInput("InputBezeichnung", "Bezeichnung", event.bezeichnung, 20));
-  rows.push('<tr><td>'+this.renderTextarea("InputSpecial", _("more.information"), event.special, 20,3));
-  rows.push('<tr><td>'+this.renderInput("InputAdmin", "Event-Admin", event.admin, 20, !masterData.auth.admin));
-  rows.push('<p><small><span id="adminName">Kommaseparierte Person-Ids, dazu Name eintippen.</span></small></p>');
-  if ((event.admin!=null) && (event.admin!="") && (masterData.auth.viewchurchdb)) {
-    churchInterface.jsendRead({func:"getPersonById", id:event.admin}, function(ok, json) {
-      var s = "";
-      if (json.data!=null) {
-        $.each(json.data, function(k,a) {
-          if (s!="") s=s+"<br/>";
-          s=s+a.vorname+" "+a.name;
-        });
-      }
-      $("#adminName").html(s);
-    }, null, null, "churchdb"); 
-  }
-    
-  
-  if (event.id==null) { 
-    var a = new Array();
-    for (var i=1;i<10;i++) {
-      var b = new Array();
-      b.id=i;
-      b.bezeichnung=i+"";
-      a[i]=b;
-    }
-//    rows.push('<tr><td>Wiederholungen<td>'+this.renderSelect("InputRepeats", "Repeats", a)+"<p><small>Anzahl der zu erstellenden Wochen");    
-    rows.push('<tr><td>Wiederholung bis<td>'+form_renderInput({
-      cssid:"InputDatumTagWiederholungEnde",
+    rows.push("<tr><td>"+form_renderInput({
+      cssid:"InputDatumTagEnde",
+      label:"Bis",
       controlgroup:false,
-      value:event.startdate.toDateEn().toStringDe(),
-      type:"small"}));
-    rows.push("<div id=\"dp_inputdatumtagwiederholung\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/>");    
-    rows.push("<p><small>W&ouml;chentlich Wiederholung des Events</small>");    
-  }
-  if (event.id!=null)
-    rows.push('<p align="right"><small>Id:'+event.id+"</small>");
-
-  rows.push("</table><br/>");
-  rows.push('</div>');
-
+      separator:"<td><nobr>",
+      value:event.enddate.toDateEn().toStringDe(),
+      disabled:date_blocked,
+      type:"small"
+    })+"&nbsp;");  
+    
+    rows.push(form_renderSelect({
+      data:hours, 
+      cssid:"InputDatumStundeEnde", 
+      selected:event.enddate.toDateEn().getHours(), 
+      htmlclass:"input-mini", 
+      disabled:date_blocked,
+      controlgroup:false
+    })+" : ");
+    
+    
+    rows.push(form_renderSelect({
+      data:minutes, 
+      cssid:"InputDatumMinuteEnde", 
+      selected:event.enddate.toDateEn().getMinutes(), 
+      type:"mini", 
+      disabled:date_blocked,
+      controlgroup:false
+    }));  
+    rows.push("</nobr>");
+    rows.push("<div id=\"dp_inputdatumtagende\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/>");
   
-  // Nun alle Services hinzuf�gbar machen
-  
-  rows.push('<div style="wid_th:40%;float:right;padding-right:20px;">');
-  rows.push('<table>');
-
-  if (event.id==null) {
-    $.each(churchcore_sortData(masterData.servicegroup,"sortkey"),function(k,sg) {
-      rows.push('<tr><th colspan=2>'+sg.bezeichnung+'<td>');
+    
+    
+    rows.push('<tr><td>Kalender<td>'+form_renderSelect({selected:event.category_id, cssid:"Inputcategory", 
+           data:t.prepareCategoriesForSelect(), disabled: date_blocked, controlgroup:false}));
+    rows.push('<tr><td>'+_("caption")+"<td>"+form_renderInput({controlgroup:false, cssid:"InputBezeichnung", value:event.bezeichnung, disabled:date_blocked}));
+    
+    
+    rows.push('<tr><td>'+this.renderTextarea("InputSpecial", _("more.information"), event.special, 20,3));
+    rows.push('<tr><td>'+this.renderInput("InputAdmin", "Event-Admin", event.admin, 20, !masterData.auth.admin));
+    rows.push('<p><small><span id="adminName">Kommaseparierte Person-Ids, dazu Name eintippen.</span></small></p>');
+    if ((event.admin!=null) && (event.admin!="") && (masterData.auth.viewchurchdb)) {
+      churchInterface.jsendRead({func:"getPersonById", id:event.admin}, function(ok, json) {
+        var s = "";
+        if (json.data!=null) {
+          $.each(json.data, function(k,a) {
+            if (s!="") s=s+"<br/>";
+            s=s+a.vorname+" "+a.name;
+          });
+        }
+        $("#adminName").html(s);
+      }, null, null, "churchdb"); 
+    }
       
-      $.each(masterData.service_sorted, function(i,s) {
-        if (s.servicegroup_id==sg.id) {
-          rows.push('<tr><td>'+s.bezeichnung+'&nbsp;');
-          if ((s.notiz!=null) && (s.notiz!=""))
-            rows.push('<small>('+s.notiz.trim(10)+')</small>');
-          var count=0;
-          if ((masterData.eventtemplate_services!=null) && (masterData.eventtemplate_services[template.id]!=null)) {
-            if (masterData.eventtemplate_services[template.id][s.id]!=null)
-              count=masterData.eventtemplate_services[template.id][s.id];
-          } 
-          else {
-            // Anonsten schaue, ob es Eintr�ge gibt
-            if (event.services!=null) {
-              var entries=0;
-              $.each(event.services, function(j,e) {
-                if (e.service_id==s.id) entries=entries+1; 
-              });
-              if (entries>0) count=entries;
+    
+    if (event.id==null) { 
+      var a = new Array();
+      for (var i=1;i<10;i++) {
+        var b = new Array();
+        b.id=i;
+        b.bezeichnung=i+"";
+        a[i]=b;
+      }
+    }
+    if (event.id!=null)
+      rows.push('<p align="right"><small>Id:'+event.id+"</small>");
+  
+    rows.push("</table><br/>");
+    rows.push('</div>');
+  
+    
+    // Nun alle Services hinzuf�gbar machen
+    
+    rows.push('<div style="wid_th:40%;float:right;padding-right:20px;">');
+    rows.push('<table>');
+  
+    if (event.id==null) {
+      $.each(churchcore_sortData(masterData.servicegroup,"sortkey"),function(k,sg) {
+        rows.push('<tr><th colspan=2>'+sg.bezeichnung+'<td>');
+        
+        $.each(masterData.service_sorted, function(i,s) {
+          if (s.servicegroup_id==sg.id) {
+            rows.push('<tr><td>'+s.bezeichnung+'&nbsp;');
+            if ((s.notiz!=null) && (s.notiz!=""))
+              rows.push('<small>('+s.notiz.trim(10)+')</small>');
+            var count=0;
+            if ((masterData.eventtemplate_services!=null) && (masterData.eventtemplate_services[template.id]!=null)) {
+              if (masterData.eventtemplate_services[template.id][s.id]!=null)
+                count=masterData.eventtemplate_services[template.id][s.id];
+            } 
+            else {
+              // Anonsten schaue, ob es Eintr�ge gibt
+              if (event.services!=null) {
+                var entries=0;
+                $.each(event.services, function(j,e) {
+                  if (e.service_id==s.id) entries=entries+1; 
+                });
+                if (entries>0) count=entries;
+              }
             }
-          }
-          rows.push('<td width=10px><input type="checkbox" id="cb_'+s.id+'" class="cdb-checkbox"');
-          if (count>0) rows.push("checked");
-          rows.push('/>');
-        }      
-      });    
-    });
+            rows.push('<td width=10px><input type="checkbox" id="cb_'+s.id+'" class="cdb-checkbox"');
+            if (count>0) rows.push("checked");
+            rows.push('/>');
+          }      
+        });    
+      });
+    }
+    rows.push('</table>');
+    rows.push('</div>');
+    
+    
+    rows.push("<br/>");
+    rows.push('</div>');
+    rows.push('<div style="clear:both">');
   }
-  rows.push('</table>');
-  rows.push('</div>');
-  
-  
-  rows.push("<br/>");
-  rows.push('</div>');
-  rows.push('<div style="clear:both">');
 
   var this_object=this;
 
-  var elem = this.showDialog("Veränderung des Events", rows.join(""), (event.id==null?680:450), (event.id==null?600:500), {
-    "Speichern": function() {
+  var elem = this.showDialog("Veränderung des Events", rows.join(""), (event.id==null?680:450), (event.id==null?600:500));
+  if (event.valid_yn==null || event.valid_yn==1) {
+    elem.dialog("addbutton", _("save"), function() {
       if ($("#Inputcategory").val()<0) alert("Bitte einen Kalender auswählen!");
       else if ($("#InputBezeichnung").val()=="") alert("Bitte eine Bezeichnung angeben!");
       else {
@@ -604,8 +589,19 @@ ListView.prototype.renderEditEvent = function(event) {
           this_object.currentDate=event.startdate.toDateEn(false);
         }
       }
-    }
+    });
+  }
+  
+  $("a.first-event").click(function() {
+    $.each(allEvents, function(k,a) {
+      if (a.cc_cal_id==event.cc_cal_id && (a.cal_startdate=a.startdate)) {
+        elem.dialog("close");
+        this_object.renderEditEvent(a);
+        return false;
+      }
+    });
   });
+  		
   
   this.autocompletePersonSelect("#InputAdmin", false, function(divid, ui) {
     $("#adminName").html(ui.item.label);
@@ -674,6 +670,17 @@ ListView.prototype.renderEditEvent = function(event) {
       this_object.renderEditEvent(event);
     }
   });
+
+  $("#reopenEvent").click(function (a) {
+    churchInterface.jsendWrite({func:"saveEvent", id:event.id, valid_yn:1}, function(ok, data) {
+      event.valid_yn=1;
+      cs_loadEventData(null, function(){
+        elem.dialog("close");
+        this_object.renderList();
+      });            
+    });
+    
+  });
   
   $("#in_edit input").click(function (a) {    
     if (($(this).attr("id").indexOf("cb_")==0) && (!$(this).attr("checked"))) {
@@ -694,12 +701,11 @@ ListView.prototype.renderEditEvent = function(event) {
     }
   });
     
-  
-  if (event.id!=null) {
+  if (event.id!=null && event.valid_yn==1) {
     elem.dialog('addbutton', 'Event absagen', function() {
       var form = new CC_Form();
       form.addCheckbox({cssid:"informDeleteEvent", label:"Alle angefragten Personen über die Absage informieren?", checked:true});
-      form.addCheckbox({cssid:"deleteCalEntry", label:"Auch Kalendereintrag entfernen (wird bei Wiederholungsterminen ignoriert!)"});
+      form.addCheckbox({cssid:"deleteCalEntry", label:"Endg&uuml;ltig entfernen (bei nicht Serienterminen auch der Kalendereintrag!)"});
       var elem2 = form_showDialog("Absagen des Events", form.render(null, "vertical"), 300, 300, {
         "Absagen": function() {    
           obj=form.getAllValsAsObject();
@@ -708,7 +714,12 @@ ListView.prototype.renderEditEvent = function(event) {
           churchInterface.jsendWrite(obj, function(ok, json) {
             if (!ok) alert("Fehler beim Speichern: "+json);
             else {
-              delete allEvents[event.id];
+              if (obj.deleteCalEntry==1)        
+                delete allEvents[event.id];
+              else {
+                allEvents[event.id].valid_yn=0;
+                allEvents[event.id].services=null;
+              }
               elem2.dialog("close");
               elem.dialog("close");
               this_object.renderList();
@@ -964,10 +975,17 @@ ListView.prototype.renderListEntry = function(event) {
   rows.push('<td class="hoveractor">');
 
   var agendaview=event.agenda && (user_access("view agenda", event.category_id) || t.amIInvolved(event));
+
+  rows.push("<b>");
+  if (event.valid_yn==0)
+    rows.push('<span style="text-decoration:line-through">');
   if (agendaview)
-    rows.push('<b><a href="#" id="detail'+event.id+'">' + event.startdate.toDateEn(true).toStringDeTime() + " "+event.bezeichnung+"</a></b>&nbsp; ");
+    rows.push('<a href="#" id="detail'+event.id+'">' + event.startdate.toDateEn(true).toStringDeTime() + " "+event.bezeichnung+"</a>");
   else
-    rows.push("<b>" + event.startdate.toDateEn(true).toStringDeTime(true)+" "+event.bezeichnung+"</b>&nbsp; ");
+    rows.push(event.startdate.toDateEn(true).toStringDeTime(true)+" "+event.bezeichnung);
+  if (event.valid_yn==0)
+    rows.push('</span>');
+  rows.push('</b>&nbsp;');
   
   if (masterData.auth.write)
     rows.push(form_renderImage({src:"options.png", hover:true, width:18, htmlclass:"edit-event", label:"Editieren", link:true}));
@@ -977,44 +995,47 @@ ListView.prototype.renderListEntry = function(event) {
   if ((event.special!=null) && (event.special!=""))
     rows.push("<div class=\"event_info\">"+event.special.htmlize()+"</div>");
   
-  var _authMerker=masterData.auth.write || _bin_ich_admin;
-  // Check if I am a leader of the group
-  if (!_authMerker)
-    $.each(masterData.service, function(k,a) {
-      if (masterData.auth.leaderservice[a.id]) {
-        _authMerker=true;
-        //exit
-        return false;
-      }
-    });
-  if (_authMerker) rows.push("<a href=\"#\" id=\"editNote" + event.id + "\" title=\"Editiere 'Weitere Infos'\">" +this.renderImage("info")+"</a>&nbsp;");
-  // Check if I am in one of the services, so I am allowed to uplaod files
-  if ((!_authMerker) && (event.services!=null)) {
-    $.each(event.services, function(k,a) {
-      if ((a.valid_yn==1) && (masterData.user_pid==a.cdb_person_id)) {
-        _authMerker=true;
-        return false;
-      }
-    });
+  if (event.valid_yn==1) {  
+    var _authMerker=masterData.auth.write || _bin_ich_admin;
+    // Check if I am a leader of the group
+    if (!_authMerker)
+      $.each(masterData.service, function(k,a) {
+        if (masterData.auth.leaderservice[a.id]) {
+          _authMerker=true;
+          //exit
+          return false;
+        }
+      });
+    if (_authMerker) rows.push("<a href=\"#\" id=\"editNote" + event.id + "\" title=\"Editiere 'Weitere Infos'\">" +this.renderImage("info")+"</a>&nbsp;");
+    // Check if I am in one of the services, so I am allowed to uplaod files
+    if ((!_authMerker) && (event.services!=null)) {
+      $.each(event.services, function(k,a) {
+        if ((a.valid_yn==1) && (masterData.user_pid==a.cdb_person_id)) {
+          _authMerker=true;
+          return false;
+        }
+      });
+    }
+    
+    if (_authMerker) rows.push("<a href=\"#\" id=\"attachFile" + event.id + "\" title=\"Datei zum Event anh&auml;ngen\">" +this.renderImage("paperclip")+"</a>&nbsp;");
+  
+    if (event.services!=null)
+      rows.push("<a href=\"#\" id=\"mailEvent" + event.id + "\" title=\"Erstelle E-Mail an Personen des Events\">" +this.renderImage("email")+"</a>&nbsp;");
+    if (event.admin!=null)
+      if (_bin_ich_admin) 
+        rows.push("<a href=\"#\" id=\"filterMyAdmin" + event.id + "\" title=\"Du bist Admin!\">" +this.renderImage("person")+"</a>&nbsp;");
+      else
+        rows.push(this.renderImage("person_sw",null,"Das Event hat einen Admin.")+"&nbsp;");
+    
+    if (!event.agenda && user_access("edit agenda", event.category_id))
+      rows.push(form_renderImage({src:"agenda_plus.png", htmlclass:"show-agenda", link:true, label:"Ablaufplan zum Event hinzufügen", width:20}));
+    else if (agendaview)
+      rows.push(form_renderImage({src:"agenda.png", htmlclass:"show-agenda", link:true, label:"Ablaufplan anzeigen", width:20})); 
   }
   
-  if (_authMerker) rows.push("<a href=\"#\" id=\"attachFile" + event.id + "\" title=\"Datei zum Event anh&auml;ngen\">" +this.renderImage("paperclip")+"</a>&nbsp;");
-
-  if (event.services!=null)
-    rows.push("<a href=\"#\" id=\"mailEvent" + event.id + "\" title=\"Erstelle E-Mail an Personen des Events\">" +this.renderImage("email")+"</a>&nbsp;");
-  if (event.admin!=null)
-    if (_bin_ich_admin) 
-      rows.push("<a href=\"#\" id=\"filterMyAdmin" + event.id + "\" title=\"Du bist Admin!\">" +this.renderImage("person")+"</a>&nbsp;");
-    else
-      rows.push(this.renderImage("person_sw",null,"Das Event hat einen Admin.")+"&nbsp;");
-  
-  if (!event.agenda && user_access("edit agenda", event.category_id))
-    rows.push(form_renderImage({src:"agenda_plus.png", htmlclass:"show-agenda", link:true, label:"Ablaufplan zum Event hinzufügen", width:20}));
-  else if (agendaview)
-    rows.push(form_renderImage({src:"agenda.png", htmlclass:"show-agenda", link:true, label:"Ablaufplan anzeigen", width:20}));
   
   rows.push('<div class="filelist" data-id="'+event.id+'"></div>');
-    
+  
   // When no filterDienstgruppe is selected, it show all Services, sorted by ServiceGroup
   if (this.filter["filterDienstgruppen"]==null) {
     $.each(this.sortMasterData(masterData.servicegroup, "sortkey"), function(k,sg) {
@@ -1022,22 +1043,24 @@ ListView.prototype.renderListEntry = function(event) {
       if ((masterData.settings["viewgroup"+sg.id]==null) || (masterData.settings["viewgroup"+sg.id]==1)) {
         if ((masterData.auth.viewgroup[sg.id]) || (this_object.filter["filterMeine Filter"]==2)) {
           rows.push('<td valign="top" class="service hoveractor" data-servicegroup-id="'+sg.id+'" style="position:relative" width="'+width+'%">');
-          $.each(masterData.service_sorted, function(i,s) {
-            if (sg.id==s.servicegroup_id) {
-              if (masterData.auth.leaderservice[s.id]==true) is_leader=true;
-              if (event.services!=null) {
-                var history="";
-                $.each(churchcore_sortData(event.services,"counter", false, false), function(j,services) {
-                  if ((services.service_id==s.id)) {
-                    rows.push(
-                      this_object.renderEventServiceEntry(event.id, services, _bin_ich_admin)
-                    );
-                    _soll_zeigen=true;
-                  }
-                });
-              }  
-            }      
-          });
+          if (event.valid_yn==1) {              
+            $.each(masterData.service_sorted, function(i,s) {
+              if (sg.id==s.servicegroup_id) {
+                if (masterData.auth.leaderservice[s.id]==true) is_leader=true;
+                if (event.services!=null) {
+                  var history="";
+                  $.each(churchcore_sortData(event.services,"counter", false, false), function(j,services) {
+                    if ((services.service_id==s.id)) {
+                      rows.push(
+                        this_object.renderEventServiceEntry(event.id, services, _bin_ich_admin)
+                      );
+                      _soll_zeigen=true;
+                    }
+                  });
+                }  
+              }      
+            });
+          }
           // Show "+" to add furhter Services
           if (masterData.auth.write 
                   || (masterData.auth.editgroup!=null && masterData.auth.editgroup[sg.id]) 
@@ -1057,14 +1080,16 @@ ListView.prototype.renderListEntry = function(event) {
     $.each(masterData.service_sorted, function(k,s) {
       if ((event.services!=null) && (s.servicegroup_id==this_object.filter["filterDienstgruppen"])) {
         rows.push("<td>");
-        $.each(event.services, function(i,services) {
-          if ((services.service_id==s.id) && (services.valid_yn==1)) {
-            rows.push(
-              this_object.renderEventServiceEntry(event.id, services, _bin_ich_admin)
-            );
-            _soll_zeigen=true;
-          }
-        });
+        if (event.services!=null) {
+          $.each(event.services, function(i,services) {
+            if ((services.service_id==s.id) && (services.valid_yn==1)) {
+              rows.push(
+                this_object.renderEventServiceEntry(event.id, services, _bin_ich_admin)
+              );
+              _soll_zeigen=true;
+            }
+          });
+        }
       }  
     });
   }

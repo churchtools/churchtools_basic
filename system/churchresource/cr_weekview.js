@@ -1066,7 +1066,7 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
           logs=logs+"</div>";
           log.html(logs);
           $("#cr_logs a").click(function(c) {
-            if (($(this).attr("id")=="del_complete") && (user_access("edit", a.resource_id))){
+            if (($(this).attr("id")=="del_complete") && (user_access("edit", id))){
               if (confirm("Soll der Termin wirklich entfernt werden? Achtung, man kann es nicht mehr wiederherstellen!")) {          
                 churchInterface.jsendWrite({func: "delBooking", id:id}, function(ok, json) {
                   allBookings[id]=null;

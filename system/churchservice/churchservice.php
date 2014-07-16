@@ -257,8 +257,8 @@ function churchservice_getUserOpenServices() {
                        DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') datum, s.bezeichnung service, 
                        s.id service_id, sg.bezeichnung servicegroup, concat(p.vorname, ' ', p.name) as modifieduser, p.id modified_pid
                    from {cs_eventservice} es, {cs_event} e, {cs_servicegroup} sg, {cs_service} s, {cdb_person} p, {cc_cal} cal 
-                    where cal.id=e.cc_cal_id and cdb_person_id=$user->id and e.startdate>=current_date() and es.modified_pid=p.id and 
-                    zugesagt_yn=0 and valid_yn=1 and es.event_id=e.id and es.service_id=s.id 
+                    where e.valid_yn=1 and cal.id=e.cc_cal_id and cdb_person_id=$user->id and e.startdate>=current_date() and es.modified_pid=p.id and 
+                    zugesagt_yn=0 and es.valid_yn=1 and es.event_id=e.id and es.service_id=s.id 
                     and sg.id=s.servicegroup_id order by datum ");
   $nr=0;
   $txt2="";
@@ -308,7 +308,7 @@ function churchservice_getCurrentEvents() {
   
   $events=db_query("select e.id, DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') datum, bezeichnung 
       from {cs_event} e, {cc_cal} cal 
-      where cal.id=e.cc_cal_id and DATE_ADD(e.startdate, INTERVAL 3 hour) > NOW() and datediff(e.startdate, now())<3 order by e.startdate");
+      where e.valid_yn=1 and cal.id=e.cc_cal_id and DATE_ADD(e.startdate, INTERVAL 3 hour) > NOW() and datediff(e.startdate, now())<3 order by e.startdate");
   foreach($events as $event) {
     $firstrow=true;
     $ess=db_query("select es.name, s.cdb_gruppen_ids, s.bezeichnung, es.zugesagt_yn
@@ -355,8 +355,8 @@ function churchservice_getUserNextServices($shorty=true) {
   $pid=$user->id;
   $res = db_query("select e.id event_id, cal.bezeichnung event, DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') datum, s.bezeichnung service, sg.bezeichnung servicegroup, cdb_person_id, DATE_FORMAT(es.modified_date, '%d.%m.%Y %H:%i') modified_date
    from {cs_eventservice} es, {cs_event} e, {cc_cal} cal, {cs_servicegroup} sg, {cs_service} s where
-   cal.id=e.cc_Cal_id and  
-     cdb_person_id=$pid and e.startdate>=current_date and zugesagt_yn=1 and valid_yn=1 and es.event_id=e.id and es.service_id=s.id and sg.id=s.servicegroup_id order by e.startdate");
+   cal.id=e.cc_Cal_id and e.valid_yn=1 and  
+     cdb_person_id=$pid and e.startdate>=current_date and zugesagt_yn=1 and es.valid_yn=1 and es.event_id=e.id and es.service_id=s.id and sg.id=s.servicegroup_id order by e.startdate");
   $nr=0;
   $txt="";
   foreach($res as $arr) {
@@ -506,7 +506,7 @@ function churchservice_openservice_rememberdays() {
   // Pr�fe dabei, ob die Person eine EMail-Adresse hat und auch gemappt wurde.
   $sql="select es.id, p.id p_id, p.vorname, p.email, es.modified_pid, if (password is null and loginstr is null and lastlogin is null,1,0) as invite  
                     from {cs_eventservice} es, {cs_event} e, {cc_cal} cal, {cs_service} s, {cdb_person} p 
-                    where e.cc_cal_id=cal.id and es.valid_yn=1 and es.zugesagt_yn=0 and es.cdb_person_id is not null
+                    where e.valid_yn=1 and e.cc_cal_id=cal.id and es.valid_yn=1 and es.zugesagt_yn=0 and es.cdb_person_id is not null
                       and es.service_id=s.id and s.sendremindermails_yn=1 
                       and es.event_id=e.id and e.Startdate>=current_date
                       and ((es.mailsenddate is null) or (datediff(current_date,es.mailsenddate)>=$delay))
@@ -516,7 +516,7 @@ function churchservice_openservice_rememberdays() {
   $sql2="select es.id id, cal.bezeichnung event, DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') datum, e.id event_id,
                  s.bezeichnung service, sg.bezeichnung servicegroup, es.mailsenddate
               from {cs_eventservice} es, {cs_event} e, {cc_cal} cal, {cs_service} s, {cs_servicegroup} sg 
-                 where cal.id=e.cc_cal_id and es.valid_yn=1 and es.zugesagt_yn=:zugesagt and es.cdb_person_id=:p_id
+                 where e.valid_yn=1 and cal.id=e.cc_cal_id and es.valid_yn=1 and es.zugesagt_yn=:zugesagt and es.cdb_person_id=:p_id
                   and s.sendremindermails_yn=1 
                   and es.event_id=e.id and es.service_id=s.id and sg.id=s.servicegroup_id
                   and e.startdate>=current_date
@@ -587,7 +587,7 @@ function churchservice_remindme() {
          FROM {cs_eventservice} es, {cs_service} s, {cs_event} e, {cc_cal} cal, {cs_servicegroup} sg,
               {cdb_person} p where
            cal.id=e.cc_cal_id and es.cdb_person_id=:person_id and p.id=:person_id and p.email!='' 
-         AND es.valid_yn=1 AND es.zugesagt_yn=1
+         AND e.valid_yn=1 and es.valid_yn=1 AND es.zugesagt_yn=1
          and UNIX_TIMESTAMP(e.startdate)-UNIX_TIMESTAMP(now())<60*60*(:hours) 
          and UNIX_TIMESTAMP(e.startdate)-UNIX_TIMESTAMP(now())>0
          AND s.id=es.service_id and s.sendremindermails_yn=1   
@@ -711,7 +711,7 @@ function churchservice_inform_leader() {
     if ($person!=null) {
       $res=db_query("select es.id, c.bezeichnung event, DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') datum, es.name, s.bezeichnung service 
          from {cs_event} e, {cs_eventservice} es, {cs_service} s, {cc_cal} c 
-         where c.id=e.cc_cal_id and es.service_id in (".implode(",",$person["service"]).")
+         where e.valid_yn=1 and c.id=e.cc_cal_id and es.service_id in (".implode(",",$person["service"]).")
           and es.event_id=e.id and es.service_id=s.id and es.valid_yn=1 and zugesagt_yn=0
           and e.startdate>current_date and datediff(e.startdate,CURRENT_DATE)<=60 order by e.startdate");
       $txt='';

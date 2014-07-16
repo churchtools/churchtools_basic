@@ -43,7 +43,7 @@ function churchservice_copyEventByCalId($orig_cal_id, $new_cal_id, $new_startdat
         $fields["name"]=$s->name;
         $fields["cdb_person_id"]=$s->cdb_person_id;
         $fields["reason"]=$s->reason;
-        // Nicht gesetzt, damit eine neue Anfrage fŸr das andere Datum gesendet wird.
+        // Nicht gesetzt, damit eine neue Anfrage fï¿½r das andere Datum gesendet wird.
 //        $fields["mailsenddate"]=$s->mailsenddate;
         $fields["modified_date"]=$s->modified_date;
         $fields["modifieduser"]=$s->modifieduser;
@@ -166,17 +166,17 @@ function churchservice_updateEventFromChurchCal($params, $source=null) {
 
 
 // Erstellt oder Updated ein Event
-// Wenn eventTemplate Ÿbergeben wird, dann holt er die Daten aus dem Template, ansonsten nutzt er services 
+// Wenn eventTemplate ï¿½bergeben wird, dann holt er die Daten aus dem Template, ansonsten nutzt er services 
 function churchservice_saveEvent($params, $source=null) {
   global $user;
   
   include_once(drupal_get_path('module', 'churchcal') .'/churchcal_db.inc');
   $cal_id=null;
-  if (($source=="churchcal") && ($params["id"]==null)) {
+  if (($source=="churchcal") && ($params["id"]==null) && (isset($params["cal_id"]))) {
     $cal_id=$params["cal_id"];  
   }
   else {
-    // Hole mir erst mal die zugehšrige cc_cal_id, falls es das Event schon gibt.
+    // Hole mir erst mal die zugehï¿½rige cc_cal_id, falls es das Event schon gibt.
     if (isset($_GET["id"])) {
       $cal_id=db_query("select cc_cal_id from {cs_event} where id=:id", array(":id"=>$_GET["id"]))->fetch()->cc_cal_id;
     }   
@@ -184,7 +184,10 @@ function churchservice_saveEvent($params, $source=null) {
 
   // Erst mal das cs_event updated/inserten
   $fields=array();
-  $fields["startdate"]=$params["startdate"];
+  if (isset($params["startdate"]))
+    $fields["startdate"]=$params["startdate"];
+  if (isset($params["valid_yn"]))
+    $fields["valid_yn"]=$params["valid_yn"];
   if ($source==null) {
     $fields["special"]=(isset($params["special"])?$params["special"]:"");
     $fields["admin"]=(isset($params["admin"])?$params["admin"]:"");
@@ -193,9 +196,9 @@ function churchservice_saveEvent($params, $source=null) {
   if (isset($params["eventTemplate"])) {
     $db=db_query('select special, admin from {cs_eventtemplate} where id=:id', array(":id"=>$params["eventTemplate"]))->fetch();
     if ($db!=false) {
-      if ((!isset($fields["special"])) ||Ê($fields["special"]==""))
+      if ((!isset($fields["special"])) ||ï¿½($fields["special"]==""))
         $fields["special"]=$db->special;
-      if ((!isset($fields["admin"])) ||Ê($fields["admin"]==""))
+      if ((!isset($fields["admin"])) ||ï¿½($fields["admin"]==""))
         $fields["admin"]=$db->admin;
     }    
   }
@@ -209,10 +212,10 @@ function churchservice_saveEvent($params, $source=null) {
       ->execute();
       
     // BENACHRICHTIGE ANDERE MODULE  
-    if ($source==null) {
+    if ($source==null && $cal_id!=null) {
       $cal_params=array_merge(array(), $params);
       $cal_params["event_id"]=$event_id;
-      $cal_params["id"]=$cal_id; 
+      $cal_params["id"]=$cal_id;
       churchcal_updateEvent($cal_params, "churchservice");
     }
   }
@@ -258,7 +261,7 @@ function churchservice_saveEvent($params, $source=null) {
       }
     }    
   }
-  // Also wenn ein Template Ÿbergeben wurde
+  // Also wenn ein Template ï¿½bergeben wurde
   else if (isset($params["eventTemplate"])){
     if (isset($params["id"])) {
       print_r($params);
@@ -368,10 +371,13 @@ function churchservice_deleteEvent($params, $source=null) {
     }
   }
 
-  db_query("delete from {cs_eventservice} where event_id=:event_id", array(":event_id"=>$params["id"]), false);
-  db_query("delete from {cs_event} where id=:event_id", array(":event_id"=>$params["id"]), false);
-  if ((isset($params["deleteCalEntry"])) && ($params["deleteCalEntry"]==1)) {
+  if (!isset($params["deleteCalEntry"]) || ($params["deleteCalEntry"]==1)) {
+    db_query("delete from {cs_eventservice} where event_id=:event_id", array(":event_id"=>$params["id"]), false);
+    db_query("delete from {cs_event} where id=:event_id", array(":event_id"=>$params["id"]), false);
     db_query("delete from {cc_cal} where id=:id and repeat_id=0", array(":id"=>$db_event->cc_cal_id));
+  }
+  else {
+    db_query("update {cs_event} set valid_yn=0 where id=:id", array(":id"=>$params["id"]));
   }
 }
 

@@ -178,13 +178,15 @@ function churchcal_updateEvent($params, $source=null) {
   // Wenn es nur eine Verschiebung auf dem Kalender ist
   if (!isset($params["repeat_id"])) {
     $i = new CTInterface();
-    $i->setParam("startdate");
-    $i->setParam("enddate");
+    $i->setParam("startdate", false);
+    $i->setParam("enddate", false);
     $i->setParam("bezeichnung", false);
     $i->setParam("category_id", false);
-    db_update("cc_cal")->fields($i->getDBInsertArrayFromParams($params))
-      ->condition("id", $params["id"], "=")
-      ->execute();
+    if (count($i->getDBInsertArrayFromParams($params))>0) {
+      db_update("cc_cal")->fields($i->getDBInsertArrayFromParams($params))
+        ->condition("id", $params["id"], "=")
+        ->execute();
+    }
   }
   else {   
     $arr[":event_id"]=$params["id"];
