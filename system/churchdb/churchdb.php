@@ -110,6 +110,7 @@ function churchdb_main() {
   drupal_add_js(drupal_get_path('module', 'churchdb') .'/cdb_maintainview.js'); 
   drupal_add_js(drupal_get_path('module', 'churchdb') .'/cdb_main.js'); 
   
+  drupal_add_js(createI18nFile("churchcore"));
   drupal_add_js(createI18nFile("churchdb"));
   
   // API v3
@@ -303,7 +304,8 @@ function getBirthdaylistContent($desc, $diff_from, $diff_to, $extended=false) {
     if ($res!=null) {
       if ($desc!="") $txt.="<p><h4>$desc</h4>";
       if ($extended) {
-        $txt.="<table class=\"table table-condensed\"><tr><th style=\"max-width:65px;\"><th>Name".(!$compact?"<th>Alter":"")."<th>Geburtsdatum";
+        $txt.="<table class=\"table table-condensed\"><tr><th style=\"max-width:65px;\"><th>".t("name").
+            (!$compact?"<th>".t("age"):"")."<th>".t("birthday");
  	     	if ($see_details)
           $txt.="<th>Status<th>Station<th>Bereich";
       }
@@ -448,10 +450,10 @@ function subscribeGroup() {
   if (($txt_subscribe!="") || ($txt_unsubscribe)) {    
     $txt='<form method="GET" action="?q=home">';
     if ($txt_subscribe!="")
-      $txt.='<p>Hier kannst Du eine Teilnahme beantragen:<p><select name="subscribegroup"><option>'.$txt_subscribe.'</select>';
+      $txt.='<p>'.t("apply.for.group.membership").':<p><select name="subscribegroup"><option>'.$txt_subscribe.'</select>';
     if ($txt_unsubscribe!="")
-      $txt.='<p>Hier kannst Du eine Teilnahme beenden:<p><select name="unsubscribegroup"><option>'.$txt_unsubscribe.'</select>';
-    $txt.='<P><button class="btn" type="submit" name="btn">Absenden</button>';
+      $txt.='<p>'.t("quit.group.membership").':<p><select name="unsubscribegroup"><option>'.$txt_unsubscribe.'</select>';
+    $txt.='<P><button class="btn" type="submit" name="btn">'.t("send").'</button>';
     $txt.='</form>';
   }  
   
@@ -472,7 +474,7 @@ function churchdb_getBlockBirthdays() {
       $txt="<table class=\"table table-condensed\">".$txt."</table>";
     }
     if ((user_access("view","churchdb")) && (user_access("view birthdaylist","churchdb"))) 
-      $txt.="<p style=\"line-height:100%\" align=\"right\"><a href=\"?q=churchdb/birthdaylist\">".t("other.birthdays")."</a>";
+      $txt.="<p style=\"line-height:100%\" align=\"right\"><a href=\"?q=churchdb/birthdaylist\">".t("more.birthdays")."</a>";
   }
   if (user_access("view memberliste","churchdb")) 
     $txt.="<p style=\"line-height:100%\" align=\"right\"><a href=\"?q=home/memberlist\">".t("list.of.members")."</a>";
@@ -553,13 +555,13 @@ function churchdb_blocks() {
       "html"=>getWhoIsOnline()
     ),  
     3=>array(
-      "label"=>"Teilnahme verwalten",
+      "label"=>t("admin.my.membership"),
       "col"=>1,
       "sortkey"=>2,
       "html"=>subscribeGroup()
     ),  
     4=>array(
-      "label"=>"Aufgaben in ".$config["churchdb_name"],
+      "label"=>t("todos.in", $config["churchdb_name"]),
       "col"=>2,
       "sortkey"=>1,
       "html"=>churchdb_getTodos()
@@ -574,9 +576,9 @@ function churchdb_blocks() {
 } 
 
 function churchdb__birthdaylist() {
-  $txt="<ul>".getBirthdaylistContent("Letzten 7 Tage",-7,-1, true).
-	          getBirthdaylistContent("Heute",0, 0, true).
-	          getBirthdaylistContent("Nächsten 30 Tage", 1, 30, true)."</ul>";
+  $txt="<ul>".getBirthdaylistContent(t("last.x.days", 7),-7,-1, true).
+	          getBirthdaylistContent(t("today"),0, 0, true).
+	          getBirthdaylistContent(t("next.x.days", 30), 1, 30, true)."</ul>";
   if (user_access("view memberliste","churchdb")) 
     $txt.="<p style=\"line-height:100%\" align=\"right\"><a href=\"?q=home/memberlist\">".t("list.of.members")."</a>";
 	          

@@ -45,7 +45,7 @@ TestView.prototype.checkFilter = function(a) {
 TestView.prototype.renderMenu = function() {
   t=this;
   
-  menu = new CC_Menu("Men&uuml;");
+  menu = new CC_Menu(_("menu"));
   
   menu.addEntry("renderTable", "arender", "star");
   menu.addEntry("SetzeAlleSpans", "atest1", "star");
@@ -67,7 +67,7 @@ TestView.prototype.renderMenu = function() {
           if (elem.count>0)
             elem.children("td.feld1").html(a.feld1+"a");
         });
-        t.endTimer("FŸlle Spans");
+        t.endTimer("Fï¿½lle Spans");
       }
       else if ($(this).attr("id")=="atest2") {
         var d=t.getData();
@@ -75,7 +75,7 @@ TestView.prototype.renderMenu = function() {
         $('.feld1').each(function(k,a) {
           $(this).html(d[$(this).parents("tr").attr("id")].feld1+"b");
         });
-        t.endTimer("FŸlle Spans");
+        t.endTimer("Fï¿½lle Spans");
       }
       else if ($(this).attr("id")=="atest3") {
         var d=t.getData();
@@ -83,7 +83,7 @@ TestView.prototype.renderMenu = function() {
         $('.feld1').each(function(k,a) {
           $(this).html(d[$(this).attr("id").substr(6,99)].feld1+"b");
         });
-        t.endTimer("FŸlle Spans");
+        t.endTimer("Fï¿½lle Spans");
       }
       return false;
     });

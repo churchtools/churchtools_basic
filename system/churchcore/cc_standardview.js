@@ -19,7 +19,7 @@ function StandardTableView(options) {
 
   // Number of entries currently visible
   this.counter=0;
-  // Der letzte gešffnet Eintrag, wird gemerkt, damit er nach einem renderList()
+  // Der letzte geï¿½ffnet Eintrag, wird gemerkt, damit er nach einem renderList()
   // auch wieder angezeigt wird.
   
   this.testTimer=null; // Zeitmessung
@@ -94,7 +94,7 @@ StandardTableView.prototype.renderView = function(withMenu) {
   this.renderList();
 };
 
-// Mit der Function kann man die EintrŠge gruppieren. Einfach den Gruppenwert ausgeben
+// Mit der Function kann man die Eintrï¿½ge gruppieren. Einfach den Gruppenwert ausgeben
 StandardTableView.prototype.groupingFunction = function() {
   return null;
 };
@@ -113,7 +113,7 @@ StandardTableView.prototype.getFilter = function(filterId) {
   else return "";
 };
 
-// Lšscht den Filter und gibt true zurŸck, wenn er gesetzt war
+// Lï¿½scht den Filter und gibt true zurï¿½ck, wenn er gesetzt war
 StandardTableView.prototype.deleteFilter = function(filterId) {
   if (this.filter[filterId]!=null) {
     delete this.filter[filterId];
@@ -253,7 +253,7 @@ StandardTableView.prototype.renderOneListEntry = function(id) {
 
 /*
  * Generiert die Liste, verwendet dafuer getListHeader und renderListEntry und addSecondMenu
- * entry wenn nur ein Eintrag neu gerendert werden soll. Sehr sinnvoll bei gro§en Listen (z.B. Dienstplan!)
+ * entry wenn nur ein Eintrag neu gerendert werden soll. Sehr sinnvoll bei groï¿½en Listen (z.B. Dienstplan!)
  * newSort (default true)
  */
 StandardTableView.prototype.renderList = function(entry, newSort) {
@@ -281,7 +281,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
         t.addTableContentCallbacks("#cdb_content tr[id="+entry.id+"]");
         if (entry.open) t.renderEntryDetail(entry.id);
       }
-    }  // Wenn der Filter nicht mehr passt, dann lšsche es 
+    }  // Wenn der Filter nicht mehr passt, dann lï¿½sche es 
     else {
       $("#cdb_content tr[id="+entry.id+"]").html("");
     }
@@ -296,7 +296,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
       var current_id = 0;    
       listObject=t.getData(true, newSort);    
   
-      $("#cdb_content").html("Tabellenaufbau...");    
+      $("#cdb_content").html("Render table...");    
       
       if ((masterData.settings==null) || (masterData.settings.listViewTableHeight==null) || (masterData.settings.listViewTableHeight==0))
         t.listViewTableHeight=null;
@@ -308,7 +308,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
         masterData.settings["listMaxRows"+t.name]=25;
       else masterData.settings["listMaxRows"+t.name]=masterData.settings["listMaxRows"+t.name]*1;
       
-      // Wenn es Handyformat ist dann zeige immer nur 10 Zeilen, au§er bei der Ressourcen-WeekView, 
+      // Wenn es Handyformat ist dann zeige immer nur 10 Zeilen, auï¿½er bei der Ressourcen-WeekView, 
       // denn hier macht es Sinn, das man alle sieht.
       if ((!t.overrideMaxRows) && (churchcore_handyformat()) && (churchInterface.getCurrentView().name!="WeekView")) {
         masterData.settings["listMaxRows"+t.name]=10;
@@ -318,7 +318,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
       
       if (listObject == null || churchcore_isObjectEmpty(listObject)) {  
         if (churchInterface.allDataLoaded)
-          rows[rows.length] = "Keinen Eintrag gefunden.";
+          rows[rows.length] = _("no.entry.found");
         else 
           rows[rows.length] = '<br><p align="center">'+form_renderImage({src:"loading.gif"})+'<p>';
       }
@@ -382,34 +382,36 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
         
         if (t.counter>=masterData.settings["listMaxRows"+t.name]) {
           if (!churchcore_handyformat()) {          
-            rows[rows.length] = "Zeige "+masterData.settings["listMaxRows"+t.name]+" von "+t.counter+" gefundenen Eintr&auml;gen";
-            rows.push("&nbsp; &nbsp; &nbsp;Bl&auml;ttern: <a id=\"offset0\" href=\"#\"><<</a>&nbsp;|&nbsp;<a id=\"offsetMinus\" href=\"#\"><</a>&nbsp;|&nbsp;<a id=\"offsetPlus\" href=\"#\">></a>");
+            rows[rows.length] = _("show.x.from.y.entries", masterData.settings["listMaxRows"+t.name], t.counter);
+            rows.push("&nbsp; &nbsp; &nbsp;"+_("paging")+": <a id=\"offset0\" href=\"#\"><<</a>&nbsp;|&nbsp;<a id=\"offsetMinus\" href=\"#\"><</a>&nbsp;|&nbsp;<a id=\"offsetPlus\" href=\"#\">></a>");
           }
           else {
-            rows.push("Bl&auml;ttern: <a id=\"offset0\" href=\"#\"><<</a>&nbsp;|&nbsp;<a id=\"offsetMinus\" href=\"#\"><</a>&nbsp;|&nbsp;<a id=\"offsetPlus\" href=\"#\">></a>");
+            rows.push(_("paging")+": <a id=\"offset0\" href=\"#\"><<</a>&nbsp;|&nbsp;<a id=\"offsetMinus\" href=\"#\"><</a>&nbsp;|&nbsp;<a id=\"offsetPlus\" href=\"#\">></a>");
             rows[rows.length] = '<span class="pull-right">'+masterData.settings["listMaxRows"+t.name]+" von "+t.counter+"  Eintr&auml;gen</span><br/>";
+            rows[rows.length] = '<span class="pull-right">'+
+              _("show.x.from.y.entries", masterData.settings["listMaxRows"+t.name], counter)+"  </span><br/>";
           }
         }  
         else 
-          rows[rows.length] = "Zeige "+t.counter+" gefundene Eintr&auml;ge";
+          rows[rows.length] = _("show.x.entries", t.counter);
   
         if (t.showPaging) {    
           if (!churchcore_handyformat()) {
-            rows.push("&nbsp; &nbsp; &nbsp; &nbsp;Zeilenanzahl: ");
+            rows.push("&nbsp; &nbsp; &nbsp; &nbsp;"+_("number.of.rows")+": ");
             $.each(t.availableRowCounts, function(i,k) {
               rows.push('<a href="#" class="changemaxrow" data-id="'+k+'">'+k+'</a>&nbsp;|&nbsp;');              
             });
             rows.push("&nbsp; &nbsp; &nbsp; ");
             if ((masterData.settings["listMaxRows"+t.name]<=20) || (t.counter<=20))
-              rows.push("&nbsp;<a href=\"#\" id=\"showAll\">alle &ouml;ffnen</a>");
-            rows.push("&nbsp; &nbsp; <a href=\"#\" id=\"hideAll\">alle schlie&szlig;en</a>");
+              rows.push("&nbsp;<a href=\"#\" id=\"showAll\">"+_("open.each")+"</a>");
+            rows.push("&nbsp; &nbsp; <a href=\"#\" id=\"hideAll\">"+_("close.each")+"</a>");
           } 
           else {
-            rows.push("Zeige  ");
+            rows.push(_("show")+"  ");
             $.each(t.availableRowCounts, function(i,k) {
               rows.push('<a href="#" class="changemaxrow" data-id="'+k+'">'+k+'</a> | ');              
             });            
-            rows.push('<span class="pull-right"><a href="#" id="hideAll">alle schlie&szlig;en</a></span>');
+            rows.push('<span class="pull-right"><a href="#" id="hideAll">'+_("close.each")+'</a></span>');
           }
         }
         rows.push('</table>');
@@ -425,8 +427,8 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
       calcHeaderWidth(current_id);
   
       //if (t.counter==1) {
-        // Entry anzeigen, wenn alles geladen ist, sonst lŠdt er die Detaildaten auch noch, obwohl spŠter vielleicht noch
-        // mehr Leute kommen, die passend kšnnten. Au§er es ist eine Id, da wird es nur einen geben
+        // Entry anzeigen, wenn alles geladen ist, sonst lï¿½dt er die Detaildaten auch noch, obwohl spï¿½ter vielleicht noch
+        // mehr Leute kommen, die passend kï¿½nnten. Auï¿½er es ist eine Id, da wird es nur einen geben
        // if (t.filter["searchEntry"]>0)
          // t.renderEntryDetail(current_id);
       //}  
@@ -884,8 +886,8 @@ StandardTableView.prototype.standardFieldCoder = function (typ, arr) {
 };
 
 /**
- * Holt sich die Standardfelder und fŸllt das Elem damit. Au§erdem wird ein Callback fŸr Selects erzeugt, 
- * so dass €nderungen sofort beachtet werden (z.B. Code:XXX)
+ * Holt sich die Standardfelder und fï¿½llt das Elem damit. Auï¿½erdem wird ein Callback fï¿½r Selects erzeugt, 
+ * so dass ï¿½nderungen sofort beachtet werden (z.B. Code:XXX)
  */
 StandardTableView.prototype.renderStandardFieldsAsSelect = function (elem, fieldname, arr, authArray) {
   var this_object=this;
@@ -952,7 +954,7 @@ StandardTableView.prototype.getStandardFieldAsSelect = function (field, arr, ele
 /**
  * 
  * @param fieldname - z.Bsp. f_address
- * @param arr - Array mit den zugehörigen Daten, z.Bsp. allPersons[x].details
+ * @param arr - Array mit den zugehï¿½rigen Daten, z.Bsp. allPersons[x].details
  * @param authArray - Array mit Strings, bei denen man das bearbeiten darf
  */
 StandardTableView.prototype.getStandardFieldsAsSelect = function (fieldname, arr, authArray) {
@@ -981,7 +983,7 @@ StandardTableView.prototype.getSaveObjectFromInputFields = function(id, fieldnam
 
   // Wenn field ueberhaupt vorhanden ist
   if (masterData.fields[obj["func"]]!=null) {
-    // Setzen der Variable im Browser und Aufbereiten des Obj fŸr Ajax
+    // Setzen der Variable im Browser und Aufbereiten des Obj fï¿½r Ajax
     for (var elem in masterData.fields[obj["func"]].fields) {
       if ($("#Input" + elem).length>0 && !$("#Input" + elem).is(':disabled')) {
         if (masterData.fields[obj["func"]].fields[elem].type=="date") {
@@ -1065,7 +1067,7 @@ StandardTableView.prototype.renderField = function(elem, field, a, write_allowed
 };
 
 /*
- * Rendert die Felder in Fields als HTML-Text und gibt diesen als String zurŸck
+ * Rendert die Felder in Fields als HTML-Text und gibt diesen als String zurï¿½ck
  */
 StandardTableView.prototype.renderFields = function(fields, a, write_allowed, authArray) {
   var t=this;
@@ -1173,13 +1175,13 @@ StandardTableView.prototype.renderPersonImage = function(id, width) {
  * 
  * @param title 
  * @param searchAll false=nur alle Person in der Variabel allPersons suchen / true=online suchen, nach allen in meinen Bereichen
- * @param resultFunction gibt id zurŸck
+ * @param resultFunction gibt id zurï¿½ck
  */
 StandardTableView.prototype.renderPersonSelect = function(title, searchAll, resultFunction) {
   var _searchString="";
   var rows = new Array();
   var this_object=this;
-  rows.push("Suche: <input type=\"text\" size=\"10\" id=\"searchAddress\"/ value=\""+_searchString+"\">&nbsp;&nbsp;<br/>");
+  rows.push(_("search")+": <input type=\"text\" size=\"10\" id=\"searchAddress\"/ value=\""+_searchString+"\">&nbsp;&nbsp;<br/>");
   rows.push("<div id=\"cdb_personselector\">"+"<i>Bitte Namen eingeben...</i>"+"</div><br/>");
   if (searchAll) rows.push("<p><small>Gesucht wird nach den f&uuml;r Dich sichtbaren Personen sowie allen Personen aus Deinen Bereichen.</small>");
   
@@ -1260,7 +1262,7 @@ StandardTableView.prototype.getAuthAsArray = function (auth) {
 
 StandardTableView.prototype.renderAuth = function(auth_id) {
   var res="";
-  // Baumstruktur, mu§ erst mal durch die Module scannen!
+  // Baumstruktur, muï¿½ erst mal durch die Module scannen!
   $.each(masterData.auth_table, function(k,module) {
     $.each(module, function(i,a) {
       if (a.id==auth_id) {

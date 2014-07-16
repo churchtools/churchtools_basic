@@ -17,7 +17,7 @@ SettingsView.prototype.getData = function() {
 
 SettingsView.prototype.renderMenu = function() {
   this_object=this;
-  menu = new CC_Menu("Men&uuml;");
+  menu = new CC_Menu(_("menu"));
   menu.addEntry("Zur&uuml;ck zur Personenliste", "apersonview", "arrow-left");
   $("#cdb_precontent").html("");
   $("#cdb_group").html("");

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <comment>ChurchCal messages</comment>
+  <entry key="calendar">Kalender</entry>
+  <entry key="year">Jahr</entry>  
+  <entry key="month">Monat</entry>  
+  <entry key="week">Woche</entry>  
+  <entry key="day">Tag</entry>  
+
+  <entry key="personal.calendar">Persönlicher Kalender</entry>
+  <entry key="group.calendar">Gruppenkalender</entry>
+  <entry key="no.calendar.available">Kein Kalender vorhanden.</entry>
+  <entry key="only.intern.visible">Nur für angemeldete Personen sichtbar</entry>  
+</properties>

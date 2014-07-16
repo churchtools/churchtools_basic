@@ -63,7 +63,7 @@ function churchwiki_load($doc_id, $wikicategory_id, $version_no=null) {
 }
 
 function churchwiki_cron() {
-  // Hole mir alle Daten, die Ÿber 90 Tage alt sind und dann die neuste Version_No
+  // Hole mir alle Daten, die ï¿½ber 90 Tage alt sind und dann die neuste Version_No
   $db=db_query("SELECT MAX( version_no ) version_no, wikicategory_id, doc_id FROM {cc_wiki}
     WHERE DATE_ADD( modified_date, INTERVAL 90  DAY ) < NOW( )   GROUP BY wikicategory_id, doc_id");
   foreach ($db as $e) {  
@@ -262,14 +262,14 @@ function churchwiki_blocks() {
   global $config;
   return (array(
     1=>array(
-      "label"=>"Wichtiges von ".$config["churchwiki_name"],
+      "label"=>t("important.from", $config["churchwiki_name"]),
       "col"=>2,
       "sortkey"=>1,
       "html"=>churchwiki_getWikiOnStartpage()
       //"help"=>"Offene Dienstanfragen"
     ),
     2=>array(
-      "label"=>"Neuigkeiten von ".$config["churchwiki_name"],
+      "label"=>t("news.from", $config["churchwiki_name"]),
       "col"=>2,
       "sortkey"=>8,
       "html"=>churchwiki_getWikiInfos()
@@ -342,6 +342,10 @@ function churchwiki_main() {
   drupal_add_js('system/assets/ckeditor/lang/de.js');
   drupal_add_js('system/churchwiki/wiki_maintainview.js');
   drupal_add_js('system/churchwiki/churchwiki.js');
+  
+  drupal_add_js(createI18nFile("churchcore"));
+  drupal_add_js(createI18nFile("churchwiki"));
+ 
   
   $doc_id="";
   if (isset($_GET["doc"])) $doc_id=$_GET["doc"];

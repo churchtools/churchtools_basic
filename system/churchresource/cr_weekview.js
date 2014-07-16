@@ -45,18 +45,18 @@ WeekView.prototype.renderMenu = function() {
     this.printview=true;
   }  
 
-  menu = new CC_Menu("Men&uuml;");
+  menu = new CC_Menu(_("menu"));
   if (!this.printview) {
     if (masterData.auth.write) 
-      menu.addEntry("Neue Anfrage erstellen", "anewentry", "star");
+      menu.addEntry(_("add.new.request"), "anewentry", "star");
       
-    menu.addEntry("Druckansicht", "adruckansicht", "print");   
+    menu.addEntry(_("printview"), "adruckansicht", "print");   
   }
 
   if (masterData.auth.admin) 
-    menu.addEntry("Stammdatenpflege", "amaintainview", "cog");
+    menu.addEntry(_("maintain.masterdata"), "amaintainview", "cog");
   
-  menu.addEntry("Hilfe", "ahelp", "question-sign");
+  menu.addEntry(_("help"), "ahelp", "question-sign");
 
 
   if (!menu.renderDiv("cdb_menu", churchcore_handyformat()))
@@ -146,7 +146,7 @@ WeekView.prototype.renderListMenu = function() {
   $.each(masterData.resourceTypes, function(k,a) {
     navi.addEntry(t.filter["filterRessourcen-Typ"]==a.id,"ressourcentyp_"+a.id,a.bezeichnung);
   });
-  navi.addEntry(t.filter["filterRessourcen-Typ"]=="","","<i>Alle</i>");
+  navi.addEntry(t.filter["filterRessourcen-Typ"]=="","","<i>"+_("all")+"</i>");
   //navi.addEntry(true,"id1","Listenansicht");
   navi.addSearch(searchEntry);
   navi.renderDiv("cdb_search", churchcore_handyformat());
@@ -203,8 +203,8 @@ WeekView.prototype.renderCalender = function() {
     dateFormat: 'dd.mm.yy',
     showButtonPanel: true,
     dayNamesMin: dayNamesMin,
-    monthNames: monthNames, 
-    currentText: "Heute",
+    monthNames: getMonthNames(), 
+    currentText: _("today"),
     defaultDate: t.currentDate,
     firstDay: 1,
     onSelect : function(dateText, inst) { 
@@ -394,7 +394,7 @@ WeekView.prototype.getIndexedBookings = function(d, e) {
     var go=new Date(d.getTime());
     var arr=new Array();
     while (go.getTime()<e.getTime()) {
-      if (t.datesIndex[go.getFullYear()]!=null && 
+      if (t.datesIndex!=null && t.datesIndex[go.getFullYear()]!=null && 
           t.datesIndex[go.getFullYear()][go.getMonth()+1]!=null &&
           t.datesIndex[go.getFullYear()][go.getMonth()+1][go.getDate()]!=null)
         arr=arr.concat(t.datesIndex[go.getFullYear()][go.getMonth()+1][go.getDate()]);
@@ -615,14 +615,14 @@ WeekView.prototype.renderEditBookingFields = function (a) {
   
   rows.push(form_renderInput({
     cssid:"location",
-    label:"Ort",
+    label:_("location"),
     value:a.location
   }));
   
   rows.push(form_renderSelect({
     data:masterData.resources, 
     cssid:"InputRessource", 
-    label:"Ressource",
+    label:_("resources"),
     htmlclass:"input-medium", 
     selected:a.resource_id,
     disabled:a.cc_cal_id!=null    
@@ -645,7 +645,7 @@ WeekView.prototype.renderEditBookingFields = function (a) {
 
   rows.push(form_renderTextarea({
     data:a.note,
-    label:"Weitere Infos",
+    label:_("more.information"),
     cssid:"inputNote", 
     rows:2,
     cols:150
@@ -654,7 +654,7 @@ WeekView.prototype.renderEditBookingFields = function (a) {
   if (user_access("assistance mode") && (a.neu || a.person_id==masterData.user_pid)) {
     rows.push(form_renderInput({
       cssid:"assistance_user",
-      label:"Im Auftrag von"
+      label:_("by.order.of")
     }));
   }
   
@@ -733,12 +733,12 @@ WeekView.prototype.renderTooltip = function(id) {
     txt=txt+'<span title="Kalender: Hauptgottesdienst" style="display:inline-block; background-color:'+masterData.category[a.category_id].color+'; margin-bottom:-2px; margin-right:4px; width:3px; height:11px"></span>';
     txt=txt+"<b>"+churchcore_getBezeichnung("category", a.category_id)+"</b>";    
   }
-  txt=txt+"<tr><td>Start<td>"+a.startdate.toStringDe(true);
-  txt=txt+"<tr><td>Ende<td>"+a.enddate.toStringDe(true);
+  txt=txt+"<tr><td>"+_("start.date")+"<td>"+a.startdate.toStringDe(true);
+  txt=txt+"<tr><td>"+_("end.date")+"<td>"+a.enddate.toStringDe(true);
   if (a.location!="")
-    txt=txt+"<tr><td>Ort<td>"+a.location;
+    txt=txt+"<tr><td>"+_("location")+"<td>"+a.location;
   if (a.repeat_id!=0) {
-    txt=txt+"<tr><td>Wiederholung<td>";
+    txt=txt+"<tr><td>"+_("repeats")+"<td>";
     if (a.repeat_frequence>1)
       txt=txt+a.repeat_frequence+" "; 
     txt=txt+(masterData.repeat[a.repeat_id]!=null?masterData.repeat[a.repeat_id].bezeichnung:"id:"+a.repeat_id);
@@ -746,9 +746,9 @@ WeekView.prototype.renderTooltip = function(id) {
       txt=txt+"<br/>bis "+a.repeat_until.toStringDe();
   }  
   else 
-    txt=txt+"<tr><td>Wiederholung<td>-";
+    txt=txt+"<tr><td>"+_("repeats")+"<td>-";
   txt=txt+"<tr><td>Status<td><b>"+masterData.status[a.status_id].bezeichnung+"</b>";
-  txt=txt+"<tr><td>Ersteller<td>"+a.person_name;
+  txt=txt+"<tr><td>"+_("creator")+"<td>"+a.person_name;
   if (a.note!="") {
     txt=txt+"<tr><td>Notiz<td>"+a.note;
   }  
@@ -1092,7 +1092,7 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
     //if (t.currentBooking.cc_cal_id==null) 
     {
       if (((masterData.auth.write) && (t.currentBooking.person_id==masterData.user_pid)) || (user_access("edit", t.currentBooking.resource_id)) || (t.currentBooking.neu)) {
-        elem.dialog('addbutton', 'Speichern', function() {
+        elem.dialog('addbutton', _("save"), function() {
           t.closeAndSaveBookingDetail(elem);
         });
         
@@ -1126,7 +1126,7 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
         }
       }
     }     
-    elem.dialog('addbutton', 'Abbrechen', function() {elem.dialog("close");});      
+    elem.dialog('addbutton', _("cancel"), function() {elem.dialog("close");});      
   }
 };
 

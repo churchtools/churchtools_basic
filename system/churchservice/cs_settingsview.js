@@ -13,7 +13,7 @@ settingsView = new SettingsView();
 
 SettingsView.prototype.renderMenu = function() {
   this_object=this;
-  menu = new CC_Menu("Men&uuml;");
+  menu = new CC_Menu(_("menu"));
   menu.addEntry("Zur&uuml;ck zum Dienstplan", "apersonview", "arrow-left");
   $("#cdb_precontent").html("");
 

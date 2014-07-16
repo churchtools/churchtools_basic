@@ -7,7 +7,7 @@ function ical_main() {
 
 function churchservice__ajax() {
   if (!user_access("view","churchservice")) {
-    addInfoMessage("Keine Berechtigung f&uuml;r ChurchService");
+    addInfoMessage(t("no.permission.for", $config["churchservice_name"]));
     return " ";
   }
   include_once(drupal_get_path('module', 'churchservice').'/churchservice_ajax.inc');
@@ -150,6 +150,7 @@ function churchservice__printview() {
   drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_songview.js');
   drupal_add_js(drupal_get_path('module', 'churchservice') .'/cs_main.js');
 
+  drupal_add_js(createI18nFile("churchcore"));
   drupal_add_js(createI18nFile("churchservice"));
 
   $content="";
@@ -292,7 +293,7 @@ function churchservice_getUserOpenServices() {
     $txt2.='</div>';
   }           
   if ($txt2!="") $txt=$txt.$txt1.$txt2.
-        '<p align="right"><a href="#" style="display:none" class="service-request-show-all">Alle anzeigen</a>';
+        '<p align="right"><a href="#" style="display:none" class="service-request-show-all">'.t("show.all").'</a>';
   return $txt;
 }
 
@@ -375,10 +376,9 @@ function churchservice_getUserNextServices($shorty=true) {
         }
       }
       $txt.="</span><small><br>&nbsp; &nbsp; &nbsp; ";
-      $txt.="Zugesagt am ".$arr->modified_date."</small>";
+      $txt.=t("confirmed.on", $arr->modified_date)."</small>";
     }  
   }
-  //if (($shorty) && ($txt!="")) $txt.='<br/><p align="right">'.l("Weiter","?q=churchservice");
   return $txt;  
 }
 
@@ -448,7 +448,7 @@ function churchservice_getAbsents($year=null) {
         $txt.='</ul>';
       }
       if (($year==null) && (user_access("view","churchcal")))
-        $txt.='<p style="line-height:100%" align="right"><a href="?q=churchcal&viewname=yearView">Weitere</a></p>';
+        $txt.='<p style="line-height:100%" align="right"><a href="?q=churchcal&viewname=yearView">'.t("more").'</a></p>';
     }
   }
   return $txt;
@@ -457,7 +457,7 @@ function churchservice_getAbsents($year=null) {
 function churchservice_blocks() {
   return (array(
     1=>array(
-      "label"=>"Deine offenen Dienstanfragen",
+      "label"=>t("your.pending.service.requests"),
       "col"=>2,
       "sortkey"=>1,
       "html"=>churchservice_getUserOpenServices(),
@@ -465,25 +465,25 @@ function churchservice_blocks() {
       "class"=>"service-request"
     ),  
     2=>array(
-      "label"=>"Deine n&auml;chsten Dienste",
+      "label"=>t("your.next.services"),
       "col"=>2,
       "sortkey"=>2,
       "html"=>churchservice_getUserNextServices()
     ),  
     3=>array(
-      "label"=>"Deine aktuelle Eventbesetzung",
+      "label"=>t("your.current.event.staff"),
       "col"=>2,
       "sortkey"=>3,
       "html"=>churchservice_getCurrentEvents()
     ),  
     4=>array(
-      "label"=>"Abwesenheiten der n&auml;chsten 30 Tage",
+      "label"=>t("absence.of.next.x.days", 30),
       "col"=>2,
       "sortkey"=>4,
       "html"=>churchservice_getAbsents()
     ),  
     5=>array(
-      "label"=>"Fakten der letzten Tage",
+      "label"=>t("facts.of.last.days"),
       "col"=>2,
       "sortkey"=>5,
       "html"=>churchservice_getFactsOfLastDays()
@@ -726,7 +726,7 @@ function churchservice_inform_leader() {
       }
       if ($txt!='') {    
         $txt="<h3>Hallo ".$person["person"]->vorname."!</h3><p>Es sind in den n&auml;chsten 60 Tagen noch folgende Dienste offen:<ul>".$txt."</ul>";
-        $txt.='<p><a href="'.$base_url.'/?q=churchservice" class="btn">Weitere Infos</a>&nbsp';
+        $txt.='<p><a href="'.$base_url.'/?q=churchservice" class="btn">'.t("more.information").'</a>&nbsp';
         $txt.='<p><a href="'.$base_url.'/?q=churchservice#SettingsView" class="btn">Benachrichtigung deaktivieren</a>';
         churchservice_send_mail("[".variable_get('site_name')."] Offene Dienste",$txt,$person["person"]->email);
       }

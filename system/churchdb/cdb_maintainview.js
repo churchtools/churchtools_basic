@@ -22,9 +22,9 @@ MaintainView.prototype.renderMenu = function() {
   this_object=this;
   masterData.gruppentyp=masterData.groupTypes;
   masterData.followup_typ=masterData.followupTypes;
-  menu = new CC_Menu("Men&uuml;");
-  menu.addEntry("Zur&uuml;ck zur Liste", "apersonview", "arrow-left");
-  menu.addEntry("Hilfe", "ahelp", "question-sign");
+  menu = new CC_Menu(_("menu"));
+  menu.addEntry(_("back.to.main.menu"), "apersonview", "arrow-left");
+  menu.addEntry(_("help"), "ahelp", "question-sign");
   
   if (!menu.renderDiv("cdb_menu"))
     $("#cdb_menu").hide();

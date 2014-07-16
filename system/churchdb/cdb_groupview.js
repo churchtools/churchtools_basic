@@ -26,14 +26,14 @@ GroupView.prototype.renderMenu = function() {
   this_object=this;
   
   
-  menu = new CC_Menu("Men&uuml;");
-  menu.addEntry("Zur&uuml;ck zur Personenliste", "apersonview", "arrow-left");
+  menu = new CC_Menu(_("menu"));
+  menu.addEntry(_("back.to.list.of.persons"), "apersonview", "arrow-left");
 
   if (masterData.auth.admingroups || this_object.isPersonSuperLeader(masterData.user_pid))
-    menu.addEntry("Neue Gruppe anlegen", "anewentry", "cog");  
+    menu.addEntry(_("add.new.group"), "anewentry", "cog");  
 
-  menu.addEntry("Weitere Filter", "aaddfilter", "filter");
-  menu.addEntry("Exporter", "aexport", "share");
+  menu.addEntry(_("more.filter"), "aaddfilter", "filter");
+  menu.addEntry(_("exporter"), "aexport", "share");
   $("#cdb_group").html("");
   $("#cdb_todos").html("");
   this.renderDistrict();
@@ -157,10 +157,10 @@ GroupView.prototype.renderDistrict = function() {
     else {
       if (ps.length==0) {     
         if (masterData.auth.admingroups) 
-          rows.push('<p><a href="#" class="add-person btn btn-small">Eine Person zuordnen</a>');
+          rows.push('<p><a href="#" class="add-person btn btn-small">'+_("add.related.person")+'</a>');
       }
       else {
-        rows.push('<table class="table table-condensed"><tr><th>Zugeordnete Personen<th>');
+        rows.push('<table class="table table-condensed"><tr><th>'+_("related.persons")+'<th>');
         $.each(churchcore_sortData(ps, "name"), function(k,a) {
           rows.push('<tr><td><a href="#" class="visit-person tooltip-person" data-tooltip-id="'+a.id+'" >'+a.vorname+" "+a.name+'</a>');
           if (masterData.auth.admingroups) {
@@ -169,14 +169,14 @@ GroupView.prototype.renderDistrict = function() {
         });
         rows.push('</table>');
         if (masterData.auth.admingroups) 
-          rows.push('<p><a href="#" class="add-person btn btn-small">Weitere Person zuordnen</a>');
+          rows.push('<p><a href="#" class="add-person btn btn-small">'+_("add.another.related.person")+'</a>');
       }
     }
     
     rows.push('</div>');
     rows.push('<div class="span8">');
     if (masterData.auth.viewhistory) {
-      rows.push('<p>&Auml;nderungen anzeigen innerhalb von: <div id="slider"></div>');
+      rows.push('<p>'+_("show.changes.between")+' <div id="slider"></div>');
       rows.push('<span class="pull-right" id="slider_value"></div>');
     }
     rows.push('</div>');
@@ -288,10 +288,10 @@ GroupView.prototype.renderGrouptype = function() {
     
     if (ps.length==0) {     
       if (masterData.auth.admingroups) 
-        rows.push('<p><a href="#" class="add-person btn btn-small">Eine Person zuordnen</a>');
+        rows.push('<p><a href="#" class="add-person btn btn-small">'+_("add.related.person")+'</a>');
     }
     else {
-      rows.push('<table class="table table-condensed"><tr><th>Zugeordnete Personen<th>');
+      rows.push('<table class="table table-condensed"><tr><th>'+_("related.persons")+'<th>');
       $.each(churchcore_sortData(ps, "name"), function(k,a) {
         rows.push('<tr><td><a href="#" class="visit-person tooltip-person" data-tooltip-id="'+a.id+'" >'+a.vorname+" "+a.name+'</a>');
         if (masterData.auth.admingroups) {
@@ -300,7 +300,7 @@ GroupView.prototype.renderGrouptype = function() {
       });
       rows.push('</table>');
       if (masterData.auth.admingroups) 
-        rows.push('<p><a href="#" class="add-person btn btn-small">Weitere Person zuordnen</a>');
+        rows.push('<p><a href="#" class="add-person btn btn-small">'+_("add.another.related.person")+'</a>');
     }
     
     rows.push('</div>');
@@ -377,7 +377,7 @@ GroupView.prototype.renderListMenu = function() {
   searchEntry=this.getFilter("searchEntry");
 
   var navi = new CC_Navi();
-  navi.addEntry(true,"id1","Gruppenliste");
+  navi.addEntry(true,"id1",_("list.of.groups"));
   navi.addSearch(searchEntry);
   navi.renderDiv("cdb_search");
 };
@@ -466,12 +466,12 @@ GroupView.prototype.renderAddEntry = function() {
 GroupView.prototype.renderFilter = function() {
   var form = new CC_Form();
   
-  form.setLabel("Filterfunktionen");
+  form.setLabel(_("filter.functions"));
   var ret=personView.getMyGroupsSelector();
   if (ret!=false) {
     form.addSelect({
 //      freeoption:true, 
-      label:"Meine Gruppen",
+      label:_('my.groups'),
       selected:groupView.filter['filterMeine Gruppen'], 
       cssid:"filterMeine Gruppen",
       data:ret,
@@ -511,7 +511,7 @@ GroupView.prototype.renderFilter = function() {
       return gt.anzeigen_in_meinegruppen_teilnehmer_yn==1;
     }
   });
-  form.addCheckbox({cssid:"searchChecked",label:"markierte"});  
+  form.addCheckbox({cssid:"searchChecked",label:_("selected")});  
   //rows.push(form.render(true));
   
 

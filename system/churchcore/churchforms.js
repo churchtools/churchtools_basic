@@ -1,7 +1,21 @@
 
 var dayNamesMin=["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
-var monthNames=['Januar', 'Februar', 'M&auml;rz', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+var monthNamesShort=['Jan.', 'Feb.', 'Mar.', 'Apr.', 'Mai.', 'Jun.', 'Jul.', 'Aug.', 'Sep.', 'Okt.', 'Nov.', 'Dez.'];
+var monthNames=['january', 'february', 'march', 'april', 'mai', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
 
+// get Month name in current language
+function getMonthNames() {
+  var res=new Array();
+  $.each(monthNames, function(k,a){
+    res.push(_(a));
+  });
+  return res;
+}
+
+// get month name 0=januar
+function getMonthName(month) {
+  return _(monthNames[month]);
+}
 
 function form_renderYesNo(nr, width) {
   if (width==null) width=24;
@@ -640,7 +654,7 @@ function _renderDateForms(options) {
   var allDay=churchcore_isAllDayDate(startdate, enddate);
   var rows=new Array();
   rows.push(form_renderCheckbox({
-    label:" Ganzt&auml;gig",
+    label:" "+_("all.day"),
     controlgroup:true,
     cssid:"inputAllDay",
     checked:allDay,
@@ -650,7 +664,7 @@ function _renderDateForms(options) {
   if (allDay) {
     rows.push(form_renderInput({
       cssid:"inputStartdate",
-      label:"Startdatum",
+      label:_("start.date"),
       controlgroup:true,
       value:startdate.toStringDe(),
       disabled:disabled,
@@ -661,7 +675,7 @@ function _renderDateForms(options) {
   else {
     rows.push(form_renderInput({
       cssid:"inputStartdate",
-      label:"Startdatum",
+      label:_("start.date"),
       controlgroup_start:true,
       separator:"<nobr>",
       value:startdate.toStringDe(),
@@ -693,7 +707,7 @@ function _renderDateForms(options) {
   if (allDay) {
     rows.push(form_renderInput({
       cssid:"inputEnddate",
-      label:"Enddatum",
+      label:_("end.date"),
       controlgroup:true,
       value:enddate.toStringDe(),
       disabled:disabled,
@@ -704,7 +718,7 @@ function _renderDateForms(options) {
   else {
     rows.push(form_renderInput({
       cssid:"inputEnddate",
-      label:"Enddatum",
+      label:_("end.date"),
       controlgroup_start:true,
       separator:"<nobr>",
       value:enddate.toStringDe(),
@@ -742,7 +756,7 @@ function _renderDateForms(options) {
     selected:repeat_id, 
     disabled:disabled,
     type:"big",
-    label:"Wiederholungen"
+    label:_("repeats")
   }));  
   
   rows.push('<div id="repeats_select">');
@@ -1146,15 +1160,15 @@ CC_MultiSelect.prototype.render2Div = function(divid, options) {
   }
   
   if (this.selected.length==0)
-    label="keine ausgew&auml;hlt";
+    label=_("none.selected");
   else if (this.selected.length==1) 
     label=this.data[this.selected[0]].bezeichnung;
   else if (this.selected.length==count) {
-    label="alle ausgew&auml;hlt";
+    label=_("all.selected");
     this_object.allSelected=false;
   }
   else
-    label=this.selected.length+" ausgew&auml;hlt";
+    label=this.selected.length+" "+_("chosen");
 
   rows.push('<div class="dropdown '+(options.open?"open":"")+'" id="'+options.cssid+'">');
   rows.push('<a style="widt_h:124px" class="btn dropdown-toggle" id="dLabel" role="button" data-toggle="dropdown" data-target="#" href="#">'+
@@ -1168,9 +1182,9 @@ CC_MultiSelect.prototype.render2Div = function(divid, options) {
     rows.push('<li><a style="padding:0" href="#" id="allSelected" class="multicheck">');
     rows.push('<label style="margin:0;padding: 3px 20px 3px 20px;width:100%;height:100%;cursor:pointer;">');
     if (this.allSelected) 
-      rows.push('<input type="checkbox" style="margin-bottom:5px;" /> <i>Alle ausw&auml;hlen</i></label></a>');
+      rows.push('<input type="checkbox" style="margin-bottom:5px;" /> <i>'+_("select.all")+'</i></label></a>');
     else
-      rows.push('<input type="checkbox" style="margin-bottom:5px;" checked/> <i>Alle abw&auml;hlen</i></label></a>');
+      rows.push('<input type="checkbox" style="margin-bottom:5px;" checked/> <i>'+_("deselect.all")+'</i></label></a>');
     $.each(this.addFunctions, function(a,k) {
       rows.push('<li><a style="padding:0" href="#" id="addfunc_'+a+'" class="multicheck">');
       rows.push('<label style="margin:0;padding: 3px 20px 3px 20px;width:100%;height:100%;cursor:pointer;">');
@@ -1365,7 +1379,7 @@ CC_Menu.prototype.renderDiv = function(divId, asButton) {
   }
   else {
     rows.push('<div class="btn-group">');
-    rows.push('<button class="btn dropdown-toggle" data-toggle="dropdown">Men&uuml; <span class="caret"></span></button>');
+    rows.push('<button class="btn dropdown-toggle" data-toggle="dropdown">'+_("menu")+' <span class="caret"></span></button>');
     rows.push('<ul class="dropdown-menu">');
     jQuery.each(this.entries, function(k,a) {
       rows.push('<li><a href="#" id="'+a.id+'"><i class="icon-'+a.icon+'"></i> '+a.caption+'</a>');
@@ -1695,9 +1709,9 @@ CC_Navi.prototype.countElement = function() {
 
 CC_Navi.prototype.addSearch = function(searchEntry) {
   if (churchcore_tabletformat())
-    this.search='<input type="text" id="searchEntry" placeholder="Suche" class="input-small search-query pull-right" value="'+searchEntry+'"/>';
+    this.search='<input type="text" id="searchEntry" placeholder="'+_("search")+'" class="input-small search-query pull-right" value="'+searchEntry+'"/>';
   else 
-    this.search='<input type="text" id="searchEntry" placeholder="Suche" class="input-medium search-query pull-right" value="'+searchEntry+'"/>';
+    this.search='<input type="text" id="searchEntry" placeholder="'+_("search")+'" class="input-medium search-query pull-right" value="'+searchEntry+'"/>';
 };
 
 CC_Navi.prototype.render = function(asButton) {
@@ -1851,8 +1865,9 @@ function form_implantDatePicker(divid, curDate, func, highlightDay) {
      dateFormat: 'dd.mm.yy',
      showButtonPanel: true,
      dayNamesMin: ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"],
-     currentText: "Heute",
+     currentText: _("today"),
      firstDay: 1,
+     monthNames:getMonthNames(),
      beforeShowDay: highlightDay,
      onSelect : function(dateText, inst) { 
                   func(dateText, divid); 

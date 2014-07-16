@@ -59,26 +59,26 @@ PersonView.prototype.renderMenu = function() {
   menu = new CC_Menu(_("menu"));
   if (menuDepth=="amain") {
     if (masterData.auth["create person"])
-      menu.addEntry("Neue Person anlegen", "anewentry", "star");
+      menu.addEntry(_("add.new.person"), "anewentry", "star");
     if (user_access("complex filter"))
-      menu.addEntry("Weitere Filter", "aaddfilter", "filter");  
-    menu.addEntry("Exporter", "aexporter", "share");
-    menu.addEntry("E-Mailer", "amailer", "envelope");
+      menu.addEntry(_("more.filter"), "aaddfilter", "filter");  
+    menu.addEntry(_("exporter"), "aexporter", "share");
+    menu.addEntry(_("emailer"), "amailer", "envelope");
     if (masterData.auth.sendsms)
       menu.addEntry("SMS", "asms", "bullhorn");    
-    menu.addEntry("Gruppenliste", "agroupview", "th-list");
-    menu.addEntry("Einstellungen", "asettingsview", "wrench");    
+    menu.addEntry(_("list.of.groups"), "agroupview", "th-list");
+    menu.addEntry(_("settings"), "asettingsview", "wrench");    
     if ((masterData.auth.admin) || (masterData.auth["export"])) { 
-      menu.addEntry("Administration", "aadmin", "cog");
+      menu.addEntry(_("administration"), "aadmin", "cog");
     }
-    menu.addEntry("Hilfe", "ahelp", "question-sign");
+    menu.addEntry(_("help"), "ahelp", "question-sign");
   }
   else if (menuDepth=="aadmin") {
-    menu.addEntry("Zur&uuml;ck zum Hauptmen&uuml;", "amain", "home");
+    menu.addEntry(_("back.to.main.menu"), "amain", "home");
     if (masterData.auth["admin"])
-      menu.addEntry("Stammdatenpflege", "amaintainview", "cog");  
+      menu.addEntry(_("maintain.masterdata"), "amaintainview", "cog");  
     if (masterData.auth["export"])
-      menu.addEntry("Gesamtexport", "aallexporter", "share");  
+      menu.addEntry(_("export.all"), "aallexporter", "share");  
     if (masterData.auth["admin"])
       menu.addEntry("LogViewer", "alogviewer", "eye-open");
   }  
@@ -164,12 +164,12 @@ PersonView.prototype.renderListMenu = function() {
     searchEntry=this.getFilter("searchEntry");
 
   var navi = new CC_Navi();
-  navi.addEntry(churchInterface.isCurrentView("PersonView"),"apersonview","Personenliste");
-  navi.addEntry(churchInterface.isCurrentView("MapView"),"aviewmap","Kartenansicht");
+  navi.addEntry(churchInterface.isCurrentView("PersonView"),"apersonview",_("list.of.persons"));
+  navi.addEntry(churchInterface.isCurrentView("MapView"),"aviewmap",_("map.view"));
   if (masterData.auth["viewstats"])
-    navi.addEntry(churchInterface.isCurrentView("StatisticView"),"astatisticview","Statistik");
+    navi.addEntry(churchInterface.isCurrentView("StatisticView"),"astatisticview",_("statistic.view"));
   if (masterData.auth["viewarchive"])
-    navi.addEntry(churchInterface.isCurrentView("ArchiveView"),"aarchiveview","Archiv");
+    navi.addEntry(churchInterface.isCurrentView("ArchiveView"),"aarchiveview",_("archive"));
   
   navi.addSearch(searchEntry);
   navi.renderDiv("cdb_search", churchcore_handyformat());
@@ -281,7 +281,7 @@ PersonView.prototype.renderAddEntry = function(prefill) {
   form_person.surroundWithDiv("span4");
   form_person.addStandardField(masterData.fields.f_address.fields["vorname"]);
   form_person.addStandardField(masterData.fields.f_address.fields["name"]);
-  form_person.addHtml('<p><a href="#" class="furtherfields">Weitere Felder hinzuf&uuml;gen</a>');
+  form_person.addHtml('<p><a href="#" class="furtherfields">'+_("add.more.fields")+'</a>');
   form_person.addHtml('<div id="furtherfields" style="display:none">');
   $.each(masterData.fields, function(k,fields) {
     $.each(fields.fields, function(i,field) {
@@ -294,7 +294,7 @@ PersonView.prototype.renderAddEntry = function(prefill) {
   
   _text=_text+form_person.render();
 
-  var form = new CC_Form("Kategorien");
+  var form = new CC_Form(_("categories"));
   form.surroundWithDiv("span4");
   if (masterData.settings.newPersonBereich==null)
     masterData.settings.newPersonBereich=1;
@@ -308,7 +308,7 @@ PersonView.prototype.renderAddEntry = function(prefill) {
     form.addSelect({data: masterData.station, selected:masterData.settings.newPersonStation, cssid:"Inputf_station", label:f("station_id")});
   _text=_text+form.render();
 
-  var form = new CC_Form("Gruppen");
+  var form = new CC_Form(_("groups"));
   form.surroundWithDiv("span4");
   if (masterData.groups!=null) {
     var diff_date=new Date();
@@ -335,7 +335,7 @@ PersonView.prototype.renderAddEntry = function(prefill) {
             data.push(form_prepareDataEntry(b.id, b.bezeichnung));
         });
       });
-      form.addSelect({data:data, freeoption:false, cssid:"createGroup", label:"Meine Gruppen"});
+      form.addSelect({data:data, freeoption:false, cssid:"createGroup", label:_("my.groups")});
     }    
   }
   _text=_text+form.render();
@@ -530,7 +530,7 @@ PersonView.prototype.addSecondMenu = function() {
       rows.push("<a id=\"delfromgroup\" href=\"#\">Markierte Person aus der Gruppe entfernen</a>&nbsp; | &nbsp;");
   } 
   if ((masterData.auth.write) && (masterData.auth.editgroups)) {
-    rows.push("<p>Personenfunktionen: Markierte Personen ... &nbsp;");
+    rows.push("<p>"+_("person.function")+": "+_("selected.persons")+" ... &nbsp;");
     rows.push('<select id="personFunction"><option value="-1">');
     rows.push('<option value="addToGroup">... einer Gruppe hinzuf&uuml;gen');
     if (masterData.auth.viewalldetails)
@@ -1521,20 +1521,20 @@ PersonView.prototype.renderTodos = function() {
     form.surroundWithDiv("well");
     form.setHelp("ChurchDB-Aufgaben");
     //rows.push('<div class="well">'); //style="background:#e7eef4;border:solid 1px lightgray;font-size:8pt;padding-left:5px">');
-    form.addHtml("<p>Meine Aufgaben</p>");
+    form.addHtml("<p>"+_("my.todos")+"</p>");
     if (_overdue>0)
-      form.addCheckbox({controlgroup:false,controlgroup_class:"s", checked:t.getFilter("followupOverdue"), cssid:"followupOverdue", label:'&uuml;berf&auml;llige FollowUps <span class="pull-right badge badge-warning">'+_overdue+'</span>'});
+      form.addCheckbox({controlgroup:false,controlgroup_class:"s", checked:t.getFilter("followupOverdue"), cssid:"followupOverdue", label:_("overdue.followups")+' <span class="pull-right badge badge-warning">'+_overdue+'</span>'});
     if (_today>0)
-      form.addCheckbox({controlgroup:false,controlgroup_class:"s", checked:t.getFilter("followupToday"), cssid:"followupToday", label:'n&auml;chste FollowUps <span class="pull-right badge badge-success">'+_today+'</span>'});
+      form.addCheckbox({controlgroup:false,controlgroup_class:"s", checked:t.getFilter("followupToday"), cssid:"followupToday", label:_("pending.followups")+' <span class="pull-right badge badge-success">'+_today+'</span>'});
     if (_gruppenantrag>0)
-      form.addCheckbox({controlgroup:false,controlgroup_class:"s", checked:t.getFilter("groupSubscribe"), cssid:"groupSubscribe", label:'Antrag Gruppenteilnahme &nbsp;<span class="pull-right badge badge-info">'+_gruppenantrag+'</span>'});
+      form.addCheckbox({controlgroup:false,controlgroup_class:"s", checked:t.getFilter("groupSubscribe"), cssid:"groupSubscribe", label:_("request.group.membership")+' &nbsp;<span class="pull-right badge badge-info">'+_gruppenantrag+'</span>'});
     if (_gruppenloeschung>0)
-      form.addCheckbox({controlgroup:false,controlgroup_class:"s", checked:t.getFilter("groupDelete"), cssid:"groupDelete", label:'L&oumlschung Gruppenteilnahme &nbsp;<span class="pull-right badge badge-important">'+_gruppenloeschung+'</span>'});
+      form.addCheckbox({controlgroup:false,controlgroup_class:"s", checked:t.getFilter("groupDelete"), cssid:"groupDelete", label:_("request.group.deletion")+' &nbsp;<span class="pull-right badge badge-important">'+_gruppenloeschung+'</span>'});
     
     rows.push(form.render());
   } 
   else if ((t.filter["followupToday"]!=null) || (t.filter["followupOverdue"]!=null)) {
-    alert("Vielen Dank! Followup ist heute abgeschlossen.");    
+    alert(_("thank.you")+" "+_("followup.completed.for.today"));    
     delete t.filter["followupToday"];
     delete t.filter["followupOverdue"];
   }
@@ -1581,7 +1581,7 @@ PersonView.prototype.renderFilter = function() {
   }
   form.addSelect({
     data:ret, 
-    label:"Meine Gruppen", 
+    label:_("my.groups"), 
     sort:false,
     cssid:"filterMeine Gruppen",
     selected: personView.filter['filterMeine Gruppen'],
@@ -1596,7 +1596,7 @@ PersonView.prototype.renderFilter = function() {
     form.addHtml('<div id="filterStation"></div>');
   }
   form.addHtml('<div id="filterBereich"></div>');
-  form.addCheckbox({cssid:"searchChecked",label:"markierte"});  
+  form.addCheckbox({cssid:"searchChecked",label:_("selected")});  
   rows.push(form.render(true, "inline"));
   
   
@@ -4588,7 +4588,7 @@ PersonView.prototype.renderGroupContent = function(g_id) {
     }
     rows.push('<div class="well">');
       if (json!=null) {
-        rows.push('<legend>Gruppentreffen <a href="#" id="a_gruppenliste">'+masterData.groups[g_id].bezeichnung+'</a> im <i>'+monthNames[t.gruppenteilnehmerdatum.getMonth()]+" "+t.gruppenteilnehmerdatum.getFullYear()+'</i></legend>');
+        rows.push('<legend>Gruppentreffen <a href="#" id="a_gruppenliste">'+masterData.groups[g_id].bezeichnung+'</a> im <i>'+getMonthName(t.gruppenteilnehmerdatum.getMonth())+" "+t.gruppenteilnehmerdatum.getFullYear()+'</i></legend>');
         rows.push(form_renderButton({label:"<< Monat zur&uuml;ck", cssid:"btn_monatback"})+" ");
         rows.push(form_renderButton({label:"Monat vor >>", cssid:"btn_monatfurther"}));
       }

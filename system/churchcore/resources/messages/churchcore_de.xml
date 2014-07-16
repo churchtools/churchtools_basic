@@ -33,11 +33,13 @@
   
   <!-- HOME -->
   <entry key="there.are.more.users.with.the.same.email">Es sind mehrere Benutzer mit der gleichen EMail-Adresse vorhanden. Diese können im Menü oben rechts gewechselt werden.</entry>
-  <entry key="chose.your.possibilites">wähle Deine Möglichkeiten</entry>
+  <entry key="chose.your.possibilities">wähle Deine Möglichkeiten</entry>
   <entry key="open.help">Hilfe aufrufen</entry>
   <entry key="salutation">Anrede</entry>
   <entry key="name">Name</entry>
   <entry key="address">Adresse</entry>
+  <entry key="age">Alter</entry>
+  <entry key="birthday">Geburtsdatum</entry>
   <entry key="birth.">Geb.</entry>
   <entry key="contact.information">Kontaktinformationen</entry>
   <entry key="mobile">Handy</entry>
@@ -114,6 +116,10 @@
   <entry key="maintain.masterdata">Stammdatenpflege</entry>
   <entry key="printview">Druckansicht</entry>
   <entry key="help">Hilfe</entry>
+  <entry key="more">Weitere</entry>
+  <entry key="more.information">Weitere Infos</entry>
+  <entry key="show.all">Alle anzeigen</entry> 
+  <entry key="search">Suche</entry>
   
   <!-- ADMIN -->
   <entry key="settings.for">Einstellungen für {0}</entry>
@@ -124,12 +130,13 @@
   <!--  MODULES -->
   <entry key="service">Dienst</entry>
   <entry key="birthdays">Geburtstage</entry>
-  <entry key="other.birthdays">Weitere Geburtstage</entry>
+  <entry key="more.birthdays">Weitere Geburtstage</entry>
   <entry key="list.of.members">Mitgliederliste</entry>
   <entry key="yesterday">Gestern</entry>
   <entry key="today">Heute</entry>
   <entry key="tomorrow">Morgen</entry>
   <entry key="confirm">Zusagen</entry>
+  <entry key="confirmed.on">Zugesagt am {0}</entry>
   <entry key="deny">Absagen</entry>
   <entry key="perhaps">Vielleicht</entry>
   <entry key="thank.you.for.confirmation">Danke für die Zusage.</entry>
@@ -145,5 +152,86 @@
   <entry key="mr.">Herr</entry>
   <entry key="mrs.">Frau</entry>
   <entry key="who.is.online">Wer ist online?</entry>
+  <entry key="no.entry.found">Keinen Eintrag gefunden.</entry>
+  <entry key="admin.my.membership">Meine Teilnahme verwalten</entry>
+  <entry key="todos.in">Aufgaben in {0}</entry>
+  <entry key="apply.for.group.membership">Hier kannst Du eine Teilnahme beantragen</entry>
+  <entry key="quit.group.membership">Hier kannst Du eine Teilnahme beenden</entry>
+  <entry key="last.x.days">Letzten {0} Tage</entry>
+  <entry key="next.x.days">Nächsten {0} Tage</entry>
+  <entry key="your.pending.service.requests">Deine offenen Dienstanfragen</entry>
+  <entry key="your.next.services">Deine nächsten Dienste</entry>
+  <entry key="your.current.event.staff">Deine aktuelle Eventbesetzung</entry>
+  <entry key="absence.of.next.x.days">Abwesenheiten der nächsten {0} Tage</entry>
+  <entry key="facts.of.last.days">Fakten der letzten Tage</entry>  
+  <entry key="your.open.meeting.requests">Deine offenen Terminanfragen</entry>
+  <entry key="your.next.meetings">Deine nächsten Termine</entry>  
+  <entry key="pending.booking.requests">Offene Buchungsanfragen</entry>
+  <entry key="current.bookings">Aktuelle Buchungen</entry>
+
+
+<!-- 17.7.2014 -->
+  <entry key="more.filter">Weitere Filter</entry>
+  <entry key="filter.functions">Filterfunktionen</entry>
+  <entry key="administration">Administration</entry>
+  <entry key="thank.you">Vielen Dank!</entry>
+  <entry key="groups">Gruppen</entry>
+  <entry key="none.selected">keine ausgewählt</entry>
+  <entry key="all.selected">alle ausgewählt</entry>
+  <entry key="select.all">Alle auswählen</entry>
+  <entry key="deselect.all">Alle abwählen</entry>  
+  <entry key="selected">markierte</entry>
+  <entry key="chosen">ausgewählt</entry>
+  <entry key="masterdata">Stammdaten</entry>
+  <entry key="list.of.masterdata">Stammdaten</entry>
+  <entry key="count.rows">Anzahl Zeilen</entry>
+  <entry key="show">zeige</entry>
+  <entry key="show.x.entries">Zeige {0} gefundene Einträgen</entry>
+  <entry key="show.x.from.y.entries">Zeige {0} von {1} Einträgen</entry>
+  <entry key="paging">Blättern</entry>
+  <entry key="number.of.rows">Zeilenanzahl</entry>
+  <entry key="open.each">alle öffnen</entry>
+  <entry key="close.each">alle schließen</entry>
+  <entry key="add.new.request">Neue Anfrage erstellen</entry>
+  <entry key="all">Alle</entry>
+  <entry key="important.from">Wichtiges von {0}</entry>
+  <entry key="news.from">Neuigkeiten von {0}</entry>
+  <entry key="to.the.top">Nach oben</entry>  
+  <entry key="main.page">Hauptseite</entry>
+  <entry key="upload.file">Datei hochladen</entry>
+  <entry key="drop.file.for.uploading.here">Hier Dateien zum Upload fallen lassen</entry>
+  <entry key="error.occured">Fehler aufgetreten</entry>
+  <entry key="create">Erstellen</entry>
+  <entry key="resources">Ressourcen</entry>
+  <entry key="embedding">einbetten</entry>
+  <entry key="subscribe.per.ical">abonnieren per iCal</entry>
+  <entry key="caption">Bezeichnung</entry>
+  <entry key="location">Ort</entry>
+  <entry key="save">Speichern</entry>
+  <entry key="creator">Ersteller</entry>
+  
+  <entry key="january">Januar</entry>
+  <entry key="february">Februar</entry>
+  <entry key="march">März</entry>
+  <entry key="april">April</entry>
+  <entry key="mai">Mai</entry>
+  <entry key="june">Juni</entry>
+  <entry key="july">Juli</entry>
+  <entry key="august">August</entry>
+  <entry key="september">September</entry>
+  <entry key="october">Oktober</entry>
+  <entry key="november">November</entry>
+  <entry key="december">Dezember</entry>
+  
+  <entry key="minutes">minutes</entry>
+  <entry key="hour">hour</entry>
+  <entry key="hours">hours</entry>
+  <entry key="day">day</entry>
+  
+  <entry key="start.date">Startdatum</entry>
+  <entry key="end.date">Enddatum</entry>
+  <entry key="repeats">Wiederholungen</entry>
+  <entry key="all.day">Ganztägig</entry>
+  
   
 </properties>

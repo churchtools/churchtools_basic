@@ -2,4 +2,36 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
   <comment>ChurchDB messages</comment>
-  </properties>
+    
+  <entry key="add.new.person">Neue Person anlegen</entry>
+  <entry key="exporter">Exporter</entry>
+  <entry key="emailer">E-Mailer</entry>
+  <entry key="list.of.groups">Gruppenliste</entry>
+  <entry key="list.of.persons">Personenliste</entry>
+  <entry key="map.view">Kartenansicht</entry>
+  <entry key="statistic.view">Statistik</entry>
+  <entry key="archive">Archiv</entry>
+  <entry key="export.all">Gesamtexport</entry>
+  
+  <entry key="my.todos">Meine Aufgaben</entry>
+  <entry key="overdue.followups">überfällige FollowUps</entry>
+  <entry key="pending.followups">nächste FollowUps</entry>
+  <entry key="request.group.membership">Antrag Gruppenteilnahme</entry>
+  <entry key="request.group.deletion">Löschung Gruppenteilnahme</entry>
+  <entry key="followup.completed.for.today">Followup ist heute abgeschlossen.</entry>
+  
+  <entry key="add.more.fields">Weitere Felder hinzufügen</entry>
+  <entry key="categories">Kategorien</entry>
+  <entry key="my.groups">Meine Gruppen</entry>
+  
+  <entry key="back.to.list.of.persons">Zurück zur Personenliste</entry>
+  <entry key="add.new.group">Neue Gruppe anlegen</entry>
+  <entry key="add.related.person">Eine Person zuordnen</entry>
+  <entry key="add.another.related.person">Eine weitere Person zuordnen</entry>
+  <entry key="related.persons">Zugeordnete Personen</entry>
+  <entry key="show.changes.between">Änderungen anzeigen innerhalb von:</entry>
+
+  <entry key="person.function">Personenfunktion</entry>
+  <entry key="selected.persons">Markierte Personen</entry> 
+  
+</properties>

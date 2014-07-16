@@ -7,7 +7,6 @@ allData=new Object();
 allBookings=null;
 viewName="calView";
 filterName="";
-monthNames= ['Januar', 'Februar', 'M&auml;rz', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
 previousBookings=null;
 filterCategoryIds=null;
 var saveSettingTimer=null;
@@ -197,18 +196,18 @@ function _renderViewChurchResource(elem) {
   });
   var minutes=new Array();
   minutes.push({id:0, bezeichnung:'-'});
-  minutes.push({id:15, bezeichnung:'15 Minuten'});
-  minutes.push({id:30, bezeichnung:'30 Minuten'});
-  minutes.push({id:45, bezeichnung:'45 Minuten'});
-  minutes.push({id:60, bezeichnung:'1 Stunde'});
-  minutes.push({id:90, bezeichnung:'1,5 Stunden'});
-  minutes.push({id:120, bezeichnung:'2 Stunden'});
-  minutes.push({id:150, bezeichnung:'2,5 Stunden'});
-  minutes.push({id:180, bezeichnung:'3 Stunden'});
-  minutes.push({id:240, bezeichnung:'4 Stunden'});
-  minutes.push({id:300, bezeichnung:'5 Stunden'});
-  minutes.push({id:360, bezeichnung:'6 Stunden'});
-  minutes.push({id:60*24, bezeichnung:'1 Tag'});
+  minutes.push({id:15, bezeichnung:'15 '+_("minutes")});
+  minutes.push({id:30, bezeichnung:'30 '+_("minutes")});
+  minutes.push({id:45, bezeichnung:'45 '+_("minutes")});
+  minutes.push({id:60, bezeichnung:'1 '+_("hour")});
+  minutes.push({id:90, bezeichnung:'1,5 '+_("hours")});
+  minutes.push({id:120, bezeichnung:'2 '+_("hours")});
+  minutes.push({id:150, bezeichnung:'2,5 '+_("hours")});
+  minutes.push({id:180, bezeichnung:'3 '+_("hours")});
+  minutes.push({id:240, bezeichnung:'4 '+_("hours")});
+  minutes.push({id:300, bezeichnung:'5 '+_("hours")});
+  minutes.push({id:360, bezeichnung:'6 '+_("hours")});
+  minutes.push({id:60*24, bezeichnung:'1 '+_("day")});
   
   var form = new CC_Form();
   if (currentEvent.minpre==null) {
@@ -356,19 +355,19 @@ function _renderEditEventContent(elem, currentEvent) {
     rows.push(form_renderInput({
       value:currentEvent.bezeichnung, 
       cssid:"inputBezeichnung", 
-      label:"Bezeichnung"
+      label:_("caption")
     }));
   
     rows.push(form_renderInput({
       value:currentEvent.ort, 
       cssid:"inputOrt", 
-      label:"Ort",
+      label:_("location"),
       placeholder:""
     }));
     if ((masterData.category[currentEvent.category_id]!=null) && 
            (masterData.category[currentEvent.category_id].oeffentlich_yn==1)) {
       rows.push(form_renderCheckbox({
-        label:" Termin nur intern sichtbar",
+        label:" "+_("only.intern.visible"),
         controlgroup:true,
         controlgroup_class:"",
         cssid:"inputIntern",
@@ -382,7 +381,7 @@ function _renderEditEventContent(elem, currentEvent) {
     var e_summe=new Array();
     var e=new Array();
     if (currentEvent.events==null) {
-      e.push({id:-1, bezeichnung:"-- Pers&ouml;nliche Kalender --"});
+      e.push({id:-1, bezeichnung:"-- "+_("personal.calendar")+" --"});
       $.each(churchcore_sortMasterData(masterData.category), function(k,a) {
         if ((a.privat_yn==1) && (categoryEditable(a.id))) e.push(a);
       });
@@ -390,7 +389,7 @@ function _renderEditEventContent(elem, currentEvent) {
     }
 
     var e=new Array();
-    e.push({id:-1, bezeichnung:"-- Gruppenkalender --"});
+    e.push({id:-1, bezeichnung:"-- "+_("group.calendar")+" --"});
     $.each(churchcore_sortMasterData(masterData.category), function(k,a) {
       if ((a.oeffentlich_yn==0) && (a.privat_yn==0) && (categoryEditable(a.id))) e.push(a);
     });
@@ -410,11 +409,11 @@ function _renderEditEventContent(elem, currentEvent) {
       sort:false,
       cssid:"inputCategory", 
       selected:currentEvent.category_id,
-      label:"Kalender"
+      label:_("calendar")
     }));  
     rows.push(form_renderTextarea({
       data:currentEvent.notizen,
-      label:"Weitere Infos",
+      label:_("more.information"),
       cssid:"inputNote", 
       rows:2,
       cols:100
@@ -960,10 +959,10 @@ function initCalendarView() {
       contentHeight: (!printview?600:1000),
       defaultEventMinutes:90,
       editable: true,
-      monthNames: monthNames,
+      monthNames: getMonthNames(),
       weekNumbers: true,
       weekNumberTitle : "KW",
-      monthNamesShort: ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'Mai.', 'Jun.', 'Jul.', 'Aug.', 'Sep.', 'Okt.', 'Nov.', 'Dez.'],
+      monthNamesShort: monthNamesShort,
       dayNames: dayNames,
       dayNamesShort: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
       buttonText: {
@@ -971,10 +970,10 @@ function initCalendarView() {
         next:     '&nbsp;&#9658;&nbsp;',  // right triangle
         prevYear: '&nbsp;&lt;&lt;&nbsp;', // <<
         nextYear: '&nbsp;&gt;&gt;&nbsp;', // >>
-        today:    'Heute',
-        month:    'Monat',
-        week:     'Woche',
-        day:      'Tag'
+        today:    _("today"),
+        month:    _("month"),
+        week:     _("week"),
+        day:      _("day")
       },      
       timeFormat: {
     // for agendaWeek and agendaDay
@@ -1014,7 +1013,7 @@ function initCalendarView() {
       $("td.fc-header-left").append("&nbsp; "+form_renderImage({src:"cal.png", width:28, htmlclass:"open-cal", link:true})+'<div style="position:absolute;z-index:12001" id="dp_month"></div>');
     $("td.fc-header-left").append(" "+form_renderImage({src:"printer.png", width:28, htmlclass:"printview", link:true})+'<div style="position:absolute;z-index:12001" id="dp_month"></div>');
       if (!embedded) {
-      $("td.fc-header-right").append('<span id="yearView" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content">Jahr</span><span class="fc-button-effect"><span></span></span></span></span>');
+      $("td.fc-header-right").append('<span id="yearView" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content">'+_("year")+'</span><span class="fc-button-effect"><span></span></span></span></span>');
       $("td.fc-header-right").append('<span id="eventView" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content"><i class="icon-list"></i></span><span class="fc-button-effect"><span></span></span></span></span>');
     }
     if (printview) {
@@ -1030,8 +1029,8 @@ function initCalendarView() {
   }
   else if (viewName=="yearView") {
     calendar.yearCalendar({});
-    $("#header").append('<span id="calView" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content">Kalender</span><span class="fc-button-effect"><span></span></span></span></span>');
-    $("#header").append('<span id="yearView" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content">Jahr</span><span class="fc-button-effect"><span></span></span></span></span>');
+    $("#header").append('<span id="calView" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content">'+_("calendar")+'</span><span class="fc-button-effect"><span></span></span></span></span>');
+    $("#header").append('<span id="yearView" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content">'+_("year")+'</span><span class="fc-button-effect"><span></span></span></span></span>');
     $("#header").append('<span id="eventView" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content"><i class="icon-list"></i></span><span class="fc-button-effect"><span></span></span></span></span>');
   }
   else if (viewName=="eventView") {
@@ -1039,13 +1038,13 @@ function initCalendarView() {
     if ($("#init_enddate").val()!=null)
       enddate=$("#init_enddate").val().toDateEn(true);
     calendar.eventCalendar({startdate:d, enddate:enddate});
-    $("#header").append(form_renderInput({controlgroup:false, cssid:"searchEntry", placeholder:"Suche",htmlclass:"input-medium search-query"}));
+    $("#header").append(form_renderInput({controlgroup:false, cssid:"searchEntry", placeholder:_("search"),htmlclass:"input-medium search-query"}));
     $("#header").append('<span id="calView" style="overflow:inherit" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content">Kalender</span><span class="fc-button-effect"><span></span></span></span></span>');
     $("#header").append('<span id="yearView" style="overflow:inherit" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content">Jahr</span><span class="fc-button-effect"><span></span></span></span></span>');
     $("#header").append('<span id="eventView" style="overflow:inherit" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content"><i class="icon-list"></i></span><span class="fc-button-effect"><span></span></span></span></span>');
   }
   else 
-    alert("Unbekannter viewname!");
+    alert("Unkwnown viewname!");
   $("a.open-cal").click(function() {
     form_implantDatePicker('dp_month', masterData.settings["startDate"].toDateEn(), function(dateText) {
       console.log(dateText);
@@ -1455,7 +1454,7 @@ function editCategories(privat_yn, oeffentlich_yn, reload) {
   if (privat_yn==1)
     rows.push('<legend>Pers&ouml;nliche Kalender verwalten</legend>');
   else if (oeffentlich_yn==0)
-    rows.push('<legend>Gruppenkalender</legend>');
+    rows.push('<legend>'+_("group.calendar")+'</legend>');
   else
     rows.push('<legend>'+masterData.maincal_name+' verwalten</legend>');
   rows.push('<table class="table table-condensed">');
@@ -1570,7 +1569,7 @@ function hideData(filtername, id) {
 
 function renderPersonalCategories() {
   var rows = new Array();
-  var form = new CC_Form("Pers&ouml;nliche Kalender");
+  var form = new CC_Form(_("personal.calendar"));
   form.setHelp("Persönliche Kalender");
   var sortkey=-1;
   var mycals=new Object();
@@ -1613,7 +1612,7 @@ function renderPersonalCategories() {
 }
 
 function renderGroupCategories() {
-  form = new CC_Form((!embedded?"Gruppenkalender"+form_renderImage({cssid:"edit_group", src:"options.png", top:8, width:24, htmlclass:"pull-right"}):null));
+  form = new CC_Form((!embedded?_("group.calendar")+form_renderImage({cssid:"edit_group", src:"options.png", top:8, width:24, htmlclass:"pull-right"}):null));
   var sortkey=-1;
   var mycals=new Object();
   var rows = new Array();
@@ -1640,7 +1639,7 @@ function renderGroupCategories() {
       rows.push(form.render(true));
     }
     else if (user_access("admin group category"))  {
-      form.addHtml('<i>Kein Kalender vorhanden. <a href="#" id="create_group_cal">Erstellen?</a></i>');
+      form.addHtml('<i>'+_("no.calendar.available")+' <a href="#" id="create_group_cal">'+_("create")+'?</a></i>');
       rows.push(form.render(true));
     }
 
@@ -1688,11 +1687,11 @@ function renderChurchCategories() {
         form_addEntryToSelectArray(oeff_cals,3,'-',sortkey);  sortkey++;
       }
       if (masterData.auth["view alldata"]) {
-        form_addEntryToSelectArray(oeff_cals,4,'Geburtstage (Gruppen)',sortkey);  sortkey++;
-        form_addEntryToSelectArray(oeff_cals,6,'Geburtstage (Alle)',sortkey, true);  sortkey++;
+        form_addEntryToSelectArray(oeff_cals,4,_("birthdays")+' (Gruppen)',sortkey);  sortkey++;
+        form_addEntryToSelectArray(oeff_cals,6,_("birthdays")+' (Alle)',sortkey, true);  sortkey++;
       }
       else {
-        form_addEntryToSelectArray(oeff_cals,6,'Geburtstage',sortkey);  sortkey++;
+        form_addEntryToSelectArray(oeff_cals,6,_("birthdays"),sortkey);  sortkey++;
       }
     }
   
@@ -1776,10 +1775,10 @@ $(document).ready(function() {
 
     $("#cdb_filter").html(rows.join(""));
     
-    filterMultiselect("filterMeineKalender", "Meine Kalender");
-    filterMultiselect("filterGruppenKalender", "Gruppenkalender");
-    filterMultiselect("filterGemeindekalendar", (!embedded?masterData.maincal_name:"Kalender"));
-    filterMultiselect("filterRessourcen", "Ressourcen");
+    filterMultiselect("filterMeineKalender", _("personal.calendar"));
+    filterMultiselect("filterGruppenKalender", _("group.calendar"));
+    filterMultiselect("filterGemeindekalendar", (!embedded?masterData.maincal_name:_("calendar")));
+    filterMultiselect("filterRessourcen", _("resources"));
     
     if (embedded) { 
       $("#searchEntry").keyup(function() {

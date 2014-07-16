@@ -622,7 +622,7 @@ function churchservice_ical() {
     if ($res->zugesagt_yn==1)    
       $txt.="\r\n";
     else   
-      $txt.=" Anfrage von $res->vorname $res->name [$res->modified_pid]\r\n";
+      $txt.=" ".t("request.from")." $res->vorname $res->name [$res->modified_pid]\r\n";
     $txt.="DTSTAMP:".$res->modified_date."\r\n"; 
     $txt.="UID:".$res->eventservice_id."\r\n"; 
     $txt.="DTSTART;TZID=".$config["timezone"].":".$res->datum_start."\r\n"; 

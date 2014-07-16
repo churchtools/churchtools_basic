@@ -69,7 +69,7 @@ AgendaView.prototype.groupingFunction = function(event) {
 AgendaView.prototype.renderMenu = function() {
   var t=this;
 
-  menu = new CC_Menu("Men&uuml;");
+  menu = new CC_Menu(_("menu"));
 
 //  if (masterData.auth.write)
 //    menu.addEntry("Neues Event anlegen", "anewentry", "star");
@@ -78,7 +78,7 @@ AgendaView.prototype.renderMenu = function() {
     menu.addEntry("Neue Vorlage erstellen", "anewtemplate", "star");
   menu.addEntry("Druckansicht", "aprintview", "print");
   menu.addEntry("Exportieren zu Songbeamer", "aexportsb", "share");
-  menu.addEntry("Hilfe", "ahelp", "question-sign");
+  menu.addEntry(_("help"), "ahelp", "question-sign");
 
   if (!menu.renderDiv("cdb_menu",churchcore_handyformat()))
     $("#cdb_menu").hide();

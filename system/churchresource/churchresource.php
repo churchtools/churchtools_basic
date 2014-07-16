@@ -14,6 +14,9 @@ function churchresource_main() {
   drupal_add_js(drupal_get_path('module', 'churchresource') .'/cr_weekview.js');
   drupal_add_js(drupal_get_path('module', 'churchresource') .'/cr_main.js');
   
+  drupal_add_js(createI18nFile("churchcore"));
+  drupal_add_js(createI18nFile("churchresource"));
+  
   $content='';
 
   // Übergabe der ID für den Direkteinstieg eines Eintrags
@@ -133,13 +136,13 @@ function churchresource_getCurrentBookings() {
 function churchresource_blocks() {
   return (array(
     1=>array(
-      "label"=>"Offene Buchungsanfragen",
+      "label"=>t("pending.booking.requests"),
       "col"=>3,
       "sortkey"=>1,
       "html"=>churchresource_getOpenBookings()
     ),  
     2=>array(
-      "label"=>"Aktuelle Buchungen",
+      "label"=>t("current.bookings"),
       "col"=>3,
       "sortkey"=>2,
       "html"=>churchresource_getCurrentBookings()

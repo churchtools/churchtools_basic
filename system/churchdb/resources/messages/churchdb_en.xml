@@ -3,4 +3,36 @@
 <properties>
   <comment>ChurchDB messages</comment>
 
+  <entry key="add.new.person">Add new person</entry>
+  <entry key="exporter">Export</entry>
+  <entry key="emailer">E-Mail</entry>
+  <entry key="list.of.groups">List of groups</entry>
+  <entry key="list.of.persons">List of people</entry>
+  <entry key="map.view">Map view</entry>
+  <entry key="statistic.view">Statistics</entry>
+  <entry key="archive">Archive</entry>
+  <entry key="export.all">Export all</entry>
+  
+  <entry key="my.todos">My todos</entry>
+  <entry key="overdue.followups">Overdue followups</entry>
+  <entry key="pending.followups">Pending follwups</entry>
+  <entry key="request.group.membership">Request group membership</entry>
+  <entry key="request.group.deletion">Request group deletion</entry>
+  <entry key="followup.completed.for.today">FollowUp completed for today.</entry>
+  
+  <entry key="add.more.fields">Add more fields</entry>
+  <entry key="categories">Categories</entry>
+  <entry key="my.groups">My groups</entry>
+  
+  <entry key="back.to.list.of.persons">Back to list of persons</entry>
+  <entry key="add.new.group">Add new group</entry>
+  <entry key="add.related.person">Add related person</entry>
+  <entry key="add.another.related.person">Add another related person</entry>
+  <entry key="related.persons">Related persons</entry>
+  <entry key="show.changes.between">Show changes between:</entry>
+
+  <entry key="person.function">Person function</entry>
+  <entry key="selected.persons">Selected persons</entry> 
+  
+  
 </properties>

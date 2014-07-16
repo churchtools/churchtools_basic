@@ -196,8 +196,8 @@ function eventCalendar(element, options, eventSources) {
       dateFormat: 'dd.mm.yy',
       showButtonPanel: true,
       dayNamesMin: dayNamesMin,
-      monthNames: monthNames, 
-      currentText: "Heute",
+      monthNames: getMonthNames(), 
+      currentText: _("today"),
       firstDay: 1,
       onSelect : function(dateText, inst) {
         t.startdate=dateText.toDateDe();

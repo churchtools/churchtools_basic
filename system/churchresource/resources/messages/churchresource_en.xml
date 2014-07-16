@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <comment>ChurchResource messages</comment>
+
+  <entry key="by.order.of">By order of</entry>  
+  
+  
+</properties>

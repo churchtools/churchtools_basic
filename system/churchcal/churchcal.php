@@ -21,6 +21,9 @@ function churchcal_main() {
   drupal_add_js('system/churchcal/calendar.js');
   drupal_add_js('system/churchcal/cal_sources.js');
   
+  drupal_add_js(createI18nFile("churchcore"));
+  drupal_add_js(createI18nFile("churchcal"));
+  
   $txt='';
 
   if ((isset($_GET["category_id"])) && ($_GET["category_id"]!="") && ($_GET["category_id"]!="null"))
@@ -59,9 +62,9 @@ function churchcal_main() {
   					<div class="span3"><div id="cdb_filter"></div></div>
   					<div class="span9"><div id="header" class="pull-right"></div><div id="calendar"></div></div>'.
   			  '<p align=right><small>'.
-  			  '<a target="_blank" href="'.$base_url.'?q=churchcal&embedded=true&category_id=null">'.$config["churchcal_name"].' einbetten</a>
+  			  '<a target="_blank" href="'.$base_url.'?q=churchcal&embedded=true&category_id=null">'.$config["churchcal_name"].' '.t("embedding").'</a>
   			  <a target="_clean" href="http://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc:ChurchCal%C2%A0einbetten/"><i class="icon-question-sign"></i></a>
-  			    &nbsp; <a id="abo" href="'.$base_url.'?q=churchcal/ical">'.$config["churchcal_name"].' abonnieren per iCal</a>'.
+  			    &nbsp; <a id="abo" href="'.$base_url.'?q=churchcal/ical">'.$config["churchcal_name"].' '.t("subscribe.per.ical").'</a>'.
   			    '</small>';
     
   if (isset($_GET["date"])) $txt.='<input type="hidden" name="viewdate" id="viewdate" value="'.$_GET["date"].'"/>';  
@@ -98,7 +101,7 @@ function churchcal_getUserMeetings() {
 function churchcal_blocks() {
   return (array(
       1=>array(
-          "label"=>"Deine offenen Terminanfragen",
+          "label"=>t("your.open.meeting.requests"),
           "col"=>2,
           "sortkey"=>1,
           "html"=>churchcal_getUserOpenMeetingRequests(),
@@ -106,7 +109,7 @@ function churchcal_blocks() {
           "class"=>"cal-request"
       ),
       2=>array(
-          "label"=>"Deine n&auml;chsten Terminzusagen",
+          "label"=>t("your.next.meetings"),
           "col"=>2,
           "sortkey"=>2,
           "html"=>churchcal_getUserMeetings(),
@@ -155,7 +158,7 @@ function churchcal_getAbsents($params) {
   
   if (isset($params["cal_ids"])) {
     $cal_ids=$params["cal_ids"];
-    // Wer hat explizit Freigaben fŸr den Kalender?
+    // Wer hat explizit Freigaben fï¿½r den Kalender?
     $db=db_query("select * from  {cc_domain_auth} d where d.auth_id=403 and d.daten_id in (".implode(",",$cal_ids).")");
     if ($db!=false) { 
       foreach ($db as $auth) {
@@ -251,14 +254,14 @@ function churchcal_getShares($params) {
 function churchcal_saveShares($params) {
   $log="";  
   $orig=churchcal_getShares($params);
-  // Ich gehe das ursprŸngliche durch 
+  // Ich gehe das ursprï¿½ngliche durch 
   $domaintypes=array();
   $domaintypes[]="person";
   $domaintypes[]="gruppe";
   foreach ($domaintypes as $domaintype) {
     if (isset($orig[$domaintype])) {
       foreach ($orig[$domaintype] as $key_authid=>$authid) {
-        // Ich schaue was nicht mehr dabei ist und lšsche
+        // Ich schaue was nicht mehr dabei ist und lï¿½sche
         foreach ($authid as $domainid) {
           if ((!isset($params[$domaintype])) || (!isset($params[$domaintype][$key_authid])) || (!in_array($domainid, $params[$domaintype][$key_authid]))) {
             $log.="<p>Entferne $domaintype, $key_authid, $domainid";
@@ -269,7 +272,7 @@ function churchcal_saveShares($params) {
         }
       }          
     }
-    // Ich schaue was neu dabei ist und fŸge hinzu!
+    // Ich schaue was neu dabei ist und fï¿½ge hinzu!
     if (isset($params[$domaintype])) {
       foreach ($params[$domaintype] as $key_authid=>$authid) {
         foreach ($authid as $domainid) {
@@ -531,7 +534,7 @@ function churchcal_saveCategory($params) {
     ->fields($i->getDBInsertArrayFromParams($params))
     ->execute(false);
 
-    // ErgŠnze noch das Recht fŸr den Autor
+    // Ergï¿½nze noch das Recht fï¿½r den Autor
     db_query("insert into {cc_domain_auth} (domain_type, domain_id, auth_id, daten_id)
                   values ('person', $user->id, 404, $id)");
     $_SESSION["user"]->auth=getUserAuthorization($_SESSION["user"]->id);     
@@ -632,6 +635,7 @@ class CTChurchCalModule extends CTAbstractModule {
   public function getMasterData() {
     global $user, $base_url;
     $ret=array();
+    $ret["modulename"]="churchcal";
     $ret["modulespath"]=drupal_get_path('module', 'churchcal');
     $ret["churchservice_name"]=variable_get("churchservice_name");
     $ret["churchcal_name"]=variable_get("churchcal_name");

@@ -33,11 +33,13 @@
   
   <!-- HOME -->
   <entry key="there.are.more.users.with.the.same.email">There are more users with the same E-Mail. You can change between them with the menu on top right.</entry>
-  <entry key="chose.your.possibilites">chose Your possibilities</entry>
+  <entry key="chose.your.possibilities">chose Your possibilities</entry>
   <entry key="open.help">Open help</entry>
   <entry key="salutation">Salutation</entry>
   <entry key="name">Name</entry>
   <entry key="address">Address</entry>
+  <entry key="age">Age</entry>
+  <entry key="birthday">Birthday</entry>
   <entry key="birth.">Birth.</entry>
   <entry key="contact.information">Contact informations</entry>
   <entry key="mobile">Mobilephone</entry>
@@ -109,9 +111,13 @@
   <entry key="menu">Menu</entry>
   <entry key="back.to.main.menu">Back to main menu</entry>
   <entry key="settings">Settings</entry>
-  <entry key="printview">Printview</entry>
   <entry key="maintain.masterdata">Maintain masterdata</entry>
+  <entry key="printview">Printview</entry>
   <entry key="help">Help</entry>
+  <entry key="more">More</entry>
+  <entry key="more.information">More information</entry>
+  <entry key="show.all">Show all</entry>  
+  <entry key="search">Search</entry>
   
   <!-- ADMIN -->
   <entry key="settings.for">Settings for {0}</entry>
@@ -122,7 +128,7 @@
   <!--  MODULES -->
   <entry key="service">Dienst</entry>
   <entry key="birthdays">Birthdays</entry>
-  <entry key="other.birthdays">Other birthdays</entry>
+  <entry key="more.birthdays">More birthdays</entry>
   <entry key="list.of.members">List of members</entry>
   <entry key="yesterday">Yesterday</entry>
   <entry key="today">Today</entry>
@@ -130,11 +136,12 @@
   <entry key="confirm">Confirm</entry>
   <entry key="deny">Deny</entry>
   <entry key="perhaps">Perhaps</entry>
+  <entry key="confirmed.on">Confirmed on {0}</entry>
   <entry key="thank.you.for.confirmation">Thank you for confirmation</entry>
   <entry key="undo.my.confirmation">Undo my confirmation</entry>
   <entry key="service.was.denied">Service was denied</entry>
   <entry key="undo.my.denial">Undo my denial</entry>
-  <entry key="entry.message.here">Entry message here</entry>
+  <entry key="entry.message.here">Enter message here...</entry>
   <entry key="request.from">Request from</entry>
   <entry key="confirm.with.reservation">Confirm with reservation</entry>
   <entry key="great.no.request.pending.anymore">Great, there is no request pending anymore</entry>
@@ -143,10 +150,85 @@
   <entry key="mr.">Mr.</entry>
   <entry key="mrs.">Mrs.</entry>
   <entry key="who.is.online">Who is online?</entry>
+  <entry key="no.entry.found">No entry found.</entry>
+  <entry key="admin.my.membership">Administer my membership</entry>
+  <entry key="todos.in">Todos in {0}</entry>
+  <entry key="apply.for.group.membership">Apply for a group membership</entry>
+  <entry key="quit.group.membership">Quit a group membership</entry>
+  <entry key="last.x.days">Last {0} days</entry>
+  <entry key="next.x.days">Next {0} days</entry>    
+  <entry key="your.pending.service.requests">Your next service requests</entry>
+  <entry key="your.next.services">Your next services</entry>
+  <entry key="your.current.event.staff">Your current event staff</entry>
+  <entry key="absence.of.next.x.days">Absence of next {0} days</entry>
+  <entry key="facts.of.last.days">Facts of the last days</entry>
+  <entry key="your.open.meeting.requests">Your open meeting requests</entry>
+  <entry key="your.next.meetings">Your next meetings</entry>
+  <entry key="pending.booking.requests">Pending bookings requests</entry>
+  <entry key="current.bookings">Current bookings</entry>
+
+  <!-- 17.7.2014 -->
+  <entry key="more.filter">More filter</entry>
+  <entry key="filter.functions">Filter functions</entry>
+  <entry key="administration">Administration settings</entry>
+  <entry key="thank.you">Thank You!</entry>
+  <entry key="groups">Groups</entry>
+  <entry key="none.selected">none selected</entry>
+  <entry key="all.selected">all selected</entry>
+  <entry key="select.all">Select all</entry>
+  <entry key="deselect.all">Deselect all</entry>
+  <entry key="selected">selected</entry>
+  <entry key="chosen">chosen</entry>
+  <entry key="masterdata">Masterdata</entry>
+  <entry key="list.of.masterdata">List of masterdata</entry>
+  <entry key="count.rows">Count rows</entry>
+  <entry key="show">show</entry>  
+  <entry key="show.x.entries">Show {0} entries</entry>
+  <entry key="show.x.from.y.entries">Show {0} from {1} entries</entry>
+  <entry key="paging">Paging</entry>
+  <entry key="number.of.rows">Number of rows</entry>
+  <entry key="open.each">open each</entry>
+  <entry key="close.each">close each</entry>  
+  <entry key="add.new.request">Create new request</entry>
+  <entry key="all">all</entry>
+  <entry key="important.from">Important entries from {0}</entry>
+  <entry key="news.from">New entries from {0}</entry>  
+  <entry key="to.the.top">To the top</entry>  
+  <entry key="main.page">Main page</entry>
+  <entry key="upload.file">Upload file</entry>
+  <entry key="drop.file.for.uploading.here">Drop file here for uploading</entry>
+  <entry key="error.occured">An error occured</entry>
+  <entry key="create">Create</entry>
+  <entry key="resources">Resources</entry>
+  <entry key="embedding">embedding</entry>
+  <entry key="subscribe.per.ical">subscribe per iCal</entry>
+  <entry key="caption">Caption</entry>
+  <entry key="location">Location</entry>
+  <entry key="save">Save</entry>
+  <entry key="creator">Creator</entry>
   
+  <entry key="january">January</entry>
+  <entry key="february">February</entry>
+  <entry key="march">March</entry>
+  <entry key="april">April</entry>
+  <entry key="mai">Mai</entry>
+  <entry key="june">June</entry>
+  <entry key="july">July</entry>
+  <entry key="august">August</entry>
+  <entry key="september">September</entry>
+  <entry key="october">October</entry>
+  <entry key="november">November</entry>
+  <entry key="december">December</entry>
+
+  <entry key="minutes">Minuten</entry>
+  <entry key="hours">Stunden</entry>
+  <entry key="hour">Stunde</entry>
+  <entry key="day">Tag</entry>
   
+  <entry key="start.date">Start date</entry>
+  <entry key="end.date">End date</entry>
+  <entry key="repeats">Repeats</entry>
+  <entry key="all.day">all day</entry>
   
-  
-    
 	  
 </properties>

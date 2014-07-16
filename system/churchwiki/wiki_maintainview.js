@@ -16,14 +16,14 @@ MaintainView.prototype.getData = function() {
 
 MaintainView.prototype.renderMenu = function() {
   this_object=this;
-  menu = new CC_Menu("Men&uuml;");
-  menu.addEntry("Zur&uuml;ck zur Liste", "apersonview", "arrow-left");
-  menu.addEntry("Hilfe", "ahelp", "question-sign");
+  menu = new CC_Menu(_("menu"));
+  menu.addEntry(_("back.to.main.menu"), "apersonview", "arrow-left");
+  menu.addEntry(_("help"), "ahelp", "question-sign");
   
   $("#sidebar").html("");
 
   var navi = new CC_Navi();
-  navi.addEntry(true,"alistview","Stammdaten");
+  navi.addEntry(true,"alistview",_("list.of.masterdata"));
   navi.renderDiv("cdb_navi", churchcore_handyformat());
   
   

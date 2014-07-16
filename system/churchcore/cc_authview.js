@@ -338,8 +338,8 @@ function loadAuthViewMasterData(func) {
 AuthView.prototype.renderMenu = function() {
   var t=this;
 
-  menu = new CC_Menu("Men&uuml;");
-    menu.addEntry("Hilfe", "ahelp", "question-sign");
+  menu = new CC_Menu(_("menu"));
+    menu.addEntry(_("help"), "ahelp", "question-sign");
 
   if (!menu.renderDiv("cdb_menu", churchcore_handyformat()))
     $("#cdb_menu").hide();

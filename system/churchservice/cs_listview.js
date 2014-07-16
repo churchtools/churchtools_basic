@@ -506,7 +506,7 @@ ListView.prototype.renderEditEvent = function(event) {
   
   rows.push('<tr><td>Kalender<td>'+this.renderSelect(event.category_id, "category", t.prepareCategoriesForSelect()));
   rows.push('<tr><td>'+this.renderInput("InputBezeichnung", "Bezeichnung", event.bezeichnung, 20));
-  rows.push('<tr><td>'+this.renderTextarea("InputSpecial", "Weitere Infos", event.special, 20,3));
+  rows.push('<tr><td>'+this.renderTextarea("InputSpecial", _("more.information"), event.special, 20,3));
   rows.push('<tr><td>'+this.renderInput("InputAdmin", "Event-Admin", event.admin, 20, !masterData.auth.admin));
   rows.push('<p><small><span id="adminName">Kommaseparierte Person-Ids, dazu Name eintippen.</span></small></p>');
   if ((event.admin!=null) && (event.admin!="") && (masterData.auth.viewchurchdb)) {
@@ -2959,7 +2959,7 @@ ListView.prototype.renderFilter = function() {
   form.addHtml('<div id="filterKategorien"></div>');
   
 //  form.addCheckbox("searchFuture", this.filter["searchFuture"]!=null, "nur zuk&uuml;nfte Events");
-  form.addCheckbox({cssid:"searchChecked",label:"markierte"});  
+  form.addCheckbox({cssid:"searchChecked",label:_("selected")});  
   rows.push(form.render(true));
      
   rows.push("<div id=\"cdb_filtercover\"></div>");
@@ -2990,8 +2990,8 @@ ListView.prototype.renderCalendar = function() {
     dateFormat: 'dd.mm.yy',
     showButtonPanel: true,
     dayNamesMin: dayNamesMin,
-    monthNames: monthNames, 
-    currentText: "Heute",
+    monthNames: getMonthNames(), 
+    currentText: _("today"),
     firstDay: 1,
     beforeShowDay: function(date) {
                       var today=new Date();

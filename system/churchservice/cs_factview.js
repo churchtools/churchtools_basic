@@ -18,13 +18,13 @@ factView = new FactView();
 FactView.prototype.renderMenu = function() {
   this_object=this;
 
-  menu = new CC_Menu("Men&uuml;");
+  menu = new CC_Menu(_("menu"));
 
   if (masterData.auth.write)
     menu.addEntry("Neues Event anlegen", "anewentry", "star");
   if (masterData.auth.exportfacts)
     menu.addEntry("Fakten exportieren", "aexport", "share");
-  menu.addEntry("Hilfe", "ahelp", "question-sign");
+  menu.addEntry(_("help"), "ahelp", "question-sign");
 
   if (!menu.renderDiv("cdb_menu",churchcore_handyformat()))
     $("#cdb_menu").hide();

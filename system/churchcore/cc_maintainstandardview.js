@@ -24,7 +24,7 @@ MaintainStandardView.prototype.renderMenu = function() {
   MaintainStandardView.prototype.renderListMenu = function() {
   searchEntry=this.getFilter("searchEntry");
   var navi = new CC_Navi();
-  navi.addEntry(true,null,"Stammdatenpflege");
+  navi.addEntry(true,null,_("list.of.masterdata"));
   navi.addSearch(searchEntry);
   navi.renderDiv("cdb_search");  
   // Callbacks 
@@ -34,12 +34,9 @@ MaintainStandardView.prototype.renderMenu = function() {
 MaintainStandardView.prototype.renderFilter = function() {
   var rows = new Array();
 
-  //rows.push("<p class=\"filter-bar\">");      
-  //rows.push("&nbsp;&nbsp;");
-  
   var form = new CC_Form();
-  form.setLabel("Filterfunktionen");
-  form.addCheckbox({cssid:"searchChecked", label:"markierte"});  
+  form.setLabel(_("filter.functions"));
+  form.addCheckbox({cssid:"searchChecked", label:_("selected")});  
   rows.push(form.render(true));
   
   $("#cdb_filter").html(rows.join("")); 
@@ -62,7 +59,7 @@ MaintainStandardView.prototype.checkFilter = function(a) {
 };
 
 MaintainStandardView.prototype.getListHeader = function() {
-  str="<th>Nr.<th>Stammtabelle<th>Anzahl Zeilen";
+  str="<th>Nr.<th>"+_("masterdata")+"<th>"+_("count.rows");
   return str;
 };
 
@@ -103,7 +100,7 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
   var rows = new Array();  
   $("tr[id=detail" + pos_id + "]").remove();
 
-  $("tr[id=" + pos_id + "]").after("<tr id=\"detail" + pos_id + "\"><td colspan=\"10\" id=\"groupinfosTD" + pos_id + "\">Lade Daten..</td></tr>");
+  $("tr[id=" + pos_id + "]").after("<tr id=\"detail" + pos_id + "\"><td colspan=\"10\" id=\"groupinfosTD" + pos_id + "\">"+form_renderImage({src:"loading.gif"})+"</td></tr>");
   rows[rows.length]="<div id=\"detail\" class=\"detail-view-admin\">";
   
   // Schaue nach sinnvollen Filtern

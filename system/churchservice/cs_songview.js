@@ -328,11 +328,11 @@ SongView.prototype.loadSongData = function(song_id, arrangement_id) {
 SongView.prototype.renderMenu = function() {
   this_object=this;
 
-  menu = new CC_Menu("Men&uuml;");
+  menu = new CC_Menu(_("menu"));
 
   if (masterData.auth.editsong)
     menu.addEntry("Neuen Song anlegen", "anewentry", "star");
-//  menu.addEntry("Hilfe", "ahelp", "question-sign");
+//  menu.addEntry(_("help"), "ahelp", "question-sign");
 
   if (!menu.renderDiv("cdb_menu",churchcore_handyformat()))
     $("#cdb_menu").hide();

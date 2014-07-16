@@ -40,6 +40,8 @@ function churchauth_main() {
   drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_authview.js');
   drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_authmain.js');
   
+  drupal_add_js(createI18nFile("churchcore"));
+  
   $content="";
    
   $content=$content."

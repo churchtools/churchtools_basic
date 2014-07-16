@@ -31,8 +31,8 @@ function home_main() {
   $txt.='</div>';
     
   $txt.='<div class="well visible-phone">
-    <h1>Willkommen!</h1>
-    <p>'.$_SESSION["user"]->vorname.', '.t("chose.your.possiblities").':</p>
+    <h1>'.t("welcome").'!</h1>
+    <p>'.$_SESSION["user"]->vorname.', '.t("chose.your.possibilities").':</p>
     <ul class="nav nav-pills nav-stacked">';
     
     foreach ($btns as $key) {

@@ -23,14 +23,14 @@ WikiView.prototype.renderSidebar = function () {
   
   var text=$("#editor").html();  
   rows.push('<ul id="navlist" class="hidden-phone nav nav-list bs-docs-sidenav affix-top">');
-  rows.push('<li><a href="#start">Nach oben</a>');
+  rows.push('<li><a href="#start">'+_("to.the.top")+'</a>');
   reg = new RegExp("<h(1|2)>(.*)</h(1|2)>","gi");  
   var result;
   while ((result = reg.exec(text)) !== null) {
     rows.push('<li><a href="#'+result[2]+'">'+result[2]+'</a>');
   }  
   $("#sidebar").html(rows.join(""));
-  if (!churchcore_handyformat()) // Nicht beim Handy, sonst bleibt das immer im Bild stehen!
+  if (!churchcore_handyformat()) // This is not for mobile, otherwise it as fixed over the content
     $("#navlist").affix({offset: {top: 15}});
 
 };
@@ -90,11 +90,11 @@ WikiView.prototype.editMode = function (setToEdit) {
   }
   else if ((edit) || (!setToEdit)){
     edit=false;
-    $("a.editwiki").html("Text editieren");
+    $("a.editwiki").html(_("edit.text"));
     var text=CKEDITOR.instances.editor.getData();
     if (text==currentPage.text) { 
       drafter.clear();
-      alert("Keine neue Version, da nichts angepasst wurde.");
+      alert(_("no.new.version.cause.no.change"));
       t.renderPage(currentPage);
     }
     else {
@@ -158,8 +158,8 @@ WikiView.prototype.renderPage = function (content) {
   var t = this;
   var rows = new Array();
   if (currentPage.doc_id!="main")
-    rows.push('<a class="btn wiki-link pull-right" data-doc-id="main" href="#">Hauptseite</a>');
-  rows.push('<anchor id="start"><h1>'+masterData.wikicategory[currentPage.wikicategory_id].bezeichnung+' - '+(currentPage.doc_id=="main"?"Hauptseite":currentPage.doc_id)+'</h1></section><br/>');
+    rows.push('<a class="btn wiki-link pull-right" data-doc-id="main" href="#">'+_("main.page")+'</a>');
+  rows.push('<anchor id="start"><h1>'+masterData.wikicategory[currentPage.wikicategory_id].bezeichnung+' - '+(currentPage.doc_id=="main"?_("main.page"):currentPage.doc_id)+'</h1></section><br/>');
 
   rows.push('<div class="well editable" id="editor">');
   if (content.text==null) content.text="";
@@ -176,7 +176,7 @@ WikiView.prototype.renderPage = function (content) {
       rows.push('<div class="well">');
         rows.push('<div id="filelist" class="filelist" data-id="0"></div>');
         if (masterData.auth.edit[currentPage.wikicategory_id]) 
-          rows.push('<p><div id="upload_button">Nochmal bitte...</div>');
+          rows.push('<p><div id="upload_button">Error, please try again...</div>');
       rows.push('</div>');
     }
   }
@@ -185,11 +185,11 @@ WikiView.prototype.renderPage = function (content) {
 
   
   if (!t.printview) {
-    rows.push('<a class="btn wiki-link" data-doc-id="main" href="#">Hauptseite</a>&nbsp;');
+    rows.push('<a class="btn wiki-link" data-doc-id="main" href="#">'+_("main.page")+'</a>&nbsp;');
     if (masterData.auth.edit[currentPage.wikicategory_id]) {
-      rows.push('<a class="btn editwiki" href="#">Text editieren</a> &nbsp; &nbsp; ');
+      rows.push('<a class="btn editwiki" href="#">'+_("edit.text")+'</a> &nbsp; &nbsp; ');
       if (currentPage.modified_date!=null)
-        rows.push(form_renderCheckbox({controlgroup:false, cssid:"showonstartpage", checked:currentPage.auf_startseite_yn==1, label:"Auf Startseite anzeigen"}));
+        rows.push(form_renderCheckbox({controlgroup:false, cssid:"showonstartpage", checked:currentPage.auf_startseite_yn==1, label:_("show.on.start.page")}));
     }
   }
 
@@ -197,10 +197,10 @@ WikiView.prototype.renderPage = function (content) {
   if (currentPage.modified_date!=null)
     if (currentPage.history==null)
       if (settings.user.id!=-1)
-        rows.push('<a href="#" class="viewversion">Version '+currentPage.version_no+' vom '+currentPage.modified_date.toDateEn(true).toStringDe(true)+
-           " - "+currentPage.vorname+" "+currentPage.name+"</a>");
+        rows.push('<a href="#" class="viewversion">'+_("version.x.since.y", currentPage.version_no, currentPage.modified_date.toDateEn(true).toStringDe(true))+
+            " - "+currentPage.vorname+" "+currentPage.name+"</a>");
       else  
-        rows.push('Letzte &Auml;nderung vom '+currentPage.modified_date.toDateEn(true).toStringDe(true));
+        rows.push(_("last.change.since", currentPage.modified_date.toDateEn(true).toStringDe(true)));
     else {
       rows.push(form_renderSelect({data:currentPage.history, sort:false, selected:currentPage.version_no, controlgroup:false, cssid:"selectHistory"}));
     }
@@ -209,12 +209,12 @@ WikiView.prototype.renderPage = function (content) {
 
   if (settings.user.id!=-1) {
     if ((masterData.encrypted==null) || (masterData.encrypted==false))
-      rows.push('<br><a href="http://intern.churchtools.de/?q=help&doc=Verschluesselung" target="_clean">unverschl&uuml;sselt</a>');
+      rows.push('<br><a href="http://intern.churchtools.de/?q=help&doc=Verschluesselung" target="_clean">'+_("unencrypted")+'</a>');
     else
-      rows.push("<br>verschl&uuml;sselt");
+      rows.push("<br>"+_("encrypted"));
   }
   if (!t.printview)
-    rows.push(' - <a href="?q=churchwiki/printview#WikiView/filterWikicategory_id:'+currentPage.wikicategory_id+'/doc:'+currentPage.doc_id+'" target="_clean">Druckansicht</a>');
+    rows.push(' - <a href="?q=churchwiki/printview#WikiView/filterWikicategory_id:'+currentPage.wikicategory_id+'/doc:'+currentPage.doc_id+'" target="_clean">'+_("printview")+'</a>');
   rows.push("</small>");
   
   rows.push('</form>');
@@ -353,7 +353,7 @@ WikiView.prototype.renderNavi = function () {
           masterData.wikicategory[currentPage.wikicategory_id].bezeichnung);
     
     if (masterData.auth.admin)
-      navi.addEntry(false, "editCategory", "Kategorien anpassen");
+      navi.addEntry(false, "editCategory", _("edit.categories"));
     if (navi.countElement()>1)
       navi.renderDiv("cdb_navi", churchcore_handyformat());
     

@@ -29,7 +29,7 @@ function renderServiceRequests() {
       var txt2="";
       txt2=txt2+'<a href="#" class="service-request request-confirm" id="zusagen">'+_("confirm")+'</a> | ';              
       txt2=txt2+'<a href="#" class="service-request request-decline" id="absagen">'+_("deny")+'</a>';            
-      txt2=txt2+'&nbsp; &nbsp; <small>Anfrage von ';
+      txt2=txt2+'&nbsp; &nbsp; <small>'+_("request.from")+' ';
       if ($(this).attr("data-modified-pid")!=null)
         txt2=txt2+'<a href="?q=churchdb#PersonView/searchEntry:#'+$(this).attr("data-modified-pid")+'">'+$(this).attr("data-modified-user")+'</a>';
       else
@@ -190,7 +190,7 @@ function renderOpenMeetingRequests(refresh) {
         c++;
         rows.push('<div class="meeting-request" data-id="'+a.id+'">');
         rows.push('<p style="margin-bottom:2px">'+a.event_date.toDateEn(true).toStringDe(true)+" - "+a.bezeichnung);
-        rows.push('<br> &nbsp;&nbsp; <small>Anfrage von <a href="?q=churchdb#PersonView/searchEntry:#'+a.modified_pid+'">'+a.modified_name+'</a></small>');
+        rows.push('<br> &nbsp;&nbsp; <small>'+_("request.from")+' <a href="?q=churchdb#PersonView/searchEntry:#'+a.modified_pid+'">'+a.modified_name+'</a></small>');
         rows.push('<div class="meeting-request-answer" style="padding-top:0"> &nbsp;&nbsp; <a href="#" class="meeting-request confirm" id="zusagen">'+_("confirm")+'</a> | ');              
         rows.push('<a href="#" class="meeting-request decline" id="absagen">'+_("deny")+'</a> | ');
         rows.push('<a href="#" class="meeting-request perhaps" id="absagen">'+_("perhaps")+'</a>');
