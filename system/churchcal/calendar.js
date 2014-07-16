@@ -27,8 +27,15 @@ function mapEvents(allEvents) {
           o.title= a.bezeichnung;
           if ((a.notizen!=null) && (a.notizen!="")) o.notizen=a.notizen;
           if ((a.link!=null) && (a.link!="")) o.link=a.link;
-          if (a.service_texts!=null) {
-            o.title=o.title+' <span class="event-servicetext">'+a.service_texts.join(", ")+'</span>';
+          // Now get the service texts out of the events
+          if (a.events!=null) {
+            $.each(a.events, function(i,e) {
+              if ((e.service_texts!=null) && 
+                   (e.startdate.toDateEn(false).toStringDe(false)==d.startdate.toStringDe(false))) {
+                o.title=o.title+' <span class="event-servicetext">'+e.service_texts.join(", ")+'</span>';
+                return false;
+              }
+            });
           }
           if ((a.ort!=null) && (a.ort!='')) o.title=o.title+' <span class="event-location">'+a.ort+'</span>';
           o.start= d.startdate;

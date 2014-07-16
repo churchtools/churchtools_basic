@@ -349,11 +349,6 @@ function churchcal_getAllowedCategories($withPrivat=true, $onlyIds=false) {
         if ($onlyIds) $res[$category->id]=$category->id;
         else $res[$category->id]=$category;
       }
-/*      // Zugriff, weil ich ihn erstellt habe
-      else if (($user->id!=-1) && ($category->modified_pid==$user->id)) {
-        if ($onlyIds) $res[$category->id]=$category->id;
-        else $res[$category->id]=$category;
-      }*/
     }
   }   
   if ((!$privat_vorhanden) && ($user->id>0) && (user_access("personal category", "churchcal"))) {
@@ -362,7 +357,7 @@ function churchcal_getAllowedCategories($withPrivat=true, $onlyIds=false) {
     ->fields(array("bezeichnung"=>$user->vorname."s Kalender", "sortkey"=>0, 
            "oeffentlich_yn"=>0, "privat_yn"=>1, "color"=>"black", "modified_date"=>$dt->format('Y-m-d H:i:s'), "modified_pid"=>$user->id))
     ->execute();
-    // Erg�nze noch das Recht f�r die Person
+    // Add permission for person who created the event
     db_query("insert into {cc_domain_auth} (domain_type, domain_id, auth_id, daten_id)
                   values ('person', $user->id, 404, $id)");
 
@@ -411,9 +406,9 @@ function churchcal_getCalPerCategory($params, $withintern=true) {
                                       "minpost"=>(strtotime($arr->booking_enddate)-strtotime($arr->enddate))/60, 
                 "resource_id"=>$arr->booking_resource_id, "status_id"=>$arr->booking_status_id);
     }
-    if ($arr->event_id!=null) { 
+    if ($arr->event_id!=null) {
       // Get additional Service text infos, like "Preaching with [Vorname]"
-      $elem->events[$arr->event_id]=array("id"=>$arr->event_id, "startdate"=>$arr->event_startdate);
+      $service_texts=null;
       $es=db_query("select es.name, s.id, es.cdb_person_id, s.cal_text_template from {cs_service} s, {cs_eventservice} es where es.event_id=:event_id and
                        es.service_id=s.id and es.valid_yn=1 and es.zugesagt_yn=1 
                       and s.cal_text_template is not null and s.cal_text_template!=''",
@@ -421,21 +416,27 @@ function churchcal_getCalPerCategory($params, $withintern=true) {
       foreach ($es as $e) {
         if ($e!==false) {
           if (strpos($e->cal_text_template, "[")===false) {
-            if (!isset($elem->service_texts)) $elem->service_texts=array();
+            if ($service_texts==null) $service_texts=array();
             $txt=$e->cal_text_template;
           }
           if ($e->cdb_person_id!=null) {
             include_once("system/churchdb/churchdb_db.inc");
             $p=db_query("select * from {cdb_person} where id=:id", array(":id"=>$e->cdb_person_id))->fetch();          
             if ($p!==false) {
-              if (!isset($elem->service_texts)) $elem->service_texts=array();
+              if ($service_texts==null) $service_texts=array();
               $txt=churchcore_replacePersonTemplate($e->cal_text_template, $p);
             }
           }
-          if (isset($elem->service_texts) && array_search($txt, $elem->service_texts)===false)
-            $elem->service_texts[]=$txt;
+          if ($service_texts!==null && array_search($txt, $service_texts)===false) {
+            $service_texts[]=$txt;
+          }
         }
       }
+      // Save event info 
+      $elem->events[$arr->event_id]=
+        array("id"=>$arr->event_id, 
+              "startdate"=>$arr->event_startdate,
+              "service_texts"=>$service_texts);
     }
     $data[$arr->id]=$elem;      
   }
