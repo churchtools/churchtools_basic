@@ -956,23 +956,6 @@ function churchservice_getServiceGroupPersonWeight() {
   return $res;
 }
 
-function churchservice_addAbsent($person_id, $absent_reason_id, $bezeichnung, $startdate, $enddate) {
-  global $user;
-  $dt = new datetime();
-    
-  $id=db_insert("cs_absent")->fields(array(
-     "person_id"=>$person_id,
-     "absent_reason_id"=>$absent_reason_id,
-     "bezeichnung"=>$bezeichnung,
-     "startdate"=>$startdate,
-     "enddate"=>$enddate,
-     "modified_pid"=>$user->id,
-     "modified_date"=>$dt->format('Y-m-d H:i:s'))
-  )->execute();
-  
-  return $id;
-}
-
 function churchservice_delAbsent($id) {
   db_query("delete from {cs_absent} where id=:id", array(":id"=>$id));
 }
@@ -1134,8 +1117,29 @@ class CTChurchServiceModule extends CTAbstractModule {
     return churchservice_makeAsStandardArrangement($params);
   }
   
-  public function addAbsent($params) {
-    return churchservice_addAbsent($params["person_id"], $params["absent_reason_id"], $params["bezeichnung"], $params["startdate"], $params["enddate"]);
+  public function saveAbsent($params) {
+    global $user;
+    $i=new CTInterface();
+    $i->setParam("person_id");
+    $i->setParam("absent_reason_id");
+    $i->setParam("bezeichnung");
+    $i->setParam("startdate");
+    $i->setParam("enddate");
+    $i->addModifiedParams();
+    if (isset($params["id"])) {
+      $id=$params["id"];
+      db_update("cs_absent")
+        ->fields($i->getDBInsertArrayFromParams($params))
+        ->condition("id", $params["id"], "=")
+        ->execute();
+    }
+    else {    
+      $id=db_insert("cs_absent")
+        ->fields($i->getDBInsertArrayFromParams($params))        
+        ->execute();
+    }
+  
+    return $id;
   }
   
   public function delAbsent($params) {

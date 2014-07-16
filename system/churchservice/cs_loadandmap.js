@@ -49,7 +49,7 @@ function cs_loadEventData(id, nextFunction, forceReload) {
 
 /**
  * Holt neue Events anhand der Id der Tabelle cs_eventservice
- * @param nextFunction(NewEvents) mit †bergabe als Array mit Event_ids die neu geladen wurden
+ * @param nextFunction(NewEvents) mit ï¿½bergabe als Array mit Event_ids die neu geladen wurden
  * @param lastLogId letzte Id der vorhandenen Log Id
  */
 function cs_loadNewEventData(lastLogId, nextFunction) {
@@ -111,8 +111,7 @@ function cs_loadAbsent(nextFunction) {
           allPersons[a.person_id].absent=new Array();
         a.startdate=a.startdate.toDateEn(true);
         a.enddate=a.enddate.toDateEn(true);
-        allPersons[a.person_id].absent.push(a);
-        allPersons[a.person_id].name="moin";
+        allPersons[a.person_id].absent[a.id]=a;
       });
     }
     listView.renderCalendar();

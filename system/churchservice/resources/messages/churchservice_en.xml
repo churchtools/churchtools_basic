@@ -13,6 +13,12 @@
   
   <entry key="my.filters">My filters</entry>
   <entry key="servicegroups">Service groups</entry>
+  <entry key="maintain.absence">Maintain absence</entry>
+  <entry key="new.absence.for">Add new absence for {0}</entry>
+  <entry key="save.absence">Save absence</entry>
+  <entry key="already.entered.absence">Already entered absence</entry>
+  <entry key="select.person.for.absence">Select person for absence maintenance</entry>
+  <entry key="really.delete.absence">Do you really want to delete this absence?</entry>
   
   
 </properties>

@@ -205,6 +205,8 @@
   <entry key="caption">Caption</entry>
   <entry key="location">Location</entry>
   <entry key="save">Save</entry>
+  <entry key="save.data">Save data...</entry>
+  <entry key="saved">saves</entry>
   <entry key="creator">Creator</entry>
   
   <entry key="january">January</entry>
@@ -229,6 +231,11 @@
   <entry key="end.date">End date</entry>
   <entry key="repeats">Repeats</entry>
   <entry key="all.day">all day</entry>
+  <entry key="from">From</entry>
+  <entry key="until">Until</entry>
+  <entry key="reason">Reason</entry>
+  <entry key="comment">Comment</entry>
+  <entry key="change">change</entry>
   
 	  
 </properties>

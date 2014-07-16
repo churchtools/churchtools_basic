@@ -2203,10 +2203,10 @@ Drafter.prototype.activateTimer = function() {
   if (this.timer!=null) window.clearTimeout(this.timer);  
   t.timer=window.setTimeout(function() {
     var content=t.obj.getContent();
-    if (content!="") t.obj.setStatus("Speichere Daten...");
+    if (content!="") t.obj.setStatus(_("save.data"));
     else t.obj.setStatus("");
     churchcore_storeObject(settings.user.id+"/"+t.obj.id, content);
-    if (content!="") t.obj.setStatus("gespeichert");
+    if (content!="") t.obj.setStatus(_("saved"));
     t.timer=null;
     t.activateTimer();
   }, t.obj.interval);

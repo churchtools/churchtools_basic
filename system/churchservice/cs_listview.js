@@ -3075,7 +3075,7 @@ ListView.prototype.addAbsentButton = function () {
   var t=this;
   window.setTimeout(function() {
     if ($("#btn_abwesenheit").length==0) {
-      $("#dp_currentdate div.ui-datepicker-buttonpane").append('<button type="button" id="btn_abwesenheit" class="ui-datepicker-current ui-state-default ui-priority-secondary ui-corner-all">Abwesenheit bearbeiten</button>');
+      $("#dp_currentdate div.ui-datepicker-buttonpane").append('<button type="button" id="btn_abwesenheit" class="ui-datepicker-current ui-state-default ui-priority-secondary ui-corner-all">'+_("maintain.absence")+'</button>');
       $("#btn_abwesenheit").hover(function(k,a) {
         $(this).addClass("ui-state-hover");
         }, function() { $(this).removeClass("ui-state-hover");} 
@@ -3087,20 +3087,24 @@ ListView.prototype.addAbsentButton = function () {
   },1);
 };
 
-ListView.prototype.editAbsent = function(pid, name, fullday) {
+ListView.prototype.editAbsent = function(pid, name, fullday, currentAbsent) {
   var this_object=this;
   var rows = new Array();
-  var new_absent= new Object();
-  if (fullday==null) fullday=true;
-  
-  new_absent.startdate=this_object.currentDate.toStringDe(false).toDateDe(false);
-  new_absent.enddate=new Date(new_absent.startdate);
-  if (fullday)
-    new_absent.enddate.addDays(7);
-  else {
-    new_absent.startdate.setHours(10);
-    new_absent.enddate.setHours(20);
+  if (currentAbsent==null) {
+    var currentAbsent=new Object();
+    if (fullday==null) fullday=true;
+    
+    currentAbsent.startdate=this_object.currentDate.toStringDe(false).toDateDe(false);
+    currentAbsent.enddate=new Date(currentAbsent.startdate);
+    if (fullday)
+      currentAbsent.enddate.addDays(7);
+    else {
+      currentAbsent.startdate.setHours(10);
+      currentAbsent.enddate.setHours(20);
+    }
   }
+  else 
+    fullday=churchcore_isFullDay(currentAbsent.startdate, currentAbsent.enddate);
   
   if (pid==null) {
     pid=masterData.user_pid;
@@ -3110,17 +3114,16 @@ ListView.prototype.editAbsent = function(pid, name, fullday) {
   if (allPersons[pid]==null)
     allPersons[pid]=new Object();
 
+  var form = new CC_Form(_("new.absence.for", name));
   if (masterData.auth.manageabsent)
-    var form = new CC_Form('Neue Abwesenheit f&uuml;r <a href="#" id="changePerson"><font style="text-decoration:underline">'+name+'</font> <small>(&auml;ndern)</small></a>');
-  else
-    var form = new CC_Form('Neue Abwesenheit f&uuml;r '+name);
+    form = new CC_Form(_("new.absence.for", '<a href="#" id="changePerson"><font style="text-decoration:underline">'+name+'</font> <small>('+_("change")+')</small></a>'));
   form.addHtml("<table><tr><td>");
   form.addInput({
     cssid:"inputStartdate",
-    label:"Von",
+    label:_("from"),
     c_ontrolgroup:false,
     separator:"&nbsp;",
-    value:new_absent.startdate.toStringDe(),
+    value:currentAbsent.startdate.toStringDe(),
     type:"small"
   });  
   form.addHtml("<div id=\"dp_startdate\" style=\"position:absolute;background:#e7eef4;z-index:12001;\"/>");
@@ -3131,8 +3134,8 @@ ListView.prototype.editAbsent = function(pid, name, fullday) {
     form.addSelect({
       data:hours, 
       cssid:"inputStarthour", 
-      label:"Stunde",
-      selected:new_absent.startdate.getHours(), 
+      label:_("hour"),
+      selected:currentAbsent.startdate.getHours(), 
       htmlclass:"input-mini" 
     });
     form.addHtml("<td>");
@@ -3140,9 +3143,9 @@ ListView.prototype.editAbsent = function(pid, name, fullday) {
     var minutes=_getMinutesArray();
     form.addSelect({
       data:minutes, 
-      label:"Minute",
+      label:_("minutes"),
       cssid:"inputStartminutes", 
-      selected:new_absent.startdate.getMinutes(), 
+      selected:currentAbsent.startdate.getMinutes(), 
       type:"mini" 
     });  
     form.addHtml("<td>");
@@ -3151,10 +3154,10 @@ ListView.prototype.editAbsent = function(pid, name, fullday) {
   form.addHtml("<td>");
   form.addInput({
     cssid:"inputEnddate",
-    label:"Bis",
+    label:_("until"),
     c_ontrolgroup:false,
     separator:"&nbsp;",
-    value:new_absent.enddate.toStringDe(),
+    value:currentAbsent.enddate.toStringDe(),
     type:"small"
   });  
   form.addHtml("<div id=\"dp_enddate\" style=\"position:absolute;background:#e7eef4;z-index:12001;\"/>");
@@ -3164,17 +3167,17 @@ ListView.prototype.editAbsent = function(pid, name, fullday) {
     form.addSelect({
       data:hours, 
       cssid:"inputEndhour", 
-      label:"Stunde",
-      selected:new_absent.enddate.getHours(), 
+      label:_("hour"),
+      selected:currentAbsent.enddate.getHours(), 
       htmlclass:"input-mini" 
     });
     form.addHtml("<td>");
     
     form.addSelect({
       data:minutes, 
-      label:"Minute",
+      label:_("minutes"),
       cssid:"inputEndminutes", 
-      selected:new_absent.enddate.getMinutes(), 
+      selected:currentAbsent.enddate.getMinutes(), 
       type:"mini" 
     });  
     form.addHtml("<tr><td colspan=2>");
@@ -3183,45 +3186,48 @@ ListView.prototype.editAbsent = function(pid, name, fullday) {
   
   form.addSelect({
     data:churchcore_sortData(masterData.absent_reason,"sortkey"),
-    label:"Grund",
+    label:_("reason"),
     cssid:"inputAbsentReason",
     type:"medium"
   });
   form.addHtml("<td colspan=2>"); 
   form.addInput({
-    data:masterData.absent_reason,
-    label:"Kommentar",
+    value:currentAbsent.bezeichnung,
+    label:_("comment"),
     cssid:"inputBezeichnung",
     type:"medium"
   });
   form.addHtml("<td>");
   form.addHtml("<tr><td>");
-  form.addCheckbox({label:"Ganzt&auml;gig", checked:fullday, cssid:"wholeday"});
+  form.addCheckbox({label:_("all.day"), checked:fullday, cssid:"wholeday"});
   form.addHtml("<tr><td colspan=4>");
-  form.addLink("", "addabsent", "Abwesenheit eintragen");  
+  form.addLink("", "addabsent", _("save.absence"));  
   form.addHtml("</table>");
 
   rows.push(form.render(false, "inline"));
   
   if (allPersons[pid].absent!=null) {
-    rows.push('<legend>Bereits eingetragene Abwesenheiten</legend>');
+    rows.push('<legend>'+_("already.entered.absence")+'</legend>');
     rows.push('<div style="max-height:180px; overflow-y:auto; overflow-x:auto">');
-    rows.push('<table class="table table-condensed"><tr><th>Datum<th>Grund<th>Kommentar<th>');
+    rows.push('<table class="table table-condensed"><tr><th>'+_("date")+'<th>'+_("reason")+'<th>'+_("comment")+'<th>');
     var sum=new Object();
     $.each(churchcore_sortData(allPersons[pid].absent, "startdate", true), function(k,a) {
-      if ((a.startdate.getHours()==0) && (a.enddate.getHours()==0)) 
-        rows.push('<tr><td>'+a.startdate.toStringDe(false)+" - "+a.enddate.toStringDe(false));
-      else
-        rows.push('<tr><td>'+a.startdate.toStringDe(true)+" - "+a.enddate.toStringDe(true));
-      rows.push("<td>"+masterData.absent_reason[a.absent_reason_id].bezeichnung);
-      rows.push("<td><small>"+(a.bezeichnung!=null?a.bezeichnung:"")+"</small>");
-      rows.push('<td><a href="#" id="delabsent_'+a.id+'">'+this_object.renderImage("trashbox")+'</a>');
-      if (sum[a.startdate.getFullYear()]==null)
-      sum[a.startdate.getFullYear()]=new Object();
-      if (sum[a.startdate.getFullYear()][a.absent_reason_id]==null)
-        sum[a.startdate.getFullYear()][a.absent_reason_id]=0;
-      sum[a.startdate.getFullYear()][a.absent_reason_id]=sum[a.startdate.getFullYear()][a.absent_reason_id]
-             +(a.enddate-a.startdate)/1000/24/60/60+1;
+      if (currentAbsent.id!=a.id) {
+        if ((a.startdate.getHours()==0) && (a.enddate.getHours()==0)) 
+          rows.push('<tr><td>'+a.startdate.toStringDe(false)+" - "+a.enddate.toStringDe(false));
+        else
+          rows.push('<tr><td>'+a.startdate.toStringDe(true)+" - "+a.enddate.toStringDe(true));
+        rows.push("<td>"+masterData.absent_reason[a.absent_reason_id].bezeichnung);
+        rows.push("<td><small>"+(a.bezeichnung!=null?a.bezeichnung:"")+"</small>");
+        rows.push('<td><a href="#" id="editabsent_'+a.id+'">'+this_object.renderImage("options")+'</a>');
+        rows.push('<a href="#" id="delabsent_'+a.id+'">'+this_object.renderImage("trashbox")+'</a>');
+        if (sum[a.startdate.getFullYear()]==null)
+        sum[a.startdate.getFullYear()]=new Object();
+        if (sum[a.startdate.getFullYear()][a.absent_reason_id]==null)
+          sum[a.startdate.getFullYear()][a.absent_reason_id]=0;
+        sum[a.startdate.getFullYear()][a.absent_reason_id]=sum[a.startdate.getFullYear()][a.absent_reason_id]
+               +(a.enddate-a.startdate)/1000/24/60/60+1;
+      }
     });
     rows.push('</table>');
     if (masterData.auth.manageabsent) {
@@ -3245,17 +3251,17 @@ ListView.prototype.editAbsent = function(pid, name, fullday) {
     }
   });
   $("#inputStartdate").click(function() {
-    this_object.implantDatePicker("startdate", new_absent.startdate.toStringDe(), function(dateText) {
-      new_absent.startdate=dateText.toDateDe();
+    this_object.implantDatePicker("startdate", currentAbsent.startdate.toStringDe(), function(dateText) {
+      currentAbsent.startdate=dateText.toDateDe();
       $("#inputStartdate").val(dateText);
-      new_absent.enddate=new Date(new_absent.startdate);
-      new_absent.enddate.addDays(7);
-      $("#inputEnddate").val(new_absent.enddate.toStringDe());
+      currentAbsent.enddate=new Date(currentAbsent.startdate);
+      currentAbsent.enddate.addDays(7);
+      $("#inputEnddate").val(currentAbsent.enddate.toStringDe());
     });
   });
   $("#inputEnddate").click(function() {
-    this_object.implantDatePicker("enddate", new_absent.enddate.toStringDe(), function(dateText) {
-      new_absent.enddate=dateText.toDateDe();
+    this_object.implantDatePicker("enddate", currentAbsent.enddate.toStringDe(), function(dateText) {
+      currentAbsent.enddate=dateText.toDateDe();
       $("#inputEnddate").val(dateText);
     });
   });
@@ -3270,27 +3276,27 @@ ListView.prototype.editAbsent = function(pid, name, fullday) {
   elem.find("a").click(function() {
     if ($(this).attr("id").indexOf("addabsent")==0) {
       var d=$("#inputStartdate").val();
-      new_absent.startdate=d.toDateDe(true);
+      currentAbsent.startdate=d.toDateDe(true);
       var d=$("#inputEnddate").val();
-      new_absent.enddate=d.toDateDe(true);
+      currentAbsent.enddate=d.toDateDe(true);
 
-      new_absent.func="addAbsent";
-      new_absent.person_id=pid;
-      new_absent.absent_reason_id=$("#inputAbsentReason").val();
-      new_absent.bezeichnung=$("#inputBezeichnung").val();
+      currentAbsent.func="saveAbsent";
+      currentAbsent.person_id=pid;
+      currentAbsent.absent_reason_id=$("#inputAbsentReason").val();
+      currentAbsent.bezeichnung=$("#inputBezeichnung").val();
       if (!fullday) {
-        new_absent.startdate.setHours($("#inputStarthour").val());
-        new_absent.startdate.setMinutes($("#inputStartminutes").val());
-        new_absent.enddate.setHours($("#inputEndhour").val());
-        new_absent.enddate.setMinutes($("#inputEndminutes").val());
+        currentAbsent.startdate.setHours($("#inputStarthour").val());
+        currentAbsent.startdate.setMinutes($("#inputStartminutes").val());
+        currentAbsent.enddate.setHours($("#inputEndhour").val());
+        currentAbsent.enddate.setMinutes($("#inputEndminutes").val());
       }
-      elem.html("Speichere Daten...");
-      churchInterface.jsendWrite(new_absent, function(ok, data) {
+      elem.html(_("save.data"));
+      churchInterface.jsendWrite(currentAbsent, function(ok, data) {
         if (ok) { 
           if (allPersons[pid].absent==null) 
             allPersons[pid].absent=new Array();
-          new_absent.id=data;
-          allPersons[pid].absent.push(new_absent);
+          currentAbsent.id=data;
+          allPersons[pid].absent[data]=currentAbsent;
           elem.dialog("close");
           this_object.editAbsent(pid, name);
           this_object.renderCalendar();
@@ -3299,9 +3305,9 @@ ListView.prototype.editAbsent = function(pid, name, fullday) {
       });
     }
     else if ($(this).attr("id").indexOf("delabsent")==0) {
-      if (confirm("Abwesenheit wirklich entfernen?")) {
+      if (confirm(_("really.delete.absence"))) {
         var absent_id=$(this).attr("id").substr(10,99);
-        elem.html("Speichere Daten...");
+        elem.html(_('save.data'));
         churchInterface.jsendWrite({func:"delAbsent", id:absent_id}, function(ok, data) {
           if (ok) { 
             $.each(allPersons[pid].absent, function(k,a) {
@@ -3316,16 +3322,20 @@ ListView.prototype.editAbsent = function(pid, name, fullday) {
         });
       }
     }
+    else if ($(this).attr("id").indexOf("editabsent_")==0) {
+      var absent_id=$(this).attr("id").substr(11,99);
+      elem.dialog("close");
+      this_object.editAbsent(pid, name, false, $.extend({},allPersons[pid].absent[absent_id],true));
+    }    
     else if ($(this).attr("id").indexOf("changePerson")==0) {
       var rows=new Array();
       rows.push(form_renderInput({
-        label:"Person angeben",
+        label:_("name.of.person"),
         cssid:"inputPerson"
       }));
-      var elemPerson=this_object.showDialog("Andere Person ausw&auml;hlen", rows.join(""), 400, 400, {
-        "Abbrechen": function() {
-          $(this).dialog("close");
-        }
+      var elemPerson=this_object.showDialog(_("select.person.for.absence"), rows.join(""), 400, 400);
+      elemPerson.dialog("addbutton", _("cancel"), function() {
+        $(this).dialog("close");
       });
       this_object.autocompletePersonSelect("#inputPerson", false, function(divid, ui) {
         elemPerson.dialog("close");

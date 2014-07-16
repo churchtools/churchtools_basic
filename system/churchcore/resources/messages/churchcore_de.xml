@@ -208,6 +208,8 @@
   <entry key="caption">Bezeichnung</entry>
   <entry key="location">Ort</entry>
   <entry key="save">Speichern</entry>
+  <entry key="save.data">Speichere Daten...</entry>
+  <entry key="saved">gespeichert</entry>
   <entry key="creator">Ersteller</entry>
   
   <entry key="january">Januar</entry>
@@ -232,6 +234,10 @@
   <entry key="end.date">Enddatum</entry>
   <entry key="repeats">Wiederholungen</entry>
   <entry key="all.day">Ganztägig</entry>
-  
-  
+  <entry key="from">Von</entry>
+  <entry key="until">Bis</entry>
+  <entry key="reason">Grund</entry>
+  <entry key="comment">Kommentar</entry>
+  <entry key="change">wechseln</entry>
+    
 </properties>

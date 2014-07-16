@@ -13,5 +13,11 @@
   
   <entry key="my.filters">Meine Filter</entry>
   <entry key="servicegroups">Dienstgruppen</entry>
+  <entry key="maintain.absence">Abwesenheit bearbeiten</entry>
+  <entry key="new.absence.for">Neue Abwesenheit für {0}</entry>
+  <entry key="save.absence">Abwesenheit eintragen</entry>
+  <entry key="already.entered.absence">Bereits eingetragene Abwesenheiten</entry>
+  <entry key="select.person.for.absence">Person für Abwesenheitspflege auswählen</entry>
+  <entry key="really.delete.absence">Abwesenheit wirklich entfernen?</entry>
   
 </properties>
