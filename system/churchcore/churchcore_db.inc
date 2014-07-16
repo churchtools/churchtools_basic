@@ -712,7 +712,7 @@ function churchcore_mail($from, $to, $subject, $content, $htmlmail=false, $witht
   $variables = array(
     '%username' => (isset($user->cmsuserid)?$user->cmsuserid:"anonymus"),
     '%useremail' => (isset($user->email)?$user->email:"anonymus"),
-    '%sitename' => variable_get('site_name', 'drupal'),
+    '%sitename' => variable_get('site_name', 'ChurchTools'),
     '%sitemail' => variable_get('site_mail', 'info@churchtools.de'),
     '%siteurl' => $base_url,
   );

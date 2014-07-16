@@ -365,7 +365,7 @@ function informLeaderAboutNewGroupMember($group_id, $gp_id, $add_text=null) {
         $content=$content."<p>".$add_text;
       $content=$content.'<p><p><a class="btn btn-royal" href="'.$base_url.'?q=churchdb#PersonView/searchEntry:'.$personen[$gp_id]->p_id.'">Person ansehen</a>';
 
-      churchdb_send_mail("[".variable_get('site_name', 'drupal')."] Neuer Teilnehmer in der Gruppe ".$val->bezeichnung,
+      churchdb_send_mail("[".variable_get('site_name', 'ChurchTools')."] Neuer Teilnehmer in der Gruppe ".$val->bezeichnung,
 	              $content, $val->email);
   	}
   }	
@@ -392,7 +392,7 @@ function informLeaderAboutEditedGroupMember($group_id, $gp_id, $add_text=null) {
       
       $content=$content.'<p><p><a class="btn btn-royal" href="'.$base_url.'?q=churchdb#PersonView/searchEntry:'.$personen[$gp_id]->p_id.'">Person ansehen</a>';
                      
-      churchdb_send_mail("[".variable_get('site_name', 'drupal')."] Teilnehmerstatus in der Gruppe ".$val->bezeichnung." angepasst",
+      churchdb_send_mail("[".variable_get('site_name', 'ChurchTools')."] Teilnehmerstatus in der Gruppe ".$val->bezeichnung." angepasst",
 	              $content, $val->email);
     }
   }	
@@ -416,7 +416,7 @@ function informLeaderAboutDeletedGroupMember($group_id, $gp_id) {
       
       $content=$content.'<p><p><a class="btn btn-royal" href="'.$base_url.'?q=churchdb#PersonView/searchEntry:'.$personen[$gp_id]->p_id.'">Person ansehen</a>';
                
-      churchdb_send_mail("[".variable_get('site_name', 'drupal')."] Teilnehmer in der Gruppe ".$val->bezeichnung." entfernt",
+      churchdb_send_mail("[".variable_get('site_name', 'ChurchTools')."] Teilnehmer in der Gruppe ".$val->bezeichnung." entfernt",
 	              $content, $val->email);
 
     }
@@ -616,7 +616,7 @@ global $user;
   $arr=getAllMailNotifys();
   if ((isset($arr[$field])) && ($txt!=null)) {
     $txt="<p>Information:<p>".$txt."<p>Anpassungen von $user->cmsuserid";
-    churchdb_send_mail("[".variable_get('site_name', 'drupal')."] Info Anpassungen in $field",$txt,$arr[$field]->emails);
+    churchdb_send_mail("[".variable_get('site_name', 'ChurchTools')."] Info Anpassungen in $field",$txt,$arr[$field]->emails);
   }
 }
 
@@ -987,9 +987,9 @@ function churchdb_invitePersonToSystem($id) {
     
   $content.=htmlize(variable_get('invite_email_text','Du wurdest zur Nutzung von %sitename eingeladen.<p>Klicke auf die folgende Schaltfläche, um Dich direkt dort anzumelden und um Dein Passwort zu wählen:'));
   $content.='<p><a href="'.$base_url."?q=profile&loginstr=$loginstr&id=$id".'" class="btn btn-royal">Auf %sitename anmelden</a>';
-  $res = churchcore_sendEMailToPersonIds($id, "Einladung zu ".variable_get('site_name', 'drupal'), $content, variable_get('site_mail'),true);
+  $res = churchcore_sendEMailToPersonIds($id, "Einladung zu ".variable_get('site_name', 'ChurchTools'), $content, variable_get('site_mail'),true);
     
-  cdb_log("Person $id wurde zu ".variable_get('site_name', 'drupal')." eingeladen:".$content,2,$id);   
+  cdb_log("Person $id wurde zu ".variable_get('site_name', 'ChurchTools')." eingeladen:".$content,2,$id);   
 }
 
 function churchdb_addMailchimpRelation($params) {

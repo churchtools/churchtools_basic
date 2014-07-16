@@ -99,13 +99,13 @@ function churchresource_createBooking($params) {
       if ($user->id!=$adminid) {
         $p=churchcore_getPersonById($adminid);
         if (($p!=null) && ($p->email!=""))
-          churchresource_send_mail("[".variable_get('site_name', 'drupal')."] Neue Buchungsanfrage: ".$params["text"], $txt_admin, $p->email);
+          churchresource_send_mail("[".variable_get('site_name', 'ChurchTools')."] Neue Buchungsanfrage: ".$params["text"], $txt_admin, $p->email);
       }
       else $istUserAdmin=true;      
     }
   }  
   if (!$istUserAdmin)       
-    churchresource_send_mail("[".variable_get('site_name', 'drupal')."] Neue Buchungsanfrage: ".$params["text"], $txt_user, $user->email);
+    churchresource_send_mail("[".variable_get('site_name', 'ChurchTools')."] Neue Buchungsanfrage: ".$params["text"], $txt_user, $user->email);
   $txt=churchcore_getFieldChanges(getBookingFields(),null,$res);
   cr_log("CREATE BOOKING\n".$txt,3,$res->id);  
   return $res;
@@ -182,7 +182,7 @@ function churchresource_updateBooking($params, $changes=null) {
         }
       }
     }  
-    // Lšsche nun alle, die in der DB sind, aber nicht mehr vorhanden sind.
+    // Lï¿½sche nun alle, die in der DB sind, aber nicht mehr vorhanden sind.
     if ($exc!=false) {
       foreach ($exc as $e) {
         if (!isset($e->vorhanden))
@@ -212,7 +212,7 @@ function churchresource_updateBooking($params, $changes=null) {
         }
       }
     }  
-    // Lšsche nun alle, die in der DB sind, aber nicht mehr vorhanden sind.
+    // Lï¿½sche nun alle, die in der DB sind, aber nicht mehr vorhanden sind.
     if ($add!=false) {
       foreach ($add as $a) {
         if (!isset($a->vorhanden))
@@ -313,7 +313,7 @@ function churchresource_updateBooking($params, $changes=null) {
     $adminmails=explode(",",$ressources[$params["resource_id"]]->admin_person_ids);
     // Wenn der aktuelle User nicht Admin ist ODER wenn der Benutzer nicht der ist, der die Buchung erstellt hat.
     if ((!in_array($user->id, $adminmails)) || ($user->id!=$buser->id))      
-      churchresource_send_mail("[".variable_get('site_name', 'drupal')."] Aktualisierung der Buchungsanfrage: ".$params["text"], $txt, $buser->email);
+      churchresource_send_mail("[".variable_get('site_name', 'ChurchTools')."] Aktualisierung der Buchungsanfrage: ".$params["text"], $txt, $buser->email);
   }
 
   if ($changes!=null)
@@ -370,14 +370,14 @@ function churchresource_updateResourcesFromChurchCal($params, $source, $changes=
       $save["id"]=$booking->id;  
       $save["person_id"]=$user->id;
       $save["resource_id"]=$booking->resource_id;
-      // Wenn es ein gro§es Update ist, also nicht nur eine Verschiebung auf dem Kalender
+      // Wenn es ein groï¿½es Update ist, also nicht nur eine Verschiebung auf dem Kalender
       if (isset($params["repeat_id"])) {
         $save["text"]=$params["bezeichnung"];
       }      
       $save["startdate"]=_shiftDate($save["startdate"], -$params["bookings"][$booking->resource_id]["minpre"]);
       $save["enddate"]=_shiftDate($save["enddate"], $params["bookings"][$booking->resource_id]["minpost"]);
       
-      // Wenn es keine Lšschung ist
+      // Wenn es keine Lï¿½schung ist
       if ($save["status_id"]!=99) {
         // Wenn es einen Unterschied im Datum gibt, setze den Status wieder auf zu genehmigen!
         if ((strtotime($save["startdate"])!=strtotime($booking->startdate)) ||

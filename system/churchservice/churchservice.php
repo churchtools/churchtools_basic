@@ -528,7 +528,7 @@ function churchservice_openservice_rememberdays() {
     $txt="<h3>Hallo ".$res->vorname.",</h3><p>";
     
     $inviter=churchcore_getPersonById($res->modified_pid);
-    $txt.="Du wurdest in dem Dienstplan auf ".variable_get('site_name', 'drupal');
+    $txt.="Du wurdest in dem Dienstplan auf ".variable_get('site_name', 'ChurchTools');
     if ($inviter!=null)        
       $txt.=' von <i>'.$inviter->vorname." ".$inviter->name."</i>";
     $txt.=" zu Diensten vorgeschlagen. <br/>Zum Zu- oder Absagen bitte hier klicken:";
@@ -570,7 +570,7 @@ function churchservice_openservice_rememberdays() {
       $txt.="<p><b>Da Du noch nicht kein Zugriff auf das System hast, bekommst Du noch eine separate E-Mail, mit der Du Dich dann anmelden kannst!.</b>";
     }
     
-    churchservice_send_mail("[".variable_get('site_name', 'drupal')."] Es sind noch Dienste offen",$txt,$res->email);
+    churchservice_send_mail("[".variable_get('site_name', 'ChurchTools')."] Es sind noch Dienste offen",$txt,$res->email);
     $i=$i+1;
     $res=db_query($sql)->fetch();
   }
@@ -612,7 +612,7 @@ function churchservice_remindme() {
         }        
         
         $txt.='</table><br/><br/><a class="btn" href="'.$base_url.'?q=churchservice#SettingsView">Erinnerungen deaktivieren</a>';
-        churchservice_send_mail("[".variable_get('site_name', 'drupal')."] Erinnerung an Deinen Dienst",$txt,$es->email);
+        churchservice_send_mail("[".variable_get('site_name', 'ChurchTools')."] Erinnerung an Deinen Dienst",$txt,$es->email);
         break;
       }              
     }

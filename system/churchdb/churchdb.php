@@ -269,7 +269,7 @@ function externmapview__ajax() {
         $inhalt.="<li>Telefon: ".$_GET["Telefon"];
         $inhalt.="<li>Kommentar: ".$_GET["Kommentar"];
         $inhalt.="</ul>";
-        $res = churchcore_sendEMailToPersonIds($p->id, "[".variable_get('site_name', 'drupal')."] Formular-Anfrage zur Gruppe ".$p->bezeichnung, $inhalt, variable_get('site_mail'), true, true);            
+        $res = churchcore_sendEMailToPersonIds($p->id, "[".variable_get('site_name', 'ChurchTools')."] Formular-Anfrage zur Gruppe ".$p->bezeichnung, $inhalt, variable_get('site_mail'), true, true);            
       }
       if (count($rec)==0)
         $txt="Konnte leider keinen Leiter in der Gruppe finden. Bitte versuchen Sie es auf einem anderen Wege!";
