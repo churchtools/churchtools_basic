@@ -944,6 +944,13 @@ function _eventClick(event, jsEvent, view ) {
   
 }
 
+function _calcCalendarHeight() {
+  if (printview) return 1000;
+  var height=$( window ).height()-150;
+  if (height>1000) height=1000;
+  return height;
+}
+
 function initCalendarView() {
   calendar=$('#calendar');
   var d=new Date();
@@ -951,6 +958,8 @@ function initCalendarView() {
     d=$("#init_startdate").val().toDateEn(true);
   if (d==null && masterData.settings.startDate!=null)
     d=masterData.settings.startDate.toDateEn();
+  var height=$( window ).height()-150;
+  if (height>1000) height=1000;
   if (viewName=="calView") {
     calendar.fullCalendar({
       year: d.getFullYear(),
@@ -963,7 +972,7 @@ function initCalendarView() {
       },
       //aspectRatio: 1.7,
       firstDay:1,
-      contentHeight: (!printview?600:1000),
+      contentHeight: _calcCalendarHeight(),
       defaultEventMinutes:90,
       editable: true,
       monthNames: getMonthNames(),
@@ -1028,6 +1037,9 @@ function initCalendarView() {
       $("#calendar").css("width", "670px");
       $("#calendar").fullCalendar("render");
     }
+    $( window ).resize(function() {
+      calendar.fullCalendar('option', 'contentHeight', _calcCalendarHeight());
+    });      
     $("#header").html("");
     if ($("#viewdate").val()!=null) {
       var viewdate=$("#viewdate").val().toDateEn();
@@ -1274,7 +1286,7 @@ function filterMultiselect(name, label) {
 }
 
 function _loadAllowedGroups(func) {
-  var elem=form_showCancelDialog("Lade Daten...","");
+  var elem=form_showCancelDialog(_("load.data"),"");
   churchInterface.jsendRead({func:"getAllowedGroups"}, function(ok, data) {
     elem.dialog("close");
     if (!ok) {
@@ -1290,7 +1302,7 @@ function _loadAllowedGroups(func) {
 }
 
 function _loadAllowedPersons(func) {
-  var elem=form_showCancelDialog("Lade Daten...","");
+  var elem=form_showCancelDialog(_("load.data"),"");
   churchInterface.jsendRead({func:"getAllowedPersons"}, function(ok, data) {
     elem.dialog("close");
     if (!ok) {
@@ -1382,7 +1394,7 @@ function shareCategory(cat_id, privat_yn, oeffentlich_yn) {
     _loadAllowedPersons(function() {shareCategory(cat_id, privat_yn, oeffentlich_yn);});
     return false; 
   }
-  var dlg=form_showCancelDialog("Lade Daten...","");
+  var dlg=form_showCancelDialog(_("load.data"),"");
   churchInterface.jsendRead({func:"getShares", cat_id:cat_id}, function(ok, data) {
     dlg.dialog("close");
     if (!ok) alert("Fehler: "+data);

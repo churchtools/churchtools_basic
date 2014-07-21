@@ -183,6 +183,9 @@ global $user;
   drupal_add_js(drupal_get_path('module', 'churchresource') .'/cr_weekview.js');
   drupal_add_js(drupal_get_path('module', 'churchresource') .'/cr_main.js');
    
+  drupal_add_js(createI18nFile("churchcore"));
+  drupal_add_js(createI18nFile("churchresource"));
+  
   $content=$content.drupal_get_header();
   
   $content=$content.'<link type="text/css" rel="stylesheet" media="all" href="'.drupal_get_path('module', 'includes').'/churchtools.css" />';

@@ -118,7 +118,7 @@ CDBStandardTableView.prototype.renderTags = function(tags, authEdit, id) {
     }); 
   }
   if (authEdit) { 
-    rows.push('&nbsp;<a href="" title="Tag hinzuf&uuml;gen" id="add_tag"><img id="add_tag_icon" width=16px src="'+masterData.modulespath+'/images/plus.png" align="absmiddle"/></a>');      
+    rows.push('&nbsp;<a href="" title="'+_("add.tag")+'" id="add_tag"><img id="add_tag_icon" width=16px src="'+masterData.modulespath+'/images/plus.png" align="absmiddle"/></a>');      
     rows.push('<span id="add_tag_field'+id+'" style="display:none"><input type="text" id="input_tag'+id+'"></input></span>');
   }
   rows.push('</div>');

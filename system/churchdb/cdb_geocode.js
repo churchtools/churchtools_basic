@@ -30,7 +30,7 @@ function _cdb_addPersonToMap(map,near_lat,near_lng) {
             position: myLatLng,
             map: map,
             icon: image,
-            title: "Person: "+a.vorname+" "+a.name+" ["+a.id+"]"
+            title: _("person")+": "+a.vorname+" "+a.name+" ["+a.id+"]"
         });
         google.maps.event.addDomListener(beachMarker, 'click', function() {
           churchInterface.setCurrentView(personView);
@@ -66,7 +66,7 @@ function _cdb_addGroupButton2Maps(controlDiv, map) {
   // Set CSS for the control interior
   var controlText = document.createElement('DIV');
   controlText.className = 'map-control-label';
-  controlText.innerHTML = 'Gruppen';
+  controlText.innerHTML = _("groups");
   controlUI.appendChild(controlText);
 
   // Setup the click event listeners: simply set the map to
@@ -100,7 +100,7 @@ function _cdb_addPersonButton2Maps(controlDiv, map) {
   // Set CSS for the control interior
   var controlText = document.createElement('DIV');
   controlText.className = 'map-control-label';
-  controlText.innerHTML = 'Personen';
+  controlText.innerHTML = _("persons");
   controlUI.appendChild(controlText);
 
   // Setup the click event listeners: simply set the map to

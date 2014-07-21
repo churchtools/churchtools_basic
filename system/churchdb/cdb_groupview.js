@@ -390,10 +390,10 @@ GroupView.prototype.renderAddEntry = function() {
   
   var form = new CC_Form("Name");
   form.surroundWithDiv("span4");
-  form.addInput({label: "Name der Gruppe", cssid:"inputName"});    
+  form.addInput({label: _("name"), cssid:"inputName"});    
   _text=_text+form.render();
   
-  var form = new CC_Form("Gruppe");
+  var form = new CC_Form(_("group"));
   form.surroundWithDiv("span4");
   form.addSelect({label:f('gruppentyp_id'), cssid:"Inputf_grouptype", data:masterData.groupTypes,
        func:function(d){
@@ -421,10 +421,10 @@ GroupView.prototype.renderAddEntry = function() {
   _text=_text+'</div><div class="row-fluid">';
   var form = new CC_Form();
   form.surroundWithDiv("span12");
-  form.addButton({label:"Gruppe anlegen", controlgroup:true, cssid:"btProoveNewAddress"});
+  form.addButton({label:_("create.group"), controlgroup:true, cssid:"btProoveNewAddress"});
   form.addHtml("&nbsp; ");
-  form.addCheckbox({cssid:"forceCreate",controlgroup_start:true,label:'auch anlegen, wenn es den Namen schon gibt'});
-  form.addCheckbox({cssid:"forceDontHide",controlgroup_end:true,label:'weitere Gruppe anlegen'});
+  form.addCheckbox({cssid:"forceCreate",controlgroup_start:true,label:_("also.apply.if.name.already.exists")});
+  form.addCheckbox({cssid:"forceDontHide",controlgroup_end:true,label:_("create.more.dataset")});
   _text=_text+form.render(false,"vertical");
   _text=_text+"</div>";
     
@@ -620,7 +620,7 @@ GroupView.prototype.initView = function() {
 };
 
 GroupView.prototype.getListHeader = function() {
-  str='<th><a href="#" id="sortid">Nr.</a><th><a href="#" id="sortbezeichnung">Gruppe</a>';
+  str='<th><a href="#" id="sortid">Nr.</a><th><a href="#" id="sortbezeichnung">'+_("group")+'</a>';
   str=str+'<th><a href="#" id="sortdistrikt_id">'+f("distrikt_id")+'</a><th><a href="#" id="sortgruppentyp_id">'+f('gruppentyp_id')+'</a>';
 
   if (this.filter["filterDistrikt"]=="null") delete this.filter["filterDistrikt"];
@@ -1571,14 +1571,10 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
         var res=personView.renderPersonGroupRelation($(this).attr("data-pid"), $(this).attr("data-gid"));      
         width=380; height=330;
         if (res==null) return false;      
-        var elem = this_object.showDialog("Veränderung des Datensatzes", res, 380, 330, {
-          "Speichern": function() {
-             personView._saveEditEntryData(id, "editPersonGroupRelation", true, $(this));
-           },
-           "Abbruch": function() {
-             $(this).dialog("close");
-           }
-      });
+        var elem = this_object.showDialog(_("change.of.dataset"), res, 380, 330);
+        elem.dialog("addsaveandcancelbutton", function() {
+          personView._saveEditEntryData(id, "editPersonGroupRelation", true, $(this));
+        });
         
         groupView.renderList();
         return false;
@@ -1739,29 +1735,25 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
 GroupView.prototype.renderEditEntry = function (id, fieldname) {
   var this_object=this;
   
-  var elem = this.showDialog("Veränderung der Gruppe", "", 500, 600, {
-    "Speichern": function() {
-      var s = $(this).attr("id");
+  var elem = this.showDialog("Veränderung der Gruppe", "", 500, 600);
+  elem.dialog("addsaveandcancelbutton", function() {
+    var s = $(this).attr("id");
+    
+    obj=this_object.getSaveObjectFromInputFields(id, "f_group", masterData.groups[id]);
+    
+    //if (obj.max_teilnehmer=="") delete obj.max_teilnehmer;
+    if (masterData.groups[id].max_teilnehmer=="") masterData.groups[id].max_teilnehmer=null; 
+
+    // L�sche die Geoinfos, falls es da ein Update bei der Adresse gab.
+    masterData.groups[id].geolat="";
       
-      obj=this_object.getSaveObjectFromInputFields(id, "f_group", masterData.groups[id]);
-      
-      //if (obj.max_teilnehmer=="") delete obj.max_teilnehmer;
-      if (masterData.groups[id].max_teilnehmer=="") masterData.groups[id].max_teilnehmer=null; 
-  
-      // L�sche die Geoinfos, falls es da ein Update bei der Adresse gab.
-      masterData.groups[id].geolat="";
-        
-      $("#cbn_editor").html("<p><br/><b>Daten werden gespeichert...</b><br/><br/>");
-      churchInterface.jsendWrite(obj, function(ok) {
-        // Hier wird absichtlich die CurrentView neu gerendet, es kann sein, dass eine Gruppe ja aus der
-        // Personensicht geaendert wurde!
-        churchInterface.getCurrentView().renderList();
-      });      
-      $(this).dialog("close");
-    },
-    "Abbruch": function() {
-      $(this).dialog("close");
-    }
+    $("#cbn_editor").html("<p><br/><b>Daten werden gespeichert...</b><br/><br/>");
+    churchInterface.jsendWrite(obj, function(ok) {
+      // Hier wird absichtlich die CurrentView neu gerendet, es kann sein, dass eine Gruppe ja aus der
+      // Personensicht geaendert wurde!
+      churchInterface.getCurrentView().renderList();
+    });      
+    $(this).dialog("close");
   });
   
   var rows = new Array();  
@@ -1806,8 +1798,8 @@ GroupView.prototype.renderFurtherFilter = function () {
     $("#divaddfilter").animate({ height: 'show'}, "fast");  
     this_object=this;
     var rows = new Array();
-    rows.push("<p align=\"center\" class=\"addfilter-head\">Gruppenfilter");
-    rows.push("&nbsp;&nbsp;&nbsp;<small><a href=\"#\" id=\"reset_personfilter\" style=\"color:lightgrey;\">(Filter zur&uuml;cksetzen)</a></small>");
+    rows.push("<p align=\"center\" class=\"addfilter-head\">"+_("filter.for.groups"));
+    rows.push("&nbsp;&nbsp;&nbsp;<small><a href=\"#\" id=\"reset_personfilter\" style=\"color:lightgrey;\">("+_("reset.filter")+")</a></small>");
     
     rows.push("<p class=\"addfilter-body\">");      
     rows.push("&nbsp;&nbsp;");

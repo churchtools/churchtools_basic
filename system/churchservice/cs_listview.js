@@ -577,7 +577,7 @@ ListView.prototype.renderEditEvent = function(event) {
 
   var this_object=this;
 
-  var elem = this.showDialog("Veränderung des Events", rows.join(""), (event.id==null?680:450), (event.id==null?600:500));
+  var elem = this.showDialog(_("change.of.dataset"), rows.join(""), (event.id==null?680:450), (event.id==null?600:500));
   if (event.valid_yn==null || event.valid_yn==1) {
     elem.dialog("addbutton", _("save"), function() {
       if ($("#Inputcategory").val()<0) alert("Bitte einen Kalender auswählen!");

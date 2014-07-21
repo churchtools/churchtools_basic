@@ -12,7 +12,7 @@ ArchiveView.prototype = new Temp();
 archiveView = new ArchiveView();
 
 function cdb_loadPersonArchiveData(func) {
-  churchInterface.setStatus("Lade Personendaten...");
+  churchInterface.setStatus(_("load.data"));
   churchInterface.jsendRead({func:"getAllPersonArchiveData"}, function(ok, json) {
     if (json!=null) {
       jQuery.each(json, function(k,a) {
@@ -27,7 +27,7 @@ function cdb_loadPersonArchiveData(func) {
 ArchiveView.prototype.getListHeader = function() {
   var t=this;
   if (t.dataloaded==null) {
-    var elem = this.showDialog("Lade Archiv", "Lade Archiv...", 300,300);
+    var elem = this.showDialog(_("load.archive"), form_renderImage({src:"loading.gif"}), 300,300);
     cdb_loadPersonArchiveData(function() {
       elem.dialog("close");
       t.dataloaded=true;

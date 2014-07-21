@@ -349,7 +349,7 @@ MaintainStandardView.prototype.renderEditEntry = function (id, table_id) {
     }    
   });
  
-  var elem = this.showDialog("Veränderung des Datensatzes "+table.bezeichnung, form.render(null, "horizontal"), 500, 450, {
+  var elem = this.showDialog(_("change.of.dataset")+" "+table.bezeichnung, form.render(null, "horizontal"), 500, 450, {
       "Speichern": function() {
         var s = $(this).attr("id");
         

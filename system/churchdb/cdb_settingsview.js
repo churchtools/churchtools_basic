@@ -18,7 +18,7 @@ SettingsView.prototype.getData = function() {
 SettingsView.prototype.renderMenu = function() {
   this_object=this;
   menu = new CC_Menu(_("menu"));
-  menu.addEntry("Zur&uuml;ck zur Personenliste", "apersonview", "arrow-left");
+  menu.addEntry(_("back.to.main.menu"), "apersonview", "arrow-left");
   $("#cdb_precontent").html("");
   $("#cdb_group").html("");
   $("#cdb_todos").html("");
@@ -38,7 +38,7 @@ SettingsView.prototype.renderMenu = function() {
 
 SettingsView.prototype.renderListMenu = function() {
   var navi = new CC_Navi();
-  navi.addEntry(true,"id1","Einstellungen");
+  navi.addEntry(true,"id1",_("settings"));
   navi.renderDiv("cdb_search");
 };
 
@@ -67,26 +67,26 @@ SettingsView.prototype.renderList = function() {
   var rows = new Array();
   rows.push("<h2>E-Mailer</h2>");
   rows.push("<table>");
-  rows.push("<tr><td width=\"50%\">Welche Mailer-Variante soll verwendet werden: ");
+  rows.push("<tr><td width=\"50%\">"+_("which.mail.should.be.used")+": ");
   rows.push('<td><select id="mailerType">');
-    rows.push('<option value="0" '+(masterData.settings.mailerType==0?"selected":"")+'>Direkter Aufruf des lokalen E-Mail-Programms (Begrenzung bei Windows!)');
-    rows.push('<option value="1" '+(masterData.settings.mailerType==1?"selected":"")+'>Export der E-Mail-Addressen in ein neues Fenster');
-    rows.push('<option value="2" '+(masterData.settings.mailerType==2?"selected":"")+'>E-Mail-Versand direkt &uuml;ber ChurchTools (inkl. Serienbrieffelder!)');
+    rows.push('<option value="0" '+(masterData.settings.mailerType==0?"selected":"")+'>'+_("direct.access.of.local.email.app"));
+    rows.push('<option value="1" '+(masterData.settings.mailerType==1?"selected":"")+'>'+_("export.email.to.new.window"));
+    rows.push('<option value="2" '+(masterData.settings.mailerType==2?"selected":"")+'>'+_("mail.with.churchtools"));
   rows.push('</select>');
-  rows.push("<tr><td width=\"50%\">Welches Trennzeichen soll verwendet werden: ");
+  rows.push("<tr><td width=\"50%\">"+_("which.separator.should.be.used")+": ");
   rows.push('<td><select id="mailerSeparator">');
-    rows.push('<option value="0" '+(masterData.settings.mailerSeparator==0?"selected":"")+'>Semikolon (bei Windows-PCs sinnvoll)');
-    rows.push('<option value="1" '+(masterData.settings.mailerSeparator==1?"selected":"")+'>Komma (bei z.Bsp Mac oder GMail sinnvoll)');
+    rows.push('<option value="0" '+(masterData.settings.mailerSeparator==0?"selected":"")+'>'+_("semicolon.for.windows"));
+    rows.push('<option value="1" '+(masterData.settings.mailerSeparator==1?"selected":"")+'>'+_("commata.for.mac"));
   rows.push('</select>');
 
   // Kann nur BCC senden, wenn ich auch die E-Mailadresse vom Sender habe, damit ich diese an An setzen kann
   if ((masterData.user_pid!=null) && (allPersons[masterData.user_pid]!=null)) {
-    rows.push("<tr><td width=\"50%\">Welches Feld soll bei Mailer mit direktem Aufruf verwendet werden: ");
+    rows.push("<tr><td width=\"50%\">"+_("which.field.should.be.used.for.local.email.app")+": ");
     rows.push('<td><select id="mailerBcc">');
       if (masterData.settings.mailerBcc==null)
         masterData.settings.mailerBcc=0;
-      rows.push('<option value="0" '+(masterData.settings.mailerBcc==0?"selected":"")+'>An');
-      rows.push('<option value="1" '+(masterData.settings.mailerBcc==1?"selected":"")+'>Bcc');
+      rows.push('<option value="0" '+(masterData.settings.mailerBcc==0?"selected":"")+'>'+_("mail.to"));
+      rows.push('<option value="1" '+(masterData.settings.mailerBcc==1?"selected":"")+'>'+_("mail.bcc"));
     rows.push('</select>');
   }
   
@@ -112,19 +112,19 @@ SettingsView.prototype.renderList = function() {
     rows.push('</select></table>');
   }  
   
-  rows.push("<h2>Personenliste</h2><table>")
-  rows.push("<tr><td width=\"50%\">Zus&auml;tzliche Layer bei der Anzeige von Google Karten: ");
+  rows.push("<h2>"+_("list.of.persons")+"</h2><table>")
+  rows.push("<tr><td width=\"50%\">"+_("additional.layer.for.google.maps")+": ");
   rows.push('<td><select id="googleMapLayer">');
   if (masterData.settings.googleMapLayer==null)
     masterData.settings.googleMapLayer=0;
-    rows.push('<option value="0" '+(masterData.settings.googleMapLayer==0?"selected":"")+'>Keine weiteren Layer');
-    rows.push('<option value="1" '+(masterData.settings.googleMapLayer==1?"selected":"")+'>Verkehrsdichte anzeigen');
-    rows.push('<option value="2" '+(masterData.settings.googleMapLayer==2?"selected":"")+'>Fahrradwege anzeigen');
-    rows.push('<option value="3" '+(masterData.settings.googleMapLayer==3?"selected":"")+'>Verkehrsnetzplan (Transit) anzeigen');
+    rows.push('<option value="0" '+(masterData.settings.googleMapLayer==0?"selected":"")+'>'+_("no.layer"));
+    rows.push('<option value="1" '+(masterData.settings.googleMapLayer==1?"selected":"")+'>'+_("show.traffic"));
+    rows.push('<option value="2" '+(masterData.settings.googleMapLayer==2?"selected":"")+'>'+_("show.bike.paths"));
+    rows.push('<option value="3" '+(masterData.settings.googleMapLayer==3?"selected":"")+'>'+_("show.transit"));
   rows.push('</select>');
 
   if (masterData.auth.viewalldata) {  
-    rows.push("<tr><td width=\"50%\">Personen mit folgendem Status sollen ausgeblendet werden: ");
+    rows.push("<tr><td width=\"50%\">"+_("hide.persons.with.status")+": ");
     rows.push('<td><select id="hideStatus">');
     if (masterData.settings.hideStatus==null)
       masterData.settings.hideStatus=-1;
@@ -140,12 +140,12 @@ SettingsView.prototype.renderList = function() {
   
   
   
-  rows.push("<h2>Signatur</h2>");
+  rows.push("<h2>"+_("signature")+"</h2>");
   rows.push('<div id="editor">');
   if (masterData.settings.signature!=null)
     rows.push(masterData.settings.signature);
   rows.push("</div><br/><p>");  
-  rows.push(form_renderButton({label:"Signatur speichern", cssid:"savesignature"}));  
+  rows.push(form_renderButton({label:_("save.signature"), cssid:"savesignature"}));  
     
   $("#cdb_content").html(rows.join(""));
   form_implantWysiwygEditor("editor", false);

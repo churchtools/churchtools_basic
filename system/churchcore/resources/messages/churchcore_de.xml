@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
   <entry key="permission.denied.write.dir">Verzeichnis {0} muss beschreibbar sein!</entry>
@@ -25,6 +24,8 @@
   <entry key="logout">Abmelden</entry>
   <entry key="change.to">Wechseln zu...</entry>
   <entry key="offline.mode.is.active">Achtung, Offline-Modus ist aktiv!</entry>
+  <entry key="person">Person</entry>
+  <entry key="persons">Personen</entry>
   <entry key="simulate.person">Person simulieren</entry>
   <entry key="now.will.be.simulated">Ab sofort wird der Benutzer {0} simuliert. Um zum vorigen Benutzer zurückzukehren, bitte im Benutzer-Menü 'Simulieren beenden' anklicken.</entry>
   <entry key="simulate.information.text">Hierdurch kann ein Administrator die Berechtigungen eines anderen Benutzer testen, in dem er simuliert wird.</entry>  
@@ -52,6 +53,7 @@
   <entry key="not.existent">Nicht vorhanden!</entry>
   
   <!-- ABOUT -->
+  <entry key="permissions">Berechtigungen</entry>  
   <entry key="current.permissions">Aktuelle Berechtigungen</entry>  
   <entry key="current.config">Aktuelle Konfiguration</entry>
   <entry key="consistence.check">Konsistenz-Check</entry>
@@ -80,6 +82,7 @@
   <!-- LOGIN -->
   <entry key="login.headline">Anmeldung</entry>
   <entry key="please.fill.following.fields">Bitte folgende Felder ausfüllen:</entry>
+  <entry key="user">Benutzer</entry>
   <entry key="email.or.username">EMail-Adresse oder Benutzername</entry>
   <entry key="password">Passwort</entry>
   <entry key="remember.me">Zukünftig an mich erinnern</entry>
@@ -98,6 +101,7 @@
   <entry key="back">Zurück</entry>
   <entry key="status">Status</entry>
   <entry key="date">Datum</entry>
+  <entry key="time">Uhrzeit</entry>
   <entry key="receiver">Empfänger</entry>
   <entry key="sender">Sender</entry>
   <entry key="subject">Betreff</entry>
@@ -175,6 +179,7 @@
   <entry key="filter.functions">Filterfunktionen</entry>
   <entry key="administration">Administration</entry>
   <entry key="thank.you">Vielen Dank!</entry>
+  <entry key="group">Gruppe</entry>
   <entry key="groups">Gruppen</entry>
   <entry key="none.selected">keine ausgewählt</entry>
   <entry key="all.selected">alle ausgewählt</entry>
@@ -192,7 +197,11 @@
   <entry key="number.of.rows">Zeilenanzahl</entry>
   <entry key="open.each">alle öffnen</entry>
   <entry key="close.each">alle schließen</entry>
+  <entry key="add">Hinzufügen</entry>
   <entry key="add.new.request">Neue Anfrage erstellen</entry>
+  <entry key="add.new.person">Neue Person anlegen</entry>
+  <entry key="copy">Kopieren</entry>
+  <entry key="delete">Löschen</entry>
   <entry key="all">Alle</entry>
   <entry key="important.from">Wichtiges von {0}</entry>
   <entry key="news.from">Neuigkeiten von {0}</entry>
@@ -209,8 +218,10 @@
   <entry key="location">Ort</entry>
   <entry key="save">Speichern</entry>
   <entry key="save.data">Speichere Daten...</entry>
+  <entry key="load.data">Lade Daten...</entry>
   <entry key="saved">gespeichert</entry>
   <entry key="creator">Ersteller</entry>
+  <entry key="change.of.dataset">Veränderung des Datensatzes</entry>
   
   <entry key="january">Januar</entry>
   <entry key="february">Februar</entry>
@@ -238,6 +249,9 @@
   <entry key="until">Bis</entry>
   <entry key="reason">Grund</entry>
   <entry key="comment">Kommentar</entry>
+  <entry key="comments">Kommentare</entry>
+  <entry key="please.comment">Gerne kommentieren</entry>
   <entry key="change">wechseln</entry>
+  <entry key="sum">Summe</entry>
     
 </properties>

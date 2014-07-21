@@ -25,6 +25,8 @@
   <entry key="logout">Logout</entry>
   <entry key="change.to">Switch to...</entry>
   <entry key="offline.mode.is.active">Caution! Offline mode is active.</entry>  
+  <entry key="person">Person</entry>
+  <entry key="persons">Persons</entry>
   <entry key="simulate.person">Simulate person</entry>
   <entry key="now.will.be.simulated">Now {0} will be simulated. To come back please press 'stop simulation' in the user menu.</entry>
   <entry key="simulate.information.text">With this the admin can test permission of other users through a simulation.</entry>
@@ -65,7 +67,8 @@
   <entry key="set.password">Set password</entry>
     
   <!-- ABOUT -->
-  <entry key="current.permissions">Permissions</entry>  
+  <entry key="permissions">Permissions</entry>  
+  <entry key="current.permissions">Current Permissions</entry>  
   <entry key="current.config">Configuration</entry>
   <entry key="consistence.check">Integrity check</entry>
   <entry key="churchtools.claim">ChurchTools offers excellent software for CRM tasks in churches and clubs.</entry>
@@ -79,6 +82,7 @@
   <!-- LOGIN -->
   <entry key="login.headline">Login</entry>
   <entry key="please.fill.following.fields">Please fill in the following fields: </entry>
+  <entry key="user">User</entry>
   <entry key="email.or.username">Email or username</entry>
   <entry key="password">Password</entry>
   <entry key="remember.me">Yes, this is my personal computer</entry>
@@ -96,6 +100,7 @@
   <entry key="back">back</entry>
   <entry key="status">Status</entry>
   <entry key="date">Date</entry>
+  <entry key="time">Time</entry>
   <entry key="receiver">Receiver</entry>
   <entry key="sender">Sender</entry>
   <entry key="subject">Subject</entry>  
@@ -172,6 +177,7 @@
   <entry key="filter.functions">Filter functions</entry>
   <entry key="administration">Administration settings</entry>
   <entry key="thank.you">Thank You!</entry>
+  <entry key="group">Group</entry>
   <entry key="groups">Groups</entry>
   <entry key="none.selected">none selected</entry>
   <entry key="all.selected">all selected</entry>
@@ -189,7 +195,11 @@
   <entry key="number.of.rows">Number of rows</entry>
   <entry key="open.each">open each</entry>
   <entry key="close.each">close each</entry>  
+  <entry key="add">Add</entry>
   <entry key="add.new.request">Create new request</entry>
+  <entry key="add.new.person">Add new person</entry>
+  <entry key="copy">Copy</entry>
+  <entry key="delete">Delete</entry>  
   <entry key="all">all</entry>
   <entry key="important.from">Important entries from {0}</entry>
   <entry key="news.from">New entries from {0}</entry>  
@@ -206,8 +216,10 @@
   <entry key="location">Location</entry>
   <entry key="save">Save</entry>
   <entry key="save.data">Save data...</entry>
+  <entry key="load.data">Lade Daten...</entry>
   <entry key="saved">saves</entry>
   <entry key="creator">Creator</entry>
+  <entry key="change.of.dataset">Change of dataset</entry>
   
   <entry key="january">January</entry>
   <entry key="february">February</entry>
@@ -235,7 +247,10 @@
   <entry key="until">Until</entry>
   <entry key="reason">Reason</entry>
   <entry key="comment">Comment</entry>
+  <entry key="comments">Comments</entry>
+  <entry key="please.comment">Please comment</entry>
   <entry key="change">change</entry>
+  <entry key="sum">Sum</entry>
   
 	  
 </properties>

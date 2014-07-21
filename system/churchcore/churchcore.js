@@ -66,7 +66,13 @@ function user_access(auth, datafield) {
   return res;
 }
 
-function churchcore_getBezeichnung(name, id) {
+/**
+ * Extract the field "bezeichnung" out of the masterData
+ * @param name
+ * @param id
+ * @returns
+ */
+function churchcore_getCaption(name, id) {
   if (masterData[name]==null)
     return '<span class="error">Stammdaten '+name+"?</span>";
   if (masterData[name][id]==null)
@@ -941,9 +947,7 @@ $(document).ready(function() {
         }, null, false, "about");
       }
     });
-    elem.dialog('addbutton', _("cancel"), function() {    
-      elem.dialog("close");
-    });
+    elem.dialog('addcancelbutton');
     return false;
   });
   $("#simulate_person").click(function() {

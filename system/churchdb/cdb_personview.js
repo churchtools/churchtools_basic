@@ -210,7 +210,7 @@ PersonView.prototype.renderListMenu = function() {
           $.each(masterData.groups, function(k,a) {
             if (groupView.isAllowedToSeeDetails(a.id))
               if ((str=="GRUPPE:") || (a.bezeichnung.toUpperCase().indexOf(str)>=0) || (("GRUPPE:"+a.bezeichnung.toUpperCase()).indexOf(str)>=0))
-                r.push({label:a.bezeichnung, category:"Gruppe", value:'gruppe:"'+a.bezeichnung+'"'});              
+                r.push({label:a.bezeichnung, category:_("group"), value:'gruppe:"'+a.bezeichnung+'"'});              
           });
         }
         if (masterData.tags!=null) {
@@ -343,10 +343,10 @@ PersonView.prototype.renderAddEntry = function(prefill) {
   _text=_text+'</div><div class="row-fluid">';
   var form = new CC_Form();
   form.surroundWithDiv("span12");
-  form.addButton({label:"Person anlegen", controlgroup:true, cssid:"btProoveNewAddress"});
+  form.addButton({label:_("create.person"), controlgroup:true, cssid:"btProoveNewAddress"});
   form.addHtml("&nbsp; ");
-  form.addCheckbox({cssid:"forceCreate",controlgroup_start:true,label:'auch anlegen, wenn es den Namen schon gibt'});
-  form.addCheckbox({cssid:"forceDontHide",controlgroup_end:true,label:'weitere Person anlegen'});
+  form.addCheckbox({cssid:"forceCreate",controlgroup_start:true,label:_("also.apply.if.name.already.exists")});
+  form.addCheckbox({cssid:"forceDontHide",controlgroup_end:true,label:_("create.more.dataset")});
   _text=_text+form.render(false,"vertical");
   
   _text=_text+"</div></div>";
@@ -532,18 +532,18 @@ PersonView.prototype.addSecondMenu = function() {
   if ((masterData.auth.write) && (masterData.auth.editgroups)) {
     rows.push("<p>"+_("person.function")+": "+_("selected.persons")+" ... &nbsp;");
     rows.push('<select id="personFunction"><option value="-1">');
-    rows.push('<option value="addToGroup">... einer Gruppe hinzuf&uuml;gen');
+    rows.push('<option value="addToGroup">... '+_("add.to.group"));
     if (masterData.auth.viewalldetails)
-      rows.push('<option value="f_bereich">... einen Bereich hinzuf&uuml;gen');
+      rows.push('<option value="f_bereich">... '+_("add.to.department"));
     if (masterData.auth.viewtags)
-      rows.push('<option value="addPersonTag">... einen Tag hinzuf&uuml;gen');
+      rows.push('<option value="addPersonTag">... '+_("add.one.tag"));
     if (masterData.auth.adminpersons)
-      rows.push('<option value="addPersonAuth">... ein Zugriffssrecht hinzuf&uuml;gen');
+      rows.push('<option value="addPersonAuth">... '+_("add.one.permission"));
     if ((masterData.auth["push/pull archive"]) && (t.name=="PersonView"))
-      rows.push('<option value="archivePerson">... ins Archiv verschieben');
+      rows.push('<option value="archivePerson">... '+_("move.to.archive"));
     
     if (churchInterface.isCurrentView("ArchiveView") && (masterData.auth.admin || masterData.auth.adminpersons))
-      rows.push('<option value="deletePerson">... endg&uuml;ltig l&ouml;schen');    
+      rows.push('<option value="deletePerson">... '+_("delete.irrevocable"));    
     
     rows.push('</select>');
   }
@@ -650,40 +650,36 @@ PersonView.prototype.editMeetingProperties = function(g_id, treffen_id) {
   var meeting=t.getMeetingFromMeetingList(g_id, treffen_id);
   if (meeting!=null) {
     var form=new CC_Form(null);       
-    form.addInput({label:"Datum",cssid:"inputmeetingdate", value:meeting.datumvon.toDateEn(false).toStringDe(), datepicker:"dp_meetingdate"});
-    form.addInput({label:"Uhrzeit",value:meeting.datumvon.toDateEn(true).toStringDeTime()});
-    form.addInput({label:"Anzahl G&auml;ste", value:meeting.anzahl_gaeste, cssid:"anzahl_gaeste"});
-    form.addTextarea({label:"Kommentar", rows:4, data:meeting.kommentar, placeholder:"Kommentar", cssid:"kommentar"});
+    form.addInput({label:_("date"),cssid:"inputmeetingdate", value:meeting.datumvon.toDateEn(false).toStringDe(), datepicker:"dp_meetingdate"});
+    form.addInput({label:_("time"),value:meeting.datumvon.toDateEn(true).toStringDeTime()});
+    form.addInput({label:_("number.of.guests"), value:meeting.anzahl_gaeste, cssid:"anzahl_gaeste"});
+    form.addTextarea({label:_("please.comment"), rows:4, data:meeting.kommentar, placeholder:_("comment"), cssid:"kommentar"});
     
-    var elem=form_showDialog("Gruppentreffen editieren", form.render(null, "horizontal"), 500, 400, {
-      "Speichern": function() {
-        var obj=form.getAllValsAsObject();
-        obj.func="GroupMeeting";
-        obj.sub="saveProperties";
-        obj.id=treffen_id;
-        obj.g_id=g_id;
-        var save=$.extend({}, meeting);
-        obj.datumvon=obj.inputmeetingdate.toDateDe().toStringEn(false)+" "+obj.Uhrzeit;
-        obj.datumbis=obj.datumvon;
-        meeting.datumvon=obj.datumvon
-        meeting.datumbis=obj.datumvon;        
-        meeting.kommentar=obj.kommentar;
-        meeting.anzahl_gaeste=obj.anzahl_gaeste;
-        if (meeting.anzahl_gaeste=="") meeting.anzahl_gaeste=0;
-        
-        churchInterface.jsendWrite(obj, function(ok) {
-          if (!ok) {
-            alert("Es gab ein Fehler beim Speichern!");
-            meeting=save;
-            t.renderList();
-          }
-        });        
-        t.renderList();
-        $(this).dialog("close");
-      },
-      "Abbrechen": function() {
-        $(this).dialog("close");
-      }
+    var elem=form_showDialog("Gruppentreffen editieren", form.render(null, "horizontal"), 500, 400);
+    elem.dialog("addsaveandcancelbutton", function() {
+      var obj=form.getAllValsAsObject();
+      obj.func="GroupMeeting";
+      obj.sub="saveProperties";
+      obj.id=treffen_id;
+      obj.g_id=g_id;
+      var save=$.extend({}, meeting);
+      obj.datumvon=obj.inputmeetingdate.toDateDe().toStringEn(false)+" "+obj.Uhrzeit;
+      obj.datumbis=obj.datumvon;
+      meeting.datumvon=obj.datumvon
+      meeting.datumbis=obj.datumvon;        
+      meeting.kommentar=obj.kommentar;
+      meeting.anzahl_gaeste=obj.anzahl_gaeste;
+      if (meeting.anzahl_gaeste=="") meeting.anzahl_gaeste=0;
+      
+      churchInterface.jsendWrite(obj, function(ok) {
+        if (!ok) {
+          alert("Es gab ein Fehler beim Speichern!");
+          meeting=save;
+          t.renderList();
+        }
+      });        
+      t.renderList();
+      $(this).dialog("close");
     });
     $("#inputmeetingdate").click(function() {
       form_implantDatePicker("dp_meetingdate", dt.toStringDe(), function(dateText) {    
@@ -713,25 +709,21 @@ PersonView.prototype.addPersonsTooltip = function(element) {
 PersonView.prototype.addGroupMeetingDate = function() {
   var form=new CC_Form("Ein Gruppentreffen hinzuf&uuml;gen");
   var dt=new Date();
-  form.addInput({label:"Datum",cssid:"inputmeetingdate", value:dt.toStringDe(false), datepicker:"dp_meetingdate"});
-  form.addInput({label:"Uhrzeit",value:"10:00"});
+  form.addInput({label:_("date"),cssid:"inputmeetingdate", value:dt.toStringDe(false), datepicker:"dp_meetingdate"});
+  form.addInput({label:_("time"),value:"10:00"});
   form.addHtml('<p><small>Hinweis: Dieses Gruppentreffen wird nur für diese Gruppe angelegt. ');
   form.addHtml('<a href="https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc:Gruppentreffen/" target="_clean"><i class="icon-question-sign"></i></a>');
-  var elem=form_showDialog("Gruppentreffen", form.render(), 400, 400, {
-    "Speichern": function() {
-      var obj=form.getAllValsAsObject();
-      obj.datumvon=obj.inputmeetingdate.toDateDe().toStringEn(false)+" "+obj.Uhrzeit;
-      obj.datumbis=obj.datumvon;
-      obj.gruppe_id=t.filter["filterMeine Gruppen"];
-      obj.func="addEvent";
-      churchInterface.jsendWrite(obj, function(ok, data) {
-        elem.dialog("close");
-        t.loadGroupMeetingList(t.filter["filterMeine Gruppen"]);            
-      });
-    },
-    "Abbrechen": function() {
-      $(this).dialog("close");
-    }
+  var elem=form_showDialog("Gruppentreffen", form.render(), 400, 400);
+  elem.dialog("addsaveandcancelbutton", function() {
+    var obj=form.getAllValsAsObject();
+    obj.datumvon=obj.inputmeetingdate.toDateDe().toStringEn(false)+" "+obj.Uhrzeit;
+    obj.datumbis=obj.datumvon;
+    obj.gruppe_id=t.filter["filterMeine Gruppen"];
+    obj.func="addEvent";
+    churchInterface.jsendWrite(obj, function(ok, data) {
+      elem.dialog("close");
+      t.loadGroupMeetingList(t.filter["filterMeine Gruppen"]);            
+    });
   }); 
   $("#inputmeetingdate").click(function() {
     form_implantDatePicker("dp_meetingdate", dt.toStringDe(), function(dateText) {    
@@ -984,77 +976,73 @@ PersonView.prototype.personFunction = function (value, param) {
     }
     form.addCheckbox({cssid:"delChecked",label:'Markierung bei den '+ids.length+' Personen wieder entfernen?'});
     
-    var elem = t.showDialog("Batch-Anpassungen", form.render(), 500, 350, {
-      "Speichern": function() {
-         var id=$("#inputId").val();
-         var obj=new Object();
-         var delChecked=$("#delChecked").attr("checked")=="checked";
-         obj.func=value;
-         if (id==null) {
-           alert("Bitte Eintrag selektieren!");
-           return false;
-         }
-         elem.html('<legend>Fortschritt</legend><div class="progress progress-striped active"><div class="bar" style="width: 0%;"></div></div>');          
-         function _progress(ids, current_id) {
-           if (ids[current_id]!=null) {
-             window.setTimeout(function() {
-               if (value=="addToGroup") {
-                 t.addPersonGroupRelation(ids[current_id], id);
+    var elem = t.showDialog("Batch-Anpassungen", form.render(), 500, 350);
+    elem.dialog("addsaveandcancelbutton", function() {
+       var id=$("#inputId").val();
+       var obj=new Object();
+       var delChecked=$("#delChecked").attr("checked")=="checked";
+       obj.func=value;
+       if (id==null) {
+         alert("Bitte Eintrag selektieren!");
+         return false;
+       }
+       elem.html('<legend>Fortschritt</legend><div class="progress progress-striped active"><div class="bar" style="width: 0%;"></div></div>');          
+       function _progress(ids, current_id) {
+         if (ids[current_id]!=null) {
+           window.setTimeout(function() {
+             if (value=="addToGroup") {
+               t.addPersonGroupRelation(ids[current_id], id);
+             }
+             else if (value=="addPersonTag") {
+               if (allPersons[ids[current_id]].tags==null)
+                 allPersons[ids[current_id]].tags= new Array();
+               if (!churchcore_inArray(id, allPersons[ids[current_id]].tags)) {
+                 allPersons[ids[current_id]].tags.push(id);
+                 churchInterface.jsendWrite({func:"addPersonTag", id:ids[current_id], tag_id:id});
                }
-               else if (value=="addPersonTag") {
-                 if (allPersons[ids[current_id]].tags==null)
-                   allPersons[ids[current_id]].tags= new Array();
-                 if (!churchcore_inArray(id, allPersons[ids[current_id]].tags)) {
-                   allPersons[ids[current_id]].tags.push(id);
-                   churchInterface.jsendWrite({func:"addPersonTag", id:ids[current_id], tag_id:id});
-                 }
-               }
-               else if (value=="addPersonAuth") {
-                 obj.id=ids[current_id];
-                 if (allPersons[ids[current_id]].auth==null)
-                   allPersons[ids[current_id]].auth=new Object();
-                 allPersons[ids[current_id]].auth[id]=id;
-                 obj.auth_id=id;
+             }
+             else if (value=="addPersonAuth") {
+               obj.id=ids[current_id];
+               if (allPersons[ids[current_id]].auth==null)
+                 allPersons[ids[current_id]].auth=new Object();
+               allPersons[ids[current_id]].auth[id]=id;
+               obj.auth_id=id;
+               churchInterface.jsendWrite(obj, null, false);                 
+             }
+             else if (value=="f_bereich") {
+               obj.id=ids[current_id];
+               if (allPersons[ids[current_id]].access[id]==null) {
+                 allPersons[ids[current_id]].access[id]=id;
+                 obj["bereich"+id]=1;
                  churchInterface.jsendWrite(obj, null, false);                 
                }
-               else if (value=="f_bereich") {
-                 obj.id=ids[current_id];
-                 if (allPersons[ids[current_id]].access[id]==null) {
-                   allPersons[ids[current_id]].access[id]=id;
-                   obj["bereich"+id]=1;
-                   churchInterface.jsendWrite(obj, null, false);                 
-                 }
+             }
+             else if (value=="archivePerson") {
+               obj.id=ids[current_id];
+               if (allPersons[ids[current_id]].archiv_yn==0) {
+                 allPersons[ids[current_id]].archiv_yn=1;
+                 churchInterface.jsendWrite(obj, null, false);
                }
-               else if (value=="archivePerson") {
-                 obj.id=ids[current_id];
-                 if (allPersons[ids[current_id]].archiv_yn==0) {
-                   allPersons[ids[current_id]].archiv_yn=1;
-                   churchInterface.jsendWrite(obj, null, false);
-                 }
-               }
-               else if (value=="deletePerson") {
-                 obj.id=ids[current_id];
-                 allPersons[ids[current_id]]=null;                                 
-                 churchInterface.jsendWrite(obj, null, false);                 
-               }
-               elem.find("div.bar").width((100*(current_id+1)/ids.length)+'%');
-               _progress(ids, current_id+1);
-             },10);
-           }
-           // Fertig
-           else {
-             elem.dialog("close");
-             t.renderList();
-           }
+             }
+             else if (value=="deletePerson") {
+               obj.id=ids[current_id];
+               allPersons[ids[current_id]]=null;                                 
+               churchInterface.jsendWrite(obj, null, false);                 
+             }
+             elem.find("div.bar").width((100*(current_id+1)/ids.length)+'%');
+             _progress(ids, current_id+1);
+           },10);
          }
-         _progress(ids, 0);                
-         if (delChecked) {
-           $.each(allPersons, function(k,a) {allPersons[a.id].checked=null; });
+         // Fertig
+         else {
+           elem.dialog("close");
+           t.renderList();
          }
-      },          
-      "Abbrechen": function() {
-        $(this).dialog("close");
-      }
+       }
+       _progress(ids, 0);                
+       if (delChecked) {
+         $.each(allPersons, function(k,a) {allPersons[a.id].checked=null; });
+       }
     });
     elem.find("#inputGruppentyp").change(function(c) {
       elem.dialog("close");
@@ -1652,29 +1640,25 @@ PersonView.prototype.renderFilter = function() {
       rows.push('<small><i>Die aktuelle Filtereinstellung kann als "intelligente Gruppe" abgespeichert werden. Diese Gruppe enth&auml;lt dann keine festen Verbindung zu Personen, sondern beim Aufruf werden alle Personen gefiltert, die zu dieser Gruppe passen. Der Aufruf ist dann &uuml;ber "Meine Gruppen" m&ouml;glich.</i></small><br/><br/>');
       
       
-      t.showDialog("Filter speichern", rows.join(""), 400, 400, {
-          "Speichern": function() {
-            var name=$("#inputName").val();
-            t.filter.filterStatus=t.filter.filterStatus.getSelectedAsArrayString();
-            t.filter.filterStation=t.filter.filterStation.getSelectedAsArrayString();
-            t.filter.filterBereich=t.filter.filterBereich.getSelectedAsArrayString();
-            churchInterface.jsendWrite({func:"saveMyFilter", name:name, filter:t.filter}, null, false);
-            t.makeMasterDataMultiselectFilter("Status", masterData.settings.filterStatus);
-            t.makeMasterDataMultiselectFilter("Station", masterData.settings.filterStation);
-            t.makeMasterDataMultiselectFilter("Bereich", masterData.settings.filterBereich, masterData.auth.dep);
-            t.filter["filterMeine Gruppen"]="filter"+name;
-            t.furtherFilterVisible=false;
-            cdb_loadMasterData(function() {
-              t.renderFilter();
-              t.renderFurtherFilter();
-              listOffset=0;
-              t.renderList();
-            });
-            $(this).dialog("close");
-          },
-          "Abbrechen": function() {
-            $(this).dialog("close");
-          }
+      var elem=t.showDialog("Filter speichern", rows.join(""), 400, 400);
+      elem.dialog("addsaveandcancelbutton", function() {
+          var name=$("#inputName").val();
+          t.filter.filterStatus=t.filter.filterStatus.getSelectedAsArrayString();
+          t.filter.filterStation=t.filter.filterStation.getSelectedAsArrayString();
+          t.filter.filterBereich=t.filter.filterBereich.getSelectedAsArrayString();
+          churchInterface.jsendWrite({func:"saveMyFilter", name:name, filter:t.filter}, null, false);
+          t.makeMasterDataMultiselectFilter("Status", masterData.settings.filterStatus);
+          t.makeMasterDataMultiselectFilter("Station", masterData.settings.filterStation);
+          t.makeMasterDataMultiselectFilter("Bereich", masterData.settings.filterBereich, masterData.auth.dep);
+          t.filter["filterMeine Gruppen"]="filter"+name;
+          t.furtherFilterVisible=false;
+          cdb_loadMasterData(function() {
+            t.renderFilter();
+            t.renderFurtherFilter();
+            listOffset=0;
+            t.renderList();
+          });
+          $(this).dialog("close");
       });
       renderList=false;
       return false;
@@ -2387,7 +2371,7 @@ PersonView.prototype.getGroupEntries = function (p_id, gt_id, func) {
         _text=_text+"&nbsp;"+t.renderImage("comment",16,"Kommentar: "+b.comment);
       
       if ((masterData.auth.adminpersons) && (masterData.groups[b.id].auth!=null)) 
-        _text=_text+"&nbsp;"+t.renderImage("schluessel",16,"Berechtigungen: "+t.getAuthAsArray(masterData.groups[b.id].auth).join(", "));
+        _text=_text+"&nbsp;"+t.renderImage("schluessel",16,_("permissions")+": "+t.getAuthAsArray(masterData.groups[b.id].auth).join(", "));
         if (b.leiter>0)
           _text=_text+" ("+masterData.groupMemberTypes[b.leiter].bezeichnung+")";
         else if (masterData.groups[b.id].followup_typ_id>0)
@@ -2560,20 +2544,16 @@ PersonView.prototype.renderAuthDialog = function (id) {
     }    
     else if ($(this).attr("id")=="setPassword") {
       var _text=form_renderInput({label:"Neues Passwort", type:"medium", password:true, cssid:"new_password"});
-      var elem2 = t.showDialog("Neues Passwort setzen", _text, 250, 200, {
-         "Speichern": function() {
-          churchInterface.jsendWrite({func:"setPersonPassword", id:a.id, password:$("#new_password").val()}, function(ok, status) {
-            if (ok) {
-              alert("Das Passwort wurde gesetzt.");
-              elem2.dialog("close");
-            }
-            else alert("Fehler: "+status);
-          });                
-          $(this).dialog("close");
-        },
-        "Abbrechen": function() {
-          $(this).dialog("close");
-        }
+      var elem2 = t.showDialog("Neues Passwort setzen", _text, 250, 200);
+      elem2.dialog("addsaveandcancelbutton", function() {
+        churchInterface.jsendWrite({func:"setPersonPassword", id:a.id, password:$("#new_password").val()}, function(ok, status) {
+          if (ok) {
+            alert("Das Passwort wurde gesetzt.");
+            elem2.dialog("close");
+          }
+          else alert("Fehler: "+status);
+        });                
+        $(this).dialog("close");
       });      
       return false;
     }
@@ -2742,12 +2722,12 @@ PersonView.prototype.renderDetails = function (id) {
       }
       
       if (masterData.auth.adminpersons) {
-        _text=_text+"<h4>Berechtigungen&nbsp;&nbsp;";
+        _text=_text+"<h4>"+_("permissions")+"&nbsp;&nbsp;";
         _text=_text+'<a href="#" id="auth">'+t.renderImage("options")+'</a></h4>';
         _text=_text+'<p style="line-height:100%;color:black"><small>';
       }
       else if (personSuperLeader) {
-        _text=_text+"<br/><br/><h4>Berechtigungen&nbsp;&nbsp;</h4>";
+        _text=_text+"<br/><br/><h4>"+_("permissions")+"&nbsp;&nbsp;</h4>";
         _text=_text+'<p style="line-height:100%;color:black"><small>';          
       }
       else { 
@@ -2770,14 +2750,14 @@ PersonView.prototype.renderDetails = function (id) {
         if (a.districts!=null) {
           _text=_text+"<p><small><b>Zugeordnet in "+f("distrikt_id")+":</b>";
           $.each(a.districts, function(k,b) {
-            _text=_text+"<br/>- "+masterData.districts[b.distrikt_id].bezeichnung+"";
+            _text=_text+"<br/>- "+churchcore_getCaption("districts", b.distrikt_id)+"";
           });
           _text=_text+"</small>";
         }      
         if (a.gruppentypen!=null) {
           _text=_text+"<p><small><b>Zugeordnet in "+f("gruppentyp_id")+":</b>";
           $.each(a.gruppentypen, function(k,b) {
-            _text=_text+"<br/>- "+masterData.groupTypes[b.gruppentyp_id].bezeichnung+"";
+            _text=_text+"<br/>- "+churchcore_getCaption("groupTypes", b.gruppentyp_id)+"";
           });
         }
         if (a.auth!=null) {
@@ -2802,7 +2782,7 @@ PersonView.prototype.renderDetails = function (id) {
   
       // Kommentare
       if (masterData.auth.comment_viewer!=null) {
-        _text=_text+'<div class="detail-view-infobox"><table><tr><th>Kommentare';
+        _text=_text+'<div class="detail-view-infobox"><table><tr><th>'+_("comments");
     
         var _comments="";
         var _count=0;
@@ -2898,11 +2878,11 @@ PersonView.prototype.renderDetails = function (id) {
       _text=_text+"<div class=\"bottom_links\" style=\"display:inline;\"> &nbsp; ";
       
       if (masterData.auth.viewhistory)        
-          _text=_text+"<a href=\"#\" id=\"logs\">Historie >></a>&nbsp; &nbsp; ";
+          _text=_text+"<a href=\"#\" id=\"logs\">"+_("history")+" >></a>&nbsp; &nbsp; ";
       if (masterData.auth.editrelations) 
-        _text=_text+" <a href=\"#\" id=\"rels\">Beziehungen pflegen >></a>&nbsp; &nbsp;";              
+        _text=_text+" <a href=\"#\" id=\"rels\">"+_("edit.relation")+" >></a>&nbsp; &nbsp;";              
 
-      _text=_text+"<a href=\"#\" id=\"vcard\">VCard export>></a></div><!--bottom_links-->";                
+      _text=_text+"<a href=\"#\" id=\"vcard\">"+_("export.vcard")+" >></a></div><!--bottom_links-->";                
       _text=_text+"<div style=\"float:right\">";
     
       _text=_text+"<small><i>"+f("bereich_id")+": </i>";
@@ -2933,7 +2913,7 @@ PersonView.prototype.renderDetails = function (id) {
        // Beziehungen  
         _text=_text+"<div id=\"detail_rels"+id+"\" class=\"relations\">";
        
-        _text=_text+"<p style='line-height:100%;' id=\"pRels\"><b><i>Beziehungen</i></b>&nbsp;&nbsp;";
+        _text=_text+"<p style='line-height:100%;' id=\"pRels\"><b><i>"+_("relations")+"</i></b>&nbsp;&nbsp;";
 
         _text=_text+"<p style='line-height:100%;color:black'><small>";
         
@@ -2987,11 +2967,11 @@ PersonView.prototype.renderDetails = function (id) {
     // Es sollen nur Logs eingeblendet werden.
     if (fieldname=="logs") {
       if ($("#detail_logs"+id).is(":hidden")) {
-        $("#detail_logs"+id).html("Lade Daten...");
+        $("#detail_logs"+id).html(_("load.data"));
         $("#detail_logs"+id).animate({ height: 'toggle'}, "medium");
         churchInterface.jsendRead({ func: "getPersonDetailsLogs",id:id }, function(ok, json) {
           _text="";        
-          _text=_text+"<small><table class=\"table\"><tr><td><i>Datum</i><td><i>Text</i><td><i>Erfolgt durch</i><td>";      
+          _text=_text+"<small><table class=\"table\"><tr><td><i>"+_("date")+"</i><td><i>"+_("subject")+"</i><td><i>"+_("user")+"</i><td>";      
           if (json!=null)
             $.each(json, function (k,b) {
               if ((b.level<3) || (masterData.auth.admin)) {
@@ -3174,7 +3154,7 @@ PersonView.prototype.renderDetails = function (id) {
         rows.push("<p><small><i>Hinweis: Das FollowUp geht dann in die Stufe "+(b.followup_count_no*1+1)+"</i></small>");
       rows.push("</div>");
       
-      rows[rows.length]='<p><input type="button" class="btn btn-royal" id="idFollowupSave_'+g_id+'_'+id+'" value="Speichern"/>&nbsp;';
+      rows[rows.length]='<p><input type="button" class="btn btn-royal" id="idFollowupSave_'+g_id+'_'+id+'" value="'+_("save")+'/>&nbsp;';
       rows[rows.length]='<input type="button" class="btn btn-alert" id="idFollowupAbort_'+g_id+'_'+id+'" value="FollowUp l&ouml;schen"/>&nbsp;&nbsp;';
       rows[rows.length]='<a href="#" id="idFollowupCancel_'+g_id+'_'+id+'">Sp&auml;ter durchf&uuml;hren</a>';
 
@@ -3277,7 +3257,7 @@ PersonView.prototype.renderDetails = function (id) {
         // Loesche Infos, damit er sich die neuen Kommentare zieht
         allPersons[id].details=null;
         obj["note"]=obj["note"]+"<br/>"+$('#followupNote_'+g_id+'_'+id).val();
-        $("#cdb_followup_"+g_id+"_"+id).html("Speichern...");
+        $("#cdb_followup_"+g_id+"_"+id).html(_("save")+"...");
         churchInterface.jsendWrite(obj, function(ok) {
           t.renderView();  
           t.renderTodos();
@@ -3363,26 +3343,23 @@ PersonView.prototype.delPersonFromGroup = function (id, g_id, withoutConfirmatio
   } 
   // Nicht erlaubt, d.h. es handelt sich um einen KG-Leiter, der nur auf "Zu L�schen" setzen darf
   else {
-    var form = new CC_Form("Person in der Gruppe als zu l&ouml;schen markieren");
-    form.addCaption({label:'Person', text:a.vorname+" "+a.name});
-    form.addCaption({label:'Gruppe', text:masterData.groups[g_id].bezeichnung});
-    form.addTextarea({label:"Kommentar angeben", rows:4, cssid:"comment",placeholder:"Warum soll die Person nicht mehr in der Gruppe sein?",
+    var form = new CC_Form();
+    form.addCaption({label:_("person"), text:a.vorname+" "+a.name});
+    form.addCaption({label:_("group"), text:masterData.groups[g_id].bezeichnung});
+    form.addTextarea({label:_("please.comment"), rows:4, cssid:"comment",placeholder:_("why.the.person.should.not.be.in.this.group.anymore"),
            data:(a.gruppe[g_id].comment!=null?a.gruppe[g_id].comment:"")});
-    var elem = t.showDialog("Person aus der Gruppe nehmen", form.render(false, "horizontal"), 500, 350, {
-        "Speichern": function() {
-        var date = new Date();
-        var comment=$("#comment").val();
-        churchInterface.jsendWrite({func:"editPersonGroupRelation",id:id,g_id:g_id,comment:$("#comment").val(),date:date.toStringEn(),leader:-1}, function() {
-          a.gruppe[g_id].leiter=-1;
-          a.gruppe[g_id].comment=comment;
-          t.renderList(a);
-        });                      
-        $(this).dialog("close");            
-      },          
-      "Abbrechen": function() {
-        $(this).dialog("close");
-      }
+    var elem = t.showDialog(_("mark.person.as.deleted.in.group"), form.render(false, "horizontal"), 500, 350);
+    elem.dialog("addbutton", _("save"), function() {
+      var date = new Date();
+      var comment=$("#comment").val();
+      churchInterface.jsendWrite({func:"editPersonGroupRelation",id:id,g_id:g_id,comment:$("#comment").val(),date:date.toStringEn(),leader:-1}, function() {
+        a.gruppe[g_id].leiter=-1;
+        a.gruppe[g_id].comment=comment;
+        t.renderList(a);
+      });                      
+      $(this).dialog("close");            
     });
+    elem.dialog("addcancelbutton");
   }
 };
 
@@ -3589,13 +3566,9 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
 
   rows[rows.length]='<input type="hidden" id="fields" value="'+fieldname+'"/><br/>';
   
-  var elem = this.showDialog("Veränderung des Datensatzes", rows.join(""), width, height, {
-    "Speichern": function() {
-      t._saveEditEntryData(id, fieldname, renderViewNecessary, $(this));
-    },
-    "Abbrechen": function() {
-      $(this).dialog("close");
-    }
+  var elem = this.showDialog(_("change.of.dataset"), rows.join(""), width, height);
+  elem.dialog("addsaveandcancelbutton", function() {
+    t._saveEditEntryData(id, fieldname, renderViewNecessary, $(this));
   });
   allPersons[id].inEdit=elem;
 
@@ -3647,26 +3620,22 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
       form.addHidden({cssid:"Inputf_grouptype", value:gt_id});
       form.addSelect({label:f("distrikt_id"), data:masterData.districts, cssid:"Inputf_district"});
       elem.dialog("close");
-      var elem2=form_showDialog("Gruppe erstellen", form.render(null, "vertical"), 300, 350, {
-        "Speichern": function() {
-          var obj=form.getAllValsAsObject();
-          obj.func="createGroup";
-          churchInterface.jsendWrite(obj, function(ok, json) {        
-            if (json.result=="exist") {
-              alert("Gruppe mit dem Namen existiert schon!");
-            }
-            else {
-              cdb_loadMasterData(function() {
-                t.renderEditEntry(id, fieldname+gt_id, json.id);  
-              })
-            };            
-          });        
-          t.renderList();
-          $(this).dialog("close");
-        },
-        "Abbrechen": function() {
-          $(this).dialog("close");
-        }    
+      var elem2=form_showDialog("Gruppe erstellen", form.render(null, "vertical"), 300, 350);
+      elem2.dialog("addsaveandcancelbutton", function() {
+        var obj=form.getAllValsAsObject();
+        obj.func="createGroup";
+        churchInterface.jsendWrite(obj, function(ok, json) {        
+          if (json.result=="exist") {
+            alert("Gruppe mit dem Namen existiert schon!");
+          }
+          else {
+            cdb_loadMasterData(function() {
+              t.renderEditEntry(id, fieldname+gt_id, json.id);  
+            })
+          };            
+        });        
+        t.renderList();
+        $(this).dialog("close");
      });
      elem2.find("form").submit(function() {
        return false;
@@ -3916,10 +3885,8 @@ PersonView.prototype.renderPersonFilter = function() {
   
   var rows = new Array();
   
-//  rows.push('<legend>Personenfilter</legend>');
-
-   rows.push('<div style="float:right;margin-top:10px;margin-right:10px;"><a href="#" title="Filter zur&uuml;cksetzen" id="reset_personfilter"><img style="vertical-align:middle" width=20px src="'+masterData.modulespath+'/images/delete_2.png"/></a></div>'); 
-   rows.push('<div class="well"><table cellpadding=5px>');
+  rows.push('<div style="float:right;margin-top:10px;margin-right:10px;"><a href="#" title="Filter zur&uuml;cksetzen" id="reset_personfilter"><img style="vertical-align:middle" width=20px src="'+masterData.modulespath+'/images/delete_2.png"/></a></div>'); 
+  rows.push('<div class="well"><table cellpadding=5px>');
   
   rows.push("<tr><td>"+form_renderSelect({
     cssid:"filterFamilienstatus",
@@ -4243,10 +4210,8 @@ PersonView.prototype.renderRelationFilter = function() {
   var t=this;
   var rows = new Array();
   
-//  rows.push('<legend>Personenfilter</legend>');
-
-   rows.push('<div style="float:right;margin-top:10px;margin-right:10px;"><a href="#" title="Filter zur&uuml;cksetzen" id="reset_relationfilter"><img style="vertical-align:middle" width=20px src="'+masterData.modulespath+'/images/delete_2.png"/></a></div>'); 
-   rows.push('<div class="well"><table cellpadding="5px"><tr>');
+  rows.push('<div style="float:right;margin-top:10px;margin-right:10px;"><a href="#" title="Filter zur&uuml;cksetzen" id="reset_relationfilter"><img style="vertical-align:middle" width=20px src="'+masterData.modulespath+'/images/delete_2.png"/></a></div>'); 
+  rows.push('<div class="well"><table cellpadding="5px"><tr>');
 
 
   var data= new Array();
@@ -4321,11 +4286,11 @@ PersonView.prototype.renderFurtherFilter = function () {
     var rows=new Array();
     rows.push('<ul class="nav nav-pills">');
     if (masterData.auth.viewalldata)
-      rows.push('<li class="'+(t.currentFurtherFilter=="person"?"active":"")+'"><a href="#" data-filter="person" class="filter">Personenfilter</a>');
-    rows.push('<li class="'+(t.currentFurtherFilter=="gruppe"?"active":"")+'"><a href="#" data-filter="gruppe" class="filter">Gruppenfilter</a>');
+      rows.push('<li class="'+(t.currentFurtherFilter=="person"?"active":"")+'"><a href="#" data-filter="person" class="filter">'+_("filter.for.persons")+'</a>');
+    rows.push('<li class="'+(t.currentFurtherFilter=="gruppe"?"active":"")+'"><a href="#" data-filter="gruppe" class="filter">'+_("filter.for.groups")+'</a>');
     if (masterData.auth.viewalldetails)
-      rows.push('<li class="'+(t.currentFurtherFilter=="beziehung"?"active":"")+'"><a href="#" data-filter="beziehung" class="filter">Beziehungsfilter</a>');
-    rows.push('<li class="pull-right"><a href="#" class="hide">Filter schließen</a>');
+      rows.push('<li class="'+(t.currentFurtherFilter=="beziehung"?"active":"")+'"><a href="#" data-filter="beziehung" class="filter">'+_("filter.for.relations")+'</a>');
+    rows.push('<li class="pull-right"><a href="#" class="hide">'+_("close.filter")+'</a>');
     rows.push('</ul>');
     rows.push('<div id="furtherFilterDetail"></div>');
     
@@ -4605,16 +4570,17 @@ PersonView.prototype.renderGroupContent = function(g_id) {
     if (json!=null) {
       $.each(churchcore_sortData(json,"datumvon"), function(k,a) {
         if (a.eintragerfolgt_yn==0) {
-          rows2.push('<legend>'+form_renderImage({src:"persons.png"})+'&nbsp;Bitte noch ein Gruppentreffen pflegen...</legend>');
+          rows2.push('<legend>'+form_renderImage({src:"persons.png"})+'&nbsp;'+_("please.maintain.a.group.meeting")+'</legend>');
           rows2.push('<span class="pull-right">')
-          rows2.push('<input type="button" class="btn" value="Auswahl absenden"/>&nbsp;');
-          rows2.push('<input type="button" class="btn" value="Treffen ausgefallen"/>');
+          rows2.push('<input type="button" class="btn" value="'+_("submit.selection")+'"/>&nbsp;');
+          rows2.push('<input type="button" class="btn" value="'+_("meeting.was.cancelled")+'"/>');
           rows2.push('</span>');
           if (a.datumvon.toDateEn(true).toStringDe(true)==a.datumbis.toDateEn(true).toStringDe(true))
-            rows2.push("<p><b>Wer war am "+a.datumvon.toDateEn(true).toStringDe(true)+" da?</b>");
+            //rows2.push("<p><b>Wer war am "+a.datumvon.toDateEn(true).toStringDe(true)+" da?</b>");
+            rows2.push("<p><b>"+_("who.was.there.on", a.datumvon.toDateEn(true).toStringDe(true))+"</b>");
           else
             rows2.push("<p><b>Wer war in der Zeit vom "+a.datumvon.toDateEn().toStringDe()+" - "+a.datumbis.toDateEn().toStringDe()+" da?</b>");
-          rows2.push('<br><small>Bitte die Personen markieren, die bei dem Treffen dabei gewesen sind. Dann auf "Auswahl absenden" klicken.</small>');
+          rows2.push('<br><small>'+_("please.select.persons.then.press.submit.selection")+'</small>');
           gruppentreffen_id=a.id;
           datumvon=a.datumvon.toDateEn(true);
           return false;

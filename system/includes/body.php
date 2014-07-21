@@ -10,7 +10,7 @@
     if (user_access("administer persons", "churchcore"))
       echo '<a href="#" id="simulate_person" title="'.t("simulate.person").'"><img src="system/churchcore/images/person_simulate.png" style="max-width:16px"/></a>&nbsp; ';
     if (userLoggedIn())
-      echo '<a href="#" id="email_admin" title="Dem Administrator eine E-Mail senden"><img src="system/churchcore/images/email.png" style="max-width:16px"/></a>';
+      echo '<a href="#" id="email_admin" title="'.t("send.email.to.admin").'"><img src="system/churchcore/images/email.png" style="max-width:16px"/></a>';
     echo '</p>';      
     echo "<p>"; 
     if (isset($config["cronjob_delay"]) && ($config["cronjob_delay"]>0)) echo '<img src="?q=cron&standby=true"/>';

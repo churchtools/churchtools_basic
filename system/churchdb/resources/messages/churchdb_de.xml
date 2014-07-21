@@ -3,7 +3,6 @@
 <properties>
   <comment>ChurchDB messages</comment>
     
-  <entry key="add.new.person">Neue Person anlegen</entry>
   <entry key="exporter">Exporter</entry>
   <entry key="emailer">E-Mailer</entry>
   <entry key="list.of.groups">Gruppenliste</entry>
@@ -30,8 +29,59 @@
   <entry key="add.another.related.person">Eine weitere Person zuordnen</entry>
   <entry key="related.persons">Zugeordnete Personen</entry>
   <entry key="show.changes.between">Änderungen anzeigen innerhalb von:</entry>
-
+  
   <entry key="person.function">Personenfunktion</entry>
-  <entry key="selected.persons">Markierte Personen</entry> 
+  <entry key="group.function">Gruppenfunktionen</entry>
+  <entry key="selected.persons">Markierte Personen</entry>
+  <entry key="create.person">Person anlegen</entry>
+  <entry key="create.group">Gruppe anlegen</entry>
+  <entry key="also.apply.if.name.already.exists">auch anlegen, wenn es den Namen schon gibt</entry>
+  <entry key="create.more.dataset">weiteren Datensatz anlegen</entry>
+  <entry key="filter.for.persons">Personenfilter</entry>
+  <entry key="filter.for.groups">Gruppenfilter</entry>
+  <entry key="filter.for.relations">Beziehungsfilter</entry>
+  <entry key="close.filter">Filter schließen</entry>
+  <entry key="reset.filter">Filter zurücksetzen</entry>
+  <entry key="mark.person.as.deleted.in.group">Person in der Gruppe als zu löschen markieren</entry>
+  <entry key="why.the.person.should.not.be.in.this.group.anymore">Warum soll die Person nicht mehr in der Gruppe sein?</entry>
+  <entry key="number.of.guests">Anzahl Gäste</entry>
+  <entry key="please.maintain.a.group.meeting">Bitte noch ein Gruppentreffen pflegen...</entry>
+  <entry key="submit.selection">Auswahl absenden</entry>
+  <entry key="please.select.persons.then.press.submit.selection">Bitte die Personen markieren, die bei dem Treffen dabei gewesen sind. Dann auf 'Auswahl absenden' klicken.</entry>
+  <entry key="meeting.was.cancelled">Treffen ausgefallen</entry>
+  <entry key="who.was.there.on">Wer war am {0} da?</entry>
+  <entry key="load.archive">Lade Archiv</entry>
+  <entry key="add.tag">Tag hinzufügen</entry>  
+  <entry key="add.to.group">einer Gruppe hinzufügen</entry>
+  <entry key="add.to.department">einen Bereich hinzufügen</entry>
+  <entry key="add.one.tag">einen Tag hinzufügen</entry>
+  <entry key="add.one.permission">ein Zugriffssrecht hinzufügen</entry>
+  <entry key="move.to.archive">ins Archiv verschieben</entry>
+  <entry key="delete.irrevocable">endgültig löschen</entry>
+  <entry key="history">Historie</entry>
+  <entry key="relations">Beziehungen</entry>
+  <entry key="edit.relation">Beziehungen pflegen</entry>
+  <entry key="export.vcard">VCard export</entry>
+  
+
+  <!-- SETTINGS -->
+  <entry key="which.mail.should.be.used">Welche Mailer-Variante soll verwendet werden</entry>
+  <entry key="direct.access.of.local.email.app">Direkter Aufruf des lokalen E-Mail-Programms (Begrenzung bei Windows!)</entry>
+  <entry key="export.email.to.new.window">Export der E-Mail-Addressen in ein neues Fenster</entry>
+  <entry key="mail.with.churchtools">E-Mail-Versand direkt über ChurchTools (inkl. Serienbrieffelder!)</entry>
+  <entry key="which.separator.should.be.used">Welches Trennzeichen soll verwendet werden (nur für die oberen ersten beiden Auswahlmöglickeiten relevant)</entry>
+  <entry key="semicolon.for.windows">Semikolon (bei Windows-PCs sinnvoll)</entry>
+  <entry key="commata.for.mac">Komma (bei z.Bsp Mac oder GMail sinnvoll)</entry> 
+  <entry key="which.field.should.be.used.for.local.email.app">Welches Feld soll bei Mailer mit direktem Aufruf verwendet werden</entry>
+  <entry key="mail.to">An</entry>
+  <entry key="mail.bcc">Bcc</entry>
+  <entry key="additional.layer.for.google.maps">Zusätzliche Layer bei der Anzeige von Google Karten</entry>
+  <entry key="no.layer">Keine weiteren Layer</entry>
+  <entry key="show.traffic">Verkehrsdichte anzeigen</entry>
+  <entry key="show.bike.paths">Fahrradwege anzeigen</entry>
+  <entry key="show.transit">Verkehrsnetzplan (Transit) anzeigen</entry>
+  <entry key="hide.persons.with.status">Personen mit folgendem Status sollen ausgeblendet werden</entry> 
+  <entry key="signature">Signatur</entry>
+  <entry key="save.signature">Signatur speichern</entry>
   
 </properties>

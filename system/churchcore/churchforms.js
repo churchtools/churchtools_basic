@@ -1836,6 +1836,37 @@ jQuery.extend(jQuery.ui.dialog.prototype, {
 }); 
 
 /**
+ * Add the possibility to add buttons to the jQuery UI Dialog
+ */
+jQuery.extend(jQuery.ui.dialog.prototype, { 
+  'addcancelbutton': function() { 
+      var t=this;
+      var buttons = t.element.dialog('option', 'buttons'); 
+      buttons[_("cancel")] = function() {
+        t.element.dialog("close");
+      };
+      t.element.dialog('option', 'buttons', buttons); 
+      $("div.ui-dialog-buttonpane button").addClass("btn");
+  } 
+}); 
+
+/**
+ * Add the possibility to add buttons to the jQuery UI Dialog
+ */
+jQuery.extend(jQuery.ui.dialog.prototype, { 
+  'addsaveandcancelbutton': function(func) { 
+      var t=this;
+      var buttons = t.element.dialog('option', 'buttons'); 
+      buttons[_("save")] = func;
+      buttons[_("cancel")] = function() {
+        t.element.dialog("close");
+      };
+      t.element.dialog('option', 'buttons', buttons); 
+      $("div.ui-dialog-buttonpane button").addClass("btn");
+  } 
+}); 
+
+/**
  * 
  * @param arr vorhandenees array
  * @param id

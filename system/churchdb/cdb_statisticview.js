@@ -40,7 +40,7 @@ StatisticView.prototype.renderMasterDataStatistic = function(divid, masterDatafi
       rows.push("0<td>0%");
     }
   });
-  rows.push("<tr bgcolor=\"#e7eef4\"><td><i>Summe</i><td><i>"+summe+"</i><td>");
+  rows.push("<tr bgcolor=\"#e7eef4\"><td><i>"+_("sum")+"</i><td><i>"+summe+"</i><td>");
   rows.push("</table></small>");
 
   if (this.filter["showTables"]==null) rows= new Array();
@@ -146,7 +146,7 @@ StatisticView.prototype.renderYearStatistic = function(datefield, name) {
         summe=summe+a;
       }  
     });
-    rows.push("<tr bgcolor=\"#e7eef4\"><td><i>Summe</i><td><i>"+summe+"</i>");
+    rows.push("<tr bgcolor=\"#e7eef4\"><td><i>"+_("sum")+"</i><td><i>"+summe+"</i>");
     rows.push("</table></small>");
   }  
   return rows.join("");
@@ -176,7 +176,7 @@ StatisticView.prototype.renderAgeGroups = function() {
     if (a!=null)
       rows.push("<tr><td width=50%>"+k+"0-"+k+"9"+"<td>"+a+"<td>"+Math.round(a/summe*1000)/10+"%"); 
   });
-  rows.push("<tr><td><i>Summe/Mittel</i><td><i>"+summe+"</i><td><i>"+Math.round(10*summealter/summe)/10+"J.</i>");
+  rows.push("<tr><td><i>"+_("sum")+"/Mittel</i><td><i>"+summe+"</i><td><i>"+Math.round(10*summealter/summe)/10+"J.</i>");
   rows.push("</table></small>");
   return rows.join("");
 };
@@ -257,7 +257,7 @@ StatisticView.prototype.renderList = function() {
       rows.push("<i>"+i+"</i><td width=10%>");
     }
     // Summenspalte
-    rows.push("<i>Summe</i>");
+    rows.push("<i>"+_("sum")+"</i>");
     $.each(masterData.groups, function(k,a) {
       if (grps[a.id]!=null) {
         rows.push("<tr><td>"+a.bezeichnung+"<td>");
@@ -335,12 +335,12 @@ StatisticView.prototype.renderList = function() {
       });
     }
     if (res!=null) {
-      rows.push("<b>"+f("distrikt_id")+" von "+f("gruppentyp_id")+" "+b.bezeichnung+"</b>");
+      rows.push("<b>"+f("distrikt_id")+": "+f("gruppentyp_id")+" "+b.bezeichnung+"</b>");
       rows.push("<small><table cellpadding=\"2\"><tr bgcolor=\"#e7eef4\"><td><i>"+f("distrikt_id")+"</i><td width=10%><=");
       for (i=current_year-how_many_years;i<=current_year;i++) {
         rows.push("<i>"+i+"</i><td width=10%>");
       }
-      rows.push("<i>Summe</i>");
+      rows.push("<i>"+_("sum")+"</i>");
       $.each(res, function(k,a) {
         summe=0;
         rows.push("<tr><td>"+(masterData.districts[k]!=null
@@ -356,7 +356,7 @@ StatisticView.prototype.renderList = function() {
         rows.push(summe);
       });
       
-      rows.push("<tr bgcolor=\"#e7eef4\"><td><i>Summe</i><td>");
+      rows.push("<tr bgcolor=\"#e7eef4\"><td><i>"+_("sum")+"</i><td>");
       summe=0;
       for (k=current_year-how_many_years;k<=current_year;k++) {
         if ((sumGruppentyp[k]!=null) && (sumGruppentyp[k][b.id]!=null)) {

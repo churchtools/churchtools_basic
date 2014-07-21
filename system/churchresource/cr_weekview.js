@@ -79,7 +79,7 @@ WeekView.prototype.renderMenu = function() {
         churchInterface.setCurrentView(maintainView);
       }
       else if ($(this).attr("id")=="adruckansicht") {
-        fenster = window.open('?q=churchresource/printview&curdate='+t.currentDate.toStringEn(), "Druckansicht", "width=900,height=600,resizable=yes,scrollbars=1");
+        fenster = window.open('?q=churchresource/printview&curdate='+t.currentDate.toStringEn(), _("printview"), "width=900,height=600,resizable=yes,scrollbars=1");
         fenster.focus();
         return false;
       }
@@ -88,7 +88,7 @@ WeekView.prototype.renderMenu = function() {
         t.renderMenu();
       }
       else if ($(this).attr("id")=="ahelp") {
-        churchcore_openNewWindow("http://intern.churchtools.de/?q=help&doc=ChurchResource");
+        churchcore_openNewWindow("https://intern.churchtools.de/?q=churchwiki&doc=ChurchResource");
       }
       return false;
     });
@@ -105,33 +105,30 @@ WeekView.prototype.renderCreatePerson = function(value) {
   form.addSelect({label:"Status", cssid:"Inputf_status", htmlclass:"setting", data:churchcore_sortMasterData(masterData.cdb_status), selected:masterData.settings.status_id});
   form.addSelect({label:"Station", cssid:"Inputf_station", htmlclass:"setting", data:churchcore_sortMasterData(masterData.cdb_station), selected:masterData.settings.station_id});
   
-  var elem=form_showDialog("Neue Person hinzufügen", form.render(null, "horizontal"), 500, 400, {
-    "Hinzufügen": function() {
-      var obj=form.getAllValsAsObject();
-      if (obj!=null) {
-        if ((obj.vorname=="") || (obj.name=="")) {
-          alert("Bitte Vorname und Name angeben!");
-          return;
-        }
-        churchInterface.jsendWrite(obj, function(ok,data) {
-          if (ok) {
-            t.currentBooking.person_id=data.id;
-            t.currentBooking.person_name=obj.vorname+" "+obj.name;
-            $("#assistance_user").val(t.currentBooking.person_name);
-            $("#assistance_user").attr("disabled", true);
-            
-            elem.dialog("close");
-          }
-          else {
-            alert(data);
-          }
-        }, null, false, "churchdb");
+  var elem=form_showDialog(_("add.new.person"), form.render(null, "horizontal"), 500, 400);
+  elem.dialog("addbutton", _("add"), function() {
+    var obj=form.getAllValsAsObject();
+    if (obj!=null) {
+      if ((obj.vorname=="") || (obj.name=="")) {
+        alert("Bitte Vorname und Name angeben!");
+        return;
       }
-    },
-    "Abbruch": function() {
-      $(this).dialog("close");
+      churchInterface.jsendWrite(obj, function(ok,data) {
+        if (ok) {
+          t.currentBooking.person_id=data.id;
+          t.currentBooking.person_name=obj.vorname+" "+obj.name;
+          $("#assistance_user").val(t.currentBooking.person_name);
+          $("#assistance_user").attr("disabled", true);
+          
+          elem.dialog("close");
+        }
+        else {
+          alert(data);
+        }
+      }, null, false, "churchdb");
     }
-  });    
+  });
+  elem.dialog("addcancelbutton");
   elem.find("select.setting").change(function(k) {
     masterData.settings[$(this).attr("id")]=$(this).val();
     churchInterface.jsendWrite({func:"saveSetting", sub:$(this).attr("id"), val:$(this).val()}, null, null, false);    
@@ -147,7 +144,6 @@ WeekView.prototype.renderListMenu = function() {
     navi.addEntry(t.filter["filterRessourcen-Typ"]==a.id,"ressourcentyp_"+a.id,a.bezeichnung);
   });
   navi.addEntry(t.filter["filterRessourcen-Typ"]=="","","<i>"+_("all")+"</i>");
-  //navi.addEntry(true,"id1","Listenansicht");
   navi.addSearch(searchEntry);
   navi.renderDiv("cdb_search", churchcore_handyformat());
   
@@ -172,7 +168,7 @@ WeekView.prototype.renderFilter = function () {
   form.addHtml("<div id=\"dp_currentdate\"></div>");
   rows.push("<div id=\"dp_currentdate\" style=\"\"></div><br/>");
   form.addSelect({data:masterData.status,
-                  label:"Status",
+                  label:_("booking.status"),
                   selected:this.filter["filterStatus"],
                   cssid:"filterStatus",
                   freeoption:true,
@@ -240,12 +236,6 @@ WeekView.prototype.checkFilter = function (a) {
   // eintrag wurde geloescht o.ae.
   if (a==null) return false;
   
-  // Suchfeld wird nicht gesucht, denn das passiert dann bei den einzelnen Eintr�gen
-//  var searchString=this.getFilter("searchEntry").toUpperCase();
-  
-//  if ((searchString!="") && (a.bezeichnung.toUpperCase().indexOf(searchString)!=0) &&
-//             (a.id!=searchString)) return false;
-
   if ((filter["filterRessourcen-Typ"]!=null) && (filter["filterRessourcen-Typ"]!="") && (a.resourcetype_id!=filter["filterRessourcen-Typ"])) 
     return false;
 
@@ -286,7 +276,7 @@ WeekView.prototype.messageReceiver = function(message, args) {
           }
         });
       if (refresh) {
-        var elem = form_showCancelDialog("Achtung...", "Lade aktuelle Daten nach!");
+        var elem = form_showCancelDialog(_("load.data"), '<p>'+form_renderImage({src:"loading.gif"}));
         
         cr_loadBookings(function() {
           elem.dialog("close");
@@ -295,7 +285,7 @@ WeekView.prototype.messageReceiver = function(message, args) {
       }
     }
     else
-      alert("Message "+message+" unbekannt!");
+      alert("Message "+message+" unkown!");
   }  
 };
 
@@ -462,7 +452,7 @@ function renderBookings(bookings) {
   txt="";
   $.each(bookings, function(k,a) {
     if (a.category_id!=null) {
-      txt=txt+'<span title="Kalender: Hauptgottesdienst" style="display:inline-block; background-color:'+masterData.category[a.category_id].color+'; margin-bottom:-2px; margin-right:4px; width:3px; height:11px"></span>';
+      txt=txt+'<span title="'+_("calendar")+'" style="display:inline-block; background-color:'+masterData.category[a.category_id].color+'; margin-bottom:-2px; margin-right:4px; width:3px; height:11px"></span>';
     }
     
     starttxt="";
@@ -491,10 +481,6 @@ function renderBookings(bookings) {
       else color="";
     }  
     else color="color:black";
-    //  Wenn keine Farbe, dann soll es nicht angezeigt werden
-//    if (a.location!="") 
-//      ort=" ("+a.location+")";
- //   else
       ort="";
       text=a.text.substr(0,15);
       if (text!=a.text) text=text+"..";
@@ -504,7 +490,6 @@ function renderBookings(bookings) {
         txt=txt+"<a href=\"#"+a.viewing_date.toStringEn()+"\" class=\"tooltips\" id=\"edit"+a.id+"\" data-tooltip-id=\""+a.id+"\" style=\"font-weight:normal;"+color+"\">"+starttxt+"-"+endtxt+"h "+text+ort+"</a>";
       else 
         txt=txt+"<span style=\"cursor:default;font-weight:normal;"+color+"\" class=\"tooltips\" data-tooltip-id=\""+a.id+"\">"+starttxt+"-"+endtxt+"h "+text+ort+"</span>";
-//      if (a.repeat_id>0) txt=txt+" {R}";
       if (a.repeat_id>0) txt=txt+" "+weekView.renderImage("recurring",12);
       txt=txt+"<br/>";
     }  
@@ -546,9 +531,7 @@ WeekView.prototype.renderListEntry = function (a) {
   d.addDays(diff);
   d = new Date(d.getFullYear(), d.getMonth(), d.getDate()-1);
   
-  
-  //d = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), this.currentDate.getDate());
-  for (i=0;i<7;i++) {
+  for (var i=0;i<7;i++) {
     d.addDays(1);
     var _class="";
     if (d.toStringDe()==t.currentDate.toStringDe()) _class="active"
@@ -608,14 +591,14 @@ WeekView.prototype.renderEditBookingFields = function (a) {
   
   rows.push(form_renderInput({
     cssid:"text",
-    label:"Dienstbereich",
+    label:_("caption"),
     value:a.text,
     disabled:a.cc_cal_id!=null
   }));
   
   rows.push(form_renderInput({
     cssid:"location",
-    label:_("location"),
+    label:_("note"),
     value:a.location
   }));
   
@@ -635,14 +618,11 @@ WeekView.prototype.renderEditBookingFields = function (a) {
   rows.push(form_renderSelect({
     data:masterData.status, 
     cssid:"InputStatus", 
-    label:"Status",
+    label:_("booking.status"),
     selected:a.status_id,
     disabled:!user_access("edit", a.resource_id)
   }));
   
-//  rows.push("<tr><td>Status<td>"+
-//      this.renderSelect(a.status_id, "Status", masterData.status, !user_access("edit", a.resource_id))+"<tr><td>");
-
   rows.push(form_renderTextarea({
     data:a.note,
     label:_("more.information"),
@@ -662,7 +642,7 @@ WeekView.prototype.renderEditBookingFields = function (a) {
   rows.push("</form>");
   
   if (a.id!=null)
-    rows.push("<i>Buchungsanfrage "+a.id+" wurde erstellt von "+a.person_name+"</a></i><br/>");
+    rows.push("<i>"+_("booking.request.x.was.created.by.", a.id, a.person_name)+"</a></i><br/>");
   
   rows.push("</div>");
   return rows.join("");
@@ -715,7 +695,7 @@ WeekView.prototype.checkConflicts = function() {
   var txt=t.calcConflicts(new_b, resource_id);
   
   if (txt!="") {
-    $("#conflicts").html('<p class="text-error">Achtung, Termin-Konflikte: <p class="text-error"><div id="show_conflicts"><ul>'+txt+'</div>');
+    $("#conflicts").html('<p class="text-error">'+_("caution.conflicting.dates")+': <p class="text-error"><div id="show_conflicts"><ul>'+txt+'</div>');
     $("#conflicts").addClass("well");  
   }
   else { 
@@ -730,8 +710,8 @@ WeekView.prototype.renderTooltip = function(id) {
   txt=txt+"<table style=\"min-width:220px;max-width:300px\" class=\"table table-condensed\">";        
   if (a.category_id!=null) {
     txt=txt+"<tr><td>Kalender<td>";
-    txt=txt+'<span title="Kalender: Hauptgottesdienst" style="display:inline-block; background-color:'+masterData.category[a.category_id].color+'; margin-bottom:-2px; margin-right:4px; width:3px; height:11px"></span>';
-    txt=txt+"<b>"+churchcore_getBezeichnung("category", a.category_id)+"</b>";    
+    txt=txt+'<span style="display:inline-block; background-color:'+masterData.category[a.category_id].color+'; margin-bottom:-2px; margin-right:4px; width:3px; height:11px"></span>';
+    txt=txt+"<b>"+churchcore_getCaption("category", a.category_id)+"</b>";    
   }
   txt=txt+"<tr><td>"+_("start.date")+"<td>"+a.startdate.toStringDe(true);
   txt=txt+"<tr><td>"+_("end.date")+"<td>"+a.enddate.toStringDe(true);
@@ -747,10 +727,10 @@ WeekView.prototype.renderTooltip = function(id) {
   }  
   else 
     txt=txt+"<tr><td>"+_("repeats")+"<td>-";
-  txt=txt+"<tr><td>Status<td><b>"+masterData.status[a.status_id].bezeichnung+"</b>";
+  txt=txt+"<tr><td>"+_("booking.status")+"<td><b>"+masterData.status[a.status_id].bezeichnung+"</b>";
   txt=txt+"<tr><td>"+_("creator")+"<td>"+a.person_name;
   if (a.note!="") {
-    txt=txt+"<tr><td>Notiz<td>"+a.note;
+    txt=txt+"<tr><td>"+_("note")+"<td>"+a.note;
   }  
   txt=txt+"</table>";
   title=a.text;
@@ -758,13 +738,13 @@ WeekView.prototype.renderTooltip = function(id) {
     if ((a.status_id==1) || (a.status_id==2) || (a.status_id==3)) {
       title=title+'<span class="pull-right">';
       if ((a.status_id==1) && (user_access("edit", a.resource_id))) {
-        title=title+form_renderImage({label:"Bestätigen", cssid:"confirm", src:"check-64.png", width:20})+"&nbsp; ";
-        title=title+form_renderImage({label:"Ablehnen", cssid:"deny", src:"delete_2.png", width:20})+"&nbsp; ";
+        title=title+form_renderImage({label:_("confirm"), cssid:"confirm", src:"check-64.png", width:20})+"&nbsp; ";
+        title=title+form_renderImage({label:_("deny"), cssid:"deny", src:"delete_2.png", width:20})+"&nbsp; ";
       }
       if (a.status_id!=3 && a.cc_cal_id==null) 
-        title=title+form_renderImage({label:"Kopieren", cssid:"copy", src:"copy.png", width:20})+"&nbsp; ";
+        title=title+form_renderImage({label:_("copy"), cssid:"copy", src:"copy.png", width:20})+"&nbsp; ";
       if (a.status_id!=1)
-        title=title+form_renderImage({label:"Löschen", cssid:"delete", src:"trashbox.png", width:20})+"&nbsp; ";
+        title=title+form_renderImage({label:_("delete"), cssid:"delete", src:"trashbox.png", width:20})+"&nbsp; ";
       title=title+'</span>';
     }
   }
