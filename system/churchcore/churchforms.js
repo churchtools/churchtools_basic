@@ -1803,6 +1803,7 @@ function form_showCancelDialog (title, text, width, height) {
   elem.dialog("addbutton", _("cancel"), function() {
     $(this).dialog("close");
   });
+  return elem;
 };
 
 

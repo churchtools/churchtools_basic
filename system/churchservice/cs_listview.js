@@ -1645,7 +1645,6 @@ ListView.prototype.renderEditEventService = function(event_id, eventservice_id, 
     
     // Pr�fe, ob er die Histore sehen darf
     if (editRights) {     
-      //rows.push('<br/><p><a href="#" id="showHistory" class="btn btn-mini">Historie anzeigen >></a>');
       rows.push('<p><h4>Historie</h4>');
       rows.push(this_object.renderEntryHistory(event_id, eventservice.service_id, eventservice.counter, null, ((editRights) || (masterData.auth.admin) )));
     }
@@ -1654,8 +1653,6 @@ ListView.prototype.renderEditEventService = function(event_id, eventservice_id, 
     
   rows.push('</div>');
 
-  //var elem=$("<div>"+rows.join("")+"</div>").appendTo("#cdb_content");
-  
   var elem = form_showCancelDialog("Anfrage "+
        masterData.servicegroup[masterData.service[service_id].servicegroup_id].bezeichnung+
        " für den "+allEvents[event_id].startdate.toDateEn(true).toStringDe(true), 

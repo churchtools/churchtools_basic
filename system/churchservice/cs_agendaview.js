@@ -363,37 +363,41 @@ AgendaView.prototype.renderField = function(o, dataField, smallVersion) {
       rows.push('<small>'+o.servicegroup[dataField.substr(12,99)].htmlize()+'</small>');
   }
   else if (dataField.indexOf("responsible")==0) {
-    // Evalute responsible, when it is e.g. [Worshipleader]
-    var txt=o[dataField]
-    if ((txt.substr(0,1)=="[") && (txt.indexOf("]")>0)) {
-      txt=o[dataField].substr(1,txt.indexOf("]")-1);
-      var service=null;
-      $.each(masterData.service, function(k,s) {
-        if (s.bezeichnung==txt) {
-          service=s;
-          return false;
-        }
-      });
-      var sgs=getServiceGroupsFromEvents(t.currentAgenda.event_ids);
-      if (service==null || sgs==null) rows.push(o[dataField]);
-      else {
-        var entries=new Array();
-        $.each(sgs[service.servicegroup_id], function(k,s) {
-          if (s.service_id==service.id) {
-            entries.push(_renderServiceEntry(s));
-          }
-        });        
-        rows.push(entries.join(", "));
-      }      
-    }
-    else
-      rows.push(o[dataField]);
+    rows.push(t.renderFieldResponsible(o[dataField], t.currentAgenda.event_ids));
   }
   else {
     rows.push(o[dataField]);
   }
   
   return rows.join(""); 
+};
+
+AgendaView.prototype.renderFieldResponsible = function(content, event_ids) {
+  // Evalute responsible, when it is e.g. [Worshipleader]
+  var txt=content;
+  if ((txt.substr(0,1)=="[") && (txt.indexOf("]")>0)) {
+    txt=content.substr(1,txt.indexOf("]")-1);
+    var service=null;
+    $.each(masterData.service, function(k,s) {
+      if (s.bezeichnung==txt) {
+        service=s;
+        return false;
+      }
+    });
+    var sgs=getServiceGroupsFromEvents(event_ids);
+    if (service==null || sgs==null) return content;
+    else {
+      var entries=new Array();
+      $.each(sgs[service.servicegroup_id], function(k,s) {
+        if (s.service_id==service.id) {
+          entries.push(_renderServiceEntry(s));
+        }
+      });        
+      if (entries.length==0) return content;
+      return entries.join(", ");
+    }      
+  }
+  return content;  
 };
 
 AgendaView.prototype.rerenderField = function(input, dataField) {
@@ -1163,7 +1167,7 @@ AgendaView.prototype.getAllowedServiceGroupsWithComments = function() {
 function getServiceGroupsFromEvents(event_ids) {
   if (event_ids==null) return null;
   var servicegroups=new Array();
-  $.each(t.currentAgenda.event_ids, function(k,event_id) {
+  $.each(event_ids, function(k,event_id) {
     $.each(allEvents[event_id].services, function(s, service) {
       if (service.valid_yn==1) { 
         if (servicegroups[masterData.service[service.service_id].servicegroup_id]==null)
@@ -1367,7 +1371,7 @@ AgendaView.prototype.renderListEntry = function (event, smallVersion) {
  
 
   if (event.header_yn==0) {
-    rows.push('<td class="editable" data-field="responsible">'+event.responsible);
+    rows.push('<td class="editable" data-field="responsible">'+t.renderFieldResponsible(event.responsible, t.currentAgenda.event_ids));
   
     var groups=new Object();
     if (smallVersion)
