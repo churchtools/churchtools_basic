@@ -111,11 +111,15 @@ CDBStandardTableView.prototype.renderTag = function(a, deletable) {
 CDBStandardTableView.prototype.renderTags = function(tags, authEdit, id) {
   var rows=new Array();
   var this_object=this;
-  rows.push('<div class="ui-widget" style="text-align:right;position:relative;"><p>');
+  rows.push('<div class="tag-list">');
   if (tags!=null) {
-    $.each(tags, function(k,a) {
-      rows.push(this_object.renderTag(a, authEdit)+"&nbsp; ");          
+    var tag_array=new Array();
+    $.each(tags, function(k,a) {      
+      tag_array.push({id:k, bezeichnung:masterData.tags[a].bezeichnung.toUpperCase()});
     }); 
+    $.each(churchcore_sortArray(tag_array, "bezeichnung"), function(k,a) {
+      rows.push(this_object.renderTag(tags[a.id], authEdit)+"&nbsp; ");
+    });
   }
   if (authEdit) { 
     rows.push('&nbsp;<a href="" title="'+_("add.tag")+'" id="add_tag"><img id="add_tag_icon" width=16px src="'+masterData.modulespath+'/images/plus.png" align="absmiddle"/></a>');      

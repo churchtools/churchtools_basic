@@ -386,9 +386,8 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
           }
           else {
             rows.push(_("paging")+": <a id=\"offset0\" href=\"#\"><<</a>&nbsp;|&nbsp;<a id=\"offsetMinus\" href=\"#\"><</a>&nbsp;|&nbsp;<a id=\"offsetPlus\" href=\"#\">></a>");
-            rows[rows.length] = '<span class="pull-right">'+masterData.settings["listMaxRows"+t.name]+" von "+t.counter+"  Eintr&auml;gen</span><br/>";
             rows[rows.length] = '<span class="pull-right">'+
-              _("show.x.from.y.entries", masterData.settings["listMaxRows"+t.name], counter)+"  </span><br/>";
+              _("show.x.from.y.entries", masterData.settings["listMaxRows"+t.name], t.counter)+"  </span><br/>";
           }
         }  
         else 

@@ -255,7 +255,7 @@ div.tooltip_address {
 }
 
 /** 
-* Name und Vorname erhŠlt die Class mit Status und KŸrzel
+* Name und Vorname erhï¿½lt die Class mit Status und Kï¿½rzel
 */ 
 #cdb_content a.member {
 	font-style:bold;
@@ -420,6 +420,14 @@ span.tag {
 #cdb_content hr {
   border-top: 1px solid #bbbbbb;	
 }
+
+
+#cdb_content .detail-view .tag-list {
+   text-align:right;
+   position:relative;
+   color:blue;	
+}
+
 
 /* Sidenav for Docs
 -------------------------------------------------- */

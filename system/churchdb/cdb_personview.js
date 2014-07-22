@@ -1124,10 +1124,7 @@ PersonView.prototype.renderListEntry = function(a) {
   
   if (masterData.settings.selectedGroupType==-2) {
     if (a.tags!=null) {
-      var first=true;
-      $.each(a.tags, function(k,a) {
-        rows.push(t.renderTag(a,false)+"&nbsp; ");
-      });
+      rows.push(t.renderTags(a.tags, false));
     }
   } 
   else if (masterData.settings.selectedGroupType==-3) {      
@@ -2617,7 +2614,7 @@ PersonView.prototype.renderDetails = function (id) {
     changeownaddress=true;
 
   var rows = new Array();
-  rows.push('<div id="detail" class="detail-view-person">');
+  rows.push('<div id="detail" class="detail-view detail-view-person">');
     
       // FollowUp in renderDetails  
       var _text="";
