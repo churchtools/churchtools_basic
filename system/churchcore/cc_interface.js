@@ -1,5 +1,5 @@
 /**
- * Stellt eine Schnittstelle zwischen Ajax-PHP-Service und dem JavaScript im Client zur Verf�gung 
+ * Offers a interface between JavaScript and PHP 
  */
 
 function ChurchInterface() {
@@ -29,7 +29,7 @@ ChurchInterface.prototype.getLastLogId= function () {
 
 /**
  * 
- * @param message: Entweder: "allDataLoaded" oder "filterChanged" 
+ * @param message: e.g. "allDataLoaded", "filterChanged" 
  * @param args
  */
 ChurchInterface.prototype.sendMessageToAllViews = function (message, args) {
@@ -48,15 +48,15 @@ ChurchInterface.prototype.sendMessageToAllViews = function (message, args) {
 };
 
 ChurchInterface.prototype._pollForNews = function () {
-  var this_object=this;
+  var t=this;
   this.pollForNews=window.setTimeout(function() {
-    this_object.jsendRead({func:"pollForNews", last_id:this_object.lastLogId}, function(ok, json) {
+    t.jsendRead({func:"pollForNews", last_id:t.lastLogId}, function(ok, json) {
       if (ok) {
-        if (json.lastLogId>this_object.lastLogId) {
-          this_object.sendMessageToAllViews("pollForNews",json.logs);
-          this_object.lastLogId=json.lastLogId;
+        if (json.lastLogId>t.lastLogId) {
+          t.sendMessageToAllViews("pollForNews",json.logs);
+          t.lastLogId=json.lastLogId;
         }
-        this_object._pollForNews();
+        t._pollForNews();
       }
     });
   },10000);
@@ -84,7 +84,7 @@ ChurchInterface.prototype.historyCreateStep = function (hash) {
  * @param hash - Parameter nach dem # der URL
  */
 ChurchInterface.prototype.history = function (hash) {
-  var this_object=this;
+  var t=this;
   if (hash==null) hash="";
   var arr=hash.split("/");
   // Wenn kein Hash vorhanden ist, wird erstmal die StandardViewName angezeigt
@@ -100,20 +100,20 @@ ChurchInterface.prototype.history = function (hash) {
     var doRefresh=false;
     jQuery.each(arr, function(k,a) {
       if (a.indexOf("searchEntry:")==0) {
-        this_object.currentView.filter["searchEntry"] = a.substr(12,99);
+        t.currentView.filter["searchEntry"] = a.substr(12,99);
       } 
       else if ((a.indexOf("filter")==0) && (a.indexOf(":")>1)) {
-        this_object.currentView.filter[a.substr(0,a.indexOf(":"))] = a.substr(a.indexOf(":")+1,99);
+        t.currentView.filter[a.substr(0,a.indexOf(":"))] = a.substr(a.indexOf(":")+1,99);
       } 
       else if ((a.indexOf("doc")==0) && (a.indexOf(":")>1)) {
         var newdoc = a.substr(a.indexOf(":")+1,99);
         var re=true;
-        if (this_object.currentHistoryArray!=null)
-          $.each(this_object.currentHistoryArray, function(i,b) {
+        if (t.currentHistoryArray!=null)
+          $.each(t.currentHistoryArray, function(i,b) {
             if (b==newdoc) re=false;
           });
         if (re) {
-          this_object.currentView.filter[a.substr(0,a.indexOf(":"))]=newdoc;
+          t.currentView.filter[a.substr(0,a.indexOf(":"))]=newdoc;
           doRefresh=true;
         }
       } 
@@ -156,13 +156,12 @@ ChurchInterface.prototype.throwFatalError=function(errorText){
     modal:true,
     height:500,
     width:600,
-    title:"Fehler beim Laden",
-    buttons: {
-      "Neu laden":function() {modal.dialog("close");}
-    },     
-    close: function(){ location.reload(true);
-    }
+    buttons:{},
+    title:_("error.occured"),
   });
+  modal.dialog("addbutton", _("reload"), function() {
+    location.reload(true);
+  })
   this.errorWindow=modal;
 };
 
@@ -178,19 +177,19 @@ ChurchInterface.prototype.throwFatalError=function(errorText){
  * @param Get - getmethod (default=true)
  */
 ChurchInterface.prototype.jsendWrite = function (obj, func, async, get, overwriteModulename) {
-  return this.jsend("Speichern", obj, func, async, get, overwriteModulename);
+  return this.jsend(_("save.data"), obj, func, async, get, overwriteModulename);
 };
 ChurchInterface.prototype.jsendRead = function (obj, func, async, get, overwriteModulename) {
-  return this.jsend("Lade", obj, func, async, get, overwriteModulename);
+  return this.jsend(_("load.data"), obj, func, async, get, overwriteModulename);
 };
 ChurchInterface.prototype.jsend = function (name, obj, func, async, get, overwriteModulename) {
-  var this_object=this;
+  var t=this;
   var modulename=this.modulename;
   if (overwriteModulename!=null) modulename=overwriteModulename;
   if (async==null) async=true;
   if (get==null) get=true; 
-  if (!this_object.fatalErrorOccured) {
-    this.setStatus(name+" Daten...");
+  if (!t.fatalErrorOccured) {
+    this.setStatus(name);
     var obj2=new Object();
     $.each(obj, function(k,a) {
       if (a instanceof Date)
@@ -205,25 +204,25 @@ ChurchInterface.prototype.jsend = function (name, obj, func, async, get, overwri
       async: async,
       type: (get?"GET":"POST"),
       success : function(json) {
-        this_object.clearStatus();
+        t.clearStatus();
         // Error = ist was schlimmes passiert!
         if (json.status=="error")  {
           if (json.message=="Session expired!")
-            window.location.href="?q=home&message=Session ist abgelaufen, bitte neu anmelden!"
+            window.location.href="?q=home&message="+_("session.expired.please.login")
           else
-            alert("Fehler beim "+name+" in "+modulename+": "+json.message);
+            alert(_("error.occured")+": "+name+"."+modulename+": "+json.message);
         }
         // Wenn es success oder fail ist, �bergebe an die Anwendung zur�ck.
         else if (func!=null)
           func(json.status=="success", json.data);
       },
       error: function(jqXHR, textStatus, errorThrown) {
-        this_object.fatalErrorOccured=true;
+        t.fatalErrorOccured=true;
         if ((jqXHR.status!=0) || (errorThrown!="")) {
-          this_object.setStatus("Fehler aufgetreten!");
-          this_object.throwFatalError("<b>Fehlermeldung: "+jqXHR.status+" "+textStatus+(errorThrown!=null?" Fehler: "+errorThrown:'')+"</b><br/><br/>"+jqXHR.responseText);
+          t.setStatus(_("error.occured"));
+          t.throwFatalError("<b>"+_("description")+": "+jqXHR.status+" "+textStatus+(errorThrown!=null?errorThrown:'')+"</b><br/><br/>"+jqXHR.responseText);
         }
-        else this_object.setStatus("Abbrechen...");
+        else t.setStatus(_("cancel")+"...");
       }
     });
   }
@@ -242,7 +241,7 @@ ChurchInterface.prototype.sendEmail = function (to, subject, body) {
  * @param status
  */
 ChurchInterface.prototype.setStatus = function (status, hideAutomatically) {
-  var this_object=this;
+  var t=this;
   if (this.hideStatusTimer!=null) {
     window.clearTimeout(this.hideStatusTimer);
     this.hideStatusTimer=null;
@@ -251,7 +250,7 @@ ChurchInterface.prototype.setStatus = function (status, hideAutomatically) {
   jQuery("#cdb_status").html(status);
   if (hideAutomatically) {
     this.hideStatusTimer=window.setTimeout(function() {
-      this_object.clearStatus();
+      t.clearStatus();
       this.hideStatusTimer=null;
     },10000);
   }
@@ -261,10 +260,10 @@ ChurchInterface.prototype.setStatus = function (status, hideAutomatically) {
  * Loescht den Status in der Statuszeile 
  */
 ChurchInterface.prototype.clearStatus = function () {
-  var this_object=this;
+  var t=this;
   dt = new Date();
   jQuery("#cdb_status").html("<i>"+dt.toStringDe(true)+"</i>");
-  window.setTimeout(function() {this_object.clearStatus(); },10000);
+  window.setTimeout(function() {t.clearStatus(); },10000);
 };
 
 

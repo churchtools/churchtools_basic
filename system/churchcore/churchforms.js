@@ -1799,10 +1799,10 @@ function form_showDialog (title, text, width, height, buttons) {
 function form_showCancelDialog (title, text, width, height) {
   if (width==null) width=350;
   if (height==null) height=400;
-  return form_showDialog(title, text, width, height, {
-   "Abbruch": function() {
-      $(this).dialog("close");
-  }});
+  var elem=form_showDialog(title, text, width, height);
+  elem.dialog("addbutton", _("cancel"), function() {
+    $(this).dialog("close");
+  });
 };
 
 

@@ -118,7 +118,7 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
     }
   });
   if (row.length>0)
-  rows.push('<p><form class="form-inline">&nbsp;Filter: '+row.join("&nbsp;")+'</form>');
+  rows.push('<p><form class="form-inline">&nbsp;'+_("filter")+': '+row.join("&nbsp;")+'</form>');
   
   
   
@@ -126,7 +126,7 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
   
   // Tabellenheader
   $.each(table.desc, function(k,a) {
-    rows.push('<td><b><i><a href="#" id="'+a.field+'">'+a.field);
+    rows.push('<td><b><i><a href="#" id="'+a.field+'">'+_(a.field));
     if (this_object.sortKey==a.field)
       if (this_object.sortAsc) rows.push(" &and;")
       else rows.push(" &or;");
@@ -134,7 +134,7 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
     rows.push('</a></b></i>');
   });  
   if (table.special_func!=null) rows.push("<td><b><i>Funktionen</i></b>");
-  rows.push("<td><b><i>del.</b></i><tr>");
+  rows.push("<td><b><i>"+_("delete")+"</b></i><tr>");
   
   
   if (masterData[table.shortname]!=null) {
@@ -187,7 +187,7 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
       }
       
       row.push('<td>'+form_renderImage({
-        label: "Datensatz l&ouml;schen",
+        label: _("delete"),
         cssid:'delete_'+a.id, 
         src: masterData.modulespath+'/images/trashbox.png',
         htmlclass: "small"
@@ -202,7 +202,7 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
 
   rows[rows.length]="</table></small>";  
   rows[rows.length]="<p>"+form_renderImage({
-    label: "Neuen Eintrag erstellen",
+    label: _("add.new.entry"),
     cssid:'create', 
     src: masterData.modulespath+'/images/plus.png',
     htmlclass: "small"
@@ -233,7 +233,7 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
       obj.value0=($(this).attr("val")==0?1:0);
       churchInterface.jsendWrite(obj, function(ok, data) {
         if (!ok) 
-          alert("Fehler beim Speichern: "+data);
+          alert(_("error.occured")+data);
         else {  
           masterData[table.shortname][obj.id][obj.col0]=obj.value0;
           masterData.masterDataTables[table.id].open=true;
@@ -243,9 +243,9 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
       return false;
     }
     else if ($(this).attr("id").indexOf("delete_")==0) {
-      if (confirm("Wirklich den Datensatz "+$(this).attr("id").substr(7,99)+" entfernen? Bitte sicherstellen, dass keine Daten mehr auf diesen Datensatz referenziert, sonst kann es zu Problemen kommen!")) {
+      if (confirm(_("really.delete.dataset.x.be.careful", $(this).attr("id").substr(7,99)))) {
         churchInterface.jsendWrite({ func: "deleteMasterData", table:table.tablename, id:$(this).attr("id").substr(7,99) }, function(ok, data) {
-          if (!ok) alert("Fehler beim Speichern: "+data);
+          if (!ok) alert(_("error.occured")+": "+data);
           else {
             var id=table.id;
             var filter=table.filter;
@@ -286,7 +286,7 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
     
     obj.shorttablename=$(this).attr("shorttablename");
     churchInterface.jsendWrite(obj, function(ok, data) {
-      if (!ok) alert("Fehler beim Speichern: "+data);
+      if (!ok) alert(_("error.occured")+": "+data);
       else {
         masterData[obj.shorttablename][obj.id][obj.col0]=obj.value0;
       }
@@ -309,11 +309,11 @@ MaintainStandardView.prototype.renderEditEntry = function (id, table_id) {
   $.each(table.desc, function(k,a) {
     if (a.field=="id") {
       if (entry[a.field]!=null)
-        form.addCaption({text:entry[a.field], label:"id"});
+        form.addCaption({text:entry[a.field], label:_("id")});
     }
     // checkbox
     else if ((a.type.indexOf("int")==0) && (a.field.indexOf("_yn")>0)) {
-      form.addCheckbox({label:a.field, cssid:"Input"+a.field, checked:entry[a.field]==1});
+      form.addCheckbox({label:_(a.field), cssid:"Input"+a.field, checked:entry[a.field]==1});
     }
     // select
     else if ((a.field.indexOf("_id")>0) && (a.field.indexOf("_ids")==-1) 
@@ -322,7 +322,7 @@ MaintainStandardView.prototype.renderEditEntry = function (id, table_id) {
       if ((entry[a.field]==null) && (table.filter!=null) && (table.filter[a.field.substr(0,a.field.length-3)]!=null))
         entry[a.field]=table.filter[a.field.substr(0,a.field.length-3)];    
       form.addSelect({
-        label: a.field, cssid:"Input"+a.field, selected:entry[a.field], data:masterData[a.field.substr(0,a.field.length-3)]   
+        label: _(a.field), cssid:"Input"+a.field, selected:entry[a.field], data:masterData[a.field.substr(0,a.field.length-3)]   
       });
     }
     else {
@@ -337,62 +337,58 @@ MaintainStandardView.prototype.renderEditEntry = function (id, table_id) {
         size=size_arr[1];
       if ((a.type=="blob") || ((size!=null) && (size>100))) {
         form.addTextarea({
-          label: a.field, cssid:"Input"+a.field, data:value, rows:5, htmlclass:(a["Null"]=="YES"?"nullable":"")   
+          label: _(a.field), cssid:"Input"+a.field, data:value, rows:5, htmlclass:(a["Null"]=="YES"?"nullable":"")   
         });
       }
       else {      
         if ((a.field=="sortkey") && (value==null)) value="0";
         form.addInput({
-          label: a.field, cssid:"Input"+a.field, value:value, htmlclass:(a["Null"]=="YES"?"nullable":"")   
+          label: _(a.field), cssid:"Input"+a.field, value:value, htmlclass:(a["Null"]=="YES"?"nullable":"")   
         });
       }
     }    
   });
  
-  var elem = this.showDialog(_("change.of.dataset")+" "+table.bezeichnung, form.render(null, "horizontal"), 500, 450, {
-      "Speichern": function() {
-        var s = $(this).attr("id");
-        
-        obj=new Object();
-        obj.func="saveMasterData";
-        obj.table=table.tablename;
-        obj.id=id;
-        k=0;
-        $("#in_edit input, #in_edit select,  #in_edit textarea").each(function (i) {
-          obj["col"+k]=$(this).attr("id").substr(5,99);
-          if (($(this).val()=="") && ($(this).hasClass("nullable")))
-            obj["value"+k]=null;
-          else if ($(this).attr("type")=="checkbox") {
-            if ($(this).attr("checked")=="checked")
-              obj["value"+k]=1;
-               else  
-              obj["value"+k]=0;            
-          }
-          else
-            obj["value"+k]=$(this).val();
+  var elem = this.showDialog((id==null?_("add.new.entry"):_("change.of.dataset")), form.render(null, "horizontal"), 500, 450);
+  elem.dialog("addsaveandcancelbutton", function() {
+    var s = $(this).attr("id");
     
-          k++;
-        });
-          
-        $("#cbn_editor").html("<p><br/><b>Daten werden gespeichert...</b><br/><br/>");
-        churchInterface.jsendWrite(obj, function(ok, data) {
-          elem.dialog("close");
-          if (!ok) alert("Fehler beim Speichern: "+data);
-          else {
-            var filter=masterData.masterDataTables[table_id].filter;
-            cdb_loadMasterData(function() {
-              if (masterData.masterDataTables[table_id]!=null) {
-                masterData.masterDataTables[table_id].filter=filter;
-                masterData.masterDataTables[table_id].open=true;
-              }
-              this_object.renderList();
-            }); 
-          }
-        });      
-      },
-      "Abbruch": function() {
-        $(this).dialog("close");
+    obj=new Object();
+    obj.func="saveMasterData";
+    obj.table=table.tablename;
+    obj.id=id;
+    k=0;
+    $("#in_edit input, #in_edit select,  #in_edit textarea").each(function (i) {
+      obj["col"+k]=$(this).attr("id").substr(5,99);
+      if (($(this).val()=="") && ($(this).hasClass("nullable")))
+        obj["value"+k]=null;
+      else if ($(this).attr("type")=="checkbox") {
+        if ($(this).attr("checked")=="checked")
+          obj["value"+k]=1;
+           else  
+          obj["value"+k]=0;            
       }
+      else
+        obj["value"+k]=$(this).val();
+
+      k++;
+    });
+      
+    $("#cbn_editor").html("<p><br/>"+form_renderImage({src:"loading.gif"})+"<br/><br/>");
+    churchInterface.jsendWrite(obj, function(ok, data) {
+      elem.dialog("close");
+      if (!ok) alert(_("error.occured")+": "+data);
+      else {
+        var filter=masterData.masterDataTables[table_id].filter;
+        cdb_loadMasterData(function() {
+          if (masterData.masterDataTables[table_id]!=null) {
+            masterData.masterDataTables[table_id].filter=filter;
+            masterData.masterDataTables[table_id].open=true;
+          }
+          this_object.renderList();
+        }); 
+      }
+    });      
   });
 };
 

@@ -2147,7 +2147,7 @@ function dump_database() {
   if (!file_exists($dir))
     mkdir($dir,0777,true); //XXX: Security alert!
   if (!is_writable($dir)) {
-    addErrorMessage("Das Verzeichnis $dir muss beschreibbar sein. Bitte Rechte daf&uuml;r setzen!");
+    addErrorMessage("Directory $dir has to be writeable. Please change permissions!");
   }
   else {
     if (!file_exists($dir."/.htaccess")) {
@@ -2184,7 +2184,6 @@ function dump_database() {
         $return.= 'INSERT INTO '.$table.' VALUES(';
         $arr=array();
         foreach ($content as $key=>$val) {
-  //        $val = ereg_replace("\n","\\n",$val);
           if (!isset($val)) 
             $val="null";
           else
@@ -2231,7 +2230,7 @@ function churchcore_deleteMasterData($id, $tablename) {
  * @param unknown_type $table
  */
 function churchcore_saveMasterData($id, $table) {
-  // id gibt es schon, also UPDATE
+  // id is not null, so I make an UPDATE
   if ($id!="null" && $id!="") {
     $i=0;
     $sql="update {".$table."} set ";
@@ -2245,7 +2244,7 @@ function churchcore_saveMasterData($id, $table) {
     $sql=substr($sql,0,strlen($sql)-2);
     $sql=$sql." where id=$id";
   }
-  // id gibt es nicht, also insert
+  // id is null, make INSERT
   else {
     // hole die MaxId fuer den neuen Datensatz, wir arbeiten hier nicht mit auto_inecrement, damit man IDs waehlen kann
     $arr=db_query("select max(id) id from {".$table."}")->fetch();

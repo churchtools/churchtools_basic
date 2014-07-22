@@ -48,7 +48,7 @@ function cron_main() {
   else {
     do_cron();    
     if (isset($_GET["manual"])) {
-      addInfoMessage("Cron-Job ausgef&uuml;hrt!");
+      addInfoMessage(t("cronjob.succeed"));
       return " ";
     }
   }

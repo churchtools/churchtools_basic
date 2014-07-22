@@ -83,6 +83,7 @@
   <entry key="login.headline">Login</entry>
   <entry key="please.fill.following.fields">Please fill in the following fields: </entry>
   <entry key="user">User</entry>
+  <entry key="user">Users</entry>
   <entry key="email.or.username">Email or username</entry>
   <entry key="password">Password</entry>
   <entry key="remember.me">Yes, this is my personal computer</entry>
@@ -173,9 +174,12 @@
   <entry key="current.bookings">Current bookings</entry>
 
   <!-- 17.7.2014 -->
+  <entry key="reload">Reload</entry>
+  <entry key="session.expired.please.login">Session is expired, please login!</entry>
   <entry key="more.filter">More filter</entry>
   <entry key="filter.functions">Filter functions</entry>
   <entry key="administration">Administration settings</entry>
+  <entry key="administrator">Administrator</entry>  
   <entry key="thank.you">Thank You!</entry>
   <entry key="group">Group</entry>
   <entry key="groups">Groups</entry>
@@ -198,6 +202,7 @@
   <entry key="add">Add</entry>
   <entry key="add.new.request">Create new request</entry>
   <entry key="add.new.person">Add new person</entry>
+  <entry key="add.new.entry">Add new entry</entry>  
   <entry key="copy">Copy</entry>
   <entry key="delete">Delete</entry>  
   <entry key="all">all</entry>
@@ -213,13 +218,24 @@
   <entry key="embedding">embedding</entry>
   <entry key="subscribe.per.ical">subscribe per iCal</entry>
   <entry key="caption">Caption</entry>
+  <entry key="description">Description</entry>
   <entry key="location">Location</entry>
   <entry key="save">Save</entry>
   <entry key="save.data">Save data...</entry>
-  <entry key="load.data">Lade Daten...</entry>
+  <entry key="load.data">Load Data...</entry>
   <entry key="saved">saves</entry>
+  <entry key="save.changes">Save changes</entry>
+  <entry key="undo.changes">Undo changes</entry>
+  <entry key="edit.permissions">Edit permissions</entry>
+  <entry key="copy.permissions">Copy permissions</entry>
+  <entry key="paste.permissions">Paste permissions</entry>
+  <entry key="please.first.save.or.undo.current.changes">Please first save or undo current changes in permissions!</entry>
+  <entry key="really.past.permissions">Do You really wnat to paste permissions? Currently permission will not be changed through this.</entry>
+  <entry key="only.show.user.with.permissions">only show user with permissions</entry>    
   <entry key="creator">Creator</entry>
   <entry key="change.of.dataset">Change of dataset</entry>
+  <entry key="personal.calendar">Personal calendar</entry>
+  <entry key="group.calendar">Group calendar</entry>
   
   <entry key="january">January</entry>
   <entry key="february">February</entry>
@@ -250,7 +266,26 @@
   <entry key="comments">Comments</entry>
   <entry key="please.comment">Please comment</entry>
   <entry key="change">change</entry>
+  <entry key="rename">Rename</entry>
+  <entry key="download">Download</entry>
   <entry key="sum">Sum</entry>
-  
-	  
+  <entry key="id">Id</entry>
+  <entry key="sortkey">Sort key</entry>
+  <entry key="bezeichnung">Caption</entry>
+  <entry key="really.delete.dataset.x.be.careful">Do you really want to delete dataset {0}? Be carfeful that no data is referencing this, otherwise there could be problems!</entry>
+  <entry key="really.delete.file">Do you really want to delete that file?</entry>  
+  <entry key="send.bcc.copy.to.myself">send bcc copy to myself.</entry>
+  <entry key="send.email.to.x">Send email to {0}</entry>
+  <entry key="caution.that.email.will.be.send.to.x.persons">Warning, this email will be sent to {0} persons?</entry>
+  <entry key="looking.for.visible.persons.in.all.your.departments">Looking in all your visible departements for people</entry>
+  <entry key="looking.for.a.person">Looking for a person</entry>
+  <entry key="public.user">Public User</entry>
+  <entry key="important.logs">Important logs</entry>
+  <entry key="last.accesses">Last accesses</entry>
+  <entry key="top.accesses">Top accessess</entry>
+  <entry key="show.more.rows">Show more rows</entry>
+  <entry key="count.accesses">Count accesses</entry>
+  <entry key="log.viewer">Log-Viewer</entry>
+  <entry key="cronjob.succeed">Cron-Job succeed!</entry>
+  	  
 </properties>

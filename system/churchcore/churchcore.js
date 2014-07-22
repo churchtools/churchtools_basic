@@ -6,9 +6,11 @@ dayNames= ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag',
 var masterData=new Object();
  
 function _(s) {  
-  res=lang["churchcore"][s];
-  if (res==null && masterData!=null)
+  var modulename="churchcore"
+  res=lang[modulename][s];
+  if (res==null && masterData!=null && masterData.modulename!=null) {
     res=lang[masterData.modulename][s];
+  }
   if (res==null)
     return "***"+s+"***";
   $.each(arguments, function(k,a) {
@@ -951,7 +953,7 @@ $(document).ready(function() {
     return false;
   });
   $("#simulate_person").click(function() {
-    var form = new CC_Form(_("simulate.person"));
+    var form = new CC_Form(_("looking.for.a.person"));
     form.addInput({cssid:"simulate_input_person", label:_("name.of.person")});
     form_showCancelDialog(_("simulate.person"), form.render());
     form_autocompletePersonSelect("#simulate_input_person", true, function(a,b) {

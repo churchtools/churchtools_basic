@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
   <entry key="permission.denied.write.dir">Verzeichnis {0} muss beschreibbar sein!</entry>
@@ -83,6 +84,7 @@
   <entry key="login.headline">Anmeldung</entry>
   <entry key="please.fill.following.fields">Bitte folgende Felder ausfüllen:</entry>
   <entry key="user">Benutzer</entry>
+  <entry key="users">Benutzer</entry>
   <entry key="email.or.username">EMail-Adresse oder Benutzername</entry>
   <entry key="password">Passwort</entry>
   <entry key="remember.me">Zukünftig an mich erinnern</entry>
@@ -175,9 +177,12 @@
 
 
 <!-- 17.7.2014 -->
+  <entry key="reload">Neu laden</entry>
+  <entry key="session.expired.please.login">Session ist abgelaufen, bitte neu anmelden!</entry>
   <entry key="more.filter">Weitere Filter</entry>
   <entry key="filter.functions">Filterfunktionen</entry>
   <entry key="administration">Administration</entry>
+  <entry key="administrator">Administrator</entry>
   <entry key="thank.you">Vielen Dank!</entry>
   <entry key="group">Gruppe</entry>
   <entry key="groups">Gruppen</entry>
@@ -200,6 +205,7 @@
   <entry key="add">Hinzufügen</entry>
   <entry key="add.new.request">Neue Anfrage erstellen</entry>
   <entry key="add.new.person">Neue Person anlegen</entry>
+  <entry key="add.new.entry">Neuen Eintrag erstellen</entry>  
   <entry key="copy">Kopieren</entry>
   <entry key="delete">Löschen</entry>
   <entry key="all">Alle</entry>
@@ -215,13 +221,24 @@
   <entry key="embedding">einbetten</entry>
   <entry key="subscribe.per.ical">abonnieren per iCal</entry>
   <entry key="caption">Bezeichnung</entry>
+  <entry key="description">Beschreibung</entry>
   <entry key="location">Ort</entry>
   <entry key="save">Speichern</entry>
   <entry key="save.data">Speichere Daten...</entry>
   <entry key="load.data">Lade Daten...</entry>
   <entry key="saved">gespeichert</entry>
+  <entry key="save.changes">Änderungen speichern</entry>
+  <entry key="undo.changes">Änderungen verwerfen</entry>
+  <entry key="edit.permissions">Berechtigungen anpassen</entry>
+  <entry key="copy.permissions">Berechtigungen kopieren</entry>
+  <entry key="paste.permissions">Berechtigungen einsetzen</entry>
+  <entry key="please.first.save.or.undo.current.changes">Bitte erst die aktuellen Anpassungen Speichern oder verwerfen!</entry>
+  <entry key="really.past.permissions">Wirklich Berechtigung hier hinzufügen? Vorhandene Berechtigungen werden dadurch nicht geändert.</entry>
+  <entry key="only.show.user.with.permissions">nur autorisierte zeigen</entry>
   <entry key="creator">Ersteller</entry>
-  <entry key="change.of.dataset">Veränderung des Datensatzes</entry>
+  <entry key="change.of.dataset">Veränderung des Datensatzes</entry>  
+  <entry key="personal.calendar">Persönlicher Kalender</entry>
+  <entry key="group.calendar">Gruppenkalender</entry>
   
   <entry key="january">Januar</entry>
   <entry key="february">Februar</entry>
@@ -252,6 +269,26 @@
   <entry key="comments">Kommentare</entry>
   <entry key="please.comment">Gerne kommentieren</entry>
   <entry key="change">wechseln</entry>
+  <entry key="rename">Umbennnen</entry>
+  <entry key="download">Herunterladen</entry>
   <entry key="sum">Summe</entry>
-    
+  <entry key="id">Id</entry>
+  <entry key="sortkey">Sortiernummer</entry>
+  <entry key="bezeichnung">Bezeichnung</entry>
+  <entry key="really.delete.dataset.x.be.careful">Wirklich den Datensatz {0} entfernen? Bitte sicherstellen, dass keine Daten mehr auf diesen Datensatz referenziert, sonst kann es zu Problemen kommen!</entry>
+  <entry key="really.delete.file">Soll wirklich die Datei gelöscht werden?</entry>
+  <entry key="send.bcc.copy.to.myself">eine BCC-Kopie an mich senden.</entry>
+  <entry key="send.email.to.x">E-Mail an {0} senden</entry>
+  <entry key="caution.that.email.will.be.send.to.x.persons">Soll wirklich eine E-Mail an {0} Personen gesendet werden?</entry>
+  <entry key="please.fillin.name">Bitte Namen angeben</entry>
+  <entry key="looking.for.visible.persons.in.all.your.departments">Gesucht wird nach den für Dich sichtbaren Personen sowie allen Personen aus Deinen Bereichen.</entry>
+  <entry key="looking.for.a.person">Auswahl einer Person</entry>
+  <entry key="public.user">Öffentlicher Benutzer</entry>
+  <entry key="important.logs">Wichtige Meldungen</entry>
+  <entry key="last.accesses">Letzte Zugriffe</entry>
+  <entry key="top.accesses">Häufigste Zugriffe</entry>
+  <entry key="show.more.rows">Mehr Zeilen anzeigen</entry>
+  <entry key="count.accesses">Anzahl Zugriffe</entry>
+  <entry key="cronjob.succeed">Cron-Job ausgeführt!</entry>
+      
 </properties>

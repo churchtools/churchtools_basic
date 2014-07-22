@@ -75,15 +75,15 @@ StandardTableView.prototype.renderView = function(withMenu) {
   else {
     this.renderMenu();    
     this.renderListMenu();    
-    $("#cdb_menu").append("&nbsp; "+form_renderButton({label:"Filter &raquo;", htmlclass:"togglefilter"})+"<br/><br/>");
+    $("#cdb_menu").append("&nbsp; "+form_renderButton({label:_("filter")+" &raquo;", htmlclass:"togglefilter"})+"<br/><br/>");
     $("#cdb_menu input.togglefilter").click(function() {
       if ($("#cdb_filter").html()=="") {
         t.renderFilter();
-        $(this).val("Filter "+String.fromCharCode(171));
+        $(this).val(_("filter")+" "+String.fromCharCode(171));
       } 
       else { 
         $("#cdb_filter").html("");
-        $(this).val("Filter "+String.fromCharCode(187));
+        $(this).val(_("filter")+" "+String.fromCharCode(187));
       }
     });
     
@@ -181,7 +181,6 @@ StandardTableView.prototype.implantStandardFilterCallbacks = function(this_objec
       if (_aktiv!=null)
         _aktiv=window.clearTimeout(_aktiv);
       _aktiv=window.setTimeout(function() {
-//        t.historyCreateStep();
         churchInterface.sendMessageToAllViews("filterChanged",new Array(id, oldVal));
         t.renderList(null, false);   
         _aktiv=false;
@@ -426,13 +425,6 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
       
       calcHeaderWidth(current_id);
   
-      //if (t.counter==1) {
-        // Entry anzeigen, wenn alles geladen ist, sonst l�dt er die Detaildaten auch noch, obwohl sp�ter vielleicht noch
-        // mehr Leute kommen, die passend k�nnten. Au�er es ist eine Id, da wird es nur einen geben
-       // if (t.filter["searchEntry"]>0)
-         // t.renderEntryDetail(current_id);
-      //}  
-    
       // Callbacks auf die Header und Footer der Tabelle
       $("#cdb_content a").click(function (_content_a) {
         if ($(this).attr("id")=="orderby") loadList("","",$(this).attr("href"));
@@ -513,12 +505,6 @@ function calcHeaderWidth() {
     header.first().width($(this).width());
     header=header.next();
   });
-  // childFromHeader
-/*  var header=$("#AddressTableChild tr").next(".data").first().children();
-  $("#cdb_content thead th").each(function(k,a) {
-    header.width($(this).width());
-    header=header.next();
-  });*/
 }
 
 StandardTableView.prototype.entryDetailClick = function(id) {
@@ -595,8 +581,8 @@ StandardTableView.prototype.addTableContentCallbacks = function(cssid) {
 StandardTableView.prototype.mailPerson = function (personId, name, subject) {
   var t=this;
   var rows = new Array();
-  rows.push(form_renderInput({cssid:"betreff", label:"Betreff", type:"xlarge", text:(subject!=null?subject:"")}));
-  rows.push('<p>Inhalt<span class="pull-right editor-status"></span><div id="inhalt" class="well">');
+  rows.push(form_renderInput({cssid:"betreff", label:_("subject"), type:"xlarge", text:(subject!=null?subject:"")}));
+  rows.push('<p>'+_("content")+'<span class="pull-right editor-status"></span><div id="inhalt" class="well">');
   if (masterData.settings.signature!=null)
     rows.push(masterData.settings.signature);
   rows.push('</div>');
@@ -604,42 +590,38 @@ StandardTableView.prototype.mailPerson = function (personId, name, subject) {
   if (masterData.settings.sendBCCMail==null)
     masterData.settings.sendBCCMail=1;
   rows.push("<p>"+form_renderCheckbox({cssid:"sendBCCMail", checked: masterData.settings.sendBCCMail==1,
-       label:"eine BCC-Kopie an mich senden."}));
+       label:_("send.bcc.copy.to.myself")}));
 
   
-  var elem=this.showDialog("E-Mail an "+(name!=null?name:"Person"),rows.join(""), 600,550, {
-      "Senden": function() {
-        var arr=personId.split(",");
-        if ((arr.length<5) || (confirm("Soll wirklich eine E-Mail an "+arr.length+" Personen gesendet werden?"))) {
-          var obj = new Object();
-          obj.ids=personId;
-          masterData.settings.sendBCCMail=($("#sendBCCMail").attr("checked")?1:0);
-          if (masterData.settings.sendBCCMail==1)   
-            if (typeof(masterData.user_pid)=="string")
-              obj.ids=obj.ids+","+masterData.user_pid;
-            else
-              obj.ids=obj.ids+","+masterData.user_pid[0];
-          churchInterface.jsendWrite({func:"saveSetting", sub:"sendBCCMail", val: masterData.settings.sendBCCMail});
-  
-          obj.betreff=$("#betreff").val();
-          obj.inhalt=CKEDITOR.instances.inhalt.getData();
-          obj.domain_id=null;
-          obj.func="sendEMailToPersonIds";
-          churchInterface.jsendWrite(obj, function(ok, data) {
-            if (ok) {
-              alert("Die EMail wurde gesendet!");
-              drafter.clear();
-            }
-            else alert("Es ist ein Fehler aufgetreten: "+data);
-          }, null, false);          
-          $(this).dialog("close");
-        }
-      },
-      "Abbrechen": function() {
-        drafter.clear();
+  var elem=this.showDialog(_("send.email.to.x", name!=null?name:"Person"), rows.join(""), 600,550);
+  elem.dialog("addbutton", _("send"), function() {
+      var arr=personId.split(",");
+      if ((arr.length<5) || (confirm(_("caution.that.email.will.be.send.to.x.persons", arr.length)))) {
+        var obj = new Object();
+        obj.ids=personId;
+        masterData.settings.sendBCCMail=($("#sendBCCMail").attr("checked")?1:0);
+        if (masterData.settings.sendBCCMail==1)   
+          if (typeof(masterData.user_pid)=="string")
+            obj.ids=obj.ids+","+masterData.user_pid;
+          else
+            obj.ids=obj.ids+","+masterData.user_pid[0];
+        churchInterface.jsendWrite({func:"saveSetting", sub:"sendBCCMail", val: masterData.settings.sendBCCMail});
+
+        obj.betreff=$("#betreff").val();
+        obj.inhalt=CKEDITOR.instances.inhalt.getData();
+        obj.domain_id=null;
+        obj.func="sendEMailToPersonIds";
+        churchInterface.jsendWrite(obj, function(ok, data) {
+          if (ok) {
+            alert(_("email.was.sent"));
+            drafter.clear();
+          }
+          else alert(_("error.occured")+": "+data);
+        }, null, false);          
         $(this).dialog("close");
-      }        
+      }
   });
+  elem.dialog("addcancelbutton");
   
   form_implantWysiwygEditor('inhalt', false);
   //Save draft
@@ -705,7 +687,6 @@ StandardTableView.prototype.renderFile = function(file, filename_length) {
       var filetype=file.filename.substr(i,99);
       filename=filename.substr(0,filename_length)+"[..]"+filetype;
     }
-//    txt=txt+' <a target="_blank" href="'+masterData.files_url+'/files/'+file.domain_type+'/'+file.domain_id+'/'+file.filename+'" title="'+title+'">'+filename+'</a>';
     txt=txt+' <a target="_blank" href="?q='+masterData.modulename+'/filedownload&id='+file.id+'&filename='+file.filename+'">'+filename+'</a>';
     txt=txt+'</span><br/>';
   }
@@ -748,15 +729,15 @@ StandardTableView.prototype.renderTooltipForFiles = function (tooltip, f, editau
   }
   
   if (f.modified_date!=null)
-    rows.push("<p>vom "+f.modified_date.toDateEn(true).toStringDe(true)+" ("+f.modified_username+")");
+    rows.push("<p>"+f.modified_date.toDateEn(true).toStringDe(true)+" ("+f.modified_username+")");
   rows.push("<p>");
 
-  rows.push('<a class="btn btn-success btn-small" target="_blank" href="?q='+masterData.modulename+'/filedownload&id='+f.id+'&filename='+f.filename+'&type=download">Herunterladen</a>&nbsp;');
+  rows.push('<a class="btn btn-success btn-small" target="_blank" href="?q='+masterData.modulename+'/filedownload&id='+f.id+'&filename='+f.filename+'&type=download">'+_("download")+'</a>&nbsp;');
 
   var title=f.bezeichnung;
   if (editauth) {
-    rows.push(form_renderButton({label:"Datei l&ouml;schen", cssid:"file_delete", htmlclass:"btn-danger btn-small"})+"&nbsp;");
-    title='<span id="file_name">'+f.bezeichnung+" "+form_renderImage({label:"Datei Umbenennen", src:"options.png", width:20, cssid:"file_rename"})+'</span>';
+    rows.push(form_renderButton({label:_("delete"), cssid:"file_delete", htmlclass:"btn-danger btn-small"})+"&nbsp;");
+    title='<span id="file_name">'+f.bezeichnung+" "+form_renderImage({label:_("rename"), src:"options.png", width:20, cssid:"file_rename"})+'</span>';
   }
   
   rows.push(form_renderHidden({cssid:"file",value:"true"}));
@@ -811,13 +792,13 @@ StandardTableView.prototype.tooltipCallbackForFiles = function(id, tooltip, file
     return false;
   });
   tooltip.find("#file_delete").click(function() {
-    if (confirm("Soll wirklich die Datei entfernt werden?")) {
+    if (confirm(_("really.delete.file"))) {
       churchInterface.jsendWrite({func:"delFile", id:f.id}, function(ok, data) {
         if (ok) {
           delete filecontainer[filecontainer_id].files[id];
           t.renderFiles(filecontainer, filecontainer_id);        
         }
-        else alert("Fehler beim Speichern: "+data);
+        else alert(_("error.occured")+": "+data);
       });        
       t.clearTooltip(true);    
     }
@@ -981,9 +962,9 @@ StandardTableView.prototype.getSaveObjectFromInputFields = function(id, fieldnam
   obj["id"]=id;               
   obj["func"] =fieldname;                    
 
-  // Wenn field ueberhaupt vorhanden ist
+  // if field exists
   if (masterData.fields[obj["func"]]!=null) {
-    // Setzen der Variable im Browser und Aufbereiten des Obj f�r Ajax
+    // Set vars in the browser and prepare obj 
     for (var elem in masterData.fields[obj["func"]].fields) {
       if ($("#Input" + elem).length>0 && !$("#Input" + elem).is(':disabled')) {
         if (masterData.fields[obj["func"]].fields[elem].type=="date") {
@@ -1073,12 +1054,9 @@ StandardTableView.prototype.renderFields = function(fields, a, write_allowed, au
   var t=this;
   var _text=""; 
 
-//  _text=_text+"<p style='line-height:100%;' id=\"pDetail"+fields.arrayname+"\"><b><i>"+fields.text+"</i></b>&nbsp;&nbsp;";
   _text=_text+"<h4 id=\"pDetail"+fields.arrayname+"\">"+fields.text+"&nbsp;&nbsp;";
   if (write_allowed)
-//    _text=_text+'<a href="" id="'+fields.arrayname+'"><img width="20px" align="absmiddle" src="'+masterData.modulespath+'/images/options.png"/></a>';
   _text=_text+'<a href="" id="'+fields.arrayname+'">'+t.renderImage("options", 20)+'</a>';
-
     
   _text=_text+"</h4><p style='line-height:100%'><small>";
 
@@ -1182,11 +1160,10 @@ StandardTableView.prototype.renderPersonSelect = function(title, searchAll, resu
   var rows = new Array();
   var this_object=this;
   rows.push(_("search")+": <input type=\"text\" size=\"10\" id=\"searchAddress\"/ value=\""+_searchString+"\">&nbsp;&nbsp;<br/>");
-  rows.push("<div id=\"cdb_personselector\">"+"<i>Bitte Namen eingeben...</i>"+"</div><br/>");
-  if (searchAll) rows.push("<p><small>Gesucht wird nach den f&uuml;r Dich sichtbaren Personen sowie allen Personen aus Deinen Bereichen.</small>");
+  rows.push("<div id=\"cdb_personselector\">"+"<i>"+_("name.of.person")+"...</i>"+"</div><br/>");
+  if (searchAll) rows.push("<p><small>"+_("looking.for.visible.persons.in.all.your.departments")+"</small>");
   
-  //elem.html(rows.join(""));
-  var elem = form_showCancelDialog("Auswahl einer Person",rows.join(""));
+  var elem = form_showCancelDialog(_("looking.for.a.person"),rows.join(""));
   
   if (!searchAll) {
   
@@ -1275,83 +1252,8 @@ StandardTableView.prototype.renderAuth = function(auth_id) {
   return res;
 };
 
-
-function renderDatenfeld(elem, auth) {
-  var datenfeld=elem.attr("data-datenfeld");
-  var auth_id=elem.attr("id").substr(9,99);
-  var open=false;
-  if (masterData[datenfeld]!=null) {
-    if (masterData[datenfeld][-1]==null)
-      masterData[datenfeld][-1]={id:-1, sortkey:-999, htmlclass:"super", bezeichnung:"<i>Alle</i>"};
-    var arr=new Array();
-    $.each(churchcore_sortData(masterData[datenfeld], "sortkey", false, true, "bezeichnung"), function(k,datas) {
-      var checked=false;
-      if ((auth!=null) && (auth[auth_id]!=null) 
-            && (auth[auth_id][datas.id]!=null)) {
-        var checked=true;
-        open=true;
-      }
-      var htmlclass="";
-      if (datas.htmlclass!=null) htmlclass=datas.htmlclass;
-//      txt=txt+'<input type="checkbox" id="'+auth_id+'_'+datas.id+'" '+checked+' class="'+htmlclass+'"></input>&nbsp;'+datas.bezeichnung+"&nbsp; &nbsp;";          
-      arr.push({id:auth_id+'_'+datas.id, checked:checked, htmlclass:htmlclass, bezeichnung:datas.bezeichnung});
-    });
-    if (open) elem.show();
-    
-    txt="";
-    if (arr.length<10) {
-      $.each(arr, function(k,a) { 
-        txt=txt+'<input type="checkbox" id="'+a.id+'" '+(a.checked?"checked":"")+' class="'+a.htmlclass+'"></input>&nbsp;'+a.bezeichnung+"&nbsp; &nbsp;";          
-      });          
-    }
-    else {
-      $.each(arr, function(k,a) { 
-        if (a.checked) {
-          txt=txt+'<p>'+a.bezeichnung+'<a href="#" class="delAuth" data-id="'+a.id+'"> '+form_renderImage({src:"trashbox.png", width:16})+'</a>';          
-          txt=txt+form_renderHidden({value:"checked", cssid:a.id});
-        }
-      });
-      txt=txt+"<p>Weitere hinzuf&uuml;gen:<br/>";
-      txt=txt+form_renderSelect({data:arr, cssid:"selectAuth"+auth_id, controlgroup:true, func:function(a){return !a.checked}});
-      txt=txt+form_renderButton({label:"Hinzuf&uuml;gen", cssid:"add"+auth_id, htmlclass:"addAuth"});
-    }
-    elem.html(txt);
-    
-    elem.find("input:checkbox").click(function() {
-      if ($(this).hasClass("super")) {
-        if (($(this).attr("checked")=="checked"))
-          $(this).parents("span").find("input:checkbox").each(function(k,a) {
-            if (!$(this).hasClass("super"))
-              $(this).removeAttr("checked");
-          });
-      }
-      else {
-        $(this).parents("span").find("input:checkbox.super").each(function(k,a) {
-          $(this).removeAttr("checked");
-        });
-      }
-    });
-    elem.find("input.addAuth").click(function() {
-      var id=$("#selectAuth"+auth_id).val();
-      var data_id=id.substr(id.indexOf("_")+1,99);
-      if (auth==null) auth=new Object();
-      if (auth[auth_id]==null) auth[auth_id]=new Array();
-      auth[auth_id][data_id]=data_id;
-      renderDatenfeld(elem, auth);
-      return false;
-    });
-    elem.find("a.delAuth").click(function() {
-      var id=$(this).attr("data-id");
-      var data_id=id.substr(id.indexOf("_")+1,99);
-      delete auth[auth_id][data_id];
-      renderDatenfeld(elem, auth);
-      return false;
-    });
-  }
-}
-
 /**
- * Erstellt das Formular zum Editieren der Rechte
+ * Create the form to edit permissions
  * @param id 
  * @param auth
  * @param domain_type person, group oder status
@@ -1363,13 +1265,9 @@ StandardTableView.prototype.editDomainAuth = function (domain_id, domain_type, f
     $.getCTScript("system/churchcore/cc_authview.js", function() {
       loadAuthViewMasterData(function() {
         var perm;
-        var elem = t.showDialog("Berechtigung anpassen", '<div id="tree"></div>', 700, 620, {
-          "Speichern": function() {
-            perm.permissioner("save");
-          },          
-          "Abbrechen": function() {
-            $(this).dialog("close");
-          }        
+        var elem = t.showDialog(_("edit.permissions"), '<div id="tree"></div>', 700, 620);
+        elem.dialog("addsaveandcancelbutton", function() {
+          perm.permissioner("save");
         });
         perm=$("#tree");
         perm.permissioner({

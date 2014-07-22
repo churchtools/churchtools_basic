@@ -8,8 +8,6 @@
   <entry key="week">Woche</entry>  
   <entry key="day">Tag</entry>  
 
-  <entry key="personal.calendar">Persönlicher Kalender</entry>
-  <entry key="group.calendar">Gruppenkalender</entry>
   <entry key="no.calendar.available">Kein Kalender vorhanden.</entry>
   <entry key="only.intern.visible">Nur für angemeldete Personen sichtbar</entry>  
 </properties>

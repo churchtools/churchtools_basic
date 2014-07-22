@@ -1,7 +1,6 @@
 //=========== Abstract View ============================================//
 
-// Dient als Konstrukturhilfe fuer die Vererbung von Objekten, ansonsten wuerde der Konstruktur aufgerufen werden.
-// Dies ist eine Konzeptschwaeche in JS
+// Serves as a constructor helper for inherited objects.
 
 	
 var Temp = function() {};

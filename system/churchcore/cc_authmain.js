@@ -3,7 +3,7 @@ $(document).ready(function() {
   churchInterface.registerView("AuthView", authView);
   churchInterface.setModulename("churchauth");
   
-  // Lade alle Kennzeichentabellen
+  // load all Master Data tables
   loadAuthViewMasterData(function() {
     churchInterface.activateHistory("AuthView");
     churchInterface.sendMessageToAllViews("allDataLoaded");

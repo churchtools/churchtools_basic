@@ -61,10 +61,10 @@ $.widget("ct.permissioner", {
             var expand_datenfeld=new Object();
             var child_daten=new Array();
             if (masterData[masterData.auth_table_plain[auth.id].datenfeld]!=null) {
-              // Bietet noch die Möglichkeiten von Untergruppen, wie z.B. bei Kalender mit privaten, Gruppen und Öffentlich
+              // Offers possiblity of subgroups, e.g. calendar for the church and for groups
               var sub_child_daten=new Object();  
               
-              child_daten.push({title:"-- Alle --", select:(masterData[t.options.domain_type][t.options.domain_id].auth!=null && masterData[t.options.domain_type][t.options.domain_id].auth[auth.id]!=null && masterData[t.options.domain_type][t.options.domain_id].auth[auth.id][-1]!=null), key:auth.id+"_-1"});
+              child_daten.push({title:"-- "+_("all")+" --", select:(masterData[t.options.domain_type][t.options.domain_id].auth!=null && masterData[t.options.domain_type][t.options.domain_id].auth[auth.id]!=null && masterData[t.options.domain_type][t.options.domain_id].auth[auth.id][-1]!=null), key:auth.id+"_-1"});
     
               $.each(churchcore_sortMasterData(masterData[masterData.auth_table_plain[auth.id].datenfeld]), function(h, datenfeld) {
                 var select=false;
@@ -78,11 +78,11 @@ $.widget("ct.permissioner", {
                   expand_datenfeld["general"]=true;
                 }
                 if (masterData.auth_table_plain[auth.id].datenfeld=="cc_calcategory") {
-                  var type="Gemeindekalender";
-                  if (masterData.cc_calcategory[datenfeld.id].privat_yn==1) 
-                    type="Persönlich";
-                  else if (masterData.cc_calcategory[datenfeld.id].oeffentlich_yn==0)
-                    type="Gruppenkalender";
+                  var type=masterData.publiccalendar_name;
+                  if (masterData.cc_calcategory[datenfeld.id].oeffentlich_yn==0)
+                    type=_("group.calendar");
+                  else if (masterData.cc_calcategory[datenfeld.id].oeffentlich_yn!=1)
+                    type=_("more");
                   if (sub_child_daten[type]==null)
                     sub_child_daten[type]=new Array();
                   sub_child_daten[type].push({title:datenfeld.bezeichnung, select:select, key:auth.id+"_"+datenfeld.id});
@@ -174,7 +174,7 @@ $.widget("ct.permissioner", {
     });
     churchInterface.jsendWrite({func:"saveAuth", domain_type:t.options.domain_type, domain_id:t.options.domain_id, data:data}, function(ok, data) {
       if (!ok) {
-        alert("Fehler: "+data);
+        alert(_("error.occured")+": "+data);
         elem.remove();
       }
       else {
@@ -193,14 +193,14 @@ AuthView.prototype.renderEntryDetail= function(domain_id) {
   rows.push('<div class="entrydetail" id="entrydetail_'+domain_id+'">');  
   
   rows.push('<div class="well">');
-    rows.push('<legend>Berechtigung</legend>');
+    rows.push('<legend>'+_("permissions")+'</legend>');
 
     rows.push('<div id="tree"></div>');  
-    rows.push('<br> <p>'+form_renderButton({label:"&Auml;nderungen speichern", disabled:true, htmlclass:"save"})+"&nbsp;");
-    rows.push(form_renderButton({label:"&Auml;nderungen verwerfen", disabled:true, htmlclass:"undo"})+"&nbsp; &nbsp;");
-    rows.push(form_renderButton({label:"Berechtigung kopieren", disabled:(t.clipboard!=null && t.clipboard.id==domain_id), htmlclass:"copy"})+"&nbsp;");
+    rows.push('<br> <p>'+form_renderButton({label:_("save.changes"), disabled:true, htmlclass:"save"})+"&nbsp;");
+    rows.push(form_renderButton({label:_("undo.changes"), disabled:true, htmlclass:"undo"})+"&nbsp; &nbsp;");
+    rows.push(form_renderButton({label:_("copy.permissions"), disabled:(t.clipboard!=null && t.clipboard.id==domain_id), htmlclass:"copy"})+"&nbsp;");
     if (t.clipboard!=null && t.clipboard.id!=domain_id)
-      rows.push(form_renderButton({label:"Berechtigung zuf&uuml;gen", disabled:false, htmlclass:"paste"}));    
+      rows.push(form_renderButton({label:_("paste.permissions"), disabled:false, htmlclass:"paste"}));    
   rows.push('</div>');  
   
  
@@ -230,14 +230,14 @@ AuthView.prototype.renderEntryDetail= function(domain_id) {
     t.renderEntryDetail(domain_id);
   });
   elem.find("input.copy").click(function() {
-    if (elem.find("input.save").attr("disabled")!="disabled") alert("Bitte erst die aktuellen Anpassungen Speichern oder verwerfen!");
+    if (elem.find("input.save").attr("disabled")!="disabled") alert(_("please.first.save.or.undo.current.changes"));
     else {
       t.clipboard=$.extend(true, {}, masterData[t.currentDomain][domain_id]);
       t.renderList();      
     }
   });
   elem.find("input.paste").click(function() {
-    if (confirm("Wirklich Berechtigung hier hzinzufügen? Vorhandene Berechtigungen werden dadurch nicht geändert.")) {
+    if (confirm("really.past.permissions")) {
       $.each(t.clipboard.auth, function(k,a) {
         masterData[t.currentDomain][domain_id].auth[k]=a;
       });
@@ -252,7 +252,7 @@ AuthView.prototype.renderEntryDetail= function(domain_id) {
 };
 
 AuthView.prototype.getListHeader = function() {
-  return '<th>Nr.<th width=200px>Bezeichnung<th>Rechte';
+  return '<th>Nr.<th width=200px>'+_("caption")+'<th>'+_("permissions");
   
 };
 
@@ -285,9 +285,9 @@ AuthView.prototype.renderListEntry = function(a) {
           $.each(daten, function(i, d) {
             if (d==-1) rows.push("<i>alle</i>");
             else if ((masterData[masterData.auth_table_plain[auth_id].datenfeld]==null))
-              rows.push('<font color="red">'+masterData.auth_table_plain[auth_id].datenfeld+" nicht vorhanden!</font>");
+              rows.push('<font color="red">'+masterData.auth_table_plain[auth_id].datenfeld+" not available!</font>");
             else if (masterData[masterData.auth_table_plain[auth_id].datenfeld][d]==null)
-              rows.push('<font color="red">'+masterData.auth_table_plain[auth_id].datenfeld+" mit Id:"+d+" nicht vorhanden!</font>");
+              rows.push('<font color="red">'+masterData.auth_table_plain[auth_id].datenfeld+" with Id:"+d+" not available!</font>");
             else
               rows.push(masterData[masterData.auth_table_plain[auth_id].datenfeld][d].bezeichnung);
           });
@@ -310,7 +310,7 @@ AuthView.prototype.renderListEntry = function(a) {
   var rows=new Array();
   rows.push('<td class="hoveractor"><a href="#" id="detail'+a.id+'">'+a.bezeichnung+'</a>');
   if ((t.currentDomain=="person") && (churchcore_inArray(a.id,masterData.admins))) 
-    rows.push('&nbsp; <span class="label label-important">Administrator</span>');
+    rows.push('&nbsp; <span class="label label-important">'+_("administrator")+'</span>');
   else {  
     if ((t.currentDomain=="person") && (a.id>0)) {
       rows.push('&nbsp; <span class="hoverreactor" data-id="'+a.id+'" style="display:none">'+form_renderImage({src:"person_simulate.png", width:18, cssid:"simulate"})+"</span>");
@@ -374,22 +374,13 @@ AuthView.prototype.renderFilter = function() {
     data.push({id:a.id, bezeichnung:a.auth+" - "+a.bezeichnung.trim(50)});
   });
   
-  form.addSelect({cssid:"filterAuth",label:"Autorisierung", sort:false, freeoption:true, selected:t.filter["filterAuth"], data:data});
-  form.addCheckbox({cssid:"searchAuth",label:"nur autorisierte zeigen", checked:true});
+  form.addSelect({cssid:"filterAuth",label:_("permissions"), sort:false, freeoption:true, selected:t.filter["filterAuth"], data:data});
+  form.addCheckbox({cssid:"searchAuth",label:_("only.show.user.with.permissions"), checked:true});
   this.filter["searchAuth"]=true;
   
   $("#cdb_filter").html(form.render(true, "inline"));
-  
-  if (this.filter["filterStatus"]!=null) {
-    if (typeof(this.filter["filterStatus"])=="string")
-      t.makeFilterStatus(masterData.settings.filterStatus);
-      
-    this.filter["filterStatus"].render2Div("filterStatus", {label:"Status"});
-  }
-
-  
-  
-  // Setze die Werte auf die aktuellen Filter
+    
+  // Set values of current filters
   $.each(this.filter, function(k,a) {
     $("#"+k).val(a);
   });
@@ -411,16 +402,15 @@ AuthView.prototype.renderFilter = function() {
 AuthView.prototype.renderListMenu = function() {
   var t=this;
   
-  // Men�leiste oberhalb
   if ($("searchEntry").val()!=null) 
     searchEntry=$("searchEntry").val();
   else
     searchEntry=this.getFilter("searchEntry");
 
   var navi = new CC_Navi();
-  navi.addEntry(t.currentDomain=="person","apersonview","Personen");
-  navi.addEntry(t.currentDomain=="gruppe","agroupview","Gruppen");
-  navi.addEntry(t.currentDomain=="status","astatusview","Status");
+  navi.addEntry(t.currentDomain=="person","apersonview",_("users"));
+  navi.addEntry(t.currentDomain=="gruppe","agroupview",_("groups"));
+  navi.addEntry(t.currentDomain=="status","astatusview",_("status"));
   navi.addSearch(searchEntry);
   navi.renderDiv("cdb_search", churchcore_handyformat());
   if (!churchcore_handyformat()) $("#searchEntry").focus();

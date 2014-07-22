@@ -234,7 +234,7 @@ function churchcore__filedownload() {
 function churchcore__logviewer() {
   
   if (!user_access("view logfile","churchcore")) { 
-    addErrorMessage("Keine Berechtigung f&uuml;r den LogViewer!");
+    addErrorMessage(t("no.permission.for", "LogViewer"));
     return " ";
   }    
 
@@ -242,9 +242,9 @@ function churchcore__logviewer() {
     $txt.='<div class="span3 bs-docs-sidebar">';   
     
       $txt.='<ul id="navlist" class="nav nav-list bs-docs-sidenav affix-top">';
-      $txt.='<li><a href="#log1">Wichtige Meldungen</a>';
-      $txt.='<li><a href="#log2">Letzte Zugriffe</a>';
-      $txt.='<li><a href="#log3">Top Zugriffe</a>';
+      $txt.='<li><a href="#log1">'.t("important.logs").'</a>';
+      $txt.='<li><a href="#log2">'.t("last.accesses").'</a>';
+      $txt.='<li><a href="#log3">'.t("top.accesses").'</a>';
       $txt.='</div>';
     $txt.='<div class="span9">';
   
@@ -257,7 +257,7 @@ function churchcore__logviewer() {
     $filter="txt like '%".$_GET["filter"]."%'";
     $val=$_GET["filter"];
   }
-  $txt.='<anchor id="log1"/><h2>Log-Meldungen</h2>';
+  $txt.='<anchor id="log1"/><h2>'.t("logviewer").'</h2>';
   $res=db_query("select p.id p_id, p.vorname, p.name, log.datum, log.level, log.domain_type, log.domain_id, log.txt  from {cdb_person} p
                  RIGHT JOIN  
                    (select person_id, datum, level, domain_type, domain_id, txt 
@@ -268,10 +268,10 @@ function churchcore__logviewer() {
 
   $txt.='<form class="form-inline" action="">';
   $txt.='<input type="hidden" name="q" value="churchcore/logviewer"/>';
-  $txt.='<input name="filter" class="input-medium" type="text" value="'.$val.'"></input> <input type="submit" class="btn" value="Filtern"/></form>';
+  $txt.='<input name="filter" class="input-medium" type="text" value="'.$val.'"></input> <input type="submit" class="btn" value="'.t("filter").'"/></form>';
 						
   $txt.='<table class="table table-condensed table-bordered">';
-  $txt.="<tr><th>Datum<th>#<th>Objekt<th>Name<th>Meldung";
+  $txt.="<tr><th>".t("date")."<th>#<th>Object<th>".t("name")."<th>Log";
   $counter=0;
   foreach ($res as $arr) {
     $txt.="<tr><td><nobr>$arr->datum &nbsp; </nobr><td>$arr->level<td>$arr->domain_type".($arr->domain_id!=-1?"[$arr->domain_id]":"");
@@ -284,10 +284,10 @@ function churchcore__logviewer() {
   
   $txt.='</table>';
   if ((!isset($_GET["showmore"])) && ($counter>=$limit))
-    $txt.='<a href="?q=churchcore/logviewer&showmore=true" class="btn">Mehr Zeilen anzeigen</a> &nbsp; ';
+    $txt.='<a href="?q=churchcore/logviewer&showmore=true" class="btn">'.t("show.more.rows").'</a> &nbsp; ';
     
-  $txt.='<anchor id="log2"><h2>Letzte Zugriffe</h2>';
-  $txt.="<table class=\"table table-condensed table-bordered\"><tr><th>Name<th>Anzahl Zugriffe<th>Letzter Zugriff";
+  $txt.='<anchor id="log2"><h2>'.t("last.accesses").'</h2>';
+  $txt.="<table class=\"table table-condensed table-bordered\"><tr><th>".t("name")."<th>".t("count.accesses")."<th>".t("last.accesses");
   $res=db_query("SELECT p.id pid, vorname, name, count( l.id ) count, max( lastlogin ) maxdatum
        FROM {cdb_log} l, {cdb_person} p where l.person_id=p.id GROUP BY pid, vorname, name ORDER BY max( lastlogin ) DESC ");
   foreach ($res as $arr) {
@@ -295,8 +295,8 @@ function churchcore__logviewer() {
   }
   $txt.="</table><br/><br/>";
   
-  $txt.='<anchor id="log3"><h2>Häufigste Zugriffe</h2>';
-  $txt.="<table class=\"table table-condensed table-bordered\"><tr><th>Name<th>Anzahl Zugriffe<th>Letzter Zugriff";
+  $txt.='<anchor id="log3"><h2>'.t("top.accesses").'</h2>';
+  $txt.="<table class=\"table table-condensed table-bordered\"><tr><th>".t("name")."<th>".t("count.accesses")."<th>".t("last.accesses");
   $res=db_query("SELECT p.id pid, vorname, name, count( l.id ) count, max( lastlogin ) maxdatum
        FROM {cdb_log} l, {cdb_person} p where l.person_id=p.id GROUP BY pid, vorname, name ORDER BY count(l.id) DESC ");
   foreach ($res as $arr) {

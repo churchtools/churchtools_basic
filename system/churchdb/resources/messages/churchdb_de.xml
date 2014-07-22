@@ -84,4 +84,24 @@
   <entry key="signature">Signatur</entry>
   <entry key="save.signature">Signatur speichern</entry>
   
+  <!-- MASTERDATA -->
+  <entry key="kuerzel">Kürzel</entry>
+  <entry key="mitglied_yn">Bedeutet Mitglied</entry>
+  <entry key="infreitextauswahl_yn">In Suchen mitverwenden</entry>
+  <entry key="anzeigen_in_meinegruppen_teilnehmer_yn">Teilnehmer können sich gegenseitig sehen</entry>
+  <entry key="muss_leiter_enthalten_yn">Leiter muß vorhanden sein</entry>
+  <entry key="in_neue_person_erstellen_yn">In 'neue Person erstellen' aufnehmen</entry>
+  <entry key="gruppentyp_id">Gruppentyp</entry>
+  <entry key="imageurl">URL zu einem Bild (optional)</entry>
+  <entry key="bez_vater">Name der übergeordneten Beziehung</entry>
+  <entry key="bez_kind">Name der untergeordneten Beziehung</entry>
+  <entry key="export_aggregation_yn">Im Export zusammenfassen</entry>
+  <entry key="export_title">Titel bei Zusammenfassung im Export</entry>
+  <entry key="comment_viewer_id">Kommentar-Berechtigung</entry>
+  <entry key="intern_code">Interner Code (nicht ändern!)</entry>
+  <entry key="followup_typ_id">Typ des Followup </entry>
+  <entry key="count_no">Nummer</entry>
+  <entry key="days_diff">Anzahl Tage differenz</entry>
+  <entry key="info">Info</entry>
+  
 </properties>

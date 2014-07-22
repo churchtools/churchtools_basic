@@ -84,4 +84,24 @@
   <entry key="signature">Signature</entry>
   <entry key="save.signature">Save signature</entry> 
   
+  <!-- MASTERDATA -->
+  <entry key="kuerzel">Shorty</entry>
+  <entry key="mitglied_yn">Is member</entry>
+  <entry key="infreitextauswahl_yn">Is searchable</entry>
+  <entry key="anzeigen_in_meinegruppen_teilnehmer_yn">Members can see each other</entry>
+  <entry key="muss_leiter_enthalten_yn">There must be a leader</entry>
+  <entry key="in_neue_person_erstellen_yn">Add to 'add new person'</entry>
+  <entry key="gruppentyp_id">Group type</entry>
+  <entry key="imageurl">URL to image (optional)</entry>
+  <entry key="bez_vater">Name of higher relation</entry>
+  <entry key="bez_kind">Name of lower relation</entry>
+  <entry key="export_aggregation_yn">Aggregate in export</entry>
+  <entry key="export_title">Title in aggregation</entry>
+  <entry key="comment_viewer_id">Comment view permission</entry>
+  <entry key="intern_code">Intern code (don't change!)</entry>
+  <entry key="followup_typ_id">Typ of follow up</entry>
+  <entry key="count_no">Number</entry>
+  <entry key="days_diff">Days differnce</entry>
+  <entry key="info">Info</entry>
+  
 </properties>
