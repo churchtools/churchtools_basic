@@ -865,6 +865,9 @@ function churchdb_getAuthForAjax() {
   if (isset($auth["create person"]))
     $res["create person"]=true;
   
+  if (isset($auth["create person without agreement"]))
+    $res["create person without agreement"]=true;  
+  
   if (isset($auth["view archive"])) {
     $res["viewarchive"]=true;
   }  

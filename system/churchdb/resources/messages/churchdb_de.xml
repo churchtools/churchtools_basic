@@ -104,4 +104,7 @@
   <entry key="days_diff">Anzahl Tage differenz</entry>
   <entry key="info">Info</entry>
   
+  <entry key="i.have.the.permission.from.this.user.for.x">Ich habe die Erlaubnis der Person das die Daten für {0} gespeichert, genutzt und verarbeitet werden dürfen.</entry>
+  <entry key="please.confirm.agreement">Bitte die Erlaubnis zum Speichern der Daten bestätigen.</entry>
+  
 </properties>

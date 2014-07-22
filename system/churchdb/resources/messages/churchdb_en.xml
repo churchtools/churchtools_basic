@@ -33,7 +33,7 @@
   <entry key="person.function">Person function</entry>
   <entry key="group.function">Group function</entry>
   <entry key="selected.persons">Selected persons</entry>
-  <entry key="create.person">Create peron</entry>
+  <entry key="create.person">Create person</entry>
   <entry key="create.group">Create group</entry>
   <entry key="also.apply.if.name.already.exists">also apply if name already exists</entry>
   <entry key="create.more.dataset">create more dataset</entry>
@@ -103,5 +103,8 @@
   <entry key="count_no">Number</entry>
   <entry key="days_diff">Days differnce</entry>
   <entry key="info">Info</entry>
+
+  <entry key="i.have.the.permission.from.this.user.for.x">I have the permission from this person to add and edit his data in {0}.</entry>
+  <entry key="please.confirm.agreement">Please confirm the agreement to save the data.</entry>
   
 </properties>

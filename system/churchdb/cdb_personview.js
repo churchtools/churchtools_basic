@@ -343,6 +343,10 @@ PersonView.prototype.renderAddEntry = function(prefill) {
   _text=_text+'</div><div class="row-fluid">';
   var form = new CC_Form();
   form.surroundWithDiv("span12");
+  
+  if (!user_access("create person without agreement"))
+    form.addCheckbox({label:_("i.have.the.permission.from.this.user.for.x", masterData.site_name), cssid:"agreement"});
+  
   form.addButton({label:_("create.person"), controlgroup:true, cssid:"btProoveNewAddress"});
   form.addHtml("&nbsp; ");
   form.addCheckbox({cssid:"forceCreate",controlgroup_start:true,label:_("also.apply.if.name.already.exists")});
@@ -352,9 +356,13 @@ PersonView.prototype.renderAddEntry = function(prefill) {
   _text=_text+"</div></div>";
       
   $("#divnewentry").html(_text);
+  
   $("#divnewentry a.furtherfields").click(function () {
     $(this).hide();
     $("#furtherfields").animate({ height: 'toggle'}, "medium");
+    window.setTimeout(function() {
+      $("#furtherfields input").first().focus();
+    },300);
     return false;
   });
   $("#divnewentry select").change(function () {
@@ -380,7 +388,13 @@ PersonView.prototype.renderAddEntry = function(prefill) {
     var obj=form_person.getAllValsAsObject(false);
     obj["func"]="createAddress";
     if (obj["vorname"]==null) obj["vorname"]="";
-    if (obj["name"]=="") { alert("Bitte Nachname angeben!"); return false };
+    if (obj["name"]=="" || obj["name"]==null) { alert("Bitte Nachname angeben!"); return false };
+    if (!user_access("create person without agreement") && (!$("#agreement").attr("checked"))) {
+      alert(_("please.confirm.agreement"));
+      $("#agreement").parents("div.control-group").addClass("error");
+      return;
+    }
+    
     $("#divnewentry select").each(function (i, s){
       obj[$(this).attr("id")]=$(this).val();
     });

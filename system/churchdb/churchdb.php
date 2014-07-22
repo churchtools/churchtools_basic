@@ -23,6 +23,8 @@ function churchdb_getAuth() {
   $cc_auth=addAuth($cc_auth, 109,'edit relations', 'churchdb', null, 'Beziehungen der sichtbaren Personen editieren', 1);
   $cc_auth=addAuth($cc_auth, 110,'edit groups', 'churchdb', null, 'Alle Gruppenzuordnungen der sichtbaren Personen editieren', 1);
   $cc_auth=addAuth($cc_auth, 119,'create person', 'churchdb', null, 'Darf Personen erstellen', 1);
+  $cc_auth=addAuth($cc_auth, 123,'create person without agreement', 'churchdb', null, 'Darf Personen auch ohne Einverst&auml;ndnis erstellen.', 1);
+  
   $cc_auth=addAuth($cc_auth, 111,'write access', 'churchdb', null, 'Schreibzugriff auf alle sichtbaren Personen', 1);
   $cc_auth=addAuth($cc_auth, 102,'view alldata', 'churchdb', 'cdb_bereich', 'Alle Personen des jeweiligen Bereiches sichtbar machen', 1);
   $cc_auth=addAuth($cc_auth, 117,'send sms', 'churchdb', null, 'SMS-Schnittstelle verwenden', 1);
