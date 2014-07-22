@@ -181,11 +181,22 @@ StatisticView.prototype.renderAgeGroups = function() {
   return rows.join("");
 };
 
+
+StatisticView.prototype.messageReceiver = function(message, args) {
+  var t = this;
+  if (this==churchInterface.getCurrentView()) {
+    if (message=="allDataLoaded") {
+      t.renderList();
+    }
+  }
+};
+
 StatisticView.prototype.renderList = function() {
   var t=this;
 
   t.createMultiselect("Status", f("status_id"), masterData.status);
-  t.createMultiselect("Station", f("station_id"), masterData.station);
+  if (masterData.fields.f_category.fields.station_id!=null) 
+    t.createMultiselect("Station", f("station_id"), masterData.station);
   t.createMultiselect("Bereich", f("bereich_id"), masterData.auth.dep);
 
   this.filter["showTables"]=1;
@@ -203,7 +214,8 @@ StatisticView.prototype.renderList = function() {
   // Kategorienstatistiken, hier werden nur DIVs erzeugt, die dann unten gefuellt werden.
   rows.push("<table cellpadding=\"5\"><tr><td style=\"vertical-align:top;\" valign=\"top\" width=\"30%\">");
   rows.push('<div id="statsfilterStatus" name="status_id" arr="'+1+'"/>');
-  rows.push('<div id="statsfilterStation" name="station_id" arr="'+2+'"/>');
+  if (masterData.fields.f_category.fields.station_id!=null) 
+    rows.push('<div id="statsfilterStation" name="station_id" arr="'+2+'"/>');
   rows.push('<div id="statsfilterGeschlecht" name="geschlecht_no" arr="'+4+'"/>');
   rows.push('<div id="statsfilterFamilienstatus" name="familienstand_no" arr="'+6+'"/>');
   rows.push('<div id="statsfilterNationalitaet" name="nationalitaet_id" arr="'+13+'"/>');
