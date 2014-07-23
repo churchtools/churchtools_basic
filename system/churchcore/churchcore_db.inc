@@ -986,8 +986,7 @@ function variable_get($var, $default=null) {
     return $mapping[$var];
   else if ($default!=null)
     return $default;
-  else
-    die("Variable $var nicht bekannt!");
+  return null;
 }
 
 function churchcore_sort (&$array, $key) {

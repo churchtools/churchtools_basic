@@ -7,12 +7,14 @@ class CC_ModulModel extends CC_Model {
     global $config;
     
     parent::__construct("AdminForm_$modulename", "admin_saveSettings");
-    $this->addField($modulename."_inmenu","", "CHECKBOX",$config[$modulename."_name"]." im Menu auff&uuml;hren");
-    $this->fields[$modulename."_inmenu"]->setValue($config[$modulename."_inmenu"]);    
-    $this->addField($modulename."_startbutton","", "CHECKBOX",$config[$modulename."_name"]." auf der Startseite als Button anzeigen");
-    $this->fields[$modulename."_startbutton"]->setValue($config[$modulename."_startbutton"]);    
-    $this->addField($modulename."_sortcode","", "INPUT_REQUIRED","Sortierungsnummer im Menu (sortcode)");
-    $this->fields[$modulename."_sortcode"]->setValue($config[$modulename."_sortcode"]);    
+    if ((isset($config[$modulename."_name"])) && ($config[$modulename."_name"]!="")) {
+      $this->addField($modulename."_inmenu","", "CHECKBOX",$config[$modulename."_name"]." im Menu auff&uuml;hren");
+      $this->fields[$modulename."_inmenu"]->setValue(variable_get($modulename."_inmenu", "0"));    
+      $this->addField($modulename."_startbutton","", "CHECKBOX",$config[$modulename."_name"]." auf der Startseite als Button anzeigen");
+      $this->fields[$modulename."_startbutton"]->setValue(variable_get($modulename."_startbutton","0"));    
+      $this->addField($modulename."_sortcode","", "INPUT_REQUIRED","Sortierungsnummer im Menu (sortcode)");
+      $this->fields[$modulename."_sortcode"]->setValue(variable_get($modulename."_sortcode", "0"));
+    }    
   }
   public function render() {
     
@@ -59,7 +61,7 @@ function admin_main() {
     $model->fields["invite_email_text"]->setValue($config["invite_email_text"]);
     
   $model->addField("admin_message","", "INPUT_OPTIONAL","Admin-Nachricht auf Login- und Startseite z.B. f&uuml;r geplante Downtimes");
-    $model->fields["admin_message"]->setValue(isset($config["admin_message"])?$config["admin_message"]:"");
+    $model->fields["admin_message"]->setValue(variable_get("admin_message",""));
     
   if (!isset($config["site_startpage"])) $config["site_startpage"]="home";
   $model->addField("site_startpage","", "INPUT_REQUIRED","Startseite beim Aufrufen von ".variable_get("site_name")." (Standard ist <i>home</i>, m&ouml;glich ist z.B. churchwiki, churchcal)");
@@ -76,7 +78,7 @@ function admin_main() {
   $modules=churchcore_getModulesSorted(false, true);
   foreach ($modules as $module) {
     $model->addField($module."_name","", "INPUT_OPTIONAL","Name f&uuml;r <i>$module</i> (Bitte Feld leerlassen, wenn das Modul nicht ben&ouml;tigt wird)");
-      $model->fields[$module."_name"]->setValue($config[$module."_name"]);       
+      $model->fields[$module."_name"]->setValue(variable_get($module."_name", ""));       
   }
     
   $model->addField("max_uploadfile_size_kb","", "INPUT_REQUIRED","Maximale Upload-Dateigr&ouml;sse in Kilobytes (z.B. 10MB entsprechen hier ca. 10000)");
@@ -118,7 +120,7 @@ function admin_main() {
   $txt.='<ul class="nav nav-tabs">';
     $txt.='<li class="active"><a href="#tab1" data-toggle="tab">'.t("general").'</a></li>';
     foreach ($modules as $module) {
-      if ((isset($m[$module])) && ($config[$module."_name"]!=""))
+      if ((isset($m[$module])) && (isset($config[$module."_name"])) && ($config[$module."_name"]!=""))
         $txt.='<li><a href="#tab'.$module.'" data-toggle="tab">'.$config[$module."_name"].'</a></li>';
     }
     $txt.='</ul>';
