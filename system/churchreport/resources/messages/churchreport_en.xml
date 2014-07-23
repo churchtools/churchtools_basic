@@ -2,8 +2,12 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
   <comment>ChurchReport messages</comment>
-  <entry key="query">Query</entry>
-  <entry key="report">Report</entry>
+  <entry key="query_sql">Database-Query</entry>
+  <entry key="query_id">Query</entry>
+  <entry key="rows">Data rows</entry>
+  <entry key="cols">Data columns</entry>
+  <entry key="aggregatorName">Preselection</entry>
+  
 
   
 </properties>

@@ -170,7 +170,7 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
         }
         else {
           row.push('<a href="#" id="edit_'+a.id+'">');
-          row.push(a[i]);
+          row.push((a[i]!=null?a[i].trim(80):"<i>null</i>"));
           row.push('</a>');
         }
         
@@ -189,9 +189,9 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
       row.push('<td>'+form_renderImage({
         label: _("delete"),
         cssid:'delete_'+a.id, 
-        src: masterData.modulespath+'/images/trashbox.png',
+        src: 'trashbox.png',
         htmlclass: "small"
-      })+'</a>');
+      }));
       row.push("<tr>");
       
       
@@ -204,7 +204,7 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
   rows[rows.length]="<p>"+form_renderImage({
     label: _("add.new.entry"),
     cssid:'create', 
-    src: masterData.modulespath+'/images/plus.png',
+    src: 'plus.png',
     htmlclass: "small"
   });
     rows[rows.length]="</div>";  

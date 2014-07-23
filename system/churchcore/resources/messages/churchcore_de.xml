@@ -290,5 +290,9 @@
   <entry key="show.more.rows">Mehr Zeilen anzeigen</entry>
   <entry key="count.accesses">Anzahl Zugriffe</entry>
   <entry key="cronjob.succeed">Cron-Job ausgeführt!</entry>
+  
+  <!-- 2014-07-23 -->
+  <entry key="query">Abfrage</entry>
+  <entry key="report">Bericht</entry>
       
 </properties>
