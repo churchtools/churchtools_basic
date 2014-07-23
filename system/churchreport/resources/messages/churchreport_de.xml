@@ -2,7 +2,9 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
   <comment>ChurchReport messages</comment>
-  <entry key="query">Abfrage</entry>
-  <entry key="report">Bericht</entry>
-  
+  <entry key="query_sql">Datenbankabfrage</entry>
+  <entry key="query_id">Abfrage</entry>
+  <entry key="rows">Datenreihen</entry>
+  <entry key="cols">Datenspalten</entry>
+  <entry key="aggregatorName">Vorauswahl</entry>
 </properties>

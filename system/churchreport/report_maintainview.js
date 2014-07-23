@@ -22,11 +22,6 @@ MaintainView.prototype.renderMenu = function() {
   
   $("#sidebar").html("");
 
-  var navi = new CC_Navi();
-  navi.addEntry(true,"alistview",_("list.of.masterdata"));
-  navi.renderDiv("cdb_navi", churchcore_handyformat());
-  
-  
   if (!menu.renderDiv("cdb_menu"))
     $("#cdb_menu").hide();
   else {
@@ -35,10 +30,11 @@ MaintainView.prototype.renderMenu = function() {
     $("#cdb_menu a").click(function () {
       if ($(this).attr("id")=="apersonview") {
         menuDepth="amain";
-        churchInterface.setCurrentView(wikiView, false);
+        $("#cdb_menu").html("");
+        churchInterface.setCurrentView(reportView, false);
       }
       else if ($(this).attr("id")=="ahelp") {
-        churchcore_openNewWindow("http://intern.churchtools.de/?q=churchwiki&doc=ChurchWiki-Stammdaten");
+        churchcore_openNewWindow("http://intern.churchtools.de/?q=churchwiki&doc=ChurchReport-Stammdaten");
       }
       return false;
     });

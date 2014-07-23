@@ -287,5 +287,9 @@
   <entry key="count.accesses">Count accesses</entry>
   <entry key="log.viewer">Log-Viewer</entry>
   <entry key="cronjob.succeed">Cron-Job succeed!</entry>
+
+  <!-- 2014-07-23 -->
+  <entry key="query">Query</entry>
+  <entry key="report">Report</entry>
   	  
 </properties>

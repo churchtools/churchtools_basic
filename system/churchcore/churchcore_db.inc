@@ -2235,7 +2235,7 @@ function churchcore_saveMasterData($id, $table) {
     $sql="update {".$table."} set ";
     while (isset($_GET["col".$i])) {
       if ($_GET["value".$i]!="null")
-        $sql=$sql.$_GET["col".$i]."='".$_GET["value".$i]."', ";
+        $sql=$sql.$_GET["col".$i]."='".str_replace("'","\'",$_GET["value".$i])."', ";
       else
         $sql=$sql.$_GET["col".$i]."=null, ";
       $i++;
@@ -2262,7 +2262,7 @@ function churchcore_saveMasterData($id, $table) {
     $i=0;
     while (isset($_GET["col".$i])) {
       if ($_GET["value".$i]!="null")
-        $sql=$sql."'".$_GET["value".$i]."', ";
+        $sql=$sql."'".$_GET["value".$i] ."', ";
       else
         $sql=$sql."null, ";
       $i++;

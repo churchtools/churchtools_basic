@@ -4,7 +4,6 @@ function ReportView() {
   StandardTableView.call(this);
   this.name="ReportView";
   this.allDataLoaded=false;
-  this.listViewTableHeight=646;
   this.currentQueryId=null;
   this.currentReportId=null;
   this.reportData=null;
@@ -14,9 +13,7 @@ Temp.prototype = StandardTableView.prototype;
 ReportView.prototype = new Temp();
 reportView = new ReportView();
 
-
 var masterData=null;
-
 
 ReportView.prototype.renderNavi = function () {
   var t=this;
@@ -44,11 +41,12 @@ ReportView.prototype.renderList = function() {
 
 ReportView.prototype.loadQuery = function(id) {
   var t=this;
+  $("#cdb_form a").remove();
+  $("#cdb_form").append(form_renderImage({src:"loading.gif", width:24}));
   churchInterface.jsendRead({func:"loadQuery", id:id}, function(ok, data) {
     if (!ok) alert(_("error.occured")+": "+data);
     else {
       t.currentQueryId=id;
-      masterData.report=data.reports;
       t.reportData=data.data;
       t.renderView();
     }
@@ -59,11 +57,16 @@ ReportView.prototype.renderView = function() {
   var t=this;
   
   var rows=new Array();
-  var form = new CC_Form();
+  var form = new CC_Form(null, null, "cdb_form");
   form.addSelect({data:masterData.query, selected:t.currentQueryId, freeoption:true, label:_("query")+"&nbsp;", htmlclass:"query", controlgroup:false});
   form.addHtml('&nbsp; &nbsp; &nbsp;');
-  if (t.currentQueryId!=null && masterData.report!=null)
-    form.addSelect({data:masterData.report, selected:t.currentReportId, label:_("report")+"&nbsp;", htmlclass:"report", controlgroup:false});
+  if (t.currentQueryId && masterData.report!=null) {
+    form.addSelect({data:masterData.report, selected:t.currentReportId, label:_("report")+"&nbsp;", htmlclass:"report", controlgroup:false,
+        func:function(k){return k.query_id==t.currentQueryId}});
+    form.addHtml('&nbsp; &nbsp; &nbsp;');
+  }
+  if (user_access("edit masterdata"))
+    form.addImage({src:"options.png", link:true, htmlclass:"option", width:24});
   rows.push(form.render(true, "inline"));
   rows.push('<div id="pivottable"></div>');
 
@@ -75,6 +78,10 @@ ReportView.prototype.renderView = function() {
   $("#cdb_content select.report").change(function() {
     t.currentReportId=$(this).val();
     t.renderView();
+  });
+  $("#cdb_content a.option").click(function() {
+    churchInterface.setCurrentView(maintainView);
+    return false;
   });
   
   if (t.reportData!=null) {
