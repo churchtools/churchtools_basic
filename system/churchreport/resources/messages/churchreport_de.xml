@@ -7,4 +7,5 @@
   <entry key="rows">Datenreihen</entry>
   <entry key="cols">Datenspalten</entry>
   <entry key="aggregatorName">Vorauswahl</entry>
+  <entry key="no.report.available">Für die aktuelle Auswahl ist kein Report vorhanden</entry>
 </properties>

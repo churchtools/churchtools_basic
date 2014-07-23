@@ -131,22 +131,34 @@ ReportView.prototype.renderView = function() {
       "Anzahl neuer Personen": countNewPersons
     };
   
-    if (t.currentReportId==null || masterData.report[t.currentReportId]==null) {
-      t.currentReportId=churchcore_getFirstElement(masterData.report).id;
+    if (t.currentReportId==null || masterData.report[t.currentReportId]==null
+           || masterData.report[t.currentReportId].query_id!=t.currentQueryId) {
+      t.currentReportId=null;
+      $.each(masterData.report, function(k,a) {
+        if (a.query_id==t.currentQueryId) {
+          t.currentReportId=a.id;
+          return false;
+        }
+      });
     }
     
-    // Anzeige der neuen Personen
-    $("#pivottable").pivotUI(
-      t.reportData,
-      {
-         rows: masterData.report[t.currentReportId].rows.split(","),
-         cols: masterData.report[t.currentReportId].cols.split(","),
-         aggregatorName: masterData.report[t.currentReportId].aggregatorName,
-         hiddenAttributes: ["newperson_count", "count"],
-         derivedAttributes: derived,
-         aggregators: $.extend(custom_aggregators, $.pivotUtilities.aggregators),
-      }
-    );
+    if (t.currentReportId==null) {
+      alert(_("no.report.available"));
+      return;
+    }
+    
+    var options = {
+      rows: masterData.report[t.currentReportId].rows.split(","),
+      cols: masterData.report[t.currentReportId].cols.split(","),
+      hiddenAttributes: ["newperson_count", "count"],
+      derivedAttributes: derived,
+      aggregators: $.extend(custom_aggregators, $.pivotUtilities.aggregators)        
+    };
+    if (masterData.report[t.currentReportId].aggregatorName) {
+      options.aggregatorName=masterData.report[t.currentReportId].aggregatorName;
+    }
+    
+    $("#pivottable").pivotUI(t.reportData, options);
   }
 };
 

@@ -20,4 +20,7 @@
   <entry key="select.person.for.absence">Person für Abwesenheitspflege auswählen</entry>
   <entry key="really.delete.absence">Abwesenheit wirklich entfernen?</entry>
   
+  <entry key="viewall_yn">Ohne Berechtigung einsehbar</entry>
+  <entry key="color">Farbe</entry>  
+  
 </properties>

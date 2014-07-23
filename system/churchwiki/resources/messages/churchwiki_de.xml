@@ -11,4 +11,6 @@
   <entry key="last.change.since">Letzte Änderung vom {0}</entry>
   <entry key="version.x.since.y">Version {0} vom {1}</entry>
   
+  <entry key="in_menu_yn">Im Menü anzeigen</entry>
+  
 </properties>

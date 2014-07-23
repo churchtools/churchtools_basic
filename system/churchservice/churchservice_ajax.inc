@@ -973,7 +973,7 @@ class CTChurchServiceModule extends CTAbstractModule {
   
   public function getMasterDataTablenames() {
     $res=array();
-    $res[2]=churchcore_getMasterDataEntry(2, "Service", "service", "cs_service");
+    //$res[2]=churchcore_getMasterDataEntry(2, "Service", "service", "cs_service");
     $res[3]=churchcore_getMasterDataEntry(3, "Service-Gruppe", "servicegroup", "cs_servicegroup","sortkey");
     //$res[4]=churchcore_getMasterDataEntry(4, "Event-Kategorien", "category", "cs_category","sortkey");
     $res[5]=churchcore_getMasterDataEntry(5, "Abwesenheitsgrund", "absent_reason", "cs_absent_reason","sortkey");

@@ -7,7 +7,6 @@
   <entry key="rows">Data rows</entry>
   <entry key="cols">Data columns</entry>
   <entry key="aggregatorName">Preselection</entry>
-  
-
+  <entry key="no.report.available">There is not report available in current query</entry>
   
 </properties>

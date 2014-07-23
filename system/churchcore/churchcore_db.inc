@@ -195,6 +195,7 @@ abstract class CTAbstractModule implements CTModuleInterface {
     foreach ($tables as $value) {
       $res[$value["shortname"]]=churchcore_getTableData($value["tablename"],$value["sql_order"]);
     }
+    $res["service"]=churchcore_getTableData("cs_service");
     return $res;
   }  
   

@@ -948,6 +948,7 @@ function _calcCalendarHeight() {
   if (printview) return 1000;
   var height=$( window ).height()-150;
   if (height>1000) height=1000;
+  else if (height<400) height=400;
   return height;
 }
 

@@ -10,6 +10,6 @@
   
   <entry key="resourcetype_id">Ressourentyp</entry>
   <entry key="autoaccept_yn">Automatische Bestätigung</entry>
-  <entry key="admin_person_ids">Ids von Admins</entry>
+  <entry key="admin_person_ids">Ids von Admins (Komma-separiert)</entry>
   
 </properties>
