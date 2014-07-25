@@ -72,7 +72,6 @@ function user_access(auth, datafield) {
  * Extract the field "bezeichnung" out of the masterData
  * @param name
  * @param id
- * @returns
  */
 function churchcore_getCaption(name, id) {
   if (masterData[name]==null)

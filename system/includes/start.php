@@ -18,6 +18,9 @@ $embedded=false;
 $user=null;
 $files_dir="sites/default";
   
+/** 
+ * Shutdown fuction after all work is done it will be called. 
+ */
 function handleShutdown() {
   $error = error_get_last();
   $info="";
@@ -28,9 +31,9 @@ function handleShutdown() {
 }
 
 /**
- * Pr�fe auf Mulitsite-Installation. Hier gibt es eine Config f�r subdomain
- * z.Bsp. mghh.churchtools.de muss es dann config/churchtools.mggh.config geben.
- * Gibt die Config als Array zur�ck oder null wenn es keine zu laden gibt.
+ * Check for multisite installation. When you want multislite, you to put
+ * the conig in subdomains like mghh.churchtools.de. 
+ * You have to separte the config files in config/mghh 
  */
 function loadConfig() {
     global $files_dir;
@@ -88,7 +91,9 @@ function loadConfig() {
     return $config;
 }
 
-
+/**
+ * Loads all config data from the db
+ */
 function loadDBConfig() {
   global $config;    
   try {
@@ -101,6 +106,10 @@ function loadDBConfig() {
   }  
 }
 
+/**
+ * Load url mappings for each module and merge them together
+ * @return array
+ */
 function loadMapping() {
   $mapping=parse_ini_file("system/churchtools.mapping");
   // Load mappings from modules like system/churchdb/churchdb.mapping
@@ -116,7 +125,8 @@ function loadMapping() {
 }
 
 /**
- * 
+ * Loads the user object in the session. 
+ * If there is no user, it will create an anymous user
  */
 function loadUserObjectInSession() {
   global $q;
@@ -155,6 +165,10 @@ function loadUserObjectInSession() {
   }
 }
 
+/**
+ * Gets the base url form the server
+ * @return string
+ */
 function getBaseUrl() {      
   $base_url=$_SERVER['HTTP_HOST'];
   $b=$_SERVER['REQUEST_URI'];
@@ -171,6 +185,84 @@ function getBaseUrl() {
   return $base_url;
 }
 
+/**
+ * For accept data security
+ */
+function pleaseAcceptDatasecurity() {
+  global $user, $q;
+  include_once("system/churchwiki/churchwiki.php");
+  if (isset($_GET["acceptsecurity"])) {
+    db_query("update {cdb_person} set acceptedsecurity=current_date() where id=$user->id");
+    $user->acceptedsecurity=new DateTime();
+    addInfoMessage(t("datasecurity.accept.thanks"));
+    return churchtools_processRequest($q);
+  }
+
+  $data=churchwiki_load("Sicherheitsbestimmungen", 0);
+  $text=str_replace("[Vorname]",$user->vorname,$data->text);
+  $text=str_replace("[Nachname]",$user->name,$text);
+  $text=str_replace("[Spitzname]",($user->spitzname==""?$user->vorname:$spitzname),$text);
+
+  $text='<div class="container-fluid"><div class="well">'.$text;
+  $text.='<a href="?q='.$q.'&acceptsecurity=true" class="btn btn-important">'.t("datasecurity.accept").'</a>';
+  $text.='</div></div>';
+  return $text;
+}
+
+/**
+ * Will call churchservice => churchservice_main or churchservice/ajax => churchservice_ajax
+ * @param $q - Complete request URL inkl. suburl e.g. churchservice/ajax
+ */
+function churchtools_processRequest($_q) {
+  global $mapping, $config, $q;
+  
+  $content="";
+
+  // Pr�fe Mapping
+  if (isset($mapping[$_q])) {
+    include_once("system/".$mapping[$_q]);
+    
+    $param="main";
+    if (strpos($_q,"/")>0) {
+      $param="_".substr($_q,strpos($_q,"/")+1,99);
+      $_q=substr($_q,0,strpos($_q,"/"));
+    }    
+    
+    if ((!user_access("view",$_q)) && (!in_array($_q,$mapping["page_with_noauth"])) && ($_q!="login")
+                && (!in_array($_q,(isset($config["page_with_noauth"])?$config["page_with_noauth"]:array()))))  {
+      // Wenn kein Benutzer angemeldet ist, dann zeige nun die Anmeldemaske
+      if (!userLoggedIn()) {
+        if (strrpos($q, "ajax")===false) { 
+          $q="login";
+          return churchtools_processRequest("login");
+        }
+        else {
+          drupal_json_output(jsend()->error("Session expired!"));
+          die();
+        }
+      }
+      else {
+        $name=$_q;
+        if (isset($config[$_q."_name"])) 
+          $name=$config[$_q."_name"];
+        addInfoMessage(t("no.permission.for", $name));
+        return "";
+      }
+    }
+    $content.=call_user_func($_q."_".$param);
+    if ($content==null) die();
+  }
+  else 
+    addErrorMessage(t("mapping.not.found", $_q));
+  return $content;
+}
+
+
+/**
+ * Main entry point for churchtools. This will be called from /index.php
+ * Function loads i18n, configuration, check data security.
+ * If everything ok, it calls churchtools_processRequest()
+ */
 function churchtools_main() {
   global $q, $q_orig, $add_header, $config, $mapping, $content, $base_url, $files_dir, $user, $embedded, $i18n;
   
@@ -215,7 +307,7 @@ function churchtools_main() {
       session_start();    
       register_shutdown_function('handleShutdown');
 
-      // Pr�fe auf Offline-Modus !
+      // Check for offline mode and if it activate return false;
       if ((isset($config["site_offline"]) && ($config["site_offline"]==1))) {
         if ((!isset($_SESSION["user"]) || (!in_array($_SESSION["user"]->id, $config["admin_ids"])))) {
           echo t("site.is.down");
@@ -260,82 +352,13 @@ function churchtools_main() {
         if ((userLoggedIn()) && (!isset($_SESSION["simulate"])) && ($q!="logout") && (isset($config["accept_datasecurity"])) && ($config["accept_datasecurity"]==1) && (!isset($user->acceptedsecurity)))
           $content.=pleaseAcceptDatasecurity();
         else
-          $content.=processRequest($q);
+          $content.=churchtools_processRequest($q);
       }
     }
   }
   include("system/includes/header.php");    
   echo $content;
   include("system/includes/body.php");
-}
-
-function pleaseAcceptDatasecurity() {
-  global $user, $q;
-  include_once("system/churchwiki/churchwiki.php");
-  if (isset($_GET["acceptsecurity"])) {
-    db_query("update {cdb_person} set acceptedsecurity=current_date() where id=$user->id");
-    $user->acceptedsecurity=new DateTime();
-    addInfoMessage(t("datasecurity.accept.thanks"));
-    return processRequest($q);
-  }
-    
-  $data=churchwiki_load("Sicherheitsbestimmungen", 0);
-  $text=str_replace("[Vorname]",$user->vorname,$data->text);
-  $text=str_replace("[Nachname]",$user->name,$text);
-  $text=str_replace("[Spitzname]",($user->spitzname==""?$user->vorname:$spitzname),$text);
-  
-  $text='<div class="container-fluid"><div class="well">'.$text;
-  $text.='<a href="?q='.$q.'&acceptsecurity=true" class="btn btn-important">'.t("datasecurity.accept").'</a>';
-  $text.='</div></div>';
-  return $text;
-}
-
-/**
- * Will call churchservice => churchservice_main or churchservice/ajax => churchservice_ajax
- * @param $q - Complete request URL inkl. suburl e.g. churchservice/ajax
- */
-function processRequest($_q) {
-  global $mapping, $config, $q;
-  
-  $content="";
-
-  // Pr�fe Mapping
-  if (isset($mapping[$_q])) {
-    include_once("system/".$mapping[$_q]);
-    
-    $param="main";
-    if (strpos($_q,"/")>0) {
-      $param="_".substr($_q,strpos($_q,"/")+1,99);
-      $_q=substr($_q,0,strpos($_q,"/"));
-    }    
-    
-    if ((!user_access("view",$_q)) && (!in_array($_q,$mapping["page_with_noauth"])) && ($_q!="login")
-                && (!in_array($_q,(isset($config["page_with_noauth"])?$config["page_with_noauth"]:array()))))  {
-      // Wenn kein Benutzer angemeldet ist, dann zeige nun die Anmeldemaske
-      if (!userLoggedIn()) {
-        if (strrpos($q, "ajax")===false) { 
-          $q="login";
-          return processRequest("login");
-        }
-        else {
-          drupal_json_output(jsend()->error("Session expired!"));
-          die();
-        }
-      }
-      else {
-        $name=$_q;
-        if (isset($config[$_q."_name"])) 
-          $name=$config[$_q."_name"];
-        addInfoMessage(t("no.permission.for", $name));
-        return "";
-      }
-    }
-    $content.=call_user_func($_q."_".$param);
-    if ($content==null) die();
-  }
-  else 
-    addErrorMessage(t("mapping.not.found", $_q));
-  return $content;
 }
 
 ?>

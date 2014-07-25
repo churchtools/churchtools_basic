@@ -144,7 +144,6 @@ function churchdb_main() {
 function externmapview_main() {
     
   global $user;
-  //drupal_add_css(drupal_get_path('module', 'churchcore').'/churchcore_bootstrap.css');
   drupal_add_css('system/assets/fileuploader/fileuploader.css'); 
   drupal_add_js(drupal_get_path('module', 'churchcore') .'/shortcut.js'); 
   drupal_add_css('system/assets/ui/jquery-ui-1.8.18.custom.css');

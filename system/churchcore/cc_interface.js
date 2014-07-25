@@ -157,7 +157,7 @@ ChurchInterface.prototype.throwFatalError=function(errorText){
     height:500,
     width:600,
     buttons:{},
-    title:_("error.occured"),
+    title:_("error.occured")
   });
   modal.dialog("addbutton", _("reload"), function() {
     location.reload(true);

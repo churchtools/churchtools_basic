@@ -1891,6 +1891,7 @@ function run_db_updates($db_version) {
     
     db_query("ALTER TABLE {cc_usersettings} ADD serialized_yn INT( 1 ) NOT NULL DEFAULT '0'");
     
+    // Change the save method for intelligence groups to separte usersettings for each group
     $db=db_query("select * from {cc_usersettings} where modulename='churchdb' and attrib='filter'");
     foreach ($db as $filter) {
       $arr=unserialize($filter->value);
@@ -1900,6 +1901,24 @@ function run_db_updates($db_version) {
         }      
     } 
     db_query("delete from {cc_usersettings} where modulename='churchdb' and attrib='filter'");    
+    
+    // Repair group ids in cs_service
+    $db=db_query('select * from {cs_service} s');
+    foreach ($db as $s) {
+      if ($s->cdb_gruppen_ids!=null) {
+        $arr=explode(",",$s->cdb_gruppen_ids);
+        $res=array();
+        foreach ($arr as $a) {
+          if ($a!="") $res[]=$a;
+        }
+        if (count($res)>0)
+          db_query("update {cs_service} set cdb_gruppen_ids=:ids where id=:id",
+            array(":ids"=>implode(",",$res), ":id"=>$s->id));
+        else 
+          db_query("update {cs_service} set cdb_gruppen_ids=null where id=:id",
+            array(":id"=>$s->id));
+      }
+    }
     
     set_version("2.50");
   }

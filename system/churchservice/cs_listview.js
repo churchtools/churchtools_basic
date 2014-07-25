@@ -418,7 +418,7 @@ ListView.prototype.renderEditEvent = function(event) {
     }
   
     var minutes = new Array();
-    form_addEntryToSelectArray(minutes, 0, "0");
+    form_addEntryToSelectArray(minutes, 0, "00");
     form_addEntryToSelectArray(minutes, 15, "15");
     form_addEntryToSelectArray(minutes, 30, "30");
     form_addEntryToSelectArray(minutes, 45, "45");
