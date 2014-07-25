@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <comment>ChurchWiki messages</comment>
+  <entry key="edit.text">Editer le texte</entry>    
+  <entry key="no.new.version.cause.no.change">Il n'y a pas de nouvelle version parce qu'il n'y a aucun changement.</entry>
+  <entry key="edit.categories">Editer les catégories</entry>
+  <entry key="show.on.start.page">Voir sur la page de démarrage</entry>
+  <entry key="unencrypted">Non crypté</entry>
+  <entry key="encrypted">Crypté</entry>
+  <entry key="last.change.since">Dernier changement du {0}</entry>
+  <entry key="version.x.since.y">Version {0} du {1}</entry>
+  
+</properties>

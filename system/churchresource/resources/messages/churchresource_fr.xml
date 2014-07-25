@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <comment>ChurchResource messages</comment>
+
+  <entry key="by.order.of">Par ordre de</entry>  
+  <entry key="caution.conflicting.dates">Attention, conflit de dates</entry>
+  <entry key="booking.request.x.was.created.by.y">La demande d'enregistrement {0} a été créée par {1}</entry>
+  <entry key="booking.status">Statut d'enregistrement</entry>
+  
+  <entry key="resourcetype_id">Type de ressource identifiant</entry>
+  <entry key="autoaccept_yn">Confirmation automatique</entry>
+  <entry key="admin_person_ids">Identifiants Admin</entry>
+  
+</properties>

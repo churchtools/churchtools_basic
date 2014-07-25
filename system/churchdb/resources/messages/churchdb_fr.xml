@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <comment>ChurchDB messages</comment>
+    
+  <entry key="exporter">Exporter</entry>
+  <entry key="emailer">Service de mails</entry>
+  <entry key="list.of.groups">Liste des groupes</entry>
+  <entry key="list.of.persons">Liste des personnes</entry>
+  <entry key="map.view">Carte</entry>
+  <entry key="statistic.view">Vue statistique</entry>
+  <entry key="archive">Archive</entry>
+  <entry key="export.all">Export global</entry>
+  
+  <entry key="my.todos">Mes tâches</entry>
+  <entry key="overdue.followups">Suivis en retard</entry>
+  <entry key="pending.followups">Suivis en attente</entry>
+  <entry key="request.group.membership">Requête de participation de groupe</entry>
+  <entry key="request.group.deletion">Suppression de participation de groupe</entry>
+  <entry key="followup.completed.for.today">Suivi terminé aujourd'hui.</entry>
+  
+  <entry key="add.more.fields">Ajouter plus de champs</entry>
+  <entry key="categories">Catégories</entry>
+  <entry key="my.groups">Mes groupes</entry>
+  
+  <entry key="back.to.list.of.persons">Retour à la liste des personnes</entry>
+  <entry key="add.new.group">Ajouter un nouveau groupe</entry>
+  <entry key="add.related.person">Ajouter une personne</entry>
+  <entry key="add.another.related.person">Ajouter une autre personne</entry>
+  <entry key="related.persons">Personnes placées</entry>
+  <entry key="show.changes.between">Voir les changements:</entry>
+  
+  <entry key="person.function">Fonction des personnes</entry>
+  <entry key="group.function">Fonction des groupes</entry>
+  <entry key="selected.persons">Personnes sélectionnées</entry>
+  <entry key="create.person">Créer une personne</entry>
+  <entry key="create.group">Créer un groupe</entry>
+  <entry key="also.apply.if.name.already.exists">Appliquer même si le nom existe déjà</entry>
+  <entry key="create.more.dataset">Créer plus d'ensembles de données</entry>
+  <entry key="filter.for.persons">Filtre de personnes</entry>
+  <entry key="filter.for.groups">Filtre de groupes</entry>
+  <entry key="filter.for.relations">Filtre de relations</entry>
+  <entry key="close.filter">Fermer le filtre</entry>
+  <entry key="reset.filter">Réinitialiser le filtre</entry>
+  <entry key="mark.person.as.deleted.in.group">Marquer la personne comme supprimée du groupe</entry>
+  <entry key="why.the.person.should.not.be.in.this.group.anymore">Pourquoi supprimer la personne du groupe?</entry>
+  <entry key="number.of.guests">Nombre d'invités</entry>
+  <entry key="please.maintain.a.group.meeting">Merci de conserver une réunion de groupe...</entry>
+  <entry key="submit.selection">Soumettre la sélection</entry>
+  <entry key="please.select.persons.then.press.submit.selection">Merci de sélectionner des personnes et de cliquer sur 'soumettre la sélection'.</entry>
+  <entry key="meeting.was.cancelled">La réunion a été annulée</entry>
+  <entry key="who.was.there.on">Qui était là le {0}?</entry>
+  <entry key="load.archive">Charger l'archive</entry>
+  <entry key="add.tag">Ajouter un jour</entry>  
+  <entry key="add.to.group">Ajouter au groupe</entry>
+  <entry key="add.to.department">Ajouter au département</entry>
+  <entry key="add.one.tag">Ajouter un jour</entry>
+  <entry key="add.one.permission">Ajouter une permission</entry>
+  <entry key="move.to.archive">Déplacer dans les archives</entry>
+  <entry key="delete.irrevocable">Supprimer définitivement</entry>
+  <entry key="history">Histoire</entry>
+  <entry key="relations">Relations</entry>
+  <entry key="edit.relation">Maintenir les relations</entry>
+  <entry key="export.vcard">Exportation VCard</entry>
+  
+
+  <!-- SETTINGS -->
+  <entry key="which.mail.should.be.used">Quel service de mail doit être utilisé</entry>
+  <entry key="direct.access.of.local.email.app">Accès direct au programme d'emails local (limité avec Windows!)</entry>
+  <entry key="export.email.to.new.window">Exportation des adresses email dans une nouvelle fenêtre</entry>
+  <entry key="mail.with.churchtools">Exportation d'email à travers ChurchTools (lettres groupées incluses!)</entry>
+  <entry key="which.separator.should.be.used">Quel séparateur doit être utilisé (concerne uniquement les deux premiers champs)</entry>
+  <entry key="semicolon.for.windows">Point-virgule (utilisé pour windows)</entry>
+  <entry key="commata.for.mac">Virgule (utilisée pour mac et gmail)</entry> 
+  <entry key="which.field.should.be.used.for.local.email.app">Quel champs doit être utilisé pour le programme d'emails</entry>
+  <entry key="mail.to">Email adressé à</entry>
+  <entry key="mail.bcc">Email bcc</entry>
+  <entry key="additional.layer.for.google.maps">Couche additionnelle pour google maps</entry>
+  <entry key="no.layer">Pas de couche additionnelle</entry>
+  <entry key="show.traffic">Voir le traffic</entry>
+  <entry key="show.bike.paths">Voir les pistes cyclables</entry>
+  <entry key="show.transit">Voir le transit</entry>
+  <entry key="hide.persons.with.status">Cacher les personnes avec le statut suivant</entry> 
+  <entry key="signature">Signature</entry>
+  <entry key="save.signature">Sauvegarder la signature</entry>
+  
+  <!-- MASTERDATA -->
+  <entry key="kuerzel">Diminutif</entry>
+  <entry key="mitglied_yn">Signifie membre</entry>
+  <entry key="infreitextauswahl_yn">Utiliser aver la recherche</entry>
+  <entry key="anzeigen_in_meinegruppen_teilnehmer_yn">Les participants doivent se voir mutuellement</entry>
+  <entry key="muss_leiter_enthalten_yn">Un responsable doit être présent</entry>
+  <entry key="in_neue_person_erstellen_yn">Accepter en 'créer une nouvelle personne</entry>
+  <entry key="gruppentyp_id">Type de groupe</entry>
+  <entry key="imageurl">URL pour une image (optionnel)</entry>
+  <entry key="bez_vater">Nom de la relation mère</entry>
+  <entry key="bez_kind">Nom de la relation subordonnée</entry>
+  <entry key="export_aggregation_yn">Résumer dans export</entry>
+  <entry key="export_title">Titre au résumé dans export</entry>
+  <entry key="comment_viewer_id">Calcul de commentaire</entry>
+  <entry key="intern_code">Code intern (ne pas modifier!)</entry>
+  <entry key="followup_typ_id">Type de suivis </entry>
+  <entry key="count_no">Numéro</entry>
+  <entry key="days_diff">Intervalle de jours</entry>
+  <entry key="info">Info</entry>
+  
+</properties>
