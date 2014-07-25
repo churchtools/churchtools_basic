@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<title><?php echo $config["site_name"].(isset($config["test"])?" TEST ":"")." - ".(isset($config[$q."_name"])?$config[$q."_name"]:$q); ?></title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	    <meta name="description" content="ChurchTools">
     <meta name="author" content="">
 

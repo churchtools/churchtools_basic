@@ -1765,7 +1765,10 @@ CC_Navi.prototype.activate = function(id) {
  */
 function form_showDialog (title, text, width, height, buttons) {
   var elem =$('<div id="cdb_dialog">'+text+"</div>").appendTo("#page");
-  if (width>window.innerWidth) width=window.innerWidth-16;
+  if (width>window.innerWidth) {
+    width=window.innerWidth-16;
+    if (width<300) width=300;
+  }
   if (buttons==null) buttons=new Object();
 
   elem.dialog({
