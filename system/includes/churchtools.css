@@ -7,7 +7,7 @@
 }
 
 small {
-  font-size:90%;
+  font-size:85%;
   line-height:130%;
 }
 
@@ -213,7 +213,7 @@ img.small {
   width:400px;	
 }
 #tooltip_inner.ListView {
-  width:280px;	
+  width:340px;	
 }
 #tooltip_inner.SongView {
   min-width:250px;	
@@ -226,7 +226,7 @@ img.small {
 }
 
 div.popover-inner {
-  width:auto;	
+  width:auto;
 }
 
 div.tooltip_foto {

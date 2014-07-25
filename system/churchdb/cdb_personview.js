@@ -2735,12 +2735,12 @@ PersonView.prototype.renderDetails = function (id) {
       }
       
       if (masterData.auth.adminpersons) {
-        _text=_text+"<h4>"+_("permissions")+"&nbsp;&nbsp;";
-        _text=_text+'<a href="#" id="auth">'+t.renderImage("options")+'</a></h4>';
+        _text=_text+"<legend>"+_("permissions")+"&nbsp;&nbsp;";
+        _text=_text+'<a href="#" id="auth">'+t.renderImage("options")+'</a></legend>';
         _text=_text+'<p style="line-height:100%;color:black"><small>';
       }
       else if (personSuperLeader) {
-        _text=_text+"<br/><br/><h4>"+_("permissions")+"&nbsp;&nbsp;</h4>";
+        _text=_text+"<br/><br/><legend>"+_("permissions")+"&nbsp;&nbsp;</legend>";
         _text=_text+'<p style="line-height:100%;color:black"><small>';          
       }
       else { 
