@@ -294,5 +294,6 @@
   <!-- 2014-07-23 -->
   <entry key="query">Abfrage</entry>
   <entry key="report">Bericht</entry>
+  <entry key="close">Schliessen</entry>
       
 </properties>

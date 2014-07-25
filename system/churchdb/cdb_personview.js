@@ -19,6 +19,7 @@ function PersonView() {
   this.sortedData=null;
   this.currentTodoTimer=null;
   this.gruppenteilnehmerdatum=new Date();
+  this.saveCurrentFilter=null;
 }
 
 Temp.prototype = CDBStandardTableView.prototype;
@@ -107,7 +108,8 @@ PersonView.prototype.renderMenu = function() {
         t.smser(); 
       }
       else if ($(this).attr("id")=="aallexporter") {
-        var Fenster = window.open("?q=churchdb/export");     
+        t.exportData(null, true);
+//        var Fenster = window.open("?q=churchdb/export");     
 //        return true;
       }
       else if ($(this).attr("id")=="alogviewer") {
@@ -1626,11 +1628,11 @@ PersonView.prototype.renderFilter = function() {
     }    
     else if ($(this).attr("id")=="delIntelligentGroup") {
       if (confirm("Wirklich die intelligente Gruppen "+t.filter["filterMeine Gruppen"].substr(6,99)+" entfernen?")) {
-        churchInterface.jsendWrite({func:"delMyFilter", name:t.filter["filterMeine Gruppen"].substr(6,99)});
-        delete masterData.settings.filter[t.filter["filterMeine Gruppen"].substr(6,99)];
+        churchInterface.deleteSetting("myFilter["+t.filter["filterMeine Gruppen"].substr(6,99)+"]");
+        delete masterData.settings.myFilter[t.filter["filterMeine Gruppen"].substr(6,99)];
         delete t.filter["filterMeine Gruppen"];
         masterData.settings.selectedMyGroup=null;
-        churchInterface.jsendWrite({func:"saveSetting", sub:"selectedMyGroup", val:"null"});
+        churchInterface.deleteSetting("selectedMyGroup");
 
         t.resetPersonFilter();
         t.resetGroupFilter();
@@ -1657,7 +1659,7 @@ PersonView.prototype.renderFilter = function() {
           t.filter.filterStatus=t.filter.filterStatus.getSelectedAsArrayString();
           t.filter.filterStation=t.filter.filterStation.getSelectedAsArrayString();
           t.filter.filterBereich=t.filter.filterBereich.getSelectedAsArrayString();
-          churchInterface.jsendWrite({func:"saveMyFilter", name:name, filter:t.filter}, null, false);
+          churchInterface.saveSetting("myFilter["+name+"]",t.filter);
           t.makeMasterDataMultiselectFilter("Status", masterData.settings.filterStatus);
           t.makeMasterDataMultiselectFilter("Station", masterData.settings.filterStation);
           t.makeMasterDataMultiselectFilter("Bereich", masterData.settings.filterBereich, masterData.auth.dep);
@@ -3856,9 +3858,10 @@ PersonView.prototype.msg_filterChanged = function (id, oldVal) {
     }
     // Wenn es mit "filter" anf�ngt, dann handelt es sich jetzt um intelligente Gruppen
     if ((typeof t.filter['filterMeine Gruppen']=="string") && (t.filter['filterMeine Gruppen'].indexOf("filter")==0)) {
+      t.saveCurrentFilter=t.filter;
       // Nun kopiere intelligente Gruppe in die Filter
       var merker=t.filter['filterMeine Gruppen'];
-      t.filter=new cc_copyArray(masterData.settings.filter[t.filter['filterMeine Gruppen'].substr(6,99)]);
+      t.filter=new cc_copyArray(masterData.settings.myFilter[t.filter['filterMeine Gruppen'].substr(6,99)]);
       t.makeMasterDataMultiselectFilter("Status", t.filter.filterStatus);
       t.makeMasterDataMultiselectFilter("Station", t.filter.filterStation);
       t.makeMasterDataMultiselectFilter("Bereich", t.filter.filterBereich, masterData.auth.dep);
@@ -3866,15 +3869,16 @@ PersonView.prototype.msg_filterChanged = function (id, oldVal) {
       t.filter["filterMeine Gruppen"]=merker;
       t.renderFurtherFilter();
       t.renderTodos();
+      t.renderListMenu();
     }
     // Wenn es vorher eine intelligente Gruppe war, mu� ich nun Filter wieder l�schen
     else if ((typeof oldVal=="string") && (oldVal.indexOf("filter")==0)) {
-      var merker=t.filter['filterMeine Gruppen'];
-      t.resetPersonFilter();
-      t.resetGroupFilter();  
-      t.filter['filterMeine Gruppen']=merker;
+      t.filter=t.saveCurrentFilter;
+      delete t.filter["filterMeine Gruppen"];
+      
       t.renderTodos();
       t.renderFurtherFilter();
+      t.renderListMenu();
     }
     if ((t.filter['filterMeine Gruppen']>0)) {
       if ((groupMeetingStats==null) || (groupMeetingStats[t.filter['filterMeine Gruppen']==null]))    
@@ -4466,8 +4470,12 @@ PersonView.prototype.loadGroupMeetingList = function (g_id) {
   });
 };
     
-PersonView.prototype.choseExportFields = function(selected) {
-  
+/**
+ * Edit export template.
+ * @selected which template is selected
+ * @func optional feedback function when dialog will be closed. 
+ */
+PersonView.prototype.editExportTemplates = function(selected, func) {
   var data = new Array();
   if (masterData.settings.exportTemplate!=null) {
     $.each(masterData.settings.exportTemplate, function(k, a) {
@@ -4477,39 +4485,48 @@ PersonView.prototype.choseExportFields = function(selected) {
   }
   else masterData.settings.exportTemplate=new Object();
 
-//  data.push({id:-1, bezeichnung:"Alle", sortkey:0});
-  data.push({id:"", bezeichnung:"-- Neu erstellen --", sortkey:99});
+  data.push({id:"", bezeichnung:"-- "+_("add.new.entry")+" --", sortkey:99});
   
   var rows=new Array();
   var form=new CC_Form();
   form.addHtml('<div class="">');
-  form.addSelect({label:"Vorlage ausw&aumlhlen:&nbsp; ", selected:selected, htmlclass:"template", controlgroup:false, data:data});
+  form.addSelect({label:_("select.template")+"&nbsp; ", selected:selected, htmlclass:"template", controlgroup:false, data:data});
   form.addHtml('&nbsp; &nbsp;')
   form.addImage({src:"save.png", link:true, htmlclass:"save", width:24});
   form.addHtml('&nbsp; &nbsp;')
   form.addImage({src:"trashbox.png", link:true, htmlclass:"delete", width:24});
   form.addHtml('<span class="pull-right">')
-  form.addHtml('<a href="#" class="select-all">Alle markieren</a> &nbsp; <a href="#" class="deselect-all">Alle abwählen</a>');
+  form.addHtml('<a href="#" class="select-all">'+_("select.all")+'</a> &nbsp; ');
+  form.addHtml('<a href="#" class="deselect-all">'+_("deselect.all")+'</a>');
   form.addHtml('</span>');
   form.addHtml('</div>');
   rows.push(form.render(true, "inline"));
   var form=new CC_Form();
   form.addHtml('<div class="row-fluid">');
+  masterData.fields["f_address"].fields["age"]={sql:"age", text:_("age")};
+  masterData.fields["f_address"].fields["anrede2"]={sql:"anrede2", text:"Lieber/Liebe"};
+  masterData.fields["f_address"].fields["id"]={sql:"id", text:"Id"};
   $.each(masterData.fields, function(i,fieldcategory) {
-    form.addHtml('<div class="span4" style="min-width:170px">');
-    form.addHtml('<legend>'+fieldcategory.text+'</legend>');
-    $.each(fieldcategory.fields, function(i,field) {
-      if (t.checkFieldPermission(field))
-        form.addCheckbox({label:field.text,  htmlclass:"field",
-          data:[{name:"sql",value:field.sql}], controlgroup:false});
-    });
-    form.addHtml('</div>');
+    if (fieldcategory.arrayname!='f_group') {
+      form.addHtml('<div class="span4" style="min-width:170px">');
+      form.addHtml('<legend>'+fieldcategory.text+'</legend>');
+      $.each(fieldcategory.fields, function(i,field) {
+        if (field.auth!="admingroups" && field.sql!="treffen_yn" && field.sql!="members_allowedmail_eachother_yn" 
+           && t.checkFieldPermission(field))
+          form.addCheckbox({label:field.text,  htmlclass:"field",
+            data:[{name:"sql",value:field.sql}], controlgroup:false});
+      });
+      form.addHtml('</div>');
+    }
   });  
   form.addHtml('</div>');
   rows.push(form.render(false));
-  var elem=form_showDialog("Auswahl der Felder", rows.join(""), 700, 600)
-    .dialog("addbutton", "Schliessen", function() {
-      elem.dialog("close");
+  var elem=form_showDialog(_("chose.fields"), rows.join(""), 700, 600)
+    .dialog("addbutton", _("close"), function() {
+      if (!changes || confirm(_("discard.changes"))) {
+        elem.dialog("close");
+        if (func!=null) func(selected);
+      }
     });
   
   elem.find("a.select-all").click(function() {
@@ -4547,7 +4564,7 @@ PersonView.prototype.choseExportFields = function(selected) {
     obj.bezeichnung=name;
     masterData.settings.exportTemplate[name]=obj;
     elem.dialog("close");
-    t.choseExportFields(name);   
+    t.editExportTemplates(name, func);   
     churchInterface.saveSetting("exportTemplate["+name+"]", 
                           masterData.settings.exportTemplate[name]);
     changes=false;
@@ -4562,7 +4579,7 @@ PersonView.prototype.choseExportFields = function(selected) {
     if ($(this).val()=="") {
       selected=null;
     }
-    else if (!changes || confirm("Änderungen verwerfen?")) {
+    else if (!changes || confirm(_("discard.changes"))) {
       changes=false;
       selected=$(this).val();
       _renderCheckboxes();
@@ -4573,7 +4590,7 @@ PersonView.prototype.choseExportFields = function(selected) {
   });
   elem.find("a.save").click(function() {
     if (elem.find("select.template").val()=="") {
-      var name=prompt("Bitte Namen eingeben");
+      var name=prompt(_("please.fillin.a.name"));
       if (name!=null) {
         _saveCheckboxes(name);
       }
@@ -4582,99 +4599,111 @@ PersonView.prototype.choseExportFields = function(selected) {
     return false;
   });
   elem.find("a.delete").click(function() {
-    if (confirm("Aktuelle Vorlage wirklich entfernen?")) {
+    if (confirm(_("really.delete.template"))) {
       delete masterData.settings.exportTemplate[selected]; 
       churchInterface.deleteSetting("exportTemplate["+selected+"]");      
       elem.dialog("close");
-      t.choseExportFields();      
+      t.editExportTemplates(null, func);      
     }    
   });
   
 };
 
-PersonView.prototype.exportData = function() {
+PersonView.prototype.exportData = function(selectedTemplate, exportAllData) {
   var t=this;
+  if (exportAllData==null) exportAllData=false;
   var i=masterData.max_exporter;
   if (masterData.auth["export"])
 	  i=99999;
   var exportIds=new Array();
   
   var rels=new Object();
-  $.each(allPersons, function(k, a) {
-    if ((i>0) && (t.checkFilter(a))) {
-      i--;
-      exportIds.push(a.id);
-      if (a.rels!=null) {
-        $.each(a.rels, function(i,b) {
-          if (masterData.relationType[b.beziehungstyp_id].export_aggregation_yn==1)
-            if (((b.vater_id==a.id) && (t.checkFilter(allPersons[b.kind_id]))) ||
-                ((b.kind_id==a.id) && (t.checkFilter(allPersons[b.vater_id]))))
-              rels[b.beziehungstyp_id]=b.beziehungstyp_id;          
-        });   
+  
+  if (!exportAllData) {
+    $.each(allPersons, function(k, a) {
+      if ((i>0) && (t.checkFilter(a))) {
+        i--;
+        exportIds.push(a.id);
+        if (a.rels!=null) {
+          $.each(a.rels, function(i,b) {
+            if (masterData.relationType[b.beziehungstyp_id].export_aggregation_yn==1)
+              if (((b.vater_id==a.id) && (t.checkFilter(allPersons[b.kind_id]))) ||
+                  ((b.kind_id==a.id) && (t.checkFilter(allPersons[b.vater_id]))))
+                rels[b.beziehungstyp_id]=b.beziehungstyp_id;          
+          });   
+        }
       }
-    }
-  });  
+    });
+  }
+  
   if (i==0) {
-    alert(unescape("Es d%FCrfen nur max. "+masterData.max_exporter+" Eintr%E4ge exportiert werden. Bitte genauer filtern%21"));
+    alert(_("it.is.only.allowed.to.export.x.entries", masterData.max_exporter));
     return;
   }
-
-  var params=exportIds.join(",");
-  if (this.filter["filterMeine Gruppen"]!=null) 
-    params=params+"&groupid="+this.filter["filterMeine Gruppen"];
-    
+  if (!masterData.auth.viewalldata && !groupView.isPersonLeaderOfGroup(masterData.user_pid, this.getFilter("filterMeine Gruppen"))) {
+    alert(_("select.mygroup.to.export.data"));
+    return;
+  }
   
-	if (this.filter["filterRelations"]!=null) {
-	  this.showDialog("Beziehungen exportien", "Es wird momentan nach Beziehungen gefiltert, sollen die durch die Beziehung verbundene Personen mit exportiert werden?",
-	      300,300, {
-	      "Ja": function() {
-          agg="&rel_part="+t.filter["filterRelations"].substr(0,1);
-          agg=agg+"&rel_id="+t.filter["filterRelations"].substr(2,99);       
-          // Und los geht es
-	        var Fenster = window.open("?q=churchdb/export&ids="+params+agg);     
-          $(this).dialog("close");
-	      },
-	      "Nein": function() {
-	        // Und los geht es
-	        var Fenster = window.open("?q=churchdb/export&ids="+params);     
-	        $(this).dialog("close");
-	      }
-	  });  	  
-	} 
-	else if (masterData.auth.viewalldata) {
-	  var txt="";
+  var params=exportIds.join(",");
+  
+  if (!exportAllData && this.filter["filterMeine Gruppen"]!=null) 
+    params=params+"&groupid="+this.filter["filterMeine Gruppen"];
+      
+  var form = new CC_Form(_("template.for.columns.in.exporting"));
+  form.addSelect({label:_("chose.export.template"), freeoption:true, data:masterData.settings.exportTemplate, 
+     selected: selectedTemplate, htmlclass:"template", controlgroup_start:true});
+  form.addHtml('&nbsp; &nbsp;')
+  form.addImage({src:"options.png", width:24, link:true, htmlclass:"option", controlgroup_end:true});
+  
+  if (!exportAllData) {
+    if (this.filter["filterRelations"]!=null) {
+      form.addCheckbox({label:_("export.related.persons"),
+             htmlclass:"export-related-persons"});
+    }
+  
+    if (churchcore_countObjectElements(rels)>0) {
+      form.addHtml("<legend>"+_("aggregate.relations")+"</legend>");
+      $.each(rels, function(k,a) {
+        form.addCheckbox({label:masterData.relationType[a].bez_vater+"/"+masterData.relationType[a].bez_kind,
+             htmlclass:"aggregate-relation", data:[{name:"relation-type", value:a}] });
+      });    
+    }
+    var txt="";
     $.each(rels, function(k,a) {
       txt=txt+"<input type=\"checkbox\" id=\"cb_"+a+"\" class=\"cdb-checkbox\"></input> &nbsp;"+masterData.relationType[a].bez_vater+"/"+masterData.relationType[a].bez_kind+"<br/>";
     });
-    if (txt!="") {
-      this.showDialog("Beziehungen zusammenfassen", "Es wurden Beziehungen gefunden, welche sollen zusammengefasst werden?<br/><br/>"+txt,
-          400, 350, {
-          "Ok": function() {
-            var agg="";
-            $.each(rels, function(k,a) {
-              if ($("#cb_"+a).attr("checked")) {
-                agg=agg+"&agg"+a+"=y";
-              }
-            });
-            // Und los geht es
-            var Fenster = window.open("?q=churchdb/export&ids="+params+agg);     
-            $(this).dialog("close");
-          },
-          "Abbrechen": function() {
-            $(this).dialog("close");
-          }
-      });     
-    }
-    else {
-      var Fenster = window.open("?q=churchdb/export&ids="+params);     
-    }
-	}
-  else { 
-    if (!groupView.isPersonLeaderOfGroup(masterData.user_pid, this.getFilter("filterMeine Gruppen")))
-      alert("Um zu exportieren muss unter 'Meine Gruppen' eine Gruppe gefiltert werden, in der Du Leiter bist.");
-    else
-      var Fenster = window.open("?q=churchdb/export&ids="+params);
   }
+  
+  var elem=form_showDialog(_("export.settings"), form.render(null, "horizontal"), 600,400);
+  elem.dialog("addbutton", _("export"), function() {
+    if (elem.find("select.template").val()) 
+      params=params+"&template="+elem.find("select.template").val(); 
+  
+    if (elem.find("input.export-related-persons").attr("checked")) {
+      var agg="&rel_part="+t.filter["filterRelations"].substr(0,1);
+      agg=agg+"&rel_id="+t.filter["filterRelations"].substr(2,99);
+      params=params+agg;      
+    }
+    
+    var agg="";
+    $.each(rels, function(k,a) {
+      if (elem.find("input.aggregate-relation[data-relation-type="+a+"]").attr("checked")) {
+        agg=agg+"&agg"+a+"=y";
+      }
+    });
+    params=params+agg;
+    
+    var Fenster = window.open("?q=churchdb/export&ids="+params);     
+    $(this).dialog("close");
+    
+  }).dialog("addcancelbutton");
+  
+  
+  elem.find("a.option").click(function() {
+    t.editExportTemplates(elem.find("select.template").val(), function(selected) {t.exportData(selected)});
+    elem.dialog("close");
+  });
 };
 
 PersonView.prototype.renderGroupContent = function(g_id) {
@@ -5032,9 +5061,9 @@ PersonView.prototype.getMyGroupsSelector = function(withIntelligentGroups) {
     }
 
     // Intelligente Gruppen (Gespeicherte Filter)
-    if ((withIntelligentGroups) && (masterData.settings.filter!=null)) {
+    if ((withIntelligentGroups) && (masterData.settings.myFilter!=null)) {
       var _owngroups_intelligent= new Array();
-      $.each(masterData.settings.filter, function(k,a) {
+      $.each(masterData.settings.myFilter, function(k,a) {
         var entry = new Array();
         entry.id="filter"+k;
         entry.bezeichnung="&nbsp; "+k;

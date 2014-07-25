@@ -5,7 +5,7 @@ include_once('./'. drupal_get_path('module', 'churchdb') .'/../churchcore/church
 
 /**
  * 
- * @param $cond zusŠtzlich sql where clause
+ * @param $cond zusï¿½tzlich sql where clause
  * @param fields: hier kann man die felder vom sql per hand setzen
  */
 function churchdb_getAllowedPersonData($cond='', 
@@ -33,7 +33,7 @@ function churchdb_getAllowedPersonData($cond='',
     }
   }
   
-  // Hole ALLE Gruppeninfos und matche spŠter
+  // Hole ALLE Gruppeninfos und matche spï¿½ter
   $sql_g="SELECT gg.gemeindeperson_id gp_id, gg.gruppe_id id, gg.status_no leiter, 
          DATE_FORMAT(gg.letzteaenderung, '%Y-%m-%d') d, gg.aenderunguser user, 
          gg.followup_count_no, gg.followup_add_diff_days, followup_erfolglos_zurueck_gruppen_id, comment
@@ -41,7 +41,7 @@ function churchdb_getAllowedPersonData($cond='',
   $grps=db_query($sql_g);
   $arr_grps=array();
   foreach ($grps as $grp) {
-    // Wenn kein FollowUp, dann mu§ nix Ÿbertragen werden.    
+    // Wenn kein FollowUp, dann muï¿½ nix ï¿½bertragen werden.    
     if ($grp->followup_count_no==null) unset($grp->followup_count_no);
     if ($grp->followup_add_diff_days==null) unset($grp->followup_add_diff_days);
     if ($grp->comment==null) unset($grp->comment);
@@ -176,7 +176,7 @@ function churchdb_getAllowedGroups() {
 
 /**
  * Hole Array mit Ids der Gruppen in denen $user_pid ist. 
- * Wenn ich keine "view alldetails"-Rechte habe, dann nur wo ich Leiter bin und Abschlu§datum nicht lŠnger als groupnotchoosable ist 
+ * Wenn ich keine "view alldetails"-Rechte habe, dann nur wo ich Leiter bin und Abschluï¿½datum nicht lï¿½nger als groupnotchoosable ist 
  * oder auch anzeigene_in_meine_gruppen_teilnehmer_yn=1 ist.
  * @param $user_pid
  * @param $only_ids default=false, only return array of IDs, otherweise array of person data
@@ -195,11 +195,11 @@ function churchdb_getMyGroups($user_pid, $only_ids=false, $onlyIAmLeader=false, 
     foreach ($res as $a) {
       // Entweder nicht nur Leitergruppen oder ich eben Leiter Status>0
       if ((!$onlyIAmLeader) || ($a->status_no>0)) {
-        // Entweder auch fŸr TN sichtbar und Status nicht zum lšschen markiert
+        // Entweder auch fï¿½r TN sichtbar und Status nicht zum lï¿½schen markiert
         if ((($a->anzeigen_in_meinegruppen_teilnehmer_yn==1) && ($a->status_no!=-1))
         // oder wenn ich Leiter bin (status_no>0) und Abschlussdatum nicht zu lange her ist 
             || (($a->status_no>0) && (($a->abschlusstage==null) || ($a->abschlusstage<$config["churchdb_groupnotchoosable"])))
-    // => Habe ich erst mal rausgenommen, denn sonst sieht man plštzlich  mit alldetails Leute aus Freizeiten oder mit gleichen Merkmalen!        
+    // => Habe ich erst mal rausgenommen, denn sonst sieht man plï¿½tzlich  mit alldetails Leute aus Freizeiten oder mit gleichen Merkmalen!        
             // oder wenn ich alle Details sehen darf 
             //|| ((isset($user->auth["churchdb"])) && (isset($user->auth["churchdb"]["view alldetails"]))))
             )
@@ -263,7 +263,7 @@ function churchdb_getAllowedDeps() {
   $allowedDeps=user_access("view alldata", "churchdb");
   if ($allowedDeps==null)
     $allowedDeps=array();
-  // Nehme die wo ich alldata darauf habe und ergŠnze mit denen, wo ich drin bin.
+  // Nehme die wo ich alldata darauf habe und ergï¿½nze mit denen, wo ich drin bin.
   $res=db_query("SELECT * from {cdb_bereich_person} where person_id=".$_SESSION["user"]->id);
   foreach ($res as $auth) {
     $allowedDeps[$auth->bereich_id]=$auth->bereich_id;
@@ -314,50 +314,58 @@ function _checkPersonAutorisierung($auto, $iAmLeader, $iAmSuperLeader) {
    
   return $ret;
 }
-function churchdb_getPersonDetails($id) {
+
+function churchdb_getPersonDetails($id, $withComments=true) {
   global $user;
 
-  // Entweder habe ich viewall auf den Bereich oder ich bin mit dem in einer Gruppe
   $allowed=$user->id==$id;
   $iAmLeader=false;
   $iAmSuperLeader=false;
-
-  // Am i super leader?
-  if (churchdb_isPersonSuperLeaderOfPerson($user->id, $id)) {
+  
+  // With export data I have the permission to see everything!
+  if (user_access("export data", "churchdb")) {
+    $allowed=true;
+    $iAmLeader=true;
     $iAmSuperLeader=true;
-    $iAmLeader=true;
-    $allowed=true;
-  }
-  // Prï¿½fe erst, ob ich als Leiter mit dem in der Gruppe bin
-  if (churchdb_isPersonLeaderOfPerson($user->id, $id)) {
-    $iAmLeader=true;
-    $allowed=true;
-  }
-  // Prï¿½fe nun, ob ich normal mit dem in der Gruppe bin
-  if (!$allowed) {
-    $myGroups=churchdb_getMyGroups($user->id, true, false);
-    if (count($myGroups)>0) {
-      $res=db_query("SELECT count(*) c
-               FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg
-                      WHERE p.id=gp.person_id and gpg.gemeindeperson_id=gp.id and p.id=:id
-                       and gpg.gruppe_id in (".implode(",", $myGroups).") ", array(':id'=>$id))->fetch();
-      if ($res->c>0) {
-        $allowed=true;
+  } 
+  else {  
+
+    // Am i super leader?
+    if (churchdb_isPersonSuperLeaderOfPerson($user->id, $id)) {
+      $iAmSuperLeader=true;
+      $iAmLeader=true;
+      $allowed=true;
+    }
+    // Prï¿½fe erst, ob ich als Leiter mit dem in der Gruppe bin
+    if (churchdb_isPersonLeaderOfPerson($user->id, $id)) {
+      $iAmLeader=true;
+      $allowed=true;
+    }
+    // Prï¿½fe nun, ob ich normal mit dem in der Gruppe bin
+    if (!$allowed) {
+      $myGroups=churchdb_getMyGroups($user->id, true, false);
+      if (count($myGroups)>0) {
+        $res=db_query("SELECT count(*) c
+                 FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg
+                        WHERE p.id=gp.person_id and gpg.gemeindeperson_id=gp.id and p.id=:id
+                         and gpg.gruppe_id in (".implode(",", $myGroups).") ", array(':id'=>$id))->fetch();
+        if ($res->c>0) {
+          $allowed=true;
+        }
       }
     }
-  }
-  if (!$allowed) {
-    $allowedDeps=user_access("view alldata", "churchdb");
-    if ($allowedDeps!=null) {
-      $res=db_query('select count(*) as c from {cdb_bereich_person}
-          where person_id=:p_id and bereich_id in ('.implode(',', $allowedDeps).')'
-          , array(':p_id'=>$id), false)->fetch();
-      if ($res->c>0) $allowed=true;
+    if (!$allowed) {
+      $allowedDeps=user_access("view alldata", "churchdb");
+      if ($allowedDeps!=null) {
+        $res=db_query('select count(*) as c from {cdb_bereich_person}
+            where person_id=:p_id and bereich_id in ('.implode(',', $allowedDeps).')'
+            , array(':p_id'=>$id), false)->fetch();
+        if ($res->c>0) $allowed=true;
+      }
     }
+    if (!$allowed)
+      return "no access";
   }
-
-  if (!$allowed)
-    return "no access";
 
   $res=db_query("select f.*, fk.intern_code from {cdb_feld} f, {cdb_feldkategorie} fk where f.feldkategorie_id=fk.id
               and fk.intern_code in ('f_address', 'f_church', 'f_category') and aktiv_yn=1");
@@ -385,19 +393,21 @@ function churchdb_getPersonDetails($id) {
   $sql.=' FROM {cdb_person} p, {cdb_gemeindeperson} gp WHERE p.id=gp.person_id and p.id=:pid';
 
   $person=db_query($sql, array(':pid'=>$id))->fetch();
-  $comments=db_query("select id, text, person_id, datum, comment_viewer_id, relation_name from {cdb_comment}
-                      where relation_id=:relid and relation_name like 'person%'
-					  order by datum desc", array(':relid'=>$id));
-  $auth=user_access("view comments","churchdb");
-  if (($comments) && ($auth!=null)) {
-    $arrs=null;
-    foreach ($comments as $arr) {
-      if ((isset($auth[$arr->comment_viewer_id])) &&
-      ($auth[$arr->comment_viewer_id]==$arr->comment_viewer_id))
-        $arrs[]=$arr;
+  if ($withComments) {
+    $comments=db_query("select id, text, person_id, datum, comment_viewer_id, relation_name from {cdb_comment}
+                        where relation_id=:relid and relation_name like 'person%'
+  					  order by datum desc", array(':relid'=>$id));
+    $auth=user_access("view comments","churchdb");
+    if (($comments) && ($auth!=null)) {
+      $arrs=null;
+      foreach ($comments as $arr) {
+        if ((isset($auth[$arr->comment_viewer_id])) &&
+        ($auth[$arr->comment_viewer_id]==$arr->comment_viewer_id))
+          $arrs[]=$arr;
+      }
+      $person->comments=$arrs;
     }
-    $person->comments=$arrs;
-  }
+  }    
   $person->auth=getAuthForPerson($id);
   return $person;
 }
@@ -418,8 +428,8 @@ function churchdb_isPersonLeaderOfPerson($leader_id, $person_id) {
   return false;
 }
 
-// Gibt ein Array zurŸck mit allen p_ids in den Gruppen myGroups
-// myGroups: array mit gruppen, z.B. zu holen Ÿber churchdb_getMyGroups()
+// Gibt ein Array zurï¿½ck mit allen p_ids in den Gruppen myGroups
+// myGroups: array mit gruppen, z.B. zu holen ï¿½ber churchdb_getMyGroups()
 function churchdb_getAllPeopleIdsFromGroups($myGroups) {
   $allPersons=null;
   if (count($myGroups)>0) {
@@ -460,6 +470,10 @@ function getAllDepartments() {
   return churchcore_getTableData("cdb_bereich");	
 }
 
+/**
+ * All all relations of all persons 
+ * @return Array
+ */
 function getAllRelations() {
   $res = db_query('SELECT id, vater_id v_id, kind_id k_id, beziehungstyp_id typ_id FROM {cdb_beziehung}');
   $arrs=null;
@@ -784,7 +798,7 @@ function getAllMailNotifys() {
 }
 
 /**
- * Loescht den User mit allen Abhängigkeiten der Person_Id id
+ * Loescht den User mit allen Abhï¿½ngigkeiten der Person_Id id
  * @param $id
  */
 function deleteUser($p_id) {
@@ -858,7 +872,7 @@ function delRelation($id) {
 }	
 
 /**
- * Erstellt einen persönlichen Newslettertext für Person p_id
+ * Erstellt einen persï¿½nlichen Newslettertext fï¿½r Person p_id
  * @param $p_id
  */
 function getPersonalNews($p_id) {

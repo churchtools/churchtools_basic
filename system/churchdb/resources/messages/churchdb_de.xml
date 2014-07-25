@@ -107,4 +107,19 @@
   <entry key="i.have.the.permission.from.this.user.for.x">Ich habe die Erlaubnis der Person das die Daten für {0} gespeichert, genutzt und verarbeitet werden dürfen.</entry>
   <entry key="please.confirm.agreement">Bitte die Erlaubnis zum Speichern der Daten bestätigen.</entry>
   
+  <!-- EXPORT -->
+  <entry key="export">Export</entry>
+  <entry key="export.settings">Einstellungen für den Export</entry>
+  <entry key="chose.export.template">Bitte Export Vorlage auswählen</entry>
+  <entry key="template.for.columns.in.exporting">Vorlage für Spalten im Export</entry>
+  <entry key="aggregate.relations">Beziehungen zusammenfassen</entry>
+  <entry key="export.related.persons">Durch Beziehung verbundene Personen mit exportieren</entry>
+  <entry key="select.mygroup.to.export.data">Um zu exportieren muss unter 'Meine Gruppen' eine Gruppe gefiltert werden, in der Du Leiter bist.</entry>
+  <entry key="it.is.only.allowed.to.export.x.entries">Es dürfen nur max. {0} Einträge exportiert werden. Bitte genauer filtern!</entry>
+  <entry key="select.template">Vorlage auswählen</entry>
+  <entry key="chose.fields">Auswahl der Felder</entry>
+  <entry key="discard.changes">Änderungen verwerfen?</entry>
+  <entry key="please.fillin.a.name">Bitte einen Namen angeben</entry>
+  <entry key="really.delete.template">Soll wirklich die Vorlage gelöscht werden?</entry>
+  
 </properties>
