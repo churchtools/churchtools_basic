@@ -4,7 +4,8 @@
 function do_cron() {
   global $config;
   ct_log("Cron-Job started.",2,-1,'cron');
-  $btns= array("churchdb", "churchresource", "churchservice", "churchwiki");
+  $btns= churchcore_getModulesSorted(false, false);
+  
   foreach ($btns as $key) {
     include_once("system/$key/$key.php");
     if (function_exists($key."_cron")) {

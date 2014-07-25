@@ -381,16 +381,21 @@ function home__memberlist_settings() {
 class CTHomeModule extends CTAbstractModule {
   public function getMasterData() {
     global $user, $base_url, $files_dir, $config;
-    include_once('./'. drupal_get_path('module', 'churchdb') .'/churchdb_db.inc');
     $res["modulename"]="churchcore";
-    $res["mygroups"]=churchdb_getMyGroups($user->id, false, false);
-    foreach ($res["mygroups"] as $g) {
-      if (!isset($g->status_no) || (($g!=null) && ($g->members_allowedmail_eachother_yn==0) 
+    $modules=churchcore_getModulesSorted();
+    if (in_array("churchdb", $modules)) {
+      include_once('./'. drupal_get_path('module', 'churchdb') .'/churchdb_db.inc');
+      $res["mygroups"]=churchdb_getMyGroups($user->id, false, false);
+      foreach ($res["mygroups"] as $g) {
+        if (!isset($g->status_no) || (($g!=null) && ($g->members_allowedmail_eachother_yn==0) 
              && ($g->status_no!=1) && ($g->status_no!=2)))
-        unset($res["mygroups"][$g->id]);
+          unset($res["mygroups"][$g->id]);
+      }
     }
-    include_once('./'. drupal_get_path('module', 'churchcal') .'/churchcal_db.inc');
-    $res["meetingRequests"]=churchcal_getMyMeetingRequest();
+    if (in_array("churchcal", $modules)) {
+      include_once('./'. drupal_get_path('module', 'churchcal') .'/churchcal_db.inc');
+      $res["meetingRequests"]=churchcal_getMyMeetingRequest();
+    }
     return $res;    
   }
   public function updateEventService($params) {

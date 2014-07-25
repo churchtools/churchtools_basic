@@ -133,12 +133,13 @@ function churchcal_createEvent($params, $source=null) {
     churchcal_handleMeetingRequest($new_id, $params);
   
   // BENACHRICHTIGE ANDERE MODULE
-  if (($source==null) || ($source!="churchresource")) {
+  $modules=churchcore_getModulesSorted(false, false);  
+  if ((in_array("churchresource", $modules) && ($source==null || $source!="churchresource"))) {
     include_once(drupal_get_path('module', 'churchresource') .'/churchresource_db.inc');
     $params["id"]=$new_id;
     churchresource_updateResourcesFromChurchCal($params, "churchcal");           
   }
-  if (($source==null) || ($source!="churchservice")) {
+  if ((in_array("churchservice", $modules) && ($source==null || $source!="churchservice"))) {
     include_once(drupal_get_path('module', 'churchservice') .'/churchservice_db.inc');
     $cs_params=array_merge(array(), $params); 
     $cs_params["cal_id"]=$new_id;
@@ -274,13 +275,14 @@ function churchcal_updateEvent($params, $source=null) {
     churchcal_handleMeetingRequest($params["id"], $params);
   
   // BENACHRICHTIGE ANDERE MODULE
-  if (($source==null) || ($source!="churchresource")) {
+  $modules=churchcore_getModulesSorted(false, false);  
+  if ((in_array("churchresource", $modules) && ($source==null || $source!="churchresource"))) {
     include_once(drupal_get_path('module', 'churchresource') .'/churchresource_db.inc');
     if ($source==null) $source="churchcal";
     $params["cal_id"]=$params["id"];
     churchresource_updateResourcesFromChurchCal($params, $source, $changes);           
   }
-  if (($source==null) || ($source!="churchservice")) {
+  if ((in_array("churchservice", $modules) && ($source==null || $source!="churchresource"))) {
     include_once(drupal_get_path('module', 'churchservice') .'/churchservice_db.inc');
     $cs_params=array_merge(array(), $params); 
     $cs_params["cal_id"]=$params["id"];

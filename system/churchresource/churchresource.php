@@ -1,4 +1,15 @@
 <?php
+/**
+ * ChurchTools 2.0
+ * http://www.churchtools.de
+ *
+ * Copyright (c) 2014 Jens Martin Rauen
+ * Licensed under the MIT license, located in LICENSE.txt
+ *
+ * ChurchResource Module
+ * Depends on ChurchCore, ChurchCal
+ *
+ */
 
   
 function churchresource_main() {

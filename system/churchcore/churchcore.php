@@ -1,4 +1,15 @@
 <?php
+/**
+ * ChurchTools 2.0
+ * http://www.churchtools.de
+ *
+ * Copyright (c) 2014 Jens Martin Rauen
+ * Licensed under the MIT license, located in LICENSE.txt
+ *
+ * ChurchCore Module
+ * No depencies, but all other modules depend on this.
+ *
+ */
 
 function churchcore_getAuth() {
   $cc_auth = array();

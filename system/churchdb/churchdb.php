@@ -1,4 +1,15 @@
 <?php
+/**
+ * ChurchTools 2.0
+ * http://www.churchtools.de
+ *
+ * Copyright (c) 2014 Jens Martin Rauen
+ * Licensed under the MIT license, located in LICENSE.txt
+ *
+ * ChurchDB Module
+ * Depends on ChurchCore
+ *
+ */
 
 function churchdb__ajax() {
   include_once(drupal_get_path('module', 'churchdb').'/churchdb_ajax.inc');
@@ -887,6 +898,7 @@ function churchdb__mailviewer() {
 function churchdb_cron() {
   global $config;
   include_once("churchdb_db.inc");
+  
   
   createGroupMeetings();
   

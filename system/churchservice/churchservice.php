@@ -1,4 +1,16 @@
 <?php 
+/**
+ * ChurchTools 2.0
+ * http://www.churchtools.de
+ *
+ * Copyright (c) 2014 Jens Martin Rauen
+ * Licensed under the MIT license, located in LICENSE.txt
+ *
+ * ChurchService Module
+ * Depends on ChurchCore, ChurchCal
+ *
+ */
+
 
 function ical_main() {
   include_once(drupal_get_path('module', 'churchservice').'/churchservice_ajax.inc');
