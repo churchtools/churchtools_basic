@@ -1053,11 +1053,11 @@ StandardTableView.prototype.renderFields = function(fields, a, write_allowed, au
   var t=this;
   var _text=""; 
 
-  _text=_text+"<h4 id=\"pDetail"+fields.arrayname+"\">"+fields.text+"&nbsp;&nbsp;";
+  _text=_text+"<legend id=\"pDetail"+fields.arrayname+"\">"+fields.text+"&nbsp;&nbsp;";
   if (write_allowed)
   _text=_text+'<a href="" id="'+fields.arrayname+'">'+t.renderImage("options", 20)+'</a>';
     
-  _text=_text+"</h4><p style='line-height:100%'><small>";
+  _text=_text+"</legend><p style='line-height:100%'><small>";
 
   $.each(fields.fields, function(elem, field) {
     _text=_text+t.renderField(elem, field, a, write_allowed, authArray);

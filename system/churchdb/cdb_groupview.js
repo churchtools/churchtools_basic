@@ -1195,24 +1195,8 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
   $("tr[id=" + p_id + "]").after("<tr id=\"detail" + p_id + "\"><td colspan=\"10\" id=\"groupinfosTD" + p_id + "\">Lade Daten..</td></tr>");
   rows[rows.length]="<div id=\"detail\" class=\"detail-view\">";
   
-  // Linke Spalte
-  rows[rows.length]="<div class=\"left-column\">";
-//  if (g.treffpunkt!="")
-  rows[rows.length]='<div id="map_canvasg'+g_id+'" class="map-canvas"></div>';
   
-  
-  rows[rows.length]="</div>";
-  
-  // Rechte Spalte
-  rows[rows.length]="<div class=\"right-column\">";
-
-  if (masterData.auth.viewtags || this_object.isPersonLeaderOfGroup(masterData.user_pid, g_id)) 
-    rows.push(this_object.renderTags(g.tags, (masterData.auth.admingroups || this_object.isPersonLeaderOfGroup(masterData.user_pid, g_id)), g_id));
-  
-  rows.push('<div class="detail-view-infobox">');
-  rows.push('<p><table><tr style="background:#F4F4F4;">');
-  rows.push('<td><i><a href="#" id="sortdetailname">In der Gruppe</a></i>');
-  rows.push('<td><i><a href="#" id="sortdetaildate">Dabei seit</a></i><td><td>');  
+  // STATISTICAL CALCS
   stats_dabei=0;
   stats_stattgefunden=0;
   
@@ -1237,108 +1221,23 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
       }
       return 0;
     });
-  // Und zeige sie an
-  var amILeader=this_object.isPersonLeaderOfGroup(masterData.user_pid, g_id);
-  var amISuperLeader=this.isPersonSuperLeaderOfGroup(masterData.user_pid, g_id);
-  $.each(stats.entries, function(i,a) {
-    if (count>0) {          
-      count--; 
-      rows.push("<tr><td><p><small>");
-      info=_getGroupStats(a.id, g_id);      
-      if ((a.comment!=null) && (amILeader || masterData.auth.editgroups))
-        info="&nbsp;"+this_object.renderImage("comment",16,"Kommentar: "+a.comment)+info;
-      style="color:black;";
-      if ((_filterChecker(a))||(a.leiter==3)) style="color:gray";
-      if (a.leiter==-1) style="color:red;text-decoration:line-through;";
-      else if (a.leiter==-2) style="color:#3a87ad;";
-      rows[rows.length]='<a href="#" style="'+style+'" id="person_'+a.id+'" class="tooltip-person" '+(masterData.auth.viewalldata?"data-tooltip-id=\""+a.id+"\"":"")+'>'+a.vorname+" "+a.name;
-      if (a.leiter>0)
-        rows.push(" ("+masterData.groupMemberTypes[a.leiter].bezeichnung+")");
-      if (a.leiter==-2) rows.push("?");
-      rows.push("</a> "+info);
-      rows.push("</small><td>");
-      if (a.date!=null)
-        rows.push('<small>'+a.date.toStringDe()+'</small>');
-      if ((masterData.auth.editgroups) || ((amILeader) && (a.leiter!=-1)) || (amISuperLeader)) {
-        rows.push('<td style="width:16px;padding:0 1px"><a href="#" id="editPerson_'+a.id+'" data-pid="'+a.id+'" data-gid="'+g_id+'">'+t.renderImage("options",16)+'</a>');
-        rows.push('<td style="width:16px;padding:0 3px 0 0"><a href="#" id="deletePerson_'+a.id+'_'+g_id+'" p_id="'+a.id+'">'+this_object.renderImage("trashbox",16)+'</a>'); 
-      }
-      
-    }
-  });
-  if (count==0) rows[rows.length]="<tr><td>..";
-  rows.push("</table></div>");
-  
-  
-  // Show 4 last comments
-  var comments=new Array();
-  if (g.meetingList!=null && g.meetingList!="get data") {
-    
-    rows.push('<p><small>');
-    rows.push(form_renderImage({src:"box_green.png"})+" Anwesend &nbsp;");
-    rows.push(form_renderImage({src:"box_red.png"})+" Abwesend &nbsp;");
-    rows.push(form_renderImage({src:"box_white.png"})+" Offen &nbsp;");
-    rows.push("x  ausgefallen</small>");
-    
-    $.each(churchcore_sortData(g.meetingList,"datumvon", true), function(k,m) {
-      if (comments.length<4 && m.kommentar!=null) {
-        comments.push(m);
-      }
-    });
-  }
-  if (comments.length>0) {
-    rows.push('<div class="detail-view-infobox">');
-    rows.push("<table><tr><td><i>Die letzten Gruppentreffen-Kommentare");
-    $.each(comments, function(k,m) {
-      rows.push("<tr><td><p><small>"+m.datumvon.toDateEn().toStringDe()+"<br>"+m.kommentar+'</small>');    
-    });
-    rows.push('</table></div>');
-  }
-  
 
-  if ((masterData.auth.viewhistory) && (this_object.range_startday!=null)){
-    var history=new Array();
-    var start=new Date(); start.addDays(this_object.range_startday);
-    var end=new Date(); end.addDays(this_object.range_endday);
-    $.each(allPersons, function(k,a) {
-      if (a.oldGroups!=null) {
-        $.each(a.oldGroups, function(i,b) {
-          if ((b.gp_id==g_id) && (b.leiter==-99) && (b.d!=null) && (b.d.toDateEn()>=start) && (b.d.toDateEn()<=end))
-            history.push('<tr><td>'+a.vorname+" "+a.name+"<td>"+b.d.toDateEn().toStringDe());
-        });
-      }
-    });
-    if (history.length>0) { 
-      rows.push('<div class="detail-view-infobox">');
-      rows.push("<p><br/><table><tr><td><i>Nicht mehr in der Gruppe</i><td><i>seit</i><td>");
-      rows.push(history.join(""));  
-      rows.push("</table></div>");
-    }
-  }
   
+  
+  rows.push('<div class="row-fluid">');
 
-  rows.push("<p></p>");
-  rows.push('<div class="ui-widget"><legend>Weitere Optionen</legend>');
-  rows.push('<p>'+form_renderImage({src:'filter.png', width:18}));
-  rows.push('&nbsp;<a href="#" id="grp_to_filter">Gruppe in der Personenliste filtern</a>');    
-  if (editGroup) { 
-    if ((masterData.groups[g_id].max_teilnehmer==null) || ((masterData.groups[g_id].max_teilnehmer>stats.count_all_member))) {
-      rows.push('<p>'+form_renderImage({src:"person.png", width:18}));
-      rows.push('&nbsp;<a href="#" id="addPerson">Weitere Person zur Gruppe hinzuf&uuml;gen</a>');
-    }
-    rows.push('<p>'+form_renderImage({src:'persons.png', width:18}));
-    rows.push('&nbsp;<a href="#" style="width=100%" id="edit_meetinglist">Gruppentreffen pflegen</a>');
-    if ((masterData.groups[g_id].meetingList!=null) && (masterData.groups[g_id].meetingList!="get data")) {
-      rows.push('<p>'+form_renderImage({src:'trashbox.png', width:18}));
-      rows.push('&nbsp;<a href="#" id="del_last_statistic">Letztes Gruppentreffen zur&uuml;cksetzen</a>');
-    }
-  }
-  rows.push("</div>");
-
+  // Linke Spalte
+  rows.push("<div class=\"left-column span4\">");
+//  if (g.treffpunkt!="")
+  rows[rows.length]='<div id="map_canvasg'+g_id+'" class="map-canvas"></div>';
+  
+  
   rows[rows.length]="</div>";
   
+  
+  
   // Mittlere Spalte
-  rows[rows.length]="<div class=\"middle-column\">";
+  rows.push("<div class=\"middle-column span4\">");
   rows[rows.length]="<legend>"+g.bezeichnung;
   
   if (editGroup) { 
@@ -1448,7 +1347,119 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
   }
   rows.push('</div>');
   
+  rows.push("</div><!--middle-->");  
+  
+  
+  // Rechte Spalte
+  rows.push("<div class=\"right-column span4\">");
+
+  if (masterData.auth.viewtags || this_object.isPersonLeaderOfGroup(masterData.user_pid, g_id)) 
+    rows.push(this_object.renderTags(g.tags, (masterData.auth.admingroups || this_object.isPersonLeaderOfGroup(masterData.user_pid, g_id)), g_id));
+  
+  rows.push('<div class="detail-view-infobox">');
+  rows.push('<p><table><tr style="background:#F4F4F4;">');
+  rows.push('<td><i><a href="#" id="sortdetailname">In der Gruppe</a></i>');
+  rows.push('<td><i><a href="#" id="sortdetaildate">Dabei seit</a></i><td><td>');  
+  
+  
+  // Und zeige sie an
+  var amILeader=this_object.isPersonLeaderOfGroup(masterData.user_pid, g_id);
+  var amISuperLeader=this.isPersonSuperLeaderOfGroup(masterData.user_pid, g_id);
+  $.each(stats.entries, function(i,a) {
+    if (count>0) {          
+      count--; 
+      rows.push("<tr><td><p><small>");
+      info=_getGroupStats(a.id, g_id);      
+      if ((a.comment!=null) && (amILeader || masterData.auth.editgroups))
+        info="&nbsp;"+this_object.renderImage("comment",16,"Kommentar: "+a.comment)+info;
+      style="color:black;";
+      if ((_filterChecker(a))||(a.leiter==3)) style="color:gray";
+      if (a.leiter==-1) style="color:red;text-decoration:line-through;";
+      else if (a.leiter==-2) style="color:#3a87ad;";
+      rows[rows.length]='<a href="#" style="'+style+'" id="person_'+a.id+'" class="tooltip-person" '+(masterData.auth.viewalldata?"data-tooltip-id=\""+a.id+"\"":"")+'>'+a.vorname+" "+a.name;
+      if (a.leiter>0)
+        rows.push(" ("+masterData.groupMemberTypes[a.leiter].bezeichnung+")");
+      if (a.leiter==-2) rows.push("?");
+      rows.push("</a> "+info);
+      rows.push("</small><td>");
+      if (a.date!=null)
+        rows.push('<small>'+a.date.toStringDe()+'</small>');
+      if ((masterData.auth.editgroups) || ((amILeader) && (a.leiter!=-1)) || (amISuperLeader)) {
+        rows.push('<td style="width:16px;padding:0 1px"><a href="#" id="editPerson_'+a.id+'" data-pid="'+a.id+'" data-gid="'+g_id+'">'+t.renderImage("options",16)+'</a>');
+        rows.push('<td style="width:16px;padding:0 3px 0 0"><a href="#" id="deletePerson_'+a.id+'_'+g_id+'" p_id="'+a.id+'">'+this_object.renderImage("trashbox",16)+'</a>'); 
+      }
+      
+    }
+  });
+  if (count==0) rows[rows.length]="<tr><td>..";
+  rows.push("</table></div>");
+  
+  
+  // Show 4 last comments
+  var comments=new Array();
+  if (g.meetingList!=null && g.meetingList!="get data") {
+    
+    rows.push('<p><small>');
+    rows.push(form_renderImage({src:"box_green.png"})+" Anwesend &nbsp;");
+    rows.push(form_renderImage({src:"box_red.png"})+" Abwesend &nbsp;");
+    rows.push(form_renderImage({src:"box_white.png"})+" Offen &nbsp;");
+    rows.push("x  ausgefallen</small>");
+    
+    $.each(churchcore_sortData(g.meetingList,"datumvon", true), function(k,m) {
+      if (comments.length<4 && m.kommentar!=null) {
+        comments.push(m);
+      }
+    });
+  }
+  if (comments.length>0) {
+    rows.push('<div class="detail-view-infobox">');
+    rows.push("<table><tr><td><i>Die letzten Gruppentreffen-Kommentare");
+    $.each(comments, function(k,m) {
+      rows.push("<tr><td><p><small>"+m.datumvon.toDateEn().toStringDe()+"<br>"+m.kommentar+'</small>');    
+    });
+    rows.push('</table></div>');
+  }
+  
+
+  if ((masterData.auth.viewhistory) && (this_object.range_startday!=null)){
+    var history=new Array();
+    var start=new Date(); start.addDays(this_object.range_startday);
+    var end=new Date(); end.addDays(this_object.range_endday);
+    $.each(allPersons, function(k,a) {
+      if (a.oldGroups!=null) {
+        $.each(a.oldGroups, function(i,b) {
+          if ((b.gp_id==g_id) && (b.leiter==-99) && (b.d!=null) && (b.d.toDateEn()>=start) && (b.d.toDateEn()<=end))
+            history.push('<tr><td>'+a.vorname+" "+a.name+"<td>"+b.d.toDateEn().toStringDe());
+        });
+      }
+    });
+    if (history.length>0) { 
+      rows.push('<div class="detail-view-infobox">');
+      rows.push("<p><br/><table><tr><td><i>Nicht mehr in der Gruppe</i><td><i>seit</i><td>");
+      rows.push(history.join(""));  
+      rows.push("</table></div>");
+    }
+  }
+  
+
+  rows.push("<p></p>");
+  rows.push('<div class="ui-widget"><legend>Weitere Optionen</legend>');
+  rows.push('<p>'+form_renderImage({src:'filter.png', width:18}));
+  rows.push('&nbsp;<a href="#" id="grp_to_filter">Gruppe in der Personenliste filtern</a>');    
+  if (editGroup) { 
+    if ((masterData.groups[g_id].max_teilnehmer==null) || ((masterData.groups[g_id].max_teilnehmer>stats.count_all_member))) {
+      rows.push('<p>'+form_renderImage({src:"person.png", width:18}));
+      rows.push('&nbsp;<a href="#" id="addPerson">Weitere Person zur Gruppe hinzuf&uuml;gen</a>');
+    }
+    rows.push('<p>'+form_renderImage({src:'persons.png', width:18}));
+    rows.push('&nbsp;<a href="#" style="width=100%" id="edit_meetinglist">Gruppentreffen pflegen</a>');
+    if ((masterData.groups[g_id].meetingList!=null) && (masterData.groups[g_id].meetingList!="get data")) {
+      rows.push('<p>'+form_renderImage({src:'trashbox.png', width:18}));
+      rows.push('&nbsp;<a href="#" id="del_last_statistic">Letztes Gruppentreffen zur&uuml;cksetzen</a>');
+    }
+  }
   rows.push("</div>");
+  rows.push("</div><!-- right -->");
   
   rows[rows.length]="<div style=\"clear:both\">";   
 
@@ -1463,11 +1474,13 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
   if (g.letzteaenderung!=null)
     rows[rows.length]="&nbsp;<i>Letzte &Auml;nderung: "+g.letzteaenderung.toDateEn().toStringDe()+" durch "+g.aenderunguser+" &nbsp;";
   rows[rows.length]="&nbsp;id:"+g.id+"</i></small>&nbsp;&nbsp;";
-  rows[rows.length]="</small></div></div>";
+  rows[rows.length]="</small></div><!--right--></div><!--inline-->";
   
   
-  rows[rows.length]="</div>";  
-  rows[rows.length]="</div>";  
+  rows[rows.length]="</div><!--detail-footer-->";  
+  rows[rows.length]="</div><!--clear-->";  
+  rows.push("</div><!--row-fluid-->");
+  rows.push("</div><!--detail-->");
   
   $("#groupinfosTD"+p_id).html(rows.join(""));
   

@@ -615,122 +615,130 @@ function churchdb__vcard() {
   echo $person->vcard;
 }
   
+
+function _export_optimzations($arr) {
+  if (isset($arr["geburts_datum"])) {
+    $dt = new DateTime($arr->geburtsdatum);
+    $arr['geb.jahr']=$dt->format("%Y");
+    $arr['geb.m']=$dt->format("%m");
+    $arr['geb.t']=$dt->format("%t");
+  
+    if ($arr['geb.jahr']>=7000) {
+      $arr['geb.tag']="";
+      $arr['geb.m.']="";
+      $arr['geb.jahr']=$arr['geb.jahr']-7000;
+    }
+    else if ($arr['geb.jahr']==1004) {
+      $arr['geb.jahr']="";
+    }
+  }  
+  return $arr;
+}
+
+/**
+ * Export Data preparation
+ * @param string $ids null for all or comma separated list
+ * @param string $template when null, export everything that is possible
+ * @throws Exception
+ * @return multitype:NULL Ambigous <unknown, number, string>
+ */
+function _getPersonDataForExport($person_ids=null, $template=null) {
+  global $user;
+  
+  $ids=null;
+  if ($person_ids!=null) {
+    $ids=explode(",", $person_ids);
+  }
+  
+  if ($template!=null) {
+    $settings=churchcore_getUserSettings("churchdb", $user->id);
+    if (!isset($settings["exportTemplate"][$template]))
+      throw new Exception("Template '".$template."' not found!");
+    $template=$settings["exportTemplate"][$template];
+  }
+  
+    // Check allowed persons
+  $ps=churchdb_getAllowedPersonData();
+  $bereich=churchcore_getTableData("cdb_bereich");
+  $export=array();
+  foreach ($ps as $p) {
+    if ($ids==null || in_array($p->p_id, $ids)) {
+      $detail=churchdb_getPersonDetails($p->p_id, false);
+      $detail->bereich="";
+      $bereiche=array();
+      foreach ($p->access as $dep_id) {
+        $bereiche[]=$bereich[$dep_id]->bezeichnung;
+      }
+      $detail->bereich_id=join('::', $bereiche);
+      if ($detail->geschlecht_no==1)
+        $detail->anrede2="Lieber";
+      else if ($detail->geschlecht_no==2)
+        $detail->anrede2="Liebe";
+      if (isset($detail->geburtsdatum))
+        $detail->age=churchcore_getAge($detail->geburtsdatum);
+  
+      if ($template!=null) {
+        $export_entry=array();
+        foreach ($template as $key=>$field) {
+          if (strpos($key, "f_")===0) {
+            $key=substr($key,2,99);
+            if (isset($detail->$key)) {
+              $export_entry[$key]=$detail->$key;
+            }
+          }
+        }
+      }
+      else $export_entry=(array) $detail;
+      $export[$p->p_id]=_export_optimzations($export_entry);
+    }
+  }
+  return $export;  
+}
+
 function churchdb__export() {
   drupal_add_http_header('Content-type', 'application/csv; charset=ISO-8859-1; encoding=ISO-8859-1',true);
   drupal_add_http_header('Content-Disposition', 'attachment; filename="churchdb_export.csv"',true);
   include_once("churchdb_db.inc");
-
-  if (isset($_GET["ids"]))
-    $ids="and p.id in (".$_GET["ids"].")";
-  else $ids="";  
   
-  $ps=churchdb_getAllowedPersonData();
-  $allowed_ids=array();
-  foreach ($ps as $p) {
-    $allowed_ids[]=$p->p_id;
-  }
-
-  if (user_access("view alldetails","churchdb"))
-    $persons_sql = 'SELECT station.bezeichnung station, (case when geschlecht_no=1 then \'Herr\' when geschlecht_no=2 then \'Frau\' else \'\' end) "anrede", vorname, name, strasse adresse, plz,
-              ort, land, n.bezeichnung nationalitaet, telefonprivat "tel. priv.", email "e-mail", telefongeschaeftlich "tel. büro", telefonhandy "handy",
-  			null bemerkung, DATE_FORMAT(eintrittsdatum , \'%d.%m.%Y\') "mitglied seit", status.kuerzel status,
-  			DATE_FORMAT(taufdatum, \'%d.%m.%Y\') getauft, taufort, getauftdurch "getauft durch", ueberwiesenvon "Überwiesen von", 
-  			day(geburtsdatum) "geb.tag", month(geburtsdatum) "geb.m.", year(geburtsdatum) "geb.jahr", f.bezeichnung "f.stand", 
-  			geburtsname "geb.name", DATE_FORMAT(hochzeitsdatum , \'%d.%m.%Y\') "hochzeitsdatum", geburtsort "geb.ort", beruf, titel "titel",
-  			(case when geschlecht_no=1 then \'Lieber\' when geschlecht_no=2 then \'Liebe\' else \'\' end) "anrede2",
-  			bereich_id, b.bezeichnung "bereich", 
-  			day(eintrittsdatum) "mitgliedseit.tag", month(eintrittsdatum) "mitgliedseit.m", year(eintrittsdatum) "mitgliedseit.jahr",
-              (year(curdate())-year(geburtsdatum) - (RIGHT(CURDATE(),5)<RIGHT(geburtsdatum,5))) as "alter",p.id id, null as "e-mail_beziehung", null as "vorname2", optigem_nr, spitzname, zusatz
-             FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_bereich_person} bp, {cdb_bereich} b,
-  		        {cdb_station} station, {cdb_status} status, {cdb_familienstand} f,
-  		        {cdb_nationalitaet} n
-                    WHERE p.id=gp.person_id 
-  				        and p.id=bp.person_id 
-  				        and bp.bereich_id=b.id 
-  						and gp.status_id=status.id
-  						and gp.station_id=station.id
-  						and gp.familienstand_no=f.id
-                        and gp.nationalitaet_id=n.id
-                        and p.id in ('.implode(",", $allowed_ids).')';
-  else
-    $persons_sql = 'SELECT station.bezeichnung station, (case when geschlecht_no=1 then \'Herr\' when geschlecht_no=2 then \'Frau\' else \'\' end) "anrede", vorname, name, spitzname, plz,
-              ort, telefonprivat "tel. priv.", email "e-mail", telefongeschaeftlich "tel. büro", telefonhandy "handy",
-        day(geburtsdatum) "geb.tag", month(geburtsdatum) "geb.m.", year(geburtsdatum) "geb.jahr", 
-        bereich_id, b.bezeichnung "bereich",
-              (year(curdate())-year(geburtsdatum) - (RIGHT(CURDATE(),5)<RIGHT(geburtsdatum,5))) as "alter",p.id id
-             FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_bereich_person} bp, {cdb_bereich} b,
-              {cdb_station} station
-                    WHERE p.id=gp.person_id 
-                  and p.id=bp.person_id 
-                  and bp.bereich_id=b.id 
-              and gp.station_id=station.id
-              and p.id in ('.implode(",", $allowed_ids).')';
-      
-	$persons = db_query($persons_sql.$ids.' ORDER BY name, vorname, id, b.sortkey ');			  
-  // Zuerst werden die Daten in ein Array gepackt und dabei nach Bereich verdichtet, 
-  // so dass eine Person in mehreren Bereichen auch nur 1x aufgefuehrt wird.
-  // Die Bereiche werden dann per "," getrennt
-  $export= array();
+  $params =$_GET;
+  $template=null;
+  $ids=null;
+  if (isset($params["template"])) $template=$params["template"];
+  if (isset($params["ids"])) $ids=$params["ids"];  
+  $export=_getPersonDataForExport($ids, $template);
   
-  foreach ($persons as $arr) {
-    if (isset($arr->{'geb.jahr'})) { 
-      if ($arr->{'geb.jahr'}>=7000) {
-        $arr->{'geb.tag'}="";
-        $arr->{'geb.m.'}="";
-        $arr->{'geb.jahr'}=$arr->{'geb.jahr'}-7000;
-      }
-      else if ($arr->{'geb.jahr'}==1004) {
-        $arr->{'geb.jahr'}="";
-      }     
-    }
-    
-    // Wenn schon benutzt, dann nehme das
-    if (isset($export[$arr->id]))
-      $person=$export[$arr->id];
-    else $person=array();  
-    foreach ($arr as $a=>$key) {
-      // Dies dient der Verdichtung nach Bereich
-      if (($a=="bereich") && (isset($person["bereich"]))) {
-        $person[$a]=$person[$a]."::".$key;        
-      } 
-      else if (($a=="bereich_id") && (isset($person["bereich_id"]))) {
-        $person[$a]=$person[$a]."::".$key;        
-      } 
-      else  
-        $person[$a]=$key;
-    }
-    $export[$arr->id]=$person;
-  }
-
   // Hier werden wenn nach Beziehung gefiltert wird auch noch die verknuepften Personen
   // mitgeladen und exportiert.
-  foreach ($export as $entry) { 
-    if ((isset($_GET["rel_part"])) && ($_GET["rel_part"]!=null) && ($_GET["rel_id"]!=null)) {
+  foreach ($export as $key=>$entry) { 
+    if ((isset($params["rel_part"])) && ($params["rel_part"]!=null) && ($params["rel_id"]!=null)) {
       $id=null;
-      if ($_GET["rel_part"]=="k") {
-        $rel=db_query("select * from {cdb_beziehung} where beziehungstyp_id=".$_GET["rel_id"]." and vater_id=".$entry["id"])->fetch();
-        $id=$rel->kind_id;
+      if ($params["rel_part"]=="k") {
+        $rel=db_query("select * from {cdb_beziehung} where beziehungstyp_id=".$params["rel_id"]." and vater_id=".$key)->fetch();
+        if ($rel!=false)
+          $id=$rel->kind_id;
       }
-      else {
-        $rel=db_query("select * from {cdb_beziehung} where beziehungstyp_id=".$_GET["rel_id"]." and kind_id=".$entry["id"])->fetch();
+      if ($id==null || $params["rel_part"]=="k") {
+        $rel=db_query("select * from {cdb_beziehung} where beziehungstyp_id=".$params["rel_id"]." and kind_id=".$key)->fetch();
         $id=$rel->vater_id;
       }
       // Wenn wirklich eine Beziehung gefunden wurde
-      if ($id!=null) {
-        $person = db_query($persons_sql.' AND p.id='.$id)->fetch();
-        foreach ($person as $key=>$value) {       
-          $export[$entry["id"]][$_GET["rel_part"]."_".$key]=$value;
+      if ($id!=null && !isset($export[$id])) {
+        $person = _getPersonDataForExport($id, $template);
+        if ($person!=null && isset($person[$id])) {
+          foreach ($person[$id] as $key=>$value) {       
+            $export[$key][$params["rel_part"]."_".$key]=$value;
+          }
         }
       }  
     }
   }
-  
-  // Nun werden die Beziehungen geprueft und entsprechende Saetze zusammengefasst, falls gewuenscht
+
+  // Now we check for relations and aggregate these data sets, if parameter agg is specified 
   $rels=getAllRelations();
   if ($rels!=null) {
     $rel_types=getAllRelationTypes();
     foreach ($rels as $rel) {
-      if ((isset($_GET["agg".$rel->typ_id])) && ($_GET["agg".$rel->typ_id]=="y") && (isset($export[$rel->v_id])) && (isset($export[$rel->k_id]))) {
+      if ((isset($params["agg".$rel->typ_id])) && ($params["agg".$rel->typ_id]=="y") && (isset($export[$rel->v_id])) && (isset($export[$rel->k_id]))) {
         // Wir nehmen den Mann als Kopf des Ehepars
         if ($export[$rel->v_id]["anrede2"]=="Lieber") {
           $p1=$rel->v_id; $p2=$rel->k_id;
@@ -741,16 +749,16 @@ function churchdb__export() {
         $export[$p1]["anrede"]=$rel_types[$rel->typ_id]->export_title;
         $export[$p1]["anrede2"]=$export[$p2]["anrede2"]." ".$export[$p2]["vorname"].", ".$export[$p1]["anrede2"];
         $export[$p1]["vorname2"]=$export[$p2]["vorname"];
-        if (isset($export[$p2]["e-mail"]))
-          $export[$p1]["e-mail_beziehung"]=$export[$p2]["e-mail"];
+        if (isset($export[$p2]["email"]))
+          $export[$p1]["email_beziehung"]=$export[$p2]["email"];
         // Und nehmen den anderen aus dem Export raus
         $export[$p2]=null;
       }   
     }
   }
-  
+
   // Now check if there is group_id which I can add group relation Infos to the export
-  if (isset($_GET["groupid"])) {
+  if (isset($params["groupid"])) {
     foreach ($export as $k=>$key) {
       $r=db_query("select g.bezeichnung, s.bezeichnung status, DATE_FORMAT(gpg.letzteaenderung, '%d.%m.%Y') letzteaenderung, gpg.comment 
                from {cdb_gruppe} g, {cdb_gemeindeperson} gp, 
@@ -758,30 +766,47 @@ function churchdb__export() {
                   where gp.id=gpg.gemeindeperson_id and g.id=:gruppe_id 
                          and s.intern_code=status_no
                        and gpg.gruppe_id=g.id and gp.person_id=:person_id", 
-                array(":gruppe_id"=>$_GET["groupid"], ":person_id"=>$key["id"]))->fetch();
+                array(":gruppe_id"=>$params["groupid"], ":person_id"=>$k))->fetch();
       if ($r!=false) {
-        $export[$k]["gruppe"]=$r->bezeichnung;
-        $export[$k]["gruppe_seit"]=$r->letzteaenderung;
-        $export[$k]["gruppe_kommentar"]=$r->comment;
-        $export[$k]["gruppe_status"]=$r->status;
+        $export[$k]["Gruppe"]=$r->bezeichnung;
+        $export[$k]["Gruppe_Dabeiseit"]=$r->letzteaenderung;
+        $export[$k]["Gruppen_Kommentar"]=$r->comment;
+        $export[$k]["Gruppen_Status"]=$r->status;
       }
     }    
   }
   
-  
+ 
   // Nun werden die Daten ueber Echo ausgegeben
   $header=true;
-  foreach ($export as $key) {
-    if (($header) && ($key!=null)) {
-      foreach ($key as $a=>$val) {
-        echo mb_convert_encoding('"'.$a.'";', 'ISO-8859-1', 'UTF-8');
-      }
-      $header=false;
-      echo "\n";
-    }  
-    if ($key!=null) {
-      foreach ($key as $val) {
-        echo mb_convert_encoding('"'.$val.'";', 'ISO-8859-1', 'UTF-8');    
+  
+  // Get all available columns
+  $cols=array();
+  foreach ($export as $key=>$row) {
+    foreach ($row as $a=>$val) {
+      if ($val!=null && $val!="" && gettype($val)!="object" && gettype($val)!="array") 
+        $cols[$a]=$a;
+    }
+  }
+  
+  // Add header
+  $sql="select langtext from {cdb_feld} where db_spalte=:db_spalte";
+  foreach ($cols as $col) {
+    $res=db_query($sql, array(":db_spalte"=>$col))->fetch();
+    if (!$res)
+      echo mb_convert_encoding('"'.$col.'";', 'ISO-8859-1', 'UTF-8');
+    else
+      echo mb_convert_encoding('"'.$res->langtext.'";', 'ISO-8859-1', 'UTF-8');
+  }
+  echo "\n";
+  
+  // Add all data rows    
+  foreach ($export as $row) {
+    if ($row!=null) {
+      foreach ($cols as $col) {
+        if (isset($row[$col]))
+          echo mb_convert_encoding('"'.$row[$col].'";', 'ISO-8859-1', 'UTF-8');
+        else echo ";";    
       }
       echo "\n";
     }  

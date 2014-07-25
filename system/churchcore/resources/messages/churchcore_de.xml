@@ -299,5 +299,6 @@
   <entry key="french">Französisch</entry>
   <entry key="select.language">Sprache auswählen</entry>
   <entry key="please.select.your.language">Bitte wähle Deine gewünschte Sprache</entry>
+  <entry key="close">Schliessen</entry>
       
 </properties>

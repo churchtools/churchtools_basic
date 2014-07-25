@@ -296,5 +296,6 @@
   <entry key="french">French</entry>
   <entry key="select.language">Select language</entry>
   <entry key="please.select.your.language">Please select your language</entry>
+  <entry key="close">Close</entry>
   	  
 </properties>

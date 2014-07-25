@@ -1889,7 +1889,19 @@ function run_db_updates($db_version) {
     db_query("ALTER TABLE {cs_song} ADD FOREIGN KEY (songcategory_id) REFERENCES {cs_songcategory}( id )");
     db_query("ALTER TABLE {cs_song_arrangement} ADD FOREIGN KEY (song_id) REFERENCES {cs_song}( id )");
     
-  set_version("2.50");
+    db_query("ALTER TABLE {cc_usersettings} ADD serialized_yn INT( 1 ) NOT NULL DEFAULT '0'");
+    
+    $db=db_query("select * from {cc_usersettings} where modulename='churchdb' and attrib='filter'");
+    foreach ($db as $filter) {
+      $arr=unserialize($filter->value);
+      if ($arr!=null)
+        foreach ($arr as $key=>$val) {
+          churchcore_saveUserSetting("churchdb", $filter->person_id, "myFilter[".$key."]", $val);
+        }      
+    } 
+    db_query("delete from {cc_usersettings} where modulename='churchdb' and attrib='filter'");    
+    
+    set_version("2.50");
   }
     
 	  
@@ -1901,7 +1913,7 @@ function run_db_updates($db_version) {
     if ($db_version == "nodb")
       addInfoMessage("Datenbankupdates ausgef&uuml;hrt auf v$software_version.");
     else
-      addInfoMessage("Datenbankupdates ausgef&uuml;hrt von ".variable_get("site_name")." v$db_version auf v$software_version. $link");
+      addInfoMessage("Datenbankupdates ausgef&uuml;hrt von <I>".variable_get("site_name")."</i>. Versionswechsel von $db_version auf $software_version. $link");
     cleanI18nFiles();
     $sitename=$config["site_name"];
     churchcore_systemmail($config["site_mail"], "Neue Version auf ".$config["site_name"], 

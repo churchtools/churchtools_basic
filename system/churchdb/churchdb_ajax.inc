@@ -713,11 +713,9 @@ function churchdb_getUserSettings($user_pid) {
     if (variable_get('churchdb_emailseparator', ';')==';')
       $arr["mailerSeparator"]=0;
     else   
-      $arr["mailerSeparator"]=1;    
-      if (isset($arr["filter"])) {
-        $arr["filter"]=unserialize($arr["filter"]);    
-      }
-  return $arr;  
+      $arr["mailerSeparator"]=1;
+
+  return $arr;
 }
 
 
@@ -1421,22 +1419,6 @@ class CTChurchDBModule extends CTAbstractModule {
     $this->checkPerm("push/pull archive");
     $this->logPerson($params,1);
     return archiveUser($params["id"], true);
-  }
-  public function saveMyFilter($params) {
-    global $user;
-    $data=churchcore_getUserSettings("churchdb",$user->id);
-    $arr=array();
-    if (isset($data["filter"]))
-    $arr=unserialize($data["filter"]);
-    $arr[$params["name"]]=$params["filter"];
-    churchcore_saveUserSetting("churchdb",$user->id,"filter",serialize($arr));
-  }
-  public function delMyFilter($params) {
-    global $user;
-    $data=churchcore_getUserSettings("churchdb",$user->id);
-    $arr=unserialize($data["filter"]);
-    unset($arr[$params["name"]]);
-    churchcore_saveUserSetting("churchdb",$user->id,"filter",serialize($arr));
   }
   public function delPersonTag($params) {
     $this->logPerson($params);

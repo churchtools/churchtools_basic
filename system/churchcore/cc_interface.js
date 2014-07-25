@@ -236,6 +236,10 @@ ChurchInterface.prototype.setCookie = function(settingname, val, func) {
   this.jsendWrite({func:"setCookie", sub:settingname, val:val}, func);  
 };
 
+ChurchInterface.prototype.deleteSetting = function(settingname) {
+  this.jsendWrite({func:"saveSetting", sub:settingname, remove:true});  
+};
+
 ChurchInterface.prototype.sendEmail = function (to, subject, body) {
   this.jsendWrite({ func: "send_email",  subject: subject, body:body, to:to});
 };
