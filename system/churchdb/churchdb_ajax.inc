@@ -713,11 +713,12 @@ function churchdb_getUserSettings($user_pid) {
     if (variable_get('churchdb_emailseparator', ';')==';')
       $arr["mailerSeparator"]=0;
     else   
-      $arr["mailerSeparator"]=1;    
-      if (isset($arr["filter"])) {
-        $arr["filter"]=unserialize($arr["filter"]);    
-      }
-  return $arr;  
+      $arr["mailerSeparator"]=1;
+
+  if ($arr["filter"]!=null)
+    $arr["filter"]=unserialize($arr["filter"]);
+    
+  return $arr;
 }
 
 

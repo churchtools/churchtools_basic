@@ -145,7 +145,8 @@ abstract class CTAbstractModule implements CTModuleInterface {
   
   public function saveSetting($params) {
     global $user;
-    churchcore_saveUserSetting($this->modulename, $user->id, $params["sub"], $params["val"]);
+    churchcore_saveUserSetting($this->modulename, $user->id, $params["sub"], 
+            (isset($params["val"])?$params["val"]:null));
   }
   
   public function getSettings() {
@@ -1250,22 +1251,59 @@ function churchcore_getUserSettings($modulename, $user_pid) {
     return array();
     
   if (gettype($user_pid)=="array") $user_pid=$user_pid[0];
-  $res=db_query("select attrib, value from {cc_usersettings} where modulename='$modulename' and person_id=$user_pid");
+  $res=db_query("select attrib, value, serialized_yn from {cc_usersettings} where modulename='$modulename' and person_id=$user_pid");
   $arr=array();
+  $bundles=array();
   foreach ($res as $entry) {
-    $arr[$entry->attrib]=preg_replace('/\\\/', "", $entry->value);    
+    if ($entry->serialized_yn==1)
+      $val=unserialize($entry->value);
+    else
+      $val=preg_replace('/\\\/', "", $entry->value);
+    $i=strpos($entry->attrib,"[");
+    if ($i>0) {
+      $bundle_name=substr($entry->attrib, 0, $i);
+      $bundle_key=substr($entry->attrib, $i+1, strpos($entry->attrib,"]")-$i-1);
+      if (!isset($bundles[$bundle_name]))
+        $bundles[$bundle_name]=array();
+      $bundles[$bundle_name][$bundle_key]=$val;
+    } 
+    else
+      $arr[$entry->attrib]=$val;    
+  }
+  foreach ($bundles as $key=>$bundle) {
+    $arr[$key]=$bundle;
   }
   return $arr;
 }
 
+/**
+ * Save User Setting to table cc_usersetting. If $val==null then delete setting
+ * @param unknown $modulename
+ * @param unknown $pid
+ * @param unknown $attrib
+ * @param unknown $val
+ */
 function _churchcore_savePidUserSetting($modulename, $pid, $attrib, $val) {
-  $res=db_query("select * from {cc_usersettings} where modulename='$modulename' and person_id=$pid and attrib='$attrib'")->fetch();
-  if ($res==null)
-    db_query("insert into {cc_usersettings} (person_id, modulename, attrib, value) values ($pid, '$modulename', '$attrib', :val)",
-            array(":val"=>$val));
-  else   
-    db_query("update {cc_usersettings} set value=:val where modulename='$modulename' and person_id=$pid and attrib='$attrib'",
-            array (":val"=>$val));    
+  if ($val==null) {
+    db_query("delete from {cc_usersettings} where modulename=:modulename and person_id=:pid and attrib=:attrib",
+        array(":modulename"=>$modulename, ":attrib"=>$attrib, ":pid"=>$pid));
+  }
+  else {
+    $serizaled=0;
+    if (gettype($val)=="array") {
+      $val=serialize($val);
+      $serizaled=1;
+    }
+    
+    $res=db_query("select * from {cc_usersettings} where modulename='$modulename' and person_id=$pid and attrib='$attrib'")->fetch();
+    if ($res==null)
+      db_query("insert into {cc_usersettings} (person_id, modulename, attrib, value, serialized_yn) 
+                 values ($pid, '$modulename', '$attrib', :val, $serizaled)",
+              array(":val"=>$val));
+    else   
+      db_query("update {cc_usersettings} set value=:val, serialized_yn=$serizaled where modulename='$modulename' and person_id=$pid and attrib='$attrib'",
+              array (":val"=>$val));
+  }    
 }
 
 /**

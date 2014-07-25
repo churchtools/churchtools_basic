@@ -4466,18 +4466,144 @@ PersonView.prototype.loadGroupMeetingList = function (g_id) {
   });
 };
     
+PersonView.prototype.choseExportFields = function(selected) {
+  
+  var data = new Array();
+  if (masterData.settings.exportTemplate!=null) {
+    $.each(masterData.settings.exportTemplate, function(k, a) {
+      a.sortkey=1;
+      data.push(a);
+    })
+  }
+  else masterData.settings.exportTemplate=new Object();
+
+//  data.push({id:-1, bezeichnung:"Alle", sortkey:0});
+  data.push({id:"", bezeichnung:"-- Neu erstellen --", sortkey:99});
+  
+  var rows=new Array();
+  var form=new CC_Form();
+  form.addHtml('<div class="">');
+  form.addSelect({label:"Vorlage ausw&aumlhlen:&nbsp; ", selected:selected, htmlclass:"template", controlgroup:false, data:data});
+  form.addHtml('&nbsp; &nbsp;')
+  form.addImage({src:"save.png", link:true, htmlclass:"save", width:24});
+  form.addHtml('&nbsp; &nbsp;')
+  form.addImage({src:"trashbox.png", link:true, htmlclass:"delete", width:24});
+  form.addHtml('<span class="pull-right">')
+  form.addHtml('<a href="#" class="select-all">Alle markieren</a> &nbsp; <a href="#" class="deselect-all">Alle abwählen</a>');
+  form.addHtml('</span>');
+  form.addHtml('</div>');
+  rows.push(form.render(true, "inline"));
+  var form=new CC_Form();
+  form.addHtml('<div class="row-fluid">');
+  $.each(masterData.fields, function(i,fieldcategory) {
+    form.addHtml('<div class="span4" style="min-width:170px">');
+    form.addHtml('<legend>'+fieldcategory.text+'</legend>');
+    $.each(fieldcategory.fields, function(i,field) {
+      if (t.checkFieldPermission(field))
+        form.addCheckbox({label:field.text,  htmlclass:"field",
+          data:[{name:"sql",value:field.sql}], controlgroup:false});
+    });
+    form.addHtml('</div>');
+  });  
+  form.addHtml('</div>');
+  rows.push(form.render(false));
+  var elem=form_showDialog("Auswahl der Felder", rows.join(""), 700, 600)
+    .dialog("addbutton", "Schliessen", function() {
+      elem.dialog("close");
+    });
+  
+  elem.find("a.select-all").click(function() {
+    elem.find("input.field").attr("checked", "checked");
+    changed=true;
+    return false;
+  });
+  elem.find("a.deselect-all").click(function() {
+    elem.find("input.field").removeAttr("checked");
+    changed=true;
+    return false;
+  });
+  
+  function _renderCheckboxes() {
+    if (selected==null) selected=elem.find("select.template").val();
+    if (selected=="") elem.find("a.delete").addClass("hide");
+    else elem.find("a.delete").removeClass("hide");
+    elem.find("input.field").each(function() {
+      if (masterData.settings.exportTemplate[selected]!=null &&
+               masterData.settings.exportTemplate[selected]["f_"+$(this).attr("data-sql")]) {
+        $(this).attr("checked", "checked");
+      }
+      else 
+        $(this).removeAttr("checked");
+    });
+  }
+  
+  function _saveCheckboxes(name) {
+    var obj = new Object();
+    elem.find("input.checkbox").each(function() {
+      if ($(this).attr("checked")=="checked")
+        obj["f_"+$(this).attr("data-sql")]=true;
+    });
+    obj.id=name;
+    obj.bezeichnung=name;
+    masterData.settings.exportTemplate[name]=obj;
+    elem.dialog("close");
+    t.choseExportFields(name);   
+    churchInterface.saveSetting("exportTemplate["+name+"]", 
+                          masterData.settings.exportTemplate[name]);
+    changes=false;
+  }
+  _renderCheckboxes();
+  
+  var changes=false;
+  elem.find("input.field").change(function() {
+    changes=true;
+  });
+  elem.find("select.template").change(function() {
+    if ($(this).val()=="") {
+      selected=null;
+    }
+    else if (!changes || confirm("Änderungen verwerfen?")) {
+      changes=false;
+      selected=$(this).val();
+      _renderCheckboxes();
+    }
+    else {
+      $(this).val(selected);
+    }
+  });
+  elem.find("a.save").click(function() {
+    if (elem.find("select.template").val()=="") {
+      var name=prompt("Bitte Namen eingeben");
+      if (name!=null) {
+        _saveCheckboxes(name);
+      }
+    }
+    else _saveCheckboxes(elem.find("select.template").val());
+    return false;
+  });
+  elem.find("a.delete").click(function() {
+    if (confirm("Aktuelle Vorlage wirklich entfernen?")) {
+      delete masterData.settings.exportTemplate[selected]; 
+      churchInterface.deleteSetting("exportTemplate["+selected+"]");      
+      elem.dialog("close");
+      t.choseExportFields();      
+    }    
+  });
+  
+};
+
 PersonView.prototype.exportData = function() {
   var t=this;
   var i=masterData.max_exporter;
   if (masterData.auth["export"])
 	  i=99999;
-  var exportIds="";
+  var exportIds=new Array();
   
   var rels=new Object();
   $.each(allPersons, function(k, a) {
     if ((i>0) && (t.checkFilter(a))) {
       i--;
-      exportIds=exportIds+a.id+",";
+      exportIds.push(a.id);
       if (a.rels!=null) {
         $.each(a.rels, function(i,b) {
           if (masterData.relationType[b.beziehungstyp_id].export_aggregation_yn==1)
@@ -4488,65 +4614,66 @@ PersonView.prototype.exportData = function() {
       }
     }
   });  
-  // Weil hinten ein Komma steht einfach eine -1 ergaenzen, die ID gibt es nicht.
-  exportIds=exportIds+"-1";
-  
-  if (this.filter["filterMeine Gruppen"]!=null) 
-    exportIds=exportIds+"&groupid="+this.filter["filterMeine Gruppen"];
+  if (i==0) {
+    alert(unescape("Es d%FCrfen nur max. "+masterData.max_exporter+" Eintr%E4ge exportiert werden. Bitte genauer filtern%21"));
+    return;
+  }
 
-  if (i==0) alert(unescape("Es d%FCrfen nur max. "+masterData.max_exporter+" Eintr%E4ge exportiert werden. Bitte genauer filtern%21"));
-  else {
-  	if (this.filter["filterRelations"]!=null) {
-  	  this.showDialog("Beziehungen exportien", "Es wird momentan nach Beziehungen gefiltert, sollen die durch die Beziehung verbundene Personen mit exportiert werden?",
-  	      300,300, {
-  	      "Ja": function() {
-            agg="&rel_part="+t.filter["filterRelations"].substr(0,1);
-            agg=agg+"&rel_id="+t.filter["filterRelations"].substr(2,99);       
+  var params=exportIds.join(",");
+  if (this.filter["filterMeine Gruppen"]!=null) 
+    params=params+"&groupid="+this.filter["filterMeine Gruppen"];
+    
+  
+	if (this.filter["filterRelations"]!=null) {
+	  this.showDialog("Beziehungen exportien", "Es wird momentan nach Beziehungen gefiltert, sollen die durch die Beziehung verbundene Personen mit exportiert werden?",
+	      300,300, {
+	      "Ja": function() {
+          agg="&rel_part="+t.filter["filterRelations"].substr(0,1);
+          agg=agg+"&rel_id="+t.filter["filterRelations"].substr(2,99);       
+          // Und los geht es
+	        var Fenster = window.open("?q=churchdb/export&ids="+params+agg);     
+          $(this).dialog("close");
+	      },
+	      "Nein": function() {
+	        // Und los geht es
+	        var Fenster = window.open("?q=churchdb/export&ids="+params);     
+	        $(this).dialog("close");
+	      }
+	  });  	  
+	} 
+	else if (masterData.auth.viewalldata) {
+	  var txt="";
+    $.each(rels, function(k,a) {
+      txt=txt+"<input type=\"checkbox\" id=\"cb_"+a+"\" class=\"cdb-checkbox\"></input> &nbsp;"+masterData.relationType[a].bez_vater+"/"+masterData.relationType[a].bez_kind+"<br/>";
+    });
+    if (txt!="") {
+      this.showDialog("Beziehungen zusammenfassen", "Es wurden Beziehungen gefunden, welche sollen zusammengefasst werden?<br/><br/>"+txt,
+          400, 350, {
+          "Ok": function() {
+            var agg="";
+            $.each(rels, function(k,a) {
+              if ($("#cb_"+a).attr("checked")) {
+                agg=agg+"&agg"+a+"=y";
+              }
+            });
             // Und los geht es
-  	        var Fenster = window.open("?q=churchdb/export&ids="+exportIds+agg);     
+            var Fenster = window.open("?q=churchdb/export&ids="+params+agg);     
             $(this).dialog("close");
-  	      },
-  	      "Nein": function() {
-  	        // Und los geht es
-  	        var Fenster = window.open("?q=churchdb/export&ids="+exportIds);     
-  	        $(this).dialog("close");
-  	      }
-  	  });  	  
-  	} 
-  	else if (masterData.auth.viewalldata) {
-  	  var txt="";
-      $.each(rels, function(k,a) {
-        txt=txt+"<input type=\"checkbox\" id=\"cb_"+a+"\" class=\"cdb-checkbox\"></input> &nbsp;"+masterData.relationType[a].bez_vater+"/"+masterData.relationType[a].bez_kind+"<br/>";
-      });
-      if (txt!="") {
-        this.showDialog("Beziehungen zusammenfassen", "Es wurden Beziehungen gefunden, welche sollen zusammengefasst werden?<br/><br/>"+txt,
-            400, 350, {
-            "Ok": function() {
-              var agg="";
-              $.each(rels, function(k,a) {
-                if ($("#cb_"+a).attr("checked")) {
-                  agg=agg+"&agg"+a+"=y";
-                }
-              });
-              // Und los geht es
-              var Fenster = window.open("?q=churchdb/export&ids="+exportIds+agg);     
-              $(this).dialog("close");
-            },
-            "Abbrechen": function() {
-              $(this).dialog("close");
-            }
-        });     
-      }
-      else {
-        var Fenster = window.open("?q=churchdb/export&ids="+exportIds);     
-      }
-  	}
-    else { 
-      if (!groupView.isPersonLeaderOfGroup(masterData.user_pid, this.getFilter("filterMeine Gruppen")))
-        alert("Um zu exportieren muss unter 'Meine Gruppen' eine Gruppe gefiltert werden, in der Du Leiter bist.");
-      else
-        var Fenster = window.open("?q=churchdb/export&ids="+exportIds);
+          },
+          "Abbrechen": function() {
+            $(this).dialog("close");
+          }
+      });     
     }
+    else {
+      var Fenster = window.open("?q=churchdb/export&ids="+params);     
+    }
+	}
+  else { 
+    if (!groupView.isPersonLeaderOfGroup(masterData.user_pid, this.getFilter("filterMeine Gruppen")))
+      alert("Um zu exportieren muss unter 'Meine Gruppen' eine Gruppe gefiltert werden, in der Du Leiter bist.");
+    else
+      var Fenster = window.open("?q=churchdb/export&ids="+params);
   }
 };
 

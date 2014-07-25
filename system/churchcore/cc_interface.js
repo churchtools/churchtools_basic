@@ -232,6 +232,10 @@ ChurchInterface.prototype.saveSetting = function(settingname, val) {
   this.jsendWrite({func:"saveSetting", sub:settingname, val:val});  
 };
 
+ChurchInterface.prototype.deleteSetting = function(settingname) {
+  this.jsendWrite({func:"saveSetting", sub:settingname, remove:true});  
+};
+
 ChurchInterface.prototype.sendEmail = function (to, subject, body) {
   this.jsendWrite({ func: "send_email",  subject: subject, body:body, to:to});
 };

@@ -1889,6 +1889,14 @@ function run_db_updates($db_version) {
     db_query("ALTER TABLE {cs_song} ADD FOREIGN KEY (songcategory_id) REFERENCES {cs_songcategory}( id )");
     db_query("ALTER TABLE {cs_song_arrangement} ADD FOREIGN KEY (song_id) REFERENCES {cs_song}( id )");
     
+    db_query("ALTER TABLE {cc_usersettings} ADD serialized_yn INT( 1 ) NOT NULL DEFAULT '0'");
+    
+/*    $db=db_query("select * from {cc_usersettings} where modulename='churchdb' and attrib='filter'");
+    foreach ($db as $filter) {
+      
+    } 
+  */  
+    
   set_version("2.50");
   }
     

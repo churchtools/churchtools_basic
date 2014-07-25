@@ -6,6 +6,11 @@
   display:none;
 }
 
+small {
+  font-size:90%;
+  line-height:130%;
+}
+
 input.withoutmargin {
   margin:0
 }
@@ -52,7 +57,7 @@ span.label a {
 }
 
 div.filelist {
-  font-size: 85%;
+  font-size: 90%;
   margin-top:10px;
   margin-bottom:10px;	
 }
@@ -141,7 +146,7 @@ tr.detail {
 }
 
 div.event_info {
-  font-size:85%;
+  font-size:90%;
   color:#999;
   border-width:1px;
   border-style: solid;
@@ -242,7 +247,7 @@ div.tooltip_address {
 
 .table-mini th,
 .table-mini td {
-  font-size:85%;
+  font-size:90%;
   padding: 1px 3px 0px;
 }
 
@@ -348,7 +353,6 @@ div.map-control-label {
 }
 
 #cdb_content #detail div.map-canvas-person {
-   #width: 235px;
    height: 200px;
 }
 
@@ -371,26 +375,25 @@ div.map-control-label {
 }
 
 #cdb_content #detail div.left-column {
-   width: 200px;
-   float: left;
-   margin: 5px 5px 5px 5px;
+   w_idth: 200px;
+   f_loat: left;
+   padding: 5px 5px 5px 5px;
 }
 
 #cdb_content #detail div.map-canvas {
-   width: 240px;
-   height: 180px;
+   height: 200px;
 }
 
 #cdb_content #detail div.right-column {
-   width: 300px;
-   float: right;
-   margin: 5px 5px 5px 5px;
+   w_idth: 300px;
+   f_loat: right;
+   padding: 5px 5px 5px 5px;
 }
 
 #cdb_content #detail div.middle-column {
-   width: 300px;
-   float: right;
-   margin: 5px 5px 5px 5px;
+   w_idth: 300px;
+   f_loat: right;
+   padding: 5px 5px 5px 5px;
 }
 
 #cdb_content #detail div.detail-footer {
@@ -414,7 +417,7 @@ span.tag {
 }
 
 #cdb_content div.bottom_links {
-  font-size:11px;	
+  font-size:90%;	
 }
 
 #cdb_content hr {
@@ -499,7 +502,7 @@ span.tag {
 }
 
 .event-date {
-  font-size:85%;	
+  font-size:90%;	
   color:#999;
 }
 
@@ -509,6 +512,6 @@ span.tag {
 .event-location:after{content:")";}  	
 
 .event-description {
-  font-size:85%;	
+  font-size:90%;	
   color:#999;
 }
