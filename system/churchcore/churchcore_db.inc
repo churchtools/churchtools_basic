@@ -2196,7 +2196,7 @@ function dump_database() {
   
   $dir=$files_dir."/db_backup";
   if (!file_exists($dir))
-    mkdir($dir,0777,true); //XXX: Security alert!
+    mkdir($dir,0700,true);
   if (!is_writable($dir)) {
     addErrorMessage("Directory $dir has to be writeable. Please change permissions!");
   }
@@ -2206,7 +2206,7 @@ function dump_database() {
       fwrite($handle,"Deny from all");
       fclose($handle);
     }
-  
+    
     $tables = array();
     $res = db_query('SHOW TABLES');
     foreach ($res as $row) {
@@ -2257,6 +2257,21 @@ function dump_database() {
     $zip->addFile($filename);
     $zip->close();
     unlink($filename);
+
+    //look for files to delete older 30 days
+    if ($handle = opendir($dir)) {
+      $now = new DateTime();
+      while (false !== ($file = readdir($handle))) {
+        if (preg_match('/\.sql|zip$/i', $file)) {
+          $date = DateTime::createFromFormat('YmdHi', substr($file,10,strpos($file,".")-10));
+          if ($date!=null) {
+            $interval = $date->diff($now);
+            if ($interval->format('%a')>30) 
+              unlink($dir."/".$file);
+          }
+        }
+      }
+    }
   }  
 }
 
