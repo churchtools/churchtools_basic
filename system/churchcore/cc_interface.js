@@ -228,8 +228,12 @@ ChurchInterface.prototype.jsend = function (name, obj, func, async, get, overwri
   }
 };
 
-ChurchInterface.prototype.saveSetting = function(settingname, val) {
-  this.jsendWrite({func:"saveSetting", sub:settingname, val:val});  
+ChurchInterface.prototype.saveSetting = function(settingname, val, func) {
+  this.jsendWrite({func:"saveSetting", sub:settingname, val:val}, func);  
+};
+
+ChurchInterface.prototype.setCookie = function(settingname, val, func) {
+  this.jsendWrite({func:"setCookie", sub:settingname, val:val}, func);  
 };
 
 ChurchInterface.prototype.sendEmail = function (to, subject, body) {

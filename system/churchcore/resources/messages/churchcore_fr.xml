@@ -291,6 +291,15 @@
   <entry key="show.more.rows">Voir plus de lignes</entry>
   <entry key="count.accesses">Nombre d'accès</entry>
   <entry key="cronjob.succeed">Cron-Job accompli!</entry>
+
+  <!-- 2014-07-23 -->
+  <entry key="query">Interrogation</entry>
+  <entry key="report">Report</entry>
+  <entry key="german">Allemand </entry>
+  <entry key="english">Anglais</entry>
+  <entry key="french">Français</entry>
+  <entry key="select.language">Sélect langue</entry>
+  <entry key="please.select.your.language">Sélectionnez votre langue</entry>
       
   
   

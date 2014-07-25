@@ -961,6 +961,21 @@ $(document).ready(function() {
     });
     return false;
   });
+  $("#language_selector").click(function() {
+    var form = new CC_Form();
+    var data = [{id:"de", bezeichnung:_("german")}, 
+                {id:"en", bezeichnung:_("english")}, 
+                {id:"fr", bezeichnung:_("french")}]; 
+    form.addHtml('<p><p>');
+    form.addSelect({data:data, label:_("please.select.your.language"), htmlclass:"language"});
+    var elem=form_showDialog(_("select.language"), form.render(null, "vertical"), 300, 300).
+      dialog("addbutton", _("save"), function() {
+        churchInterface.setCookie("language", elem.find("select.language").val(), function() {
+          location.reload(true);
+        });
+      })
+    return false;
+  });
   window.setTimeout(function() {
     $("div.hide_automatically").hide('slow');
   }, 5000);

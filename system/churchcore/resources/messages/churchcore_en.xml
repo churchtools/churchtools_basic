@@ -291,5 +291,10 @@
   <!-- 2014-07-23 -->
   <entry key="query">Query</entry>
   <entry key="report">Report</entry>
+  <entry key="german">German</entry>
+  <entry key="english">English</entry>
+  <entry key="french">French</entry>
+  <entry key="select.language">Select language</entry>
+  <entry key="please.select.your.language">Please select your language</entry>
   	  
 </properties>

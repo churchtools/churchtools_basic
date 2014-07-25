@@ -294,5 +294,10 @@
   <!-- 2014-07-23 -->
   <entry key="query">Abfrage</entry>
   <entry key="report">Bericht</entry>
+  <entry key="german">Deutsch</entry>
+  <entry key="english">Englisch</entry>
+  <entry key="french">Französisch</entry>
+  <entry key="select.language">Sprache auswählen</entry>
+  <entry key="please.select.your.language">Bitte wähle Deine gewünschte Sprache</entry>
       
 </properties>

@@ -28,9 +28,9 @@ function handleShutdown() {
 }
 
 /**
- * PrŸfe auf Mulitsite-Installation. Hier gibt es eine Config fŸr subdomain
+ * Prï¿½fe auf Mulitsite-Installation. Hier gibt es eine Config fï¿½r subdomain
  * z.Bsp. mghh.churchtools.de muss es dann config/churchtools.mggh.config geben.
- * Gibt die Config als Array zurŸck oder null wenn es keine zu laden gibt.
+ * Gibt die Config als Array zurï¿½ck oder null wenn es keine zu laden gibt.
  */
 function loadConfig() {
     global $files_dir;
@@ -188,6 +188,9 @@ function churchtools_main() {
       
       date_default_timezone_set(variable_get("timezone", "Europe/Berlin"));
       
+      if (isset($_COOKIE["language"]))
+        $config["language"]=$_COOKIE["language"];
+      
       // Load i18n churchcore-bundle 
       if (!isset($config["language"])) {
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE']))
@@ -212,7 +215,7 @@ function churchtools_main() {
       session_start();    
       register_shutdown_function('handleShutdown');
 
-      // PrŸfe auf Offline-Modus !
+      // Prï¿½fe auf Offline-Modus !
       if ((isset($config["site_offline"]) && ($config["site_offline"]==1))) {
         if ((!isset($_SESSION["user"]) || (!in_array($_SESSION["user"]->id, $config["admin_ids"])))) {
           echo t("site.is.down");
@@ -296,7 +299,7 @@ function processRequest($_q) {
   
   $content="";
 
-  // PrŸfe Mapping
+  // Prï¿½fe Mapping
   if (isset($mapping[$_q])) {
     include_once("system/".$mapping[$_q]);
     

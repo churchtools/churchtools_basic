@@ -45,6 +45,14 @@ interface CTModuleInterface {
    * @param unknown_type $params array(sub, val) 
    */
   public function saveSetting($params);
+  
+  /**
+   * Set a cookie
+   *
+   * @param unknown_type $params array(sub, val)
+   */
+  public function setCookie($params);
+  
 
   /**
    * Get all user settings for current login user
@@ -146,6 +154,11 @@ abstract class CTAbstractModule implements CTModuleInterface {
   public function saveSetting($params) {
     global $user;
     churchcore_saveUserSetting($this->modulename, $user->id, $params["sub"], $params["val"]);
+  }
+  
+  // Set cookie for 30 days
+  public function setCookie($params) {
+    setcookie($params["sub"], $params["val"], time()+60*60*24*30);
   }
   
   public function getSettings() {
