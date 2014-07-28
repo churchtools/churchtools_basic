@@ -51,9 +51,7 @@ function run_db_updates($db_version) {
           PRIMARY KEY (bereich_id,person_id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cdb_bereich_person} VALUES
-           (1, 1),
-           (1, 2),
-           (2, 1)");
+           (1, 1)");
         db_query("CREATE TABLE {cdb_beziehung} (
           id int(11) NOT NULL AUTO_INCREMENT,
           vater_id int(11) NOT NULL,
@@ -171,8 +169,7 @@ function run_db_updates($db_version) {
           KEY person_id (person_id)
         ) ENGINE=MyISAM  DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cdb_gemeindeperson} VALUES
-           (1, 1, 'Krankenschwester', 'Meierchen', '1979-09-06 00:00:00', 'Hannover', '', 2, NULL, 1, 2, '2010-01-04 00:00:00', '2010-05-20 00:00:00', '2011-01-01 00:00:00', '', NULL, '2010-05-20 00:00:00', 'Hamburg Elim', 'Pastor Manfred', 'Mustergemeinde Hannover', '', 'imageaddr1.jpg', '2011-01-01 00:00:00', 'jmrauen'),
-           (2, 2, '', '', NULL, '', '', 2, NULL, 1, 2, NULL, NULL, NULL, '', NULL, NULL, '', '', 'Mustergemeinde Hamburg', '', NULL, '2011-01-11 00:00:00', 'jmrauen')");
+           (1, 1, '', '', null, '', '', 0, NULL, 1, 2, null, null, null, '', NULL, null, '', '', '', '', null, now(), 'admin')");
         db_query("CREATE TABLE {cdb_gemeindeperson_gruppe} (
           gemeindeperson_id int(11) NOT NULL,
           gruppe_id int(11) NOT NULL,
@@ -311,8 +308,7 @@ function run_db_updates($db_version) {
           PRIMARY KEY (id)
         ) ENGINE=MyISAM  DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cdb_person} VALUES
-           (1, 'Ackermeister', 'Sabine', '21232f297a57a5a743894a0e4a801fc3', NULL, '2013-08-30 15:56:42', 2, 'Dipl.-Ing.', 'Kedenburgstr. 22', '22041', 'Hamburg', '', '', '040 12345678', '0179 12345678', '', '', 'admin@test.de', '53.5778604', '10.08704130000001', 'admin', '2011-01-01 00:00:00', '2011-01-31 00:00:00', 'Administrator'),
-           (2, 'Helmut', 'Meier', NULL, NULL, NULL, 2, '', 'Bostelreihe 9', '22043', 'Hamburg', '', '', '', '', '', '', 'helmut@test.de', '53.5778604', '10.08704130000001', 'admin', '2011-01-01 00:00:00', '2011-01-31 00:00:00', 'Administrator')");
+           (1, 'Admin', 'Admin', '21232f297a57a5a743894a0e4a801fc3', NULL, null, 0, '', '', '', '', '', '', '', '', '', '', 'admin@example.com', '', '', 'admin', now(), now(), 'admin')");
         db_query("CREATE TABLE {cdb_station} (
           id int(11) NOT NULL,
           bezeichnung varchar(20) NOT NULL,
@@ -428,8 +424,7 @@ function run_db_updates($db_version) {
            (2, 1, 0, 'Mobil-Beamer', 'Buero von Hans', 1, ''),
            (3, 1, 0, 'Bus', '', 1, ''),
            (5, 2, 0, 'Haupt-Cafe', '', 0, ''),
-           (4, 2, 0, 'Schokoraum', '', 1, ''),
-           (6, 2, 0, 'Kickerraum', '', 0, '')");
+           (4, 2, 0, 'Schokoraum', '', 1, '')");
         db_query("CREATE TABLE {cr_resourcetype} (
           id int(11) NOT NULL AUTO_INCREMENT,
           bezeichnung varchar(20) NOT NULL,
@@ -457,7 +452,7 @@ function run_db_updates($db_version) {
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cs_category} VALUES
            (0, 'Sonstige Veranstaltung', 8),
-           (1, 'Sontagsgodis', 1),
+           (1, 'Sonntagsgodis', 1),
            (2, 'Jugend', 19)");
         db_query("CREATE TABLE {cs_event} (
           id int(11) NOT NULL AUTO_INCREMENT,

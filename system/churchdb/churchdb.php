@@ -749,15 +749,16 @@ function churchdb__export() {
     $rel_types=getAllRelationTypes();
     foreach ($rels as $rel) {
       if ((isset($params["agg".$rel->typ_id])) && ($params["agg".$rel->typ_id]=="y") && (isset($export[$rel->v_id])) && (isset($export[$rel->k_id]))) {
-        // Wir nehmen den Mann als Kopf des Ehepars
-        if ($export[$rel->v_id]["anrede2"]=="Lieber") {
+        // We take man as the first one, if available
+        if (!isset($export[$rel->v_id]["anrede2"]) || $export[$rel->v_id]["anrede2"]=="Lieber") {
           $p1=$rel->v_id; $p2=$rel->k_id;
         } else {
           $p1=$rel->k_id; $p2=$rel->v_id;
         }
         // Fuegen dem Mann die andere zuerst zu
         $export[$p1]["anrede"]=$rel_types[$rel->typ_id]->export_title;
-        $export[$p1]["anrede2"]=$export[$p2]["anrede2"]." ".$export[$p2]["vorname"].", ".$export[$p1]["anrede2"];
+        if (isset($export[$p1]["anrede2"]) && (isset($export[$p2]["anrede2"])))
+          $export[$p1]["anrede2"]=$export[$p2]["anrede2"]." ".$export[$p2]["vorname"].", ".$export[$p1]["anrede2"];
         $export[$p1]["vorname2"]=$export[$p2]["vorname"];
         if (isset($export[$p2]["email"]))
           $export[$p1]["email_beziehung"]=$export[$p2]["email"];
@@ -793,9 +794,11 @@ function churchdb__export() {
   // Get all available columns
   $cols=array();
   foreach ($export as $key=>$row) {
-    foreach ($row as $a=>$val) {
-      if ($val!=null && $val!="" && gettype($val)!="object" && gettype($val)!="array") 
-        $cols[$a]=$a;
+    if ($row!=null) {
+      foreach ($row as $a=>$val) {
+        if ($val!=null && $val!="" && gettype($val)!="object" && gettype($val)!="array") 
+          $cols[$a]=$a;
+      }
     }
   }
   

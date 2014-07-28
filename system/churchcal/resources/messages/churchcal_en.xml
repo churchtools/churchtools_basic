@@ -6,7 +6,6 @@
   <entry key="year">Year</entry>  
   <entry key="month">Month</entry>  
   <entry key="week">Week</entry>  
-  <entry key="day">Day</entry>  
     
   <entry key="no.calendar.available">No calendar available.</entry>
   <entry key="only.intern.visible">Only visible for logged in user</entry>  
