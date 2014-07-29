@@ -250,10 +250,10 @@
   <entry key="november">November</entry>
   <entry key="december">December</entry>
 
-  <entry key="minutes">Minuten</entry>
-  <entry key="hours">Stunden</entry>
-  <entry key="hour">Stunde</entry>
-  <entry key="day">Tag</entry>
+  <entry key="minutes">Minutes</entry>
+  <entry key="hours">Hours</entry>
+  <entry key="hour">Hour</entry>
+  <entry key="day">Day</entry>
   
   <entry key="start.date">Start date</entry>
   <entry key="end.date">End date</entry>

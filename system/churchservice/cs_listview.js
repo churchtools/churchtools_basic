@@ -1,5 +1,11 @@
 
 // Constructor
+
+/**
+ * shows a list view using StandardTableView
+ *
+ * @param options
+ */
 function ListView(options) {
   StandardTableView.call(this, options);
   this.name="ListView";
@@ -2290,28 +2296,28 @@ ListView.prototype.editService = function(service_id, sg_id) {
 };
 
 ListView.prototype.renderAddServiceToServicegroup = function(event, sg_id, user_pid) {
-  var rows=new Array();
-  rows.push('<div id="in_edit"><table class="table table-condensed">');
-  rows.push('<tr><th><input type="checkbox" id="cb_enableAll" title="'+_("select.all")+'"/><th>Service');
-  if ((masterData.auth.editgroup!=null) && (masterData.auth.editgroup[sg_id])) {
-    rows.push('<th width="25px">');
-  }
-  var _bin_ich_admin=bin_ich_admin(event.admin);
+	var rows=new Array();
+	rows.push('<div id="in_edit" class="addService">');
+	rows.push('<div class="checkbox"><label for="cb_enableAll"><input type="checkbox" id="cb_enableAll"/> <b>Service</b></label>');
+	var _bin_ich_admin=bin_ich_admin(event.admin);
 
-  $.each(this.getAdditionalServicesToServicegroup(event, sg_id, _bin_ich_admin), function(i,s) {
-    rows.push('<tr><td><input type="checkbox" '+s.checked+' id="on_'+s.id+'"/><td><p><label for="on_'+s.id+'">'+masterData.service[s.id].bezeichnung)+'</label>';
-    if (masterData.service[s.id].notiz!="")
-      rows.push('&nbsp; <small>('+masterData.service[s.id].notiz+")</small>");
-      if ((masterData.auth.editgroup!=null) && (masterData.auth.editgroup[sg_id])) {
-        rows.push('<td>'+form_renderImage({htmlclass:"edit-service", link:true, data:[{name:"service-id", value:s.id}], src:"options.png", width:20}));
-      }
-
-  });
-  if ((masterData.auth.editgroup!=null) && (masterData.auth.editgroup[sg_id])) {
-    rows.push('<tr><td><td><i><a href="#" class="newService">Neuen Service erstellen</a></i><td>'
-        +form_renderImage({cssid:"addService", src:"plus.png", width:20}));
-  }
-  rows.push("</table></div>");
+	$.each(this.getAdditionalServicesToServicegroup(event, sg_id, _bin_ich_admin), function(i,s) {
+		//rrr    rows.push('<tr><td><input type="checkbox" '+s.checked+' id="on_'+s.id+'"/><td><p>'+masterData.service[s.id].bezeichnung);
+		rows.push('</div><div class="checkbox"><label for="on_'+s.id+'"><input type="checkbox" '+s.checked+' id="on_'+s.id+'"/> '+masterData.service[s.id].bezeichnung+'');
+		if (masterData.service[s.id].notiz!="")
+			rows.push('&nbsp; <small>('+masterData.service[s.id].notiz+")</small>");
+		if ((masterData.auth.editgroup!=null) && (masterData.auth.editgroup[sg_id])) {
+			rows.push('<span class="pull-right">'+form_renderImage({htmlclass:"edit-service", link:true, data:[{name:"service-id", value:s.id}], src:"options.png", width:20})+'</span></label>');
+		}
+		else {
+			rows.push('</label>');
+		}
+	});
+	if ((masterData.auth.editgroup!=null) && (masterData.auth.editgroup[sg_id])) {
+		rows.push('</div><div class="checkbox"><label><i><a href="#" class="newService">Neuen Service erstellen</a></i><span class="pull-right">'
+				+form_renderImage({cssid:"addService", src:"plus.png", width:20})+'</span>');
+	}
+	rows.push("</label></div></div>");
 
   var elem = this.showDialog("Service zum Event hinzufügen oder entfernen", rows.join(""), 450, 500, {
       "Speichern": function() {
