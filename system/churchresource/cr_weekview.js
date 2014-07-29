@@ -203,10 +203,10 @@ WeekView.prototype.renderCalender = function() {
     currentText: _("today"),
     defaultDate: t.currentDate,
     firstDay: 1,
-    onSelect : function(dateText, inst) { 
+    onSelect : function(dateText, inst) {
       t.currentDate=dateText.toDateDe();
-      //t.currentDate.addDays(-1);
       t.renderList();
+      t.addWeekButtons();
     },    
     onChangeMonthYear:function(year, month, inst) {
       var dt = new Date();
@@ -222,12 +222,13 @@ WeekView.prototype.renderCalender = function() {
         t.renderTimer=window.setTimeout(function() {
           t.renderTimer=null;
           t.renderList();
+          t.addWeekButtons();
         },150);
       }
     }
   });    
   $("#dp_currentdate").datepicker($.datepicker.regional['de']);
- // $("#dp_currentdate").datepicker('setDate', t.currentDate.toStringDe());
+  t.addWeekButtons();
 };
   
 WeekView.prototype.checkFilter = function (a) {
@@ -502,8 +503,20 @@ WeekView.prototype.updateBookingStatus = function(id, new_status) {
   var oldStatus=allBookings[id].status_id;
   allBookings[id].status_id=new_status;
   allBookings[id].func="updateBooking";
-  churchInterface.jsendWrite(allBookings[id], function(ok) {
+  churchInterface.jsendWrite(allBookings[id], function(ok, data) {
     if (!ok) allBookings[id].status_id=oldStatus;
+    else {
+      // Get IDs for currently created Exceptions
+      if (data.exceptions!=null) {
+        $.each(data.exceptions, function(i,e) {
+          if (i<0) {
+            allBookings[id].exceptions[e]=allBookings[id].exceptions[i];
+            allBookings[id].exceptions[e].id=e;
+            delete allBookings[id].exceptions[i];
+          }
+        });
+      }      
+    }
     t.renderList();
   }, false, false);
   t.renderList();  
@@ -642,7 +655,7 @@ WeekView.prototype.renderEditBookingFields = function (a) {
   rows.push("</form>");
   
   if (a.id!=null)
-    rows.push("<i>"+_("booking.request.x.was.created.by.", a.id, a.person_name)+"</a></i><br/>");
+    rows.push("<i>"+_("booking.request.x.was.created.by.y", a.id, a.person_name)+"</a></i><br/>");
   
   rows.push("</div>");
   return rows.join("");
@@ -772,6 +785,26 @@ WeekView.prototype.calcConflicts = function(new_b, resource_id) {
   return rows.join("");  
 };
 
+WeekView.prototype.addWeekButtons = function() {
+  if ($("#btn_prevweek").length==0) {
+    $("#dp_currentdate div.ui-datepicker-buttonpane").
+    prepend('<button type="button" id="btn_prevweek" '+ 
+   'class="ui-datepicker-current ui-state-default ui-priority-secondary ui-corner-all"><<</button>').  
+    append('<button type="button" id="btn_nextweek" '+ 
+    'class="ui-datepicker-current ui-state-default ui-priority-secondary ui-corner-all">>></button>');
+    $("#btn_prevweek").click(function() {
+      t.currentDate.addDays(-7);
+      t.renderList();   
+      $("#dp_currentdate").datepicker("setDate", t.currentDate);      
+    });
+    $("#btn_nextweek").click(function() {
+      t.currentDate.addDays(7);
+      t.renderList();      
+      $("#dp_currentdate").datepicker("setDate", t.currentDate);      
+    });
+  }
+};
+
 WeekView.prototype.closeAndSaveBookingDetail = function (elem) {
   var t=this;
   var a=t.currentBooking;
@@ -848,6 +881,8 @@ WeekView.prototype.closeAndSaveBookingDetail = function (elem) {
 
 WeekView.prototype.addFurtherListCallbacks = function() {
   var t=this;
+  
+  t.addWeekButtons();
 
   $("#cdb_content .tooltips").each(function() {
     var tooltip=$(this);

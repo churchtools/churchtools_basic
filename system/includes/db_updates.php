@@ -451,9 +451,9 @@ function run_db_updates($db_version) {
           PRIMARY KEY (id)
         ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
         db_query("INSERT INTO {cs_category} VALUES
-           (0, 'Sonstige Veranstaltung', 8),
-           (1, 'Sonntagsgodis', 1),
-           (2, 'Jugend', 19)");
+           (0, 'Sonstige Veranstaltung', 20),
+           (1, 'Sonntagsgodis', 10),
+           (2, 'Jugend', 30)");
         db_query("CREATE TABLE {cs_event} (
           id int(11) NOT NULL AUTO_INCREMENT,
           datum datetime NOT NULL,

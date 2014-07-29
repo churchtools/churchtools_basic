@@ -170,8 +170,8 @@ function churchresource_updateBooking($params, $changes=null) {
         // Look for Exc. This is not possible to make by id, cause ChurchCal Exc have other IDs
         if ($exc!=false) {
           foreach ($exc as $e) {
-            if (($e->except_date_start==$exception["except_date_start"]) &&
-                     ($e->except_date_end==$exception["except_date_end"]))
+            if ((churchcore_isSameDay($e->except_date_start, $exception["except_date_start"])) &&
+                     (churchcore_isSameDay($e->except_date_end, $exception["except_date_end"])))
               $current_exc=$e; 
           }
         }
@@ -199,7 +199,7 @@ function churchresource_updateBooking($params, $changes=null) {
         // Look for additions. This is not possible to make by id, cause ChurchCal Additions have other IDs
         if ($add!=false) {
           foreach ($add as $a) {
-            if (($a->add_date==$addition["add_date"]) && ($a->with_repeat_yn==$addition["with_repeat_yn"]))
+            if ((churchcore_isSameDay($a->add_date, $addition["add_date"])) && ($a->with_repeat_yn==$addition["with_repeat_yn"]))
               $current_add=$a; 
           }
         }
@@ -207,8 +207,6 @@ function churchresource_updateBooking($params, $changes=null) {
           $add[$current_add->id]->vorhanden=true;
         else {
           $changes["add_addition"][]=$addition;            
-//            $res_additions[$addition["id"]]=addAddition($params["id"], $addition["add_date"], $addition["with_repeat_yn"], $user->id);
-//            $days[]=$addition["add_date"];
         }
       }
     }  
@@ -221,7 +219,7 @@ function churchresource_updateBooking($params, $changes=null) {
       }
     }
   }
-
+  
   // New Exception-Ids will be saved here
   $res_exceptions=array();
   $res_additions=array();

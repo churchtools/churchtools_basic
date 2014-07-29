@@ -1500,6 +1500,18 @@ function isFullDay($start, $end) {
   return false;  
 }
 
+/**
+ * Return is s1 and s2 is same day
+ * @param String $s1 - english format
+ * @param String $s2 - english format
+ * @return boolean
+ */
+function churchcore_isSameDay($s1, $s2) {
+  $d1=churchcore_stringToDateTime($s1);
+  $d2=churchcore_stringToDateTime($s2);
+  return $d1->format("Ymd")==$d2->format("Ymd");
+}
+
 function datesInConflict($startdate, $enddate, $startdate2, $enddate2) {
   $_enddate=$enddate;
   $_enddate2=$enddate2;

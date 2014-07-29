@@ -3097,7 +3097,9 @@ ListView.prototype.addAbsentButton = function () {
   var t=this;
   window.setTimeout(function() {
     if ($("#btn_abwesenheit").length==0) {
-      $("#dp_currentdate div.ui-datepicker-buttonpane").append('<button type="button" id="btn_abwesenheit" class="ui-datepicker-current ui-state-default ui-priority-secondary ui-corner-all">'+_("maintain.absence")+'</button>');
+      $("#dp_currentdate div.ui-datepicker-buttonpane").
+           append('<button type="button" id="btn_abwesenheit" '+ 
+          'class="ui-datepicker-current ui-state-default ui-priority-secondary ui-corner-all">'+_("maintain.absence")+'</button>');
       $("#btn_abwesenheit").hover(function(k,a) {
         $(this).addClass("ui-state-hover");
         }, function() { $(this).removeClass("ui-state-hover");} 

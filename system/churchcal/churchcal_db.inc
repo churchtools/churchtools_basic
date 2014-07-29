@@ -282,7 +282,7 @@ function churchcal_updateEvent($params, $source=null) {
     $params["cal_id"]=$params["id"];
     churchresource_updateResourcesFromChurchCal($params, $source, $changes);           
   }
-  if ((in_array("churchservice", $modules) && ($source==null || $source!="churchresource"))) {
+  if ((in_array("churchservice", $modules) && ($source==null || $source!="churchservice"))) {
     include_once(drupal_get_path('module', 'churchservice') .'/churchservice_db.inc');
     $cs_params=array_merge(array(), $params); 
     $cs_params["cal_id"]=$params["id"];
