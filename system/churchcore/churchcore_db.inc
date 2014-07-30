@@ -1018,6 +1018,21 @@ function churchcore_sort (&$array, $key) {
   $array=$ret;
 }
 
+/**
+ * Joins an array
+ * @param unknown $arr
+ * @param unknown $joiner like "::"
+ * @param unknown $field like "bezeichnung"
+ * @return string
+ */
+function implode_array($arr, $joiner, $field) {
+  $res=array();
+  foreach ($arr as $a) {
+    $res[]=$a->$field;
+  }
+  return implode($res, $joiner);
+}
+
 function drupal_get_path($m, $module) {
   return "system/".$module."";
 }

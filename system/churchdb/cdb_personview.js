@@ -4503,30 +4503,50 @@ PersonView.prototype.editExportTemplates = function(selected, func) {
   rows.push(form.render(true, "inline"));
   var form=new CC_Form();
   form.addHtml('<div class="row-fluid">');
-  masterData.fields["f_address"].fields["age"]={sql:"age", text:_("age")};
-  masterData.fields["f_address"].fields["anrede2"]={sql:"anrede2", text:"Lieber/Liebe"};
-  masterData.fields["f_address"].fields["id"]={sql:"id", text:"Id"};
-  $.each(masterData.fields, function(i,fieldcategory) {
-    if (fieldcategory.arrayname!='f_group') {
-      form.addHtml('<div class="span4" style="min-width:170px">');
-      form.addHtml('<legend>'+fieldcategory.text+'</legend>');
-      $.each(fieldcategory.fields, function(i,field) {
-        if (field.auth!="admingroups" && field.sql!="treffen_yn" && field.sql!="members_allowedmail_eachother_yn" 
-           && t.checkFieldPermission(field))
-          form.addCheckbox({label:field.text,  htmlclass:"field",
-            data:[{name:"sql",value:field.sql}], controlgroup:false});
-      });
-      form.addHtml('</div>');
-    }
+
+  // Copy fields, so I can add some special fields later
+  var fields=new Object();
+  fields["f_address"]=$.extend(true, {}, masterData.fields["f_address"]);
+  fields["f_church"]=$.extend(true, {}, masterData.fields["f_church"]);
+  fields["f_category"]=$.extend(true, {}, masterData.fields["f_category"]);
+  fields["f_dep"]=$.extend(true, {}, masterData.fields["f_dep"]);
+
+  // Add special fields
+  fields["f_address"].fields["age"]={sql:"age", text:_("age")};
+  fields["f_address"].fields["anrede2"]={sql:"anrede2", text:"Lieber/Liebe"};
+  fields["f_address"].fields["id"]={sql:"id", text:"Id"};
+  $.each(fields, function(i,fieldcategory) {
+    form.addHtml('<div class="span4" style="min-width:170px">');
+    form.addHtml('<legend>'+fieldcategory.text+'</legend>');
+    $.each(fieldcategory.fields, function(i,field) {
+      if (field.auth!="admingroups" && field.sql!="treffen_yn" && field.sql!="members_allowedmail_eachother_yn" 
+         && t.checkFieldPermission(field))
+        form.addCheckbox({label:field.text,  htmlclass:"field",
+          data:[{name:"sql",value:field.sql}], controlgroup:false});
+    });
+    form.addHtml('</div>');
   });  
+  
+  // Add Group relation information
+  if (user_access("viewalldata")) {
+    form.addHtml('<div class="span4" style="min-width:170px">');
+    form.addHtml('<legend>'+_("groups")+'</legend>');
+    $.each(masterData.groupTypes, function(k,a) {
+      form.addCheckbox({label:a.bezeichnung,  htmlclass:"field",
+        data:[{name:"sql",value:"grouptype_id_"+a.id}], controlgroup:false});
+    });    
+  }
+  
   form.addHtml('</div>');
   rows.push(form.render(false));
   var elem=form_showDialog(_("chose.fields"), rows.join(""), 700, 600)
-    .dialog("addbutton", _("close"), function() {
-      if (!changes || confirm(_("discard.changes"))) {
-        elem.dialog("close");
-        if (func!=null) func(selected);
-      }
+    .dialog("addbutton", _("save"), function() {
+      _saveTemplate();
+      elem.dialog("close");
+      if (func!=null) func(selected);          
+    }).dialog("addbutton", _("cancel"), function() {
+      elem.dialog("close");
+      if (func!=null) func(selected);    
     });
   
   elem.find("a.select-all").click(function() {
@@ -4553,7 +4573,7 @@ PersonView.prototype.editExportTemplates = function(selected, func) {
         $(this).removeAttr("checked");
     });
   }
-  
+
   function _saveCheckboxes(name) {
     var obj = new Object();
     elem.find("input.checkbox").each(function() {
@@ -4563,12 +4583,27 @@ PersonView.prototype.editExportTemplates = function(selected, func) {
     obj.id=name;
     obj.bezeichnung=name;
     masterData.settings.exportTemplate[name]=obj;
-    elem.dialog("close");
-    t.editExportTemplates(name, func);   
     churchInterface.saveSetting("exportTemplate["+name+"]", 
                           masterData.settings.exportTemplate[name]);
     changes=false;
   }
+  function _saveTemplate() {
+    if (elem.find("select.template").val()=="") {
+      var name=prompt(_("please.fillin.a.name"));
+      if (name!=null) {
+        selected=name;
+        _saveCheckboxes(name);
+        $('select.template').val(name);
+        if ($('select.template').val()==null) {
+          $('select.template').append( new Option(name,name) );
+          $('select.template').val(name);
+        }
+      }
+    }
+    else _saveCheckboxes(elem.find("select.template").val());
+  }
+  
+  
   _renderCheckboxes();
   
   var changes=false;
@@ -4589,13 +4624,7 @@ PersonView.prototype.editExportTemplates = function(selected, func) {
     }
   });
   elem.find("a.save").click(function() {
-    if (elem.find("select.template").val()=="") {
-      var name=prompt(_("please.fillin.a.name"));
-      if (name!=null) {
-        _saveCheckboxes(name);
-      }
-    }
-    else _saveCheckboxes(elem.find("select.template").val());
+    _saveTemplate();
     return false;
   });
   elem.find("a.delete").click(function() {

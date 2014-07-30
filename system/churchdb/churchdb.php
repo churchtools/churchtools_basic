@@ -627,11 +627,11 @@ function churchdb__vcard() {
   
 
 function _export_optimzations($arr) {
-  if (isset($arr["geburts_datum"])) {
-    $dt = new DateTime($arr->geburtsdatum);
-    $arr['geb.jahr']=$dt->format("%Y");
-    $arr['geb.m']=$dt->format("%m");
-    $arr['geb.t']=$dt->format("%t");
+  if (isset($arr["geburtsdatum"])) {
+    $dt = new DateTime($arr["geburtsdatum"]);
+    $arr['geb.jahr']=$dt->format("Y");
+    $arr['geb.m']=$dt->format("m");
+    $arr['geb.t']=$dt->format("t");
   
     if ($arr['geb.jahr']>=7000) {
       $arr['geb.tag']="";
@@ -643,6 +643,17 @@ function _export_optimzations($arr) {
     }
   }  
   return $arr;
+}
+
+function _getExportTemplateByName($templatename=null) {  
+  global $user;
+
+  if ($templatename==null) return null;
+  $settings=churchcore_getUserSettings("churchdb", $user->id);
+  if (!isset($settings["exportTemplate"][$templatename]))
+    throw new Exception("Template '".$templatename."' not found!");
+  
+  return $settings["exportTemplate"][$templatename];
 }
 
 /**
@@ -660,16 +671,11 @@ function _getPersonDataForExport($person_ids=null, $template=null) {
     $ids=explode(",", $person_ids);
   }
   
-  if ($template!=null) {
-    $settings=churchcore_getUserSettings("churchdb", $user->id);
-    if (!isset($settings["exportTemplate"][$template]))
-      throw new Exception("Template '".$template."' not found!");
-    $template=$settings["exportTemplate"][$template];
-  }
-  
     // Check allowed persons
   $ps=churchdb_getAllowedPersonData();
   $bereich=churchcore_getTableData("cdb_bereich");
+  $status=churchcore_getTableData("cdb_status");
+  $station=churchcore_getTableData("cdb_station");
   $export=array();
   foreach ($ps as $p) {
     if ($ids==null || in_array($p->p_id, $ids)) {
@@ -679,7 +685,15 @@ function _getPersonDataForExport($person_ids=null, $template=null) {
       foreach ($p->access as $dep_id) {
         $bereiche[]=$bereich[$dep_id]->bezeichnung;
       }
-      $detail->bereich_id=join('::', $bereiche);
+      $detail->bereich_id=implode('::', $bereiche);
+      $detail->station_id=$station[$detail->station_id]->bezeichnung;
+      if (user_access("view alldetails", "churchdb"))
+        $detail->status_id=$status[$detail->status_id]->bezeichnung;
+      else
+        if ($status[$detail->status_id]->mitglied_yn==1)
+          $detail->status_id="Mitglied";
+        else
+          $detail->status_id="Kein Mitglied";
       if ($detail->geschlecht_no==1)
         $detail->anrede2="Lieber";
       else if ($detail->geschlecht_no==2)
@@ -698,11 +712,42 @@ function _getPersonDataForExport($person_ids=null, $template=null) {
           }
         }
       }
-      else $export_entry=(array) $detail;
+      else {
+        $export_entry=(array) $detail;
+        if (!user_access("administer persons", "churchcore")) {
+          unset($export_entry["letzteaenderung"]);
+          unset($export_entry["aenderunguser"]);
+          unset($export_entry["einladung"]);
+          unset($export_entry["active_yn"]);
+          unset($export_entry["lastlogin"]);
+          unset($export_entry["createdate"]);
+          unset($export_entry["lat"]);
+          unset($export_entry["lng"]);
+          unset($export_entry["gp_id"]);
+          unset($export_entry["imageurl"]);
+        }
+      }
       $export[$p->p_id]=_export_optimzations($export_entry);
     }
   }
   return $export;  
+}
+
+function _addGroupRelationDataForExport($export, $template=null) {
+  if ($template==null) return $export;
+  $groupTypes=churchcore_getTableData("cdb_gruppentyp");
+  foreach ($export as $e_key=>$e_row) {
+    foreach ($template as $t_key=>$t_row) {
+      // Look if grouptype is in template
+      if (substr($t_key,0,15)=="f_grouptype_id_") {
+        // Get group type and collect data
+        $id=substr($t_key,15,99);
+        $groups=churchdb_getGroupsForPersonId($e_key, $id);
+        $export[$e_key][$groupTypes[$id]->bezeichnung]=implode_array($groups, "::", "bezeichnung");
+      }
+    }
+  }
+  return $export;
 }
 
 function churchdb__export() {
@@ -713,9 +758,13 @@ function churchdb__export() {
   $params =$_GET;
   $template=null;
   $ids=null;
-  if (isset($params["template"])) $template=$params["template"];
-  if (isset($params["ids"])) $ids=$params["ids"];  
+  if (isset($params["template"])) 
+    $template=_getExportTemplateByName($params["template"]);
+  if (isset($params["ids"])) 
+    $ids=$params["ids"];  
   $export=_getPersonDataForExport($ids, $template);
+  
+  $export=_addGroupRelationDataForExport($export, $template);
   
   // Hier werden wenn nach Beziehung gefiltert wird auch noch die verknuepften Personen
   // mitgeladen und exportiert.
@@ -806,8 +855,13 @@ function churchdb__export() {
   $sql="select langtext from {cdb_feld} where db_spalte=:db_spalte";
   foreach ($cols as $col) {
     $res=db_query($sql, array(":db_spalte"=>$col))->fetch();
-    if (!$res)
-      echo mb_convert_encoding('"'.$col.'";', 'ISO-8859-1', 'UTF-8');
+    if (!$res) {
+      $txt=t($col);
+      if (substr($txt,0,3)!="***")
+        echo mb_convert_encoding('"'.$txt.'";', 'ISO-8859-1', 'UTF-8');
+      else
+        echo mb_convert_encoding('"'.$col.'";', 'ISO-8859-1', 'UTF-8');
+    }
     else
       echo mb_convert_encoding('"'.$res->langtext.'";', 'ISO-8859-1', 'UTF-8');
   }

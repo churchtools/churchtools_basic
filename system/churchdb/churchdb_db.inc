@@ -182,6 +182,7 @@ function churchdb_getAllowedGroups() {
  * @param $only_ids default=false, only return array of IDs, otherweise array of person data
  * @param $onlyIAmLeader default=false, only where I am a leader in the group
  * @param $onlySuperGroups default=false, only where I am a district or grouptype leader
+ * return arr(), never null
  */
 function churchdb_getMyGroups($user_pid, $only_ids=false, $onlyIAmLeader=false, $onlySuperGroups=false) {
   global $user, $config;
@@ -254,6 +255,28 @@ function churchdb_getMyGroups($user_pid, $only_ids=false, $onlyIAmLeader=false, 
   }
   return $arrs;  
 }
+
+/**
+ * Returns all groups for person p_id. 
+ * For hidden groups only return groups which I am allowed to see
+ * @param PersonId $p_id
+ * @param GruppenTypId or null $gruppentyp_id
+ * @return array with all groups or empty array
+ */
+function churchdb_getGroupsForPersonId($p_id, $gruppentyp_id=null) {
+  $myGroups=churchdb_getMyGroups(null, true);
+  $db=db_query("select g.* from {cdb_gemeindeperson_gruppe} gpg, {cdb_gruppe} g,
+         {cdb_gemeindeperson} gp where gpg.gemeindeperson_id=gp.id and gpg.gruppe_id=g.id
+            and gp.person_id=:p_id and (:g_id is null or g.gruppentyp_id=:g_id)",
+      array(":p_id"=>$p_id, ":g_id"=>$gruppentyp_id));
+  $res=array();
+  foreach ($db as $g) {
+    if ($g->versteckt_yn==0 || user_access("administer groups", "churchdb") || (isset($myGroups[$g->id])))
+      $res[$g->id]=$g;
+  }
+  return $res;
+}
+
 
 /**
  * Entweder habe ich viewall oder ich bin Teil des Bereiches.
