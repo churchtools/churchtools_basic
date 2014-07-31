@@ -1682,20 +1682,20 @@ PersonView.prototype.renderFilter = function() {
 
 function _checkGroupFilter(a, filter, z) {
   function _checkDate(z,k) {
-    if (k.d==null) return false;
-    
-    if ((filter["filterGruppeInAb "+z]!=null) && (k.d.toDateEn()<filter["filterGruppeInAb "+z].toDateDe()))
+
+    if ((filter["filterGruppeInAb "+z]!=null) && (k.d==null || k.d.toDateEn()<filter["filterGruppeInAb "+z].toDateDe()))
       return false;
-    if ((filter["filterGruppeInSeit "+z]!=null) && (k.d.toDateEn()>filter["filterGruppeInSeit "+z].toDateDe()))
+    if ((filter["filterGruppeInSeit "+z]!=null) && (k.d==null || k.d.toDateEn()>filter["filterGruppeInSeit "+z].toDateDe()))
       return false;
     
     return true;
   }
 
-  // Filter "In" der Gruppe
+  // Filter "In" 
   if ((filter["filterFilter "+z]==null) || (filter["filterFilter "+z]==0)) {
     var dabei=true;
-    if ((filter["filterTyp "+z]!=null) && (filter["filterTyp "+z]!="")) {
+    // Filter grouptype only, if group filter is not active. Cause group contains the grouptype
+    if ((filter["filterGruppe "+z]==null) && (filter["filterTyp "+z]!=null) && (filter["filterTyp "+z]!="")) {
       if (a.gruppe==null) return false;
       dabei=false;
       $.each(a.gruppe, function (b,k) {
@@ -1744,7 +1744,7 @@ function _checkGroupFilter(a, filter, z) {
   }
 
 
-  // Filter "Nicht in" der Gruppe
+  // Filter "Nicht in" 
   else if ((filter["filterFilter "+z]!=null) && (filter["filterFilter "+z]==1)) {
     if (a.gruppe!=null) {
       dabei=false;
@@ -1791,7 +1791,7 @@ function _checkGroupFilter(a, filter, z) {
   }
   
   
-  // Filter "War in" der Gruppe
+  // Filter "War in" 
   else if ((filter["filterFilter "+z]!=null) && (filter["filterFilter "+z]==2)) {
     var dabei=false;
     // Erst alte Gruppen (Gruppenarchiv) durchsuchen
@@ -2027,11 +2027,11 @@ PersonView.prototype.checkFilter = function(a) {
 
   while (filter["filterOn "+z]!=null) {
     var res=_checkGroupFilter(a, filter, z);
-    // UND-Verkn�pfung
+    // ANDs
     if (filter["filterOr"]==null) {
       if (!res) return false;
     }  
-    // ODER-Verkn�pfung
+    // ORs
     else if (res) or=true;   
     z=z+1;  
   }
@@ -4513,7 +4513,8 @@ PersonView.prototype.editExportTemplates = function(selected, func) {
 
   // Add special fields
   fields["f_address"].fields["age"]={sql:"age", text:_("age")};
-  fields["f_address"].fields["anrede2"]={sql:"anrede2", text:"Lieber/Liebe"};
+  fields["f_address"].fields["Anrede1"]={sql:"Anrede1", text:"Herr/Frau"};
+  fields["f_address"].fields["Anrede2"]={sql:"Anrede2", text:"Lieber/Liebe"};
   fields["f_address"].fields["id"]={sql:"id", text:"Id"};
   $.each(fields, function(i,fieldcategory) {
     form.addHtml('<div class="span4" style="min-width:170px">');

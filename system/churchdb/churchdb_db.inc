@@ -265,7 +265,7 @@ function churchdb_getMyGroups($user_pid, $only_ids=false, $onlyIAmLeader=false, 
  */
 function churchdb_getGroupsForPersonId($p_id, $gruppentyp_id=null) {
   $myGroups=churchdb_getMyGroups(null, true);
-  $db=db_query("select g.* from {cdb_gemeindeperson_gruppe} gpg, {cdb_gruppe} g,
+  $db=db_query("select g.*, gpg.status_no from {cdb_gemeindeperson_gruppe} gpg, {cdb_gruppe} g,
          {cdb_gemeindeperson} gp where gpg.gemeindeperson_id=gp.id and gpg.gruppe_id=g.id
             and gp.person_id=:p_id and (:g_id is null or g.gruppentyp_id=:g_id)",
       array(":p_id"=>$p_id, ":g_id"=>$gruppentyp_id));

@@ -629,19 +629,20 @@ function churchdb__vcard() {
 function _export_optimzations($arr) {
   if (isset($arr["geburtsdatum"])) {
     $dt = new DateTime($arr["geburtsdatum"]);
-    $arr['geb.jahr']=$dt->format("Y");
-    $arr['geb.m']=$dt->format("m");
-    $arr['geb.t']=$dt->format("t");
-  
-    if ($arr['geb.jahr']>=7000) {
-      $arr['geb.tag']="";
-      $arr['geb.m.']="";
-      $arr['geb.jahr']=$arr['geb.jahr']-7000;
+    $arr['Geb.-Tag']=$dt->format("d");
+    $arr['Geb.-Monat']=$dt->format("m");
+    $arr['Geb.-Jahr']=$dt->format("Y");
+    
+    if ($arr['Geb.-Jahr']>=7000) {
+      $arr['Geb.-Tag']="";
+      $arr['Geb.-Monat']="";
+      $arr['Geb.-Jahr']=$arr['Geb.-Jahr']-7000;
     }
-    else if ($arr['geb.jahr']==1004) {
-      $arr['geb.jahr']="";
+    else if ($arr['Geb.-Jahr']==1004) {
+      $arr['Geb.-Jahr']="";
     }
-  }  
+    unset($arr["geburtsdatum"]);
+  } 
   return $arr;
 }
 
@@ -694,10 +695,15 @@ function _getPersonDataForExport($person_ids=null, $template=null) {
           $detail->status_id="Mitglied";
         else
           $detail->status_id="Kein Mitglied";
-      if ($detail->geschlecht_no==1)
-        $detail->anrede2="Lieber";
-      else if ($detail->geschlecht_no==2)
-        $detail->anrede2="Liebe";
+        
+      if ($detail->geschlecht_no==1) {
+        $detail->Anrede1="Herr";
+        $detail->Anrede2="Lieber";
+      }
+      else if ($detail->geschlecht_no==2) {
+        $detail->Anrede1="Frau";
+        $detail->Anrede2="Liebe";
+      }
       if (isset($detail->geburtsdatum))
         $detail->age=churchcore_getAge($detail->geburtsdatum);
   
@@ -736,6 +742,10 @@ function _getPersonDataForExport($person_ids=null, $template=null) {
 function _addGroupRelationDataForExport($export, $template=null) {
   if ($template==null) return $export;
   $groupTypes=churchcore_getTableData("cdb_gruppentyp");
+  $groupTnStatus=array();  
+  foreach (churchcore_getTableData("cdb_gruppenteilnehmerstatus") as $st) {
+    $groupTnStatus[$st->intern_code]=$st;
+  }
   foreach ($export as $e_key=>$e_row) {
     foreach ($template as $t_key=>$t_row) {
       // Look if grouptype is in template
@@ -743,7 +753,15 @@ function _addGroupRelationDataForExport($export, $template=null) {
         // Get group type and collect data
         $id=substr($t_key,15,99);
         $groups=churchdb_getGroupsForPersonId($e_key, $id);
-        $export[$e_key][$groupTypes[$id]->bezeichnung]=implode_array($groups, "::", "bezeichnung");
+        $grp_txt=array();
+        foreach ($groups as $group) {
+          $txt=$group->bezeichnung;
+          if ($group->status_no!=0 && isset($groupTnStatus[$group->status_no])) {
+            $txt.=" (".$groupTnStatus[$group->status_no]->bezeichnung.")";
+          }
+          $grp_txt[]=$txt;
+        }
+        $export[$e_key][$groupTypes[$id]->bezeichnung]=implode("::", $grp_txt);
       }
     }
   }
@@ -867,6 +885,25 @@ function churchdb__export() {
   }
   echo "\n";
   
+  // Sort data
+  function sort_export_func($a, $b) {
+    $sort_a="";
+    $sort_b="";
+    
+    if (isset($a["name"])) $sort_a.=$a["name"]; 
+    if (isset($a["vorname"])) $sort_a.=$a["vorname"]; 
+    if (isset($b["name"])) $sort_b.=$b["name"];
+    if (isset($b["vorname"])) $sort_b.=$b["vorname"];
+    if (isset($a["id"])) $sort_a.=$b["id"];
+    if (isset($b["id"])) $sort_b.=$b["id"];
+    
+    if ($sort_a==$sort_b) {
+      return 0;
+    }
+    return ($sort_a < $sort_b) ? -1 : 1;
+  }
+  usort($export, "sort_export_func");
+    
   // Add all data rows    
   foreach ($export as $row) {
     if ($row!=null) {
