@@ -23,19 +23,19 @@ function form_renderYesNo(nr, width) {
     return form_renderImage({src:"delete_2.png",width:width});
   else if (nr==1)
     return form_renderImage({src:"check-64.png",width:width});
-  else 
+  else
     return form_renderImage({src:"attention.png",width:width});
 }
 
 /**
  * Rendert eine sch√∂ne Labelliste mit plus und trahsbox zeichen
- * Es mu√ü ein Div definiert sein, der so hei√üt wie name. 
+ * Es mu√ü ein Div definiert sein, der so hei√üt wie name.
  * current=Object, was das Array [name] enth√§lt.
  * data=MasterData
  */
 function form_renderLabelList(current, name, data) {
   if (current[name]==null) current[name]=new Array();
-  var rows=new Array();    
+  var rows=new Array();
   $.each(churchcore_sortMasterData(data), function(k,a) {
     if (churchcore_inArray(a.id, current[name])) {
       rows.push('<span class="label label-default" title="id:'+a.id+'">');
@@ -57,9 +57,9 @@ function form_renderLabelList(current, name, data) {
           var str=request.term;
           var r=new Array();
           $.each(data, function(k,a) {
-            if ((!churchcore_inArray(a.id, current[name])) 
+            if ((!churchcore_inArray(a.id, current[name]))
                    && (a.bezeichnung.toUpperCase().indexOf(request.term.toUpperCase())>=0))
-              r.push({label:a.bezeichnung, value:a.id});              
+              r.push({label:a.bezeichnung, value:a.id});
           });
           response(r);
         },
@@ -85,7 +85,7 @@ function form_renderLabelList(current, name, data) {
         return false;
       }
     });
-    form_renderLabelList(current, name, data);      
+    form_renderLabelList(current, name, data);
   });
 }
 
@@ -132,11 +132,11 @@ function form_renderColorPicker(options) {
 }
 
 function form_renderColor(color) {
-  return '<span class="simplecolorpicker icon" title="'+color+'" style="background-color: '+color+'">&nbsp;&nbsp;&nbsp;&nbsp;</span>';  
+  return '<span class="simplecolorpicker icon" title="'+color+'" style="background-color: '+color+'">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
 }
 
 /**
- * 
+ *
  * @param options
  *   label, cssid, src, htmlclass, id, data
  * @return html code
@@ -155,7 +155,7 @@ function form_renderImage(options) {
     src="system/churchcore/images/"+src;
   if ((controlgroup_start) || (controlgroup_end)) controlgroup=false;
 
-  if ((controlgroup) || (controlgroup_start)) 
+  if ((controlgroup) || (controlgroup_start))
     rows.push('<div class="'+controlgroup_class+'">');
   if ((controlgroup) || (controlgroup_start)) _text=_text+'<div class="controls">';
 
@@ -168,30 +168,30 @@ function form_renderImage(options) {
     });
   }
   var htmlclass=(options.htmlclass!=null?options.htmlclass:"");
-  
+
   if (options.cssid!="" || options.link)
     _text=_text+"<a href=\"#\" "+data+"title=\""+options.label+"\" class=\""+htmlclass+"\" id=\""+options.cssid+"\"><img style=\""+style+"\" src=\""+src+"\" class=\""+htmlclass+"\"></a>";
   else
     _text=_text+"<img style=\""+style+"\" src=\""+src+"\" title=\""+options.label+"\" class=\""+htmlclass+"\">";
-    
+
 
   if ((controlgroup) || (controlgroup_end)) _text=_text+'</div></div>';
-  
+
   if (options.hover) {
     _text='<span class="hoverreactor">'+_text+'</span>';
   }
-  
+
   return _text;
 }
 
 function form_renderPersonImage(url, width) {
   if (width==null) width=180;
   if (url==null) url="nobody.gif";
-  return '<img style="max-width:'+width+'px;max-height:'+width+'px;" src="'+settings.files_url+"/fotos/"+url+"\"/>";          
+  return '<img style="max-width:'+width+'px;max-height:'+width+'px;" src="'+settings.files_url+"/fotos/"+url+"\"/>";
 }
 
 /**
- * 
+ *
  * @param divid
  * @param withMyDeps - In addition get people which are in you deps. otherwise only visible people
  * @param func
@@ -199,10 +199,10 @@ function form_renderPersonImage(url, width) {
 function form_autocompletePersonSelect (divid, withMyDeps, func) {
   if (withMyDeps==null) withMyDeps=false;
   $(divid).addClass("form-autocomplete");
-  
+
   var auto=$(divid).autocomplete({
     search: function(event, ui) {
-      $(divid).addClass("throbbing"); 
+      $(divid).addClass("throbbing");
     },
     source: function( request, response ) {
       var str=request.term;
@@ -224,8 +224,8 @@ function form_autocompletePersonSelect (divid, withMyDeps, func) {
           else {
             response(null);
           }
-            
-        }        
+
+        }
       }, null, null, "churchdb");
     },
     minLength: 2,
@@ -240,14 +240,14 @@ function form_autocompletePersonSelect (divid, withMyDeps, func) {
 };
 
 /**
- * 
+ *
  * @param elem
- * @param options  
+ * @param options
  * deselectable: Mit Klick kann man das Ding wieder deselektieren. StandardmÔøΩÔøΩig nicht mÔøΩglich!
  */
 function form_renderSelectable(elem, options) {
   var rows = new Array();
-  
+
   var height=(options.height==null?"":"height:"+options.height+"px;");
   var min_element_height=(options.min_element_height==null?"":"min-height:"+options.min_element_height+'px;');
   rows.push('<div style="'+height+'"><ul class="ui-menu ui-widget ui-widget-content ui-corner-all" style="'+height+' width:99%; overflow-y:auto; -webkit-overflow-scrolling: touch" id="'+options.cssid+'">');
@@ -262,15 +262,15 @@ function form_renderSelectable(elem, options) {
     });
   }
   rows.push("</ul></div>");
-  
+
   elem.html(rows.join(""));
   if (options.selected!=null) {
     elem.find("a[data-id="+options.selected+"]").addClass("ui-state-hover");
-    
+
     //$("span.personen").find("ul").scrollTop(45*10);
   }
 
-  
+
   elem.find("a").click(function(a) {
     var id=$(this).attr("data-id");
     // Wenn das schon selektiert ist, dann wieder wegnehmen!
@@ -278,7 +278,7 @@ function form_renderSelectable(elem, options) {
       $(this).removeClass("ui-state-hover");
       if (options.deselect!=null) {
         options.deselect();
-      }      
+      }
     }
     else {
       if (options.select!=null) {
@@ -293,14 +293,14 @@ function form_renderSelectable(elem, options) {
     }
     return false;
   });
-  
+
   // Anfahren!
   if ((options.selected!=null) && (elem.find("li[data-id="+options.selected+"]").position()!=null)) {
     if (options.animate)
       elem.find("ul").animate({scrollTop: elem.find("li[data-id="+options.selected+"]").position().top-elem.position().top-3, duration:200});
     else
       elem.find("ul").scrollTop(elem.find("li[data-id="+options.selected+"]").position().top-elem.position().top-3);
-  }  
+  }
 }
 
 /**
@@ -324,19 +324,20 @@ function form_renderCheckbox(options) {
   var controlgroup_start=(options.controlgroup_start!=null && options.controlgroup_start);
   var controlgroup_end=(options.controlgroup_end!=null && options.controlgroup_end);
   if ((controlgroup_start) || (controlgroup_end)) controlgroup=false;
-  
-  if ((controlgroup) || (controlgroup_start)) 
+
+  if ((controlgroup) || (controlgroup_start))
     rows.push('<div class="'+controlgroup_class+'">');
   if ((controlgroup) || (controlgroup_start)) rows.push('<div class="controls">');
-  
+
   data="";
   if (options.data!=null) {
     $.each(options.data, function(k,a) {
       data=data+"data-"+a.name+"="+a.value+" ";
     });
   }
-  
-  if (label!="") rows.push('<label class="checkbox">');
+
+  if (label!="") rows.push('<label class="checkbox" for="'+options.cssid+'">');
+
   rows.push('<input '+data+' type="checkbox" class="checkbox'+htmlclass+'" '+(options.cssid!=null?'id="'+options.cssid+'"':''));
   if ((options.checked!=null) && (options.checked))
     rows.push(" checked");
@@ -346,7 +347,7 @@ function form_renderCheckbox(options) {
   if (label!="") rows.push('</label>');
 
   if ((controlgroup) || (controlgroup_end)) rows.push('</div></div>');
-  
+
   return rows.join("");
 }
 
@@ -354,7 +355,7 @@ function form_renderCheckbox(options) {
  * @param options
  * lable = Label
  * cssid = id
- * htmlclass 
+ * htmlclass
  * @return html-code
  */
 
@@ -363,16 +364,16 @@ function form_renderButton (options) {
   var btn_type = (options.type!=null?' btn-'+options.type:"");
   var htmlclass=(options.htmlclass!=null?" "+options.htmlclass:"");
   var disabled=(options.disabled!=null && options.disabled?' disabled="true"':"");
-  
+
   var rows = new Array();
-  if ((options.controlgroup!=null) && (options.controlgroup)) 
+  if ((options.controlgroup!=null) && (options.controlgroup))
     rows.push('<div class="control-group"><div class="controls">');
 
   rows.push('<input type="button" class="btn'+btn_type+htmlclass+'" '+cssid+' value="'+options.label+'"'+disabled+'"/>');
 
-  if ((options.controlgroup!=null) && (options.controlgroup)) 
+  if ((options.controlgroup!=null) && (options.controlgroup))
     rows.push('</div></div>');
-  
+
   return rows.join("");
 }
 
@@ -406,18 +407,18 @@ function form_renderInput (options) {
   if (options.controlgroup_start!=null) controlgroup=false;
   if (options.controlgroup_end!=null) controlgroup=false;
    var cssid = (options.cssid!=null?'id="'+options.cssid+'"':"");
-   
+
   if (options.type!=null) {
     if (options.htmlclass==null) options.htmlclass="";
     options.htmlclass=options.htmlclass+" input-"+options.type;
   }
   var placeholder = (options.placeholder!=null?options.placeholder:"");
-  
+
 
   var rows = new Array();
   if ((controlgroup) || (options.controlgroup_start!=null)) rows.push('<div class="control-group">');
 
-  if (options.label!=null) { 
+  if (options.label!=null) {
     rows.push('<label class="control-label" '+(cssid!=""?'for="'+options.cssid+'"':"")+'>'+options.label);
     if (options.required) rows.push(' <span class="required">*</span>');
     rows.push('</label>');
@@ -425,7 +426,7 @@ function form_renderInput (options) {
 
   if ((controlgroup) || (options.controlgroup_start!=null)) rows.push('<div class="controls">');
   else if (options.label!=null) rows.push(separator);
-  
+
   if (placeholder==null) placeholder="";
   rows.push('<input type="');
   var type="text";
@@ -435,18 +436,18 @@ function form_renderInput (options) {
   rows.push('" size="'+size+'" '+cssid+' placeholder="'+placeholder+'" ');
   if (options.htmlclass!=null) rows.push('class="'+options.htmlclass+'" ');
   if (options.maxlength!=null) rows.push('maxlength="'+options.maxlength+'" ');
-  rows.push(disabled+' value="'+value+'"/>');  
-  
+  rows.push(disabled+' value="'+value+'"/>');
+
   if (options.datepicker!=null) {
     rows.push('<div id="'+options.datepicker+'" style="position:absolute;background:#e7eef4;z-index:12001;"/>');
   }
-  
+
   if ((controlgroup) || (options.controlgroup_end!=null)) rows.push('</div></div>');
   return rows.join("");
 };
 
 /**
- * 
+ *
  * @param id
  * @param label
  * @param data
@@ -474,10 +475,10 @@ function form_renderTextarea(options) {
   var htmlclass = (options.htmlclass!=null?'class='+options.htmlclass:"");
 
   if ((options.disabled!=null) && (options.disabled)) disabletxt="disabled";
-  
+
   if (controlgroup) rows.push('<div class="control-group">');
   rows.push('<label class="control-label" for="'+options.cssid+'">'+label+'</i></label>');
-  
+
   if (controlgroup) rows.push('<div class="controls">');
   else if (options.label!=null) {
     if (options.separator!=null)
@@ -486,10 +487,10 @@ function form_renderTextarea(options) {
       rows.push("<td>");
   }
   rows.push('<textarea '+htmlclass+' type="text" placeholder="'+placeholder+'" ');
-  if (options.maxlength!=null) rows.push('maxlength="'+options.maxlength+'" ');  
+  if (options.maxlength!=null) rows.push('maxlength="'+options.maxlength+'" ');
   rows.push('cols="'+options.cols+'" rows="'+options.rows+'" id="'+options.cssid+'" disabletxt'+'>'+data+"</textarea>");
   if (controlgroup) rows.push('</div></div>');
-  
+
   return rows.join("");
 
 }
@@ -511,7 +512,7 @@ function form_renderLabel(txt, hint) {
   rows.push('<div class="controls">'+txt+'</div>');
   if (hint!=null)
     rows.push("</div>");
-  
+
   return rows.join("");
 }
 
@@ -520,7 +521,7 @@ function form_prepareDataEntry(id, bezeichnung, sortkey) {
   var entry = new Object();
   entry.id=id;
   entry.bezeichnung=bezeichnung;
-  if (sortkey!=null) entry.sortkey=sortkey;  
+  if (sortkey!=null) entry.sortkey=sortkey;
   return entry;
 }
 
@@ -539,7 +540,7 @@ function form_prepareDataEntry(id, bezeichnung, sortkey) {
  * controlgroup_start: default false, wenn true, dann wird controlgroup auf false gesetzt
  * controlgroup_end
  * type: small, medium, large (default)
- * func: 
+ * func:
  * html: wird nach dem /select hinzugfefÔøΩgt
  * multiple: default false
  * @param options
@@ -550,7 +551,7 @@ function form_renderSelect (options) {
   var controlgroup=(options.controlgroup==null) || (options.controlgroup);
   if (options.controlgroup_start!=null) controlgroup=false;
   if (options.controlgroup_end!=null) controlgroup=false;
-  
+
   var multiple=(options.multiple!=null && options.multiple?" multiple":"");
   var fields="";
   if (options.fields!=null) {
@@ -559,9 +560,9 @@ function form_renderSelect (options) {
     });
   }
 
-  
+
   var rows=new Array();
-  if ((controlgroup) || (options.controlgroup_start!=null)) rows.push('<div class="control-group">');    
+  if ((controlgroup) || (options.controlgroup_start!=null)) rows.push('<div class="control-group">');
 
     if (options.label!=null) {
       //if (controlgroup)
@@ -569,33 +570,33 @@ function form_renderSelect (options) {
      // else
         rows.push(separator);
     }
-    
+
     var cssid="";
-    if (options.cssid!=null) 
+    if (options.cssid!=null)
       cssid='id="'+options.cssid+'"';
-  
+
     var htmlclass="";
-    if (options.htmlclass!=null) 
+    if (options.htmlclass!=null)
       htmlclass=options.htmlclass;
     if (options.type!=null)
       htmlclass=htmlclass+" input-"+options.type;
-    
+
     if ((controlgroup) || (options.controlgroup_start!=null)) rows.push('<div class="controls">');
-    
-    if ((options.disabled!=null) && (options.disabled)) 
+
+    if ((options.disabled!=null) && (options.disabled))
       rows.push("<select "+cssid+' class="'+htmlclass+'" '+fields+' disabled="true"'+multiple+'>');
-    else 
+    else
       rows.push("<select "+cssid+' class="'+htmlclass+'" '+fields+multiple+'>');
-    
+
     if ((options.freeoption!=null) && (options.freeoption))
      rows.push('<option value=""/>');
-  
+
     if (options.data!=null) {
       $.each((options.sort==null || options.sort?churchcore_sortMasterData(options.data):options.data), function (k,a) {
         if ((typeof options.func !="function") || (options.func(a))) {
-          if ((options.selected!=null) && (a.id==options.selected)) 
-            rows.push("<option selected value=\""+a.id+"\">"+a.bezeichnung+"</option>");         
-          else            
+          if ((options.selected!=null) && (a.id==options.selected))
+            rows.push("<option selected value=\""+a.id+"\">"+a.bezeichnung+"</option>");
+          else
             rows.push("<option value=\""+a.id+"\">"+a.bezeichnung+"</option>");
         }
       });
@@ -603,7 +604,7 @@ function form_renderSelect (options) {
     rows.push("</select>");
     if (options.html!=null) rows.push(options.html);
     if ((controlgroup) || (options.controlgroup_end!=null)) rows.push('</div></div>');
-    
+
   return rows.join("");
 };
 
@@ -616,12 +617,12 @@ function form_getDateFromForm(id) {
 
 
 function _getMinutesArray() {
-  var minutes = new Array();  
+  var minutes = new Array();
   form_addEntryToSelectArray(minutes, 0, "00");
   form_addEntryToSelectArray(minutes, 15, "15");
   form_addEntryToSelectArray(minutes, 30, "30");
   form_addEntryToSelectArray(minutes, 45, "45");
-  return minutes;  
+  return minutes;
 }
 function _getHoursArray() {
   var hours = new Array();
@@ -634,7 +635,7 @@ function _getHoursArray() {
 
 function _renderDateForms(options) {
   var rows= new Array();
-  
+
   var startdate=options.data.startdate;
   var enddate=options.data.enddate;
   var startdate=options.data.startdate;
@@ -648,7 +649,7 @@ function _renderDateForms(options) {
   var authadditions=(options.authadditions==null?true:options.authadditions);
   var disabled=(options.disabled!=null) && (options.disabled==true);
 
-  var minutes = _getMinutesArray(); 
+  var minutes = _getMinutesArray();
   var hours = _getHoursArray();
 
   var allDay=churchcore_isAllDayDate(startdate, enddate);
@@ -660,7 +661,7 @@ function _renderDateForms(options) {
     checked:allDay,
     disabled:disabled
   }));
-  
+
   if (allDay) {
     rows.push(form_renderInput({
       cssid:"inputStartdate",
@@ -681,27 +682,27 @@ function _renderDateForms(options) {
       value:startdate.toStringDe(),
       disabled:disabled,
       type:"small"
-    })+"&nbsp;");  
+    })+"&nbsp;");
     rows.push("<div id=\"dp_startdate\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/>");
 
     rows.push(form_renderSelect({
-      data:hours, 
-      cssid:"inputStarthour", 
-      selected:startdate.getHours(), 
-      htmlclass:"input-mini", 
+      data:hours,
+      cssid:"inputStarthour",
+      selected:startdate.getHours(),
+      htmlclass:"input-mini",
       disabled:disabled,
       controlgroup:false
     })+" : ");
-    
+
     rows.push(form_renderSelect({
-      data:minutes, 
-      cssid:"inputStartminutes", 
-      selected:startdate.getMinutes(), 
-      type:"mini", 
+      data:minutes,
+      cssid:"inputStartminutes",
+      selected:startdate.getMinutes(),
+      type:"mini",
       disabled:disabled,
       controlgroup_end:true
     }));
-  }    
+  }
   rows.push("</nobr>");
 
   if (allDay) {
@@ -724,50 +725,50 @@ function _renderDateForms(options) {
       value:enddate.toStringDe(),
       disabled:disabled,
       type:"small"
-    })+"&nbsp;");  
+    })+"&nbsp;");
     rows.push("<div id=\"dp_enddate\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/>");
-  
+
     rows.push(form_renderSelect({
-      data:hours, 
-      cssid:"inputEndhour", 
-      selected:((month) && (enddate.getHours()==0)?11:enddate.getHours()), 
-      htmlclass:"input-mini", 
+      data:hours,
+      cssid:"inputEndhour",
+      selected:((month) && (enddate.getHours()==0)?11:enddate.getHours()),
+      htmlclass:"input-mini",
       disabled:disabled,
       controlgroup:false
     })+" : ");
-    
+
     rows.push(form_renderSelect({
-      data:minutes, 
-      cssid:"inputEndminutes", 
-      selected:enddate.getMinutes(), 
-      type:"mini", 
+      data:minutes,
+      cssid:"inputEndminutes",
+      selected:enddate.getMinutes(),
+      type:"mini",
       disabled:disabled,
       controlgroup_end:true
     }));
   }
   rows.push("</nobr>");
-  
-  
+
+
   // REPEATS
-  
+
   rows.push(form_renderSelect({
-    data:masterData.repeat, 
-    cssid:"inputRepeat_id", 
-    selected:repeat_id, 
+    data:masterData.repeat,
+    cssid:"inputRepeat_id",
+    selected:repeat_id,
     disabled:disabled,
     type:"big",
     label:_("repeats")
-  }));  
-  
+  }));
+
   rows.push('<div id="repeats_select">');
-  
+
   if ((repeat_id!=null) && (repeat_id>0)) {
-    if ((repeat_frequence==null) || (repeat_frequence==0)) 
+    if ((repeat_frequence==null) || (repeat_frequence==0))
       repeat_frequence=1;
-    
+
     if (repeat_id==32) {
       var r = new Array();
-      var d = dayNames[startdate.getDay()]+" im Monat";      
+      var d = dayNames[startdate.getDay()]+" im Monat";
       r.push(form_prepareDataEntry(1,"Erster "+d,1));
       r.push(form_prepareDataEntry(2,"Zweiter "+d,2));
       r.push(form_prepareDataEntry(3,"Dritter "+d,3));
@@ -780,31 +781,31 @@ function _renderDateForms(options) {
         var counter=0;
         while (tester<startdate) {
           tester.addDays(1);
-          if (tester.getDay()==startdate.getDay()) counter=counter+1; 
+          if (tester.getDay()==startdate.getDay()) counter=counter+1;
         }
         repeat_option_id=counter;
       }
       rows.push(form_renderSelect({
-        data:r, 
-        cssid:"inputRepeatOptionId", 
+        data:r,
+        cssid:"inputRepeatOptionId",
         disabled:disabled,
-        selected:repeat_option_id, 
+        selected:repeat_option_id,
         type:"medium",
         label:""
-      }));  
+      }));
     }
-    
+
     if (repeat_id!=999) {
       rows.push('<div class="control-group"><label class="control-label"></label>');
       rows.push('<div class="controls">');
       rows.push('alle&nbsp;');
       rows.push(form_renderInput({
-        value:repeat_frequence, 
+        value:repeat_frequence,
         disabled:disabled,
-        controlgroup:false, 
-        cssid:"inputRepeatFrequence", 
+        controlgroup:false,
+        cssid:"inputRepeatFrequence",
         type:"xxmini"}));
-      if (repeat_until==null) { 
+      if (repeat_until==null) {
         repeat_until=new Date(startdate);
         repeat_until.addDays(repeat_id*1);
       }
@@ -825,16 +826,16 @@ function _renderDateForms(options) {
         repeat_until.addDays(repeat_id*1);
       }
       rows.push(form_renderInput({
-        value:repeat_until.toStringDe(), 
-        controlgroup:false, 
+        value:repeat_until.toStringDe(),
+        controlgroup:false,
         disabled:disabled,
-        cssid:"inputRepeatUntil", 
-        type:"small"}));    
+        cssid:"inputRepeatUntil",
+        type:"small"}));
       rows.push("<div id=\"dp_repeatuntil\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/></div></div>");
     }
-    
+
   // AUSNAHMEN
-  
+
   if ((repeat_id>0) && (repeat_id!=999)) {
     rows.push('<div id="repeats_exceptions">');
     rows.push('<div class="control-group"><label class="control-label">Ausnahmen</label>');
@@ -847,24 +848,24 @@ function _renderDateForms(options) {
         }
         else
           rows.push(a.except_date_start.toDateEn().toStringDe()+"&nbsp;");
-        
+
         if ((options.deleteException!=null) && (authexceptions))
           rows.push(form_renderImage({src:"trashbox.png",width:16, cssid:"delException"+a.id}));
-        
+
         rows.push('</span>&nbsp; ');
       });
     }
     if ((authexceptions) && (!disabled)) {
       rows.push(form_renderImage({src:"plus.png", width:20, cssid:"addException"}));
-      rows.push("<div id=\"dp_addexception\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/></div></div>");      
+      rows.push("<div id=\"dp_addexception\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/></div></div>");
     }
     rows.push('</div></div>');
     rows.push('</div>');
   }
-  
-  
+
+
     // MANUELLE TERMINE
-    
+
     if (((repeat_id>0) && (repeat_id!=1)) || (additions!=null)) {
       rows.push('<div id="repeats_addition">');
         rows.push('<div class="control-group"><label class="control-label">Weitere Termine</label>');
@@ -876,7 +877,7 @@ function _renderDateForms(options) {
 
             var image="recurring_bw.png";
             if (a.with_repeat_yn==1) image="recurring.png";
-            
+
             if ((options.addAddition!=null) && (authadditions))
               rows.push(form_renderImage({src:image,width:16, label:"Soll der manuelle Termin auch wiederholt werden", cssid:"changeAdditionRepeat"+(1-a.with_repeat_yn)+a.id}));
             else
@@ -884,20 +885,20 @@ function _renderDateForms(options) {
 
             if ((options.addAddition!=null) && (authadditions))
               rows.push(form_renderImage({src:"trashbox.png",width:16, label:"Entferne den manuellen Termin", cssid:"delAddition"+a.id}));
-            
+
             rows.push('</span>&nbsp; ');
           });
         }
         if ((authadditions) && (!disabled)) {
           rows.push(form_renderImage({src:"plus.png", width:20, cssid:"addAddition"}));
-          rows.push("<div id=\"dp_addaddition\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/></div></div>");      
+          rows.push("<div id=\"dp_addaddition\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/></div></div>");
         }
         rows.push('</div></div>');
       rows.push("</div>");
-    }        
+    }
   }
   rows.push("</div>");
-  return rows.join("");    
+  return rows.join("");
 }
 
 
@@ -905,15 +906,15 @@ function _renderDateForms(options) {
 
 function form_renderDates(options) {
   if (debug) console.log(options);
-  
+
   if (options.data.exceptions!=null)
     options.data.exceptions=jQuery.extend({}, options.data.exceptions);
   if (options.data.additions!=null)
     options.data.additions=jQuery.extend({}, options.data.additions);
 
   options.elem.html(_renderDateForms(options));
-  
-  
+
+
   // CALLBACKS
   $('#inputAllDay').change(function(c) {
     if ($(this).attr("checked")=="checked") {
@@ -927,7 +928,7 @@ function form_renderDates(options) {
       options.data.enddate.setHours(11);
     }
     form_renderDates(options);
-  });  
+  });
 
   $("#inputStartdate").click(function() {
     form_implantDatePicker('dp_startdate', options.data.startdate, function(dateText) {
@@ -951,7 +952,7 @@ function form_renderDates(options) {
     }
   });
   $("#inputStarthour").change(function() {
-    options.data.startdate.setHours($("#inputStarthour").val());    
+    options.data.startdate.setHours($("#inputStarthour").val());
     if (form_getDateFromForm("inputStart")>=form_getDateFromForm("inputEnd")) {
       options.data.enddate.setHours($("#inputStarthour").val()*1+1);
       form_renderDates(options);
@@ -961,12 +962,12 @@ function form_renderDates(options) {
     if (form_getDateFromForm("inputStart")>=form_getDateFromForm("inputEnd"))
       $("#inputStarthour").val($("#inputEndhour").val()*1-1);
   });
-  
+
   $('#repeats_exceptions a').click(function() {
     if ($(this).attr("id").indexOf("delException")==0) {
       if (options.deleteException!=null) {
         var exc=options.data.exceptions[$(this).attr("id").substr(12,99)];
-        options.deleteException(exc); 
+        options.deleteException(exc);
         form_renderDates(options);
       }
       return false;
@@ -975,9 +976,9 @@ function form_renderDates(options) {
       form_getDatesInToObject(options.data);
       form_implantDatePicker('dp_addexception', null, function(dateText) {
         if (options.addException!=null) {
-          options.data=options.addException(options.data, dateText);          
+          options.data=options.addException(options.data, dateText);
           form_renderDates(options);
-        }                
+        }
       }, function(chose) {
         var select=false;
         if (!chose.sameDay(options.data.startdate)) {
@@ -988,15 +989,15 @@ function form_renderDates(options) {
         }
         return [select];
       });
-      
-      return false; 
+
+      return false;
     }
   });
   $('#repeats_addition a').click(function() {
     if ($(this).attr("id").indexOf("delAddition")==0) {
       if (options.deleteAddition!=null) {
         var add=options.data.additions[$(this).attr("id").substr(11,99)];
-        options.deleteAddition(add); 
+        options.deleteAddition(add);
         form_renderDates(options);
       }
       return false;
@@ -1004,19 +1005,19 @@ function form_renderDates(options) {
     else if ($(this).attr("id").indexOf("changeAdditionRepeat")==0) {
       if ((options.deleteAddition!=null) && (options.addAddition!=null)) {
         var add=options.data.additions[$(this).attr("id").substr(21,99)];
-        options.deleteAddition(add); 
-        options.data=options.addAddition(add.data, add.add_date.toDateEn().toStringDe(), $(this).attr("id").substr(20,1));          
+        options.deleteAddition(add);
+        options.data=options.addAddition(add.data, add.add_date.toDateEn().toStringDe(), $(this).attr("id").substr(20,1));
         form_renderDates(options);
       }
-      return false;      
+      return false;
     }
     else if ($(this).attr("id")=="addAddition") {
       form_getDatesInToObject(options.data);
       form_implantDatePicker('dp_addaddition', null, function(dateText) {
         if (options.addAddition!=null) {
-          options.data=options.addAddition(options.data, dateText, 1);          
+          options.data=options.addAddition(options.data, dateText, 1);
           form_renderDates(options);
-        }                
+        }
       }, function(chose) {
         var select=chose>options.data.startdate;
         $.each(churchcore_getAllDatesWithRepeats(options.data), function(a,ds) {
@@ -1025,13 +1026,13 @@ function form_renderDates(options) {
         });
         return [select];
       });
-      
-      return false; 
+
+      return false;
     }
   });
-  
-  
-  $('#inputRepeat_id').change(function(c) { 
+
+
+  $('#inputRepeat_id').change(function(c) {
     form_getDatesInToObject(options.data);
     form_renderDates(options);
   });
@@ -1044,7 +1045,7 @@ function form_renderDates(options) {
   $("#inputRepeatUntil").change(function() {
     form_getDatesInToObject(options.data);
     if (options.data.repeat_until.getFullYear()>3000) {
-      options.data.repeat_until=new Date();     
+      options.data.repeat_until=new Date();
       $("#inputRepeatUntil").val(options.data.repeat_until.toStringDe());
     }
   });
@@ -1052,8 +1053,8 @@ function form_renderDates(options) {
     if (($("#inputRepeatFrequence").val()=="0") || ($("#inputRepeatFrequence").val()==""))
       $("#inputRepeatFrequence").val("1");
   });
-  
-  if (options.callback!=null) 
+
+  if (options.callback!=null)
     options.callback();
 }
 
@@ -1071,13 +1072,13 @@ function checkExceptionCollision(options) {
   if (collision!==false && confirm("Es gibt eine Ausnahme an dem Datum, soll die entfernt werden?")) {
     delete data.exceptions[collision];
     form_renderDates(options);
-  }  
+  }
 }
 
 
 function form_getDatesInToObject(o) {
-  o.startdate=form_getDateFromForm("inputStart");      
-  o.enddate=form_getDateFromForm("inputEnd");       
+  o.startdate=form_getDateFromForm("inputStart");
+  o.enddate=form_getDateFromForm("inputEnd");
   o.repeat_id=$("#inputRepeat_id").val();
   o.repeat_until=$("#inputRepeatUntil").val();
   if (o.repeat_until!=null)
@@ -1111,7 +1112,7 @@ function form_implantWysiwygEditor(id, smallmenu, inline) {
               ];
     }
     CKEDITOR.config.extraPlugins = 'churchtools';
-    if ((inline==null) || (inline==false)) 
+    if ((inline==null) || (inline==false))
       CKEDITOR.replace( id, {toolbar : toolbar});
     else
       CKEDITOR.inline( id, {toolbar : toolbar});
@@ -1127,15 +1128,15 @@ function CC_MultiSelect(data, func) {
   this.func=func;
   this.data=data;
   this.allSelected=true;
-  // ZusÔøΩtztliche Aufruffunktionen, wie "Nur Mitglieder" 
+  // ZusÔøΩtztliche Aufruffunktionen, wie "Nur Mitglieder"
   this.addFunctions=new Array();
 }
 
 CC_MultiSelect.prototype.isSelected = function(id) {
-  if ((this.selected.length==0) || (id==null)) return false;  
+  if ((this.selected.length==0) || (id==null)) return false;
   if (churchcore_inArray(id, this.selected))
     return true;
-  else 
+  else
     return false;
 };
 
@@ -1144,24 +1145,24 @@ CC_MultiSelect.prototype.render2Div = function(divid, options) {
   if (options==null) options= new Object();
   var rows = new Array();
   var controlgroup=(options.controlgroup==null) || (options.controlgroup);
-  if (controlgroup) rows.push('<div class="control-group">');    
+  if (controlgroup) rows.push('<div class="control-group">');
 
-  rows.push('<label>'+options.label+'</label>');
+  rows.push('<label for="'+options.cssid+'">'+options.label+'</label>');
 
   if (controlgroup) rows.push('<div class="control">');
-  
+
   var label="";
-  
+
   var count=0;
   if (this.data!=null) {
     $.each(this.data, function(k,a) {
       if ((a!=null) && (a.bezeichnung!='-')) count++;
     });
   }
-  
+
   if (this.selected.length==0)
     label=_("none.selected");
-  else if (this.selected.length==1) 
+  else if (this.selected.length==1)
     label=this.data[this.selected[0]].bezeichnung;
   else if (this.selected.length==count) {
     label=_("all.selected");
@@ -1173,37 +1174,38 @@ CC_MultiSelect.prototype.render2Div = function(divid, options) {
   rows.push('<div class="dropdown '+(options.open?"open":"")+'" id="'+options.cssid+'">');
   rows.push('<a style="widt_h:124px" class="btn dropdown-toggle" id="dLabel" role="button" data-toggle="dropdown" data-target="#" href="#">'+
       label + '&nbsp;<b class="caret"></b> </a>');
-  
+
   var cols=1;
   if (count>8) cols=2;
   if (count>16) cols=3;
   rows.push('<ul class="dropdown-menu" style="width:'+(240*cols)+'px">');
+  //TODO: add for/ids to labels and checkboxes
   if (count>1) {
     rows.push('<li><a style="padding:0" href="#" id="allSelected" class="multicheck">');
     rows.push('<label style="margin:0;padding: 3px 20px 3px 20px;width:100%;height:100%;cursor:pointer;">');
-    if (this.allSelected) 
+    if (this.allSelected)
       rows.push('<input type="checkbox" style="margin-bottom:5px;" /> <i>'+_("select.all")+'</i></label></a>');
     else
       rows.push('<input type="checkbox" style="margin-bottom:5px;" checked/> <i>'+_("deselect.all")+'</i></label></a>');
     $.each(this.addFunctions, function(a,k) {
       rows.push('<li><a style="padding:0" href="#" id="addfunc_'+a+'" class="multicheck">');
       rows.push('<label style="margin:0;padding: 3px 20px 3px 20px;width:100%;height:100%;cursor:pointer;">');
-      rows.push('<input type="checkbox" style="margin-bottom:5px;" '+k.checked+'/> <i>'+k.bezeichnung+'</i></label></a>');      
+      rows.push('<input type="checkbox" style="margin-bottom:5px;" '+k.checked+'/> <i>'+k.bezeichnung+'</i></label></a>');
     });
-    
+
     rows.push('<li class="divider">');
   }
   if (this.data!=null) {
     $.each(churchcore_sortMasterData(this.data), function(k,a) {
       if (a.bezeichnung!='-') {
-        rows.push('<li style="float:left;width:240px"> ');//+(this_object.isSelected(a.id)?'class="active"':'')+'>'); 
+        rows.push('<li style="float:left;width:240px"> ');//+(this_object.isSelected(a.id)?'class="active"':'')+'>');
         rows.push('<a style="padding:0" href="#" id="'+a.id+'" class="multicheck">');
         rows.push('<label style="margin:0;padding: 3px 20px 3px 20px;width:100%;height:100%;cursor:pointer;">');
         rows.push('<input type="checkbox" style="margin-bottom:5px;" '+(this_object.isSelected(a.id)?'checked':'')+'/> ');
-        rows.push(a.bezeichnung);   
+        rows.push(a.bezeichnung);
         rows.push('</label></a>');
       }
-      else 
+      else
         rows.push('<li style="float:left;width:'+(240*cols)+'px" class="divider">');
     });
   }
@@ -1212,9 +1214,9 @@ CC_MultiSelect.prototype.render2Div = function(divid, options) {
   rows.push('</div>');
   rows.push('</div>');
   if (controlgroup) rows.push('</div></div>');
-  
+
   $("#"+divid).html(rows.join(""));
-  
+
   // Callback
   $('#'+divid+' a.multicheck').click(function(e) {
     var id = $(this).attr("id");
@@ -1254,7 +1256,7 @@ CC_MultiSelect.prototype.render2Div = function(divid, options) {
                   if (c==b.id) {
                     this_object.selected.splice(i, 1);
                     return false;
-                  } 
+                  }
                 });
                 if (typeof this_object.func == "function")
                   this_object.func(b.id, false);
@@ -1262,7 +1264,7 @@ CC_MultiSelect.prototype.render2Div = function(divid, options) {
             }
           });
         }
-      });      
+      });
     }
     else {
       this_object.toggleSelected(id);
@@ -1279,7 +1281,7 @@ CC_MultiSelect.prototype.render2Div = function(divid, options) {
     options.open=true;
     this_object.render2Div(divid, options);
     return false;
-  });  
+  });
 };
 
 CC_MultiSelect.prototype.getSelected = function () {
@@ -1290,7 +1292,7 @@ CC_MultiSelect.prototype.toggleSelected = function (id) {
   if (this.isSelected(id)) {
     var newSelected=new Array();
     $.each(this.selected, function(k,a) {
-      if (a!=id) newSelected.push(a);        
+      if (a!=id) newSelected.push(a);
     });
     this.selected=newSelected;
   }
@@ -1303,7 +1305,7 @@ CC_MultiSelect.prototype.selectAll = function() {
   $.each(t.data, function(k,a) {
     if ((a!=null) && (a.bezeichnung!='-') && (a.notSelectable==null || !a.notSelectable))
       t.selected.push(a.id);
-  }); 
+  });
 };
 
 
@@ -1369,10 +1371,10 @@ CC_Menu.prototype.addEntry = function(caption, id, icon) {
 CC_Menu.prototype.renderDiv = function(divId, asButton) {
   if (this.entries.length==0) return false;
   var rows = new Array();
-  
+
   if ((asButton==null) || (asButton==false)) {
     rows.push('<div class="well sidebar-nav"><ul class="nav nav-list">');
-    rows.push('<li class="nav-header">'+this.label);    
+    rows.push('<li class="nav-header">'+this.label);
     jQuery.each(this.entries, function(k,a) {
       rows.push('<li><a href="#" id="'+a.id+'"><i class="icon-'+a.icon+'"></i> '+a.caption+'</a>');
     });
@@ -1384,7 +1386,7 @@ CC_Menu.prototype.renderDiv = function(divId, asButton) {
     jQuery.each(this.entries, function(k,a) {
       rows.push('<li><a href="#" id="'+a.id+'"><i class="icon-'+a.icon+'"></i> '+a.caption+'</a>');
     });
-    
+
   }
   rows.push('</ul></div>');
   jQuery("#"+divId).html(rows.join(""));
@@ -1394,7 +1396,7 @@ CC_Menu.prototype.renderDiv = function(divId, asButton) {
 
 var form_count=0;
 /**
- * 
+ *
  * @param label  ÔøΩberschrift
  * @param value_container = Value Object mit allen Daten. Wird fÔøΩr die Value der Fields genutzt, wenn kein Value angegeben wird.
  * @param cssid  cssid fÔøΩr die cssid des Forms und Prefix fÔøΩr Formularfelder, wenn dort keine cssid angegeben ist.
@@ -1406,9 +1408,9 @@ function CC_Form(label, value_container, cssid) {
   this.help=null;
   this.fields=new Array();
   this.value_container=value_container;
-  if (cssid!=null) 
+  if (cssid!=null)
     this.cssid=cssid;
-  else {  
+  else {
     this.cssid="form"+form_count;
     form_count=form_count+1;
   }
@@ -1472,7 +1474,7 @@ CC_Form.prototype.addStandardField = function(field, authArray) {
         o.value=value.toDateEn(false).toStringDe(false);
       t.addDate(o);
       break;
-    case "checkbox":      
+    case "checkbox":
       o.checked=((value!=null) && (value==1));
       t.addCheckbox(o);
       break;
@@ -1484,10 +1486,10 @@ CC_Form.prototype.addStandardField = function(field, authArray) {
     default:
       o.email=(field.sql=="email");
       o.value=value;
-      o.maxlength=field.length; 
+      o.maxlength=field.length;
       t.addInput(o);
       break;
-  }   
+  }
 };
 
 /**
@@ -1500,7 +1502,7 @@ CC_Form.prototype.getAllValsAsObject = function(withEmpty) {
   if (withEmpty==null) withEmpty=true;
   var o = new Object();
   $.each(this.fields, function(k,field) {
-    if ((withEmpty) || (field.required) || (t.getVal(field.cssid)!="")) {        
+    if ((withEmpty) || (field.required) || (t.getVal(field.cssid)!="")) {
       if (field.fieldtype=="input")
         o[field.cssid]=t.getVal(field.cssid).trim();
       else if (field.fieldtype=="date") {
@@ -1517,7 +1519,7 @@ CC_Form.prototype.getAllValsAsObject = function(withEmpty) {
       else if (field.fieldtype=="hidden")
         o[field.cssid]=t.getVal(field.cssid);
       else alert("Bei getAllValsAsObject ist "+field.fieldtype+" nicht nicht implementiert");
-      
+
       if ((field.required) && (o[field.cssid]=="")) {
         var elem=$("#"+t.cssid+" #"+field.cssid).parent(".controls");
         elem.append('<span class="help-inline error">Bitte das Feld ausf&uuml;llen!</span>');
@@ -1530,7 +1532,7 @@ CC_Form.prototype.getAllValsAsObject = function(withEmpty) {
   return o;
 };
 
-CC_Form.prototype.addLink = function(caption, id, text, _class) {  
+CC_Form.prototype.addLink = function(caption, id, text, _class) {
   _text='<label class="button ">';
     _text="";
   if (caption!="") {
@@ -1554,15 +1556,15 @@ CC_Form.prototype.addImage = function(options) {
 CC_Form.prototype.renderField = function(field) {
   if (debug) console.log(field);
   var success=true;
-  if (field.fieldtype=="select") 
+  if (field.fieldtype=="select")
     this.rows.push(form_renderSelect(field));
-  else if ((field.fieldtype=="input") || (field.fieldtype=="date"))  
+  else if ((field.fieldtype=="input") || (field.fieldtype=="date"))
     this.rows.push(form_renderInput(field));
-  else if (field.fieldtype=="textarea")  
+  else if (field.fieldtype=="textarea")
     this.rows.push(form_renderTextarea(field));
-  else if (field.fieldtype=="checkbox")  
+  else if (field.fieldtype=="checkbox")
     this.rows.push(form_renderCheckbox(field));
-  else if (field.fieldtype=="hidden")  
+  else if (field.fieldtype=="hidden")
     this.rows.push(form_renderHidden(field));
   else {
     alert("Fieldtype "+field.fieldtype+" nicht gefunden!");
@@ -1587,7 +1589,7 @@ CC_Form.prototype.addHidden = function(options) {
 };
 
 CC_Form.prototype.addCaption = function(options) {
-  this.rows.push(form_renderCaption(options));  
+  this.rows.push(form_renderCaption(options));
 }
 
 CC_Form.prototype.addButton = function(options) {
@@ -1613,9 +1615,9 @@ CC_Form.prototype.prepareOptionsAsField = function(options, fieldtype) {
       field.cssid=options.label.replace(" ","_");
     else if (options.name!=null)
       field.cssid=options.name.replace(" ","_");
-  }  
+  }
   if ((field.value==null) && (this.value_container!=null)) {
-    if (fieldtype=="checkbox")  
+    if (fieldtype=="checkbox")
       field.checked=this.value_container[field.cssid]==1;
     else if (fieldtype=="select")
       field.selected=this.value_container[field.cssid];
@@ -1647,7 +1649,7 @@ CC_Form.prototype.addTextarea = function (options) {
 };
 
 CC_Form.prototype.addHtml =function(html) {
-  if (html!=null) this.rows.push(html); 
+  if (html!=null) this.rows.push(html);
 };
 
 CC_Form.prototype.setHelp = function(title) {
@@ -1655,23 +1657,23 @@ CC_Form.prototype.setHelp = function(title) {
 };
 
 /**
- * 
+ *
  * @param border (true/false)
  * @param form_type null=vertical, horizontal, inline
  * @return html code
  */
 CC_Form.prototype.render = function(border, form_type) {
   if (this.rows.length==0) return "";
-  
+
   var rows = new Array();
-  
+
   if (this.surroundDiv!=null)
     rows.push('<div class="'+this.surroundDiv+'">');
-  
+
   if (this.label!=null)
     rows.push('<legend>'+this.label+'</legend>');
-  
-  
+
+
   rows.push('<form id="'+this.cssid+'" class="'+(border?"well":"")+' '+(form_type==null?"":"form-"+form_type)+'">');
 
   if (this.help!=null)
@@ -1679,7 +1681,7 @@ CC_Form.prototype.render = function(border, form_type) {
 
   rows.push(this.rows.join(""));
 
-  rows.push("</form>");      
+  rows.push("</form>");
 
   if (this.surroundDiv!=null) rows.push("</div>");
 
@@ -1710,18 +1712,18 @@ CC_Navi.prototype.countElement = function() {
 CC_Navi.prototype.addSearch = function(searchEntry) {
   if (churchcore_tabletformat())
     this.search='<input type="text" id="searchEntry" placeholder="'+_("search")+'" class="input-small search-query pull-right" value="'+searchEntry+'"/>';
-  else 
+  else
     this.search='<input type="text" id="searchEntry" placeholder="'+_("search")+'" class="input-medium search-query pull-right" value="'+searchEntry+'"/>';
 };
 
 CC_Navi.prototype.render = function(asButton) {
   var rows = new Array();
-  
+
   if (!asButton) {
     rows.push('<ul class="nav nav-tabs '+(churchcore_handyformat()?"nav-stacked":"")+'">');
       jQuery.each(this.entries, function(k,a) {
-        rows.push('<li class="'+(this.active?"active":"")+'"><a href="#" id="'+this.id+'">'+this.label+'</a></li>');    
-      });  
+        rows.push('<li class="'+(this.active?"active":"")+'"><a href="#" id="'+this.id+'">'+this.label+'</a></li>');
+      });
       if (this.search!=null) rows.push('<li class="pull-right">'+this.search);
     rows.push('</ul>');
   }
@@ -1735,13 +1737,13 @@ CC_Navi.prototype.render = function(asButton) {
       rows.push('<button class="btn dropdown-toggle" data-toggle="dropdown">'+activename+' <span class="caret"></span></button>');
       rows.push('<ul class="dropdown-menu">');
       jQuery.each(this.entries, function(k,a) {
-        rows.push('<li class="'+(this.active?"active":"")+'"><a href="#" id="'+this.id+'">'+this.label+'</a></li>');    
+        rows.push('<li class="'+(this.active?"active":"")+'"><a href="#" id="'+this.id+'">'+this.label+'</a></li>');
       });
       rows.push("</ul></span>");
     }
     if (this.search!=null) rows.push(this.search);
     rows.push("<br/><br/>");
-  }  
+  }
   return rows.join("");
 };
 
@@ -1751,12 +1753,12 @@ CC_Navi.prototype.renderDiv = function(divId, asButton) {
 
 CC_Navi.prototype.activate = function(id) {
   $("ul.nav li.active").removeClass("active");
-  $("ul.nav a[id="+id+"]").parent().addClass("active");  
+  $("ul.nav a[id="+id+"]").parent().addClass("active");
 };
 
 /**
- * 
- * @param title 
+ *
+ * @param title
  * @param text
  * @param width
  * @param height
@@ -1772,8 +1774,8 @@ function form_showDialog (title, text, width, height, buttons) {
   if (buttons==null) buttons=new Object();
 
   elem.dialog({
-    autoOpen:true, 
-    width:width, 
+    autoOpen:true,
+    width:width,
     height:height,
     modal:true,
     title:title,
@@ -1783,7 +1785,7 @@ function form_showDialog (title, text, width, height, buttons) {
       elem=null;
     }
   });
-  // hack around the problem with editing link and image editor when a dialog already open 
+  // hack around the problem with editing link and image editor when a dialog already open
   elem.removeClass("ui-dialog-content");
   elem.addClass("ct-dialog-content");
   $("div.ui-dialog-buttonpane button").addClass("btn");
@@ -1830,48 +1832,48 @@ function form_showOkDialog(title, text, width, height) {
 /**
  * Add the possibility to add buttons to the jQuery UI Dialog
  */
-jQuery.extend(jQuery.ui.dialog.prototype, { 
-  'addbutton': function(buttonName, func) { 
-      var buttons = this.element.dialog('option', 'buttons'); 
+jQuery.extend(jQuery.ui.dialog.prototype, {
+  'addbutton': function(buttonName, func) {
+      var buttons = this.element.dialog('option', 'buttons');
       buttons[buttonName] = func;
-      this.element.dialog('option', 'buttons', buttons); 
+      this.element.dialog('option', 'buttons', buttons);
       $("div.ui-dialog-buttonpane button").addClass("btn");
-  } 
-}); 
+  }
+});
 
 /**
  * Add the possibility to add buttons to the jQuery UI Dialog
  */
-jQuery.extend(jQuery.ui.dialog.prototype, { 
-  'addcancelbutton': function() { 
+jQuery.extend(jQuery.ui.dialog.prototype, {
+  'addcancelbutton': function() {
       var t=this;
-      var buttons = t.element.dialog('option', 'buttons'); 
+      var buttons = t.element.dialog('option', 'buttons');
       buttons[_("cancel")] = function() {
         t.element.dialog("close");
       };
-      t.element.dialog('option', 'buttons', buttons); 
+      t.element.dialog('option', 'buttons', buttons);
       $("div.ui-dialog-buttonpane button").addClass("btn");
-  } 
-}); 
+  }
+});
 
 /**
  * Add the possibility to add buttons to the jQuery UI Dialog
  */
-jQuery.extend(jQuery.ui.dialog.prototype, { 
-  'addsaveandcancelbutton': function(func) { 
+jQuery.extend(jQuery.ui.dialog.prototype, {
+  'addsaveandcancelbutton': function(func) {
       var t=this;
-      var buttons = t.element.dialog('option', 'buttons'); 
+      var buttons = t.element.dialog('option', 'buttons');
       buttons[_("save")] = func;
       buttons[_("cancel")] = function() {
         t.element.dialog("close");
       };
-      t.element.dialog('option', 'buttons', buttons); 
+      t.element.dialog('option', 'buttons', buttons);
       $("div.ui-dialog-buttonpane button").addClass("btn");
-  } 
-}); 
+  }
+});
 
 /**
- * 
+ *
  * @param arr vorhandenees array
  * @param id
  * @param bez
@@ -1879,12 +1881,12 @@ jQuery.extend(jQuery.ui.dialog.prototype, {
  * @return erweitertes array
  */
 function form_addEntryToSelectArray (arr, id, bez, sortkey, notSelectable) {
-  var new_arr=new Object(); 
+  var new_arr=new Object();
   new_arr["id"]=id;
   new_arr["bezeichnung"]=bez;
   if (sortkey!=null)
     new_arr["sortkey"]=sortkey;
-  if (notSelectable!=null) 
+  if (notSelectable!=null)
     new_arr["notSelectable"]=notSelectable;
   arr[id]=new_arr;
 };
@@ -1904,26 +1906,26 @@ function form_implantDatePicker(divid, curDate, func, highlightDay) {
      firstDay: 1,
      monthNames:getMonthNames(),
      beforeShowDay: highlightDay,
-     onSelect : function(dateText, inst) { 
-                  func(dateText, divid); 
+     onSelect : function(dateText, inst) {
+                  func(dateText, divid);
                   $("#"+divid).datepicker("destroy");
                   $("#"+divid).html("");
                 }
-   });    
+   });
    $("#"+divid).datepicker($.datepicker.regional['de']);
    $("#"+divid).datepicker('setDate', curDate);
- }  
+ }
  else {
    $("#"+divid).datepicker("destroy");
-   $("#"+divid).html("");        
+   $("#"+divid).html("");
  }
  shortcut.add("esc", function() {
    $("#"+divid).datepicker("destroy");
-   $("#"+divid).html("");        
- });  
+   $("#"+divid).html("");
+ });
  $("#"+divid).mouseleave(function(){
    $("#"+divid).datepicker("destroy");
-   $("#"+divid).html("");        
+   $("#"+divid).html("");
 })
 };
 
@@ -1941,7 +1943,7 @@ function form_renderHelpLink(link, invert) {
  *   cancel()
  */
 $.widget("ct.editable", {
-  
+
   options: {
     value:null,
     data:null,
@@ -1953,15 +1955,15 @@ $.widget("ct.editable", {
     render: function(txt, data) {return txt; },
     validate: function(txt, data) {return true; }
   },
-  
+
   _autosave:null,
-  
+
   _create: function() {
     var t=this;
     if (t.options.value==null) t.options.value="";
     t._renderField();
     this.element.click(function() {
-      t._startEditor();     
+      t._startEditor();
     });
     this.element.hover(function() {
         $(this).addClass("active");
@@ -1969,50 +1971,50 @@ $.widget("ct.editable", {
       function() {
         $(this).removeClass("active");
       }
-    );    
+    );
   },
-  
+
   success: function() {
     this._clearTimer();
     var newval=this.options.rerenderEditor(this.element.find(this.options.type).val(), this.options.data);
     if (this.options.validate(newval, this.options.data)) {
       this.options.value=newval;
       this.options.success(this.options.value, this.options.data);
-      this.element.removeClass("editmode");  
-      this._renderField();    
+      this.element.removeClass("editmode");
+      this._renderField();
     }
   },
-  
+
   cancel: function() {
     this._clearTimer();
-    this.element.removeClass("editmode");  
-    this._renderField();    
+    this.element.removeClass("editmode");
+    this._renderField();
   },
-  
+
   _clearTimer: function() {
-    if (this._autosave!=null) 
+    if (this._autosave!=null)
       window.clearTimeout(this._autosave);
     this._autosave=null;
   },
-  
+
   _renderField: function() {
     this.element.html(this.options.render(this.options.value, this.options.data));
     this.options.afterRender(this.element, this.options.data);
   },
-  
+
   _renderEditor: function() {
     return this.options.renderEditor(this.options.value, this.options.data);
   },
-  
+
   _startEditor: function() {
     var t=this;
     editable=this.element;
     // Check if this class has not already started the edit mode
-    if (!editable.hasClass("editmode")) { 
+    if (!editable.hasClass("editmode")) {
       // Take off editor, when there are there is an old editable
       $(".editmode").each(function(k,a) {
         $(a).editable("success");
-      });          
+      });
       editable.addClass("editmode");
       var elem=null;
       if (t.options.type=="textarea") {
@@ -2021,12 +2023,12 @@ $.widget("ct.editable", {
           .find(t.options.type);
         // Limit max character to given maxlength
         elem.keyup(function(){
-          var max = parseInt($(this).attr('maxlength'));   
+          var max = parseInt($(this).attr('maxlength'));
           if($(this).val().length > max){
              $(this).val($(this).val().substr(0, max));
-          }        
+          }
           $(this).parent().find('.charleft').html(max - $(this).val().length);
-       });  
+       });
       }
       // Type=input
       else {
@@ -2043,7 +2045,7 @@ $.widget("ct.editable", {
             window.clearTimeout(t._autosave);
           t._autosave=window.setTimeout(function() { t.success(); }, t.options.autosaveSeconds*1000);
         }
-        
+
         // Enter
         if (e.keyCode == 13) {
           t.success();
@@ -2052,10 +2054,10 @@ $.widget("ct.editable", {
         else if (e.keyCode == 27) {
           t.cancel();
         }
-      }); 
+      });
      }
    }
-  
+
 });
 
 var currentTooltip=null;
@@ -2068,7 +2070,7 @@ function clearTooltip(force) {
 }
 
 $.widget("ct.tooltips", {
-  
+
   options: {
     data:null,
     auto:true,
@@ -2082,7 +2084,7 @@ $.widget("ct.tooltips", {
   _showTimer:null,
   _hideTimer:null,
   _visible:false,
-  
+
   _create:function() {
     var t=this;
     t.element.addClass("tooltips-active");
@@ -2097,7 +2099,7 @@ $.widget("ct.tooltips", {
       );
     }
   },
-  
+
   /**
    *  public function to immediate or slow hide the tooltip
    */
@@ -2114,31 +2116,31 @@ $.widget("ct.tooltips", {
   show: function() {
     this._prepareTooltip();
   },
-  
+
   /*
    * Refresh content of tooltip without hide and show it again
    */
   refresh: function() {
     var t=this;
     var content=t.options.render(this.options.data);
-    if (content instanceof(Array)) {        
+    if (content instanceof(Array)) {
       $("div.popover-content").html(content[0]);
       $("div.popover-title").html(content[1]);
     }
-    else 
+    else
       $("div.popover-content").html(content);
-    t.options.afterRender(t.element.next(".popover"), this.options.data);    
+    t.options.afterRender(t.element.next(".popover"), this.options.data);
   },
-  
+
   _clearHideTimer: function() {
     window.clearTimeout(this._hideTimer);
-    this._hideTimer=null;    
+    this._hideTimer=null;
   },
   _clearShowTimer: function() {
     window.clearTimeout(this._showTimer);
-    this._showTimer=null;    
+    this._showTimer=null;
   },
-  
+
   _hideTooltip: function() {
     this._visible=false;
     this.element.removeClass("tooltips-active");
@@ -2148,42 +2150,42 @@ $.widget("ct.tooltips", {
       currentTooltip=null;
   },
 
-  
+
   _showTooltip: function() {
     var t=this;
     t._visible=true;
     var content=t.options.render(this.options.data);
-    if (content instanceof(Array))         
-      t.element.popover({ 
-        content:content[0], html:true, title:content[1], 
+    if (content instanceof(Array))
+      t.element.popover({
+        content:content[0], html:true, title:content[1],
          placement:t.options.placement, trigger:"manual", animation:true}).popover("show");
-    else 
-        t.element.popover({ 
-          content:content, html:true, 
+    else
+        t.element.popover({
+          content:content, html:true,
            placement:t.options.placement, trigger:"manual", animation:true}).popover("show");
     t.options.afterRender(t.element.next(".popover"), this.options.data);
   },
-  
-  
+
+
   _prepareTooltip: function() {
     var t=this;
     currentTooltip=t.element;
     if (t._hideTimer!=null) t._clearHideTimer();
     if (t._showTimer==null && !t._visible) {
       t._showTimer=window.setTimeout(function() {
-        t._showTooltip();           
+        t._showTooltip();
         t.element.next(".popover").hover(
           function() {
             if (t._hideTimer!=null) t._clearHideTimer();
-          }, 
+          },
           function() {
             t._removeTooltip();
-        });        
-        t._showTimer=null;        
+        });
+        t._showTimer=null;
       }, 200);
     }
   },
-  
+
   _removeTooltip: function() {
     var t=this;
 
@@ -2191,7 +2193,7 @@ $.widget("ct.tooltips", {
     if (t._showTimer!=null) {
       t._clearShowTimer();
       t._hideTooltip();
-    }                
+    }
     else {
       if (t._hideTimer==null) {
         t._hideTimer=window.setTimeout(function() {
@@ -2201,7 +2203,7 @@ $.widget("ct.tooltips", {
       }
     }
   }
-    
+
 });
 
 
@@ -2219,11 +2221,11 @@ function Drafter(id, obj) {
   this.obj = obj;
   this.obj.id=id;
   if (this.obj.interval==null) this.obj.interval=5000;
-  
+
   var content_saves=churchcore_retrieveObject(settings.user.id+"/"+this.obj.id);
   if (content_saves!=null && content_saves!="") {
     var content_now=obj.getContent();
-    if (content_now!=content_saves 
+    if (content_now!=content_saves
         && confirm("Ich habe noch einen offenen Text gefunden, soll ich diesen wiederherstellen?")) {
       this.obj.setContent(content_saves);
       this.obj.setStatus("Daten wiederhergestellt.");
@@ -2235,7 +2237,7 @@ function Drafter(id, obj) {
 
 Drafter.prototype.activateTimer = function() {
   var t=this;
-  if (this.timer!=null) window.clearTimeout(this.timer);  
+  if (this.timer!=null) window.clearTimeout(this.timer);
   t.timer=window.setTimeout(function() {
     var content=t.obj.getContent();
     if (content!="") t.obj.setStatus(_("save.data"));
@@ -2251,7 +2253,7 @@ Drafter.prototype.activateTimer = function() {
  * Deactivate timer and delete draft
  */
 Drafter.prototype.clear = function() {
-  if (this.timer!=null) window.clearTimeout(this.timer); 
+  if (this.timer!=null) window.clearTimeout(this.timer);
   churchcore_storeObject(settings.user.id+"/"+this.obj.id, null);
-}; 
+};
 

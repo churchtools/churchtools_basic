@@ -1,6 +1,6 @@
 .form-horizontal .control-group {
   margin-bottom: 13px;
-}	
+}
 
 .hoverreactor {
   display:none;
@@ -14,20 +14,20 @@ small {
 input.withoutmargin {
   margin:0
 }
-  
+
 span.error {
-  color:red;	
-}  
-  
+  color:red;
+}
+
 div.ui-datepicker {
-  min-width:15.1em;	
-}  
-  
+  min-width:15.1em;
+}
+
 a.ui-state-checkin {
   background:lightgray;
   color:#fff;
-}  
-  
+}
+
 .popover {
   width:auto;
 }
@@ -59,7 +59,7 @@ span.label a {
 div.filelist {
   font-size: 90%;
   margin-top:10px;
-  margin-bottom:10px;	
+  margin-bottom:10px;
 }
 
 th.active, td.active, td.editmode {
@@ -67,7 +67,7 @@ th.active, td.active, td.editmode {
 }
 
 td.editable, td.clickable {
-  cursor:pointer; 
+  cursor:pointer;
 }
 
 input.without-bottom {
@@ -89,8 +89,8 @@ li.ct_whitebox {
    max-height: 300px;
    overflow-y: auto;
         /* prevent horizontal scrollbar */
-   overflow-x: hidden;	
-	
+   overflow-x: hidden;
+
 }
 
 input.throbbing {
@@ -166,12 +166,12 @@ div.fixed {
 .grouping {
   background-color:#e7eef4 !important;
   font-style:italic;
-} 
+}
 
 td.angefragt, a.angefragt, font.angefragt {
-  background: #fef37a;	
+  background: #fef37a;
 }
-.ui-datepicker-calendar td.angefragt { 
+.ui-datepicker-calendar td.angefragt {
      -webkit-border-radius: 4px;
      -moz-border-radius: 4px;
           border-radius: 4px;
@@ -182,47 +182,47 @@ td.angefragt, a.angefragt, font.angefragt {
 }
 
 td.zugesagt, a.zugesagt, font.zugesagt, div.zugesagt {
-  background: #a6ffb0;	
+  background: #a6ffb0;
 }
-.ui-datepicker-calendar td.zugesagt { 
-	*padding: 1px 1px 1px 1px;   
+.ui-datepicker-calendar td.zugesagt {
+	*padding: 1px 1px 1px 1px;
 	-webkit-border-radius: 4px;
        -moz-border-radius: 4px;
             border-radius: 4px;
 }
-.ui-datepicker-calendar td.absent { 
-	background-image: url(../assets/img/red_dot.png); 
-	background-repeat:no-repeat; 
+.ui-datepicker-calendar td.absent {
+	background-image: url(../assets/img/red_dot.png);
+	background-repeat:no-repeat;
 	background-position:25px 1px;
 }
 
 
 img.small {
   vertical-align:middle;
-  width:20px;	
+  width:20px;
 }
 
 #tooltip_inner.PersonView {
-  width:400px;	
+  width:400px;
 }
 #tooltip_inner.gruppenteilnahme {
-  width:230px;	
+  width:230px;
   font-weight:normal;
 }
 #tooltip_inner.GroupView {
-  width:400px;	
+  width:400px;
 }
 #tooltip_inner.ListView {
-  width:340px;	
+  width:340px;
 }
 #tooltip_inner.SongView {
-  min-width:250px;	
+  min-width:250px;
 }
 #tooltip_inner.WeekView {
-  width:250px;	
+  width:250px;
 }
 #tooltip_inner.CalView {
-  width:200px;	
+  width:200px;
 }
 
 div.popover-inner {
@@ -252,16 +252,16 @@ div.tooltip_address {
 }
 
 #cdb_content table {
-  width:100%;	
+  width:100%;
 }
 
 #cdb_content th.datum, td.datum {
-  width:50px;	
+  width:50px;
 }
 
-/** 
+/**
 * Name und Vorname erh�lt die Class mit Status und K�rzel
-*/ 
+*/
 #cdb_content a.member {
 	font-style:bold;
 }
@@ -320,13 +320,13 @@ div.map-control-label {
 #cdb_content div.tooltip_foto {
 	float:left;
 	padding-right:10px;
-} 
+}
 #cdb_content div.tooltip_address {
   padding: 10px;
   *width:200px;
   float:left;
 }
-    
+
 
 #cdb_content #detail td {
   border-left:none;
@@ -403,7 +403,7 @@ div.map-control-label {
    padding: 0;
 }
 
-/*warum nur hierdrauf? #cdb_content #detail*/ 
+/*warum nur hierdrauf? #cdb_content #detail*/
 span.tag {
   background : lightblue;
   border-radius: 7px 7px 7px 7px;
@@ -417,18 +417,18 @@ span.tag {
 }
 
 #cdb_content div.bottom_links {
-  font-size:90%;	
+  font-size:90%;
 }
 
 #cdb_content hr {
-  border-top: 1px solid #bbbbbb;	
+  border-top: 1px solid #bbbbbb;
 }
 
 
 #cdb_content .detail-view .tag-list {
    text-align:right;
    position:relative;
-   color:blue;	
+   color:blue;
 }
 
 
@@ -502,16 +502,29 @@ span.tag {
 }
 
 .event-date {
-  font-size:90%;	
+  font-size:90%;
   color:#999;
 }
 
-.event-category:before{content:" (";}  	
-.event-category:after{content:")";}  	
-.event-location:before{content:" (";}  	
-.event-location:after{content:")";}  	
+.event-category:before{content:" (";}
+.event-category:after{content:")";}
+.event-location:before{content:" (";}
+.event-location:after{content:")";}
 
 .event-description {
-  font-size:90%;	
+  font-size:90%;
   color:#999;
+}
+
+/* church service */
+.addService .checkbox {
+    border-bottom: 1px solid #dddddd;
+    margin: .4em;
+}
+.addService .checkbox:first-child {
+    border-bottom:2px solid #CCCCCC !important;
+    margin-bottom: .4em !important;
+}
+.addService .checkbox:hover {
+    background:#DDEDF7;
 }
