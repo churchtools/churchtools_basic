@@ -1,5 +1,5 @@
-	 
- 
+
+
 // Constructor
 function PersonView() {
   CDBStandardTableView.call(this);
@@ -12,7 +12,7 @@ function PersonView() {
   this.mapVisible=false;
   //Listenansicht
   this.sortVariable="name";
-  // "email"=>Prio Email, dann tel. Andere variante:"tel" 
+  // "email"=>Prio Email, dann tel. Andere variante:"tel"
   this.showcontact="email";
   this.currentFurtherFilter="person";
   this.listViewTableHeight=646;
@@ -54,22 +54,22 @@ PersonView.prototype.getData = function(sorted, newSort /*default:true*/) {
 
 PersonView.prototype.renderMenu = function() {
   var t=this;
-  
+
   t.renderTodos();
-  
+
   menu = new CC_Menu(_("menu"));
   if (menuDepth=="amain") {
     if (masterData.auth["create person"])
       menu.addEntry(_("add.new.person"), "anewentry", "star");
     if (user_access("complex filter"))
-      menu.addEntry(_("more.filter"), "aaddfilter", "filter");  
+      menu.addEntry(_("more.filter"), "aaddfilter", "filter");
     menu.addEntry(_("exporter"), "aexporter", "share");
     menu.addEntry(_("emailer"), "amailer", "envelope");
     if (masterData.auth.sendsms)
-      menu.addEntry("SMS", "asms", "bullhorn");    
+      menu.addEntry("SMS", "asms", "bullhorn");
     menu.addEntry(_("list.of.groups"), "agroupview", "th-list");
-    menu.addEntry(_("settings"), "asettingsview", "wrench");    
-    if ((masterData.auth.admin) || (masterData.auth["export"])) { 
+    menu.addEntry(_("settings"), "asettingsview", "wrench");
+    if ((masterData.auth.admin) || (masterData.auth["export"])) {
       menu.addEntry(_("administration"), "aadmin", "cog");
     }
     menu.addEntry(_("help"), "ahelp", "question-sign");
@@ -77,50 +77,50 @@ PersonView.prototype.renderMenu = function() {
   else if (menuDepth=="aadmin") {
     menu.addEntry(_("back.to.main.menu"), "amain", "home");
     if (masterData.auth["admin"])
-      menu.addEntry(_("maintain.masterdata"), "amaintainview", "cog");  
+      menu.addEntry(_("maintain.masterdata"), "amaintainview", "cog");
     if (masterData.auth["export"])
-      menu.addEntry(_("export.all"), "aallexporter", "share");  
+      menu.addEntry(_("export.all"), "aallexporter", "share");
     if (masterData.auth["admin"])
       menu.addEntry("LogViewer", "alogviewer", "eye-open");
-  }  
+  }
 
   if (!menu.renderDiv("cdb_menu", churchcore_handyformat()))
     $("#cdb_menu").hide();
-  else {    
-  
-    var rows = new Array();  
+  else {
+
+    var rows = new Array();
     rows.push("<div id=\"divnewentry\" style=\"display:none\" class=\"new-entry\"></div>");
     rows.push('<div id="divaddfilter"  style="display:none" class="new-entry"><div id="addfilter" style="width:100%;"><div style="height:200px"/></div></div>');
     $("#cdb_precontent").html(rows.join(""));
-  
-    
+
+
     $("#cdb_menu a").click(function () {
       if ($(this).attr("id")=="anewentry") {
         t.renderAddEntry();
       }
       else if ($(this).attr("id")=="aexporter") {
-        t.exportData(); 
+        t.exportData();
       }
       else if ($(this).attr("id")=="amailer") {
-        t.mailer(); 
+        t.mailer();
       }
       else if ($(this).attr("id")=="asms") {
-        t.smser(); 
+        t.smser();
       }
       else if ($(this).attr("id")=="aallexporter") {
         t.exportData(null, true);
-//        var Fenster = window.open("?q=churchdb/export");     
+//        var Fenster = window.open("?q=churchdb/export");
 //        return true;
       }
       else if ($(this).attr("id")=="alogviewer") {
-        window.location.href="?q=churchcore/logviewer";      
+        window.location.href="?q=churchcore/logviewer";
       }
       else if ($(this).attr("id")=="aaddfilter") {
         if (!t.furtherFilterVisible) {
-          t.furtherFilterVisible=true;  
+          t.furtherFilterVisible=true;
         } else {
-          t.furtherFilterVisible=false;                
-        } 
+          t.furtherFilterVisible=false;
+        }
         t.renderFurtherFilter();
       }
       else if ($(this).attr("id")=="aadmin") {
@@ -151,16 +151,16 @@ PersonView.prototype.renderMenu = function() {
         t.renderMenu();
       }
       return false;
-    });   
+    });
   }
 };
 
 
 PersonView.prototype.renderListMenu = function() {
   var t=this;
-  
+
   // Men�leiste oberhalb
-  if ($("searchEntry").val()!=null) 
+  if ($("searchEntry").val()!=null)
     searchEntry=$("searchEntry").val();
   else
     searchEntry=this.getFilter("searchEntry");
@@ -172,14 +172,14 @@ PersonView.prototype.renderListMenu = function() {
     navi.addEntry(churchInterface.isCurrentView("StatisticView"),"astatisticview",_("statistic.view"));
   if (masterData.auth["viewarchive"])
     navi.addEntry(churchInterface.isCurrentView("ArchiveView"),"aarchiveview",_("archive"));
-  
+
   navi.addSearch(searchEntry);
   navi.renderDiv("cdb_search", churchcore_handyformat());
   if (!churchcore_handyformat()) $("#searchEntry").focus();
-  
-  this.implantStandardFilterCallbacks(this, "cdb_search");    
-  
-  
+
+  this.implantStandardFilterCallbacks(this, "cdb_search");
+
+
   $.widget( "custom.catcomplete", $.ui.autocomplete, {
     _renderMenu: function(ul, items ) {
       var that = this,
@@ -192,8 +192,8 @@ PersonView.prototype.renderListMenu = function() {
         that._renderItemData( ul, item );
       });
     }
-  });  
-  
+  });
+
   var searchEntry=$("#searchEntry");
   searchEntry.catcomplete({
     search: function(event, ui) {
@@ -206,19 +206,19 @@ PersonView.prototype.renderListMenu = function() {
         $.each(allPersons, function(k,a) {
           var n=a.vorname+" "+a.name;
           if (n.toUpperCase().indexOf(str)>=0)
-            r.push({label:a.vorname+" "+a.name, category:"", value:"#"+a.id});              
+            r.push({label:a.vorname+" "+a.name, category:"", value:"#"+a.id});
         });
         if (masterData.groups!=null) {
           $.each(masterData.groups, function(k,a) {
             if (groupView.isAllowedToSeeDetails(a.id))
               if ((str=="GRUPPE:") || (a.bezeichnung.toUpperCase().indexOf(str)>=0) || (("GRUPPE:"+a.bezeichnung.toUpperCase()).indexOf(str)>=0))
-                r.push({label:a.bezeichnung, category:_("group"), value:'gruppe:"'+a.bezeichnung+'"'});              
+                r.push({label:a.bezeichnung, category:_("group"), value:'gruppe:"'+a.bezeichnung+'"'});
           });
         }
         if (masterData.tags!=null) {
           $.each(masterData.tags, function(k,a) {
             if ((str=="TAG:") || (a.bezeichnung.toUpperCase().indexOf(str)>=0) || (("TAG:"+a.bezeichnung.toUpperCase()).indexOf(str)>=0))
-              r.push({label:a.bezeichnung, category:"Tag", value:'tag:"'+a.bezeichnung+'"'});              
+              r.push({label:a.bezeichnung, category:"Tag", value:'tag:"'+a.bezeichnung+'"'});
           });
         }
         if ((r.length==0) && (str.indexOf("GRUPPE")==-1) && (str.indexOf("TAG")==-1) && (user_access("create person")) && (str.indexOf("#")==-1))
@@ -232,7 +232,7 @@ PersonView.prototype.renderListMenu = function() {
         var str=item.item.value.substr(7,99);
         var str2=str.split(" ");
         var vorname=str2[0].substr(0,1).toUpperCase() + str2[0].substr(1);
-        var name=str2[1]; 
+        var name=str2[1];
         if (name!=null) name=name.substr(0,1).toUpperCase() + name.substr(1);
         t.renderAddEntry({vorname:vorname, name:name});
         window.setTimeout(function(){
@@ -242,15 +242,15 @@ PersonView.prototype.renderListMenu = function() {
       }
       else {
         // Leider mu� ich hier TimeOut setzen, denn sonst ist der Wert noch nicht in der Oberfl�che angekommen...
-        window.setTimeout(function(){        
+        window.setTimeout(function(){
           $("#searchEntry").trigger( "keyup" );
           // For iOS to close the virtual keyboard
           $("#searchEntry").blur();
         },10);
       }
-    }    
+    }
   });
-  
+
   $("#cdb_search a").click(function () {
     if ($(this).attr("id")=="apersonview") {
       personView.furtherFilterVisible=t.furtherFilterVisible;
@@ -270,7 +270,7 @@ PersonView.prototype.renderListMenu = function() {
     }
     churchInterface.getCurrentView().filter=t.filter;
     return false;
-  });  
+  });
 };
 
 
@@ -293,7 +293,7 @@ PersonView.prototype.renderAddEntry = function(prefill) {
     });
   });
   form_person.addHtml('</div>');
-  
+
   _text=_text+form_person.render();
 
   var form = new CC_Form(_("categories"));
@@ -305,8 +305,8 @@ PersonView.prototype.renderAddEntry = function(prefill) {
   if (masterData.settings.newPersonStation==null)
     masterData.settings.newPersonStation=1;
   form.addSelect({data: masterData.auth.dep, selected:masterData.settings.newPersonBereich, cssid:"Inputf_dep", label:f("bereich_id")});
-  form.addSelect({data: masterData.status, selected:masterData.settings.newPersonStatus, cssid:"Inputf_status", label:f("status_id")});  
-  if (masterData.fields.f_category.fields.station_id!=null) 
+  form.addSelect({data: masterData.status, selected:masterData.settings.newPersonStatus, cssid:"Inputf_status", label:f("status_id")});
+  if (masterData.fields.f_category.fields.station_id!=null)
     form.addSelect({data: masterData.station, selected:masterData.settings.newPersonStation, cssid:"Inputf_station", label:f("station_id")});
   _text=_text+form.render();
 
@@ -317,19 +317,19 @@ PersonView.prototype.renderAddEntry = function(prefill) {
     diff_date.addDays(-1*masterData.groupnotchoosable);
     if (masterData.auth.editgroups) {
       $.each(masterData.groupTypes, function(k,a) {
-        if (a.in_neue_person_erstellen_yn==1) {      
-          var data=new Array(); 
+        if (a.in_neue_person_erstellen_yn==1) {
+          var data=new Array();
           $.each(masterData.groups, function(i,b) {
             if ((b.gruppentyp_id==a.id) && (b.valid_yn==1) && (b.versteckt_yn==0) && ((b.abschlussdatum==null) || (b.abschlussdatum.toDateEn()>diff_date)))
               data.push(form_prepareDataEntry(b.id, b.bezeichnung));
           });
           form.addSelect({data:data, freeoption:true, cssid:"createGroup", label:a.bezeichnung});
-        }  
+        }
       });
     }
     else {
-      // Get groups, only where I am a leader. No free option. 
-      var data=new Array(); 
+      // Get groups, only where I am a leader. No free option.
+      var data=new Array();
       $.each(masterData.groupTypes, function(k,a) {
         $.each(masterData.groups, function(i,b) {
           if ((b.gruppentyp_id==a.id) && (b.valid_yn==1) && (b.versteckt_yn==0) && ((b.abschlussdatum==null) || (b.abschlussdatum.toDateEn()>diff_date)))
@@ -338,27 +338,27 @@ PersonView.prototype.renderAddEntry = function(prefill) {
         });
       });
       form.addSelect({data:data, freeoption:false, cssid:"createGroup", label:_("my.groups")});
-    }    
+    }
   }
   _text=_text+form.render();
-  
+
   _text=_text+'</div><div class="row-fluid">';
   var form = new CC_Form();
   form.surroundWithDiv("span12");
-  
+
   if (!user_access("create person without agreement"))
     form.addCheckbox({label:_("i.have.the.permission.from.this.user.for.x", masterData.site_name), cssid:"agreement"});
-  
+
   form.addButton({label:_("create.person"), controlgroup:true, cssid:"btProoveNewAddress"});
   form.addHtml("&nbsp; ");
   form.addCheckbox({cssid:"forceCreate",controlgroup_start:true,label:_("also.apply.if.name.already.exists")});
   form.addCheckbox({cssid:"forceDontHide",controlgroup_end:true,label:_("create.more.dataset")});
   _text=_text+form.render(false,"vertical");
-  
+
   _text=_text+"</div></div>";
-      
+
   $("#divnewentry").html(_text);
-  
+
   $("#divnewentry a.furtherfields").click(function () {
     $(this).hide();
     $("#furtherfields").animate({ height: 'toggle'}, "medium");
@@ -374,7 +374,7 @@ PersonView.prototype.renderAddEntry = function(prefill) {
     else if ($(this).attr("id")=="Inputf_station") txt="newPersonStation";
     churchInterface.jsendWrite({func:"saveSetting", sub:txt, val:$(this).val()});
     masterData.settings[txt]=$(this).val();
-    
+
     var g_id=$(this).val();
     if (masterData.groups[g_id]!=null) {
       var stats=groupView.getStatsOfGroup(g_id);
@@ -383,9 +383,9 @@ PersonView.prototype.renderAddEntry = function(prefill) {
         $(this).val("");
       }
     }
-    
-  });  
-  
+
+  });
+
   $("#btProoveNewAddress").click(function () {
     var obj=form_person.getAllValsAsObject(false);
     obj["func"]="createAddress";
@@ -396,26 +396,26 @@ PersonView.prototype.renderAddEntry = function(prefill) {
       $("#agreement").parents("div.control-group").addClass("error");
       return;
     }
-    
+
     $("#divnewentry select").each(function (i, s){
       obj[$(this).attr("id")]=$(this).val();
     });
-    
+
     if ($("#forceCreate").attr("checked")=="checked") {
       obj["force"]="checked";
     }
-    
-    churchInterface.jsendWrite(obj, function(ok, json) {        
+
+    churchInterface.jsendWrite(obj, function(ok, json) {
       if (json.result=="exist") {
-        $("#searchEntry").val(json.id).keyup();          
+        $("#searchEntry").val(json.id).keyup();
         alert("Mindestens eine Person mit dem Namen existiert schon!");
-      } 
+      }
       else if (json.result!="ok") {
         alert("Fehler aufgetreten: "+json.result);
       }
       else {
         $("select[id=createGroup]").each(function (i) {
-          if ($(this).val()>"") {    
+          if ($(this).val()>"") {
             t.addPersonGroupRelation(json.id, $(this).val());
           }
         });
@@ -427,10 +427,10 @@ PersonView.prototype.renderAddEntry = function(prefill) {
             t.renderListMenu();
           }
           else t.renderView();
-          
+
           //$("#searchEntry").val(json.id).keyup();
         },1,json.id);
-      }        
+      }
     });
   });
   $("#divnewentry").animate({ height: 'toggle'}, "medium");
@@ -449,7 +449,7 @@ PersonView.prototype.isPersonLeaderOfPerson = function (leader_id, p_id) {
       // exit
       return false;
     }
-  });  
+  });
   return res;
 };
 PersonView.prototype.isPersonSuperLeaderOfPerson = function (leader_id, p_id) {
@@ -461,7 +461,7 @@ PersonView.prototype.isPersonSuperLeaderOfPerson = function (leader_id, p_id) {
       // exit
       return false;
     }
-  });  
+  });
   return res;
 };
 
@@ -481,7 +481,7 @@ PersonView.prototype.isPersonLeaderOfOneGroupTypeOfPerson = function (leader_id,
 };
 
 /**
- * 
+ *
  * @param id
  * @param g_id
  * @return true if ok, false if error
@@ -490,31 +490,31 @@ PersonView.prototype.addPersonGroupRelation = function(id, g_id, memberstatus_no
   var d=new Date();
   var success=false;
   if (memberstatus_no==null) memberstatus_no=0;
-  
+
   var stats=groupView.getStatsOfGroup(g_id);
   if ((masterData.groups[g_id].max_teilnehmer!=null) && (masterData.groups[g_id].max_teilnehmer<=stats.count_all_member)) {
     if (allPersons[id]!=null)
       alert("Gruppe "+masterData.groups[g_id].bezeichnung+" hat schon die maximale Anzahl von "+masterData.groups[g_id].max_teilnehmer+" Teilnehmern erreicht. "
          +allPersons[id].vorname+" "+allPersons[id].name+" konnte nicht zugewiesen werden!");
-    else  
+    else
       alert("Gruppe "+masterData.groups[g_id].bezeichnung+" hat schon die maximale Anzahl von "+masterData.groups[g_id].max_teilnehmer+" Teilnehmern erreicht. "
           +"Die Gruppe konnte der Person nicht zugewiesen werden!");
     return false;
   }
-  
+
   if (masterData.groups[g_id].followup_typ_id>0) {
     alert('Followup "'+masterData.followupTypes[masterData.groups[g_id].followup_typ_id].bezeichnung+'" wurde gestartet!');
-    churchInterface.jsendWrite({func:"addPersonGroupRelation", id:id, g_id:g_id, 
+    churchInterface.jsendWrite({func:"addPersonGroupRelation", id:id, g_id:g_id,
            followup_count_no:1, followup_erfolglos_zurueck_gruppen_id:followup_erfolglos_zurueck_gruppen_id,
            leader:memberstatus_no, date:d.toStringEn()}, function(ok) {success=ok;}, false);
-  }  
-  else         
+  }
+  else
     churchInterface.jsendWrite({func:"addPersonGroupRelation", id:id, g_id:g_id, leader:memberstatus_no, date:d.toStringEn()}, function(ok) {success=ok;}, false);
-  
+
   if (!success) {
     return false;
   }
-  else {  
+  else {
     arr=new Object();
     arr.id=g_id;
     arr.leiter=memberstatus_no;
@@ -538,13 +538,13 @@ PersonView.prototype.addSecondMenu = function() {
   rows = new Array();
   // Gruppenfunktionen sind nur erlaubt, wenn ich Leiter der ausgew�hlten Gruppe bin, oder ich Schreibrechte habe
   rows.push("<p></p>");
-  if ((this.filter["filterMeine Gruppen"]>0) && 
-       ((groupView.isPersonLeaderOfGroup(masterData.user_pid,this.filter["filterMeine Gruppen"])) || (masterData.auth.write))) { 
+  if ((this.filter["filterMeine Gruppen"]>0) &&
+       ((groupView.isPersonLeaderOfGroup(masterData.user_pid,this.filter["filterMeine Gruppen"])) || (masterData.auth.write))) {
     rows.push("<p>Gruppenfunktionen:&nbsp;");
     rows.push("|&nbsp;<a id=\"addtogroup\" href=\"#\">Person zur Gruppe hinzuf&uuml;gen</a>&nbsp; | &nbsp;");
 //    if (masterData.auth.write)
       rows.push("<a id=\"delfromgroup\" href=\"#\">Markierte Person aus der Gruppe entfernen</a>&nbsp; | &nbsp;");
-  } 
+  }
   if ((masterData.auth.write) && (masterData.auth.editgroups)) {
     rows.push("<p>"+_("person.function")+": "+_("selected.persons")+" ... &nbsp;");
     rows.push('<select id="personFunction"><option value="-1">');
@@ -557,14 +557,14 @@ PersonView.prototype.addSecondMenu = function() {
       rows.push('<option value="addPersonAuth">... '+_("add.one.permission"));
     if ((masterData.auth["push/pull archive"]) && (t.name=="PersonView"))
       rows.push('<option value="archivePerson">... '+_("move.to.archive"));
-    
+
     if (churchInterface.isCurrentView("ArchiveView") && (masterData.auth.admin || masterData.auth.adminpersons))
-      rows.push('<option value="deletePerson">... '+_("delete.irrevocable"));    
-    
+      rows.push('<option value="deletePerson">... '+_("delete.irrevocable"));
+
     rows.push('</select>');
   }
-  
-  
+
+
   return rows.join("");
 };
 
@@ -577,33 +577,33 @@ function renderPersonTooltip(id) {
     if (a.geburtsdatum!=null && a.geburtsdatum.toDateEn().getAgeInYears().txt!=null) {
       var age=a.geburtsdatum.toDateEn().getAgeInYears().txt;
       if (age!=null) {
-        txt=txt+" ("+age+")";        
+        txt=txt+" ("+age+")";
       }
     }
     txt=txt+"</b><br/>";
-    
+
     if ((masterData.auth.viewaddress) || (masterData.auth.viewalldetails))
       txt=txt+a.strasse+"<br/>";
     txt=txt+a.plz+" "+a.ort;
     txt=txt+"<br/><br/>";
-    if (a.email!="") 
+    if (a.email!="")
       txt=txt+"E-Mail: "+a.email+"<br/>";
-    if (a.telefonhandy!="") 
+    if (a.telefonhandy!="")
     txt=txt+"Handy: "+a.telefonhandy+"<br/>";
-    if (a.telefonprivat!="") 
+    if (a.telefonprivat!="")
     txt=txt+"Telefon: "+a.telefonprivat+"<br/>";
-    if (a.telefongeschaeftlich!="") 
+    if (a.telefongeschaeftlich!="")
     txt=txt+"Telefon Arbeit: "+a.telefongeschaeftlich+"<br/>";
-    
+
     return txt;
   }
   var txt="";
   var id;
-  
+
   if (id>0) {
     txt=txt+personView.renderPersonImage(id);
     txt='<br/><div class="tooltip_gesamt" style="min-width:300px"><div class="tooltip_foto">'+txt+'</div><div id="cdb_tooltipdetail" class="tooltip_address">';
-    
+
     if (allPersons[id].details) {
       txt=txt+_renderTooltipDetails(id)+'</div><div style="clear:both"></div></div>';
     }
@@ -611,7 +611,7 @@ function renderPersonTooltip(id) {
       txt=txt+'Lade Daten..</div><div style="clear:both"></div></div>';
       churchInterface.jsendRead({func:"getPersonDetails", id:id}, function(ok, json) {
         if (json!="no access") {
-          allPersons[json.id]=cdb_mapJsonDetails(json, allPersons[json.id]);       
+          allPersons[json.id]=cdb_mapJsonDetails(json, allPersons[json.id]);
           if (currentTooltip!=null)
             currentTooltip.tooltips("refresh");
           txt=null;
@@ -665,12 +665,12 @@ PersonView.prototype.editMeetingProperties = function(g_id, treffen_id) {
   var t=this;
   var meeting=t.getMeetingFromMeetingList(g_id, treffen_id);
   if (meeting!=null) {
-    var form=new CC_Form(null);       
+    var form=new CC_Form(null);
     form.addInput({label:_("date"),cssid:"inputmeetingdate", value:meeting.datumvon.toDateEn(false).toStringDe(), datepicker:"dp_meetingdate"});
     form.addInput({label:_("time"),value:meeting.datumvon.toDateEn(true).toStringDeTime()});
     form.addInput({label:_("number.of.guests"), value:meeting.anzahl_gaeste, cssid:"anzahl_gaeste"});
     form.addTextarea({label:_("please.comment"), rows:4, data:meeting.kommentar, placeholder:_("comment"), cssid:"kommentar"});
-    
+
     var elem=form_showDialog("Gruppentreffen editieren", form.render(null, "horizontal"), 500, 400);
     elem.dialog("addsaveandcancelbutton", function() {
       var obj=form.getAllValsAsObject();
@@ -682,31 +682,31 @@ PersonView.prototype.editMeetingProperties = function(g_id, treffen_id) {
       obj.datumvon=obj.inputmeetingdate.toDateDe().toStringEn(false)+" "+obj.Uhrzeit;
       obj.datumbis=obj.datumvon;
       meeting.datumvon=obj.datumvon
-      meeting.datumbis=obj.datumvon;        
+      meeting.datumbis=obj.datumvon;
       meeting.kommentar=obj.kommentar;
       meeting.anzahl_gaeste=obj.anzahl_gaeste;
       if (meeting.anzahl_gaeste=="") meeting.anzahl_gaeste=0;
-      
+
       churchInterface.jsendWrite(obj, function(ok) {
         if (!ok) {
           alert("Es gab ein Fehler beim Speichern!");
           meeting=save;
           t.renderList();
         }
-      });        
+      });
       t.renderList();
       $(this).dialog("close");
     });
     $("#inputmeetingdate").click(function() {
-      form_implantDatePicker("dp_meetingdate", dt.toStringDe(), function(dateText) {    
+      form_implantDatePicker("dp_meetingdate", dt.toStringDe(), function(dateText) {
         $("#inputmeetingdate").val(dateText.toDateDe().toStringDe());
       });
     });
-    
-    
+
+
   }
-  else alert("Treffen nicht gefunden!?");  
-  
+  else alert("Treffen nicht gefunden!?");
+
 };
 
 
@@ -717,9 +717,9 @@ PersonView.prototype.addPersonsTooltip = function(element) {
       data:{id:$(this).attr("data-tooltip-id")},
       render:function(data) {
         return renderPersonTooltip(data.id);
-      }      
-    });    
-  });  
+      }
+    });
+  });
 };
 
 PersonView.prototype.addGroupMeetingDate = function() {
@@ -738,23 +738,23 @@ PersonView.prototype.addGroupMeetingDate = function() {
     obj.func="addEvent";
     churchInterface.jsendWrite(obj, function(ok, data) {
       elem.dialog("close");
-      t.loadGroupMeetingList(t.filter["filterMeine Gruppen"]);            
+      t.loadGroupMeetingList(t.filter["filterMeine Gruppen"]);
     });
-  }); 
+  });
   $("#inputmeetingdate").click(function() {
-    form_implantDatePicker("dp_meetingdate", dt.toStringDe(), function(dateText) {    
+    form_implantDatePicker("dp_meetingdate", dt.toStringDe(), function(dateText) {
       $("#inputmeetingdate").val(dateText.toDateDe().toStringDe());
     });
   });
-  
-  
+
+
 };
 
 PersonView.prototype.addFurtherListCallbacks = function(cssid) {
   var t=this;
-  
+
   t.addPersonsTooltip($("#cdb_content"));
-  
+
   $("#cdb_content span.tooltip-groupmeeting").each(function() {
     var tooltip=$(this);
     tooltip.tooltips({
@@ -765,7 +765,7 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
       render:function(data) {
         return t.renderGroupmeetingTooltip(data.group_id, data.groupmeeting_id, data.meetingdate);
       },
-      
+
       afterRender: function(element, data) {
         t.currentTooltip=$(tooltip);
         element.find("input.delete").click(function() {
@@ -778,19 +778,19 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
                 });
               }
             });
-            
+
           }
         });
         element.find("input.edit").click(function() {
           clearTooltip();
           t.editMeetingProperties(data.group_id, data.groupmeeting_id);
-        });        
+        });
       }
-    });    
+    });
   });
 
 
-  
+
   $("#cdb_content a").click(function (a) {
     clearTooltip();
     if ($(this).attr("id")==null)
@@ -800,7 +800,7 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
         delete t.filter["searchEntry"];
         t.addPersonGroupRelation(id, t.filter["filterMeine Gruppen"]);
 
-        t.renderList();                  
+        t.renderList();
       });
     }
     else if ($(this).attr("id").indexOf("contact")==0) {
@@ -814,31 +814,31 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
         if ((t.checkFilter(a)) && (a.checked)) {
           usernames=usernames+a.vorname+" "+a.name+", ";
           ids=ids+","+a.id;
-        }  
+        }
       });
       if (usernames=="")
         alert("Bitte entsprechenden Eintrag markieren");
-      else  
+      else
       if (confirm("Wirklich "+usernames+" aus '"+masterData.groups[t.filter["filterMeine Gruppen"]].bezeichnung+"' entfernen?")) {
         $.each(allPersons, function(k,a){
           if ((t.checkFilter(a)) && (a.checked)) {
             t.delPersonFromGroup(a.id, t.filter["filterMeine Gruppen"], true);
             a.checked=false;
-          }  
+          }
         });
-      } 
+      }
     }
     else if ($(this).attr("id")=="mailto") return true;
     else if ($(this).attr("id").indexOf("groupinfos")==0) {
       churchInterface.setCurrentView(groupView);
       groupView.clearFilter();
-      // Wenn er nicht alle sehen darf, dann hat er Meine Gruppen. 
+      // Wenn er nicht alle sehen darf, dann hat er Meine Gruppen.
       if (masterData.auth.viewalldata)
         groupView.setFilter("searchEntry",$(this).attr("href").substring(1,99));
       else
         groupView.setFilter("filterMeine Gruppen", $(this).attr("href").substring(1,99));
       groupView.renderView();
-    }   
+    }
     else if ($(this).attr("id").indexOf("search_tag")==0) {
       t.setFilter("searchEntry",'tag:"'+masterData.tags[$(this).attr("id").substring(10,99)].bezeichnung+'"');
       a.open=false;
@@ -847,7 +847,7 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
     }
     else if ($(this).attr("id")=="closeGruppenteilnahme") {
       masterData.settings.selectedGroupType=churchcore_getFirstElement(masterData.groupTypes).id;
-      churchInterface.jsendWrite({func:"saveSetting", sub:"selectedGroupType", val:masterData.settings.selectedGroupType});    
+      churchInterface.jsendWrite({func:"saveSetting", sub:"selectedGroupType", val:masterData.settings.selectedGroupType});
       r.renderView();
     }
     else if ($(this).attr("id")=="editGruppentreffenProperties") {
@@ -858,7 +858,7 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
       t.addGroupMeetingDate();
     }
   });
-  if (cssid=="#cdb_content") { 
+  if (cssid=="#cdb_content") {
     $("#cdb_content span.clickyesno").click(function() {
       var m=t.getMeetingFromMeetingList(t.filter["filterMeine Gruppen"], $(this).attr("data-gruppentreffen-id"));
       var p_id=$(this).attr("data-person-id");
@@ -870,32 +870,32 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
         }
       });
       var o=new Object();
-      if (entry==null) { 
-        m.entries.push({p_id:p_id, treffen_yn:1});        
+      if (entry==null) {
+        m.entries.push({p_id:p_id, treffen_yn:1});
         o.treffen_yn=1;
       }
       else {
         if (m.entries[entry].treffen_yn==1)
           m.entries[entry].treffen_yn=0;
-        else          
+        else
           m.entries[entry].treffen_yn=1;
-        o.treffen_yn=m.entries[entry].treffen_yn;      
+        o.treffen_yn=m.entries[entry].treffen_yn;
       }
       m.eintragerfolgt_yn=1;
       o.func="GroupMeeting";
       o.sub="editCheckin";
       o.gruppentreffen_id=$(this).attr("data-gruppentreffen-id");
       o.p_id=p_id;
-      churchInterface.jsendWrite(o); 
+      churchInterface.jsendWrite(o);
 
       t.getListHeader();
-      
+
       var pos=$(document).scrollTop();
       t.renderList();
       window.setTimeout(function() { $(document).scrollTop(pos);}, 10);
       return false;
     });
-  
+
     // Auswahl des Gruppentyps fuer die Spalte Gruppe
     $("#cdb_content select").change(function(c) {
       if (this.id=="filterGruppentyp") {
@@ -906,7 +906,7 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
           alert('Bitte erst eine Gruppe unter "Meine Filter" einstellen');
           masterData.settings.selectedGroupType=oldval;
         }
-        else 
+        else
           t.renderGroupEntry();
         t.renderList();
       }
@@ -928,48 +928,48 @@ PersonView.prototype.personFunction = function (value, param) {
   $.each(allPersons, function(k,a) {
     if (a.checked) ids.push(a.id);
   });
-  if (ids.length==0) 
+  if (ids.length==0)
     alert("Bitte Personen markieren um diese Funktion zu nutzen!");
   else {
     var form = new CC_Form();
     if (value=="addToGroup") {
       form.setLabel("Bitte Gruppe ausw&auml;hlen");
       form.addSelect({
-        freeoption:true, 
+        freeoption:true,
         label:f("gruppentyp_id"),
-        data:masterData.groupTypes, 
+        data:masterData.groupTypes,
         cssid:"inputGruppentyp",
         selected:param
       });
-      if (param>0) 
+      if (param>0)
         form.addSelect({
           label:"Gruppe",
-          data:masterData.groups, 
+          data:masterData.groups,
           cssid:"inputId",
           func: function(d) {
                   return d.gruppentyp_id==param;
-                } 
+                }
         });
     }
     else if (value=="f_bereich") {
       form.setLabel("Bitte Bereich ausw&auml;hlen");
       form.addSelect({
-        freeoption:false, 
+        freeoption:false,
         label:"Bereich",
-        data:masterData.dep, 
+        data:masterData.dep,
         cssid:"inputId"
       });
     }
     else if (value=="addPersonTag") {
       form.setLabel("Bitte Tag ausw&auml;hlen");
       form.addSelect({
-        freeoption:false, 
+        freeoption:false,
         label:"Tag",
-        data:masterData.tags, 
+        data:masterData.tags,
         cssid:"inputId"
       });
     }
-    else if (value=="addPersonAuth") {        
+    else if (value=="addPersonAuth") {
       form.setLabel("Bitte Zugriffsrecht ausw&auml;hlen");
       form.addSelect({
         label:"Zugriffsrecht",
@@ -977,7 +977,7 @@ PersonView.prototype.personFunction = function (value, param) {
         cssid:"inputId",
         sort:false,
         selected:t.filter["filterAuth"]
-      });      
+      });
     }
     else if (value=="deletePerson") {
       form.setLabel("Personen endg&uuml;ltig l&ouml;schen");
@@ -991,7 +991,7 @@ PersonView.prototype.personFunction = function (value, param) {
       form.addHidden({cssid:"inputId",value:"dummy"});
     }
     form.addCheckbox({cssid:"delChecked",label:'Markierung bei den '+ids.length+' Personen wieder entfernen?'});
-    
+
     var elem = t.showDialog("Batch-Anpassungen", form.render(), 500, 350);
     elem.dialog("addsaveandcancelbutton", function() {
        var id=$("#inputId").val();
@@ -1002,7 +1002,7 @@ PersonView.prototype.personFunction = function (value, param) {
          alert("Bitte Eintrag selektieren!");
          return false;
        }
-       elem.html('<legend>Fortschritt</legend><div class="progress progress-striped active"><div class="bar" style="width: 0%;"></div></div>');          
+       elem.html('<legend>Fortschritt</legend><div class="progress progress-striped active"><div class="bar" style="width: 0%;"></div></div>');
        function _progress(ids, current_id) {
          if (ids[current_id]!=null) {
            window.setTimeout(function() {
@@ -1023,14 +1023,14 @@ PersonView.prototype.personFunction = function (value, param) {
                  allPersons[ids[current_id]].auth=new Object();
                allPersons[ids[current_id]].auth[id]=id;
                obj.auth_id=id;
-               churchInterface.jsendWrite(obj, null, false);                 
+               churchInterface.jsendWrite(obj, null, false);
              }
              else if (value=="f_bereich") {
                obj.id=ids[current_id];
                if (allPersons[ids[current_id]].access[id]==null) {
                  allPersons[ids[current_id]].access[id]=id;
                  obj["bereich"+id]=1;
-                 churchInterface.jsendWrite(obj, null, false);                 
+                 churchInterface.jsendWrite(obj, null, false);
                }
              }
              else if (value=="archivePerson") {
@@ -1042,8 +1042,8 @@ PersonView.prototype.personFunction = function (value, param) {
              }
              else if (value=="deletePerson") {
                obj.id=ids[current_id];
-               allPersons[ids[current_id]]=null;                                 
-               churchInterface.jsendWrite(obj, null, false);                 
+               allPersons[ids[current_id]]=null;
+               churchInterface.jsendWrite(obj, null, false);
              }
              elem.find("div.bar").width((100*(current_id+1)/ids.length)+'%');
              _progress(ids, current_id+1);
@@ -1055,14 +1055,14 @@ PersonView.prototype.personFunction = function (value, param) {
            t.renderList();
          }
        }
-       _progress(ids, 0);                
+       _progress(ids, 0);
        if (delChecked) {
          $.each(allPersons, function(k,a) {allPersons[a.id].checked=null; });
        }
     });
     elem.find("#inputGruppentyp").change(function(c) {
       elem.dialog("close");
-      t.personFunction(value,$(this).val());      
+      t.personFunction(value,$(this).val());
     });
   }
 };
@@ -1071,13 +1071,13 @@ PersonView.prototype.personFunction = function (value, param) {
 PersonView.prototype.renderListEntry = function(a) {
   var t=this;
   rows=new Array();
-  
+
   var _class="tooltip-person status_";
   if (masterData.status[a.status_id]!=null) {
     _class=_class+masterData.status[a.status_id].kuerzel.toLowerCase();
     if (masterData.status[a.status_id].mitglied_yn==1) _class=_class+" member";
-  }  
-  
+  }
+
   rows.push("<td><a href=\"\" class=\""+_class+"\" data-tooltip-id=\""+a.id+"\" id=\"detail" + a.id + "\">" + a.vorname);
   if (a.spitzname!="") rows.push(" ("+a.spitzname+")");
   rows.push("</a><td><a href=\"\" class=\""+_class+"\" data-tooltip-id=\""+a.id+"\" id=\"detail" + a.id + "\">" + a.name+"</a>");
@@ -1085,23 +1085,23 @@ PersonView.prototype.renderListEntry = function(a) {
   // Nicht anzeigen bei Gruppenteilnahmenstatus
   if (masterData.settings.selectedGroupType!=-4) {
     if (t.showcontact=="email") {
-      if ((a.email != null) && (a.email != "")) 
+      if ((a.email != null) && (a.email != ""))
         rows[rows.length] = "<td class=\"hidden-phone\"><a id=\"mailto\" href=\"mailto:" + a.email + "\">" + a.email + "</a>";
-      else 
-        if ((a.tel != null) && (a.tel != "")) 
+      else
+        if ((a.tel != null) && (a.tel != ""))
           rows[rows.length] = '<td class=\"hidden-phone\"><a href="tel:'+a.tel+'">' + a.tel + '</a>';
-        else 
+        else
           rows[rows.length] = "<td class=\"hidden-phone\">-";
-    } 
+    }
     else {
-      if ((a.tel != null) && (a.tel != "")) 
+      if ((a.tel != null) && (a.tel != ""))
         rows[rows.length] = '<td class=\"hidden-phone\"><a href="tel:'+a.tel+'">' + a.tel + '</a>';
-      else 
+      else
         rows[rows.length] = "<td class=\"hidden-phone\">-";
     }
     rows[rows.length] = "<td class=\"hidden-phone\">";
   }
-  else if ((masterData.groups!=null) && (masterData.groups[t.filter["filterMeine Gruppen"]]!=null)) {  
+  else if ((masterData.groups!=null) && (masterData.groups[t.filter["filterMeine Gruppen"]]!=null)) {
     a.open=false;
     if ((masterData.groups[t.filter["filterMeine Gruppen"]].meetingList!=null)
          && (masterData.groups[t.filter["filterMeine Gruppen"]].meetingList!="get data")) {
@@ -1122,14 +1122,14 @@ PersonView.prototype.renderListEntry = function(a) {
     }
     rows.push("<td>");
   }
-  
-  
+
+
   if (masterData.settings.selectedGroupType==-2) {
     if (a.tags!=null) {
       rows.push(t.renderTags(a.tags, false));
     }
-  } 
-  else if (masterData.settings.selectedGroupType==-3) {      
+  }
+  else if (masterData.settings.selectedGroupType==-3) {
     if (a.auth!=null) {
       var arr=new Array();
       $.each(a.auth, function(k,b) {
@@ -1138,7 +1138,7 @@ PersonView.prototype.renderListEntry = function(a) {
       if (arr.length>0)
         rows.push('<b>Direkte Rechte: </b>'+arr.join(",")+'<br/>');
     }
-      
+
     if (a.gruppe!=null) {
       var arr=new Object();
       $.each(a.gruppe, function(k,b) {
@@ -1146,7 +1146,7 @@ PersonView.prototype.renderListEntry = function(a) {
           $.each(masterData.groups[b.id].auth, function(i,c) {
             arr[i]=i;
           });
-      });        
+      });
       if (churchcore_countObjectElements(arr)>0) {
         rows.push('<b>Rechte durch Gruppen: </b>');
         var arr2=new Array();
@@ -1164,17 +1164,17 @@ PersonView.prototype.renderListEntry = function(a) {
       if (arr.length>0)
         rows.push('<b>Rechte durch '+f("status_id")+': </b>'+arr.join(",")+'<br/>');
     }
-  } 
+  }
   // Show group membership
-  else { 
+  else {
     if (a.gruppe!=null) {
       var k=0;
       $.each(a.gruppe, function(j,b) {
-        if ((masterData.groups[b.id]!=null) && 
+        if ((masterData.groups[b.id]!=null) &&
                (groupView.isGroupOfGroupType(b.id, masterData.settings.selectedGroupType))
                && groupView.isAllowedToSeeName(b.id, a.id)) {
           if (k>0) rows[rows.length] = ", ";
-          var link=groupView.isAllowedToSeeDetails(b.id);          
+          var link=groupView.isAllowedToSeeDetails(b.id);
           var style="";
           //Leiter & Co-Leiter
           if ((b.leiter==1)||(b.leiter==2))
@@ -1188,31 +1188,31 @@ PersonView.prototype.renderListEntry = function(a) {
           // Aufnahem beantragt
           else if (b.leiter==-2)
             style="color:#3a87ad;";
-          
+
           if (link)
             rows[rows.length] = "<a href=\"#"+b.id+"\" id=\"groupinfos"+a.id+"\" style=\""+style+"\">";
-          
+
           rows[rows.length] = masterData.groups[b.id].bezeichnung.trim(25);
-          
+
           if (b.leiter==-2) rows.push("?");
-          
+
           if (masterData.groupMemberTypes[b.leiter].kuerzel!="")
             rows[rows.length] = " ("+masterData.groupMemberTypes[b.leiter].kuerzel+")";
-          
+
           if ((masterData.groups[b.id].followup_typ_id>0) && (b.followup_count_no!=null)) {
             var i=_getPersonGroupFollowupDiffDays(b);
             var color="";
             if (i<0) color="red";
-            else if (i<7) color="green";                    
+            else if (i<7) color="green";
             rows.push(' <small>(<i><font color="'+color+'">Step '+b.followup_count_no+", "+i+"T.</font></i>)</small>");
           }
-  
-          if ((groupMeetingStats!=null) && (groupMeetingStats[a.id]!=null) 
+
+          if ((groupMeetingStats!=null) && (groupMeetingStats[a.id]!=null)
                   && (groupMeetingStats[a.id][b.id]!=null)) {
             val=Math.round(groupMeetingStats[a.id][b.id].dabei/groupMeetingStats[a.id][b.id].stattgefunden*100);
-            if (val<50) 
+            if (val<50)
               valtxt="<font color=\"red\">"+val+"%</font>";
-            else 
+            else
               valtxt=val+"%";
             rows.push("&nbsp;<small>"+valtxt+" ");
             if (val>0) {
@@ -1220,11 +1220,11 @@ PersonView.prototype.renderListEntry = function(a) {
               now=new Date();
               if (now-date>30*1000*60*60*24)
                   rows.push("/ <font color=\"red\">"+date.toStringDe()+"</font>");
-            }  
+            }
             rows.push("</small>");
           }
           if (link)
-            rows[rows.length] ="</a>";              
+            rows[rows.length] ="</a>";
           k++;
         }
       });
@@ -1233,13 +1233,13 @@ PersonView.prototype.renderListEntry = function(a) {
   if (masterData.settings.selectedGroupType!=-4) {
     if (masterData.auth.viewalldetails) {
       rows[rows.length] = "<td class=\"hidden-phone\">";
-      if ((a.status_id!=null) && (masterData.status[a.status_id]!=null)) 
+      if ((a.status_id!=null) && (masterData.status[a.status_id]!=null))
         rows.push('<font title="'+masterData.status[a.status_id].bezeichnung+'">'+masterData.status[a.status_id].kuerzel+'</font>');
       else rows.push("Id:"+a.status_id+'?');
     }
     if (masterData.fields.f_category.fields.station_id!=null) {
       rows[rows.length] = "<td class=\"hidden-phone\">";
-      if ((a.status_id!=null) && (masterData.station[a.station_id]!=null)) 
+      if ((a.status_id!=null) && (masterData.station[a.station_id]!=null))
         rows.push('<font title="'+masterData.station[a.station_id].bezeichnung+'">'+masterData.station[a.station_id].kuerzel+'</font>');
     }
     var bereich="";
@@ -1265,7 +1265,7 @@ PersonView.prototype.makeMasterDataMultiselectFilter = function(name, start_stri
   var t=this;
   var filterName="filter"+name;
   if (data==null) data=masterData[name.toLowerCase()];
-  
+
   t.filter[filterName]=new CC_MultiSelect(data, function(id, selected) {
     masterData.settings[filterName]=this.getSelectedAsArrayString();
     churchInterface.jsendWrite({func:"saveSetting", sub:filterName, val:masterData.settings[filterName]});
@@ -1283,7 +1283,7 @@ PersonView.prototype.createMultiselect = function(name, bezeichnung, data, refre
   var t=this;
   var filterName="filter"+name;
   if (refresh==null) refresh=false;
-  
+
   if ((masterData.settings[filterName]=="") || (masterData.settings[filterName]==null))
     delete masterData.settings[filterName];
   if (t.filter[filterName]==null) {
@@ -1291,10 +1291,10 @@ PersonView.prototype.createMultiselect = function(name, bezeichnung, data, refre
     refresh=true;
   }
   if (refresh)
-    t.filter[filterName].render2Div(filterName, {label:bezeichnung});    
+    t.filter[filterName].render2Div(filterName, {label:bezeichnung});
 };
 
-PersonView.prototype.getListHeader = function() {  
+PersonView.prototype.getListHeader = function() {
   var t = this;
   t.currentTooltip=null;
   var g_id=t.filter["filterMeine Gruppen"];
@@ -1308,13 +1308,13 @@ PersonView.prototype.getListHeader = function() {
   t.createMultiselect("Status", f("status_id"), masterData.status);
   t.createMultiselect("Station", f("station_id"), masterData.station);
   t.createMultiselect("Bereich", f("bereich_id"), masterData.auth.dep);
-  
+
   tableHeader='<th><a href="#" id="sortid">Nr.</a><th><a href="#" id="sortvorname">'
        +masterData.fields.f_address.fields.vorname.text
        +'</a><th><a href="#" id="sortname">'
        +masterData.fields.f_address.fields.name.text
         +'</a>';
-    
+
   if (masterData.settings.selectedGroupType==null)
     masterData.settings.selectedGroupType=3;
 
@@ -1341,7 +1341,7 @@ PersonView.prototype.getListHeader = function() {
       c.bezeichnung="Zugriffsrechte";
       b[-3]=(_createEntry(-3, "Zugriffsrechte"));
     }
-    if ((masterData.auth.viewgroupstats) || 
+    if ((masterData.auth.viewgroupstats) ||
          (t.filter['filterMeine Gruppen']!=null && groupView.isPersonLeaderOfGroup(masterData.user_pid, t.filter['filterMeine Gruppen']))) {
       var c = new Object();
       c.id=-4;
@@ -1355,13 +1355,13 @@ PersonView.prototype.getListHeader = function() {
       }
     });
   }
-  
+
   // -4 = pflege
   if (masterData.settings.selectedGroupType==-4) {
     if ((masterData.groups!=null) && (masterData.groups[g_id]!=null) && (masterData.groups[g_id].meetingList!=null)
         && (masterData.groups[g_id].meetingList!="get data")) {
       $.each(masterData.groups[g_id].meetingList, function(k,m) {
-        if ((m.datumvon!=null) && 
+        if ((m.datumvon!=null) &&
             (m.datumvon.toDateEn(false).getFullYear()==t.gruppenteilnehmerdatum.getFullYear()) &&
              (m.datumvon.toDateEn(false).getMonth()==t.gruppenteilnehmerdatum.getMonth())) {
           var d=m.datumvon.toDateEn(true);
@@ -1369,9 +1369,9 @@ PersonView.prototype.getListHeader = function() {
           if (d.getHours()!=0)
             tableHeader=tableHeader+" <small>"+d.getHours()+":"+((d.getMinutes()+"").length==1?"0"+d.getMinutes():d.getMinutes())+"h</small><br>";
           tableHeader=tableHeader+form_renderImage(
-                {cssid:"editGruppentreffenProperties", 
-                  src:(m.kommentar==null?"comment_sw.png":(m.kommentar!=""?"comment.png":"check-64.png")), 
-                  width:16, 
+                {cssid:"editGruppentreffenProperties",
+                  src:(m.kommentar==null?"comment_sw.png":(m.kommentar!=""?"comment.png":"check-64.png")),
+                  width:16,
                   data:[{name:"gruppentreffen-id",value:m.id},
                         {name:"group-id",value:g_id}
             ]})+"&nbsp;";
@@ -1388,7 +1388,7 @@ PersonView.prototype.getListHeader = function() {
             tableHeader=tableHeader+' <small>'+m.anzahl_gaeste+' </small>'+form_renderImage({src:"person_sw.png", label:"Anzahl G&auml;ste", width:12});
           if (count_absent>0)
             tableHeader=tableHeader+' <small>'+count_absent+' </small>'+form_renderImage({src:"person_red.png", label:"Abwesend", width:12});
-          tableHeader=tableHeader+'</span>';          
+          tableHeader=tableHeader+'</span>';
         }
       });
     }
@@ -1396,26 +1396,26 @@ PersonView.prototype.getListHeader = function() {
       tableHeader=tableHeader+"<th>"+form_renderImage({src:"plus.png", width:16, title:"Weiteres Datum hinzuf&uuml;gen", cssid:"addGruppenteilnehmerdatum"});
     t.renderGroupEntry();
   }
-  if (masterData.settings.selectedGroupType!=-4) {    
+  if (masterData.settings.selectedGroupType!=-4) {
     if (masterData.auth.viewalldetails)
       tableHeader=tableHeader+'<th class="hidden-phone"><a href="#" id="sortstatus_id" title="'+f("status_id")+'">'+f("status_id").substr(0,1);
-    if (masterData.fields.f_category.fields.station_id!=null) 
+    if (masterData.fields.f_category.fields.station_id!=null)
       tableHeader=tableHeader+'<th class="hidden-phone"><a href="#" id="sortstation_id" title="'+f("station_id")+'">'+f("station_id").substr(0,1);
     tableHeader=tableHeader+'<th class="hidden-phone"><font title="'+f("bereich_id")+'">'+f("bereich_id").substr(0,1)+'</font>';
   }
-  
+
   return tableHeader;
 };
 
 PersonView.prototype.msg_allDataLoaded = function (refreshListNecessary) {
   var _overdue=0;
   $.each(allPersons, function(k,a) {
-    if (a.gruppe!=null) 
+    if (a.gruppe!=null)
       $.each(a.gruppe, function(i,b) {
         if ((_isFollowUpGroup(b)) && (groupView.isPersonLeaderOfGroup(masterData.user_pid, b.id))) {
           var _d = _getPersonGroupFollowupDiffDays(b);
           if (_d<0) _overdue++;
-        }  
+        }
       });
   });
   if (_overdue>0) {
@@ -1423,9 +1423,9 @@ PersonView.prototype.msg_allDataLoaded = function (refreshListNecessary) {
       this.filter["followupOverdue"]=true;
     refreshListNecessary=true;
   }
-  if ((this.filter['filterMeine Gruppen']>0) && (churchInterface.getCurrentView()==personView)) 
-    this.renderGroupEntry();  
-  
+  if ((this.filter['filterMeine Gruppen']>0) && (churchInterface.getCurrentView()==personView))
+    this.renderGroupEntry();
+
   if (churchInterface.getCurrentView()==personView) {
     if (refreshListNecessary) churchInterface.getCurrentView().renderList();
     churchInterface.getCurrentView().renderTodos();
@@ -1453,16 +1453,16 @@ PersonView.prototype.messageReceiver = function(message, args) {
                 +a.datum.toDateEn(true).getMinutes()+" - "
                 +a.userid+" hat "+allPersons[a.domain_id].vorname
                 +allPersons[a.domain_id].name+" editiert.</small>",true);
-            else 
+            else
               churchInterface.setStatus("<small>"+a.datum.toDateEn(true).getHours()+":"
                   +a.datum.toDateEn(true).getMinutes()+" - "
                   +a.userid+" hat eine neue Person angelegt.</small>",true);
-          
+
           if ((allPersons[a.domain_id]==null) || (allPersons[a.domain_id].details)) {
             churchInterface.jsendRead({func:"getPersonDetails", id:a.domain_id}, function(ok, json) {
-              allPersons[json.id]=cdb_mapJsonDetails(json, allPersons[json.id]); 
+              allPersons[json.id]=cdb_mapJsonDetails(json, allPersons[json.id]);
               refresh=true;
-            }, false);                    
+            }, false);
             if ((allPersons[a.domain_id]!=null) && (allPersons[a.domain_id].inEdit!=null)) {
               allPersons[a.domain_id].inEdit.empty().remove();
               allPersons[a.domain_id].inEdit=null;
@@ -1472,38 +1472,38 @@ PersonView.prototype.messageReceiver = function(message, args) {
         }
       });
       if (refresh)
-        t.renderList();        
+        t.renderList();
     }
     else
       alert("Message "+message+" unbekannt!");
-  }  
+  }
 };
 
 PersonView.prototype.renderTodos = function() {
   var t=this;
-  if (t.currentTodoTimer==null) 
-  
-  t.currentTodoTimer=window.setTimeout(function() {    
-  
+  if (t.currentTodoTimer==null)
+
+  t.currentTodoTimer=window.setTimeout(function() {
+
   // Render FollowUps in renderFilter
   var _today=0;
   var _overdue=0;
   var _gruppenantrag=0;
   var _gruppenloeschung=0;
   var rows = new Array();
-  
+
   $.each(allPersons, function(k,a) {
-    if ((a!=null) && (a.gruppe!=null)) 
+    if ((a!=null) && (a.gruppe!=null))
       $.each(a.gruppe, function(i,b) {
         if ((_isFollowUpGroup(b)) && (groupView.isPersonLeaderOfGroup(masterData.user_pid, b.id))) {
           var _d = _getPersonGroupFollowupDiffDays(b);
           if (_d<0) _overdue++;
           else if (_d<14) _today++;
-        }  
+        }
         if ((b.leiter==-2) && (groupView.isPersonLeaderOfGroup(masterData.user_pid, b.id))) {
           _gruppenantrag++;
         }
-        if ((b.leiter==-1) && 
+        if ((b.leiter==-1) &&
             ((groupView.isPersonSuperLeaderOfGroup(masterData.user_pid, b.id)))) {
           _gruppenloeschung++;
         }
@@ -1515,7 +1515,7 @@ PersonView.prototype.renderTodos = function() {
   if (_gruppenantrag==0) renderList=renderList||t.deleteFilter("groupSubscribe");
   if (_gruppenloeschung==0) renderList=renderList||t.deleteFilter("groupDelete");
   if (renderList) t.renderList();
-  
+
 
   if ((_today>0) || (_overdue>0) || (_gruppenantrag>0) || (_gruppenloeschung>0)) {
     var form = new CC_Form();
@@ -1531,15 +1531,15 @@ PersonView.prototype.renderTodos = function() {
       form.addCheckbox({controlgroup:false,controlgroup_class:"s", checked:t.getFilter("groupSubscribe"), cssid:"groupSubscribe", label:_("request.group.membership")+' &nbsp;<span class="pull-right badge badge-info">'+_gruppenantrag+'</span>'});
     if (_gruppenloeschung>0)
       form.addCheckbox({controlgroup:false,controlgroup_class:"s", checked:t.getFilter("groupDelete"), cssid:"groupDelete", label:_("request.group.deletion")+' &nbsp;<span class="pull-right badge badge-important">'+_gruppenloeschung+'</span>'});
-    
+
     rows.push(form.render());
-  } 
+  }
   else if ((t.filter["followupToday"]!=null) || (t.filter["followupOverdue"]!=null)) {
-    alert(_("thank.you")+" "+_("followup.completed.for.today"));    
+    alert(_("thank.you")+" "+_("followup.completed.for.today"));
     delete t.filter["followupToday"];
     delete t.filter["followupOverdue"];
   }
-  $("#cdb_todos").html(rows.join(""));  
+  $("#cdb_todos").html(rows.join(""));
   t.implantStandardFilterCallbacks(this, "cdb_todos");
   t.currentTodoTimer=null;
   },50);
@@ -1550,24 +1550,24 @@ PersonView.prototype.renderTodos = function() {
 PersonView.prototype.renderFilter = function() {
   var t = this;
   var rows = new Array();
-  
+
   var form = new CC_Form();
   form.setHelp("ChurchDB-Filter");
   //form.setLabel();
-  
+
   var ret=t.getMyGroupsSelector(true);
   var img="&nbsp; ";
   if (user_access("complex filter")) {
     img=img+form_renderImage({
       label: "Aktuelle Filter als intelligente Gruppe speichern",
-      cssid:"saveMyFilter", 
+      cssid:"saveMyFilter",
       src:'save.png',
       htmlclass: "small"
     });
     img=img+"&nbsp;"
   }
   if (groupView.isPersonLeaderOfGroup(masterData.user_pid, this.filter["filterMeine Gruppen"])) {
-    img=img+form_renderImage({label:"Gruppentreffen pflegen", cssid:"maintaingroupmeeting", src:"persons.png", width:20});  
+    img=img+form_renderImage({label:"Gruppentreffen pflegen", cssid:"maintaingroupmeeting", src:"persons.png", width:20});
     img=img+"&nbsp;"
   }
   if (user_access("complex filter")) {
@@ -1581,15 +1581,15 @@ PersonView.prototype.renderFilter = function() {
     }
   }
   form.addSelect({
-    data:ret, 
-    label:_("my.groups"), 
+    data:ret,
+    label:_("my.groups"),
     sort:false,
     cssid:"filterMeine Gruppen",
     selected: personView.filter['filterMeine Gruppen'],
     type:"medium",
     html:img
-  });  
-    
+  });
+
   if (masterData.auth.viewalldetails) {
     form.addHtml('<div id="filterStatus"></div>');
   }
@@ -1597,35 +1597,35 @@ PersonView.prototype.renderFilter = function() {
     form.addHtml('<div id="filterStation"></div>');
   }
   form.addHtml('<div id="filterBereich"></div>');
-  form.addCheckbox({cssid:"searchChecked",label:_("selected")});  
+  form.addCheckbox({cssid:"searchChecked",label:_("selected")});
   rows.push(form.render(true, "inline"));
-  
-  
+
+
   $("#cdb_filter").html(rows.join(""));
 
   t.createMultiselect("Status", f("status_id"), masterData.status, true);
   t.createMultiselect("Station", f("station_id"), masterData.station, true);
   t.createMultiselect("Bereich", f("bereich_id"), masterData.auth.dep, true);
-  
+
   // Setze die Werte auf die aktuellen Filter
   $.each(this.filter, function(k,a) {
     $("#"+k).val(a);
   });
 
-   
-  // Callbacks 
+
+  // Callbacks
   this.implantStandardFilterCallbacks(this, "cdb_filter");
 
   var t=this;
 
-  
-  
+
+
   $("#cdb_filter a").click(function(c) {
     if ($(this).attr("id")=="atoggleViews") {
       $("#cdb_search").toggle();
       t.renderFilter();
       return false;
-    }    
+    }
     else if ($(this).attr("id")=="delIntelligentGroup") {
       if (confirm("Wirklich die intelligente Gruppen "+t.filter["filterMeine Gruppen"].substr(6,99)+" entfernen?")) {
         churchInterface.deleteSetting("myFilter["+t.filter["filterMeine Gruppen"].substr(6,99)+"]");
@@ -1651,8 +1651,8 @@ PersonView.prototype.renderFilter = function() {
       rows.push('Bitte einen Namen f&uuml;r die intelligente Gruppe eingeben<br/>');
       rows.push("Name: <input type=\"text\" id=\"inputName\" class=\"cdb-textfield\"><br/><br/>");
       rows.push('<small><i>Die aktuelle Filtereinstellung kann als "intelligente Gruppe" abgespeichert werden. Diese Gruppe enth&auml;lt dann keine festen Verbindung zu Personen, sondern beim Aufruf werden alle Personen gefiltert, die zu dieser Gruppe passen. Der Aufruf ist dann &uuml;ber "Meine Gruppen" m&ouml;glich.</i></small><br/><br/>');
-      
-      
+
+
       var elem=t.showDialog("Filter speichern", rows.join(""), 400, 400);
       elem.dialog("addsaveandcancelbutton", function() {
           var name=$("#inputName").val();
@@ -1682,12 +1682,11 @@ PersonView.prototype.renderFilter = function() {
 
 function _checkGroupFilter(a, filter, z) {
   function _checkDate(z,k) {
-
     if ((filter["filterGruppeInAb "+z]!=null) && (k.d==null || k.d.toDateEn()<filter["filterGruppeInAb "+z].toDateDe()))
       return false;
     if ((filter["filterGruppeInSeit "+z]!=null) && (k.d==null || k.d.toDateEn()>filter["filterGruppeInSeit "+z].toDateDe()))
       return false;
-    
+
     return true;
   }
 
@@ -1700,7 +1699,7 @@ function _checkGroupFilter(a, filter, z) {
       dabei=false;
       $.each(a.gruppe, function (b,k) {
         if (filter["filterTyp "+z]==masterData.groups[k.id].gruppentyp_id)
-          dabei=_checkDate(z,k);              
+          dabei=_checkDate(z,k);
       });
       if (!dabei) return false;
     }
@@ -1710,7 +1709,7 @@ function _checkGroupFilter(a, filter, z) {
       $.each(a.gruppe, function (b,k) {
         if ((filter["filterGruppe "+z]!=null) && (filter["filterGruppe "+z]!="")) {
           if (k.id==filter["filterGruppe "+z]) dabei=_checkDate(z,k);
-        } 
+        }
       });
       if (!dabei) return false;
     }
@@ -1730,7 +1729,7 @@ function _checkGroupFilter(a, filter, z) {
       if (a.gruppe==null) return false;
       else {
         dabei=false;
-        // Hier ist kein Zusammenhang zwischen den anderen, d.h. hier mu� ich auch noch suchen, 
+        // Hier ist kein Zusammenhang zwischen den anderen, d.h. hier mu� ich auch noch suchen,
         // wer z.B. Leiter bei dem Distrikt ist
         $.each(a.gruppe, function (b,k) {
           if (filter["filterTyp "+z]=="" || filter["filterTyp "+z]==null || filter["filterTyp "+z]==masterData.groups[k.id].gruppentyp_id)
@@ -1755,20 +1754,20 @@ function _checkGroupFilter(a, filter, z) {
             // Wenn auch noch Leitertyp angegeben ist?
             if (filter["filterTeilnehmerstatus "+z]!=null) {
               if (filter["filterTeilnehmerstatus "+z]==k.leiter) dabei=true;
-            } 
+            }
             else dabei=true;
-          }  
+          }
         }
 
-        // Gruppen angegeben 
+        // Gruppen angegeben
         if ((filter["filterGruppe "+z]!=null) && (filter["filterGruppe "+z]!="")) {
           if (k.id==filter["filterGruppe "+z]) {
             // Wenn auch noch Leitertyp angegeben ist?
             if (filter["filterTeilnehmerstatus "+z]!=null) {
               if (filter["filterTeilnehmerstatus "+z]==k.leiter) dabei=true;
-            } 
+            }
             else dabei=true;
-          }  
+          }
         }
         // Distrikt angegeben?
         else if ((filter["filterDistrikt "+z]!=null) && (filter["filterDistrikt "+z]!="")) {
@@ -1776,21 +1775,20 @@ function _checkGroupFilter(a, filter, z) {
             // Wenn auch noch Leitertyp angegeben ist?
             if (filter["filterTeilnehmerstatus "+z]!=null) {
               if (filter["filterTeilnehmerstatus "+z]==k.leiter) dabei=true;
-            } 
+            }
             else dabei=true;
           }
         }
         // Nur Leitertyp angegeben?
         else if (filter["filterTeilnehmerstatus "+z]!=null) {
           if (filter["filterTeilnehmerstatus "+z]==k.leiter) dabei=true;
-        } 
-         
+        }
+
       });
       if (dabei) return false;
-    }  
+    }
   }
-  
-  
+
   // Filter "War in" 
   else if ((filter["filterFilter "+z]!=null) && (filter["filterFilter "+z]==2)) {
     var dabei=false;
@@ -1800,24 +1798,24 @@ function _checkGroupFilter(a, filter, z) {
       $.each(a.oldGroups, function(k,og) {
         if (og.id==a.id) {
           if (((filter["filterGruppe "+z]!=null) && (og.gp_id==filter["filterGruppe "+z]))
-              || ((filter["filterDistrikt "+z]!=null) && (filter["filterGruppe "+z]==null) 
-                   && (masterData.groups[og.gp_id]!=null) && (masterData.groups[og.gp_id].distrikt_id==filter["filterDistrikt "+z])) 
-              || ((filter["filterGruppe "+z]==null) && ((filter["filterDistrikt "+z])==null) 
+              || ((filter["filterDistrikt "+z]!=null) && (filter["filterGruppe "+z]==null)
+                   && (masterData.groups[og.gp_id]!=null) && (masterData.groups[og.gp_id].distrikt_id==filter["filterDistrikt "+z]))
+              || ((filter["filterGruppe "+z]==null) && ((filter["filterDistrikt "+z])==null)
                  && (masterData.groups[og.gp_id]!=null) && (masterData.groups[og.gp_id].gruppentyp_id==filter["filterTyp "+z]))) {
             if ((filter["filterGruppeWarInVon "+z]==null) && (filter["filterGruppeWarInBis "+z]==null)) {
               // Ohne Datum mu� ich nur schauen, dass es einen Status -99 gibt, also dass er raus ist.
-              // bzw. ob der Teilnehmerstatus erf�llt wurde, 
+              // bzw. ob der Teilnehmerstatus erf�llt wurde,
               if (((filter["filterTeilnehmerstatus "+z]==null) && (og.leiter==-99))
                 || (og.leiter==filter["filterTeilnehmerstatus "+z])) dabei=true;
-            } 
+            }
             else {
-              // Wenn es ein Datum gibt, dann speichere ich mir die Daten f�r jede Gruppen-ID in ein Array, s.u. 
+              // Wenn es ein Datum gibt, dann speichere ich mir die Daten f�r jede Gruppen-ID in ein Array, s.u.
               if (arr2[og.gp_id]==null) arr2[og.gp_id]=new Array();
-              arr2[og.gp_id].push(og);                
-            }              
+              arr2[og.gp_id].push(og);
+            }
           }
-          
-        }                            
+
+        }
       });
       // Wenn es Datumsfilterung gibt, dann m�ssen wir alle alten Eintr�ge sortieren und interpretieren
       if (filter["filterGruppeWarInBis "+z]!=null) {
@@ -1825,10 +1823,10 @@ function _checkGroupFilter(a, filter, z) {
           // Sortiere nach Datum
           var b=churchcore_sortData(og,"d");
           var startdatum="";
-          $.each(b, function(i,c) {            
+          $.each(b, function(i,c) {
             // Entweder wird nicht nach TNStatus gefiltert, dann ist >0 wichtig, oder es mu� eben vergleichen werden.
             if (((filter["filterTeilnehmerstatus "+z]==null) && (c.leiter>=0))
-                || (filter["filterTeilnehmerstatus "+z]==c.leiter)) 
+                || (filter["filterTeilnehmerstatus "+z]==c.leiter))
               startdatum=c.d;
             // Wenn auch ein -99 da ist bzw. der TN-Status sich ge�ndert hat, dann haben wir einen g�ltiges Bundle, also los!
             else if ((startdatum!="") && ((c.leiter==-99) || filter["filterTeilnehmerstatus "+z]!=null)) {
@@ -1836,9 +1834,9 @@ function _checkGroupFilter(a, filter, z) {
                  &&
                  ((filter["filterGruppeWarInVon "+z]==null) || (c.d.toDateEn()>=filter["filterGruppeWarInVon "+z].toDateDe())))
                 dabei=true;
-              startdatum=""; 
+              startdatum="";
             }
-            
+
           });
         });
       }
@@ -1847,20 +1845,20 @@ function _checkGroupFilter(a, filter, z) {
     if ((!dabei) && (filter["filterGruppeWarInBis "+z])) {
       if (a.gruppe!=null) {
         $.each(a.gruppe, function(b,k) {
-          // Gruppen angegeben 
+          // Gruppen angegeben
           if (filter["filterGruppe "+z]!=null) {
             if (k.id==filter["filterGruppe "+z]) {
               if ((k.d.toDateEn()<=filter["filterGruppeWarInBis "+z].toDateDe()))
                 if ((filter["filterTeilnehmerstatus "+z]==null) || (filter["filterTeilnehmerstatus "+z]==k.leiter))
                   dabei=true;
-            }  
+            }
           }
           if ((filter["filterDistrikt "+z]!=null) && (masterData.groups[k.id]!=null)) {
-            if (masterData.groups[k.id].distrikt_id==filter["filterDistrikt "+z]) 
+            if (masterData.groups[k.id].distrikt_id==filter["filterDistrikt "+z])
               if ((k.d.toDateEn()<=filter["filterGruppeWarInBis "+z].toDateDe()))
                 if ((filter["filterTeilnehmerstatus "+z]==null) || (filter["filterTeilnehmerstatus "+z]==k.leiter))
                 dabei=true;
-          }  
+          }
         });
       }
     }
@@ -1888,14 +1886,14 @@ PersonView.prototype.checkFilter = function(a) {
   if ((t.name=="ArchiveView") && (a.archiv_yn==0)) return false;
   // Es gibt noch keine Daten, soll er aber laden ueber Details
   if (a.name==null) return true;
-  
+
   if ((masterData.settings.hideStatus!=null) && (a.status_id!=null) && (a.status_id==masterData.settings.hideStatus))
     return false;
 
   // Suchfeld
   var searchEntry=this.getFilter("searchEntry").toUpperCase();
   if (searchEntry!="") {
-    
+
     // Split by " ", but not masked with a "
     searches=searchEntry.match(/(?:[^\s"]+|"[^"]*")+/g);
     var res=true;
@@ -1903,7 +1901,7 @@ PersonView.prototype.checkFilter = function(a) {
       search=search.replace(/"/g, "");
       if (search.indexOf("TAG:")==0) {
         if (!t.checkFilterTag(search, a.tags)) {
-          res=false;          
+          res=false;
           return false;
         }
       }
@@ -1912,19 +1910,19 @@ PersonView.prototype.checkFilter = function(a) {
           res=false;
           return false;
         }
-      }    
+      }
       else if (search.indexOf("GRUPPE:")==0) {
-        if (a.gruppe==null) {res=false; return false;}       
+        if (a.gruppe==null) {res=false; return false;}
         var dabei=false;
         $.each(a.gruppe, function (b,k) {
           // Nicht die anzeigen, wo ich SuperVisor bin!
           if (masterData.groups[k.id].bezeichnung.toUpperCase().indexOf(search.substr(7,99).toUpperCase())>=0) {
-            dabei=true; 
+            dabei=true;
             return false;
           }
         });
         if (!dabei) res=false;
-        return false;    
+        return false;
       }
       // Wenn kein Tag, dann nun andere M�glichkeiten testen
       else if ((a.name.toUpperCase().indexOf(search)<0) &&
@@ -1941,8 +1939,8 @@ PersonView.prototype.checkFilter = function(a) {
   }
 
   if ((filter["searchChecked"]!=null) && (a.checked!=true)) return false;
-  
-  
+
+
   // Meine Aufgaben (FollowUps)
   if ((this.getFilter("followupOverdue")!="") || (filter["followupToday"]!=null)) {
     if (a.gruppe==null) return false;
@@ -1959,49 +1957,49 @@ PersonView.prototype.checkFilter = function(a) {
           _res=true;
           return false;
         }
-      }  
-    });     
+      }
+    });
     if (!_res) return false;
   }
-  
+
   if ((filter["groupDelete"]!=null) || (filter["groupSubscribe"]!=null)) {
     if (a.gruppe==null) return false;
     var _res=false;
     $.each(a.gruppe, function(k,b) {
       if ((((b.leiter==-1) && (filter["groupDelete"]!=null))
          || ((b.leiter==-2) && (filter["groupSubscribe"]!=null)))
-          && (groupView.isPersonLeaderOfGroup(masterData.user_pid, b.id))) { 
+          && (groupView.isPersonLeaderOfGroup(masterData.user_pid, b.id))) {
         _res=true;
         return false;
       }
-    });     
+    });
     if (!_res) return false;
   }
- 
+
   // Filter der eigenen Gruppen, Bereiche, Status und Station
   if ((filter["filterMeine Gruppen"]>0) || (filter["filterMeine Gruppen"]<0)) {
-    if (a.gruppe==null) return false;       
+    if (a.gruppe==null) return false;
     dabei=false;
     $.each(a.gruppe, function (b,k) {
       // Nicht die anzeigen, wo ich SuperVisor bin!
       if ((k.id==filter["filterMeine Gruppen"]) && (k.leiter!=3)) {
-        dabei=true; 
+        dabei=true;
         return false;
       }
     });
-    if (!dabei) return false;     
+    if (!dabei) return false;
   }
 
   if (this.filter["isMember"]!=null) {
     if (masterData.status[a.status_id]!=null && (masterData.status[a.status_id].mitglied_yn==0))
-      return false;    
-  } 
-  
+      return false;
+  }
+
   if ((this.filter["filterStatus"]!=null) && (this.filter["filterStatus"].filter(a.status_id)))
     return false;
   if ((this.filter["filterStation"]!=null) && (this.filter["filterStation"].filter(a.station_id)))
     return false;
-  
+
   if ((filter["filterBereich"]!=null && filter["filterBereich"].isSomethingSelected())) {
     dabei=false;
     if (a.access!=null)
@@ -2010,15 +2008,15 @@ PersonView.prototype.checkFilter = function(a) {
     });
     if (!dabei) return false;
   }
-  
+
   if (filter["withoutPicture"]!=null) {
     if ((a.imageurl!=null) && (a.imageurl!="nobody.gif")) return false;
   }
-  
+
   if (filter["withoutEMail"]!=null) {
     if ((a.email!=null) && (a.email!="")) return false;
   }
-  
+
   // Filter der Gruppen, Hauskreis und Distrikte
   var z=1;
   var or=true;
@@ -2037,7 +2035,7 @@ PersonView.prototype.checkFilter = function(a) {
   }
   if (!or) return false;
 
-    
+
   // Searchables, also alle Infos, die Nachgeladen werden.
   if (a.searchable) {
     // Filter Zugriffsrechte
@@ -2047,7 +2045,7 @@ PersonView.prototype.checkFilter = function(a) {
       }
       else {
         if ((a.auth!=null) && (hasPersonAuth(a, filter["filterAuth"]))) return false;
-      }      
+      }
     }
     if ((filter["filterFamilienstatus"]!=null)
       && ((a.familienstand_no==null)||(a.familienstand_no!=filter["filterFamilienstatus"]))) return false;
@@ -2060,19 +2058,19 @@ PersonView.prototype.checkFilter = function(a) {
         && ((a.geburtsort==null)||(a.geburtsort.indexOf(filter["geburtsort"])==-1))) return false;
     if ((filter["filterNationalitaet"]!=null)
         && ((a.nationalitaet_id==null)||(a.nationalitaet_id!=filter["filterNationalitaet"]))) return false;
-      
+
     if ((filter["ageFrom"]!=null) || (filter["ageTo"]!=null)) {
-      if (a.geburtsdatum==null) 
+      if (a.geburtsdatum==null)
         return false;
       else {
-        geb=a.geburtsdatum.toDateEn();      
+        geb=a.geburtsdatum.toDateEn();
         if (geb.getAgeInYears().num==null) return false;
         if ((filter["ageFrom"]!=null) && (geb.getAgeInYears().num<filter["ageFrom"]))
           return false;
         if ((filter["ageTo"]!=null) && (geb.getAgeInYears().num>filter["ageTo"]))
           return false;
-      }   
-    }   
+      }
+    }
 
     if ((filter["filterDates"]!=null) && (filter["dateBefore"]!=null) && (filter["dateBefore"].toDateDe()!=null)) {
       // Enthaelt der Datensatz ueberhaupt ein Datum?
@@ -2082,9 +2080,9 @@ PersonView.prototype.checkFilter = function(a) {
         if (filter["dateIgnoreYear"]!=null) {
           flt.setFullYear(2000);
           src.setFullYear(2000);
-        }  
+        }
         if (flt>src) return false;
-      } 
+      }
       else return false;
     }
     if ((filter["filterDates"]!=null) && (filter["dateAfter"]!=null) && (filter["dateAfter"].toDateDe()!=null)) {
@@ -2095,16 +2093,16 @@ PersonView.prototype.checkFilter = function(a) {
         if (filter["dateIgnoreYear"]!=null) {
           flt.setFullYear(2000);
           src.setFullYear(2000);
-        }  
+        }
         if (flt<src) return false;
-      } 
+      }
       else return false;
-    }   
+    }
     if ((filter["filterDates"]!=null) && (filter["dateNotSet"]!=null)) {
-      if (a[filter["filterDates"]]!=null) 
+      if (a[filter["filterDates"]]!=null)
         return false;
     }
-    
+
     if (filter["filterRelations"]!=null) {
       // Wer hat die Beziehung?
       if (filter["filterRelationNegativ"]==null) {
@@ -2116,14 +2114,14 @@ PersonView.prototype.checkFilter = function(a) {
             if (masterData.relationType[bt_id].bez_vater==masterData.relationType[bt_id].bez_kind)
               dabei=true;
             else if (((filter["filterRelations"].substr(0,1)=="k") && (k.vater_id==a.id)) ||
-                ((filter["filterRelations"].substr(0,1)=="v") && (k.kind_id==a.id))) 
+                ((filter["filterRelations"].substr(0,1)=="v") && (k.kind_id==a.id)))
               dabei=true;
           }
         });
         if (!dabei) return false;
       }
       // Wer hat die Beziehung NICHT?
-      else {    
+      else {
         if (a.rels!=null) {
           var dabei=true;
           var bt_id=filter["filterRelations"].substr(2,99);
@@ -2132,15 +2130,15 @@ PersonView.prototype.checkFilter = function(a) {
               if (masterData.relationType[bt_id].bez_vater==masterData.relationType[bt_id].bez_kind)
                 dabei=false;
               else if (((filter["filterRelations"].substr(0,1)=="k") && (k.vater_id==a.id)) ||
-                  ((filter["filterRelations"].substr(0,1)=="v") && (k.kind_id==a.id))) 
+                  ((filter["filterRelations"].substr(0,1)=="v") && (k.kind_id==a.id)))
                 dabei=false;
             }
           });
           if (!dabei) return false;
         }
       }
-    }    
-    
+    }
+
     if ((filter["filterRelationExt"]!=null) && (filter["filterRelationExtGroupTyp"]!=null)) {
       var dabei=false;
       if (a.rels!=null) {
@@ -2161,21 +2159,21 @@ PersonView.prototype.checkFilter = function(a) {
                 if (filter["filterRelationExtGroup"]!=null) {
                   if (filter["filterRelationExtGroup"]==i.id) dabei=true;
                 }
-                else { 
-                  if (filter["filterRelationExtGroupTyp"]==masterData.groups[i.id].gruppentyp_id) 
+                else {
+                  if (filter["filterRelationExtGroupTyp"]==masterData.groups[i.id].gruppentyp_id)
                     dabei=true;
                 }
-                if (dabei) return false;                              
+                if (dabei) return false;
               });
             }
           }
-          if (dabei) return false;                                        
+          if (dabei) return false;
         });
       }
       return dabei;
     }
-    
-      
+
+
     if (filter["filterFollowUp"]!=null) {
       if ((a.gruppe==null) && (filter["filterFollowUp"]>0)) return false;
       else if (a.gruppe!=null) {
@@ -2187,15 +2185,15 @@ PersonView.prototype.checkFilter = function(a) {
               if ((filter["filterFollowUpStep"]==null) || (b.followup_count_no==filter["filterFollowUpStep"])) {
               if ((filter["filterFollowUp"]==1)) _res=true;
               else if ((filter["filterFollowUp"]==2) && (_d<0)) _res=true;
-            } 
-            } 
-            else _res=false; 
-          }  
-        });     
+            }
+            }
+            else _res=false;
+          }
+        });
         if (!_res) return false;
-      }  
-    }   
-    
+      }
+    }
+
     var z=0;
     var res=true;
     while ((filter["filterTags"+z]!=null) && (res)) {
@@ -2206,23 +2204,23 @@ PersonView.prototype.checkFilter = function(a) {
           res=true;
           return false;
         }
-      });  
+      });
       z=z+1;
     }
     if (!res) return false;
   }
-  return true;    
+  return true;
 };
 
 function hasPersonAuth(a, auth_id) {
-  if ((a.auth!=null) && (a.auth[auth_id]!=null)) return true; 
+  if ((a.auth!=null) && (a.auth[auth_id]!=null)) return true;
 
   var res=false;
   if (a.gruppe!=null) {
     $.each(a.gruppe, function(k,b) {
       if ((b.leiter>=0) && (!res) && (masterData.groups[b.id].auth!=null)) {
         $.each(masterData.groups[b.id].auth, function(i,c) {
-          if (c==auth_id) { 
+          if (c==auth_id) {
             res=true;
             return false;
           }
@@ -2236,14 +2234,14 @@ function hasPersonAuth(a, auth_id) {
       if (b==auth_id) res=true;
     });
     if (res) return true;
-  }  
+  }
   return false;
 }
 
 function _renderRelationList(id,del_link) {
   var _text="";
   if (del_link==null) del_link=false;
-  
+
   if (allPersons[id].rels!=null) {
     $.each(churchcore_sortMasterData(masterData.relationType), function(i,relType) {
       $.each(allPersons[id].rels, function (k,b) {
@@ -2253,23 +2251,23 @@ function _renderRelationList(id,del_link) {
             // Checken ob er �berhaupt die Person sehen darf, kann anderer Bereich sein.
             if (allPersons[b.vater_id]!=null) {
               _text=_text+': <a href="#" class="tooltip-person" id="person_'+b.vater_id+'" '+(masterData.auth.viewalldata?'data-tooltip-id="'+b.vater_id+'">':'>')+allPersons[b.vater_id].vorname+" "+allPersons[b.vater_id].name+"</a>";
-            } 
+            }
           }
-          else { 
+          else {
             _text=_text+masterData.relationType[b.beziehungstyp_id].bez_kind;
             // Checken ob er �berhaupt die Person sehen darf, kann anderer Bereich sein.
             if (allPersons[b.kind_id]!=null) {
               _text=_text+': <a href="#" class="tooltip-person" id="person_'+b.kind_id+'" '+(masterData.auth.viewalldata?'data-tooltip-id="'+b.kind_id+'">':'>')+allPersons[b.kind_id].vorname+" "+allPersons[b.kind_id].name+"</a>";
             }
           }
-          if ((masterData.auth.write) && (del_link)) 
+          if ((masterData.auth.write) && (del_link))
              _text=_text+'&nbsp;&nbsp;(<a href="#" id="del_rel_'+b.id+'">entfernen</a>)';
           _text=_text+"<br/>";
         }
       });
     });
   }
-  return _text;  
+  return _text;
 }
 
 function _renderOldGroupEntry(og) {
@@ -2281,17 +2279,17 @@ function _renderOldGroupEntry(og) {
   else if (og.leiter==3)
     _style="color:gray;";
   else if (og.leiter==-1)
-    _style="color:gray;text-decoration:line-through;";                     
+    _style="color:gray;text-decoration:line-through;";
   else if (og.leiter==-99)
-    _style="color:gray;text-decoration:line-through;";                     
-  
+    _style="color:gray;text-decoration:line-through;";
+
   _text=_text+'<i><small> > <a href="#" title="'+_title+'" style="'+_style+'" id="grp_'+og.gp_id+'">'+masterData.groups[og.gp_id].bezeichnung+"</a>";
   if (og.leiter>0)
     _text=_text+" ("+masterData.groupMemberTypes[og.leiter].bezeichnung+")";
   else if (og.leiter==-99)
     _text=_text+" <b>gel&ouml;scht</b>";
-          
-  _text=_text+"</small><i><td><i><small>"+og.d.toDateEn().toStringDe()+"</small></i><td><td>";          
+
+  _text=_text+"</small><i><td><i><small>"+og.d.toDateEn().toStringDe()+"</small></i><td><td>";
   return _text;
 }
 
@@ -2301,7 +2299,7 @@ function _getOldGroupEntries(p_id, gt_id, func) {
   $.each(allPersons[p_id].oldGroups, function(k,og) {
     if ((!og.used) && (masterData.groups[og.gp_id]!=null) && (masterData.groups[og.gp_id].gruppentyp_id==gt_id) && (func(og))) {
       _text=_text+_renderOldGroupEntry(og);
-    }   
+    }
   });
   return _text;
 }
@@ -2314,25 +2312,25 @@ PersonView.prototype.getGroupEntries = function (p_id, gt_id, func) {
   var len=0;
 
   // Alle korrekten reinholen
-  var res = new Array();  
+  var res = new Array();
   $.each(allPersons[p_id].gruppe, function(k,b) {
-    if ((masterData.groups[b.id]!=null) && (masterData.groups[b.id].gruppentyp_id==gt_id) 
+    if ((masterData.groups[b.id]!=null) && (masterData.groups[b.id].gruppentyp_id==gt_id)
         && (func(b)) && (groupView.isAllowedToSeeName(b.id, p_id)))
       {
       b.show=true;
       res.push(b);
     }
   });
-  
+
   // Sortiere nach Datum r�ckw�rts
   res.sort(function(a,b){if (a.d>b.d) return -1; else return 1;});
 
   // Nehem soviele heraus, bis 4 �brig bleiben
-  if (t.showGroupDetailsId!=gt_id) {    
+  if (t.showGroupDetailsId!=gt_id) {
     var count=res.length;
     var d=new Date(); d.addDays(-1*masterData.groupnotchoosable);
     var i=res.length;
-    
+
     // Erst die Filtern, bei denen die Gruppe ein Abschlu�datum hat
     while ((i>0) && (count>4)) {
       i=i-1;
@@ -2340,9 +2338,9 @@ PersonView.prototype.getGroupEntries = function (p_id, gt_id, func) {
         res[i].show=false;
         count=count-1;
         entries_hidden=true;
-      }  
+      }
     }
-    
+
     // Dann von hinten nach vorne filtern
     var i=res.length;
     while ((i>0) && (count>4)) {
@@ -2351,8 +2349,8 @@ PersonView.prototype.getGroupEntries = function (p_id, gt_id, func) {
       count=count-1;
       entries_hidden=true;
     }
-  }  
-  
+  }
+
   $.each(res, function(k,b) {
     if (b.show) {
       _text='<tr style="background:#F4F4F4;"><td><p>';
@@ -2367,54 +2365,54 @@ PersonView.prototype.getGroupEntries = function (p_id, gt_id, func) {
         else if (b.leiter==-2)
           _style="color:#3a87ad;";
         else if (b.leiter==-1)
-          _style="color:red;text-decoration:line-through;";                     
+          _style="color:red;text-decoration:line-through;";
 
       var grptxt=masterData.groups[b.id].bezeichnung;
       if (b.leiter==-2) grptxt=grptxt+"?";
-      
+
       if (groupView.isAllowedToSeeDetails(b.id))
         _text=_text+'<small><a href="#" title="'+_title+'" style="'+_style+'" id="grp_'+b.id+'">'+grptxt+"</a>";
-      else if (b.leiter==-1) 
+      else if (b.leiter==-1)
         _text=_text+'<small style="text-decoration:line-through;">'+grptxt;
       else
         _text=_text+'<small>'+grptxt;
-      
-      
+
+
       if ((b.comment!=null) && ((masterData.auth.editgroups) || (groupView.isPersonLeaderOfGroup(masterData.user_pid, b.id))))
         _text=_text+"&nbsp;"+t.renderImage("comment",16,"Kommentar: "+b.comment);
-      
-      if ((masterData.auth.adminpersons) && (masterData.groups[b.id].auth!=null)) 
+
+      if ((masterData.auth.adminpersons) && (masterData.groups[b.id].auth!=null))
         _text=_text+"&nbsp;"+t.renderImage("schluessel",16,_("permissions")+": "+t.getAuthAsArray(masterData.groups[b.id].auth).join(", "));
         if (b.leiter>0)
           _text=_text+" ("+masterData.groupMemberTypes[b.leiter].bezeichnung+")";
         else if (masterData.groups[b.id].followup_typ_id>0)
           _text=_text+' <i>(FollowUp: "'+masterData.followupTypes[masterData.groups[b.id].followup_typ_id].bezeichnung.trim(20)+')</i>';
-        
+
       _text=_text+"</small><td><p><small>"+(b.d!=null?b.d.toDateEn().toStringDe():"")+"</small>";
-      
-      
+
+
       if ((masterData.auth.editgroups) || (groupView.isPersonLeaderOfGroup(masterData.user_pid, b.id))) {
         _text=_text+'<td style="padding:0;width:16px;"><a href="#" id="editPersonGroupRelation'+b.id+'" grouptype="'+a.id+'">'+t.renderImage("options",16)+'</a>';
         _text=_text+'<td style="padding:0;width:16px;"><a href="#" id="delPersonGroupRelation'+b.id+'">'+t.renderImage("trashbox",16)+'</a>';
-      }  
-      
-      if ((t.showGroupDetailsId==gt_id) && (t.showGroupDetailsWithHistory) && (allPersons[p_id].oldGroups!=null)) { 
+      }
+
+      if ((t.showGroupDetailsId==gt_id) && (t.showGroupDetailsWithHistory) && (allPersons[p_id].oldGroups!=null)) {
         $.each(allPersons[p_id].oldGroups, function(i,c) {
           if (c.gp_id==b.id) {
             c.used=true;
             _text=_text+_renderOldGroupEntry(c);
-    }   
-  });
-  }
-      rows.push(_text);      
     }
   });
-  
-  if (entries_hidden)   
+  }
+      rows.push(_text);
+    }
+  });
+
+  if (entries_hidden)
     rows.push('<tr style="background:#F4F4F4;"><td><a href="#" id="f_gruppe_showmore_'+gt_id+'">...</a><td><td><td>');
 
   return rows.join("");
-  
+
 };
 
 /**
@@ -2425,7 +2423,7 @@ function _isFollowUpGroup(group) {
   if ((masterData.groups[group.id]!=null) && (masterData.groups[group.id].followup_typ_id>0) && (group.followup_count_no>0))
     return true;
   else
-    return false;  
+    return false;
 }
 
 
@@ -2449,7 +2447,7 @@ function _getNextFollowupCountNo(followup_typ_id, followup_count_no) {
 }
 
 /**
- * 
+ *
  * @param group - Ein Gruppeneintrag von allPerson.groups[]
  * @return null oder Anzahl Tage von heute bis zum FollowUp, negativ wenn schon �berf�llig
  */
@@ -2478,7 +2476,7 @@ PersonView.prototype.invitePerson = function(a) {
         t.renderDetails(a.id);
       }
       else alert("Fehler: "+res);
-    });      
+    });
   }
 };
 
@@ -2493,9 +2491,9 @@ PersonView.prototype.renderAuthDialog = function (id) {
     _text=_text+"<p>"+t.renderImage("trashbox")+"&nbsp;<a href=\"#\" title=\"Zugang sperren\" id=\"deactivatePerson\">Zugang sperren</a><small> - Berechtigungen entfernen und der Person den Zugang sperren.</small>";
     _text=_text+"<p>"+t.renderImage("attention")+"&nbsp;<a href=\"#\" title=\"Passwort zur&uuml;cksetzen\" id=\"setPassword\">Passwort zur&uuml;cksetzen</a><small> - Der Person ein Passwort setzen.</small>";
   }
-  else 
+  else
     _text=_text+"<p>"+t.renderImage("schluessel")+'&nbsp;<a href="" title="Zugang erlauben" id="activatePerson">Zugang erlauben</a><small> - Personen wieder den Zugang erlauben</small>';
-  
+
   _text=_text+"<br/><br/><p><i><b>Hinweis: </b>";
   if (a.active_yn==0)
     _text=_text+"<font color=red>Zugang f&uuml;r Person gesperrt!</font>";
@@ -2503,7 +2501,7 @@ PersonView.prototype.renderAuthDialog = function (id) {
     _text=_text+"Person war zuletzt online am "+a.lastlogin.toDateEn(true).toStringDe(true);
   else if (a.einladung==1)
     _text=_text+"Person ist bereits eingeladen";
-  else 
+  else
     _text=_text+"Person wurde noch nie eingeladen";
 
   var elem = t.showDialog("Anpassung der Berechtigungen", _text, 500, 380, {
@@ -2511,7 +2509,7 @@ PersonView.prototype.renderAuthDialog = function (id) {
         $(this).dialog("close");
       }
   });
-  
+
   elem.find("a").click(function() {
     if ($(this).attr("id")=="simulatePerson") {
       window.location.href="?q=simulate&id="+a.id+"&location=churchdb";
@@ -2527,7 +2525,7 @@ PersonView.prototype.renderAuthDialog = function (id) {
         t.renderList();
       });
       return false;
-    }         
+    }
     else if ($(this).attr("id")=="deactivatePerson") {
       if (confirm("Wirklich "+a.vorname+" "+a.name+" den Zugang sperren? Der Zugang ist erst wieder nach einer neuen Einladung aktiv.")) {
         churchInterface.jsendWrite({func:"deactivatePerson", id:a.id}, function(ok, status) {
@@ -2539,7 +2537,7 @@ PersonView.prototype.renderAuthDialog = function (id) {
             t.renderDetails(a.id);
           }
           else alert("Fehler: "+status);
-        });      
+        });
       }
       return false;
     }
@@ -2552,9 +2550,9 @@ PersonView.prototype.renderAuthDialog = function (id) {
           t.renderDetails(a.id);
         }
         else alert("Fehler: "+status);
-      });      
+      });
       return false;
-    }    
+    }
     else if ($(this).attr("id")=="setPassword") {
       var _text=form_renderInput({label:"Neues Passwort", type:"medium", password:true, cssid:"new_password"});
       var elem2 = t.showDialog("Neues Passwort setzen", _text, 250, 200);
@@ -2565,9 +2563,9 @@ PersonView.prototype.renderAuthDialog = function (id) {
             elem2.dialog("close");
           }
           else alert("Fehler: "+status);
-        });                
+        });
         $(this).dialog("close");
-      });      
+      });
       return false;
     }
   });
@@ -2577,17 +2575,17 @@ PersonView.prototype.renderAuthDialog = function (id) {
 PersonView.prototype.renderDetails = function (id) {
   var t=this;
   if ($("#detailTD"+id).length==0) return null;
-  
+
   $("#detailTD"+id).html("Rendern...");
   a=allPersons[id];
   a.open=true;
 
-  // Feststellen, ob aktueller User ein Leiter einer Gruppe ist, in der die Person ist. 
+  // Feststellen, ob aktueller User ein Leiter einer Gruppe ist, in der die Person ist.
   // => Dann hat der User Schreibrechte!
   personLeader=false;
   personSuperLeader=false;
   if ((allPersons[id].gruppe!=null) && (masterData.user_pid!=null) && (allPersons[masterData.user_pid].gruppe!=null)) {
-    $.each(allPersons[masterData.user_pid].gruppe, function (b,k) {    
+    $.each(allPersons[masterData.user_pid].gruppe, function (b,k) {
       if ((k.leiter>=1) && (k.leiter<=2)) {
         $.each(allPersons[id].gruppe, function(c,l) {
           if ((l.id==k.id) && (masterData.groups[k.id]!=null)) {
@@ -2603,25 +2601,25 @@ PersonView.prototype.renderDetails = function (id) {
   }
   // Check if I am SuperLeader (Distrikt- or Gruppentypleiter), for acting as a leader
   if (allPersons[id].gruppe!=null) {
-    $.each(allPersons[id].gruppe, function (b,k) {    
+    $.each(allPersons[id].gruppe, function (b,k) {
       if (groupView.isPersonSuperLeaderOfGroup(masterData.user_pid, k.id)) {
         personLeader=true;
-        personSuperLeader=true;        
+        personSuperLeader=true;
       }
-    });    
+    });
   }
-  
+
   var changeownaddress=false;
-  if (masterData.auth.changeownaddress && masterData.user_pid==id) 
+  if (masterData.auth.changeownaddress && masterData.user_pid==id)
     changeownaddress=true;
 
   var rows = new Array();
   rows.push('<div id="detail" class="detail-view detail-view-person">');
-    
-      // FollowUp in renderDetails  
+
+      // FollowUp in renderDetails
       var _text="";
-         
-      if ((masterData.auth.viewalldetails) || (personLeader)) {  
+
+      if ((masterData.auth.viewalldetails) || (personLeader)) {
         var _follow="";
         var _current=new Date();
         if (a.gruppe!=null) {
@@ -2631,7 +2629,7 @@ PersonView.prototype.renderDetails = function (id) {
               if (_diff_days!=null) {
                 var _info="";
                 var _color="";
-                if (_diff_days>0) { 
+                if (_diff_days>0) {
                   _color="background:lightgreen;border:solid 2px;border-color:white;";
                   _info="Ist f&auml;llig in "+_diff_days+" Tagen";
                 }
@@ -2643,9 +2641,9 @@ PersonView.prototype.renderDetails = function (id) {
                   _color="background:#FFAAAA;border:solid 2px;border-color:red;color:black;";
                   _info="<b>Ist f&auml;llig seit "+(-_diff_days)+" Tagen!</b>";
                 }
-                var _last_date=new Date(); 
+                var _last_date=new Date();
                 _last_date.addDays(_diff_days);
-                          
+
                 _text=_text+'<div style="'+_color+'padding:4px 8px 4px 8px">FollowUp <i>"'
                            +masterData.followupTypes[masterData.groups[b.id].followup_typ_id].bezeichnung
                            +' ('+b.followup_count_no+')"</i> von '+masterData.groups[b.id].bezeichnung+": "
@@ -2653,75 +2651,75 @@ PersonView.prototype.renderDetails = function (id) {
                 if ((b.followup_add_diff_days!=null) && (b.followup_add_diff_days!=0))
                   _text=_text+'&nbsp; <small><i>(inklusive '+b.followup_add_diff_days+' Tage Verschiebung)</i></small>';
                 if (groupView.isPersonLeaderOfGroup(masterData.user_pid, b.id)) {
-                  _text=_text+'<br/><div id="cdb_followup_'+b.id+'_'+id+'"><a href="#" id="f_followup_'+b.id+'"><b>jetzt durchf&uuml;hren</b></a></div>';          
+                  _text=_text+'<br/><div id="cdb_followup_'+b.id+'_'+id+'"><a href="#" id="f_followup_'+b.id+'"><b>jetzt durchf&uuml;hren</b></a></div>';
                 }
                 _text=_text+'</div>';
-              }        
+              }
             }
-          });      
+          });
         }
       }
       if (_text!="")
         rows.push('<div class="row-fluid"><div class="span12">'+_text+'</div></div>');
-        
+
     rows.push('<div class="row-fluid">');
       // Linke Spalte
       var _text ="<div class=\"left-column-person span4\">";
-      
+
       if ((masterData.auth.write) || (changeownaddress) || (personLeader))
         _text=_text+"<p><a id=\"f_image\" href=\"\">"+form_renderPersonImage(allPersons[a.id].imageurl)+"</a>";
       else
         _text=_text+"<p>"+form_renderPersonImage(allPersons[a.id].imageurl);
-      
+
       _text=_text+"<p style='line-height:100%;color:black'>";
       _text=_text+a.vorname+" "+a.name;
 
       if (a.geburtsdatum!=null && a.geburtsdatum.toDateEn().getAgeInYears().num!=null) {
         var age=a.geburtsdatum.toDateEn().getAgeInYears().txt;
         if (age!=null) {
-          _text=_text+" ("+age+")";        
+          _text=_text+" ("+age+")";
         }
       }
       _text=_text+" &nbsp; ";
-      
+
       if (a.email!="")
         _text=_text+"<a href=\"#\" title=\"E-Mail an Person schreiben\" id=\"mailPerson\">" +t.renderImage("email")+"</a>&nbsp;";
       if ((a.telefonhandy!="") && (masterData.auth.sendsms))
-        _text=_text+form_renderImage({src:"mobile.png", width:20, label:"SMS an Person schreiben", cssid:"smsPerson"})+"&nbsp;";        
-  
+        _text=_text+form_renderImage({src:"mobile.png", width:20, label:"SMS an Person schreiben", cssid:"smsPerson"})+"&nbsp;";
+
       if ((masterData.auth.adminpersons) && (a.active_yn==1))
         _text=_text+"<a href=\"#\" title=\"Person simulieren\" id=\"simulatePerson\">"+t.renderImage("person_simulate")+"</a>&nbsp;";
-  
+
       if ((masterData.auth.viewalldetails) || (personLeader)) {
         _text=_text+"<small style=\"color:grey;\"><br/>"+_renderRelationList(id)+"</small>";
-      }    
-      
-      _text=_text+"<br/>";    
+      }
+
+      _text=_text+"<br/>";
       if (document.all?document.body.clientWidth:window.innerWidth>800)
         _text=_text+'<div id="map_canvas'+id+'" class="map-canvas-person"></div>';
       else _text=_text+"<small><i>Zu wenig Platz f&uumlr die Karte, bitte Browserfenster vergr&ouml;ssern.</i></small>";
-    
-      _text=_text+"</div>";    
 
-    
-      
-      
+      _text=_text+"</div>";
+
+
+
+
       // Mittlere Spalte
       _text=_text+"<div id=\"detailAddress\" class=\"span4 middle-column-person\">";
-      
+
       var autharr=new Array();
-      if (masterData.auth.admin) 
+      if (masterData.auth.admin)
         autharr.push("admin");
-      if (masterData.auth.viewalldetails) 
+      if (masterData.auth.viewalldetails)
         autharr.push("viewalldetails");
       if (personLeader)
         autharr.push("leader");
       if (personSuperLeader)
         autharr.push("superleader");
-      
-      _text=_text + t.renderFields(masterData.fields.f_address, a, changeownaddress || masterData.auth.write || personLeader, autharr);      
+
+      _text=_text + t.renderFields(masterData.fields.f_address, a, changeownaddress || masterData.auth.write || personLeader, autharr);
       _text=_text + t.renderFields(masterData.fields.f_church, a, changeownaddress || masterData.auth.write || personLeader, autharr);
-      
+
       if (masterData.auth.viewalldetails)
         _text=_text + t.renderFields(masterData.fields.f_category, a, masterData.auth.write);
       // Die kein Recht auf alle Daten haben m�ssen auch nur wissen, ob Mitglied oder nicht. Nicht die einzelnen Statis.
@@ -2729,11 +2727,11 @@ PersonView.prototype.renderDetails = function (id) {
         _text=_text+"<p><b><i>Kategorie</i></b><br/><small>Mitglied: ";
         if (masterData.status[a.status_id].mitglied_yn==1)
           _text=_text + "ja";
-        else  
-          _text=_text + "nein";             
-        _text=_text + "</small>";       
+        else
+          _text=_text + "nein";
+        _text=_text + "</small>";
       }
-      
+
       if (masterData.auth.adminpersons) {
         _text=_text+"<legend>"+_("permissions")+"&nbsp;&nbsp;";
         _text=_text+'<a href="#" id="auth">'+t.renderImage("options")+'</a></legend>';
@@ -2741,13 +2739,13 @@ PersonView.prototype.renderDetails = function (id) {
       }
       else if (personSuperLeader) {
         _text=_text+"<br/><br/><legend>"+_("permissions")+"&nbsp;&nbsp;</legend>";
-        _text=_text+'<p style="line-height:100%;color:black"><small>';          
+        _text=_text+'<p style="line-height:100%;color:black"><small>';
       }
-      else { 
+      else {
         _text=_text+'<p><small>';
       }
-      
-      if (masterData.auth.adminpersons || personSuperLeader) {  
+
+      if (masterData.auth.adminpersons || personSuperLeader) {
         var txt="";
         if (a.active_yn==0)
           _text=_text+"<font color=red>Zugang f&uuml;r Person gesperrt!</font>";
@@ -2755,7 +2753,7 @@ PersonView.prototype.renderDetails = function (id) {
           txt="Zuletzt online am "+a.lastlogin.toDateEn(true).toStringDe(true);
         else if (a.einladung==1)
           txt=a.vorname+' ist bereits eingeladen. <a href="#" style="color:black" id="invitatePerson">Erneut einladen</a>';
-        else 
+        else
           txt='<a href="#" style="color:black" id="invitatePerson">'+form_renderImage({src:"person.png", width:18})+' Zu '+masterData.site_name+' einladen</a>';
         _text=_text+txt+"</small><br/>";
       }
@@ -2766,7 +2764,7 @@ PersonView.prototype.renderDetails = function (id) {
             _text=_text+"<br/>- "+churchcore_getCaption("districts", b.distrikt_id)+"";
           });
           _text=_text+"</small>";
-        }      
+        }
         if (a.gruppentypen!=null) {
           _text=_text+"<p><small><b>Zugeordnet in "+f("gruppentyp_id")+":</b>";
           $.each(a.gruppentypen, function(k,b) {
@@ -2782,21 +2780,21 @@ PersonView.prototype.renderDetails = function (id) {
       }
       _text=_text+"</small>";
       _text=_text+"</div>";
-      
-      
-      
-  
+
+
+
+
       // Rechte Spalte
       _text=_text+"<div class=\"right-column-person span4\">";
-      
+
       if (masterData.auth.viewtags || personLeader) {
         _text=_text + t.renderTags(a.tags, masterData.auth.write || personLeader, id);
       }
-  
+
       // Kommentare
       if (masterData.auth.comment_viewer!=null) {
         _text=_text+'<div class="detail-view-infobox"><table><tr><th>'+_("comments");
-    
+
         var _comments="";
         var _count=0;
         if (a.comments!=null) {
@@ -2806,18 +2804,18 @@ PersonView.prototype.renderDetails = function (id) {
               var _class=(b.relation_name=='person_followup'?'followup_comment':'');
               // Text als Links erkennen und ersetzen
               var _text=b.text.htmlize();
-              
+
               _comments=_comments+'<tr>'+'<td class="'+_class+'"><p><small>'+_text;
               _comments=_comments+"<br/><font color=\"grey\"><i>(";
               if (allPersons[b.person_id]!=null)
                 _comments=_comments+'<a href="#" id="person_'+b.person_id+'" class="tooltip-person" data-tooltip-id="'+b.person_id+'">'+allPersons[b.person_id].vorname+" "+allPersons[b.person_id].name+'</a>';
-              else   
+              else
                 _comments=_comments+"["+b.person_id+"]";
               _comments=_comments+"/"+masterData.comment_viewer[b.comment_viewer_id].bezeichnung+" "+b.datum.toDateEn().toStringDe()+")</i></font></small>";
               _comments=_comments+'<td style="padding:0;width:16px;" class="'+_class+'">';
             if (masterData.auth.write)
                 _comments=_comments+'<a href="#" id="del_note'+b.id+'"><img width=16px src="'+masterData.modulespath+'/images/trashbox.png"/></a>';
-            }  
+            }
           });
         }
         _text=_text+'<th style="width:32px;padding:0 4px 0 0;">';
@@ -2826,48 +2824,48 @@ PersonView.prototype.renderDetails = function (id) {
             _text=_text+"<i><a href=\"#\" id=\"f_comments_show\">"+'<img width="16px" src="'+masterData.modulespath+'/images/closed.png" align="absmiddle"/></a></i>';
           else {
             _text=_text+"<i><a href=\"#\" id=\"f_comments_show\">"+'<img width="16px" src="'+masterData.modulespath+'/images/opened.png" align="absmiddle"/></a></i>';
-            _comments=_comments+'<tr style="background:#F4F4F4;">'+'<td><a href="#" id="f_comments_show">...</a><td>';          
+            _comments=_comments+'<tr style="background:#F4F4F4;">'+'<td><a href="#" id="f_comments_show">...</a><td>';
           }
-        if ((masterData.auth.write) || ((personLeader) && (masterData.auth.comment_viewer!=null))) 
+        if ((masterData.auth.write) || ((personLeader) && (masterData.auth.comment_viewer!=null)))
           _text=_text+'<a href="" id="f_note"><img width=16px src="'+masterData.modulespath+'/images/plus.png" align="absmiddle"/></a>';
         _text=_text+_comments;
-    
+
         _text=_text+"</table></div><small><br/></small>";
       }
-      
+
       rows.push(_text);
-      
+
       // Gruppen
       if (allPersons[id]!=null) {
         $.each(churchcore_sortMasterData(masterData.groupTypes), function(k,a) {
-          
-          if ((masterData.auth.viewalldetails) 
+
+          if ((masterData.auth.viewalldetails)
                  || (a.anzeigen_in_meinegruppen_teilnehmer_yn==1)
                  || (masterData.auth.editgroups)
                  || (t.isPersonLeaderOfOneGroupTypeOfPerson(masterData.user_pid, a.id, id))) {
             _text="";
             _text=_text+'<div class="detail-view-infobox"><table><tbody style="border:none"><tr><th>'+a.bezeichnung;
             _text=_text+'<th class="datum"><th style="width:16px;padding:0">';
-            if ((t.showGroupDetailsId!=a.id)) 
+            if ((t.showGroupDetailsId!=a.id))
               _text=_text+'<a href="#" id="f_gruppe_show_'+a.id+'"><img width="16px" src="'+masterData.modulespath+'/images/opened.png" align="absmiddle"/></a>';
             else
               _text=_text+'<a href="#" id="f_gruppe_show_'+a.id+'"><img width="16px" src="'+masterData.modulespath+'/images/closed.png" align="absmiddle"/></a>';
-            
+
             _text=_text+'<th style="width:16px;padding:0 4px 0 0">';
             var _groups="";
             if ((masterData.auth.editgroups) || (t.getAvailableAddGroupsForGrouptype(a.id)!=null)) {
               _text=_text+'<a href="#" id="addPersonGroupRelation'+a.id+'"><img width=16px src="'+masterData.modulespath+'/images/plus.png" align="absmiddle"/></a>';
               _groups=" ";
             }
-  
-  
+
+
             // Erst mal alle auf Unused setzen, damit ich hinterher wei�, welche Archiv-Gruppe noch nicht gezeigt wurde
             if ((allPersons[id].oldGroups!=null) && (t.showGroupDetailsId==a.id) && (t.showGroupDetailsWithHistory)) {
               $.each(allPersons[id].oldGroups,function(y,d) {
                 d.used=false;
               });
-            }            
-            if (allPersons[id].gruppe!=null) {            
+            }
+            if (allPersons[id].gruppe!=null) {
               _groups=_groups+t.getGroupEntries(id, a.id, function(b) {return ((b.leiter>0));});
               _groups=_groups+t.getGroupEntries(id, a.id, function(b) {return ((b.leiter==0));});
               _groups=_groups+t.getGroupEntries(id, a.id, function(b) {return ((b.leiter<0));});
@@ -2877,34 +2875,34 @@ PersonView.prototype.renderDetails = function (id) {
             }
             // Nur anzeigen wenn es hier was zu zeigen gibt
             if (_groups!="") rows.push(_text+_groups+"</table></div>");
-          }  
-        });     
-  
+          }
+        });
+
       }
       rows.push("</div>");
-    
-    
+
+
     // Logs & Letzte Aenderung
-    _text="<div style=\"clear:both\">";   
+    _text="<div style=\"clear:both\">";
 
       _text=_text+"<div class=\"detail-footer\">";
       _text=_text+"<div class=\"bottom_links\" style=\"display:inline;\"> &nbsp; ";
-      
-      if (masterData.auth.viewhistory)        
-          _text=_text+"<a href=\"#\" id=\"logs\">"+_("history")+" >></a>&nbsp; &nbsp; ";
-      if (masterData.auth.editrelations) 
-        _text=_text+" <a href=\"#\" id=\"rels\">"+_("edit.relation")+" >></a>&nbsp; &nbsp;";              
 
-      _text=_text+"<a href=\"#\" id=\"vcard\">"+_("export.vcard")+" >></a></div><!--bottom_links-->";                
+      if (masterData.auth.viewhistory)
+          _text=_text+"<a href=\"#\" id=\"logs\">"+_("history")+" >></a>&nbsp; &nbsp; ";
+      if (masterData.auth.editrelations)
+        _text=_text+" <a href=\"#\" id=\"rels\">"+_("edit.relation")+" >></a>&nbsp; &nbsp;";
+
+      _text=_text+"<a href=\"#\" id=\"vcard\">"+_("export.vcard")+" >></a></div><!--bottom_links-->";
       _text=_text+"<div style=\"float:right\">";
-    
+
       _text=_text+"<small><i>"+f("bereich_id")+": </i>";
         $.each(masterData.auth.dep, function(k,a) {
           if ((allPersons[id].access!=null) && (allPersons[id].access[a.id]==a.id)) {
-            _text=_text+" "+a.bezeichnung+"&nbsp;";         
+            _text=_text+" "+a.bezeichnung+"&nbsp;";
           }
-        }); 
-      if (masterData.auth.write)        
+        });
+      if (masterData.auth.write)
         _text=_text+'<a href="#" id="f_bereich"><img width="16px" align="absmiddle" src="'+masterData.modulespath+'/images/options.png"/></a> &nbsp; &nbsp; &nbsp;';
       if ((masterData.auth.admin) || (masterData.auth.adminpersons) || (masterData.auth["push/pull archive"])) {
         _text=_text+"&nbsp;Admin-Funktion: ";
@@ -2918,18 +2916,18 @@ PersonView.prototype.renderDetails = function (id) {
       _text=_text+'&nbsp;<a href="#" id="person_'+a.id+'">#'+a.id+"</a></i></small>&nbsp;&nbsp;";
 
      _text=_text+"</div><!--float-right-->";
-     _text=_text+"</div><!--detail-footer-->"; 
-      
-      
-      _text=_text+"<div id=\"detail_logs"+id+"\" class=\"logs\"></div>";        
-      
-       // Beziehungen  
+     _text=_text+"</div><!--detail-footer-->";
+
+
+      _text=_text+"<div id=\"detail_logs"+id+"\" class=\"logs\"></div>";
+
+       // Beziehungen
         _text=_text+"<div id=\"detail_rels"+id+"\" class=\"relations\">";
-       
+
         _text=_text+"<p style='line-height:100%;' id=\"pRels\"><b><i>"+_("relations")+"</i></b>&nbsp;&nbsp;";
 
         _text=_text+"<p style='line-height:100%;color:black'><small>";
-        
+
         _text=_text+_renderRelationList(id,true);
 
         if (masterData.auth.editrelations) {
@@ -2940,26 +2938,26 @@ PersonView.prototype.renderDetails = function (id) {
               _text=_text+"<i><a href=\"#\" id=\"f_rels_v_"+b.id+"\">"+b.bez_vater+" hinzuf&uuml;gen</a></i> &nbsp; &nbsp;";
           });
         }
-    
+
         _text=_text+"<br/></small>";
       _text=_text+"</div>";
-          
-      
-      
+
+
+
     _text=_text+"</div>";
-    
+
   _text=_text+"</div>";
-  
+
   rows.push(_text);
-        
+
   $("#detailTD"+id).html(rows.join(""));
 
   if ((a.plz!='') || (a.ort!=''))
     cdb_showGeoPerson(a.strasse+", "+a.plz+" "+a.ort, id, !((personLeader) || (masterData.auth.viewalldata)));
-  
-  
+
+
   // Callbacks
-  
+
   t.addTagCallbacks(id, function(tag_id) {
     if (allPersons[id].tags==null)
       allPersons[id].tags= new Array();
@@ -2967,13 +2965,13 @@ PersonView.prototype.renderDetails = function (id) {
     churchInterface.jsendWrite({func:"addPersonTag", id:id, tag_id:tag_id});
     t.renderList(allPersons[id]);
   });
-  
+
   $("td[id=detailTD"+id+"] a").click(function() {
     // L�sche den Tooltip, falls es ihn gibt
     clearTooltip();
     if (($(this).parents("td").attr("id")!=null) && ($(this).parents("td").attr("id")!=""))
       var id=$(this).parents("td").attr("id").substring(8,100);
-    else 
+    else
       id=$(this).parents("td").parents("td").attr("id").substring(8,100);
     var fieldname=$(this).attr("id");
 
@@ -2983,8 +2981,8 @@ PersonView.prototype.renderDetails = function (id) {
         $("#detail_logs"+id).html(_("load.data"));
         $("#detail_logs"+id).animate({ height: 'toggle'}, "medium");
         churchInterface.jsendRead({ func: "getPersonDetailsLogs",id:id }, function(ok, json) {
-          _text="";        
-          _text=_text+"<small><table class=\"table\"><tr><td><i>"+_("date")+"</i><td><i>"+_("subject")+"</i><td><i>"+_("user")+"</i><td>";      
+          _text="";
+          _text=_text+"<small><table class=\"table\"><tr><td><i>"+_("date")+"</i><td><i>"+_("subject")+"</i><td><i>"+_("user")+"</i><td>";
           if (json!=null)
             $.each(json, function (k,b) {
               if ((b.level<3) || (masterData.auth.admin)) {
@@ -3002,33 +3000,33 @@ PersonView.prototype.renderDetails = function (id) {
           $("#detail_logs"+id).html(_text);
         });
       }
-      else 
+      else
         $("#detail_logs"+id).animate({ height: 'toggle'}, "fast");
     }
     // Es sollen Beziehungen eingeblendet werden.
-    else if (fieldname=="rels") 
-      $("#detail_rels"+id).animate({ height: 'toggle'}, "fast");  
+    else if (fieldname=="rels")
+      $("#detail_rels"+id).animate({ height: 'toggle'}, "fast");
     else if (fieldname=="vcard") {
       fenster = window.open("?q=churchdb/vcard&id="+id, "fenster1", "width=600,height=400,status=yes,scrollbars=yes,resizable=yes");
       fenster.focus();
-    }       
+    }
     else if ((fieldname=="extern") || (fieldname=="")) {
       return true;
-    }       
+    }
     else if (fieldname=="auth") {
       t.renderAuthDialog(id);
     }
     else if (fieldname=="simulatePerson") {
       if ((masterData.settings.hideSimulateQuestion=="1") || (confirm("Wirklich "+a.vorname+" "+a.name+" simulieren? Simulation kann durch das Benutzer-Menu beendet werden."))) {
-        if (masterData.settings.hideSimulateQuestion==null) 
+        if (masterData.settings.hideSimulateQuestion==null)
           churchInterface.jsendWrite({func:"saveSetting", sub:"hideSimulateQuestion", val:"1"}, null, false);
         window.location.href="?q=simulate&id="+allPersons[id].id+"&location=churchdb";
       }
     }
-    else if (fieldname.indexOf("grp_")==0) {          
+    else if (fieldname.indexOf("grp_")==0) {
       if ($("tr[id=groupinfos"+id+"]").text()!="") {
         $("tr[id=groupinfos"+id+"]").remove();
-      } 
+      }
       churchInterface.setCurrentView(groupView);
       groupView.clearFilter();
       groupView.setFilter("searchEntry",fieldname.substring(4,99));
@@ -3045,13 +3043,13 @@ PersonView.prototype.renderDetails = function (id) {
       if (confirm("Beziehung wirklich entfernen?")) {
         rel_id=$(this).attr("id").substr(8,99);
         churchInterface.jsendWrite({func:"del_rel", id:id, rel_id:rel_id}, function(ok) {
-          $("tr[id=detail"+id+"]").html("");   
+          $("tr[id=detail"+id+"]").html("");
           cdb_loadRelations(function () {
             t.renderEntryDetail(id);
           });
         });
       }
-    }  
+    }
     else if ($(this).attr("id").indexOf("detail_close")==0) {
       $("#detailTD"+id).remove();
       return false;
@@ -3062,26 +3060,26 @@ PersonView.prototype.renderDetails = function (id) {
         t.showGroupDetailsId=null;
         t.showGroupDetailsWithHistory=false;
       }
-      else { 
+      else {
         t.showGroupDetailsId=fieldname.substr(14,99);
         t.showGroupDetailsWithHistory=true;
       }
       t.renderDetails(id);
-    } 
+    }
     // Es sollen nun alle Gruppeninfos angezeigt werden
     else if (fieldname.indexOf("f_gruppe_showmore_")==0) {
       t.showGroupDetailsId=fieldname.substr(18,99);
       t.renderDetails(id);
-    } 
+    }
     else if (fieldname=="f_comments_show") {
-      t.showAllCommentDetails=!t.showAllCommentDetails; 
+      t.showAllCommentDetails=!t.showAllCommentDetails;
       t.renderDetails(id);
-    } 
+    }
     // Wenn Beziehungen gepflegt werden, gibt es die Standard PersonSelect-Seite
     else if (fieldname.indexOf("f_rels_")==0) {
       renderDivid=false;
       t.renderPersonSelect("Auswahl f&uuml;r: "+$(this).attr("text"), false, function (p_id) {
-        if (p_id!=null) {             
+        if (p_id!=null) {
           $("#cbn_editor").html("<p><br/><b>Daten werden gespeichert...</b><br/><br/>");
           obj=new Object();
           obj["func"]='add_rel';
@@ -3094,14 +3092,14 @@ PersonView.prototype.renderDetails = function (id) {
             obj["child_id"]=id;
           }
           obj["rel_id"]=fieldname.substr(9,99);
-          
-          churchInterface.jsendWrite(obj, function(ok) {  
-            $("tr[id=detail"+id+"]").html(""); 
+
+          churchInterface.jsendWrite(obj, function(ok) {
+            $("tr[id=detail"+id+"]").html("");
             cdb_loadRelations(function () {
               t.renderEntryDetail(id);
             });
           });
-        } 
+        }
       });
     }
     else if (fieldname.indexOf("f_followup_")==0) {
@@ -3113,28 +3111,28 @@ PersonView.prototype.renderDetails = function (id) {
 //      rows.push('<b>FollowUp durchf&uuml;hren:</b><br/><br/>');
       if (b.comment!=null)
         rows.push('<p>Gruppenkommentar: </i>'+b.comment+'</p>');
-      
+
       rows.push('<div class="row-fluid"><div class="span5">');
         rows.push(form_renderCheckbox({cssid:"followupOk_"+g_id+'_'+id, label:"FollowUp erfolgreich"}));
 //        rows.push('<input type="checkbox" id="followupOk_'+g_id+'_'+id+'"></input> FollowUp erfolgreich<br/>');
         rows.push('<textarea class="input-xlarge" rows="4" id="followupNote_'+g_id+'_'+id+'"/><br/>');
       rows.push('</div> <div class="span5 well">');
-      
+
       var _typIntervall = _getFollowupTypIntervall(masterData.groups[b.id].followup_typ_id, b.followup_count_no);
       rows.push('<i>'+masterData.followupTypes[masterData.groups[b.id].followup_typ_id].bezeichnung
-            +' Stufe '+b.followup_count_no+'</i><br/>'+_typIntervall.info+'<br/>');              
+            +' Stufe '+b.followup_count_no+'</i><br/>'+_typIntervall.info+'<br/>');
 
       rows.push('</div></div>');
-      
+
    //   if (_getPersonGroupFollowupDiffDays(b)*1<=0)
         rows.push('<div id="cdbfollowupDiff_'+g_id+'_'+id+'">Erinnern in <input type="text" class="input-mini" size="2" maxlength="2" id="followupDiff_'+g_id+'_'+id+'" value="2"></input> Tagen<br/></div>');
-        
+
       rows.push('<div id="cdbfollowupNachfolger_'+g_id+'_'+id+'" style="display:none">');
       if (_getFollowupTypIntervall(masterData.groups[b.id].followup_typ_id, b.followup_count_no*1+1)==null) {
         // Gibt es einen definierte Nachfolgergruppe?
         if (masterData.groups[b.id].fu_nachfolge_typ_id==0)
           rows.push("<p><small><i>Hinweis: Dieses FollowUp wird dann beendet.</i></small>");
-        else {          
+        else {
           rows.push("<p>Hinweis: Dieses FollowUp wird dann beendet ");
           if (masterData.groups[b.id].fu_nachfolge_gruppenteilnehmerstatus_id==null)
             masterData.groups[b.id].fu_nachfolge_gruppenteilnehmerstatus_id=0;
@@ -3151,11 +3149,11 @@ PersonView.prototype.renderDetails = function (id) {
             rows.push(' als <i>'+masterData.groupMemberTypes[masterData.groups[b.id].fu_nachfolge_gruppenteilnehmerstatus_id].bezeichnung+'</i>');
             rows.push(" &uuml;bernommen werden.<br/>Gruppe: ");
             rows.push('<select id="selectNachfolgegruppe_'+g_id+"_"+id+'"');
-            rows.push('<option value="-1">-</option>');                
+            rows.push('<option value="-1">-</option>');
             $.each(masterData.groups, function(i,c) {
               if (
                   (((masterData.groups[b.id].fu_nachfolge_typ_id==1) && (c.gruppentyp_id==masterData.groups[b.id].fu_nachfolge_objekt_id))
-                ||  ((masterData.groups[b.id].fu_nachfolge_typ_id==2) && (c.distrikt_id==masterData.groups[b.id].fu_nachfolge_objekt_id))) 
+                ||  ((masterData.groups[b.id].fu_nachfolge_typ_id==2) && (c.distrikt_id==masterData.groups[b.id].fu_nachfolge_objekt_id)))
                    && (c.valid_yn==1) && (c.versteckt_yn==0))
                 rows.push('<option value='+c.id+'>'+c.bezeichnung+'</option>');
             });
@@ -3163,17 +3161,17 @@ PersonView.prototype.renderDetails = function (id) {
           }
         }
       }
-      else 
+      else
         rows.push("<p><small><i>Hinweis: Das FollowUp geht dann in die Stufe "+(b.followup_count_no*1+1)+"</i></small>");
       rows.push("</div>");
-      
+
       rows[rows.length]='<p><input type="button" class="btn btn-royal" id="idFollowupSave_'+g_id+'_'+id+'" value="'+_("save")+'/>&nbsp;';
       rows[rows.length]='<input type="button" class="btn btn-alert" id="idFollowupAbort_'+g_id+'_'+id+'" value="FollowUp l&ouml;schen"/>&nbsp;&nbsp;';
       rows[rows.length]='<a href="#" id="idFollowupCancel_'+g_id+'_'+id+'">Sp&auml;ter durchf&uuml;hren</a>';
 
       rows.push('</div>');
       $("#cdb_followup_"+g_id+"_"+id).html(rows.join(""));
-      
+
       // Callback Followup
       $('#followupOk_'+g_id+'_'+id).change(function (a) {
         $('#cdbfollowupDiff_'+g_id+'_'+id).toggle(!$(this).attr("checked"));
@@ -3186,15 +3184,15 @@ PersonView.prototype.renderDetails = function (id) {
       $('#idFollowupAbort_'+g_id+'_'+id).click(function (g) {
         var txt="";
         var back_id=null;
-        if ((allPersons[id].gruppe[g_id].followup_erfolglos_zurueck_gruppen_id!=null) 
+        if ((allPersons[id].gruppe[g_id].followup_erfolglos_zurueck_gruppen_id!=null)
             && (masterData.groups[allPersons[id].gruppe[g_id].followup_erfolglos_zurueck_gruppen_id])) {
           back_id=allPersons[id].gruppe[g_id].followup_erfolglos_zurueck_gruppen_id;
           txt="Das FollowUp bei "+a.vorname+" "+a.name+" wirklich entfernen? Das FollowUp geht zurueck an Gruppe '"+
              masterData.groups[back_id].bezeichnung+"'!";
         }
         else
-          txt="Das FollowUp bei "+a.vorname+" "+a.name+" wirklich entfernen? Achtung, um das FollowUp wieder zu starten, muss die Person wieder der entsprechend Gruppen zugeordnet werden!";          
-          
+          txt="Das FollowUp bei "+a.vorname+" "+a.name+" wirklich entfernen? Achtung, um das FollowUp wieder zu starten, muss die Person wieder der entsprechend Gruppen zugeordnet werden!";
+
         if (confirm(txt)) {
           churchInterface.jsendWrite({func:"delPersonGroupRelation",id:id,g_id:g_id});
           delete allPersons[id].gruppe[g_id];
@@ -3214,7 +3212,7 @@ PersonView.prototype.renderDetails = function (id) {
           t.renderList();
           //t.renderDetails(id);
           t.renderTodos();
-          return false;                    
+          return false;
         }
       });
       $('#idFollowupSave_'+g_id+'_'+id).click(function (a) {
@@ -3244,7 +3242,7 @@ PersonView.prototype.renderDetails = function (id) {
             if ((_diff_days>0) || (b.followup_add_diff_days>0))
               obj["note"]=obj["note"]+" mit insg. "+b.followup_add_diff_days+" Tagen Differenz (+"+_diff_days+")";
           } else {
-            // Entferne Person aus der Gruppe 
+            // Entferne Person aus der Gruppe
             churchInterface.jsendWrite({func:"delPersonGroupRelation",id:id,g_id:g_id});
             delete allPersons[id].gruppe[g_id];
             obj["note"]=obj["note"]+" abgeschlossen mit "+b.followup_add_diff_days+" Tagen Differenz, Gruppe "+masterData.groups[g_id].bezeichnung+" wird entfernt.";
@@ -3255,26 +3253,26 @@ PersonView.prototype.renderDetails = function (id) {
               t.addPersonGroupRelation(id, _nachfolger, masterData.groups[g_id].fu_nachfolge_gruppenteilnehmerstatus_id, g_id);
             }
           }
-        } 
-        else {       
+        }
+        else {
           obj["note"]=obj["note"]+" erfolglos. ";
           if ($('#followupDiff_'+g_id+'_'+id).attr("value")!=null) {
             obj["followup_gid"]=g_id;
             b.followup_add_diff_days=b.followup_add_diff_days*1+$('#followupDiff_'+g_id+'_'+id).attr("value")*1;
-            obj["followup_add_diff_days"]=b.followup_add_diff_days;          
+            obj["followup_add_diff_days"]=b.followup_add_diff_days;
             obj["followup_count_no"]=b.followup_count_no;
             obj["note"]=obj["note"]+"Neuer Aufschub: "+$('#followupDiff_'+g_id+'_'+id).attr("value")+" Tage, insg.: "+b.followup_add_diff_days;
-          }  
+          }
         }
-        
+
         // Loesche Infos, damit er sich die neuen Kommentare zieht
         allPersons[id].details=null;
         obj["note"]=obj["note"]+"<br/>"+$('#followupNote_'+g_id+'_'+id).val();
         $("#cdb_followup_"+g_id+"_"+id).html(_("save")+"...");
         churchInterface.jsendWrite(obj, function(ok) {
-          t.renderView();  
+          t.renderView();
           t.renderTodos();
-        });        
+        });
       });
     }
     else if (fieldname.indexOf("delPersonGroupRelation")==0) {
@@ -3282,7 +3280,7 @@ PersonView.prototype.renderDetails = function (id) {
       t.delPersonFromGroup(id, g_id);
     }
     // Es geht nun in die Edit-Seite
-    else   
+    else
       t.renderEditEntry(id, fieldname);
     return false;
   });
@@ -3297,7 +3295,7 @@ function _getFollowupTypIntervall(followup_typ_id, followup_count_no) {
       res=c;
       // exit
       return false;
-    }                        
+    }
   });
   return res;
 }
@@ -3322,9 +3320,9 @@ PersonView.prototype.delPersonFromGroup = function (id, g_id, withoutConfirmatio
   var t=this;
   var a=allPersons[id];
   if (withoutConfirmation==null) withoutConfirmation=false;
-  
-  // Muss erst pruefen, ob es sich um einen Leiter handelt und ein Gruppentyp, wo ein Leiter bleiben muss. 
-  if ((masterData.groupTypes[masterData.groups[g_id].gruppentyp_id].muss_leiter_enthalten_yn==1) 
+
+  // Muss erst pruefen, ob es sich um einen Leiter handelt und ein Gruppentyp, wo ein Leiter bleiben muss.
+  if ((masterData.groupTypes[masterData.groups[g_id].gruppentyp_id].muss_leiter_enthalten_yn==1)
         && (allPersons[id].gruppe[g_id].leiter==1)) {
     var leiter_check=false;
     $.each(allPersons,function(k,p) {
@@ -3339,13 +3337,13 @@ PersonView.prototype.delPersonFromGroup = function (id, g_id, withoutConfirmatio
           "Gruppen von "+f("gruppentyp_id")+" "+masterData.groupTypes[masterData.groups[g_id].gruppentyp_id].bezeichnung+
           "' muessen mindestens einen Leiter haben.");
       return false;
-    } 
+    }
   }
   if ((masterData.auth.editgroups) || (groupView.isPersonSuperLeaderOfGroup(masterData.user_pid, g_id))) {
     if ((withoutConfirmation) || (confirm(a.vorname+" "+a.name+" wirklich aus der Gruppe herausnehmen?"))) {
       churchInterface.jsendWrite({func:"delPersonGroupRelation",id:id,g_id:g_id}, function() {
         $("tr[id=detail" + id + "]").remove();
-        delete a.gruppe[g_id]; 
+        delete a.gruppe[g_id];
         if (churchInterface.getCurrentView().name=="PersonView") {
           t.renderList(a);
           t.renderTodos();
@@ -3353,7 +3351,7 @@ PersonView.prototype.delPersonFromGroup = function (id, g_id, withoutConfirmatio
         else churchInterface.getCurrentView().renderList();
       });
     }
-  } 
+  }
   // Nicht erlaubt, d.h. es handelt sich um einen KG-Leiter, der nur auf "Zu L�schen" setzen darf
   else {
     var form = new CC_Form();
@@ -3369,8 +3367,8 @@ PersonView.prototype.delPersonFromGroup = function (id, g_id, withoutConfirmatio
         a.gruppe[g_id].leiter=-1;
         a.gruppe[g_id].comment=comment;
         t.renderList(a);
-      });                      
-      $(this).dialog("close");            
+      });
+      $(this).dialog("close");
     });
     elem.dialog("addcancelbutton");
   }
@@ -3380,7 +3378,7 @@ PersonView.prototype.renderEntryDetail = function (pos_id, data_id) {
   var t=this;
   if (data_id==null)
     data_id=pos_id;
-  
+
   // start function renderDetails()
   $("tr[id=detail" + pos_id + "]").remove();
   $("tr[id=" + pos_id + "]").after("<tr id=\"detail" + data_id + "\"><td colspan=\"10\" id=\"detailTD" + data_id + "\">Lade Daten..</td></tr>");
@@ -3392,13 +3390,13 @@ PersonView.prototype.renderEntryDetail = function (pos_id, data_id) {
         t.clearFilter();
         t.renderView();
         alert("Leider fehlt die Berechtigung, um die Detaildaten dieser Person zu sehen.");
-      } 
+      }
       else {
-        allPersons[json.id]=cdb_mapJsonDetails(json, allPersons[json.id]);       
+        allPersons[json.id]=cdb_mapJsonDetails(json, allPersons[json.id]);
         t.renderDetails(data_id);
-      }  
-    }); 
-    
+      }
+    });
+
   }
   else if (allPersons[data_id]!=null)
     t.renderDetails(data_id);
@@ -3407,28 +3405,28 @@ PersonView.prototype.renderEntryDetail = function (pos_id, data_id) {
 PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
   var t=this;
   var a=allPersons[id];
-  var rows = new Array();  
+  var rows = new Array();
   var renderViewNecessary=false;
   var width=550;
   var height=650;
   buttonText="Speichern";
-  // Alle bekannten Elemente als Input rendern      
+  // Alle bekannten Elemente als Input rendern
   if (masterData.fields[fieldname]!=null) {
-    
+
     var autharr=new Array();
-    if (masterData.auth.viewalldetails) 
+    if (masterData.auth.viewalldetails)
       autharr.push("viewalldetails");
     if (t.isPersonLeaderOfPerson(masterData.user_pid, id))
       autharr.push("leader");
     if (t.isPersonSuperLeaderOfPerson(masterData.user_pid, id))
       autharr.push("superleader");
-    
-    var fi=this.getStandardFieldsAsSelect(fieldname, a, autharr);   
+
+    var fi=this.getStandardFieldsAsSelect(fieldname, a, autharr);
     rows.push(fi);
-    
+
     height=fi.split("control-group").length*43+80;
-    if (height>650) height=650;    
-  }   
+    if (height>650) height=650;
+  }
   else if (fieldname=="f_note") {
     width=350; height=350;
     rows[rows.length]="<textarea cols=\"30\" rows=\"4\" id=\"InputNote\"/><br/><br/>";
@@ -3436,10 +3434,10 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
     rows[rows.length]="<select id=\"InputComment\">";
 
     $.each(masterData.auth.comment_viewer, function(k,a) {
-      rows[rows.length]="<option value=\""+a+"\" "+(a==0?"selected":"")+">"+masterData.comment_viewer[a].bezeichnung+"</option>";   
-    }); 
+      rows[rows.length]="<option value=\""+a+"\" "+(a==0?"selected":"")+">"+masterData.comment_viewer[a].bezeichnung+"</option>";
+    });
     rows[rows.length]="</select><br/>";
-  } 
+  }
   else if (fieldname.indexOf("addPersonGroupRelation")==0) {
     if (masterData.groups==null) {
       alert('Noch keine Gruppe vorhanden. Bitte erst eine Gruppe in der "Gruppenliste" anlegen!');
@@ -3449,15 +3447,15 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
       width=380; height=330;
       var gt_id=fieldname.substring(22,99);
       rows.push("<table><tr><td><b>"+masterData.groupTypes[gt_id].bezeichnung+"</b>&nbsp;<td>");
-      
+
       rows.push("<select id=\"InputGroupEntry\">");
       var diff_date=new Date();
       diff_date.addDays(-1*masterData.groupnotchoosable);
-    
+
       $.each(churchcore_sortData(masterData.groups, "bezeichnung"), function(k,a) {
         // Es sollen nur Gruppen ausw�hlbar sein, deren Abschlu�datum zu alt ist
-        if ((a.gruppentyp_id==gt_id) 
-            && (a.valid_yn==1) 
+        if ((a.gruppentyp_id==gt_id)
+            && (a.valid_yn==1)
             && ((a.abschlussdatum==null) || (a.abschlussdatum.toDateEn()>diff_date))) {
             // Wenn ich die Gruppe sehen darf, darf ich sie auch zuordnen. Und nat�rlich auf editgroups
             if ((groupView.isAllowedToSeeDetails(a.id)) || ((masterData.auth.editgroups) && (a.versteckt_yn==0)) ) {
@@ -3467,14 +3465,14 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
               $.each(allPersons[id].gruppe, function(i,b) {
                 if (a.id==i) dabei=true;
               });
-            }  
+            }
             if (!dabei) {
               rows.push('<option ');
               if (preselect==a.id) rows.push('selected ');
               rows.push('value="'+a.id+'">' + a.bezeichnung + "</option>");
             }
           }
-        }  
+        }
       });
       if (masterData.auth.admingroups) {
         rows.push('<option value="">--</option>');
@@ -3483,13 +3481,13 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
     }
     rows.push("</select>");
 
-    rows.push("<tr><td>Teilnehmerstatus<td>");    
+    rows.push("<tr><td>Teilnehmerstatus<td>");
     rows.push("<select id=\"InputGroupLeader\">");
     $.each(masterData.groupMemberTypes, function(k,a) {
       rows.push('<option value="'+k+'">' + a.bezeichnung + "</option>");
     });
     rows.push("</select>");
-    
+
     rows.push("<tr><td>Dabei seit<td>");
     var d= new Date();
     rows.push('<input type="text" id="InputDate" size="10" value="'+d.toStringDe()+'"/>');
@@ -3503,23 +3501,23 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
   }
   else if (fieldname.indexOf("editPersonGroupRelation")==0) {
     width=380; height=330;
-    var g_id=fieldname.substring(23,99);    
+    var g_id=fieldname.substring(23,99);
     var res=t.renderPersonGroupRelation(id, g_id);
     if (res==null) return false;
     rows.push(res);
     fieldname="editPersonGroupRelation";
   }
-  else if (fieldname=="f_bereich") {      
+  else if (fieldname=="f_bereich") {
     width=350; height=300;
     rows.push("<h3>Anpassung von "+f("bereich_id")+"</h3><p><small>Eine Person muss in mindestens einem zugeordnet sein</small>");
     $.each(masterData.auth.dep, function(k,a) {
       if (allPersons[id].access[a.id]==a.id) {
-        rows[rows.length]="<p><input type=\"checkbox\" id=\"InputBereich"+a.id+"\"/ checked=\"true\"/>"; 
+        rows[rows.length]="<p><input type=\"checkbox\" id=\"InputBereich"+a.id+"\"/ checked=\"true\"/>";
       }
-      else  
+      else
         rows[rows.length]="<p><input type=\"checkbox\" id=\"InputBereich"+a.id+"\"/>"; 
-      rows[rows.length]=" "+a.bezeichnung+"";
-    }); 
+      rows[rows.length]=' <label for="'+a.id+'">'+a.bezeichnung+'</label>';
+    });
   }
   else if (fieldname=="f_image") {
     width=300; height=300;
@@ -3532,7 +3530,7 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
     width=300; height=300;
     rows[rows.length]="Soll der Kommentar wirklich entfernt werden?";
     buttonText="Entfernen";
-  } 
+  }
   else if (fieldname.indexOf("deletePerson")==0) {
     width=300; height=300;
     rows[rows.length]="Soll die Person wirklich gel&ouml;scht werden? Achtung, dieses L&ouml;schen ist endg&uuml;ltig und entfernt auch alle Gruppenbeziehungen etc.!";
@@ -3551,10 +3549,10 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
     this.renderView();
     return false;
   }
-  else if (fieldname.indexOf("del_tag")==0) {    
+  else if (fieldname.indexOf("del_tag")==0) {
     allPersons[id].tags.splice($.inArray(fieldname.substring(7,99),allPersons[id].tags),1);
     churchInterface.jsendWrite({func:"delPersonTag", id:id, tag_id:fieldname.substring(7,99)}, null, false);
-    this.renderList();      
+    this.renderList();
     return false;
   }
   else if (fieldname.indexOf("add_tag")==0) {
@@ -3578,15 +3576,15 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
     alert("Sorry, "+fieldname+" ist noch nicht fertig.");
 
   rows[rows.length]='<input type="hidden" id="fields" value="'+fieldname+'"/><br/>';
-  
+
   var elem = this.showDialog(_("change.of.dataset"), rows.join(""), width, height);
   elem.dialog("addsaveandcancelbutton", function() {
     t._saveEditEntryData(id, fieldname, renderViewNecessary, $(this));
   });
   allPersons[id].inEdit=elem;
 
-  // Jetzt kommt noch das Bild-Hochladen, kann erst hier stattfinden, da es  
-  // auf den neuen Content referenziert.  
+  // Jetzt kommt noch das Bild-Hochladen, kann erst hier stattfinden, da es
+  // auf den neuen Content referenziert.
   if (fieldname=="f_image") {
     var uploader = new qq.FileUploader({
       element: document.getElementById('upload_button'),
@@ -3600,7 +3598,7 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
 //        $("#image_uploaded").html("<img src=\""+masterData.files_url+"/fotos/imageaddr"+id+".jpg?dummy="+Math.random()+"\"/>");
         $("#image_uploaded").html('<img src="'+masterData.files_url+"/fotos/"+res.filename+'"/><input type="hidden" id="uploadfilename" name="filename" value="'+res.filename+'"/>');
       }
-    });    
+    });
     $('#upload_button input').focus();
     $("#deleteimage").click(function() {
       if (confirm("Bild wirklich löschen?")) {
@@ -3610,15 +3608,15 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
 
         elem.dialog("close");
         return;
-      };  
+      };
     });
-  }  
-  
+  }
+
   $("#InputGroupEntry,#InputGroupLeader").change(function(k) {
     var g_id=$("#InputGroupEntry").val();
     if (isNumber(g_id)) {
       var stats=groupView.getStatsOfGroup(g_id);
-      if ((masterData.groups[g_id].max_teilnehmer!=null) && 
+      if ((masterData.groups[g_id].max_teilnehmer!=null) &&
             (masterData.groups[g_id].max_teilnehmer<=stats.count_all_member)) {
         if ($("#InputGroupLeader").val()==0) {
           alert("Gruppe "+masterData.groups[g_id].bezeichnung+" hat schon die maximale Anzahl von "+masterData.groups[g_id].max_teilnehmer+" Teilnehmern erreicht. Bitte andere Gruppe nehmen.");
@@ -3637,31 +3635,31 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
       elem2.dialog("addsaveandcancelbutton", function() {
         var obj=form.getAllValsAsObject();
         obj.func="createGroup";
-        churchInterface.jsendWrite(obj, function(ok, json) {        
+        churchInterface.jsendWrite(obj, function(ok, json) {
           if (json.result=="exist") {
             alert("Gruppe mit dem Namen existiert schon!");
           }
           else {
             cdb_loadMasterData(function() {
-              t.renderEditEntry(id, fieldname+gt_id, json.id);  
+              t.renderEditEntry(id, fieldname+gt_id, json.id);
             })
-          };            
-        });        
+          };
+        });
         t.renderList();
         $(this).dialog("close");
      });
      elem2.find("form").submit(function() {
        return false;
      })
-    }  
+    }
   });
 };
 
 PersonView.prototype.renderPersonGroupRelation = function(id, g_id) {
   var rows = new Array();
   var leiter_check=true;
-  // Muss erst pruefen, ob es sich um einen Leiter handelt und ein Gruppentyp, wo ein Leiter bleiben muss. 
-  if ((masterData.groupTypes[masterData.groups[g_id].gruppentyp_id].muss_leiter_enthalten_yn==1) 
+  // Muss erst pruefen, ob es sich um einen Leiter handelt und ein Gruppentyp, wo ein Leiter bleiben muss.
+  if ((masterData.groupTypes[masterData.groups[g_id].gruppentyp_id].muss_leiter_enthalten_yn==1)
         && (allPersons[id].gruppe[g_id].leiter==1)) {
     leiter_check=false;
     $.each(allPersons,function(k,a) {
@@ -3672,18 +3670,18 @@ PersonView.prototype.renderPersonGroupRelation = function(id, g_id) {
         });
     });
   }
-  
+
   rows.push("<table><tr><td><b>"+masterData.groupTypes[masterData.groups[g_id].gruppentyp_id].bezeichnung+"</b><td>");
   rows.push(masterData.groups[g_id].bezeichnung);
   rows.push('<input type="hidden" id="InputGroupEntry" value="'+g_id+'"/>');
   rows.push("<tr><td>Teilnehmerstatus &nbsp; <td>");
-  
+
   rows.push('<select id="InputGroupLeader" '+(!leiter_check?"disabled":"")+'>');
   $.each(masterData.groupMemberTypes, function(k,a) {
     rows.push("<option value=\""+k+"\""+ ((k==allPersons[id].gruppe[g_id].leiter)?"selected":"") + ">" + a.bezeichnung + "</option>");
   });
   rows.push("</select>");
-  
+
   rows.push("<tr><td>Dabei seit<td>");
   var d=allPersons[id].gruppe[g_id].d;
   if (d==null) d=(new Date()).toStringEn();
@@ -3703,24 +3701,24 @@ PersonView.prototype._saveEditEntryData = function (id, fieldname, renderViewNec
   var t=this;
   var orig_obj=$.extend({}, allPersons[id]);
   obj=t.getSaveObjectFromInputFields(id, fieldname, allPersons[id]);
-  
+
   // Wenn Adresse geaendert wurde, muessen dann neue Geo-Daten geholt werden.
   if (obj["func"]=='f_address')
     allPersons[id].geolat='';
 
-  // Sind es definierte Felder?          
+  // Sind es definierte Felder?
   if (masterData.fields[obj["func"]]!=null) {
-  } 
+  }
   else if (obj["func"]=='f_note') {
     obj["note"] = $("#InputNote").val();
     obj["comment_viewer"] = $("#InputComment").val();
     allPersons[id].details=null;
-  } 
+  }
   else if ((obj["func"]=='editPersonGroupRelation') || (obj["func"]=='addPersonGroupRelation')) {
     var arr = new Object();
     obj["date"]=$("#InputDate").val().toDateDe().toStringEn();
     obj["leader"]=$("#InputGroupLeader").val();
-    if ($("#InputComment").val()!="") { 
+    if ($("#InputComment").val()!="") {
       obj["comment"]=$("#InputComment").val();
       arr.comment=obj["comment"];
     }
@@ -3732,21 +3730,21 @@ PersonView.prototype._saveEditEntryData = function (id, fieldname, renderViewNec
       arr.followup_count_no=allPersons[id].gruppe[arr.id].followup_count_no;
       obj["followup_count_no"]= arr.followup_count_no;
       arr.followup_add_diff_days=allPersons[id].gruppe[arr.id].followup_add_diff_days;
-    }  
+    }
 
     // Abspeichern in der PersonenGruppe
-    if (allPersons[id].gruppe==null) allPersons[id].gruppe = new Object(); 
+    if (allPersons[id].gruppe==null) allPersons[id].gruppe = new Object();
     allPersons[id].gruppe[arr.id]=arr;
-    
+
     // Wenn Followup und es ein Teilnehmer ist
     if ((masterData.groups[obj["g_id"]].followup_typ_id>0) && (obj["leader"]==0)) {
       if (allPersons[id].gruppe[arr.id].followup_count_no==null) {
         alert('Followup "'+masterData.followupTypes[masterData.groups[obj["g_id"]].followup_typ_id].bezeichnung+'" wurde gestartet!');
         arr.followup_count_no=1;
         obj["followup_count_no"]=1;
-      }  
+      }
       renderViewNecessary=true;
-    }                
+    }
 
   }
   else if (obj["func"]=='f_bereich') {
@@ -3758,16 +3756,16 @@ PersonView.prototype._saveEditEntryData = function (id, fieldname, renderViewNec
           checked=1;
           oneSelected=true;
           newAccess[k]=k;
-        }  
+        }
         else checked=0;
         obj["bereich"+k]=checked;
-      });   
-    }); 
+      });
+    });
     if (!oneSelected) {
       alert("Die Person muss mindestens einem Bereich zugewiesen werden!");
       return false;
     } else {
-      allPersons[id].access=newAccess;            
+      allPersons[id].access=newAccess;
     }
   }
   else if (obj["func"]=='f_image') {
@@ -3775,10 +3773,10 @@ PersonView.prototype._saveEditEntryData = function (id, fieldname, renderViewNec
       alert("Bitte erst Datei hochladen!");
       return null;
     }
-    else {    
+    else {
       obj["id"]=id;
-      //obj["url"]="imageaddr"+id+".jpg";  
-      obj["url"]=$("#uploadfilename").val();  
+      //obj["url"]="imageaddr"+id+".jpg";
+      obj["url"]=$("#uploadfilename").val();
       allPersons[id].imageurl=obj["url"];
     }
   }
@@ -3799,7 +3797,7 @@ PersonView.prototype._saveEditEntryData = function (id, fieldname, renderViewNec
   }
 
   cover.html("Die Daten werden gespeichert...");
-  
+
   churchInterface.jsendWrite(obj, function(ok, data) {
       cover.dialog("close");
       cover.html("");
@@ -3810,8 +3808,8 @@ PersonView.prototype._saveEditEntryData = function (id, fieldname, renderViewNec
       if (obj["func"]=="deletePerson") {
         allPersons[id]=null;
         t.renderList();
-      } 
-      else if (renderViewNecessary) { 
+      }
+      else if (renderViewNecessary) {
         churchInterface.getCurrentView().renderView();
         churchInterface.getCurrentView().renderTodos();
       }
@@ -3820,7 +3818,7 @@ PersonView.prototype._saveEditEntryData = function (id, fieldname, renderViewNec
         t.renderTodos();
       }
   });
-};   
+};
 
 /**
  * Bereitet die Daten f�r ein renderSelect vor
@@ -3829,13 +3827,13 @@ PersonView.prototype._saveEditEntryData = function (id, fieldname, renderViewNec
 function getAuthAsDataArray(withDataAuth) {
   var data = new Array();
   if (withDataAuth==null) withDataAuth=true;
-  
+
   $.each(masterData.auth_table, function(k,a) {
     data.push(form_prepareDataEntry(-1,'== '+k+' =='));
     $.each(a, function(i,b) {
       if ((withDataAuth) || (b.datenfeld==null))
         data.push(form_prepareDataEntry(b.id,b.auth));
-    });        
+    });
   });
   return data;
 }
@@ -3844,11 +3842,11 @@ PersonView.prototype.msg_filterChanged = function (id, oldVal) {
   var t=this;
 
   // Wenn nicht "Meine Gruppen" ge�ndert wurden, ich aber Meine Gruppen ein intelligente Gruppe gefiltert habe
-  if ((id!="filterMeine Gruppen") && (this.filter["filterMeine Gruppen"]!=null) && 
+  if ((id!="filterMeine Gruppen") && (this.filter["filterMeine Gruppen"]!=null) &&
                  (this.filter["filterMeine Gruppen"].indexOf("filter")==0)) {
     delete this.filter["filterMeine Gruppen"];
     this.msg_filterChanged("filterMeine Gruppen",null);
-  } 
+  }
   // Wenn "Meine Gruppen" ge�ndert wurde
   else if (id=="filterMeine Gruppen") {
     $("#cdb_group").html("");
@@ -3875,19 +3873,19 @@ PersonView.prototype.msg_filterChanged = function (id, oldVal) {
     else if ((typeof oldVal=="string") && (oldVal.indexOf("filter")==0)) {
       t.filter=t.saveCurrentFilter;
       delete t.filter["filterMeine Gruppen"];
-      
+
       t.renderTodos();
       t.renderFurtherFilter();
       t.renderListMenu();
     }
     if ((t.filter['filterMeine Gruppen']>0)) {
-      if ((groupMeetingStats==null) || (groupMeetingStats[t.filter['filterMeine Gruppen']==null]))    
+      if ((groupMeetingStats==null) || (groupMeetingStats[t.filter['filterMeine Gruppen']==null]))
         cdb_loadGroupMeetingStats(t.filter, t.filter['filterMeine Gruppen']);
       if (churchInterface.getCurrentView()==personView)
         t.renderGroupEntry();
-    } 
+    }
     t.renderFilter();
-  }    
+  }
 };
 
 
@@ -3897,33 +3895,33 @@ PersonView.prototype.msg_filterChanged = function (id, oldVal) {
 
 PersonView.prototype.renderPersonFilter = function() {
   var t=this;
-  
+
   var rows = new Array();
-  
-  rows.push('<div style="float:right;margin-top:10px;margin-right:10px;"><a href="#" title="Filter zur&uuml;cksetzen" id="reset_personfilter"><img style="vertical-align:middle" width=20px src="'+masterData.modulespath+'/images/delete_2.png"/></a></div>'); 
+
+  rows.push('<div style="float:right;margin-top:10px;margin-right:10px;"><a href="#" title="Filter zur&uuml;cksetzen" id="reset_personfilter"><img style="vertical-align:middle" width=20px src="'+masterData.modulespath+'/images/delete_2.png"/></a></div>');
   rows.push('<div class="well"><table cellpadding=5px>');
-  
+
   rows.push("<tr><td>"+form_renderSelect({
     cssid:"filterFamilienstatus",
-    data:masterData.familyStatus, 
-    label:"Familenstatus", 
+    data:masterData.familyStatus,
+    label:"Familenstatus",
     selected: this.getFilter("filterFamilienstatus"),
     freeoption:true, type:"small"
   }));
   rows.push("<td>"+form_renderSelect({
     cssid:"filterGeschlecht",
-    data:masterData.sex, 
-    label:"Geschlecht", 
+    data:masterData.sex,
+    label:"Geschlecht",
     selected: this.getFilter("filterGeschlecht"),
     freeoption:true, type:"small"
   }));
-     
+
   rows.push("<td>"+form_renderInput({
     size:3,
     cssid:"ageFrom",
     label:"Alter von",
     placeholder:"von",
-    value:this.getFilter("ageFrom"),      
+    value:this.getFilter("ageFrom"),
     type:"xmini"
   }));
   rows.push("<td>"+form_renderInput({
@@ -3952,53 +3950,53 @@ PersonView.prototype.renderPersonFilter = function() {
   }));
   rows.push("<td>"+form_renderSelect({
     cssid:"filterNationalitaet",
-    data:masterData.nationalitaet, 
-    label:"Nationalit&auml;t", 
+    data:masterData.nationalitaet,
+    label:"Nationalit&auml;t",
     selected: this.getFilter("filterNationalitaet"),
     freeoption:true, type:"small"
   }));
-  
+
   var _member="";
   $.each(masterData.status, function(b,k) {
     if (k.mitglied_yn==1)
       _member=_member+k.kuerzel+",";
   });
-  
-  rows.push('<td width="190px">');    
+
+  rows.push('<td width="190px">');
   rows.push(form_renderCheckbox({
     cssid:"isMember",
     checked:this.filter["isMember"],
     controlgroup:false,
-    label:"Ist Mitglied"     
-  }));        
+    label:"Ist Mitglied"
+  }));
    rows.push(form_renderCheckbox({
     cssid:"withoutEMail",
     checked:this.filter["withoutEMail"],
     controlgroup:false,
-    label:"Kein E-Mail vorhanden"     
-  }));        
+    label:"Kein E-Mail vorhanden"
+  }));
    rows.push(form_renderCheckbox({
      cssid:"withoutPicture",
      checked:this.filter["withoutPicture"],
      controlgroup:false,
-     label:"Kein Bild vorhanden"     
-   }));        
-  
+     label:"Kein Bild vorhanden"
+   }));
+
  rows.push('</table><table cellpadding="5px" class=""><tr>');
   var data = new Array();
   $.each(masterData.fields.f_church.fields, function (b,k) {
-    if (k["type"]=="date") 
+    if (k["type"]=="date")
       data.push(form_prepareDataEntry(k["sql"], k["text"]));
   });
   rows.push("<td>"+form_renderSelect({
     cssid:"filterDates",
-    data:data, 
-    label:"Datumsfilter", 
+    data:data,
+    label:"Datumsfilter",
     selected: this.getFilter("filterDates"),
     freeoption:true, type:"medium", controlgroup:true
   }));
- 
-  
+
+
   rows.push("<td>"+form_renderInput({
     size:10,
     hint:"TT.MM.JJJJ oder z.Bsp. 1t, 1w oder 1m",
@@ -4006,7 +4004,7 @@ PersonView.prototype.renderPersonFilter = function() {
     label:"ab",
     placeholder:"ab",
     value:this.getFilter("dateAfter"),
-    type:"small", controlgroup:true      
+    type:"small", controlgroup:true
   }));
   rows.push("<td>"+form_renderInput({
     size:10,
@@ -4015,9 +4013,9 @@ PersonView.prototype.renderPersonFilter = function() {
     label:"bis",
     placeholder:"bis",
     value:this.getFilter("dateBefore"),
-    type:"small", controlgroup:true      
+    type:"small", controlgroup:true
   }));
-  
+
   rows.push('<td width="180px">'+form_renderCheckbox({
     cssid:"dateIgnoreYear",
     label:"Jahr ignorieren",
@@ -4040,8 +4038,8 @@ PersonView.prototype.renderPersonFilter = function() {
   data.push(form_prepareDataEntry(3,"nicht im FollowUp"));
   rows.push("<td>"+form_renderSelect({
     cssid:"filterFollowUp",
-    data:data, 
-    label:"Followup ", 
+    data:data,
+    label:"Followup ",
     selected: this.getFilter("filterFollowUp"),
     freeoption:true, type:"medium", controlgroup:true
   }));
@@ -4055,34 +4053,34 @@ PersonView.prototype.renderPersonFilter = function() {
     rows.push("<td>"+form_renderSelect({
       cssid:"filterFollowUpStep",
       label:"Step ",
-      data:data, 
+      data:data,
       selected: this.getFilter("filterFollowUpStep"),
       freeoption:true, type:"medium", controlgroup:true
     }));
   }
-  
+
   if (masterData.auth.viewtags) {
     var z=0;
     do {
       rows.push("<td>&nbsp;<td>"+form_renderSelect({
         cssid:"filterTags"+z,
-        data:masterData.tags, 
-        label:"Tag "+(z+1), 
+        data:masterData.tags,
+        label:"Tag "+(z+1),
         selected: t.getFilter("filterTags"+z),
         freeoption:true, type:"medium", controlgroup:true
       }));
       z=z+1;
     } while (t.filter["filterTags"+(z-1)]!=null);
   }
-  
-  
+
+
   if (masterData.auth.adminpersons) {
     rows.push("<td> &nbsp;  &nbsp;  ");
     rows.push("<td>"+form_renderSelect({
-      data:getAuthAsDataArray(true), 
+      data:getAuthAsDataArray(true),
       sort:false,
       label:"Zugriffsrechte",
-      cssid:"filterAuth", 
+      cssid:"filterAuth",
       freeoption:true, type:"medium",
       selected:this.filter["filterAuth"]
     }) );
@@ -4102,11 +4100,11 @@ PersonView.prototype.renderPersonFilter = function() {
 PersonView.prototype.renderGroupFilter = function() {
 
   var rows = new Array();
-  rows.push('<div style="float:right;margin-top:10px;margin-right:10px;"><a href="#" title="Filter zur&uuml;cksetzen" id="reset_groupfilter"><img style="vertical-align:middle" width=20px src="'+masterData.modulespath+'/images/delete_2.png"/></a></div>'); 
+  rows.push('<div style="float:right;margin-top:10px;margin-right:10px;"><a href="#" title="Filter zur&uuml;cksetzen" id="reset_groupfilter"><img style="vertical-align:middle" width=20px src="'+masterData.modulespath+'/images/delete_2.png"/></a></div>');
   rows.push('<div class="well"><table cellpadding="5px" class="">');
-  
-  if (this.filter["filterOn 1"]==null) this.filter["filterOn 1"]=true; 
-  
+
+  if (this.filter["filterOn 1"]==null) this.filter["filterOn 1"]=true;
+
   k=1;
   while (this.filter["filterOn "+k]!=null) {
     rows.push("<tr><td>");
@@ -4133,7 +4131,7 @@ PersonView.prototype.renderGroupFilter = function() {
       cssid:"filterGruppe "+k,
       controlgroup:true, freeoption:true, type:"medium",
       func:     function(a) {
-        return (((t.filter["filterTyp "+k]=="") || t.filter["filterTyp "+k]==null || (a.gruppentyp_id==t.filter["filterTyp "+k])) 
+        return (((t.filter["filterTyp "+k]=="") || t.filter["filterTyp "+k]==null || (a.gruppentyp_id==t.filter["filterTyp "+k]))
             && (groupView.isAllowedToSeeDetails(a.id))
             && (masterData.groups[a.id].valid_yn==1)
             && ((t.filter["filterDistrikt "+k]==null) || (t.filter["filterDistrikt "+k]=="") || (t.filter["filterDistrikt "+k]==a.distrikt_id) ));
@@ -4141,7 +4139,7 @@ PersonView.prototype.renderGroupFilter = function() {
     }));
 
     rows.push("<td>");
-    
+
     rows.push(form_renderSelect({
       data:masterData.districts,
       label:f("distrikt_id")+" "+k,
@@ -4149,7 +4147,7 @@ PersonView.prototype.renderGroupFilter = function() {
       cssid:"filterDistrikt "+k,
       controlgroup:true, freeoption:true, type:"medium"
     }));
-    
+
     rows.push("<td>");
 
     rows.push(form_renderSelect({
@@ -4161,18 +4159,18 @@ PersonView.prototype.renderGroupFilter = function() {
       func:function(a) {return a.gruppentyp_id==t.filter["Teilnehmerstatus "+k];}
     }));
     rows.push("<td>"+form_renderImage({src:"trashbox.png", cssid:"delete-groupfilter-"+k, width:24}));
-    
+
     rows.push("<tr><td>");
     if (k==1) {
       rows.push('<br/><p align="center"><input title="An=ODER oder Aus=UND-Verkn&uuml;pfung" type="checkbox" id="filterOr" '+(this.filter["filterOr"]!=null?"checked":"")+' > <small>ODER-Verkn&uuml;pfung</small> ');
     }
 
-    if ((this.filter["filterFilter "+k]==null) || (this.filter["filterFilter "+k]==0)) {            
+    if ((this.filter["filterFilter "+k]==null) || (this.filter["filterFilter "+k]==0)) {
       rows.push("<td colspan=5><font style=\"font-size:8pt;\">Neu in der Gruppe ");
       rows.push("ab: <input type=\"text\" class=\"input-small\" size=\"10\"  title=\"TT.MM.JJJJ oder z.Bsp. 1t, 1w oder 1m\"  id=\"filterGruppeInAb "+k+"\"/ value=\""+this.getFilter("filterGruppeInAb "+k)+"\">&nbsp;&nbsp; &nbsp;");
       rows.push("<font style=\"font-size:8pt;\">Ist in der Gruppe seit mindestens: <input type=\"text\" class=\"input-small\" size=\"10\"  title=\"TT.MM.JJJJ oder z.Bsp. 1t, 1w oder 1m\" id=\"filterGruppeInSeit "+k+"\"/ value=\""+this.getFilter("filterGruppeInSeit "+k)+"\">&nbsp;");
     }
-    else if (this.filter["filterFilter "+k]==2) {            
+    else if (this.filter["filterFilter "+k]==2) {
       rows.push("<td colspan=5><font style=\"font-size:8pt;\">War in der Gruppe ");
       rows.push("vom: <input type=\"text\" size=\"10\" class=\"input-small\"  title=\"TT.MM.JJJJ oder z.Bsp. 1t, 1w oder 1m\" id=\"filterGruppeWarInVon "+k+"\"/ value=\""+this.getFilter("filterGruppeWarInVon "+k)+"\">&nbsp;&nbsp;");
        rows.push("bis: <input type=\"text\" size=\"10\"  class=\"input-small\" title=\"TT.MM.JJJJ oder z.Bsp. 1t, 1w oder 1m\" id=\"filterGruppeWarInBis "+k+"\"/ value=\""+this.getFilter("filterGruppeWarInBis "+k)+"\">&nbsp;");
@@ -4180,7 +4178,7 @@ PersonView.prototype.renderGroupFilter = function() {
     k=k+1;
   }
   rows.push("<tr><td>"+form_renderImage({src:"plus.png", cssid:"add-groupfilter", width:24}));
-  rows.push("</table></div>");  
+  rows.push("</table></div>");
   $("#furtherFilterDetail").html(rows.join(""));
   $("#furtherFilterDetail a").click(function() {
     if ($(this).attr("id").indexOf("delete-groupfilter-")==0) {
@@ -4224,8 +4222,8 @@ PersonView.prototype.renderGroupFilter = function() {
 PersonView.prototype.renderRelationFilter = function() {
   var t=this;
   var rows = new Array();
-  
-  rows.push('<div style="float:right;margin-top:10px;margin-right:10px;"><a href="#" title="Filter zur&uuml;cksetzen" id="reset_relationfilter"><img style="vertical-align:middle" width=20px src="'+masterData.modulespath+'/images/delete_2.png"/></a></div>'); 
+
+  rows.push('<div style="float:right;margin-top:10px;margin-right:10px;"><a href="#" title="Filter zur&uuml;cksetzen" id="reset_relationfilter"><img style="vertical-align:middle" width=20px src="'+masterData.modulespath+'/images/delete_2.png"/></a></div>');
   rows.push('<div class="well"><table cellpadding="5px"><tr>');
 
 
@@ -4234,12 +4232,12 @@ PersonView.prototype.renderRelationFilter = function() {
     data.push(form_prepareDataEntry("k_"+b.id, b.bez_kind));
     if (b.bez_kind!=b.bez_vater) {
       data.push(form_prepareDataEntry("v_"+b.id, b.bez_vater));
-    }  
+    }
   });
   rows.push("<td>"+form_renderSelect({
     cssid:"filterRelations",
-    data:data, 
-    label:"Wer hat ein", 
+    data:data,
+    label:"Wer hat ein",
     selected: this.getFilter("filterRelations"),
     freeoption:true, type:"medium", controlgroup:true
   }));
@@ -4251,11 +4249,11 @@ PersonView.prototype.renderRelationFilter = function() {
 
   rows.push("<tr>");
 
-  
+
   rows.push("<td>"+form_renderSelect({
     cssid:"filterRelationExt",
-    data:data, 
-    label:"Wer hat ein ", 
+    data:data,
+    label:"Wer hat ein ",
     selected: this.getFilter("filterRelationExt"), controlgroup:true,
     freeoption:true, type:"medium", controlgroup:true
   }));
@@ -4269,7 +4267,7 @@ PersonView.prototype.renderRelationFilter = function() {
     cssid:"filterRelationExtGroupTyp",
     controlgroup:true, freeoption:true, type:"medium"
   }));
-  
+
   rows.push("<td>");
 
   rows.push(form_renderSelect({
@@ -4284,7 +4282,7 @@ PersonView.prototype.renderRelationFilter = function() {
           && (masterData.groups[a.id].valid_yn==1));
        }
   }));
-  
+
   rows.push("</table>");
 
   rows.push('</div>');
@@ -4295,7 +4293,7 @@ PersonView.prototype.renderRelationFilter = function() {
 PersonView.prototype.renderFurtherFilter = function () {
 //  $("#divaddfilter").html('<div id="addfilter" style="width:100%;"><div style="height:200px"/></div>');
   if (this.furtherFilterVisible) {
-    $("#divaddfilter").animate({ height: 'show'}, "medium");  
+    $("#divaddfilter").animate({ height: 'show'}, "medium");
 
     var t=this;
     var rows=new Array();
@@ -4308,8 +4306,8 @@ PersonView.prototype.renderFurtherFilter = function () {
     rows.push('<li class="pull-right"><a href="#" class="hide">'+_("close.filter")+'</a>');
     rows.push('</ul>');
     rows.push('<div id="furtherFilterDetail"></div>');
-    
-    $("#addfilter").html(rows.join(""));  
+
+    $("#addfilter").html(rows.join(""));
 
     if (t.currentFurtherFilter=="person")
       t.renderPersonFilter();
@@ -4317,7 +4315,7 @@ PersonView.prototype.renderFurtherFilter = function () {
       t.renderRelationFilter();
     else
       t.renderGroupFilter();
-    
+
     $("#divaddfilter a.hide").click(function() {
       t.furtherFilterVisible=false;
       $("#divaddfilter").animate({ height: 'hide'}, "fast");
@@ -4328,25 +4326,25 @@ PersonView.prototype.renderFurtherFilter = function () {
       t.renderFurtherFilter();
       return false;
     });
-    
+
     this.implantStandardFilterCallbacks(this, "addfilter");
-  
+
     $("#furtherFilterDetail select").change(function(c) {
       // Es muessen nun noch die weiteren Filter neu gerendet werden, wenn Aenderungen in der Gruppe erfolgt sind,
       // damit diese nun angepasst werden. Z.B. Kleingruppen zum Distrikt
       t.renderFurtherFilter();
-    }); 
-    
+    });
+
     $("#furtherFilterDetail a").click(function(c) {
       var renderList=true;
       if ($(this).attr("id")=="reset_personfilter") {
         t.resetPersonFilter();
-      } 
+      }
       else if ($(this).attr("id")=="reset_groupfilter") {
-        t.resetGroupFilter();   
+        t.resetGroupFilter();
       }
       else if ($(this).attr("id")=="reset_relationfilter") {
-        t.resetRelationFilter();   
+        t.resetRelationFilter();
       }
       else {
         t.filter[$(this).attr("id")]=$(this).attr("checked");
@@ -4355,20 +4353,20 @@ PersonView.prototype.renderFurtherFilter = function () {
         t.renderFurtherFilter();
         listOffset=0;
         t.renderList(null, false);
-      }  
+      }
       return false;
-    });           
-  }  
-  else 
-    $("#divaddfilter").animate({ height: 'hide'}, "fast");  
+    });
+  }
+  else
+    $("#divaddfilter").animate({ height: 'hide'}, "fast");
 
 };
 
 PersonView.prototype.resetPersonFilter = function() {
   delete this.filter["plz"];
-  delete this.filter["ageFrom"]; 
+  delete this.filter["ageFrom"];
   delete this.filter["ageTo"];
-  delete this.filter["dateBefore"]; 
+  delete this.filter["dateBefore"];
   delete this.filter["dateAfter"];
   delete this.filter["dateIgnoreYear"];
   delete this.filter["filterNationalitaet"];
@@ -4379,18 +4377,18 @@ PersonView.prototype.resetPersonFilter = function() {
   delete this.filter["dateNotSet"];
   delete this.filter["filterDates"];
   delete this.filter["searchChecked"];
-  delete this.filter["filterMeine Gruppen"]; 
-  delete this.filter["filterStation"]; 
-  delete this.filter["filterBereich"]; 
+  delete this.filter["filterMeine Gruppen"];
+  delete this.filter["filterStation"];
+  delete this.filter["filterBereich"];
   delete this.filter["filterStatus"];
   // Todo-filter
   delete this.filter["followupOverdue"];
   delete this.filter["followupToday"];
   delete this.filter["groupSubscribe"];
   delete this.filter["groupDelete"];
-  
-  
-  delete this.filter["filterGeschlecht"]; 
+
+
+  delete this.filter["filterGeschlecht"];
   delete this.filter["filterFamilienstatus"];
   z=0;
   while (this.filter["filterTags"+z]!=null) {
@@ -4407,7 +4405,7 @@ PersonView.prototype.resetRelationFilter = function() {
   delete this.filter["filterRelationNegativ"];
   delete this.filter["filterRelationExt"];
   delete this.filter["filterRelationExtGroupTyp"];
-  delete this.filter["filterRelationExtGroup"];  
+  delete this.filter["filterRelationExtGroup"];
 };
 
 PersonView.prototype.resetGroupFilter = function () {
@@ -4418,17 +4416,17 @@ PersonView.prototype.resetGroupFilter = function () {
     delete t.filter["filterTyp "+k];
     delete t.filter["filterFilter "+k];
     delete t.filter["filterDistrikt "+k];
-    delete t.filter["filterGruppe "+k];        
-    delete t.filter["filterGruppeInAb "+k];        
-    delete t.filter["filterGruppeInSeit "+k];        
-    delete t.filter["filterGruppeWarInVon "+k];        
-    delete t.filter["filterGruppeWarInBis "+k];        
+    delete t.filter["filterGruppe "+k];
+    delete t.filter["filterGruppeInAb "+k];
+    delete t.filter["filterGruppeInSeit "+k];
+    delete t.filter["filterGruppeWarInVon "+k];
+    delete t.filter["filterGruppeWarInBis "+k];
     delete t.filter["filterGruppeWarInBis "+k];
     delete t.filter["filterTeilnehmerstatus "+k];
     if (k>0)
       delete t.filter["filterOn "+k];
-    k=k+1;  
-  }  
+    k=k+1;
+  }
 };
 
 /**
@@ -4436,24 +4434,24 @@ PersonView.prototype.resetGroupFilter = function () {
  */
 PersonView.prototype.renderGroupEntry = function() {
   t=this;
-  // Start function renderGroupEntry()  
+  // Start function renderGroupEntry()
   $("#cdb_group").html("");
-  if ((this.filter['filterMeine Gruppen']>0) 
-      && (allPersons[masterData.user_pid]!=null) 
+  if ((this.filter['filterMeine Gruppen']>0)
+      && (allPersons[masterData.user_pid]!=null)
       && (masterData.groups[this.filter['filterMeine Gruppen']]!=null)
       && (masterData.groups[this.filter['filterMeine Gruppen']].meetingList==null)
       &&
          (
-            (allPersons[masterData.user_pid].districts!=null 
-                   && allPersons[masterData.user_pid].districts[masterData.groups[this.filter['filterMeine Gruppen']].distrikt_id]!=null) 
-            || (allPersons[masterData.user_pid].gruppentypen!=null && allPersons[masterData.user_pid].gruppentypen[masterData.groups[this.filter['filterMeine Gruppen']].gruppentyp_id]!=null) 
-            || (allPersons[masterData.user_pid].gruppe[this.filter['filterMeine Gruppen']].leiter>=1  
-                   && allPersons[masterData.user_pid].gruppe[this.filter['filterMeine Gruppen']].leiter<=2)) 
+            (allPersons[masterData.user_pid].districts!=null
+                   && allPersons[masterData.user_pid].districts[masterData.groups[this.filter['filterMeine Gruppen']].distrikt_id]!=null)
+            || (allPersons[masterData.user_pid].gruppentypen!=null && allPersons[masterData.user_pid].gruppentypen[masterData.groups[this.filter['filterMeine Gruppen']].gruppentyp_id]!=null)
+            || (allPersons[masterData.user_pid].gruppe[this.filter['filterMeine Gruppen']].leiter>=1
+                   && allPersons[masterData.user_pid].gruppe[this.filter['filterMeine Gruppen']].leiter<=2))
      ) {
       t.loadGroupMeetingList(this.filter['filterMeine Gruppen']);
-   } 
+   }
    else {
-     t.renderGroupContent(this.filter['filterMeine Gruppen']);    
+     t.renderGroupContent(this.filter['filterMeine Gruppen']);
    }
 };
 PersonView.prototype.loadGroupMeetingList = function (g_id) {
@@ -4461,7 +4459,7 @@ PersonView.prototype.loadGroupMeetingList = function (g_id) {
   masterData.groups[g_id].meetingList="get data";
   churchInterface.jsendWrite({ func: "GroupMeeting", sub:"getList", g_id: g_id}, function(ok, json) {
     if (json!=null) {
-      masterData.groups[g_id].meetingList=json;  
+      masterData.groups[g_id].meetingList=json;
       t.renderGroupContent(g_id);
       t.renderList();
     }
@@ -4469,11 +4467,11 @@ PersonView.prototype.loadGroupMeetingList = function (g_id) {
       masterData.groups[g_id].meetingList=new Array();
   });
 };
-    
+
 /**
  * Edit export template.
  * @selected which template is selected
- * @func optional feedback function when dialog will be closed. 
+ * @func optional feedback function when dialog will be closed.
  */
 PersonView.prototype.editExportTemplates = function(selected, func) {
   var data = new Array();
@@ -4486,7 +4484,7 @@ PersonView.prototype.editExportTemplates = function(selected, func) {
   else masterData.settings.exportTemplate=new Object();
 
   data.push({id:"", bezeichnung:"-- "+_("add.new.entry")+" --", sortkey:99});
-  
+
   var rows=new Array();
   var form=new CC_Form();
   form.addHtml('<div class="">');
@@ -4549,7 +4547,7 @@ PersonView.prototype.editExportTemplates = function(selected, func) {
       elem.dialog("close");
       if (func!=null) func(selected);    
     });
-  
+
   elem.find("a.select-all").click(function() {
     elem.find("input.field").attr("checked", "checked");
     changed=true;
@@ -4560,7 +4558,7 @@ PersonView.prototype.editExportTemplates = function(selected, func) {
     changed=true;
     return false;
   });
-  
+
   function _renderCheckboxes() {
     if (selected==null) selected=elem.find("select.template").val();
     if (selected=="") elem.find("a.delete").addClass("hide");
@@ -4570,7 +4568,7 @@ PersonView.prototype.editExportTemplates = function(selected, func) {
                masterData.settings.exportTemplate[selected]["f_"+$(this).attr("data-sql")]) {
         $(this).attr("checked", "checked");
       }
-      else 
+      else
         $(this).removeAttr("checked");
     });
   }
@@ -4584,8 +4582,7 @@ PersonView.prototype.editExportTemplates = function(selected, func) {
     obj.id=name;
     obj.bezeichnung=name;
     masterData.settings.exportTemplate[name]=obj;
-    churchInterface.saveSetting("exportTemplate["+name+"]", 
-                          masterData.settings.exportTemplate[name]);
+    churchInterface.saveSetting("exportTemplate["+name+"]", masterData.settings.exportTemplate[name]);
     changes=false;
   }
   function _saveTemplate() {
@@ -4606,7 +4603,7 @@ PersonView.prototype.editExportTemplates = function(selected, func) {
   
   
   _renderCheckboxes();
-  
+
   var changes=false;
   elem.find("input.field").change(function() {
     changes=true;
@@ -4630,13 +4627,13 @@ PersonView.prototype.editExportTemplates = function(selected, func) {
   });
   elem.find("a.delete").click(function() {
     if (confirm(_("really.delete.template"))) {
-      delete masterData.settings.exportTemplate[selected]; 
-      churchInterface.deleteSetting("exportTemplate["+selected+"]");      
+      delete masterData.settings.exportTemplate[selected];
+      churchInterface.deleteSetting("exportTemplate["+selected+"]");
       elem.dialog("close");
-      t.editExportTemplates(null, func);      
-    }    
+      t.editExportTemplates(null, func);
+    }
   });
-  
+
 };
 
 PersonView.prototype.exportData = function(selectedTemplate, exportAllData) {
@@ -4646,9 +4643,9 @@ PersonView.prototype.exportData = function(selectedTemplate, exportAllData) {
   if (masterData.auth["export"])
 	  i=99999;
   var exportIds=new Array();
-  
+
   var rels=new Object();
-  
+
   if (!exportAllData) {
     $.each(allPersons, function(k, a) {
       if ((i>0) && (t.checkFilter(a))) {
@@ -4659,13 +4656,13 @@ PersonView.prototype.exportData = function(selectedTemplate, exportAllData) {
             if (masterData.relationType[b.beziehungstyp_id].export_aggregation_yn==1)
               if (((b.vater_id==a.id) && (t.checkFilter(allPersons[b.kind_id]))) ||
                   ((b.kind_id==a.id) && (t.checkFilter(allPersons[b.vater_id]))))
-                rels[b.beziehungstyp_id]=b.beziehungstyp_id;          
-          });   
+                rels[b.beziehungstyp_id]=b.beziehungstyp_id;
+          });
         }
       }
     });
   }
-  
+
   if (i==0) {
     alert(_("it.is.only.allowed.to.export.x.entries", masterData.max_exporter));
     return;
@@ -4674,48 +4671,48 @@ PersonView.prototype.exportData = function(selectedTemplate, exportAllData) {
     alert(_("select.mygroup.to.export.data"));
     return;
   }
-  
+
   var params=exportIds.join(",");
-  
-  if (!exportAllData && this.filter["filterMeine Gruppen"]!=null) 
+
+  if (!exportAllData && this.filter["filterMeine Gruppen"]!=null)
     params=params+"&groupid="+this.filter["filterMeine Gruppen"];
-      
+
   var form = new CC_Form(_("template.for.columns.in.exporting"));
-  form.addSelect({label:_("chose.export.template"), freeoption:true, data:masterData.settings.exportTemplate, 
+  form.addSelect({label:_("chose.export.template"), freeoption:true, data:masterData.settings.exportTemplate,
      selected: selectedTemplate, htmlclass:"template", controlgroup_start:true});
   form.addHtml('&nbsp; &nbsp;')
   form.addImage({src:"options.png", width:24, link:true, htmlclass:"option", controlgroup_end:true});
-  
+
   if (!exportAllData) {
     if (this.filter["filterRelations"]!=null) {
       form.addCheckbox({label:_("export.related.persons"),
              htmlclass:"export-related-persons"});
     }
-  
+
     if (churchcore_countObjectElements(rels)>0) {
       form.addHtml("<legend>"+_("aggregate.relations")+"</legend>");
       $.each(rels, function(k,a) {
         form.addCheckbox({label:masterData.relationType[a].bez_vater+"/"+masterData.relationType[a].bez_kind,
              htmlclass:"aggregate-relation", data:[{name:"relation-type", value:a}] });
-      });    
+      });
     }
     var txt="";
     $.each(rels, function(k,a) {
-      txt=txt+"<input type=\"checkbox\" id=\"cb_"+a+"\" class=\"cdb-checkbox\"></input> &nbsp;"+masterData.relationType[a].bez_vater+"/"+masterData.relationType[a].bez_kind+"<br/>";
+      txt=txt+"<input type=\"checkbox\" id=\"cb_"+a+"\" class=\"cdb-checkbox\"></input><label for=\"cb_"+a+"\"> &nbsp;"+masterData.relationType[a].bez_vater+"/"+masterData.relationType[a].bez_kind+"</label><br/>";
     });
   }
-  
+
   var elem=form_showDialog(_("export.settings"), form.render(null, "horizontal"), 600,400);
   elem.dialog("addbutton", _("export"), function() {
-    if (elem.find("select.template").val()) 
-      params=params+"&template="+elem.find("select.template").val(); 
-  
+    if (elem.find("select.template").val())
+      params=params+"&template="+elem.find("select.template").val();
+
     if (elem.find("input.export-related-persons").attr("checked")) {
       var agg="&rel_part="+t.filter["filterRelations"].substr(0,1);
       agg=agg+"&rel_id="+t.filter["filterRelations"].substr(2,99);
-      params=params+agg;      
+      params=params+agg;
     }
-    
+
     var agg="";
     $.each(rels, function(k,a) {
       if (elem.find("input.aggregate-relation[data-relation-type="+a+"]").attr("checked")) {
@@ -4723,13 +4720,13 @@ PersonView.prototype.exportData = function(selectedTemplate, exportAllData) {
       }
     });
     params=params+agg;
-    
-    var Fenster = window.open("?q=churchdb/export&ids="+params);     
+
+    var Fenster = window.open("?q=churchdb/export&ids="+params);
     $(this).dialog("close");
-    
+
   }).dialog("addcancelbutton");
-  
-  
+
+
   elem.find("a.option").click(function() {
     t.editExportTemplates(elem.find("select.template").val(), function(selected) {t.exportData(selected)});
     elem.dialog("close");
@@ -4740,7 +4737,7 @@ PersonView.prototype.renderGroupContent = function(g_id) {
   var t=this;
   var json=null;
   if ((masterData.groups!=null) && (masterData.groups[g_id]!=null))
-    json=masterData.groups[g_id].meetingList;  
+    json=masterData.groups[g_id].meetingList;
   var rows = new Array();
   if (masterData.settings.selectedGroupType==-4) {
     if (g_id==null) {
@@ -4781,13 +4778,13 @@ PersonView.prototype.renderGroupContent = function(g_id) {
           gruppentreffen_id=a.id;
           datumvon=a.datumvon.toDateEn(true);
           return false;
-        } 
+        }
       });
       // Kein zu pflegende Gruppe gefunden, also rows wieder l�schen.
-      if (gruppentreffen_id==-1)                 
+      if (gruppentreffen_id==-1)
         rows2 = new Array();
     }
-    
+
     if (rows2.length>0)
       rows.push('<div class="well">'+rows2.join("")+'</div>');
   }
@@ -4800,13 +4797,13 @@ PersonView.prototype.renderGroupContent = function(g_id) {
       $.each(allPersons, function(a,k) {
         if (k.checked) arr.push(k.id);
       });
-      
-      var form=new CC_Form();       
+
+      var form=new CC_Form();
       form.addHtml('<p>'+arr.length+' Personen einchecken</p>');
       form.addInput({label:"Anzahl G&auml;ste", value:0, cssid:"anzahl_gaeste"});
       form.addTextarea({label:"Kommentar", rows:4, data:"", placeholder:"Kommentar", cssid:"kommentar"});
       form.addCheckbox({label:"Markierung der Personen wieder entfernen?", checked:true, cssid:"demarkPersons"});
-      
+
       var elem=form_showDialog("Treffen "+datumvon.toStringDe(true), form.render(null, "vertical"), 360, 400, {
         "Speichern": function() {
           var obj=form.getAllValsAsObject();
@@ -4828,7 +4825,7 @@ PersonView.prototype.renderGroupContent = function(g_id) {
               t.renderGroupEntry();
               t.renderList();
             }
-          });        
+          });
           $(this).dialog("close");
         },
         "Abbrechen": function() {
@@ -4848,7 +4845,7 @@ PersonView.prototype.renderGroupContent = function(g_id) {
     else if ($(this).attr("id")=="btn_gruppentreffen") {
       var gt=churchcore_getFirstElement(masterData.groupTypes);
       var id=null;
-      if (gt!=null) id=gt.id;      
+      if (gt!=null) id=gt.id;
       masterData.settings.selectedGroupType=id;
       churchInterface.jsendWrite({func:"saveSetting", sub:"selectedGroupType", val:id});
 
@@ -4884,14 +4881,14 @@ PersonView.prototype.smser = function() {
     if (t.checkFilter(a)) {
       arr.push(a.id);
     }
-  });  
+  });
   if (arr.length>0) {
     t.smsPerson(arr);
   }
 };
 
 /**
- * 
+ *
  * @param arr mit Ids
  */
 PersonView.prototype.smsPerson = function(arr) {
@@ -4913,11 +4910,11 @@ PersonView.prototype.smsPerson = function(arr) {
               $("tr[id="+a+"]").after('<tr id="detail'+a+'"><td colspan="10">SMS-Versand Ergebnis: '+status[a]);
             });
           }
-          else 
+          else
             alert(status);
         });
-      $(this).dialog("close");            
-    },          
+      $(this).dialog("close");
+    },
     "Abbrechen": function() {
       $(this).dialog("close");
     }
@@ -4931,14 +4928,14 @@ PersonView.prototype.smsPerson = function(arr) {
 };
 
 PersonView.prototype.mailer = function() {
-  
+
   if ((!masterData.auth.viewalldata) &&
       (masterData.groups[this.getFilter("filterMeine Gruppen")]==null || masterData.groups[this.getFilter("filterMeine Gruppen")].members_allowedmail_eachother_yn==0)
       && (!groupView.isPersonLeaderOfGroup(masterData.user_pid, this.getFilter("filterMeine Gruppen")))) {
     alert("Um den E-Mailer zu nutzen muss unter 'Meine Gruppen' eine Gruppe gefiltert werden, in der Du Leiter bist oder in der es entsprechend erlaubt wird.");
     return null;
   }
-  
+
   var t=this;
   var counter=0;
   var maxMails=masterData.max_exporter;
@@ -4956,17 +4953,17 @@ PersonView.prototype.mailer = function() {
         // Wenn ich das in ein Extra Fenster ausgeben, k�nnen auch die Namen dazu
         mailTo=mailTo+$.trim(a.email)+separator;
         ids=ids+a.id+",";
-      }  
-      else noEmail=true;    
+      }
+      else noEmail=true;
     }
-  });    
+  });
   if (counter>=maxMails) alert(unescape("Es d%FCrfen nur max. "+masterData.max_exporter+" Eintr%E4ge exportiert werden. Bitte genauer filtern%21"));
   else {
 //    if (noEmail) alert("Hinweis: Einige Einträge haben keine E-Mailadresse, diese wurden nicht berücksichtigt!");
     if ((noEmail) && confirm("Einige Personen haben keine E-Mail-Adresse, sollen diese anschließend angezeigt werden?")) {
       t.filter["withoutEMail"]=1;
-      if (!t.furtherFilterVisible) { 
-        t.furtherFilterVisible=true;  
+      if (!t.furtherFilterVisible) {
+        t.furtherFilterVisible=true;
         t.renderFurtherFilter();
       }
       t.renderList();
@@ -4978,13 +4975,13 @@ PersonView.prototype.mailer = function() {
       var string ="";
       if (masterData.settings.mailerBcc==0)
         string="mailto:"+mailTo;
-      else 
+      else
         string="mailto:"+allPersons[masterData.user_pid].email+"?bcc="+mailTo;
       var Fenster = window.open(string,"Mailer");
       window.setTimeout(function() {
         Fenster.close();
       },500);
-    } 
+    }
     else if (masterData.settings.mailerType==1) {
       var Fenster = window.open("", "E-Mail-Adresse","width=500,height=300");
       Fenster.document.write(mailTo);
@@ -5011,8 +5008,8 @@ PersonView.prototype.getMyGroupsSelector = function(withIntelligentGroups) {
   if (withIntelligentGroups==null) withIntelligentGroups=false;
   var arr = new Array();
   var first_id = -1;
-  
-  if ((masterData.settings.selectedMyGroup!=null) && (masterData.settings.selectedMyGroup!="null") && 
+
+  if ((masterData.settings.selectedMyGroup!=null) && (masterData.settings.selectedMyGroup!="null") &&
       (currentView.filter['filterMeine Gruppen']!=masterData.settings.selectedMyGroup))
     // Wenn es keine Intelligente Gruppe gibt, sollte er sie auch nicht vorselektieren!
     if ((withIntelligentGroups) || (masterData.settings.selectedMyGroup.indexOf("filter")!=0)) {
@@ -5031,10 +5028,10 @@ PersonView.prototype.getMyGroupsSelector = function(withIntelligentGroups) {
 
     // Leiter und Co-Leiter, sowie Supervisor, nicht aber Mitarbeiter
     var _owngroups_leader = new Array();
-    
+
     // Nun Gruppen, wo ich Leiter bin
     if (allPersons[masterData.user_pid].gruppe!=null)
-      $.each(allPersons[masterData.user_pid].gruppe, function (b,k) {    
+      $.each(allPersons[masterData.user_pid].gruppe, function (b,k) {
         if ((masterData.groups[k.id].abschlussdatum==null) || (masterData.groups[k.id].abschlussdatum.toDateEn()>d)) {
           if ((k.leiter>=1) && (k.leiter<=3)) {
             _owngroups_leader.push(masterData.groups[k.id]);
@@ -5042,11 +5039,11 @@ PersonView.prototype.getMyGroupsSelector = function(withIntelligentGroups) {
           }
         }
       });
-    
+
     // Gruppen, wo ich Distriktleiter bin
     if (allPersons[masterData.user_pid].districts!=null)
-      $.each(allPersons[masterData.user_pid].districts, function (c,district) {    
-        $.each(masterData.groups, function (b,group) {    
+      $.each(allPersons[masterData.user_pid].districts, function (c,district) {
+        $.each(masterData.groups, function (b,group) {
           if ((group.distrikt_id==district.distrikt_id) && ((group.abschlussdatum==null) || (group.abschlussdatum.toDateEn()>d))) {
             if (!churchcore_inArray(group, _owngroups_leader)) {
               _owngroups_leader.push(group);
@@ -5057,8 +5054,8 @@ PersonView.prototype.getMyGroupsSelector = function(withIntelligentGroups) {
       });
     // Gruppen, wo ich Gruppentyp bin
     if (allPersons[masterData.user_pid].gruppentypen!=null)
-      $.each(allPersons[masterData.user_pid].gruppentypen, function (c,district) {    
-        $.each(masterData.groups, function (b,group) {    
+      $.each(allPersons[masterData.user_pid].gruppentypen, function (c,district) {
+        $.each(masterData.groups, function (b,group) {
           if ((group.gruppentyp_id==district.gruppentyp_id) && ((group.abschlussdatum==null) || (group.abschlussdatum.toDateEn()>d))) {
             if (!churchcore_inArray(group, _owngroups_leader)) {
               _owngroups_leader.push(group);
@@ -5067,17 +5064,17 @@ PersonView.prototype.getMyGroupsSelector = function(withIntelligentGroups) {
           }
         });
       });
-    
-    
+
+
     if (_owngroups_leader.length>0) {
       arr.push(_createEntry(-1, "-- Leiter --"));
       arr=arr.concat(churchcore_sortArray(_owngroups_leader,"bezeichnung"));
     }
-    
+
     // Teilnehmer und Mitarbeiter
     var _owngroups_member = new Array();
     if (allPersons[masterData.user_pid].gruppe!=null)
-      $.each(allPersons[masterData.user_pid].gruppe, function (b,k) {    
+      $.each(allPersons[masterData.user_pid].gruppe, function (b,k) {
         if ((masterData.groups[k.id].abschlussdatum==null) || (masterData.groups[k.id].abschlussdatum.toDateEn())>d) {
           if (((k.leiter==0) && (groupView.isGroupViewableForMembers(k.id))) || ((k.leiter==4) && (masterData.groups[k.id].versteckt_yn==0))) {
             _owngroups_member.push(masterData.groups[k.id]);
@@ -5102,15 +5099,15 @@ PersonView.prototype.getMyGroupsSelector = function(withIntelligentGroups) {
       if (_owngroups_intelligent.length>0) {
         arr.push(_createEntry(-1, "-- Intellig. Gruppen --"));
         arr=arr.concat(churchcore_sortArray(_owngroups_intelligent,"bezeichnung"));
-      }  
+      }
     }
-    
-    if (arr.length==0) 
+
+    if (arr.length==0)
       arr.push(_createEntry(-1, "Keine eigene Gruppe"));
     else if ((currentView.filter['filterMeine Gruppen']==-1) && (currentView.filter.searchEntry==null))
       currentView.filter['filterMeine Gruppen']=first_id;
-    
-    return arr;    
-  } 
+
+    return arr;
+  }
   return false;
 };

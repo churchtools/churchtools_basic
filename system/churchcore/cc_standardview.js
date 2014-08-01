@@ -6,7 +6,7 @@
 function StandardTableView(options) {
   var t=this;
   AbstractView.call(this);
-  
+
   this.name="StandardTableView";
   this.init=false;
   this.filter=new Object();
@@ -21,12 +21,12 @@ function StandardTableView(options) {
   this.counter=0;
   // Der letzte ge�ffnet Eintrag, wird gemerkt, damit er nach einem renderList()
   // auch wieder angezeigt wird.
-  
+
   this.testTimer=null; // Zeitmessung
   this.renderListTimer=null;
   this.listViewAggregate=false;
   this.listViewTableHeight=null; // Wenn ja, hat die Tabelle eien fixen Titel
-  
+
   this.showPaging=true;
   this.rowNumbering=true;
 
@@ -40,7 +40,7 @@ Temp.prototype = AbstractView.prototype;
 StandardTableView.prototype = new Temp();
 
 StandardTableView.prototype.initView = function () {
-  
+
 };
 
 
@@ -61,34 +61,34 @@ StandardTableView.prototype.renderView = function(withMenu) {
   if (t.init==false) {
     t.initView();
     t.init=true;
-  }    
-  
+  }
+
   if (!churchcore_handyformat()) {
     if ((withMenu==null) || (withMenu)) {
       this.renderMenu();
     }
-    this.renderListMenu();    
+    this.renderListMenu();
     this.renderFilter();
     if (!churchcore_touchscreen())
       $("#searchEntry").focus();
   }
   else {
-    this.renderMenu();    
-    this.renderListMenu();    
+    this.renderMenu();
+    this.renderListMenu();
     $("#cdb_menu").append("&nbsp; "+form_renderButton({label:_("filter")+" &raquo;", htmlclass:"togglefilter"})+"<br/><br/>");
     $("#cdb_menu input.togglefilter").click(function() {
       if ($("#cdb_filter").html()=="") {
         t.renderFilter();
         $(this).val(_("filter")+" "+String.fromCharCode(171));
-      } 
-      else { 
+      }
+      else {
         $("#cdb_filter").html("");
         $(this).val(_("filter")+" "+String.fromCharCode(187));
       }
     });
-    
+
   }
-  
+
   if (this.furtherFilterVisible)
     this.renderFurtherFilter();
   this.renderList();
@@ -122,18 +122,18 @@ StandardTableView.prototype.deleteFilter = function(filterId) {
   else return false;
 };
 
-StandardTableView.prototype.renderFurtherFilter = function() {  
+StandardTableView.prototype.renderFurtherFilter = function() {
 };
 
 /**
  * Messages schicken an die Views
  */
-StandardTableView.prototype.messageReceiver = function(message, args) {  
+StandardTableView.prototype.messageReceiver = function(message, args) {
 };
 
 
 /**
- * 
+ *
  * @param this_object - Gibt die zu verwendene this an
  * @param divid - Divid, fuer die der Callback installiert werden soll
  */
@@ -147,57 +147,57 @@ StandardTableView.prototype.implantStandardFilterCallbacks = function(this_objec
     var oldVal=myfilter[$(this).attr("id")];
     if ($(this).val()=="") {
       delete myfilter[$(this).attr("id")];
-    }  
+    }
     else {
       myfilter[$(this).attr("id")]=$(this).val();
     }
     churchInterface.sendMessageToAllViews("filterChanged",new Array($(this).attr("id"), oldVal));
     t.listOffset=0;
     t.renderList(null, false);
-  }); 
+  });
   $("#"+divid+" input:checkbox").click(function(c) {
     var oldVal=myfilter[$(this).attr("id")];
     if ($(this).attr("checked")) {
       myfilter[$(this).attr("id")]=true;
     }
-    else { 
+    else {
       delete myfilter[$(this).attr("id")];
-    }  
+    }
     churchInterface.sendMessageToAllViews("filterChanged",new Array($(this).attr("id"), oldVal));
     t.listOffset=0;
-    t.renderList(null, false);        
-  });        
+    t.renderList(null, false);
+  });
   $("#"+divid+" input:text").keyup(function(c) {
     if ((myfilter[$(this).attr("id")]!=$(this).val()) && (($(this).val().length>0) || $(this).val()=="")) {
       var oldVal=myfilter[$(this).attr("id")];
       var id=$(this).attr("id");
       if ($(this).val()=="")
         delete myfilter[$(this).attr("id")];
-      else 
+      else
         myfilter[$(this).attr("id")]=$(this).val();
       t.listOffset=0;
 
-      // Ein Timeout erlaubt das entspannte Eintippen, ohne das immer sofort die Seite neu geladen wird. 
+      // Ein Timeout erlaubt das entspannte Eintippen, ohne das immer sofort die Seite neu geladen wird.
       if (_aktiv!=null)
         _aktiv=window.clearTimeout(_aktiv);
       _aktiv=window.setTimeout(function() {
         churchInterface.sendMessageToAllViews("filterChanged",new Array(id, oldVal));
-        t.renderList(null, false);   
+        t.renderList(null, false);
         _aktiv=false;
         },300);
     }
   });
 };
- 
+
 /*
- * Erlaubt das Setzen des Filters einer View, filtername=value 
+ * Erlaubt das Setzen des Filters einer View, filtername=value
  */
 StandardTableView.prototype.setFilter = function(filterName, value) {
   this.filter[filterName]=value;
 };
 
 /*
- * Loescht alle Filter 
+ * Loescht alle Filter
  */
 StandardTableView.prototype.clearFilter = function() {
   this.filter=new Object();
@@ -206,7 +206,7 @@ StandardTableView.prototype.clearFilter = function() {
 
 
 /**
- * 
+ *
  * @param {Object} data - Array type (Array mit Feldern id und bezeichnung)
  * @param {Object} name - Anzeigename
  * @param {Object} selected - Welches soll vorselektiert sien?
@@ -215,21 +215,21 @@ StandardTableView.prototype.clearFilter = function() {
 StandardTableView.prototype.getSelectFilter = function(data, name, selected, func, emptyentry) {
   if (data==null) return "";
   if (emptyentry==null) emptyentry=true;
-  if (name!="") 
-    _text='<font style="font-size:8pt;">'+name+": </font><select id=\"filter"+name+"\" style=\"\">";    
-  else  
+  if (name!="")
+    _text='<font style="font-size:8pt;">'+name+": </font><select id=\"filter"+name+"\" style=\"\">";
+  else
     _text="<select id=\"filterVoid"+"\" style=\"\">";
   if (emptyentry)
     _text=_text+'<option value=""></option>';
-    
+
   jQuery.each(data, function (i,d) {
     if ((typeof func !="function") || (func(d))) {
       _text=_text+"<option value=\""+d.id+"\"";
       if (selected==d.id) _text=_text+" selected ";
-      _text=_text+">"+d.bezeichnung.trim(25)+"</option>";   
-    }  
+      _text=_text+">"+d.bezeichnung.trim(25)+"</option>";
+    }
   });
-  _text=_text+"</select>&nbsp;&nbsp;";   
+  _text=_text+"</select>&nbsp;&nbsp;";
   return _text;
 };
 
@@ -242,11 +242,11 @@ StandardTableView.prototype.getSelectFilter = function(data, name, selected, fun
 StandardTableView.prototype.addSecondMenu = function() {
   return "";
 };
-StandardTableView.prototype.addFurtherListCallbacks = function() {  
+StandardTableView.prototype.addFurtherListCallbacks = function() {
 };
 
 StandardTableView.prototype.renderOneListEntry = function(id) {
-  
+
 };
 
 
@@ -257,18 +257,18 @@ StandardTableView.prototype.renderOneListEntry = function(id) {
  */
 StandardTableView.prototype.renderList = function(entry, newSort) {
   t=this;
-   
+
   var rows = new Array();
-  
+
   // Wenn nur ein Eintrag neu gerendert werden soll
   if (entry!=null) {
     if (t.checkFilter(entry)) {
-      if (entry.checked == true) 
+      if (entry.checked == true)
         rows[rows.length] = "<td><input type=\"checkbox\" id=\"check" + entry.id +
         "\" checked=\"checked\" class=\"checked\">";
-      else 
+      else
         rows[rows.length] = "<td><input type=\"checkbox\" id=\"check" + entry.id +
-        "\" class=\"checked\">";      
+        "\" class=\"checked\">";
       if (t.rowNumbering && t.groupingFunction(entry)==null) {
         rows.push("<td><a href=\"\" id=\"detail" + entry.id + "\">" + $("tr[id="+entry.id+"]").find("td").next().first().text()+"</a>");
       }
@@ -280,7 +280,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
         t.addTableContentCallbacks("#cdb_content tr[id="+entry.id+"]");
         if (entry.open) t.renderEntryDetail(entry.id);
       }
-    }  // Wenn der Filter nicht mehr passt, dann l�sche es 
+    }  // Wenn der Filter nicht mehr passt, dann l�sche es
     else {
       $("#cdb_content tr[id="+entry.id+"]").html("");
     }
@@ -289,36 +289,36 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
   else {
     if (t.renderListTimer==null)
       t.renderListTimer=window.setTimeout(function() {
-      
+
       if (debug) t.startTimer();
-      
-      var current_id = 0;    
-      listObject=t.getData(true, newSort);    
-  
-      $("#cdb_content").html("Render table...");    
-      
+
+      var current_id = 0;
+      listObject=t.getData(true, newSort);
+
+      $("#cdb_content").html("Render table...");
+
       if ((masterData.settings==null) || (masterData.settings.listViewTableHeight==null) || (masterData.settings.listViewTableHeight==0))
         t.listViewTableHeight=null;
-      else 
+      else
         t.listViewTableHeight=646;
-  
-      if (masterData.settings==null) masterData.settings=new Object();    
+
+      if (masterData.settings==null) masterData.settings=new Object();
       if (masterData.settings["listMaxRows"+t.name]==null)
         masterData.settings["listMaxRows"+t.name]=25;
       else masterData.settings["listMaxRows"+t.name]=masterData.settings["listMaxRows"+t.name]*1;
-      
-      // Wenn es Handyformat ist dann zeige immer nur 10 Zeilen, au�er bei der Ressourcen-WeekView, 
+
+      // Wenn es Handyformat ist dann zeige immer nur 10 Zeilen, au�er bei der Ressourcen-WeekView,
       // denn hier macht es Sinn, das man alle sieht.
       if ((!t.overrideMaxRows) && (churchcore_handyformat()) && (churchInterface.getCurrentView().name!="WeekView")) {
         masterData.settings["listMaxRows"+t.name]=10;
       }
-  
+
       var header=t.getListHeader();
-      
-      if (listObject == null || churchcore_isObjectEmpty(listObject)) {  
+
+      if (listObject == null || churchcore_isObjectEmpty(listObject)) {
         if (churchInterface.allDataLoaded)
           rows[rows.length] = _("no.entry.found");
-        else 
+        else
           rows[rows.length] = '<br><p align="center">'+form_renderImage({src:"loading.gif"})+'<p>';
       }
       else {
@@ -326,28 +326,28 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
         rows[rows.length] = '<div style="" id="DivAddressTable"><table class="'+classes+'table-striped" style="tab_le-layout:fixed;margin-bottom:0px;" id="AddressTable">';
         rows[rows.length] = '<thead>';
         if (t.showCheckboxes)
-          rows.push('<tr><th width="12px"><input type="checkbox" class="checked" id="markAll">');      
+          rows.push('<tr><th width="12px"><input type="checkbox" class="checked" id="markAll" title="'+_("select.all")+'">');
           rows.push(header);
         rows.push('</thead>');
-        
+
         if (t.listViewTableHeight!=null) {
           rows.push('</table></div>');
-          
+
           rows.push('<div style="min-height:300px; max-height:'+t.listViewTableHeight+'px; overflow-y:auto; overflow-x:auto">');
-          rows.push('<table class="'+classes+'" style="margin-bottom:0px" id="AddressTableChild">');        
+          rows.push('<table class="'+classes+'" style="margin-bottom:0px" id="AddressTableChild">');
         }
-        
+
         rows.push('<tbody>');
-        t.counter = 0; 
+        t.counter = 0;
         var lastGrouping=null;
-        
+
         $.each(listObject, function(k, entry) {
           if ((entry!=null) && (t.checkFilter(entry))) {
             t.counter++;
             if ((t.counter>=t.listOffset) && (t.counter<=masterData.settings["listMaxRows"+t.name]+t.listOffset)) {
-  
+
               entry_txt=t.renderListEntry(entry);
-              if (entry_txt==null) 
+              if (entry_txt==null)
                 t.counter--;
               else {
                 var r = t.groupingFunction(entry);
@@ -355,32 +355,32 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
                   lastGrouping=r;
                   rows.push('<tr class="grouping"><td class="grouping" align="center" colspan="'+(t.getCountCols())+'">'+r);
                 }
-                
-                rows.push("<tr class=\"data\" id=\"" + entry.id + "\">");   
+
+                rows.push("<tr class=\"data\" id=\"" + entry.id + "\">");
                 if (t.showCheckboxes) {
                   rows.push("<td width=\"12px\"><input type=\"checkbox\" class=\"checked\" id=\"check" + entry.id + "\"");
-                  if (entry.checked) rows.push(" checked=checked"); 
+                  if (entry.checked) rows.push(" checked=checked");
                   rows.push(">");
                 }
-                
+
                 if (t.rowNumbering && lastGrouping==null)
-                  rows.push("<td><a href=\"\" id=\"detail" + entry.id + "\">" + t.counter + "</a>");         
+                  rows.push("<td><a href=\"\" id=\"detail" + entry.id + "\">" + t.counter + "</a>");
                 rows.push(entry_txt);
-                
+
                 current_id = entry.id;
-              }  
+              }
             }
-          } 
-        });    
-        
+          }
+        });
+
         rows.push('<tbody>');
         rows.push("</table>");
         rows.push("</div>");
-  
+
         rows.push('<table class="table table-bordered table-condensed"><tr><td>');
-        
+
         if (t.counter>=masterData.settings["listMaxRows"+t.name]) {
-          if (!churchcore_handyformat()) {          
+          if (!churchcore_handyformat()) {
             rows[rows.length] = _("show.x.from.y.entries", masterData.settings["listMaxRows"+t.name], t.counter);
             rows.push("&nbsp; &nbsp; &nbsp;"+_("paging")+": <a id=\"offset0\" href=\"#\"><<</a>&nbsp;|&nbsp;<a id=\"offsetMinus\" href=\"#\"><</a>&nbsp;|&nbsp;<a id=\"offsetPlus\" href=\"#\">></a>");
           }
@@ -389,41 +389,41 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
             rows[rows.length] = '<span class="pull-right">'+
               _("show.x.from.y.entries", masterData.settings["listMaxRows"+t.name], t.counter)+"  </span><br/>";
           }
-        }  
-        else 
+        }
+        else
           rows[rows.length] = _("show.x.entries", t.counter);
-  
-        if (t.showPaging) {    
+
+        if (t.showPaging) {
           if (!churchcore_handyformat()) {
             rows.push("&nbsp; &nbsp; &nbsp; &nbsp;"+_("number.of.rows")+": ");
             $.each(t.availableRowCounts, function(i,k) {
-              rows.push('<a href="#" class="changemaxrow" data-id="'+k+'">'+k+'</a>&nbsp;|&nbsp;');              
+              rows.push('<a href="#" class="changemaxrow" data-id="'+k+'">'+k+'</a>&nbsp;|&nbsp;');
             });
             rows.push("&nbsp; &nbsp; &nbsp; ");
             if ((masterData.settings["listMaxRows"+t.name]<=20) || (t.counter<=20))
               rows.push("&nbsp;<a href=\"#\" id=\"showAll\">"+_("open.each")+"</a>");
             rows.push("&nbsp; &nbsp; <a href=\"#\" id=\"hideAll\">"+_("close.each")+"</a>");
-          } 
+          }
           else {
             rows.push(_("show")+"  ");
             $.each(t.availableRowCounts, function(i,k) {
-              rows.push('<a href="#" class="changemaxrow" data-id="'+k+'">'+k+'</a> | ');              
-            });            
+              rows.push('<a href="#" class="changemaxrow" data-id="'+k+'">'+k+'</a> | ');
+            });
             rows.push('<span class="pull-right"><a href="#" id="hideAll">'+_("close.each")+'</a></span>');
           }
         }
         rows.push('</table>');
-        
+
         if (t.listViewTableHeight!=null) rows.push("<p></p>");
-  
-        rows.push(t.addSecondMenu());      
+
+        rows.push(t.addSecondMenu());
       }
       $("#cdb_content").html(rows.join(""));
-      
+
       if (debug) t.endTimer("renderTableView");
-      
+
       calcHeaderWidth(current_id);
-  
+
       // Callbacks auf die Header und Footer der Tabelle
       $("#cdb_content a").click(function (_content_a) {
         if ($(this).attr("id")=="orderby") loadList("","",$(this).attr("href"));
@@ -448,37 +448,37 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
               j++;
               if ((n>=t.listOffset) && (j<=masterData.settings["listMaxRows"+t.name])) {
                 t.renderEntryDetail(a.id);
-              } 
+              }
             }
-          });   
+          });
         }
         else if ($(this).attr("id")=="hideAll") {
           $.each(listObject, function(k, entry) {
             entry.open=false;
           });
-          
+
           t.renderList();
-        }      
+        }
       });
-      $("#cdb_content a.changemaxrow").click(function () {    
+      $("#cdb_content a.changemaxrow").click(function () {
         masterData.settings["listMaxRows"+t.name]=$(this).attr("data-id");
         t.renderList();
-        if (!churchcore_handyformat()) 
+        if (!churchcore_handyformat())
           churchInterface.jsendWrite({func:"saveSetting", sub:"listMaxRows"+t.name, val:$(this).attr("data-id")});
         t.overrideMaxRows=true;
         return false;
       });
-      
+
       t.addTableContentCallbacks("#cdb_content");
       $(window).resize(function() {
         calcHeaderWidth();
       });
       if (listObject!=null)
       $.each(listObject, function(k, entry) {
-        if ((entry!=null) && (t.checkFilter(entry))) 
+        if ((entry!=null) && (t.checkFilter(entry)))
           if ((entry.open) || (t.counter==1)) t.renderEntryDetail(entry.id);
       });
-      
+
       if (debug) t.endTimer("renderTablecallback");
       t.renderListTimer=null;
     },10);
@@ -488,7 +488,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
 
 StandardTableView.prototype.startTimer = function() {
   this.testTimer=new Date();
-  
+
 };
 StandardTableView.prototype.endTimer = function(name) {
   console.log(name+": "+churchcore_getTimeDiff(this.testTimer));
@@ -512,16 +512,16 @@ StandardTableView.prototype.entryDetailClick = function(id) {
   if ($("tr[id=detail"+id+"]").text()!="") {
     $("tr[id=detail"+id+"]").remove();
     a[id].open=false;
-  } 
-  else {          
+  }
+  else {
     a[id].open=true;
     t.renderEntryDetail(id);
-  }   
+  }
 };
 
 StandardTableView.prototype.addTableContentCallbacks = function(cssid) {
   var t=this;
-  
+
   $(cssid+" input.checked").click(function (_content_input) {
     var s=$(this).attr("id");
     if (s=="markAll") {
@@ -530,26 +530,26 @@ StandardTableView.prototype.addTableContentCallbacks = function(cssid) {
         $.each(listObject, function(k,a) {
           if ((a!=null) && (t.checkFilter(a))) {
             a.checked=bol;
-          }  
+          }
         });
-      }  
+      }
 
-      if ($(this).is(":checked")) {          
+      if ($(this).is(":checked")) {
         $("#cdb_content input.checked").not("#markAll").each(function(a) {
           $(this).attr("checked","true");
           t.getData(false)[$(this).attr("id").substr(5,99)]["checked"]=true;
-        });  
-      }  
-      else {   
+        });
+      }
+      else {
         $("#cdb_content input.checked").not("#markAll").each(function(a) {
           $(this).removeAttr("checked");
           t.getData(false)[$(this).attr("id").substr(5,99)]["checked"]=false;
-        }); 
+        });
       }
-    }  
+    }
     else t.getData(false)[$(this).attr("id").substr(5,99)]["checked"]=$(this).is(":checked");
   });
-  
+
   $(cssid+" a").click(function (_content_a) {
     if ($(this).attr("id")==null)
       return true;
@@ -569,11 +569,11 @@ StandardTableView.prototype.addTableContentCallbacks = function(cssid) {
   $(".hoveractor").hover(
       function () {
         $(this).find("span.hoverreactor").fadeIn('fast',function() {});
-      }, 
+      },
       function () {
         $(this).find("span.hoverreactor").fadeOut('fast');
       }
-    );  
+    );
   this.addFurtherListCallbacks(cssid);
 };
 
@@ -585,13 +585,13 @@ StandardTableView.prototype.mailPerson = function (personId, name, subject) {
   if (masterData.settings.signature!=null)
     rows.push(masterData.settings.signature);
   rows.push('</div>');
-  
+
   if (masterData.settings.sendBCCMail==null)
     masterData.settings.sendBCCMail=1;
   rows.push("<p>"+form_renderCheckbox({cssid:"sendBCCMail", checked: masterData.settings.sendBCCMail==1,
        label:_("send.bcc.copy.to.myself")}));
 
-  
+
   var elem=this.showDialog(_("send.email.to.x", name!=null?name:"Person"), rows.join(""), 600,550);
   elem.dialog("addbutton", _("send"), function() {
       var arr=personId.split(",");
@@ -599,7 +599,7 @@ StandardTableView.prototype.mailPerson = function (personId, name, subject) {
         var obj = new Object();
         obj.ids=personId;
         masterData.settings.sendBCCMail=($("#sendBCCMail").attr("checked")?1:0);
-        if (masterData.settings.sendBCCMail==1)   
+        if (masterData.settings.sendBCCMail==1)
           if (typeof(masterData.user_pid)=="string")
             obj.ids=obj.ids+","+masterData.user_pid;
           else
@@ -616,12 +616,12 @@ StandardTableView.prototype.mailPerson = function (personId, name, subject) {
             drafter.clear();
           }
           else alert(_("error.occured")+": "+data);
-        }, null, false);          
+        }, null, false);
         $(this).dialog("close");
       }
   });
   elem.dialog("addcancelbutton");
-  
+
   form_implantWysiwygEditor('inhalt', false);
   //Save draft
   var drafter=new Drafter("email", {
@@ -635,16 +635,16 @@ StandardTableView.prototype.mailPerson = function (personId, name, subject) {
       CKEDITOR.instances.inhalt.setData(content);
     }
   });
-  
+
   CKEDITOR.instances.inhalt.on('change', function() {  elem.find('span.editor-status').html('');});
 
-  
+
   if (subject!=null)
     $("#inhalt").focus();
 
   $("a").click(function(c) {
     if (($(this).attr("id")=="Vorname") || ($(this).attr("id")=="Nachname")) {
-      $("#inhalt").insertAtCaret("["+$(this).attr("id")+"]");    
+      $("#inhalt").insertAtCaret("["+$(this).attr("id")+"]");
     }
   });
 };
@@ -656,22 +656,22 @@ StandardTableView.prototype.renderFile = function(file, filename_length) {
     var i = file.bezeichnung.lastIndexOf(".");
     if (i>0) {
       switch (file.bezeichnung.substr(i,99)) {
-      case '.mp3': 
+      case '.mp3':
         txt=txt+this.renderImage("mp3",18);
         break;
-      case '.m4a': 
+      case '.m4a':
         txt=txt+this.renderImage("mp3",18);
         break;
-      case '.pdf': 
+      case '.pdf':
         txt=txt+this.renderImage("pdf",18);
         break;
-      case '.doc': 
+      case '.doc':
         txt=txt+this.renderImage("word",18);
         break;
-      case '.docx': 
+      case '.docx':
         txt=txt+this.renderImage("word",18);
         break;
-      case '.rtf': 
+      case '.rtf':
         txt=txt+this.renderImage("word",18);
         break;
       default:
@@ -697,36 +697,36 @@ StandardTableView.prototype.renderTooltipForFiles = function (tooltip, f, editau
   var rows = new Array();
   var i = f.bezeichnung.lastIndexOf(".");
   if (i>0)
-    
+
   switch (f.bezeichnung.substr(i,99).toLowerCase()) {
-    case '.mp3': 
+    case '.mp3':
       rows.push('<audio style="width:300px" src="'+masterData.files_url+"/files/"+f.domain_type+"/"+f.domain_id+"/"+f.filename+'"/>');
       break;
-    case '.wav': 
+    case '.wav':
       rows.push('<audio style="width:300px" src="'+masterData.files_url+"/files/"+f.domain_type+"/"+f.domain_id+"/"+f.filename+'"/>');
       break;
-    case '.m4a': 
+    case '.m4a':
       rows.push('<video src="'+masterData.files_url+"/files/"+f.domain_type+"/"+f.domain_id+"/"+f.filename+'"/>');
       break;
-    case '.mp4': 
+    case '.mp4':
       rows.push('<video src="'+masterData.files_url+"/files/"+f.domain_type+"/"+f.domain_id+"/"+f.filename+'"/>');
       break;
-    case '.avi': 
+    case '.avi':
       rows.push('<video src="'+masterData.files_url+"/files/"+f.domain_type+"/"+f.domain_id+"/"+f.filename+'"/>');
       break;
-    case '.mpeg': 
+    case '.mpeg':
       rows.push('<video src="'+masterData.files_url+"/files/"+f.domain_type+"/"+f.domain_id+"/"+f.filename+'"/>');
       break;
-    case '.jpg': 
+    case '.jpg':
       rows.push('<img style="max-width:200px;max-height:200px" src="'+masterData.files_url+"/files/"+f.domain_type+"/"+f.domain_id+"/"+f.filename+'"/>');
       break;
-    case '.png': 
+    case '.png':
       rows.push('<img style="max-width:200px;max-height:200px" src="'+masterData.files_url+"/files/"+f.domain_type+"/"+f.domain_id+"/"+f.filename+'"/>');
       break;
     default:
       break;
   }
-  
+
   if (f.modified_date!=null)
     rows.push("<p>"+f.modified_date.toDateEn(true).toStringDe(true)+" ("+f.modified_username+")");
   rows.push("<p>");
@@ -738,9 +738,9 @@ StandardTableView.prototype.renderTooltipForFiles = function (tooltip, f, editau
     rows.push(form_renderButton({label:_("delete"), cssid:"file_delete", htmlclass:"btn-danger btn-small"})+"&nbsp;");
     title='<span id="file_name">'+f.bezeichnung+" "+form_renderImage({label:_("rename"), src:"options.png", width:20, cssid:"file_rename"})+'</span>';
   }
-  
+
   rows.push(form_renderHidden({cssid:"file",value:"true"}));
-  return [rows.join(""), title] 
+  return [rows.join(""), title]
 };
 
 
@@ -762,8 +762,8 @@ StandardTableView.prototype.tooltipCallbackForFiles = function(id, tooltip, file
       error: function(a) {
         //alert('Fehler beim Laden der Mediendaten!');
       }
-  });    
-  
+  });
+
   var f=filecontainer[filecontainer_id].files[id];
   tooltip.find("#file_download").click(function() {
     t.clearTooltip(true);
@@ -778,10 +778,10 @@ StandardTableView.prototype.tooltipCallbackForFiles = function(id, tooltip, file
         churchInterface.jsendWrite({func:"renameFile", id:f.id, filename:newfilename}, function(ok, data) {
           if (ok) {
             f.bezeichnung=newfilename;
-            t.renderFiles(filecontainer, filecontainer_id);        
+            t.renderFiles(filecontainer, filecontainer_id);
           }
           else alert("Fehler beim Speichern: "+data);
-        });        
+        });
       }
       // Escape
       else if (e.keyCode == 27) {
@@ -795,25 +795,25 @@ StandardTableView.prototype.tooltipCallbackForFiles = function(id, tooltip, file
       churchInterface.jsendWrite({func:"delFile", id:f.id}, function(ok, data) {
         if (ok) {
           delete filecontainer[filecontainer_id].files[id];
-          t.renderFiles(filecontainer, filecontainer_id);        
+          t.renderFiles(filecontainer, filecontainer_id);
         }
         else alert(_("error.occured")+": "+data);
-      });        
-      t.clearTooltip(true);    
+      });
+      t.clearTooltip(true);
     }
   });
 };
 
 
 /**
- * Rendert alle div.filelist mit Inhalt von filecontainer. 
+ * Rendert alle div.filelist mit Inhalt von filecontainer.
  * @param header
  * @param filecontainer
  * @param specific_domain_id oder null, wenn alle
  * @param delete_func funtion(file_id)
  */
 StandardTableView.prototype.renderFilelist = function(header, filecontainer, specific_domain_id, delete_func, filename_length) {
-  var t=this; 
+  var t=this;
   if (filename_length==null) filename_length=25;
   var specialselector="";
   if (specific_domain_id!=null)
@@ -824,7 +824,7 @@ StandardTableView.prototype.renderFilelist = function(header, filecontainer, spe
       var files=filecontainer[$(this).attr("data-id")].files;
       if ((files!=null) && (churchcore_countObjectElements(files)>0)) {
         var txt=header;
-        if (txt!="") txt=txt+"<br/>"; 
+        if (txt!="") txt=txt+"<br/>";
         $.each(churchcore_sortData(files, "bezeichnung"), function(k,a) {
           txt=txt+t.renderFile(a,filename_length);
         });
@@ -836,8 +836,8 @@ StandardTableView.prototype.renderFilelist = function(header, filecontainer, spe
 
 
 /**
- * 
- * @param title 
+ *
+ * @param title
  * @param text
  * @param width
  * @param height
@@ -850,7 +850,7 @@ StandardTableView.prototype.showDialog = function(title, text, width, height, bu
 
 
 /**
- * 
+ *
  * @param divid
  * @param curDate aktuelles Datum
  * @param func function fuer erfolgte Auswahl mit Arg func(dateText,divid)
@@ -866,7 +866,7 @@ StandardTableView.prototype.standardFieldCoder = function (typ, arr) {
 };
 
 /**
- * Holt sich die Standardfelder und f�llt das Elem damit. Au�erdem wird ein Callback f�r Selects erzeugt, 
+ * Holt sich die Standardfelder und f�llt das Elem damit. Au�erdem wird ein Callback f�r Selects erzeugt,
  * so dass �nderungen sofort beachtet werden (z.B. Code:XXX)
  */
 StandardTableView.prototype.renderStandardFieldsAsSelect = function (elem, fieldname, arr, authArray) {
@@ -884,8 +884,8 @@ StandardTableView.prototype.checkFieldPermission = function (field, authArray) {
   if (field.auth!=null && field.auth!="") {
     res=false;
     $.each(churchcore_getAuthAsArray(field.auth), function(k,auth) {
-      if (auth!=null) 
-        if ((masterData.auth[auth]!=null) || (authArray!=null && churchcore_inArray(auth, authArray))) 
+      if (auth!=null)
+        if ((masterData.auth[auth]!=null) || (authArray!=null && churchcore_inArray(auth, authArray)))
           res=true;
     });
   }
@@ -916,7 +916,7 @@ StandardTableView.prototype.getStandardFieldAsSelect = function (field, arr, ele
       if ((value!=null) && (value!="")) o.value=value.toDateEn(false).toStringDe(false);
       else o.value="";
       return form_renderInput(o);
-    case "checkbox":      
+    case "checkbox":
       o.checked=((value!=null) && (value==1));
       return form_renderCheckbox(o);
     case "textarea":
@@ -926,13 +926,13 @@ StandardTableView.prototype.getStandardFieldAsSelect = function (field, arr, ele
     default:
       o.email=(field.sql=="email");
       o.value=value;
-      o.maxlength=field.length; 
+      o.maxlength=field.length;
       return form_renderInput(o);
-  }   
+  }
 };
 
 /**
- * 
+ *
  * @param fieldname - z.Bsp. f_address
  * @param arr - Array mit den zugeh�rigen Daten, z.Bsp. allPersons[x].details
  * @param authArray - Array mit Strings, bei denen man das bearbeiten darf
@@ -943,14 +943,14 @@ StandardTableView.prototype.getStandardFieldsAsSelect = function (fieldname, arr
   var form = new CC_Form(null, arr, "standardFieldAsSelect");
   $.each(masterData.fields[fieldname].fields, function(elem, field) {
     //TODO: Wechsel auf Formular. Problem ist noch die ccsid, denn diese ist hier ohne "Input..."
-    //form.addStandardField(f, authArray);     
+    //form.addStandardField(f, authArray);
     form.addHtml(t.getStandardFieldAsSelect(field, arr, elem, authArray));
   });
   return form.render(null, "horizontal");
 };
 
 /**
- * 
+ *
  * @param id
  * @param fieldname - Fields Name, also zum Beispiel f_address
  * @param arr
@@ -958,12 +958,12 @@ StandardTableView.prototype.getStandardFieldsAsSelect = function (fieldname, arr
  */
 StandardTableView.prototype.getSaveObjectFromInputFields = function(id, fieldname, arr) {
   var obj=new Object();
-  obj["id"]=id;               
-  obj["func"] =fieldname;                    
+  obj["id"]=id;
+  obj["func"] =fieldname;
 
   // if field exists
   if (masterData.fields[obj["func"]]!=null) {
-    // Set vars in the browser and prepare obj 
+    // Set vars in the browser and prepare obj
     for (var elem in masterData.fields[obj["func"]].fields) {
       if ($("#Input" + elem).length>0 && !$("#Input" + elem).is(':disabled')) {
         if (masterData.fields[obj["func"]].fields[elem].type=="date") {
@@ -974,26 +974,26 @@ StandardTableView.prototype.getSaveObjectFromInputFields = function(id, fieldnam
         else if (masterData.fields[obj["func"]].fields[elem].type=="checkbox") {
           if ($("#Input" + elem).attr("checked")=="checked")
             arr[elem] = 1;
-          else  
-            arr[elem] = 0;          
+          else
+            arr[elem] = 0;
         }
         else {
           if ($("#Input" + elem).val()!=null)
             arr[elem] = $("#Input" + elem).val().trim();
-          else 
+          else
             arr[elem] =null;
         }
         obj[elem] = arr[elem];
       }
     }
-  }   
+  }
   return obj;
 };
 
 StandardTableView.prototype.renderImage = function(imageName, width, title) {
   if (width==null) width=20;
   if (title==null) title="";
-  return '<img width="'+width+'px" style="max-width:'+width+'px" title="'+title+'" src="'+masterData.modulespath+'/images/'+imageName+'.png"/>';  
+  return '<img width="'+width+'px" style="max-width:'+width+'px" title="'+title+'" src="'+masterData.modulespath+'/images/'+imageName+'.png"/>';
 };
 
 StandardTableView.prototype.renderYesNo = function(nr, width) {
@@ -1003,45 +1003,45 @@ StandardTableView.prototype.renderYesNo = function(nr, width) {
 
 StandardTableView.prototype.renderField = function(elem, field, a, write_allowed, authArray) {
   var t=this;
-  
+
   if (debug) console.log(field);
   _text="";
-  if ((a[elem]!=null) && (a[elem] != "") && 
+  if ((a[elem]!=null) && (a[elem] != "") &&
       (t.checkFieldPermission(field, authArray))) {
-    
+
     var eol=field.eol;
     if (eol.indexOf("%")>-1) {
       _text = _text + eol.substr(0,eol.indexOf("%"));
       eol=eol.substr(eol.indexOf("%")+1,99);
     }
-    
+
     if (field.shorttext != "") {
       _text = _text + field.shorttext + ": ";
-    }       
-    _text=_text+'<span class="content">';      
+    }
+    _text=_text+'<span class="content">';
     if (field.type=="date") {
       _text = _text + a[elem].toDateEn().toStringDe();
-    } 
+    }
     else if (field.type!="select") {
       if ((elem=="strasse") || (elem=="ort") || (elem=="plz"))
         _text=_text + '<a style="color:black" id="extern" target="_blank" href="http://maps.google.de/?q='+a.strasse+", "+a.plz+" "+a.ort+'">'+a[elem]+'</a>';
       else if ((elem=="telefonprivat") || (elem=="telefongeschaeftlich") || (elem=="telefonhandy"))
         _text = _text + '<a id="extern" style="color:black" href="tel:'+a[elem]+'">'+a[elem]+'</a>';
       else if ((elem=="email"))
-        _text=_text + '<a style="color:black" id="extern" href="'+'mailto:'+a.email+'">'+a[elem]+'</a>';          
+        _text=_text + '<a style="color:black" id="extern" href="'+'mailto:'+a.email+'">'+a[elem]+'</a>';
       else
-        _text = _text + a[elem];                
-    }  
+        _text = _text + a[elem];
+    }
     else {
       if (masterData[field.selector][a[elem]]!=null) {
         _text = _text + masterData[field.selector][a[elem]].bezeichnung;
         if (masterData[field.selector][a[elem]].auth!=null)
           _text = _text + "&nbsp;"+t.renderImage("schluessel",16,"Berechtigungen: "+t.getAuthAsArray(masterData[field.selector][a[elem]].auth).join(", "));
       }
-      else 
+      else
         _text = _text +'<font color="red">Id:'+a[elem]+"?</font>";
     }
-    _text = _text + '</span>' + eol;              
+    _text = _text + '</span>' + eol;
   }
   return _text;
 };
@@ -1051,18 +1051,18 @@ StandardTableView.prototype.renderField = function(elem, field, a, write_allowed
  */
 StandardTableView.prototype.renderFields = function(fields, a, write_allowed, authArray) {
   var t=this;
-  var _text=""; 
+  var _text="";
 
   _text=_text+"<legend id=\"pDetail"+fields.arrayname+"\">"+fields.text+"&nbsp;&nbsp;";
   if (write_allowed)
   _text=_text+'<a href="" id="'+fields.arrayname+'">'+t.renderImage("options", 20)+'</a>';
-    
+
   _text=_text+"</legend><p style='line-height:100%'><small>";
 
   $.each(fields.fields, function(elem, field) {
     _text=_text+t.renderField(elem, field, a, write_allowed, authArray);
-  }); 
-  
+  });
+
   _text=_text+"</small><br/>";
 
   return _text;
@@ -1076,7 +1076,7 @@ StandardTableView.prototype.renderInput2 = function (options) {
 
 
 /**
- * 
+ *
  * @param id
  * @param title
  * @param text
@@ -1093,7 +1093,7 @@ StandardTableView.prototype.renderInput = function (id, title, text, size, disab
 };
 
 /**
- * 
+ *
  * @param id
  * @param title
  * @param text
@@ -1116,7 +1116,7 @@ StandardTableView.prototype.sortMasterData = function (data) {
 
 
 /**
- * 
+ *
  * @param {Object} selected - id des vorselektierten Eintrags
  * @param {Object} elem - Name des Elementes
  * @param {Object} masterData - Welches MasterData genommen wird, z.Bsp. MasterData.f_status
@@ -1127,15 +1127,15 @@ StandardTableView.prototype.renderSelect = function(selected, elem, masterData, 
   var this_object=this;
   if (masterData==null)
     return "<select><option>-</select>";
-  if ((disabled!=null) && (disabled)) 
+  if ((disabled!=null) && (disabled))
     _text=_text+"<select id=\"Input"+elem+"\" disabled=\"true\">";
-  else 
+  else
     _text=_text+"<select id=\"Input"+elem+"\">";
   $.each(this_object.sortMasterData(masterData), function (k,a) {
     if ((typeof func !="function") || (func(a))) {
-      if ((selected!=null) && (a.id==selected)) 
-        _text=_text+"<option selected value=\""+a.id+"\">"+a.bezeichnung+"</option>";         
-      else            
+      if ((selected!=null) && (a.id==selected))
+        _text=_text+"<option selected value=\""+a.id+"\">"+a.bezeichnung+"</option>";
+      else
         _text=_text+"<option value=\""+a.id+"\">"+a.bezeichnung+"</option>";
     }
   });
@@ -1149,8 +1149,8 @@ StandardTableView.prototype.renderPersonImage = function(id, width) {
 
 
 /**
- * 
- * @param title 
+ *
+ * @param title
  * @param searchAll false=nur alle Person in der Variabel allPersons suchen / true=online suchen, nach allen in meinen Bereichen
  * @param resultFunction gibt id zur�ck
  */
@@ -1161,23 +1161,23 @@ StandardTableView.prototype.renderPersonSelect = function(title, searchAll, resu
   rows.push(_("search")+": <input type=\"text\" size=\"10\" id=\"searchAddress\"/ value=\""+_searchString+"\">&nbsp;&nbsp;<br/>");
   rows.push("<div id=\"cdb_personselector\">"+"<i>"+_("name.of.person")+"...</i>"+"</div><br/>");
   if (searchAll) rows.push("<p><small>"+_("looking.for.visible.persons.in.all.your.departments")+"</small>");
-  
+
   var elem = form_showCancelDialog(_("looking.for.a.person"),rows.join(""));
-  
+
   if (!searchAll) {
-  
+
     $("#searchAddress").keyup(function(c) {
       if ($(this).val()=="") $("#cdb_personselector").html("");
       if ((_searchString!=$(this).val().toUpperCase()) && ($(this).val().length>0)) {
         _searchString=$(this).val().toUpperCase();
-        
+
         var rows = new Array();
         i=0;
         rows.push('<table class="table table-condensed">');
         $.each(allPersons, function(k, a) {
-          if (i<20) { 
-            if ((((masterData.status[a.status_id]==null) || (masterData.status[a.status_id].infreitextauswahl_yn==0))) || 
-                ((_searchString!="") && 
+          if (i<20) {
+            if ((((masterData.status[a.status_id]==null) || (masterData.status[a.status_id].infreitextauswahl_yn==0))) ||
+                ((_searchString!="") &&
                 (a.spitzname.toUpperCase().indexOf(_searchString)!=0) &&
                 (a.name.toUpperCase().indexOf(_searchString)!=0) &&
                 (a.vorname.toUpperCase().indexOf(_searchString)!=0) &&
@@ -1191,7 +1191,7 @@ StandardTableView.prototype.renderPersonSelect = function(title, searchAll, resu
                         (a.spitzname!=""?"("+a.spitzname+")":"")+"</a>");
               i++;
             };
-          }        
+          }
         });
         rows.push('</table>');
         $("#cdb_personselector").html(rows.join(""));
@@ -1201,9 +1201,9 @@ StandardTableView.prototype.renderPersonSelect = function(title, searchAll, resu
           resultFunction(id);
           elem.empty().remove();
           return false;
-        });      
-      }  
-    });           
+        });
+      }
+    });
   }
   else {
     this.autocompletePersonSelect("#searchAddress", true, function(divid, ui) {
@@ -1218,7 +1218,7 @@ StandardTableView.prototype.renderPersonSelect = function(title, searchAll, resu
 
 StandardTableView.prototype.renderPersonImageUrl = function(url, width) {
   if (url==null) url="nobody.gif";
-  return '<img style="max-width:'+width+'px;max-height:'+width+'px;" src="'+masterData.files_url+"/fotos/"+url+"\"/>";          
+  return '<img style="max-width:'+width+'px;max-height:'+width+'px;" src="'+masterData.files_url+"/fotos/"+url+"\"/>";
 };
 
 StandardTableView.prototype.autocompletePersonSelect = function (divid, withMyDeps, func) {
@@ -1253,7 +1253,7 @@ StandardTableView.prototype.renderAuth = function(auth_id) {
 
 /**
  * Create the form to edit permissions
- * @param id 
+ * @param id
  * @param auth
  * @param domain_type person, group oder status
  * @param func return function, wenn erfolgreich gespeichert mit (id) als parameter
@@ -1279,7 +1279,7 @@ StandardTableView.prototype.editDomainAuth = function (domain_id, domain_type, f
             elem.dialog("close");
             func();
           }
-        });        
+        });
       });
     });
   });

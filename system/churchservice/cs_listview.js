@@ -1,5 +1,11 @@
- 
+
 // Constructor
+
+/**
+ * shows a list view using StandardTableView
+ *
+ * @param options
+ */
 function ListView(options) {
   StandardTableView.call(this, options);
   this.name="ListView";
@@ -20,7 +26,7 @@ listView = new ListView();
 
 ListView.prototype.getData = function(sorted) {
   if (allEvents==null) return null;
-  
+
   if (sorted)
     return churchcore_sortData(allEvents,this.sortVariable);
   else
@@ -30,19 +36,19 @@ ListView.prototype.getData = function(sorted) {
 
 ListView.prototype.renderMenu = function() {
   this_object=this;
-  
+
   menu = new CC_Menu(_("menu"));
-  
+
   if (masterData.auth.write)
     menu.addEntry(_("create.new.event"), "create-new-event", "star");
 
-  if (masterData.auth.admin) {  
+  if (masterData.auth.admin) {
     menu.addEntry(_("workload"), "workload", "fire");
   }
 
-  menu.addEntry(_("settings"), "settings", "wrench");    
+  menu.addEntry(_("settings"), "settings", "wrench");
 
-  if (masterData.auth.admin)  
+  if (masterData.auth.admin)
     menu.addEntry(_("maintain.masterdata"), "maintain-masterdata", "cog");
 
   menu.addEntry(_("printview"), "aprintview", "print");
@@ -50,16 +56,16 @@ ListView.prototype.renderMenu = function() {
 
   if (!menu.renderDiv("cdb_menu",churchcore_handyformat()))
     $("#cdb_menu").hide();
-  else {    
+  else {
     $("#cdb_menu a").click(function () {
       if ($(this).attr("id")=="create-new-event") {
         this_object.renderAddEntry();
       }
       else if ($(this).attr("id")=="avorlage") {
-        this_object.editTemplates(); 
+        this_object.editTemplates();
       }
       else if ($(this).attr("id")=="workload") {
-        this_object.showAuslastung(); 
+        this_object.showAuslastung();
       }
       else if ($(this).attr("id")=="aprintview") {
         var filter='&date='+t.currentDate.toStringEn(false);
@@ -72,10 +78,10 @@ ListView.prototype.renderMenu = function() {
       }
       else if ($(this).attr("id")=="aaddfilter") {
         if (!this_object.furtherFilterVisible) {
-          this_object.furtherFilterVisible=true;  
+          this_object.furtherFilterVisible=true;
         } else {
-          this_object.furtherFilterVisible=false;                
-        } 
+          this_object.furtherFilterVisible=false;
+        }
         this_object.renderFurtherFilter();
       }
       else if ($(this).attr("id")=="aadmin") {
@@ -99,12 +105,12 @@ ListView.prototype.renderMenu = function() {
       }
       return false;
     });
-  }    
+  }
 };
 
 ListView.prototype.renderListMenu = function() {
   var this_object=this;
-  
+
   var navi = new CC_Navi();
   navi.addEntry(churchInterface.isCurrentView("ListView"),"alistview",_("plan.of.services"));
   if (masterData.auth.manageabsent)
@@ -115,11 +121,11 @@ ListView.prototype.renderListMenu = function() {
     navi.addEntry(churchInterface.isCurrentView("AgendaView"),"aagendaview",_("agendas"));
   if (masterData.auth.viewsong)
     navi.addEntry(churchInterface.isCurrentView("SongView"),"asongview",_("songs"));
-  
+
   navi.addSearch(this.getFilter("searchEntry"));
   navi.renderDiv("cdb_search", churchcore_handyformat());
-  this.implantStandardFilterCallbacks(this, "cdb_search");         
-  
+  this.implantStandardFilterCallbacks(this, "cdb_search");
+
   $("#cdb_search a").click(function () {
     if ($(this).attr("id")=="alistview") {
       listView.furtherFilterVisible=this_object.furtherFilterVisible;
@@ -141,7 +147,7 @@ ListView.prototype.renderListMenu = function() {
       churchInterface.setCurrentView(songView);
     }
     return false;
-  });  
+  });
 };
 
 ListView.prototype.addSecondMenu = function() {
@@ -153,27 +159,27 @@ ListView.prototype.addSecondMenu = function() {
  */
 ListView.prototype.showLastChanges = function() {
   var this_object=this;
-  
+
   // Erstmal die aktuelle Zeit zum Speichern r�bersenden
   var _d= new Date();
   churchInterface.jsendWrite({func:"saveSetting", sub:"lastVisited", val:_d.toStringEn(true)});
 
   // Variablen vorbereiten
-  if (masterData.settings.lastVisited!=null) { 
+  if (masterData.settings.lastVisited!=null) {
     var _lastVisited=masterData.settings.lastVisited.toDateEn();
 //    var test="2011-04-28 01:01"; _lastVisited=test.toDateEn();
   }
-  else 
+  else
     _lastVisited=_d.toStringEn(true);
   var _text="";
   var _counter=0;
 
-  // Nun alle Gruppen durchgehen und �nderungen nach dem letzten lastVisited anzeigen  
+  // Nun alle Gruppen durchgehen und �nderungen nach dem letzten lastVisited anzeigen
   $.each(this.getData(true), function(k,event) {
     _first=true;
     if ((event.services!=null) && (event.startdate.toDateEn()>_d)) {
       $.each(event.services, function(i,service) {
-        if ((service.valid_yn==1) && (service.user_id!=masterData.user_pid) 
+        if ((service.valid_yn==1) && (service.user_id!=masterData.user_pid)
                && (masterData.auth.leaderservice[service.service_id])) {
           var _history=this_object.renderEntryHistory(event.id, service.service_id, service.counter, _lastVisited, true);
           if (_history!="") {
@@ -185,11 +191,11 @@ ListView.prototype.showLastChanges = function() {
             _text=_text+masterData.service[service.service_id].bezeichnung;
             _text=_text+_history;
           }
-        }        
+        }
       });
     }
   });
-  
+
   // Anzeige der Box, wenn es �ndeerungen gab
   if (_text!="") {
     this.showDialog("Neuigkeiten innerhalb Deiner Gruppe", "<table class=\"table table-condensed\">"+_text+"</table>", 600, 600, {
@@ -211,7 +217,7 @@ ListView.prototype.messageReceiver = function(message, args) {
       //this_object.renderList();
       // Wenn ein Event per Url �bergeben wurde, dann soll er es gleich �ffnen.
       if ($("#id").val()!=null) {
-        if ($("#eventservice_id").val()!=null) 
+        if ($("#eventservice_id").val()!=null)
           this_object.renderEditEventService($("#event_id").val(), $("#eventservice_id").val());
       }
       if ($(window).width()>600)
@@ -224,7 +230,7 @@ ListView.prototype.messageReceiver = function(message, args) {
           this_object.renderList(allEvents[a]);
         });
       });
-    }  
+    }
 //    else if (message=="filterChanged") {
 /*      Habe es wieder herausgenommen, da es doch zu Verwirrungen f�hren kann.
  *      if (args[0]=="filterMeine Filter") {
@@ -233,7 +239,7 @@ ListView.prototype.messageReceiver = function(message, args) {
                    val:this.getFilter("filterMeine Filter")});
       }*/
 //    }
-  }  
+  }
 };
 
 function _getEditEventFromForm() {
@@ -242,7 +248,7 @@ function _getEditEventFromForm() {
     obj.id=$("#EventId").val();
   obj.category_id=$("#Inputcategory").val();
   obj.bezeichnung=$("#InputBezeichnung").val();
-  
+
   if ($("#InputDatumTag").attr("disabled")==null) {
     obj.stunde=$("#InputDatumStunde").val();
     obj.minute=$("#InputDatumMinute").val();
@@ -250,7 +256,7 @@ function _getEditEventFromForm() {
     _datum=$("#InputDatumTag").val().toDateDe();
     _datum.setHours(obj.stunde);
     _datum.setMinutes(obj.minute);
-    
+
     obj.startdate=_datum.toStringEn(true);
   }
 
@@ -263,23 +269,23 @@ function _getEditEventFromForm() {
       obj.enddate=_datum.toStringEn(true);
     }
   }
-  
+
   obj.special=$("#InputSpecial").val();
   obj.admin=$("#InputAdmin").val();
-  
+
   var services = new Object();
   $("#in_edit input").each(function (i) {
     if ($(this).attr("id").indexOf("cb_")==0) {
-      if ($(this).attr("checked")) 
+      if ($(this).attr("checked"))
         services[$(this).attr("id").substr(3,99)]=1;
-      else if (($(this).val()>0)) 
+      else if (($(this).val()>0))
         services[$(this).attr("id").substr(3,99)]=$(this).val();
       else
-        services[$(this).attr("id").substr(3,99)]=0;      
+        services[$(this).attr("id").substr(3,99)]=0;
     }
   });
-  obj.services=services;    
-  
+  obj.services=services;
+
   return obj;
 }
 
@@ -296,7 +302,7 @@ function _getTemplateIdFromName(name) {
 }
 
 /**
- * 
+ *
  * @param event
  * @param template_name
  * @param func function(new_template_id)
@@ -310,7 +316,7 @@ ListView.prototype.saveEventAsTemplate = function (event, template_name, func) {
   event.dauer_sec=(event.enddate.toDateEn(true).getTime()-event.startdate.toDateEn(true).getTime())/1000;
   churchInterface.jsendWrite(obj, null, false);
   cdb_loadMasterData(function() {
-    func(_getTemplateIdFromName(template_name));    
+    func(_getTemplateIdFromName(template_name));
   });
 };
 
@@ -321,20 +327,20 @@ ListView.prototype.saveEditEvent = function (elem) {
   var this_object=this;
   var obj=_getEditEventFromForm();
   obj.func="saveEvent";
-  
-  if (($("#EventId").val()!=null) && (obj.startdate!=null) && (obj.startdate.toDateEn(true).getTime()!=allEvents[$("#EventId").val()].startdate.toDateEn(true).getTime()) 
+
+  if (($("#EventId").val()!=null) && (obj.startdate!=null) && (obj.startdate.toDateEn(true).getTime()!=allEvents[$("#EventId").val()].startdate.toDateEn(true).getTime())
      && (!confirm("Durch die Anpassung des Datum verschiebt sich auch der Kalendereintrag und ggfl. weitere Ressourcenanfragen. Soll wirklich gespeichert werden?")))
     return null;
-  
+
   var repeats=$("#InputRepeats").val();
   if (repeats==null) repeats=1;
-    
+
   elem.html(_("save.data"));
   churchInterface.jsendWrite(obj, function(ok, data) {
     cs_loadEventData(null, function(){
       elem.dialog("close");
       this_object.renderList();
-    });            
+    });
   });
 };
 
@@ -342,44 +348,44 @@ ListView.prototype.renderEditEvent = function(event) {
   var t=this;
   var rows=new Array();
   var template=null;
-  
-  
+
+
   if (event.valid_yn==0) {
     rows.push('<p><p><div class="well"><P> Das Event ist abgesagt worden.<p>');
     rows.push(form_renderButton({label:"Event reaktivieren", cssid:"reopenEvent"}));
     rows.push("</div>");
   }
   else {
-  
+
     var date_blocked=false;
     if (event.bookings) {
       rows.push('<div class="alert alert-error">Achtung: Das Event enth&auml;lt auch Ressourcen-Buchungen, deshalb Datum & Uhrzeit in <a href="?q=churchcal&date='+event.startdate.toDateEn(false).toStringEn(false)+'">'+masterData.churchcal_name+'</a> bearbeiten. </div>');
       date_blocked=true;
-    } 
+    }
     else if (event.repeat_id>0) {
       if (event.cal_startdate!=event.startdate) {
-        rows.push('<div class="alert alert-error">Achtung: Es handelt sich um eine Terminserie. '+ 
+        rows.push('<div class="alert alert-error">Achtung: Es handelt sich um eine Terminserie. '+
             'Zur Anpassung der gesperrten Felder bitte das <a href="#" class="first-event">Startevent der Serie</a> editieren oder in '
             +masterData.churchcal_name+' bearbeiten.</div>');
         date_blocked=true;
       }
       else {
-        rows.push('<div class="alert alert-info">Es handelt sich um einen Serientermin. &Auml;nderungen von Kalendar und Bezeichnung &auml;ndern alle Events der Serie! Das Startdatum einer Serie kann nur in '+masterData.churchcal_name+' bearbeitet werden.</div>');      
+        rows.push('<div class="alert alert-info">Es handelt sich um einen Serientermin. &Auml;nderungen von Kalendar und Bezeichnung &auml;ndern alle Events der Serie! Das Startdatum einer Serie kann nur in '+masterData.churchcal_name+' bearbeitet werden.</div>');
       }
     }
-    
+
     rows.push('<div id="in_edit">');
     rows.push('<div style="float:left;wid_th:50%">');
-    
+
     rows.push('<table>');
-    
+
     // Wenn Event neu erstellt wird
-    if (event.id==null) { 
+    if (event.id==null) {
       if (masterData.settings.aktuelleEventvorlage==null)
         masterData.settings.aktuelleEventvorlage=0;
       template=masterData.eventtemplate[masterData.settings.aktuelleEventvorlage];
       if (template!=null) {
-        if (template.category_id!=null) 
+        if (template.category_id!=null)
           event.category_id=template.category_id;
         event.bezeichnung=template.event_bezeichnung;
         event.special=template.special;
@@ -400,23 +406,23 @@ ListView.prototype.renderEditEvent = function(event) {
       }
       rows.push('<tr><td>Vorlage<td>');
       //+this.renderSelect(masterData.settings.aktuelleEventvorlage, "eventtemplate", masterData.eventtemplate));
-      
+
       rows.push(form_renderSelect({
-        data:masterData.eventtemplate, 
-        cssid:"Inputeventtemplate", 
-        selected:masterData.settings.aktuelleEventvorlage, 
-        htmlclass:"input-medium", 
+        data:masterData.eventtemplate,
+        cssid:"Inputeventtemplate",
+        selected:masterData.settings.aktuelleEventvorlage,
+        htmlclass:"input-medium",
         controlgroup:false
       }));
-      
+
       if (masterData.auth["edit template"]) {
         rows.push("&nbsp; <a href=\"#\" id=\"saveTemplate\" title=\"Vorlage speichern\">" +this.renderImage("save", 20)+"</a>");
         if (template.id!=0)
-          rows.push("&nbsp;<a href=\"#\" id=\"deleteTemplate\" title=\"Vorlage entfernen\">" +this.renderImage("delete_2", 20)+"</a>");      
+          rows.push("&nbsp;<a href=\"#\" id=\"deleteTemplate\" title=\"Vorlage entfernen\">" +this.renderImage("delete_2", 20)+"</a>");
       }
-      
+
     }
-  
+
     var minutes = new Array();
     form_addEntryToSelectArray(minutes, 0, "00");
     form_addEntryToSelectArray(minutes, 15, "15");
@@ -428,7 +434,7 @@ ListView.prototype.renderEditEvent = function(event) {
     }
     if (event.id!=null)
       rows.push('<input type=hidden id="EventId" value="'+event.id+'"/>');
-    
+
     rows.push("<tr><td>"+form_renderInput({
       cssid:"InputDatumTag",
       label:"Datum",
@@ -437,28 +443,28 @@ ListView.prototype.renderEditEvent = function(event) {
       value:event.startdate.toDateEn().toStringDe(),
       type:"small",
       disabled:date_blocked || event.repeat_id>0
-    })+"&nbsp;");  
-    
+    })+"&nbsp;");
+
     rows.push(form_renderSelect({
-      data:hours, 
-      cssid:"InputDatumStunde", 
-      selected:event.startdate.toDateEn().getHours(), 
-      htmlclass:"input-mini", 
+      data:hours,
+      cssid:"InputDatumStunde",
+      selected:event.startdate.toDateEn().getHours(),
+      htmlclass:"input-mini",
       disabled:date_blocked || event.repeat_id>0,
       controlgroup:false
     })+" : ");
-    
+
     rows.push(form_renderSelect({
-      data:minutes, 
-      cssid:"InputDatumMinute", 
-      selected:event.startdate.toDateEn().getMinutes(), 
-      type:"mini", 
+      data:minutes,
+      cssid:"InputDatumMinute",
+      selected:event.startdate.toDateEn().getMinutes(),
+      type:"mini",
       disabled:date_blocked || event.repeat_id>0,
       controlgroup:false
-    }));  
+    }));
     rows.push("</nobr>");
     rows.push("<div id=\"dp_inputdatumtag\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/>");
-    
+
     rows.push("<tr><td>"+form_renderInput({
       cssid:"InputDatumTagEnde",
       label:"Bis",
@@ -467,36 +473,36 @@ ListView.prototype.renderEditEvent = function(event) {
       value:event.enddate.toDateEn().toStringDe(),
       disabled:date_blocked,
       type:"small"
-    })+"&nbsp;");  
-    
+    })+"&nbsp;");
+
     rows.push(form_renderSelect({
-      data:hours, 
-      cssid:"InputDatumStundeEnde", 
-      selected:event.enddate.toDateEn().getHours(), 
-      htmlclass:"input-mini", 
+      data:hours,
+      cssid:"InputDatumStundeEnde",
+      selected:event.enddate.toDateEn().getHours(),
+      htmlclass:"input-mini",
       disabled:date_blocked,
       controlgroup:false
     })+" : ");
-    
-    
+
+
     rows.push(form_renderSelect({
-      data:minutes, 
-      cssid:"InputDatumMinuteEnde", 
-      selected:event.enddate.toDateEn().getMinutes(), 
-      type:"mini", 
+      data:minutes,
+      cssid:"InputDatumMinuteEnde",
+      selected:event.enddate.toDateEn().getMinutes(),
+      type:"mini",
       disabled:date_blocked,
       controlgroup:false
-    }));  
+    }));
     rows.push("</nobr>");
     rows.push("<div id=\"dp_inputdatumtagende\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/>");
-  
-    
-    
-    rows.push('<tr><td>Kalender<td>'+form_renderSelect({selected:event.category_id, cssid:"Inputcategory", 
+
+
+
+    rows.push('<tr><td>Kalender<td>'+form_renderSelect({selected:event.category_id, cssid:"Inputcategory",
            data:t.prepareCategoriesForSelect(), disabled: date_blocked, controlgroup:false}));
     rows.push('<tr><td>'+_("caption")+"<td>"+form_renderInput({controlgroup:false, cssid:"InputBezeichnung", value:event.bezeichnung, disabled:date_blocked}));
-    
-    
+
+
     rows.push('<tr><td>'+this.renderTextarea("InputSpecial", _("more.information"), event.special, 20,3));
     rows.push('<tr><td>'+this.renderInput("InputAdmin", "Event-Admin", event.admin, 20, !masterData.auth.admin));
     rows.push('<p><small><span id="adminName">Kommaseparierte Person-Ids, dazu Name eintippen.</span></small></p>');
@@ -510,11 +516,11 @@ ListView.prototype.renderEditEvent = function(event) {
           });
         }
         $("#adminName").html(s);
-      }, null, null, "churchdb"); 
+      }, null, null, "churchdb");
     }
-      
-    
-    if (event.id==null) { 
+
+
+    if (event.id==null) {
       var a = new Array();
       for (var i=1;i<10;i++) {
         var b = new Array();
@@ -525,36 +531,36 @@ ListView.prototype.renderEditEvent = function(event) {
     }
     if (event.id!=null)
       rows.push('<p align="right"><small>Id:'+event.id+"</small>");
-  
+
     rows.push("</table><br/>");
     rows.push('</div>');
-  
-    
+
+
     // Nun alle Services hinzuf�gbar machen
-    
-    rows.push('<div style="wid_th:40%;float:right;padding-right:20px;">');
+
+    rows.push('<div style="width:40%;float:right;padding-right:20px;">');
     rows.push('<table>');
-  
+
     if (event.id==null) {
       $.each(churchcore_sortData(masterData.servicegroup,"sortkey"),function(k,sg) {
         rows.push('<tr><th colspan=2>'+sg.bezeichnung+'<td>');
-        
+
         $.each(masterData.service_sorted, function(i,s) {
           if (s.servicegroup_id==sg.id) {
-            rows.push('<tr><td>'+s.bezeichnung+'&nbsp;');
+            rows.push('<tr><td><label for="cb_'+s.id+'">'+s.bezeichnung+'&nbsp;</label>');
             if ((s.notiz!=null) && (s.notiz!=""))
               rows.push('<small>('+s.notiz.trim(10)+')</small>');
             var count=0;
             if ((masterData.eventtemplate_services!=null) && (masterData.eventtemplate_services[template.id]!=null)) {
               if (masterData.eventtemplate_services[template.id][s.id]!=null)
                 count=masterData.eventtemplate_services[template.id][s.id];
-            } 
+            }
             else {
               // Anonsten schaue, ob es Eintr�ge gibt
               if (event.services!=null) {
                 var entries=0;
                 $.each(event.services, function(j,e) {
-                  if (e.service_id==s.id) entries=entries+1; 
+                  if (e.service_id==s.id) entries=entries+1;
                 });
                 if (entries>0) count=entries;
               }
@@ -562,14 +568,14 @@ ListView.prototype.renderEditEvent = function(event) {
             rows.push('<td width=10px><input type="checkbox" id="cb_'+s.id+'" class="cdb-checkbox"');
             if (count>0) rows.push("checked");
             rows.push('/>');
-          }      
-        });    
+          }
+        });
       });
     }
     rows.push('</table>');
     rows.push('</div>');
-    
-    
+
+
     rows.push("<br/>");
     rows.push('</div>');
     rows.push('<div style="clear:both">');
@@ -591,7 +597,7 @@ ListView.prototype.renderEditEvent = function(event) {
       }
     });
   }
-  
+
   $("a.first-event").click(function() {
     $.each(allEvents, function(k,a) {
       if (a.cc_cal_id==event.cc_cal_id && (a.cal_startdate=a.startdate)) {
@@ -601,8 +607,8 @@ ListView.prototype.renderEditEvent = function(event) {
       }
     });
   });
-  		
-  
+
+
   this.autocompletePersonSelect("#InputAdmin", false, function(divid, ui) {
     $("#adminName").html(ui.item.label);
   });
@@ -613,7 +619,7 @@ ListView.prototype.renderEditEvent = function(event) {
       this_object.saveEventAsTemplate(_getEditEventFromForm(), res, function(template_id) {
         masterData.settings.aktuelleEventvorlage=template_id;
         elem.dialog("close");
-        this_object.renderEditEvent(event);        
+        this_object.renderEditEvent(event);
       });
     return false;
   });
@@ -622,13 +628,13 @@ ListView.prototype.renderEditEvent = function(event) {
       churchInterface.jsendWrite({func:"deleteTemplate", id:template.id}, null, false);
       delete masterData.eventtemplate[template.id];
       elem.dialog("close");
-      masterData.settings.aktuelleEventvorlage=0;      
-      this_object.renderEditEvent(event);        
-    }    
+      masterData.settings.aktuelleEventvorlage=0;
+      this_object.renderEditEvent(event);
+    }
   });
-  
-  
-  
+
+
+
   $("#InputDatumTag").click(function() {
     this_object.implantDatePicker("inputdatumtag", event.startdate.toDateEn().toStringDe(), function(dateText) {
       event.startdate=dateText.toDateDe().toStringEn();
@@ -656,12 +662,12 @@ ListView.prototype.renderEditEvent = function(event) {
       }
     });
   });
-  
+
   $("#InputDatumStunde").change(function() {
     $("#InputDatumStundeEnde").val($(this).val()*1+1);
   });
-  
-  
+
+
   $("#in_edit select").change(function (a) {
     if ($(this).attr("id")=="Inputeventtemplate") {
       masterData.settings.aktuelleEventvorlage=$(this).val();
@@ -677,12 +683,12 @@ ListView.prototype.renderEditEvent = function(event) {
       cs_loadEventData(null, function(){
         elem.dialog("close");
         this_object.renderList();
-      });            
+      });
     });
-    
+
   });
-  
-  $("#in_edit input").click(function (a) {    
+
+  $("#in_edit input").click(function (a) {
     if (($(this).attr("id").indexOf("cb_")==0) && (!$(this).attr("checked"))) {
       var service_id=$(this).attr("id").substr(3,99);
       var no=false;
@@ -700,21 +706,21 @@ ListView.prototype.renderEditEvent = function(event) {
       }
     }
   });
-    
+
   if (event.id!=null && event.valid_yn==1) {
     elem.dialog('addbutton', 'Event absagen', function() {
       var form = new CC_Form();
       form.addCheckbox({cssid:"informDeleteEvent", label:"Alle angefragten Personen über die Absage informieren?", checked:true});
       form.addCheckbox({cssid:"deleteCalEntry", label:"Endg&uuml;ltig entfernen (bei nicht Serienterminen auch der Kalendereintrag!)"});
       var elem2 = form_showDialog("Absagen des Events", form.render(null, "vertical"), 300, 300, {
-        "Absagen": function() {    
+        "Absagen": function() {
           obj=form.getAllValsAsObject();
           obj.func="deleteEvent";
-          obj.id=event.id;       
+          obj.id=event.id;
           churchInterface.jsendWrite(obj, function(ok, json) {
             if (!ok) alert("Fehler beim Speichern: "+json);
             else {
-              if (obj.deleteCalEntry==1)        
+              if (obj.deleteCalEntry==1)
                 delete allEvents[event.id];
               else {
                 allEvents[event.id].valid_yn=0;
@@ -724,10 +730,10 @@ ListView.prototype.renderEditEvent = function(event) {
               elem.dialog("close");
               this_object.renderList();
             }
-          });  
+          });
         },
       "Abbrechen": function() {
-        elem2.dialog("close");      
+        elem2.dialog("close");
       }
       });
     });
@@ -736,10 +742,10 @@ ListView.prototype.renderEditEvent = function(event) {
     $(this).dialog("close");
   });
 
-};  
+};
 
 ListView.prototype.renderAddEntry = function() {
-  
+
   var event = new Object();
   var d = new Date(this.currentDate);
   d.setHours(12);
@@ -750,14 +756,14 @@ ListView.prototype.renderAddEntry = function() {
 
 ListView.prototype.isLeaderOfServiceGroup = function (sg_id) {
   if (sg_id==null) return false;
-  
+
   isleader=false;
   $.each(masterData.service, function(k,a) {
     if ((a.servicegroup_id==sg_id) && (masterData.auth.leaderservice[a.id]==true)) {
       isleader=true;
-      //exit 
+      //exit
       return false;
-    }      
+    }
   });
   return isleader;
 };
@@ -780,7 +786,7 @@ ListView.prototype.getMemberOfOneGroup = function(g_ids, user_pid) {
         if ((b.p_id==user_pid) && (b.leiter!=-1)) {
           ret=b;
         }
-      }); 
+      });
     }
   });
   return ret;
@@ -806,19 +812,19 @@ ListView.prototype.checkPersonHasOneTagFromService = function (user_pid, service
         }
       });
     }
-  });  
+  });
   return ok;
 };
 
 /**
- * 
+ *
  * @param event - Das Event
  * @param services - Der konkrete Dienst aus dem Objekt Event
  * @return Html-Code
  */
 ListView.prototype.renderEventServiceEntry = function(event_id, services, bin_ich_admin) {
   var t=this;
-  
+
   if ((services.valid_yn==1) && (masterData.service[services.service_id]!=null)) {
     var rows = new Array();
     rows.push("<p style=\"line-height:1.0;margin-bottom:4px;\">");
@@ -826,7 +832,7 @@ ListView.prototype.renderEventServiceEntry = function(event_id, services, bin_ic
     var service=masterData.service[services.service_id];
     var isMemberOfGroup=masterData.auth.memberservice[services.service_id]==true;
     var isLeaderOfOneGroup=masterData.auth.leaderservice[services.service_id]==true;
-    
+
     // Check the permission to edit:
     // 1. Drupal-Rechte durch EditGroup
     // 2. Wenn die Gruppe eine PersonenId hat und ich selber die Person bin
@@ -839,14 +845,14 @@ ListView.prototype.renderEventServiceEntry = function(event_id, services, bin_ic
           ((isLeaderOfOneGroup)) ||
           ((bin_ich_admin)))
       edit=true;
-  
+
     var seeHistory=isLeaderOfOneGroup || (masterData.auth.editservice[services.service_id]) || bin_ich_admin;
     var tooltip='data-tooltip-id="'+event_id+"_"+services.id+'" '+(seeHistory?"history=true":"")+' '+(isMemberOfGroup?"member=true":""+' ');
-    
+
     rows.push('<small>');
-    if (edit) 
+    if (edit)
       rows.push('<a href="#" class="tooltips" '+tooltip+' id="edit_es_'+event_id+'" eventservice_id="'+services.id+'" style="text-decoration:none">');
-    else 
+    else
       rows.push('<span class="tooltips" '+tooltip+'>');
     _class='';
     if ((services.cdb_person_id!=null) && (services.cdb_person_id==masterData.user_pid))
@@ -854,44 +860,44 @@ ListView.prototype.renderEventServiceEntry = function(event_id, services, bin_ic
         _class="zugesagt";
       else
         _class="angefragt";
- 
-    if ((this.filter["filterDienstgruppen"]==null) || 
+
+    if ((this.filter["filterDienstgruppen"]==null) ||
          ((masterData.settings.listViewTableHeight!=null) && (masterData.settings.listViewTableHeight==0))) {
       rows.push('<font class="'+_class+'"><b>'+service.bezeichnung);
-      if (services.counter!=null) rows.push(" "+services.counter);      
+      if (services.counter!=null) rows.push(" "+services.counter);
         rows.push(': </b></font>');
     }
     _class='';
     style='';
     if (services.zugesagt_yn==0) style=style+"color:red;";
-    if ((services.cdb_person_id!=null) && (services.cdb_person_id==masterData.user_pid))                    
+    if ((services.cdb_person_id!=null) && (services.cdb_person_id==masterData.user_pid))
       if (services.zugesagt_yn==1)
         _class="zugesagt";
       else
         _class="angefragt";
-    
+
     rows.push('<font class="'+_class+'" style="'+style+'">');
-    
+
     var name=services.name;
     if ((service.cdb_gruppen_ids!=null) && (services.name==null))
       name=services.cdb_person_id;
-  
+
     if (name!=null) rows.push(name.trim(18));
     if ((name==null) || (services.zugesagt_yn==0)) rows.push("?");
-  
+
     rows.push('</font>');
     if (edit) rows.push('</a>');
-    else rows.push('</span>'); 
+    else rows.push('</span>');
     rows.push('</small>');
     return rows.join("");
-  }  
+  }
   return "";
 };
 
 ListView.prototype.groupingFunction = function (event) {
   return event.startdate.toDateEn(false).getDayInText()+", "+event.startdate.toDateEn(false).toStringDe();
 };
-  
+
 ListView.prototype.getCountCols = function() {
   var this_object=this;
   var r=0;
@@ -901,7 +907,7 @@ ListView.prototype.getCountCols = function() {
       if ((masterData.auth.viewgroup[a.id]) || (this_object.filter["filterMeine Filter"]==2)) {
         if ((masterData.settings["viewgroup"+a.id]==null) || (masterData.settings["viewgroup"+a.id]==1))
           r++;
-      }  
+      }
     });
     r++;
   }
@@ -922,8 +928,8 @@ ListView.prototype.getAdditionalServicesToServicegroup = function (event, sg_id,
     if ((a.servicegroup_id==sg_id) && (
           (masterData.auth.write)
           || ((masterData.auth.editgroup!=null && masterData.auth.editgroup[sg_id]))
-          || (masterData.auth.leaderservice[a.id]) 
-          || (bin_ich_admin))) {      
+          || (masterData.auth.leaderservice[a.id])
+          || (bin_ich_admin))) {
       if ((masterData.auth.editgroup[sg_id]) || (this_object.isLeaderOfServiceGroup(sg_id)) || (bin_ich_admin)) {
         var isdrin=0;
         var isfrei=true;
@@ -944,24 +950,24 @@ ListView.prototype.getAdditionalServicesToServicegroup = function (event, sg_id,
           choseable.push(arr);
 //        }
       }
-    }    
+    }
   });
   return choseable;
 };
 
 function bin_ich_admin(admin) {
   if (admin==null) return false;
-  var res=false;  
+  var res=false;
   $.each(admin.split(","), function(k,a) {
     if ($.trim(a)==masterData.user_pid) {
       res=true;
       //exit;
       return false;
-    }    
+    }
   });
   return res;
 }
-  
+
 ListView.prototype.renderListEntry = function(event) {
   this_object=this;
   var _bin_ich_admin=bin_ich_admin(event.admin);
@@ -986,7 +992,7 @@ ListView.prototype.renderListEntry = function(event) {
   if (event.valid_yn==0)
     rows.push('</span>');
   rows.push('</b>&nbsp;');
-  
+
   if (masterData.auth.write)
     rows.push(form_renderImage({src:"options.png", hover:true, width:18, htmlclass:"edit-event", label:"Editieren", link:true}));
 
@@ -994,8 +1000,8 @@ ListView.prototype.renderListEntry = function(event) {
 
   if ((event.special!=null) && (event.special!=""))
     rows.push("<div class=\"event_info\">"+event.special.htmlize()+"</div>");
-  
-  if (event.valid_yn==1) {  
+
+  if (event.valid_yn==1) {
     var _authMerker=masterData.auth.write || _bin_ich_admin;
     // Check if I am a leader of the group
     if (!_authMerker)
@@ -1016,26 +1022,26 @@ ListView.prototype.renderListEntry = function(event) {
         }
       });
     }
-    
+
     if (_authMerker) rows.push("<a href=\"#\" id=\"attachFile" + event.id + "\" title=\"Datei zum Event anh&auml;ngen\">" +this.renderImage("paperclip")+"</a>&nbsp;");
-  
+
     if (event.services!=null)
       rows.push("<a href=\"#\" id=\"mailEvent" + event.id + "\" title=\"Erstelle E-Mail an Personen des Events\">" +this.renderImage("email")+"</a>&nbsp;");
     if (event.admin!=null)
-      if (_bin_ich_admin) 
+      if (_bin_ich_admin)
         rows.push("<a href=\"#\" id=\"filterMyAdmin" + event.id + "\" title=\"Du bist Admin!\">" +this.renderImage("person")+"</a>&nbsp;");
       else
         rows.push(this.renderImage("person_sw",null,"Das Event hat einen Admin.")+"&nbsp;");
-    
+
     if (!event.agenda && user_access("edit agenda", event.category_id))
       rows.push(form_renderImage({src:"agenda_plus.png", htmlclass:"show-agenda", link:true, label:"Ablaufplan zum Event hinzufügen", width:20}));
     else if (agendaview)
-      rows.push(form_renderImage({src:"agenda.png", htmlclass:"show-agenda", link:true, label:"Ablaufplan anzeigen", width:20})); 
+      rows.push(form_renderImage({src:"agenda.png", htmlclass:"show-agenda", link:true, label:"Ablaufplan anzeigen", width:20}));
   }
-  
-  
+
+
   rows.push('<div class="filelist" data-id="'+event.id+'"></div>');
-  
+
   // When no filterDienstgruppe is selected, it show all Services, sorted by ServiceGroup
   if (this.filter["filterDienstgruppen"]==null) {
     $.each(this.sortMasterData(masterData.servicegroup, "sortkey"), function(k,sg) {
@@ -1043,7 +1049,7 @@ ListView.prototype.renderListEntry = function(event) {
       if ((masterData.settings["viewgroup"+sg.id]==null) || (masterData.settings["viewgroup"+sg.id]==1)) {
         if ((masterData.auth.viewgroup[sg.id]) || (this_object.filter["filterMeine Filter"]==2)) {
           rows.push('<td valign="top" class="service hoveractor" data-servicegroup-id="'+sg.id+'" style="position:relative" width="'+width+'%">');
-          if (event.valid_yn==1) {              
+          if (event.valid_yn==1) {
             $.each(masterData.service_sorted, function(i,s) {
               if (sg.id==s.servicegroup_id) {
                 if (masterData.auth.leaderservice[s.id]==true) is_leader=true;
@@ -1057,14 +1063,14 @@ ListView.prototype.renderListEntry = function(event) {
                       _soll_zeigen=true;
                     }
                   });
-                }  
-              }      
+                }
+              }
             });
           }
           // Show "+" to add furhter Services
-          if (masterData.auth.write 
-                  || (masterData.auth.editgroup!=null && masterData.auth.editgroup[sg.id]) 
-                  || _bin_ich_admin 
+          if (masterData.auth.write
+                  || (masterData.auth.editgroup!=null && masterData.auth.editgroup[sg.id])
+                  || _bin_ich_admin
                   || is_leader) {
 //            rows.push('<p><a href="#" id="addService" event_id="'+event.id+'" servicegroup_id="'+sg.id+'">'+form_renderImage({hover:true, src:"options.png", width:16})+'</a>');
             rows.push('<p>'+form_renderImage({hover:true, htmlclass:"edit-service", src:"options.png", width:16, data:[{name:"servicegroup-id", value:sg.id}, {name:"event-id", value:event.id}], link:true}));
@@ -1076,7 +1082,7 @@ ListView.prototype.renderListEntry = function(event) {
     rows.push('<td width="16px">');
   }
   // Wenn eine Dienstgruppe ausgew�hlt ist
-  else {   
+  else {
     $.each(masterData.service_sorted, function(k,s) {
       if ((event.services!=null) && (s.servicegroup_id==this_object.filter["filterDienstgruppen"])) {
         rows.push("<td>");
@@ -1090,7 +1096,7 @@ ListView.prototype.renderListEntry = function(event) {
             }
           });
         }
-      }  
+      }
     });
   }
   if (_soll_zeigen)
@@ -1110,7 +1116,7 @@ ListView.prototype.prepareCategoriesForSelect = function(multiselect) {
     }
   });
   if (churchcore_countObjectElements(data)>0) {
-    if (multiselect) 
+    if (multiselect)
       form_addEntryToSelectArray(data, -1 , '-', sortkey);
     else {
       form_addEntryToSelectArray(data, -2 , '== Gruppenkalender ==', 0);
@@ -1129,21 +1135,21 @@ ListView.prototype.prepareCategoriesForSelect = function(multiselect) {
 
 ListView.prototype.makeFilterCategories = function(start_string) {
   var t=this;
-  
+
   t.filter["filterKategorien"]=new CC_MultiSelect(t.prepareCategoriesForSelect(true), function(id, selected) {
     masterData.settings.filterCategory=this.getSelectedAsArrayString();
     churchInterface.jsendWrite({func:"saveSetting", sub:"filterCategory", val:masterData.settings.filterCategory});
     t.renderList();
   });
   t.filter["filterKategorien"].setSelectedAsArrayString(start_string);
-  
+
 };
 
 ListView.prototype.getListHeader = function() {
   var this_object=this;
   $("#cdb_group").html("");
   currentTooltip=null;
-  
+
   if (masterData.settings.listMaxRowsListView>25)
     masterData.settings.listMaxRowsListView=25;
 
@@ -1155,7 +1161,7 @@ ListView.prototype.getListHeader = function() {
     this.filter["filterMeine Filter"]=$("#externmeineFilter").val();
     $("#externmeineFilter").remove();
   }
-  
+
   if ((masterData.settings.filterCategory=="") || (masterData.settings.filterCategory==null)
       || ($("#externevent_id").val()!=null))
     delete masterData.settings.filterCategory;
@@ -1167,13 +1173,13 @@ ListView.prototype.getListHeader = function() {
 
 /*  if ((masterData.settings.filterMeineFilter=="") || (masterData.settings.filterMeineFilter==null))
     masterData.settings.filterMeineFilter=null;
-  else 
+  else
     this.filter["filterMeine Filter"]=masterData.settings.filterMeineFilter;
   */
   this.currentRenderDate=null;
-  
+
   tableHeader='<th><a href="#" id="sortdatum">Events</a>';
-  
+
   if (this.filter["filterDienstgruppen"]==null) {
     $.each(this.sortMasterData(masterData.servicegroup), function(k,a) {
       if ((masterData.settings["viewgroup"+a.id]==null) || (masterData.settings["viewgroup"+a.id]==1))
@@ -1211,33 +1217,33 @@ function _checkVorschlagen(eventservice, manuelInput, editRights) {
         show=true;
       if ((!editRights) && (chosen!=masterData.user_pid))
         show=true;
-    }  
+    }
   }
   if (show) $("#divvorschlagen").show();
   else $("#divvorschlagen").hide();
 }
 function _checkZusagen(eventservice, manuelInput, editRights) {
   var show=false;
-  
+
   if (manuelInput) {
     if ((editRights))
       show=true;
   }
   else {
     var chosen=$("#InputNameSelect").val();
-    
+
     if (chosen>0) {
       // Entweder habe ich Schreibrechte oder ich bin ausgew�hlt und hatte noch nicht zugesagt
-      if (((editRights) && ((eventservice.zugesagt_yn==0) || (chosen!=eventservice.cdb_person_id))) 
-          || 
+      if (((editRights) && ((eventservice.zugesagt_yn==0) || (chosen!=eventservice.cdb_person_id)))
+          ||
        ((chosen==masterData.user_pid) && (eventservice.zugesagt_yn==0)))
         show=true;
-    } 
+    }
   }
   if (show)
     $("#divzusagen").show();
   else
-    $("#divzusagen").hide();    
+    $("#divzusagen").hide();
 }
 function _checkAbsagen(eventservice, manuelInput, editRights) {
   var show=false;
@@ -1249,17 +1255,17 @@ function _checkAbsagen(eventservice, manuelInput, editRights) {
     var chosen=$("#InputNameSelect").val();
     if (chosen>0) {
       // Entweder habe ich Schreibrechte und die Person ist die, die schon ausgew�hlt wurde (sonst macht Absagen ja kein Sinn)
-      if ((editRights) && (eventservice.cdb_person_id==chosen)) 
+      if ((editRights) && (eventservice.cdb_person_id==chosen))
         show=true;
       // Oder ich bin selber die Person und die Person ist die, die schon ausgew�hlt wurde
       if ((eventservice.cdb_person_id==masterData.user_pid) //&& (eventservice.zugesagt_yn==1)
           && (chosen==eventservice.cdb_person_id))
         show=true;
     }
-  }         
+  }
   if (show) $("#divabsagen").show();
   else $("#divabsagen").hide();
-}    
+}
 ListView.prototype._renderAuslastung = function (event_id, service_id) {
   if ($("#InputNameSelect").val()>0) {
     if ((masterData.auth.admin) || (masterData.auth.leaderservice[service_id])) {
@@ -1273,14 +1279,14 @@ ListView.prototype._renderAuslastung = function (event_id, service_id) {
           $.each(churchcore_sortData(allEvents,"startdate",true), function(k,a) {
             if (a.services!=null) {
               $.each(a.services, function(i,service) {
-                if ((service.user_id==p_id) && 
-                      (((service.valid_yn==0) && (service.cdb_person_id==null)) 
+                if ((service.user_id==p_id) &&
+                      (((service.valid_yn==0) && (service.cdb_person_id==null))
                      || (service.valid_yn==1) && (service.cdb_person_id!=null))) {
-                  rows.push('<tr><td>'+a.startdate.toDateEn(true).toStringDe(true)); 
-                  rows.push('<td>'+a.bezeichnung); 
-                  rows.push('<td>'+masterData.service[service.service_id].bezeichnung); 
-                  rows.push('<td>'+(service.zugesagt_yn==1?"<font>ja":"<font style=color:red>nein")+"</font>"); 
-                  rows.push('<td>'+(service.reason!=null?service.reason:"")); 
+                  rows.push('<tr><td>'+a.startdate.toDateEn(true).toStringDe(true));
+                  rows.push('<td>'+a.bezeichnung);
+                  rows.push('<td>'+masterData.service[service.service_id].bezeichnung);
+                  rows.push('<td>'+(service.zugesagt_yn==1?"<font>ja":"<font style=color:red>nein")+"</font>");
+                  rows.push('<td>'+(service.reason!=null?service.reason:""));
                 }
               });
             }
@@ -1291,7 +1297,7 @@ ListView.prototype._renderAuslastung = function (event_id, service_id) {
       });
     }
   }
-  else 
+  else
     $("#divauslastung").html("");
 };
 
@@ -1335,7 +1341,7 @@ function _checkPersonTag(tag_ids, tags) {
 
 function _checkWarSchonMal(p_id, services, service_id, counter) {
   var warschonmal=false;
-  $.each(services, function(j,c) {              
+  $.each(services, function(j,c) {
     if (c.cdb_person_id==p_id) {
       // Wenn er nicht mehr aktuell ist oder wenn er in einem anderen Dienst aktuell angefragt ist
       if ((c.valid_yn==0) || (c.service_id!=service_id) || (c.counter!=counter)) {
@@ -1363,12 +1369,12 @@ ListView.prototype.getAllPersonsForService = function(service_id) {
         }
       });
     }
-  });  
+  });
   return persons;
 };
 
 /**
- * 
+ *
  * @param persons, notAllowed wird abgefragt!
  * @param event_id
  * @param service_id
@@ -1397,10 +1403,10 @@ ListView.prototype.selectPossiblePersonForService = function(persons, event_id, 
           else {
             var einsatz=t.getPersonAuslastung(person.id, service_id, event_date);
 
-            if ((t.serviceGroupPersonWeight[person.id]!=null) 
+            if ((t.serviceGroupPersonWeight[person.id]!=null)
                 && (t.serviceGroupPersonWeight[person.id][sg_id]!=null)) {
               var weight=t.serviceGroupPersonWeight[person.id][sg_id];
-              // Checke die Max per month definition 
+              // Checke die Max per month definition
               if ((einsatz.monate[0]!=null) && (weight.max_per_month!=null)
                     && (weight.max_per_month*1<=einsatz.monate[0].person*1)) {
                 wert=wert-100;
@@ -1408,19 +1414,19 @@ ListView.prototype.selectPossiblePersonForService = function(persons, event_id, 
               }
               // Pr�fe auf morgens oder abends
               if (event_date.getHours()>=13) {
-                if (weight.morning_weight==1) wert=wert+10; 
+                if (weight.morning_weight==1) wert=wert+10;
                 else if (weight.morning_weight>=2) {
                   wert=wert-100;
                   person.reason="Einsatz nur morgens";
                 }
-              } 
+              }
               else {
-                if (weight.morning_weight==-1) wert=wert+10; 
+                if (weight.morning_weight==-1) wert=wert+10;
                 else if (weight.morning_weight<=-2) {
                   wert=wert-100;
                   person.reason="Einsatz nur abends";
                 }
-              }             
+              }
               // Pr�fe auf Beziehung
               if (weight.relation_weight!=0) {
                  $.each(persons, function(k, rel) {
@@ -1438,25 +1444,25 @@ ListView.prototype.selectPossiblePersonForService = function(persons, event_id, 
                  });
               }
             }
-                        
+
             if (einsatz.monate[0]!=null) wert=wert-einsatz.monate[0].person*3;
             if (einsatz.monate[-1]!=null) wert=wert-einsatz.monate[-1].person*2;
             if (einsatz.monate[-2]!=null) wert=wert-einsatz.monate[-2].person*1;
             if (einsatz.monate[1]!=null) wert=wert-einsatz.monate[1].person*2;
-            if (einsatz.letzter_einsatz_davor!=null) { 
-              if (einsatz.letzter_einsatz_davor.dayDiff(event_date)<7) {                 
+            if (einsatz.letzter_einsatz_davor!=null) {
+              if (einsatz.letzter_einsatz_davor.dayDiff(event_date)<7) {
                 wert=wert-50;
                 person.reason="letzter Einsatz <7 Tage";
               }
               else if (einsatz.letzter_einsatz_davor.dayDiff(event_date)<14)
                 wert=wert-10;
             }
-            if (einsatz.naechster_einsatz_danach!=null) { 
-              if (einsatz.naechster_einsatz_danach.dayDiff(event_date)>-7) { 
+            if (einsatz.naechster_einsatz_danach!=null) {
+              if (einsatz.naechster_einsatz_danach.dayDiff(event_date)>-7) {
                 person.reason="n&auml;chster Einsatz <7 Tage";
                 wert=wert-50;
               }
-              else if (einsatz.naechster_einsatz_danach.dayDiff(event_date)>-14) 
+              else if (einsatz.naechster_einsatz_danach.dayDiff(event_date)>-14)
                 wert=wert-10;
             }
           }
@@ -1482,7 +1488,7 @@ ListView.prototype._renderInputName = function (manuelInput, eventservice, event
   var rows = Array();
   var this_object=this;
   var service_id=eventservice.service_id;
-  
+
   if (manuelInput) {
     if (eventservice.cdb_person_id==null) {
       rows.push("<input type=\"text\" id=\"InputName\" class=\"cdb-textfield\" size=\"30\" value=\"");
@@ -1502,7 +1508,7 @@ ListView.prototype._renderInputName = function (manuelInput, eventservice, event
     rows.push('<p>Person ausw&auml;hlen');
     rows.push('<p><select id="InputNameSelect" class="cdb-input">');
 //rows.push('<div class="" style="height:170px; width:250px; overflow-y:auto; overflow-x:auto"><ui class="ui-menu ui-widget ui-widget-content ui-corner-all" id="selectable">');
-    
+
     var _gruppen_ids=masterData.service[service_id].cdb_gruppen_ids;
     var tag_ids=(masterData.service[service_id].cdb_tag_ids==null?null:masterData.service[service_id].cdb_tag_ids.split(","));
     // Schaue wenn das Ding null ist, dann gibt es eine Person manuel ausgew�hlt
@@ -1514,8 +1520,8 @@ ListView.prototype._renderInputName = function (manuelInput, eventservice, event
       if (_gruppen_ids.indexOf(",")>0) title=false;
       if (groups[a]!=null) {
         $.each(churchcore_sortData(groups[a],"vorname"), function(i,b) {
-          
-          // Pr�fe, ob auch Tags abgefragt werden sollen und ob sie passen       
+
+          // Pr�fe, ob auch Tags abgefragt werden sollen und ob sie passen
           if (_checkPersonTag(tag_ids, b.tags)) {
             _leere_liste=false;
 
@@ -1524,7 +1530,7 @@ ListView.prototype._renderInputName = function (manuelInput, eventservice, event
               title=true;
               rows.push('<option value="-2"> == '+b.bezeichnung.trim(26)+" == ");
             }
-            
+
             // warschonmal macht Klammern, also wenn die Person abwesend ist wird sie geklammert.
             var warschonmal=(personIsAbsent(b.p_id,allEvents[event_id].startdate.toDateEn())!=null);
 
@@ -1533,7 +1539,7 @@ ListView.prototype._renderInputName = function (manuelInput, eventservice, event
               warschonmal=true;
               klammer_person=true;
             }
-            
+
             rows.push('<option value="'+b.p_id+'"');
 
             if (eventservice.cdb_person_id==b.p_id) {
@@ -1541,10 +1547,10 @@ ListView.prototype._renderInputName = function (manuelInput, eventservice, event
               _person_vorhanden=true;
             }
             var name = b.vorname+" "+b.name;
-            rows.push('>'+(warschonmal?"(":"")+name.trim(26)+(warschonmal?")":""));            
-          }  
+            rows.push('>'+(warschonmal?"(":"")+name.trim(26)+(warschonmal?")":""));
+          }
         });
-      }  
+      }
     });
     // Person wurde fr�her manuel hinzugef�gt zur Liste, also mu� sie nun dazugef�gt werden
     if ((!_person_vorhanden) && (eventservice.cdb_person_id!=null)) {
@@ -1552,10 +1558,10 @@ ListView.prototype._renderInputName = function (manuelInput, eventservice, event
       rows.push('<option selected value="'+eventservice.cdb_person_id+'">'+eventservice.name+'</option>');
       _leere_liste=false;
     }
-    if (_leere_liste) 
+    if (_leere_liste)
       rows.push('<option value="-2">-- keine Person in der Liste --</option>');
-    if ((editRights) && (eventservice.name==null) && (masterData.auth.viewchurchdb)) 
-      rows.push('<option value="-1">... andere Person hinzuf&uuml;gen</option>');          
+    if ((editRights) && (eventservice.name==null) && (masterData.auth.viewchurchdb))
+      rows.push('<option value="-1">... andere Person hinzuf&uuml;gen</option>');
 
     rows.push("</Select>");
 //rows.push('</ul></div>');
@@ -1589,9 +1595,9 @@ function _completePersonInfo(id) {
         else if ((d.telefonprivat!=null) && (d.telefonprivat!="")) txt=txt+'Tel.: <a href="tel:'+d.telefonprivat+'">'+d.telefonprivat+'</a><br/>';
         if (txt!="") $("#divkontakt").html("<p><small>"+txt+"</small>");
       }
-      
+
     }, null, null, "churchdb");
-  } 
+  }
 }
 
 /**
@@ -1600,15 +1606,15 @@ function _completePersonInfo(id) {
  * @param eventservice_id
  * @param zwinge_manuelinput
  */
-ListView.prototype.renderEditEventService = function(event_id, eventservice_id, zwinge_manuelinput) {  
+ListView.prototype.renderEditEventService = function(event_id, eventservice_id, zwinge_manuelinput) {
   var this_object=this;
   var rows=new Array();
   if (zwinge_manuelinput==null) zwinge_manuelinput=false;
   var eventservice=this.getEventService(event_id, eventservice_id);
   var service_id=eventservice.service_id;
-  
+
   // Feld ist keine Auswahl als ChurchDB-Gruppen sondern Freitext
-  var manuelInput=((masterData.service[service_id].cdb_gruppen_ids==null) && (eventservice.cdb_person_id==null))  
+  var manuelInput=((masterData.service[service_id].cdb_gruppen_ids==null) && (eventservice.cdb_person_id==null))
                      || (zwinge_manuelinput)
                      || ((eventservice.cdb_person_id==null) && (eventservice.name!=null));
   // Entweder hat er explizit auf diese Gruppe Schreibrechte oder er ist Leiter der Gruppe
@@ -1624,41 +1630,41 @@ ListView.prototype.renderEditEventService = function(event_id, eventservice_id, 
   if (masterData.auth.editservice[service_id]) rows.push('</font></a>');
   rows.push("</i> besetzen:</legend>");
 
-  rows.push('<div id="in_edit"><div class="row-fluid">');  
+  rows.push('<div id="in_edit"><div class="row-fluid">');
     rows.push('<div class="span5">');
-    
+
     rows.push("<div id=\"divinputname\">");
       // Erstellt entweder die Selectbox mit allen Namen oder das ManuelInput-Eingabefeld
       rows.push(this._renderInputName(manuelInput, eventservice, event_id, editRights));
     rows.push("</div>");
-    
+
     rows.push('');
     rows.push('<span style="display:none" id="divvorschlagen"><input type="button" value="Vorschlagen" class="btn btn-warning" />&nbsp;</span>');
     rows.push('<span style="display:none" id="divzusagen"><input type="button" value="Zusagen" class=\"btn btn-success\"/>&nbsp;</span>');
-    rows.push('<span style="display:none" id="divabsagen"><input type="button" value="Absagen" class=\"btn btn-danger\"/>&nbsp; </span>&nbsp;');    
+    rows.push('<span style="display:none" id="divabsagen"><input type="button" value="Absagen" class=\"btn btn-danger\"/>&nbsp; </span>&nbsp;');
 
     rows.push('</div><div class="span1"></div><div class="span6">');
       rows.push("<div class=\"well\"><h4>Infos zur Person</h4><p><span id=\"divauslastung\"></span>");
         rows.push("<p><span id=\"divemail\"><a href=\"#\" title=\"Person eine E-Mail senden\" id=\"mailPerson\">" +this_object.renderImage("email")+"</a> <small>Web-EMail an ausgew&auml;hlte Person</small></span>&nbsp;");
         rows.push("<div id=\"divkontakt\"></div>");
     rows.push('</div></div></div>');
-    
+
     // Pr�fe, ob er die Histore sehen darf
-    if (editRights) {     
+    if (editRights) {
       rows.push('<p><h4>Historie</h4>');
       rows.push(this_object.renderEntryHistory(event_id, eventservice.service_id, eventservice.counter, null, ((editRights) || (masterData.auth.admin) )));
     }
-    
-    rows.push('<div id="divshowhistory"></div>');  
-    
+
+    rows.push('<div id="divshowhistory"></div>');
+
   rows.push('</div>');
 
   var elem = form_showCancelDialog("Anfrage "+
        masterData.servicegroup[masterData.service[service_id].servicegroup_id].bezeichnung+
-       " für den "+allEvents[event_id].startdate.toDateEn(true).toStringDe(true), 
+       " für den "+allEvents[event_id].startdate.toDateEn(true).toStringDe(true),
       rows.join(""), 550,450);
 
-  
+
   var this_object=this;
 
   _checkVorschlagen(eventservice, manuelInput, editRights);
@@ -1667,15 +1673,15 @@ ListView.prototype.renderEditEventService = function(event_id, eventservice_id, 
   this._renderAuslastung(event_id, service_id);
   _checkEMail();
   _completePersonInfo(eventservice.cdb_person_id);
-  
-  if (manuelInput) 
+
+  if (manuelInput)
     $("#InputName").focus();
   else
   // Nimmt Focus von der Auswahlliste weg, damit beim iPad nicht automatisch die Auswahl zu sehen ist, das nervt sonst!
     $("#InputNameSelect").blur();
-  
+
   // Callbacks fuer den Editor
-  
+
   // Autocomplete f�r Auswahl von Freitextnahmen
   if (manuelInput)
     this.autocompletePersonSelect("#InputName", false, function(event, ui) {
@@ -1684,14 +1690,14 @@ ListView.prototype.renderEditEventService = function(event_id, eventservice_id, 
       $("#divinputname").html(txt);
       manuelInput=false;
     });
- 
-    
+
+
   $("#InputNameSelect").change(function(a) {
     // Bei Auswahl "...andere Person"
     if ($("#InputNameSelect").val()==-1) {
       elem.empty().remove();
       this_object.renderEditEventService(event_id, eventservice_id, true);
-    } 
+    }
     // Buttons neu pr�fen
     else {
       _checkVorschlagen(eventservice, manuelInput, editRights);
@@ -1702,9 +1708,9 @@ ListView.prototype.renderEditEventService = function(event_id, eventservice_id, 
       _completePersonInfo($("#InputNameSelect").val());
     }
   });
-  
+
   $("#cdb_dialog a").click(function(a) {
-    if ($(this).attr("id")=="showHistory") 
+    if ($(this).attr("id")=="showHistory")
       $("#divshowhistory").html(this_object.renderEntryHistory(event_id, eventservice.service_id, eventservice.counter, null, ((masterData.auth.leaderservice[service_id]) || (masterData.auth.admin))));
     else if ($(this).attr("id")=="mailPerson") {
       if ($("#InputNameSelect").val()<=0)
@@ -1717,18 +1723,18 @@ ListView.prototype.renderEditEventService = function(event_id, eventservice_id, 
     }
     return false;
   });
-  
+
   $("#in_edit input").click(function (a) {
     if ($(this).attr("type")=="button") {
       if (((manuelInput) && ($("#InputName").val()=="")) ||
-         ((!manuelInput) && ($("#InputNameSelect").val()=="")))  
+         ((!manuelInput) && ($("#InputNameSelect").val()=="")))
         alert("Bitte erst einen Namen aussuchen");
       else {
         obj=new Object();
         obj.func="updateEventService";
         obj.id=eventservice.id;
         eventservice.valid_yn=0;
-  
+
         if (($(this).val() == "Vorschlagen") || ($(this).val() == "Zusagen")) {
           if (manuelInput) {
             obj.name=$("#InputName").val();
@@ -1745,9 +1751,9 @@ ListView.prototype.renderEditEventService = function(event_id, eventservice_id, 
                       return false;
                     }
                   });
-                }  
+                }
               });
-            } 
+            }
             // Eine Person wurde manuel gesucht, dann konnte ich sie bis jetzt nicht finden und �bernehme den Namen aus der Selectbox
             if (obj.name==null)
               obj.name=$("#nameofadditionperson").val();
@@ -1757,13 +1763,13 @@ ListView.prototype.renderEditEventService = function(event_id, eventservice_id, 
             if (($("#InputNameSelect").val()==masterData.user_pid) & (masterData.service[service_id].allowtonotebyconfirmation_yn==1)) {
               var res=prompt("Hiermit verbindlich zusagen? Hier kannst Du noch eine Info angeben.","");
               if (res==null) return null;
-              obj.reason=res;              
+              obj.reason=res;
             }
           }
           else
             obj.zugesagt_yn=0;
         }
-        else if ($(this).val() == "Absagen"){              
+        else if ($(this).val() == "Absagen"){
           if (($("#InputNameSelect").val()==masterData.user_pid) || (eventservice.mailsenddate!=null)) {
             var res=prompt("Wirklich absagen? Hier kannst Du noch einen Grund angeben.","");
             if (res==null) return null;
@@ -1779,7 +1785,7 @@ ListView.prototype.renderEditEventService = function(event_id, eventservice_id, 
           if (!json.result) {
             alert("Fehler beim Speichern: "+json);
             window.location.reload();
-          } 
+          }
           else {
             // Wenn es nur ein Update war (gleicher Modifiedduser)
             if (json.eventservice.id==obj.id) {
@@ -1790,17 +1796,17 @@ ListView.prototype.renderEditEventService = function(event_id, eventservice_id, 
             }
             else
               allEvents[event_id].services.push(json.eventservice);
-            // Wenn nur einer hochgez�hlt wurde, dann war ich das selber, ansonsten hat jemand 
+            // Wenn nur einer hochgez�hlt wurde, dann war ich das selber, ansonsten hat jemand
             // anderes auch was ge�ndert und ich sollte neu laden!
             if ((json.eventservice.id*1)==(churchInterface.lastLogId*1+1))
               churchInterface.setLastLogId(json.eventservice.id);
             elem.empty().remove();
             this_object.renderList(allEvents[event_id]);
-          } 
+          }
         });
-      }  
+      }
     }
-  }); 
+  });
 };
 
 ListView.prototype.showAuslastung = function() {
@@ -1811,7 +1817,7 @@ ListView.prototype.showAuslastung = function() {
   $.each(allEvents, function(k,a) {
     if (a.services!=null) {
       counter=counter+1;
-      $.each(a.services, function(i,b) {      
+      $.each(a.services, function(i,b) {
         if ((b.cdb_person_id!=null) && (b.valid_yn==1)) {
           if (user[b.cdb_person_id]==null) {
             var a = new Array();
@@ -1820,9 +1826,9 @@ ListView.prototype.showAuslastung = function() {
             a.cdb_person_id=b.cdb_person_id;
             a.service_id=b.service_id;
             user[b.cdb_person_id]=a;
-          }  
-          else 
-            user[b.cdb_person_id].counter=user[b.cdb_person_id].counter+1;        
+          }
+          else
+            user[b.cdb_person_id].counter=user[b.cdb_person_id].counter+1;
         }
       });
     }
@@ -1830,18 +1836,18 @@ ListView.prototype.showAuslastung = function() {
   rows.push("<h2>Dienste pro Event<h2/>");
   rows.push("<table>");
   $.each(churchcore_sortData(user, "counter", true, false), function(k,a) {
-    rows.push("<tr><td>"+a.name+" ("+a.cdb_person_id+")<td>"+Math.round(a.counter/counter*100)+"%");    
+    rows.push("<tr><td>"+a.name+" ("+a.cdb_person_id+")<td>"+Math.round(a.counter/counter*100)+"%");
   });
   rows.push("</table>");
-  
-  form_showOkDialog("Anzeige der Auslastung der Mitarbeiter", rows.join(""));  
+
+  form_showOkDialog("Anzeige der Auslastung der Mitarbeiter", rows.join(""));
 };
 
 /**
- * 
+ *
  * @param event_id
  * @param service_id
- * @param counter entweder null wenn es der Dienst nur einmal an dem Event angefragt ist oder die Nummer 
+ * @param counter entweder null wenn es der Dienst nur einmal an dem Event angefragt ist oder die Nummer
  * @param timeBack - wie weit zur�ck? null = soweit die Daten reichen
  * @param withReason
  * @param shortVersion - default false, true=Reason wird nur auszugsweise unter dem Namen abgedruckt, Name werden abgeschnitten, wenn zu lang
@@ -1858,24 +1864,24 @@ ListView.prototype.renderEntryHistory = function(event_id, service_id, counter, 
       if ((timeBack==null) || (a.datum.toDateEn()>=timeBack)) {
         var row='<tr><td>';
         if (a.zugesagt_yn==0) row=row+"<font style=\"color:red\">";
-        
+
         if ((a.name!=null) && (a.name!=""))
           row=row+a.name;
         // Wenn ich den vorigen Namen habe, dann kann ich den nehmen und durchstreichen
         else if (_lastName!=null) row=row+"<font style=\"text-decoration: line-through\">"+_lastName+"</font>";
         // Dann habe ich wohl nix.
         else row=row+"?";
-        if (a.zugesagt_yn==0) row=row+"</font>";        
-        _lastName=a.name;    
+        if (a.zugesagt_yn==0) row=row+"</font>";
+        _lastName=a.name;
 
         if ((withReason) && (a.reason!=null) && (shortVersion)) {
           row=row+"<br/><div><i>\""+a.reason.trim(15)+'"</i></small>';
         }
-        
+
         row=row+"<td>"+a.datum.toDateEn().toStringDe(true)+"<td>";
         if (shortVersion) row=row+a.user.trim(15);
         else row=row+a.user;
-        
+
         if ((withReason) && (a.reason!=null) && (!shortVersion)) {
           row=row+"<td>"+a.reason;
           _reasonAvailable=true;
@@ -1893,7 +1899,7 @@ ListView.prototype.renderEntryHistory = function(event_id, service_id, counter, 
   return txt;
 };
 
-/** 
+/**
  * event, service_id, id des serviceeintrages
  */
 function tryToGetReason(event, service_id, id) {
@@ -1912,7 +1918,7 @@ function tryToGetReason(event, service_id, id) {
 }
 
 /**
- * 
+ *
  * @param cdb_user_id
  * @param service_id - entweder null, wenn alle, oder service_id und dann wird innerhalb der servicegroup geschaut.
  * @param now_date datum ab dem er pr�ft
@@ -1934,12 +1940,12 @@ ListView.prototype.getPersonAuslastung = function(cdb_user_id, service_id, now_d
         if ((service.valid_yn==1) && (service.cdb_person_id!=null)) {
           _service_besetzt=true;
           // Entweder wurde kein Service mit �bergeben oder nur der ServiceGroup_id soll betrachtet werden z.b. nur Technik
-          if (((service_id==null) || (masterData.service[service_id].servicegroup_id==masterData.service[service.service_id].servicegroup_id)) 
+          if (((service_id==null) || (masterData.service[service_id].servicegroup_id==masterData.service[service.service_id].servicegroup_id))
             && (service.cdb_person_id==cdb_user_id)) {
             _count_person=true;
           }
-        }        
-      });      
+        }
+      });
       var _monat=now_date.monthDiff(event.startdate.toDateEn(false));
       if (result.monate[_monat]==null) {
         var _a = new Array();
@@ -1956,12 +1962,12 @@ ListView.prototype.getPersonAuslastung = function(cdb_user_id, service_id, now_d
       }
       if (_service_besetzt) {
         // Schaue nun, das mehrer Events an einem Tag auch nur einmal gez�hlt werden
-        if (_event_date!=event.startdate.substr(0,10))  
+        if (_event_date!=event.startdate.substr(0,10))
           result.monate[_monat].events++;
-        _event_date=event.startdate.substr(0,10);        
+        _event_date=event.startdate.substr(0,10);
       }
-    }    
-  });  
+    }
+  });
   return result;
 };
 
@@ -1971,20 +1977,20 @@ ListView.prototype.getPersonAuslastung = function(cdb_user_id, service_id, now_d
 ListView.prototype.renderPersonAuslastung = function (cdb_user_id, event_id, service_id, withDayView) {
   if (withDayView==null) withDayView=false;
   if (cdb_user_id==null) return "";
-  var now_date=allEvents[event_id].startdate.toDateEn();  
-  
+  var now_date=allEvents[event_id].startdate.toDateEn();
+
   var result=this.getPersonAuslastung(cdb_user_id, service_id, now_date);
 
   var txt="";
   var txt2="";
-  
+
   var _diff_date=-2;
-  var _percent_v=0.0; 
+  var _percent_v=0.0;
   var _percent_c=0;
   while (_diff_date<=1) {
     if (_diff_date==0) txt=txt+"|";
     if (_diff_date==0) txt2=txt2+"<";
-    var _c = "white"; 
+    var _c = "white";
     if ((result.monate[_diff_date]!=null) && (result.monate[_diff_date].events>0)) {
       var _p = result.monate[_diff_date].person/result.monate[_diff_date].events;
       if (_p>0.5) _c="red";
@@ -2002,7 +2008,7 @@ ListView.prototype.renderPersonAuslastung = function (cdb_user_id, event_id, ser
     _diff_date++;
     _percent_c++;
   }
-  
+
   var txt3="";
   if (withDayView) {
     // Pr�fe ob die Person schon an dem Tag in einem Event eingetragen ist oder war
@@ -2033,7 +2039,7 @@ ListView.prototype.renderPersonAuslastung = function (cdb_user_id, event_id, ser
       }
     });
   }
-  
+
   if (txt2!="") {
     txt2='<a href="#" id="personHistory">'+txt2+'</a>';
     var _percent=Math.round(100*_percent_v/_percent_c);
@@ -2045,7 +2051,7 @@ ListView.prototype.renderPersonAuslastung = function (cdb_user_id, event_id, ser
       txt2=txt2+"<br/>N&auml;chster Einsatz: "+result.naechster_einsatz_danach.toStringDe(true);
     if (txt3!="")
       txt2=txt2+"<p><small>Andere Anfragen an diesem Tag:<br>"+txt3+"!</small>";
-    
+
     var absent=personIsAbsent(cdb_user_id,now_date);
     if (absent!=null) {
       txt2=txt2+"<p><small style=\"color:red\">Achtung: Person abwesend bis "+(absent.enddate.getHours()==0?absent.enddate.toStringDe(false):absent.enddate.toStringDe(true))+" ("+masterData.absent_reason[absent.absent_reason_id].bezeichnung;
@@ -2054,14 +2060,14 @@ ListView.prototype.renderPersonAuslastung = function (cdb_user_id, event_id, ser
       txt2=txt2+")</small>";
     }
 
-    
+
     return '<font title="Auslastung je Monat innerhalb der Dienstgruppe, aktueller Eventmonat ist mit <> markiert">'+txt2+'</font>';
   }
-  return "";  
+  return "";
 };
 
 /**
- * 
+ *
  * @param event_id
  * @param eventservice_id
  * @return eventservice
@@ -2088,7 +2094,7 @@ ListView.prototype.renderTooltip = function(id, event_id, withLastDates, withHis
     txt="<h4>"+a.name;
     txt=txt+"</h4>";
   }
-  
+
   var info=false;
   if (masterData.service[a.service_id].cdb_gruppen_ids!=null) {
     var info=this_object.getMemberOfOneGroup(masterData.service[a.service_id].cdb_gruppen_ids, [a.cdb_person_id]);
@@ -2097,7 +2103,7 @@ ListView.prototype.renderTooltip = function(id, event_id, withLastDates, withHis
   if (withLastDates) {
     if (a.zugesagt_yn==1)
       txt=txt+"<font style=\"color:green\">Zusage am "+a.datum.toDateEn().toStringDe()+"</font>";
-    else if (a.name!=null) 
+    else if (a.name!=null)
       txt=txt+"<font style=\"color:red\">Anfrage vom "+a.datum.toDateEn().toStringDe()+"</font>";
     else
       txt=txt+"<font style=\"color:red\">Offen seit "+a.datum.toDateEn().toStringDe()+"</font>";
@@ -2130,13 +2136,13 @@ ListView.prototype.renderTooltip = function(id, event_id, withLastDates, withHis
       txt=txt+txt2;
     }
   }
-  
+
   if (txt!="" || _editor) {
     txt='<div>'+txt+"</div>";
-    txt=txt+'<div style="clear:both"></div>';  
+    txt=txt+'<div style="clear:both"></div>';
   }
 
-  
+
   if ((withHistory) || (masterData.auth.viewhistory) || (_bin_ich_admin))
     txt=txt+"<p>"+this.renderEntryHistory(event_id, a.service_id, a.counter, null, _editor, true);
 
@@ -2145,20 +2151,20 @@ ListView.prototype.renderTooltip = function(id, event_id, withLastDates, withHis
     if (_bin_ich_admin || masterData.auth.admin || (masterData.auth.editservice[a.service_id])) {
       title='<a href="#" class="edit-service" data-id="'+a.service_id+'">'+title+'</a>';
     }
-    
+
     if (masterData.service[a.service_id].notiz!="")
       title=title+' <small> ('+masterData.service[a.service_id].notiz+")</small>";
 
     if (_editor) {
       var abonniert=false;
       if (getNotification("service", a.service_id)!==false) {
-        abonniert=true;      
+        abonniert=true;
       }
       title=title+'&nbsp; <span class="label '+(abonniert?"label-info":"")+'">';
       title=title+'<a href="#" class="edit-notification" data-domain-type="service" data-domain-id="'+a.service_id+'" '+'>'
         +(abonniert?"abonniert":"abonnieren")+'</a></span>';
     }
-    
+
     txt='<div style="min-width:250px; max-width:300px;">'+txt+'</div>';
     return [txt,title];
   }
@@ -2168,7 +2174,7 @@ ListView.prototype.renderTooltip = function(id, event_id, withLastDates, withHis
 function getNotification(domain_type, domain_id) {
   if (masterData.notification[domain_type]==null) return false;
   if (masterData.notification[domain_type][domain_id]==null) return false;
-  return masterData.notification[domain_type][domain_id];  
+  return masterData.notification[domain_type][domain_id];
 }
 
 
@@ -2179,8 +2185,8 @@ ListView.prototype.countActiveServices = function(event, service_id) {
       if ((s.service_id==service_id) && (s.valid_yn==1) && (s.name!=null)) {
         count=count+1;
       }
-    }); 
-  }       
+    });
+  }
   return count;
 };
 
@@ -2194,11 +2200,11 @@ ListView.prototype.editService = function(service_id, sg_id) {
   arr.gruppen=new Array();
   arr.tags=new Array();
   if (arr.cdb_gruppen_ids)
-    arr.gruppen=arr.cdb_gruppen_ids.split(","); 
+    arr.gruppen=arr.cdb_gruppen_ids.split(",");
   if (arr.cdb_tag_ids)
-    arr.tags=arr.cdb_tag_ids.split(","); 
+    arr.tags=arr.cdb_tag_ids.split(",");
   if (arr.servicegroup_id==null) arr.servicegroup_id=sg_id;
-  
+
   if (masterData.groups==null) {
     var elem = form_showCancelDialog("Gruppendaten werden geladen...","Bitte warten..");
     churchInterface.jsendRead({func:"getGroupAndTagInfos"}, function(ok, data) {
@@ -2209,52 +2215,52 @@ ListView.prototype.editService = function(service_id, sg_id) {
         t.editService(service_id, sg_id);
       }
       else {
-        alert("Fehler: "+data); 
+        alert("Fehler: "+data);
         masterData.groups="null";
       }
       elem.dialog("close");
-    }); 
+    });
   }
   else {
     var form = new CC_Form(null, arr);
     form.addInput({label:"Bezeichnung",cssid:"bezeichnung",required:true});
     form.addInput({label:"Notiz",cssid:"notiz",required:false});
     form.addInput({label:"Ergänzung für Kalendertext", placeholder:"mit [Vorname]", cssid:"cal_text_template",required:false});
-    form.addSelect({label:"Servicegruppe", cssid:"servicegroup_id", data:masterData.servicegroup, 
+    form.addSelect({label:"Servicegruppe", cssid:"servicegroup_id", data:masterData.servicegroup,
       func: function(o) {return (masterData.auth.editgroup!=null) && (masterData.auth.editgroup[o.id]!=null);}
     });
-  
-    
+
+
     form.addHtml('<div class="control-group"><label class="control-label">Gruppenzuordnungen</label>');
     form.addHtml('<div class="controls" id="gruppen">');
     form.addHtml('</div></div>');
-    
+
     if (masterData.tags!=null) {
       form.addHtml('<div class="control-group"><label class="control-label">Tag-Zuordnungen</label>');
       form.addHtml('<div class="controls" id="tags">');
       form.addHtml('</div></div>');
     }
-    
-    
+
+
     form.addCheckbox({controlgroup_start:true, label:"Sende Dienstanfragen per E-Mail", cssid:"sendremindermails_yn"});
     form.addCheckbox({controlgroup_end:true, label:"Die Dienstanfrage kann auch bei Zusage kommentiert werden", cssid:"allowtonotebyconfirmation_yn"});
     form.addInput({label:"Sortierungsnummer (sortkey)",cssid:"sortkey",required:true});
     form.addHtml('<p class="pull-right"><small>Id: '+service_id);
-  
+
     var elem = form_showDialog((service_id!=null?"Service editieren":"Service erstellen"), form.render(false, "horizontal"), 600,550);
     elem.dialog('addbutton', 'Speichern', function() {
       obj=form.getAllValsAsObject();
       obj.cdb_gruppen_ids=arr.gruppen.join(",");
       obj.cdb_tag_ids=arr.tags.join(",");
-      
+
       if (obj.cdb_gruppen_ids=="") delete obj.cdb_gruppen_ids;
       if (obj.cdb_tag_ids=="") delete obj.cdb_tag_ids;
-      
+
       if ((obj.cdb_gruppen_ids==null) && (obj.cdb_tag_ids!=null)) {
         alert("Es wurde mindestens ein Tag angegeben ohne eine Gruppe. Tags wirken nur innerhalb von Gruppen. Bitte erst Gruppe auswaehlen!");
         return false;
       }
-      
+
       obj.id=service_id;
       if (obj!=null) {
         obj.func="editService";
@@ -2281,60 +2287,60 @@ ListView.prototype.editService = function(service_id, sg_id) {
     elem.dialog('addbutton', 'Abbrechen', function() {
       $(this).dialog("close");
     });
-    
+
     form_renderLabelList(arr, "gruppen", masterData.groups);
     if (masterData.tags!=null)
-      form_renderLabelList(arr, "tags", masterData.tags);    
-  }  
-  
+      form_renderLabelList(arr, "tags", masterData.tags);
+  }
+
 };
 
 ListView.prototype.renderAddServiceToServicegroup = function(event, sg_id, user_pid) {
-  var rows=new Array();
-  rows.push('<div id="in_edit"><table class="table table-condensed">');
-  rows.push('<tr><th><input type="checkbox" id="cb_enableAll"/><th>Service');
-  if ((masterData.auth.editgroup!=null) && (masterData.auth.editgroup[sg_id])) {
-    rows.push('<th width="25px">');
-  }
-  var _bin_ich_admin=bin_ich_admin(event.admin);
+	var rows=new Array();
+	rows.push('<div id="in_edit" class="addService">');
+	rows.push('<div class="checkbox"><label for="cb_enableAll"><input type="checkbox" id="cb_enableAll"/> <b>Service</b></label>');
+	var _bin_ich_admin=bin_ich_admin(event.admin);
 
-  $.each(this.getAdditionalServicesToServicegroup(event, sg_id, _bin_ich_admin), function(i,s) {
-    rows.push('<tr><td><input type="checkbox" '+s.checked+' id="on_'+s.id+'"/><td><p>'+masterData.service[s.id].bezeichnung);
-    if (masterData.service[s.id].notiz!="")
-      rows.push('&nbsp; <small>('+masterData.service[s.id].notiz+")</small>");
-      if ((masterData.auth.editgroup!=null) && (masterData.auth.editgroup[sg_id])) {
-        rows.push('<td>'+form_renderImage({htmlclass:"edit-service", link:true, data:[{name:"service-id", value:s.id}], src:"options.png", width:20}));
-      }
-    
-  });
-  if ((masterData.auth.editgroup!=null) && (masterData.auth.editgroup[sg_id])) {
-    rows.push('<tr><td><td><i><a href="#" class="newService">Neuen Service erstellen</a></i><td>'
-        +form_renderImage({cssid:"addService", src:"plus.png", width:20}));
-  }
-  rows.push("</table></div>");
-  
+	$.each(this.getAdditionalServicesToServicegroup(event, sg_id, _bin_ich_admin), function(i,s) {
+		//rrr    rows.push('<tr><td><input type="checkbox" '+s.checked+' id="on_'+s.id+'"/><td><p>'+masterData.service[s.id].bezeichnung);
+		rows.push('</div><div class="checkbox"><label for="on_'+s.id+'"><input type="checkbox" '+s.checked+' id="on_'+s.id+'"/> '+masterData.service[s.id].bezeichnung+'');
+		if (masterData.service[s.id].notiz!="")
+			rows.push('&nbsp; <small>('+masterData.service[s.id].notiz+")</small>");
+		if ((masterData.auth.editgroup!=null) && (masterData.auth.editgroup[sg_id])) {
+			rows.push('<span class="pull-right">'+form_renderImage({htmlclass:"edit-service", link:true, data:[{name:"service-id", value:s.id}], src:"options.png", width:20})+'</span></label>');
+		}
+		else {
+			rows.push('</label>');
+		}
+	});
+	if ((masterData.auth.editgroup!=null) && (masterData.auth.editgroup[sg_id])) {
+		rows.push('</div><div class="checkbox"><label><i><a href="#" class="newService">Neuen Service erstellen</a></i><span class="pull-right">'
+				+form_renderImage({cssid:"addService", src:"plus.png", width:20})+'</span>');
+	}
+	rows.push("</label></div></div>");
+
   var elem = this.showDialog("Service zum Event hinzufügen oder entfernen", rows.join(""), 450, 500, {
       "Speichern": function() {
         obj=new Object();
         auto=new Array();
         obj.func="addOrRemoveServiceToEvent";
         obj.id=event.id;
-    
+
         var k=0;
         $("#in_edit input:checkbox").each(function (i) {
           if ($(this).attr("id").indexOf("on_")==0) {
             var service_id=$(this).attr("id").substr(3,99);
             obj["col"+k]=service_id;
             obj["val"+k]=$(this).attr("checked");
-            obj["count"+k]=$("#service_"+service_id).val();            
+            obj["count"+k]=$("#service_"+service_id).val();
             if ($("#auto_"+service_id).attr("checked"))
               auto.push(service_id);
             k++;
           }
         });
-        
+
         elem.html("<p><br/><b>Daten werden gespeichert...</b><br/><br/>");
-                
+
         churchInterface.jsendWrite(obj, function(ok, json) {
           if (!ok) alert("Fehler beim Speichern: "+json);
           else {
@@ -2343,7 +2349,7 @@ ListView.prototype.renderAddServiceToServicegroup = function(event, sg_id, user_
               this_object.renderList(allEvents[event.id]);
             });
           }
-        });  
+        });
       },
       "Abbrechen": function() {
         $(this).dialog("close");
@@ -2381,11 +2387,11 @@ ListView.prototype.renderAddServiceToServicegroup = function(event, sg_id, user_
       }
       else {
         var count=t.countActiveServices(event, id);
-        if (count>0) { 
+        if (count>0) {
           $(this).attr("checked",true);
           alert("Service kann nicht entfernt werden, da noch Personen angefragt sind bzw. zugesagt haben.");
         }
-        else 
+        else
         {
           $("#service_"+id).attr("disabled","disabled");
           if ($("#service_"+id).val()>0) $("#service_"+id).val(0);
@@ -2397,8 +2403,8 @@ ListView.prototype.renderAddServiceToServicegroup = function(event, sg_id, user_
   elem.find("input:text").change(function(k,a) {
     if ((this.value==0)) {
       alert("Es muss mindestens ein Services angegeben werden. Wenn der Dienst nicht notwendig ist, bitte mit der Checkbox ausschalten.");
-      this.value=1;      
-    } else { 
+      this.value=1;
+    } else {
       var counter=t.countActiveServices(event, $(this).attr("id").substr(8,99));
       if (counter>this.value) {
         this.value=counter;
@@ -2423,7 +2429,7 @@ ListView.prototype.renderAddServiceToServicegroup = function(event, sg_id, user_
 ListView.prototype.sendEMailToEvent = function(event) {
   var this_object=this;
   var rows = new Array();
-  
+
   var _dienstgruppen = new Array();
   $.each(event.services, function(k,service) {
     if ((service.valid_yn==1) && (service.cdb_person_id!=null)) {
@@ -2433,7 +2439,7 @@ ListView.prototype.sendEMailToEvent = function(event) {
   if (_dienstgruppen.length==0)
     alert("Um eine E-Mail zu senden, muss mindestens eine bekannte Person angefragt sein.");
   else {
-    rows.push('<form class="form-inline">');    
+    rows.push('<form class="form-inline">');
     rows.push('<div class="well">E-Mail an folgende Mitarbeiter senden:<br/><p><p>');
     var c=0;
     $.each(this_object.sortMasterData(masterData.servicegroup), function(k,a) {
@@ -2445,26 +2451,26 @@ ListView.prototype.sendEMailToEvent = function(event) {
       }
     });
     rows.push('</div>');
-    
+
     rows.push(form_renderInput({label:"Betreff", value:"Infos zum "+event.bezeichnung+" am "+event.startdate.toDateEn(true).toStringDe(true),
                 cssid:"betreff", type:"xlarge"}));
-    
+
     var txt='<div id="inhalt" class="well" contenteditable="true">';
     if (event.agenda && (user_access("view agenda", event.category_id) || t.amIInvolved(event))) {
       var a=agendaView.getAgendaForEventIdIfOnline(event.id);
-      if (a!=null) 
+      if (a!=null)
         txt=txt+'<br/><br/><a href="'+masterData.base_url+'?q=churchservice&id='+a.id+'#AgendaView" class="button">Ablauf aufrufen</a>';
     }
 
     if (masterData.settings.signature!=null) txt=txt+masterData.settings.signature;
     txt=txt+'</div>';
     rows.push(txt);
-    
+
     if (masterData.settings.sendBCCMail==null)
       masterData.settings.sendBCCMail=1;
-    rows.push(form_renderCheckbox({label:"Eine Kopie an mich senden", cssid:"sendBCCMail", 
+    rows.push(form_renderCheckbox({label:"Eine Kopie an mich senden", cssid:"sendBCCMail",
       checked:masterData.settings.sendBCCMail==1}));
-    
+
     rows.push("</form");
 
     var elem=this_object.showDialog("E-Mail an ausgewählte Mitarbeiter",rows.join(""), 600,650, {
@@ -2476,12 +2482,12 @@ ListView.prototype.sendEMailToEvent = function(event) {
               ids=ids+service.cdb_person_id+",";
             }
           });
-          if (ids=="") 
+          if (ids=="")
             alert("Bitte eine Dienstgruppe markieren!");
           else {
             masterData.settings.sendBCCMail=($("#sendBCCMail").attr("checked")?1:0);
-            if (masterData.settings.sendBCCMail==1)            
-              ids=ids+masterData.user_pid+",";            
+            if (masterData.settings.sendBCCMail==1)
+              ids=ids+masterData.user_pid+",";
             churchInterface.jsendWrite({func:"saveSetting", sub:"sendBCCMail", val: masterData.settings.sendBCCMail});
             ids=ids+"-1";
             obj.ids=ids;
@@ -2492,23 +2498,23 @@ ListView.prototype.sendEMailToEvent = function(event) {
             churchInterface.jsendWrite(obj, function(res, data) {
               if (res) alert("EMail wurde gesendet. "+(data!=null?data:""));
               else alert("Problem: "+data)
-            }, null, false);          
+            }, null, false);
             $(this).dialog("close");
           }
         },
         "Abbrechen": function() {
           $(this).dialog("close");
-        }        
+        }
     });
     form_implantWysiwygEditor("inhalt", false, false);
     elem.find("#inhalt").focus();
     elem.find("a").click(function(c) {
       if (($(this).attr("id")=="Vorname") || ($(this).attr("id")=="Nachname")) {
-        $("#inhalt").insertAtCaret("["+$(this).attr("id")+"]");    
+        $("#inhalt").insertAtCaret("["+$(this).attr("id")+"]");
         return false;
       }
     });
-    
+
   }
 };
 
@@ -2522,7 +2528,7 @@ ListView.prototype.editNote = function(event) {
       obj.func="saveNote";
       var txt=$("#infos").val();
       obj.text=txt;
-      obj.event_id=event.id;      
+      obj.event_id=event.id;
       churchInterface.jsendWrite(obj, function(res) {
         if (res) {
           event.special=txt;
@@ -2533,21 +2539,21 @@ ListView.prototype.editNote = function(event) {
     },
     "Abbrechen": function() {
       $(this).dialog("close");
-    }        
-  }); 
+    }
+  });
 };
 
 ListView.prototype.attachFile = function(event) {
   var this_object=this;
   var rows = new Array();
   var checked=false;
-  
+
   var eventIds= new Array();
   var day=event.startdate.toDateEn(false).toStringEn(false);
   $.each(allEvents, function(k,a) {
     if ((event.id!=a.id) && (a.startdate.toDateEn(false).toStringEn(false)==day) && (event.category_id==a.category_id)) {
       eventIds.push(a.id);
-    }    
+    }
   });
 
   rows.push('<form class="form-inline"><legend>1. Option zum Hochladen der Datei</legend>');
@@ -2559,7 +2565,7 @@ ListView.prototype.attachFile = function(event) {
          label:"Datei automatisch an alle Events des Tages mit gleicher Kategorie anh&auml;ngen"
       }));
   }
-  
+
   var _dienstgruppen = new Array();
   if (event.services!=null) {
     $.each(event.services, function(k,service) {
@@ -2573,24 +2579,24 @@ ListView.prototype.attachFile = function(event) {
     $.each(this_object.sortMasterData(masterData.servicegroup), function(k,a) {
       if (_dienstgruppen[a.id]) {
         checked=masterData.settings["file_informServiceGroup"+a.id]==1;
-        rows.push(form_renderCheckbox({label:a.bezeichnung, controlgroup:false, checked:checked, 
+        rows.push(form_renderCheckbox({label:a.bezeichnung, controlgroup:false, checked:checked,
             cssid:"file_informServiceGroup"+a.id})+"&nbsp; &nbsp;");
       }
-    });    
-   rows.push('<p>Hier kann ein Kommentar angeben werden:<div class="well" contenteditable="true" id="editor">&nbsp;</div>');    
-    
+    });
+   rows.push('<p>Hier kann ein Kommentar angeben werden:<div class="well" contenteditable="true" id="editor">&nbsp;</div>');
+
   }
-  if (rows.length==1) { 
+  if (rows.length==1) {
     rows = new Array();
     rows.push('<legend>Datei ausw&auml;hlen</legend>');
   }
-  else 
+  else
     rows.push('<legend>2. Datei ausw&auml;hlen</legend>');
-  
+
   rows.push("<p><div id=\"upload_button\">Nochmal bitte...</div><p>");
-  
+
   rows.push("<p><small>Sobald eine Datei hochgeladen wurde, werden alle angewählten Mitarbeiter per E-Mail informiert.</form>");
-  
+
   var elem = form_showDialog("Datei zum Event "+event.bezeichnung+" hochladen",rows.join(""), 520, 500, {
     "Abbrechen": function() {
       $(this).dialog("close");
@@ -2599,10 +2605,10 @@ ListView.prototype.attachFile = function(event) {
   form_implantWysiwygEditor("editor", null, true);
   elem.find("input:checkbox").change(function() {
     masterData.settings[$(this).attr("id")]=($(this).attr("checked")=="checked"?1:0);
-    churchInterface.jsendWrite({func:"saveSetting", sub:$(this).attr("id"), val:($(this).attr("checked")=="checked"?1:0)});    
+    churchInterface.jsendWrite({func:"saveSetting", sub:$(this).attr("id"), val:($(this).attr("checked")=="checked"?1:0)});
   });
 
-  
+
   var uploader = new qq.FileUploader({
     element: document.getElementById('upload_button'),
 //    action: masterData.modulespath+'/uploadFile.php',
@@ -2624,8 +2630,8 @@ ListView.prototype.attachFile = function(event) {
           // Datei kopieren, wenn es sein soll
           if ((masterData.settings.file_attachToAllEvents==1) && (eventIds.length>0)) {
             churchInterface.jsendWrite({func:"copyFile", id:res.id, domain_id:eventIds.join(",")},function(ok, data) {
-              if (!ok) alert("Probleme beim Kopieren der Daten auf die anderen Events: "+data);  
-            }, false);        
+              if (!ok) alert("Probleme beim Kopieren der Daten auf die anderen Events: "+data);
+            }, false);
           }
           // Mails schicken, wenn es sein soll
           var mailGroups=new Array();
@@ -2645,8 +2651,8 @@ ListView.prototype.attachFile = function(event) {
                 var obj = new Object();
                 var mailPersons=new Array();
                 $.each(ev.services, function(k,service) {
-                  if ((service.valid_yn==1) && (service.cdb_person_id!=null) && (masterData.service[service.service_id]!=null) 
-                      && (_dienstgruppen[masterData.service[service.service_id].servicegroup_id]) 
+                  if ((service.valid_yn==1) && (service.cdb_person_id!=null) && (masterData.service[service.service_id]!=null)
+                      && (_dienstgruppen[masterData.service[service.service_id].servicegroup_id])
                       &&  (masterData.settings["file_informServiceGroup"+masterData.service[service.service_id].servicegroup_id]==1)) {
                     mailPersons.push(service.cdb_person_id);
                   }
@@ -2656,7 +2662,7 @@ ListView.prototype.attachFile = function(event) {
                   obj.betreff="Neue Datei zum Event "+ev.bezeichnung+" "+ev.startdate.toDateEn(true).toStringDe(true);
                   obj.inhalt="<h3>Hallo [Vorname]!</h3>"+
                       "<p>f&uuml;r <i>"+ev.bezeichnung+"</i> wurde eine neue Datei hochgeladen. Du wirst informiert, da Du zum Dienst angefragt bist.";
-                  if ((kommentar!=null) && (kommentar!="")) 
+                  if ((kommentar!=null) && (kommentar!=""))
                     obj.inhalt=obj.inhalt+'<p><i>'+kommentar+'</i></p>';
                   obj.inhalt=obj.inhalt+'<ul><li><a href="'+masterData.files_url+"/files/service/"+ev.id+"/"+res.filename+'">'+res.bezeichnung+'</a></ul>';
                   obj.domain_id=ev.id;
@@ -2664,14 +2670,14 @@ ListView.prototype.attachFile = function(event) {
                   obj.func="sendEMailToPersonIds";
                   churchInterface.jsendWrite(obj, function(ok, data) {
                     if (ok) alert("E-Mail wurde gesendet. "+(data!=null?data:""));
-                    else alert("Problem beim Senden: "+data);   
-                  }, null, false);          
+                    else alert("Problem beim Senden: "+data);
+                  }, null, false);
                 }
               }
             });
           }
-          
-          elem.dialog("close");      
+
+          elem.dialog("close");
           cs_loadFiles(function() {
             elem2.dialog("close");
           });
@@ -2679,7 +2685,7 @@ ListView.prototype.attachFile = function(event) {
       }
       else alert("Sorry, es ist ein Fehler beim Hochladen aufgetreten!");
     }
-  });    
+  });
 };
 
 ListView.prototype.renderFiles = function () {
@@ -2698,16 +2704,16 @@ ListView.prototype.renderFiles = function () {
     var tooltip=$(this);
     tooltip.tooltips({
       data:{id:tooltip.attr("data-id"), event_id:tooltip.parents("tr").attr("id")},
-      render:function(data) {        
-        return t.renderTooltipForFiles(tooltip, allEvents[data.event_id].files[data.id], 
-            (masterData.auth.admin || allEvents[data.event_id].files[data.id].modified_pid==masterData.user_pid 
+      render:function(data) {
+        return t.renderTooltipForFiles(tooltip, allEvents[data.event_id].files[data.id],
+            (masterData.auth.admin || allEvents[data.event_id].files[data.id].modified_pid==masterData.user_pid
               || bin_ich_admin(allEvents[data.event_id].admin)));
-      },      
+      },
       afterRender: function(element, data) {
         return t.tooltipCallbackForFiles(data.id, element, allEvents, data.event_id);
       }
-    });    
-  });  
+    });
+  });
 };
 
 
@@ -2724,7 +2730,7 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
       render:function(data) {
         return t.renderTooltip(data.id, data.event_id, tooltip.attr("member")!=null, tooltip.attr("member")!=null);
       },
-      
+
       afterRender: function(element, data) {
         element.find("a.edit-notification").click(function() {
           clearTooltip();
@@ -2739,15 +2745,15 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
           clearTooltip();
           t.mailPerson($(this).attr("data-id"));
           return false;
-        });     
+        });
         element.find("a.edit-service").click(function() {
           clearTooltip();
-          t.editService($(this).attr("data-id"));          
+          t.editService($(this).attr("data-id"));
         })
       }
-    });    
+    });
   });
-  
+
   $(cssid+" a.edit-event").click(function() {
     clearTooltip();
     t.renderEditEvent(allEvents[$(this).parents("tr").attr("id")]);
@@ -2759,18 +2765,18 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
     if (!event.agenda) {
       t.currentEvent=event;
       agendaView.currentAgenda=null;
-      churchInterface.setCurrentView(agendaView, true);      
+      churchInterface.setCurrentView(agendaView, true);
     }
     else {
-      t.entryDetailClick($(this).parents("tr").attr("id")); 
-    }    
+      t.entryDetailClick($(this).parents("tr").attr("id"));
+    }
   });
 
-  
+
   $(cssid+" a").click(function (a) {
     clearTooltip();
     var cssid=$(this).attr("id");
-    if (cssid==null) 
+    if (cssid==null)
       return true;
     else if (cssid.indexOf("editEvent")==0) {
       t.renderEditEvent(allEvents[cssid.substr(9,99)]);
@@ -2791,7 +2797,7 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
       t.attachFile(allEvents[cssid.substr(10,99)]);
     }
     else if (cssid.indexOf("edit_es_")==0) {
-      t.renderEditEventService(cssid.substr(8,99),$(this).attr("eventservice_id"));      
+      t.renderEditEventService(cssid.substr(8,99),$(this).attr("eventservice_id"));
     }
     else if (cssid.indexOf("addMoreCols")==0) {
       t.addMoreCols();
@@ -2806,7 +2812,7 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
   $(cssid+" a.edit-service").click(function() {
     t.renderAddServiceToServicegroup(allEvents[$(this).attr("data-event-id")], $(this).attr("data-servicegroup-id"), masterData.user_pid);
   });
-  
+
   $('#ical_abo').click(function() {
     ical_abo();
     return false;
@@ -2815,45 +2821,45 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
 
 ListView.prototype.editNotification = function(domain_type, domain_id) {
   var t=this;
-  
+
   var form = new CC_Form();
   var value=null;
-  if (domain_id!=null && getNotification(domain_type, domain_id)!==false) 
+  if (domain_id!=null && getNotification(domain_type, domain_id)!==false)
     value=getNotification(domain_type, domain_id);
-  
+
   if (domain_id!=null && value==null) {
     form.addHtml('<legend>Neues Abo f&uuml;r '+masterData[domain_type][domain_id].bezeichnung+'</legend>');
-    
+
     $.each(masterData.notificationtype, function(k,a) {
       a.sortkey=a.delay_hours;
     });
-    
+
     form.addSelect({label:"Wann soll bei Neuigkeiten f&uuml;r <b>"+masterData[domain_type][domain_id].bezeichnung+"</b> benachrichtigt werden?",
            data:masterData.notificationtype, type:"medium", controlgroup:false, htmlclass:"new-notificationtype", selected:value, freeoption:true});
     form.addHtml('<p><p>');
   }
-  
+
   if (masterData.notification[domain_type]!=null) {
     form.addHtml('<legend>Vorhandene Abonnements</legend>');
     form.addHtml('<table class="table table-condensed"><tr><th style="min-width:60px">Abo<th style="min-width:60px">Notiz<th>Wie oft?<th width="22px">');
     $.each(masterData.notification[domain_type], function(k,a) {
       form.addHtml('<tr data-id="'+k+'"><td>'+masterData[domain_type][k].bezeichnung+'<td>');
       if (masterData[domain_type][k].notiz!=null)
-        form.addHtml('<small>'+masterData[domain_type][k].notiz+'</small>');        
+        form.addHtml('<small>'+masterData[domain_type][k].notiz+'</small>');
       form.addHtml('<td>');
-      form.addSelect({data:masterData.notificationtype, type:"medium", htmlclass:"edit-notificationtype", 
+      form.addSelect({data:masterData.notificationtype, type:"medium", htmlclass:"edit-notificationtype",
         selected:a.notificationtype_id, controlgroup:false});
       form.addHtml('<td>');
       form.addImage({src:"trashbox.png", width:20, htmlclass:"delete-notification", link:true});
     });
   }
-  
+
   var elem=form_showDialog("Abonnement bearbeiten",form.render(null, "vertical"), 460,500, {
     "Schliessen": function() {
       $(this).dialog("close");
     }
   });
-  
+
   elem.find('select.new-notificationtype').change(function() {
     if ($(this).val()!="") {
       var notificationtype_id=$(this).val();
@@ -2861,13 +2867,13 @@ ListView.prototype.editNotification = function(domain_type, domain_id) {
         masterData.notification[domain_type]=new Object();
       masterData.notification[domain_type][domain_id]={notificationtype_id:notificationtype_id, lastsenddate:null};
       elem.dialog("close");
-      t.editNotification(domain_type, domain_id);        
-      churchInterface.jsendWrite({func:"editNotification", domain_type:domain_type, domain_id:domain_id, 
+      t.editNotification(domain_type, domain_id);
+      churchInterface.jsendWrite({func:"editNotification", domain_type:domain_type, domain_id:domain_id,
            notificationtype_id:notificationtype_id}, function(ok, data) {
         if (!ok) alert("Fehler aufgetreten: "+data);
       });
     }
-  });  
+  });
   elem.find('select.edit-notificationtype').change(function() {
     if ($(this).val()!="") {
       var notificationtype_id=$(this).val();
@@ -2875,12 +2881,12 @@ ListView.prototype.editNotification = function(domain_type, domain_id) {
       masterData.notification[domain_type][domain_id]={notificationtype_id:notificationtype_id, lastsenddate:null};
       elem.dialog("close");
       t.editNotification(domain_type);
-      churchInterface.jsendWrite({func:"editNotification", domain_type:domain_type, domain_id:domain_id, 
+      churchInterface.jsendWrite({func:"editNotification", domain_type:domain_type, domain_id:domain_id,
         notificationtype_id:notificationtype_id}, function(ok, data) {
         if (!ok) alert("Fehler aufgetreten: "+data);
       });
     }
-  });  
+  });
   elem.find('a.delete-notification').click(function() {
     var domain_id=$(this).parents("tr").attr("data-id");
     delete masterData.notification[domain_type][domain_id];
@@ -2894,12 +2900,12 @@ ListView.prototype.editNotification = function(domain_type, domain_id) {
 };
 
 function ical_abo() {
-  var rows=new Array(); 
+  var rows=new Array();
   rows.push('<legend>Dienstplan abonnieren</legend>Deine Termine dieses Kalenders k&ouml;nnen abonniert werden. Hierzu kann die Adresse anbei in einen beliebigen Kalender importiert werden,'+
              ' der iCal unterst&uuml;tzt.<br><br>');
-  var id=$(this).attr("data-id"); 
+  var id=$(this).attr("data-id");
   rows.push(form_renderInput({label:"iCal-URL", value:settings.base_url+"?q=ical&id="+masterData.user_pid, disable:true}));
-  form_showOkDialog("Kalender abonnieren", rows.join(""));  
+  form_showOkDialog("Kalender abonnieren", rows.join(""));
 }
 
 ListView.prototype.addMoreCols = function() {
@@ -2913,7 +2919,7 @@ ListView.prototype.addMoreCols = function() {
         checked: (masterData.settings["viewgroup"+a.id]==null) || (masterData.settings["viewgroup"+a.id]==1)
       }));
     }
-  });  
+  });
   var elem = this.showDialog("Anpassen der Tabelle", rows.join(""), 400, 400, {
     "Schliessen": function() {
       $(this).dialog("close");
@@ -2923,16 +2929,16 @@ ListView.prototype.addMoreCols = function() {
     masterData.settings[$(this).attr("id")]=($(this).attr("checked")=="checked"?1:0);
     churchInterface.jsendWrite({func:"saveSetting", sub:$(this).attr("id"), val:masterData.settings[$(this).attr("id")]});
     t.renderList();
-  });  
+  });
 };
 
-ListView.prototype.renderFilter = function() {  
+ListView.prototype.renderFilter = function() {
   var this_object=this;
 
   var rows = new Array();
   rows.push("<div id=\"divviewmap\" class=\"new-entry\"></div>");
   rows.push("<div id=\"divaddfilter\" style=\"width:100%;\" class=\"new-entry\"></div>");
-  
+
   var form = new CC_Form();
   form.setHelp("ChurchService-Filter");
   //form.setLabel("Filterfunktionen");
@@ -2942,7 +2948,7 @@ ListView.prototype.renderFilter = function() {
 
   rows.push('<p> &nbsp; <small><img src="system/assets/img/red_dot.png"/> Abwesenheit  &nbsp; <img src="system/assets/img/yellow_dot.png"/> Angefragt  &nbsp; <img src="system/assets/img/green_dot.png"/> Zugesagt</small>');
 //  form.addSeparator();
-  
+
   var _meineDienste = new Array();
   form_addEntryToSelectArray(_meineDienste, 1, "Meine Dienste filtern");
   _drin=false;
@@ -2957,7 +2963,7 @@ ListView.prototype.renderFilter = function() {
   if (_drin) {
     form_addEntryToSelectArray(_meineDienste, 2, "Meine Events filtern");
   }
-  
+
   //form.addSelectFilter(_meineDienste,"Meine Filter",this.filter["filterMeine Filter"]);
   form.addSelect({data:_meineDienste,
                   label:_("my.filters"),
@@ -2965,8 +2971,8 @@ ListView.prototype.renderFilter = function() {
                   freeoption:true,
                   cssid:"filterMeine Filter",
                   type:"medium"});
-  
-  
+
+
   if (this.name!="FactView") {
     form.addSelect({data:this.sortMasterData(masterData.servicegroup),
                     label:_("servicegroups"),
@@ -2977,29 +2983,29 @@ ListView.prototype.renderFilter = function() {
                     func:function(s) {return (masterData.auth.viewgroup!=null) && (masterData.auth.viewgroup[s.id])}
     });
   }
-  
+
   form.addHtml('<div id="filterKategorien"></div>');
-  
+
 //  form.addCheckbox("searchFuture", this.filter["searchFuture"]!=null, "nur zuk&uuml;nfte Events");
-  form.addCheckbox({cssid:"searchChecked",label:_("selected")});  
+  form.addCheckbox({cssid:"searchChecked",label:_("selected")});
   rows.push(form.render(true));
-     
+
   rows.push("<div id=\"cdb_filtercover\"></div>");
- 
-  $("#cdb_filter").html(rows.join("")); 
-  
+
+  $("#cdb_filter").html(rows.join(""));
+
   if (this.filter["filterKategorien"]!=null) {
     if (typeof(this.filter["filterKategorien"])=="string")
       this_object.makeFilterCategories(masterData.settings.filterCategory);
-      
+
     this.filter["filterKategorien"].render2Div("filterKategorien", {label:"Kalender"});
   }
 
   $.each(this.filter, function(k,a) {
     $("#"+k).val(a);
   });
-   
-  // Callbacks 
+
+  // Callbacks
   filter=this.filter;
   this.implantStandardFilterCallbacks(this, "cdb_filter");
   this.renderCalendar();
@@ -3012,7 +3018,7 @@ ListView.prototype.renderCalendar = function() {
     dateFormat: 'dd.mm.yy',
     showButtonPanel: true,
     dayNamesMin: dayNamesMin,
-    monthNames: getMonthNames(), 
+    monthNames: getMonthNames(),
     currentText: _("today"),
     firstDay: 1,
     beforeShowDay: function(date) {
@@ -3020,10 +3026,10 @@ ListView.prototype.renderCalendar = function() {
                       var checkable=today.toStringEn()==date.toStringEn();
                       var angefragt=false;
                       var zugesagt=false;
-                      
+
                       $.each(allEvents, function(k,a) {
                         if (date.sameDay(a.startdate.toDateEn(false))) {
-                          checkable=true;            
+                          checkable=true;
                           if (a.services!=null) {
                             $.each(a.services, function(i,service) {
                               if ((service.valid_yn==1) && (service.cdb_person_id==masterData.user_pid)) {
@@ -3040,7 +3046,7 @@ ListView.prototype.renderCalendar = function() {
                       if (angefragt)
                         myday="angefragt";
                       else if (zugesagt)
-                        myday="zugesagt highlight";  
+                        myday="zugesagt highlight";
 
                       // Nun die Abwesenheit
                       var absent=false;
@@ -3053,7 +3059,7 @@ ListView.prototype.renderCalendar = function() {
                         });
                       }
                       if (absent) myday=myday+" absent";
-                      
+
                       return [checkable,myday];
     },
     onSelect : function(dateText, inst) {
@@ -3087,7 +3093,7 @@ ListView.prototype.renderCalendar = function() {
         t.renderList();
       },150);
     }
-  });    
+  });
   $("#dp_currentdate").datepicker($.datepicker.regional['de']);
   $("#dp_currentdate").datepicker('setDate', t.currentDate.toStringDe());
   t.addAbsentButton();
@@ -3102,8 +3108,8 @@ ListView.prototype.addAbsentButton = function () {
           'class="ui-datepicker-current ui-state-default ui-priority-secondary ui-corner-all">'+_("maintain.absence")+'</button>');
       $("#btn_abwesenheit").hover(function(k,a) {
         $(this).addClass("ui-state-hover");
-        }, function() { $(this).removeClass("ui-state-hover");} 
-      ); 
+        }, function() { $(this).removeClass("ui-state-hover");}
+      );
       $("#btn_abwesenheit").click(function(k,a) {
         t.editAbsent();
       });
@@ -3117,7 +3123,7 @@ ListView.prototype.editAbsent = function(pid, name, fullday, currentAbsent) {
   if (currentAbsent==null) {
     var currentAbsent=new Object();
     if (fullday==null) fullday=true;
-    
+
     currentAbsent.startdate=this_object.currentDate.toStringDe(false).toDateDe(false);
     currentAbsent.enddate=new Date(currentAbsent.startdate);
     if (fullday)
@@ -3127,14 +3133,14 @@ ListView.prototype.editAbsent = function(pid, name, fullday, currentAbsent) {
       currentAbsent.enddate.setHours(20);
     }
   }
-  else 
+  else
     fullday=churchcore_isFullDay(currentAbsent.startdate, currentAbsent.enddate);
-  
+
   if (pid==null) {
     pid=masterData.user_pid;
     name=masterData.user_name;
   }
-  
+
   if (allPersons[pid]==null)
     allPersons[pid]=new Object();
 
@@ -3149,32 +3155,32 @@ ListView.prototype.editAbsent = function(pid, name, fullday, currentAbsent) {
     separator:"&nbsp;",
     value:currentAbsent.startdate.toStringDe(),
     type:"small"
-  });  
+  });
   form.addHtml("<div id=\"dp_startdate\" style=\"position:absolute;background:#e7eef4;z-index:12001;\"/>");
 
   if (fullday!=true) {
     form.addHtml("<td>");
     var hours=_getHoursArray();
     form.addSelect({
-      data:hours, 
-      cssid:"inputStarthour", 
+      data:hours,
+      cssid:"inputStarthour",
       label:_("hour"),
-      selected:currentAbsent.startdate.getHours(), 
-      htmlclass:"input-mini" 
+      selected:currentAbsent.startdate.getHours(),
+      htmlclass:"input-mini"
     });
     form.addHtml("<td>");
-    
+
     var minutes=_getMinutesArray();
     form.addSelect({
-      data:minutes, 
+      data:minutes,
       label:_("minutes"),
-      cssid:"inputStartminutes", 
-      selected:currentAbsent.startdate.getMinutes(), 
-      type:"mini" 
-    });  
+      cssid:"inputStartminutes",
+      selected:currentAbsent.startdate.getMinutes(),
+      type:"mini"
+    });
     form.addHtml("<td>");
   }
-    
+
   form.addHtml("<td>");
   form.addInput({
     cssid:"inputEnddate",
@@ -3183,38 +3189,38 @@ ListView.prototype.editAbsent = function(pid, name, fullday, currentAbsent) {
     separator:"&nbsp;",
     value:currentAbsent.enddate.toStringDe(),
     type:"small"
-  });  
+  });
   form.addHtml("<div id=\"dp_enddate\" style=\"position:absolute;background:#e7eef4;z-index:12001;\"/>");
-  form.addHtml("<td>"); 
-  
+  form.addHtml("<td>");
+
   if (fullday!=true) {
     form.addSelect({
-      data:hours, 
-      cssid:"inputEndhour", 
+      data:hours,
+      cssid:"inputEndhour",
       label:_("hour"),
-      selected:currentAbsent.enddate.getHours(), 
-      htmlclass:"input-mini" 
+      selected:currentAbsent.enddate.getHours(),
+      htmlclass:"input-mini"
     });
     form.addHtml("<td>");
-    
+
     form.addSelect({
-      data:minutes, 
+      data:minutes,
       label:_("minutes"),
-      cssid:"inputEndminutes", 
-      selected:currentAbsent.enddate.getMinutes(), 
-      type:"mini" 
-    });  
+      cssid:"inputEndminutes",
+      selected:currentAbsent.enddate.getMinutes(),
+      type:"mini"
+    });
     form.addHtml("<tr><td colspan=2>");
-   
+
   }
-  
+
   form.addSelect({
     data:churchcore_sortData(masterData.absent_reason,"sortkey"),
     label:_("reason"),
     cssid:"inputAbsentReason",
     type:"medium"
   });
-  form.addHtml("<td colspan=2>"); 
+  form.addHtml("<td colspan=2>");
   form.addInput({
     value:currentAbsent.bezeichnung,
     label:_("comment"),
@@ -3225,11 +3231,11 @@ ListView.prototype.editAbsent = function(pid, name, fullday, currentAbsent) {
   form.addHtml("<tr><td>");
   form.addCheckbox({label:_("all.day"), checked:fullday, cssid:"wholeday"});
   form.addHtml("<tr><td colspan=4>");
-  form.addLink("", "addabsent", _("save.absence"));  
+  form.addLink("", "addabsent", _("save.absence"));
   form.addHtml("</table>");
 
   rows.push(form.render(false, "inline"));
-  
+
   if (allPersons[pid].absent!=null) {
     rows.push('<legend>'+_("already.entered.absence")+'</legend>');
     rows.push('<div style="max-height:180px; overflow-y:auto; overflow-x:auto">');
@@ -3237,7 +3243,7 @@ ListView.prototype.editAbsent = function(pid, name, fullday, currentAbsent) {
     var sum=new Object();
     $.each(churchcore_sortData(allPersons[pid].absent, "startdate", true), function(k,a) {
       if (currentAbsent.id!=a.id) {
-        if ((a.startdate.getHours()==0) && (a.enddate.getHours()==0)) 
+        if ((a.startdate.getHours()==0) && (a.enddate.getHours()==0))
           rows.push('<tr><td>'+a.startdate.toStringDe(false)+" - "+a.enddate.toStringDe(false));
         else
           rows.push('<tr><td>'+a.startdate.toStringDe(true)+" - "+a.enddate.toStringDe(true));
@@ -3267,7 +3273,7 @@ ListView.prototype.editAbsent = function(pid, name, fullday, currentAbsent) {
     }
     rows.push('</div>');
   }
-  
+
 
   var elem=this.showDialog("Abwesenheiten bearbeiten", rows.join(""), 600, 580, {
     "Schliessen": function() {
@@ -3292,7 +3298,7 @@ ListView.prototype.editAbsent = function(pid, name, fullday, currentAbsent) {
   elem.find("#inputStarthour").change(function() {
     elem.find("#inputEndhour").val($(this).val()+1);
   });
-  
+
   elem.find("#wholeday").change(function() {
     elem.dialog("close");
     this_object.editAbsent(pid, name, $(this).attr("checked")=="checked");
@@ -3316,8 +3322,8 @@ ListView.prototype.editAbsent = function(pid, name, fullday, currentAbsent) {
       }
       elem.html(_("save.data"));
       churchInterface.jsendWrite(currentAbsent, function(ok, data) {
-        if (ok) { 
-          if (allPersons[pid].absent==null) 
+        if (ok) {
+          if (allPersons[pid].absent==null)
             allPersons[pid].absent=new Array();
           currentAbsent.id=data;
           allPersons[pid].absent[data]=currentAbsent;
@@ -3333,7 +3339,7 @@ ListView.prototype.editAbsent = function(pid, name, fullday, currentAbsent) {
         var absent_id=$(this).attr("id").substr(10,99);
         elem.html(_('save.data'));
         churchInterface.jsendWrite({func:"delAbsent", id:absent_id}, function(ok, data) {
-          if (ok) { 
+          if (ok) {
             $.each(allPersons[pid].absent, function(k,a) {
               if ((a!=null) && (a.id==absent_id))
                 delete allPersons[pid].absent[k];
@@ -3350,7 +3356,7 @@ ListView.prototype.editAbsent = function(pid, name, fullday, currentAbsent) {
       var absent_id=$(this).attr("id").substr(11,99);
       elem.dialog("close");
       this_object.editAbsent(pid, name, false, $.extend({},allPersons[pid].absent[absent_id],true));
-    }    
+    }
     else if ($(this).attr("id").indexOf("changePerson")==0) {
       var rows=new Array();
       rows.push(form_renderInput({
@@ -3366,12 +3372,12 @@ ListView.prototype.editAbsent = function(pid, name, fullday, currentAbsent) {
         elem.dialog("close");
         this_object.editAbsent(ui.item.value, ui.item.label);
       });
-      
+
     }
     return false;
   });
 
-  
+
 };
 
 ListView.prototype.amIInvolved = function(a) {
@@ -3385,7 +3391,7 @@ ListView.prototype.amIInvolved = function(a) {
       return false;
     }
   });
-  if (!_dabei) return false;  
+  if (!_dabei) return false;
   return true;
 };
 
@@ -3399,7 +3405,7 @@ ListView.prototype.checkFilter = function(a) {
 
   if (this.currentDate>a.startdate.toDateEn())
     return false;
-  
+
   if ((this.filter["filterKategorien"]!=null) && (this.filter["filterKategorien"].filter(a.category_id)))
     return false;
 
@@ -3407,7 +3413,7 @@ ListView.prototype.checkFilter = function(a) {
     // Meine Filter filtern, also angefragt oder zugesagt
     if (this.filter["filterMeine Filter"]==1) {
       return t.amIInvolved(a);
-    } 
+    }
     // Meine Events, wo ich Admin bin
     else if (this.filter["filterMeine Filter"]==2) {
       if (!bin_ich_admin(a.admin))
@@ -3420,20 +3426,20 @@ ListView.prototype.checkFilter = function(a) {
     if (searchEntry.indexOf('#')==0) {
       if (searchEntry=="#"+a.id) return true; else return false;
     }
-    
+
     var searches=searchEntry.split(" ");
     var res=true;
     $.each(searches, function(k,search) {
       dabei=false;
       if (search!="") {
-        
-        if ((a.bezeichnung.toUpperCase().indexOf(searchEntry)>=0) || 
+
+        if ((a.bezeichnung.toUpperCase().indexOf(searchEntry)>=0) ||
             (a.id==search)) dabei=true;
-        
+
         if (a.services!=null)
           $.each(a.services, function(k,b) {
             if ((b.name!=null) && (b.valid_yn==1) && (b.name.toUpperCase().indexOf(search)>=0))
-              dabei=true;                
+              dabei=true;
           });
       }
       if (!dabei) {
@@ -3443,12 +3449,12 @@ ListView.prototype.checkFilter = function(a) {
     });
     if (!res) return false;
   }
-  
+
 
   if ((filter["searchChecked"]!=null) && (a.checked!=true)) return false;
-  
 
-  return true;    
+
+  return true;
 };
 
 function _renderDetails(id) {
@@ -3466,7 +3472,7 @@ ListView.prototype.renderEntryDetail = function (event_id) {
     songView.loadSongData();
     agendaView.loadAgendaForEvent(event_id, function(data) {
       var rows=new Array();
-      rows.push('<tr class="detail" id="detail'+event_id+'" data-id="'+event_id+'"><td colspan=20><div class="well">');  
+      rows.push('<tr class="detail" id="detail'+event_id+'" data-id="'+event_id+'"><td colspan=20><div class="well">');
       rows.push('<legend>Ablauf ');
       if (agendaView.currentAgenda!=null && agendaView.currentAgenda.final_yn==0)
         rows.push(' ENTWURF');
@@ -3481,14 +3487,14 @@ ListView.prototype.renderEntryDetail = function (event_id) {
       $.each(agendaView.getData(true), function(k,a) {
         rows.push('<tr id="'+a.id+'">'+agendaView.renderListEntry(a, true));
       });
-      
+
       rows.push("</table>");
       rows.push('</div>');
       var elem=$("tr[id=" + event_id + "]").after(rows.join("")).next();
       agendaView.addFurtherListCallbacks("tr.detail[data-id="+event_id+"]", true);
       elem.find("a.show-agenda").click(function() {
         agendaView.currentAgenda=allAgendas[$(this).attr("data-id")];
-        churchInterface.setCurrentView(agendaView); 
+        churchInterface.setCurrentView(agendaView);
         return false;
       });
       elem.find("a.print-agenda").click(function() {
@@ -3501,6 +3507,6 @@ ListView.prototype.renderEntryDetail = function (event_id) {
   }
 };
 
-ListView.prototype.renderEditEntry = function(id, fieldname) {  
-  
+ListView.prototype.renderEditEntry = function(id, fieldname) {
+
 };
