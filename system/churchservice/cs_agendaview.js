@@ -78,6 +78,7 @@ AgendaView.prototype.renderMenu = function() {
     menu.addEntry("Neue Vorlage erstellen", "anewtemplate", "star");
   menu.addEntry("Druckansicht", "aprintview", "print");
   menu.addEntry("Exportieren zu Songbeamer", "aexportsb", "share");
+  menu.addEntry("Exportieren zu ProPresenter5", "aexportpp", "share");
   menu.addEntry(_("help"), "ahelp", "question-sign");
 
   if (!menu.renderDiv("cdb_menu",churchcore_handyformat()))
@@ -92,6 +93,9 @@ AgendaView.prototype.renderMenu = function() {
       }
       else if ($(this).attr("id")=="aexportsb") {
         t.exportCurrentAgendaToSongBeamer();
+      }
+      else if ($(this).attr("id")=="aexportpp") {
+        t.exportCurrentAgendaToProPresenter();
       }
       else if ($(this).attr("id")=="aprintview") {
         fenster = window.open('?q=churchservice/printview&id='+t.currentAgenda.id+'#AgendaView', "Druckansicht", "width=900,height=600,resizable=yes");
@@ -148,6 +152,56 @@ AgendaView.prototype.exportCurrentAgendaToSongBeamer = function () {
   downloadLink.click();
   document.body.removeChild(downloadLink);
  
+};
+
+AgendaView.prototype.exportCurrentAgendaToProPresenter = function () {
+  $.getCTScript("system/assets/jszip/jszip.min.js", function() {  
+    var rows=new Array();
+    var dt=new Date();
+    rows.push('<RVPlaylistDocument versionNumber="500" creatorCode="0000000000" playlistType="0"><playlists containerClass="NSMutableArray"><NSMutableDictionary containerClass="NSMutableDictionary" serialization-array-index="0"><NSMutableString serialization-native-value="5002768F-5F2E-4E7C-9086-502D81929BE9" serialization-dictionary-key="playlistUUID"></NSMutableString>'+
+        '<NSMutableString serialization-native-value="'+agendaView.currentAgenda.bezeichnung+'" serialization-dictionary-key="playlistName"></NSMutableString>'+
+        '<NSNumber serialization-native-value="3" serialization-dictionary-key="playlistType"></NSNumber>'+
+        '<NSDate serialization-native-value="'+dt.toStringEn(false)+'T10:00:00+0200" serialization-dictionary-key="playlistModifiedDate"></NSDate>'+
+        '<NSMutableArray containerClass="NSMutableArray" serialization-dictionary-key="playlistChildren">');
+    var count=0;
+    $.each(t.getData(true), function(i,a) {
+      var song=null;
+      if (a.arrangement_id>0) 
+        song=songView.getSongFromArrangement(a.arrangement_id);
+      
+      if (a.header_yn==1 || a.arrangement_id>0) {
+        var bez=a.bezeichnung;
+        if (song!=null) {
+          if (bez!="") bez=bez+" - ";
+          bez=bez+song.bezeichnung;            
+          if (masterData.songwithcategoryasdir==1)
+            rows.push('<RVDocumentCue displayName="'+bez+'" delayTime="0" timeStamp="0" enabled="1" filePath="'+masterData.songcategory[song.songcategory_id].bezeichnung+"\\"+song.bezeichnung+'.pro5" serialization-array-index="'+count+'"></RVDocumentCue>');
+          else
+            rows.push('<RVDocumentCue displayName="'+bez+'" delayTime="0" timeStamp="0" enabled="1" filePath="'+song.bezeichnung+'.pro5" serialization-array-index="'+count+'"></RVDocumentCue>');
+          count=count+1;
+        }
+      }
+    });
+    
+    rows.push(
+      '</NSMutableArray></NSMutableDictionary></playlists><deletions containerClass="NSMutableArray"></deletions></RVPlaylistDocument>');
+
+    var zip = new JSZip();
+    var pro5pl=zip.folder("test.pro5pl");
+    pro5pl.file("data.pro5pl", rows.join(""));
+
+    var uri = 'data:application/zip;base64,' + escape(zip.generate({type:"base64"}));
+    
+    var downloadLink = document.createElement("a");
+    downloadLink.href = uri;
+    downloadLink.download = "test.pro5plx";
+  
+    document.body.appendChild(downloadLink);
+    
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+    
+  }); 
 };
 
 AgendaView.prototype.editAgenda = function(agenda, template) {
