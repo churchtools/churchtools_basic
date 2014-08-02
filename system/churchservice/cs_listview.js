@@ -1072,8 +1072,8 @@ ListView.prototype.renderListEntry = function(event) {
                   || (masterData.auth.editgroup!=null && masterData.auth.editgroup[sg.id])
                   || _bin_ich_admin
                   || is_leader) {
-//            rows.push('<p><a href="#" id="addService" event_id="'+event.id+'" servicegroup_id="'+sg.id+'">'+form_renderImage({hover:true, src:"options.png", width:16})+'</a>');
-            rows.push('<p>'+form_renderImage({hover:true, htmlclass:"edit-service", src:"options.png", width:16, data:[{name:"servicegroup-id", value:sg.id}, {name:"event-id", value:event.id}], link:true}));
+            rows.push('<p>'+form_renderImage({hover:true, htmlclass:"edit-service", src:"options.png", width:18, data:[{name:"servicegroup-id", value:sg.id}, {name:"event-id", value:event.id}], link:true}));
+            rows.push('&nbsp;');
             _soll_zeigen=true;
           }
         }
