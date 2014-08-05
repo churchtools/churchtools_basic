@@ -2018,9 +2018,21 @@ $.widget("ct.editable", {
       editable.addClass("editmode");
       var elem=null;
       if (t.options.type=="textarea") {
-        elem=editable.html('<textarea class="editor" maxlength=200 style="margin:0;width:'+(editable.width()-10)+'px" '
-            +'>'+t._renderEditor()+'</textarea>')
-          .find(t.options.type);
+        var rows=new Array();
+        rows.push('<div>');
+        var height=(editable.height()+10);
+        if (height<40) height=40;
+        var width=(editable.width()-10);
+        if (width<123) width=123;
+        rows.push('<textarea class="editor" maxlength="200" style="margin:0;width:'+width+'px;height:'+height+'px" '
+            +'>'+t._renderEditor()+'</textarea>');
+        rows.push('<br/><span class="" style="position:absolute;">');
+        rows.push(form_renderButton({type:"small", htmlclass:"save btn-primary", label:_("save")}));
+        rows.push(form_renderButton({type:"small", htmlclass:"cancel ", label:_("cancel")}));
+        rows.push('</span>');
+        rows.push('</div>');
+        var elem=editable.html(rows.join("")).find(t.options.type);
+        
         // Limit max character to given maxlength
         elem.keyup(function(){
           var max = parseInt($(this).attr('maxlength'));
@@ -2039,6 +2051,14 @@ $.widget("ct.editable", {
       elem.focus();
       // Not by textarea, otherweise Firefox selected after editing the normal text...
       if (t.options.type!="textarea") elem.select();
+      editable.find(".save").click(function() {
+        t.success();
+        return false;
+      });
+      editable.find(".cancel").click(function() {
+        t.cancel();
+        return false;
+      });
       elem.keyup(function(e) {
         if (t.options.autosaveSeconds>0) {
           if (t._autosave!=null)
@@ -2048,7 +2068,8 @@ $.widget("ct.editable", {
 
         // Enter
         if (e.keyCode == 13) {
-          t.success();
+          if (t.options.type!="textarea") 
+            t.success();
         }
         // Escape
         else if (e.keyCode == 27) {

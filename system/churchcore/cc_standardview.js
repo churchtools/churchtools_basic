@@ -333,7 +333,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
         if (t.listViewTableHeight!=null) {
           rows.push('</table></div>');
 
-          rows.push('<div style="min-height:300px; max-height:'+t.listViewTableHeight+'px; overflow-y:auto; overflow-x:auto">');
+          rows.push('<div style="min-height:300px; position:relative; max-height:'+t.listViewTableHeight+'px; overflow-y:auto; overflow-x:auto">');
           rows.push('<table class="'+classes+'" style="margin-bottom:0px" id="AddressTableChild">');
         }
 

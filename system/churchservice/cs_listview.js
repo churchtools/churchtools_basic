@@ -998,11 +998,15 @@ ListView.prototype.renderListEntry = function(event) {
 
   rows.push("<br/>");
 
-  if ((event.special!=null) && (event.special!=""))
-    rows.push("<div class=\"event_info\">"+event.special.htmlize()+"</div>");
 
-  if (event.valid_yn==1) {
+  if (event.valid_yn==0) {
+    rows.push("<div class=\"event_info\"><small>Event wurde abgesagt!</small></div>");
+  }
+  else {    
     var _authMerker=masterData.auth.write || _bin_ich_admin;
+    if ((event.special!=null) && (event.special!="")) {
+      rows.push('<div class="event_info'+(_authMerker?" editable":"")+'">'+event.special.htmlize()+'</div>');
+    }
     // Check if I am a leader of the group
     if (!_authMerker)
       $.each(masterData.service, function(k,a) {
@@ -2811,6 +2815,30 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
   });
   $(cssid+" a.edit-service").click(function() {
     t.renderAddServiceToServicegroup(allEvents[$(this).attr("data-event-id")], $(this).attr("data-servicegroup-id"), masterData.user_pid);
+  });
+  $(cssid+" div.editable").each(function() {
+    var id=$(this).parents("tr").attr("id");
+    $(this).editable({
+      value:allEvents[id].special,
+      type:"textarea",
+      data:id,
+      render: 
+        function(txt) {
+          return '<small>'+txt.htmlize()+'</div>';
+        },
+      success:
+        function(newval, data) {
+          var oldVal=allEvents[data].special;
+          allEvents[data].special=newval;
+          churchInterface.jsendWrite({func:"saveNote", text:newval, event_id:data}, function(ok, res) {
+            if (!ok) {
+              alert(_("error.occured")+": "+res);
+              allEvents[data].special=oldVal;
+              listView.renderList();
+            }
+          });
+        }
+      });
   });
 
   $('#ical_abo').click(function() {

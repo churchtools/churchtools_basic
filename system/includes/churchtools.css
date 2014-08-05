@@ -526,5 +526,9 @@ span.tag {
     margin-bottom: .4em !important;
 }
 .addService .checkbox:hover {
-    background:#DDEDF7;
+    background:#F2F4F6 !important;
+}
+div.editable:hover {
+    background:#F2F4F6 !important;
+	
 }
