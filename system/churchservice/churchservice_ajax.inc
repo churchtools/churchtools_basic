@@ -47,7 +47,7 @@ function churchservice_getAuthorization() {
   $auth=$_SESSION["user"]->auth["churchservice"];
 
   $res=null;
-  $user_pid=churchcore_getCurrentUserPid();
+  $user_pid=$_SESSION["user"]->id;
   $res["user_pid"]=$user_pid;
   
   if (user_access("view","churchdb")) 
@@ -287,7 +287,7 @@ function churchService_adminOfEvent($event_id) {
   $split = explode(",",$res->admin);
   $dabei=false;
   foreach ($split as $us) {  
-    if ($us==churchcore_getCurrentUserPid())
+    if ($us==$_SESSION["user"]->id)
       $dabei=true;
   }
   return $dabei;  

@@ -103,6 +103,7 @@ class TextBundle {
         if (isset($this->bundle[$text])) {
             $template = $this->bundle[$text];
         }
+        //TODO: maybe add missed text keys to the xml file for easier translating?
         
         if ($template != null && $args != null) {
             $idx = 0;

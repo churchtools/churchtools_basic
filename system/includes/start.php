@@ -17,9 +17,9 @@ $content="";
 $embedded=false;
 $user=null;
 $files_dir="sites/default";
-  
+
 /** 
- * Shutdown fuction after all work is done it will be called. 
+ * Shutdown fuction, if an error happened, an error message is displayed. 
  */
 function handleShutdown() {
   $error = error_get_last();
@@ -31,38 +31,41 @@ function handleShutdown() {
 }
 
 /**
- * Check for multisite installation. When you want multislite, you to put
- * the conig in subdomains like mghh.churchtools.de. 
- * You have to separte the config files in config/mghh 
+ * Load config from file while checking for multisite installation. 
+ * 
+ * For multisite use you have to add a folder for each subdomain in sites, 
+ * eg sites/mghh for mghh.churchtools.de.
+ * Don't works for more then one subdomain like intern.mghh.churchtools.de 
  */
 function loadConfig() {
     global $files_dir;
     // Unix default. Should have ".conf" extension as per standards.
     $config = null;
 
-    // Config, based on subdomain.
-    // WARNING: This code will break per IP address access and supports only last subdomain.
-    if ($config == null && strpos($_SERVER["SERVER_NAME"],".") > 0) {
-        $hostname=substr($_SERVER["SERVER_NAME"],0,strpos($_SERVER["SERVER_NAME"],"."));
-        $cnf_location = "sites/$hostname/churchtools.config";
+    // read config, based on subdomain.
+    // WARNING: This code dont works for per IP address access and supports only last subdomain.
+    if (strpos($_SERVER["SERVER_NAME"],".") > 0) {
+        $subdomain=substr($_SERVER["SERVER_NAME"],0,strpos($_SERVER["SERVER_NAME"],"."));
+        $cnf_location = "sites/$subdomain/churchtools.config";
         if (file_exists($cnf_location)) {
             $config = parse_ini_file($cnf_location);
-            $files_dir="sites/".$hostname;
+            $files_dir="sites/".$subdomain;
         }
     }
 
-    // Default domain
+    // if no config, read default config
     $cnf_location = "sites/default/churchtools.config";
     if ($config == null && file_exists($cnf_location)) {
         $config = parse_ini_file($cnf_location);
     }
 
-    // Config in default linux etc location
+    // if still no config, look in default linux etc location
     $cnf_location = "/etc/churchtools/default.conf";
     if ($config == null && @file_exists($cnf_location)) {
       $config = parse_ini_file($cnf_location);
     }
     
+    // still no config? Look fo r host specific config in etc
     // Package installed, per domain.
     // All possible virt-hosts in HTTP server has to be symlinked to it.
     $cnf_location = "/etc/churchtools/hosts/" . $_SERVER["SERVER_NAME"] . ".conf";
@@ -70,6 +73,7 @@ function loadConfig() {
       $config = parse_ini_file($cnf_location);
     }
     
+    // 
     if ($config == null) {
         $error_message = "<h3>" . "Error: Configuration file was not found." . "</h3>";
         $error_message .= "<p>" . "Expected locations are:
@@ -136,7 +140,7 @@ function loadUserObjectInSession() {
       if (isset($_COOKIE['CC_SessionId'])) {
         $res=db_query("select * from {cc_session} where session=:session and hostname=:hostname",
             array(":session"=>$_COOKIE['CC_SessionId'], ":hostname"=>$_SERVER["HTTP_HOST"]));
-        // Wenn es die Session noch gibt, hole ihn wieder ein!
+        // if session exists, read user data
         if ($res!=false) {
           $res=$res->fetch();
           if (isset($res->person_id)) {
@@ -261,7 +265,7 @@ function churchtools_processRequest($_q) {
 /**
  * Main entry point for churchtools. This will be called from /index.php
  * Function loads i18n, configuration, check data security.
- * If everything ok, it calls churchtools_processRequest()
+ * If everything is ok, it calls churchtools_processRequest()
  */
 function churchtools_main() {
   global $q, $q_orig, $add_header, $config, $mapping, $content, $base_url, $files_dir, $user, $embedded, $i18n;
@@ -301,13 +305,13 @@ function churchtools_main() {
         addErrorMessage(t("permission.denied.write.dir", $files_dir));
       }
       else {
-        session_save_path($files_dir."/tmp");
+        session_save_path($files_dir."/tmp"); // saves the session in /sites/default/tmp ==> this gave an folder not exists error i searched for in php.ini!!!
       }
       session_name("ChurchTools_".$config["db_name"]);
       session_start();    
       register_shutdown_function('handleShutdown');
 
-      // Check for offline mode and if it activate return false;
+      // Check for offline mode. If it's activated display message and return false;
       if ((isset($config["site_offline"]) && ($config["site_offline"]==1))) {
         if ((!isset($_SESSION["user"]) || (!in_array($_SESSION["user"]->id, $config["admin_ids"])))) {
           echo t("site.is.down");

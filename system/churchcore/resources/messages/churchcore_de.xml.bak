@@ -118,7 +118,6 @@
   <entry key="email.was.sent">E-Mail wurde erfolgreich gesendet</entry>
   <entry key="write.email.to.admin">Dem Admin eine E-Mail schreiben</entry>
   <entry key="email.not.found">EMail-Adresse nicht vorhanden</entry>
-  <entry key="following.persons.have.no.email.address">An folgende Personen konnte wegen fehlender EMail-Adresse keine EMail gesendet werden: </entry>
   
   <!--  GENERAL MENU ENTRIES -->
   <entry key="menu">Menü</entry>

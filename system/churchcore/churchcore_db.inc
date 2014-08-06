@@ -1,5 +1,7 @@
 <?php
 
+//TODO: this file contains functions not related to database, maybe they should put in a separate functions file?
+
 define("CDB_LOG_PERSON", 'person');
 define("CDB_LOG_GROUP", 'group');
 define("CDB_LOG_MASTERDATA", 'masterData');
@@ -11,61 +13,66 @@ define("CDB_LOG_TAG", 'tag');
  */
 interface CTModuleInterface {
   /**
-   * A string containing the module name
+   * Get the module name
    */
   public function getModuleName();
   
   /**
-   * Relative path to the module, e.g. system/churchresource
+   * Get the relative path to the module, e.g. system/churchresource
    */
   public function getModulePath();
     
   /**
-   * A complete array with relevant master data for JS-View
+   * Get an array with all relevant master data for JS-View
    */
   public function getMasterData();
-  
+   
   /**
-   * Saves conrete one row in one table
+   * Save row in DB
    *  
-   * @param unknown_type $params array(id, table and col0..x columname and value0..x for data).
+   * @param array $params array(id, table and col0..n columnname and value0..n for data).
    */
   public function saveMasterData($params);
   
   /**
-   * Deletes one row in one table. 
+   * Delete row in DB 
    *  
-   * @param unknown_type $params array(id, table)
+   * @param array $params array(id, table)
    */
   public function deleteMasterData($params);
   
   /**
-   * Saves the user setting for the current login user
+   * Save user settings for current user
    * 
-   * @param unknown_type $params array(sub, val) 
+   * @param array $params array(sub, val) 
    */
   public function saveSetting($params);
   
   /**
-   * Set a cookie
+   * Set cookie
    *
-   * @param unknown_type $params array(sub, val)
+   * @param array $params array(sub, val)
    */
   public function setCookie($params);
   
 
   /**
-   * Get all user settings for current login user
+   * Get all user settings for current user
    */
   public function getSettings();  
   
   /**
-   * Return an array with churchcore_getMasterDataEntry() entries, for all MasterData tables. 
+   * Get array with churchcore_getMasterDataEntry() entries for all MasterData tables. 
    * Or null if there is no table needed.
    */
   public function getMasterDataTablenames();    
 }
 
+/**
+ * Delete all files in folder $dir
+ * 
+ * @param string $dir; directory name
+ */
 function cleandir($dir) {
   if (is_dir($dir)) {
     $objects = scandir($dir);
@@ -79,6 +86,11 @@ function cleandir($dir) {
   }
 }
 
+/**
+ * Recursively delete all files and directories in folder $dir 
+ *
+ * @param string $dir; directory name
+ */
 function rrmdir($dir) {
   if (is_dir($dir)) {
     $objects = scandir($dir);
@@ -92,18 +104,38 @@ function rrmdir($dir) {
   }  
 }
 
+/**
+ * Delete i18n related .js files
+ * 
+ * TODO: not needed, since only used one time in db_update function?
+ *
+ */
 function cleanI18nFiles() {
   global $files_dir;
   cleandir("$files_dir/files/messages/");
 }
 
-function loadI18nFile($modulename) {
+/**
+ * TODO: only used one time -> not needed
+ * 
+ * @param string $modulename
+ */
+/*function loadI18nFile($modulename) {
   global $config;
   $i18n = new TextBundle("system/$modulename/resources/messages");
   $i18n->load($modulename, $config["language"]);
   return $i18n;
-}
+}*/
 
+/**
+ * Get file name for i18n javascript file. 
+ * If not exists, it will be created.
+ * TODO: should be renamed to getI18nFile
+ *  
+ * @param string $modulename
+ * 
+ * @return string; filename
+ */
 function createI18nFile($modulename) {
   global $config, $files_dir;
   
@@ -112,12 +144,19 @@ function createI18nFile($modulename) {
 
   $filename="$files_dir/files/messages/$modulename"."_".$config["language"].".js";
   if (!file_exists($filename)) {
-    $i18n=loadI18nFile($modulename);
+//rrr    $i18n=loadI18nFile($modulename)
+    $i18n = new TextBundle("system/$modulename/resources/messages");
+    $i18n->load($modulename, $config["language"]);   
     $i18n->writeJSFile($filename, $modulename);
   }
   return $filename;  
 }
 
+/**
+ * 
+ * Base class for modules?
+ *
+ */
 abstract class CTAbstractModule implements CTModuleInterface {
   private $modulename="abstract";
 
@@ -137,7 +176,7 @@ abstract class CTAbstractModule implements CTModuleInterface {
   
   public function deleteMasterData($params) {
     if ((user_access("edit masterdata",$this->modulename)) && (churchcore_isAllowedMasterData($this->getMasterDataTablenames(), $params["table"]))) {
-      churchcore_deleteMasterData($params["id"], $params["table"]);
+      db_query("delete from {".$params["table"]."} where id=:id", array(":id"=>$params["id"]));
       $this->logMasterData($params);
     }
     else throw new CTNoPermission("edit masterdata", $this->modulename);  
@@ -157,9 +196,13 @@ abstract class CTAbstractModule implements CTModuleInterface {
             (isset($params["val"])?$params["val"]:null));
   }
   
-  // Set cookie for 30 days
+  /**
+   * Set cookie
+   * TODO: time should be set using constant to be customizable
+   * 
+   */
   public function setCookie($params) {
-    setcookie($params["sub"], $params["val"], time()+60*60*24*30);
+    setcookie($params["sub"], $params["val"], time()+60*60*24*30); //30 days
   }
   
   public function getSettings() {
@@ -178,7 +221,7 @@ abstract class CTAbstractModule implements CTModuleInterface {
     $i->setParam("person_id");
     $i->setParam("notificationtype_id", false);
     
-    // Delete when abotype is not set
+    // Delete if abotype is not set
     if (empty($params["notificationtype_id"])) {
       db_delete("cc_notification")
       ->fields($i->getDBInsertArrayFromParams($params))
@@ -224,17 +267,41 @@ abstract class CTAbstractModule implements CTModuleInterface {
     ct_notify($domain_type, $domain_id, $txt, $loglevel=2);
   }
   
+  /**
+   *
+   * Prepare parameter for logging
+   *
+   * @param array $params
+   * 
+   * @return string
+   */
+  public function prepareForLog($params) {
+    $my = array ();
+    foreach ( $params as $key => $param ) {
+      if (($key != "q") && ($key != "func")) {
+        if (is_array ( $param ))
+          $my [] = "$key:" . serialize ( $param );
+        else
+          $my [] = "$key:$param";
+      }
+    }
+    $str = "";
+    if (isset ( $params ["func"] )) $str .= $params ["func"] . " ";
+    if (count ( $my ) > 0) $str .= "(" . implode ( ", ", $my ) . ")";
+    return $str;
+  }  
+  
   public function log($params, $loglevel=2) {
-    ct_log(makeParamsLoggable($params), $loglevel);
+    ct_log($this->prepareForLog($params), $loglevel);
   }
   public function logPerson($params, $loglevel=2) {
-    ct_log(makeParamsLoggable($params), $loglevel, (isset($params["id"])?$params["id"]:null), CDB_LOG_PERSON);    
+    ct_log($this->prepareForLog($params), $loglevel, (isset($params["id"])?$params["id"]:null), CDB_LOG_PERSON);    
   }
   public function logGroup($params, $loglevel=2) {
-    ct_log(makeParamsLoggable($params), $loglevel, (isset($params["id"])?$params["id"]:null), CDB_LOG_GROUP);
+    ct_log($this->prepareForLog($params), $loglevel, (isset($params["id"])?$params["id"]:null), CDB_LOG_GROUP);
   }
   public function logMasterData($params, $loglevel=2) {
-    ct_log(makeParamsLoggable($params), $loglevel, (isset($params["id"])?$params["id"]:null), CDB_LOG_MASTERDATA);
+    ct_log($this->prepareForLog($params), $loglevel, (isset($params["id"])?$params["id"]:null), CDB_LOG_MASTERDATA);
   }
   
   public function getMasterDataTablenames() {
@@ -260,20 +327,21 @@ function ct_notify($domain_type, $domain_id, $txt, $loglevel=2) {
 /**
  * Send pending notifications. 
  * @param string $max_delayhours, can be null for all. 
+ * 
+ * TODO: rename nts/nt to something readable?
  */
 function ct_sendPendingNotifications($max_delayhours=null) {
-  $nts=churchcore_getTableData("cc_notificationtype", "delay_hours", 
-       ($max_delayhours!=null?"delay_hours<=$max_delayhours":""));
+  $nts=churchcore_getTableData("cc_notificationtype", "delay_hours", ($max_delayhours!=null?"delay_hours<=$max_delayhours":""));
   
   foreach ($nts as $nt) {
-    // Check if there a pending notifications for a person and domain_type  
+    // Check if there is a pending notifications for a person and domain_type  
     $personANDtypes=db_query('select n.person_id, n.domain_type from {cc_notification} n
              where n.notificationtype_id=:nt_id and (lastsenddate is null or
-                    (time_to_sec(timediff(now(), lastsenddate)) / 3600)>:delay_hours)
+                  (time_to_sec(timediff(now(), lastsenddate)) / 3600)>:delay_hours)
                   group by n.person_id, n.domain_type',
             array(':nt_id'=>$nt->id, ':delay_hours'=>$nt->delay_hours));
 
-    // Now collect all notifications in this type for each person and domain_type
+    // Collect all notifications in this type for each person and domain_type
     foreach ($personANDtypes as $personANDtype) {
       $notis=db_query('select * from {cc_notification} n 
                 where n.person_id=:person_id and n.notificationtype_id=:nt_id and n.domain_type=:dt_id',
@@ -283,7 +351,7 @@ function ct_sendPendingNotifications($max_delayhours=null) {
       
       $msg="";
       
-      // Now get all logs for each notification after each lastsenddate
+      // Get all logs for each notification after??? each lastsenddate
       foreach ($notis as $noti) {
         $logs=db_query("select l.txt, DATE_FORMAT(datum, '%e.%c.%Y %H:%i') date from {cdb_log} l where domain_type=:domain_type and domain_id=:domain_id
           and (:lastsenddate is null or time_to_sec(timediff(datum, :lastsenddate))>0) order by datum desc",
@@ -303,7 +371,7 @@ function ct_sendPendingNotifications($max_delayhours=null) {
           }
       }
       
-      // Now mark notification with current send date
+      // update send date for notification 
       $notis=db_query('update {cc_notification} n set lastsenddate=now()
                 where n.person_id=:person_id and n.notificationtype_id=:nt_id and n.domain_type=:dt_id',
               array(':person_id'=>$personANDtype->person_id, 
@@ -313,69 +381,112 @@ function ct_sendPendingNotifications($max_delayhours=null) {
   }  
 }
 
+/**
+ * 
+ * Function renamed to prepareForLog and moved into class CTAbstractModule, where its used only
+ * 
+ * @param unknown $params
+ * @return string
+ *
+ * function makeParamsLoggable($params) {
+ */
 
-function makeParamsLoggable($params) {
-  $my=array();
-  foreach ($params as $key=>$param) {
-    if (($key!="q") && ($key!="func")) {
-      if (is_array($param))
-        $my[]="$key:".serialize($param);
-      else
-        $my[]="$key:$param";
-    }
-  } 
-  $str="";
-  if (isset($params["func"])) $str.=$params["func"]." ";
-  if (count($my)>0) 
-    $str.="(".implode(", ", $my).")";
-  return $str;
-}
 
+/**
+ * 
+ * CLass for handling exceptions, 
+ *
+ */
 class CTException extends Exception {
-  // Die Exceptionmitteilung neu definieren, damit diese nicht optional ist
+  
+  /**
+   * Here $message is not optional like in php exception
+   * 
+   * @param string $message
+   * @param number $code, default 0
+   */
   public function __construct($message, $code = 0) {
-      // etwas Code
-
-      // sicherstellen, dass alles korrekt zugewiesen wird
       parent::__construct($message, $code);
   }
-  // ma�geschneiderte Stringdarstellung des Objektes
+  
+  /**
+   * string representation adapted 
+   */
   public function __toString() {
       return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
   }
 }
 
-// Fail ist kein schlimmer Fehler, sondern nur ein Sache nicht korrekt behandelt, z.B. Datensatz schon vorhanden
+
+/**
+ *
+ * Exception for handling lightweight errors, like DB record already exists
+ * 
+ * TODO: rename to FailException?
+ *
+ */
 class CTFail extends Exception {
-  // Die Exceptionmitteilung neu definieren, damit diese nicht optional ist
+  
+  /**
+   * $message needed
+   * 
+   * @param string $message
+   * @param number $code default 0
+   */
   public function __construct($message, $code = 0) {
-      // sicherstellen, dass alles korrekt zugewiesen wird
       parent::__construct($message, $code);
   }
-  // ma�geschneiderte Stringdarstellung des Objektes
+
+/**
+ * string representation adapted 
+ */
   public function __toString() {
-      return $this->message;
+    return $this->message;
   }
 }
 
-// Nicht genug Recht die Funktion auszuf�hren
+
+/**
+ * Exception for handling missed permissions
+ * 
+ * TODO: change name, e.g. to CTRightsException?
+ * rather then auth / modulename create message in constructor and put it in $message?
+ */
 class CTNoPermission extends CTFail {
-  // Die Exceptionmitteilung neu definieren, damit diese nicht optional ist
+  
+  protected $auth = null;
+  protected $modulename = '';
+
+  /**
+   * 
+   * @param unknown $auth
+   * @param string $modulename
+   */
   public function __construct($auth, $modulename) {
     $this->auth=$auth;
     $this->modulename=$modulename;
-    // sicherstellen, dass alles korrekt zugewiesen wird
     parent::__construct($this, 0);
   }
+  
+  /**
+   * string representation adapted 
+   */  
   public function __toString() {
-    return "Keine ausreichende Berechtigung. Das Recht $this->auth ($this->modulename) ist notwendig.";
+    return t('no.sufficient.permission', "$this->auth ($this->modulename)");
   }
 }
 
+
 /**
- * Der AjaxHandler muss beim Erstellen mit dem Modulenamen gef�ttert werden.
- * Dann Functionen hinzuf�gen mit addFunction(NameDerFunction, Recht oder Null)
- * Dann sp�ter einfach nur call() aufrufen. Er f�hrt die Function aus und gibt es mit jsend()->success() zur�ck.
+ * The ajax handler needs the modulname.
+ * 
+ * Usage: addFunction(NameOfFunction, Right or Null)
+ * Example:
+ *   $ajax = new CTAjaxHandler($module);
+ *   $ajax->addFunction("getCalEvents", "view"); 
+ *   $ajax->call();
+ * 
+ * Later you simply use call(). The function is called and returns jsend()->success().
  */
 class CTAjaxHandler {
   private $modulename="church";
@@ -387,12 +498,27 @@ class CTAjaxHandler {
     $this->modulename=$module->getModuleName();
   }
   
+  /**
+   * Get function name preceded by $modulname_
+   * 
+   * TODO: is it really needed? replace it in class functions (3x used) by "{$this->modulename}_$func_name"
+   * 
+   * @param string $func_name
+   * 
+   * @return string
+   */
   function getFunctionName($func_name) {
     return $this->modulename."_".$func_name;
   }
   
-  /*
-   * Add Function name and optional an auth
+  /**
+   * Add Function with optional rights
+   * 
+   * @param string $func_name
+   * @param string $auth_rights, default:null
+   * @param string $auth_module_name, default:null
+   * 
+   * @throws CTException
    */
   function addFunction($func_name, $auth_rights=null, $auth_module_name=null) {
     if (!function_exists($this->getFunctionName($func_name)))
@@ -401,10 +527,13 @@ class CTAjaxHandler {
     $this->funcs[$func_name]=array("name"=>$func_name, "auth"=>$auth_rights, "module"=>$auth_module_name);
   }
   
+  /**
+   * Call function and returns JSON result
+   * 
+   * @return string
+   */
   function call() {
-    if (isset($_GET["func"]))
-      $params=$_GET;
-    else $params=$_POST;
+    $params = isset($_GET["func"]) ? $_GET : $_POST;
 
     if (!isset($params["func"])) 
       return jsend()->error("Parameter func nicht definiert!");
@@ -419,16 +548,16 @@ class CTAjaxHandler {
       
       if ($func["auth"]!=null) {
         // Split auth string for OR-Combinations
-        $drin=false;
+        $allowed=false;
         foreach (explode('||',$func["auth"]) as $val) {
-          if (user_access(trim($val), $func["module"])) $drin=true;
+          if (user_access(trim($val), $func["module"])) $allowed=true;
         }
-        if (!$drin)
+        if (!$allowed)
           throw new CTNoPermission($func["auth"], $func["module"]);        
       }      
       return jsend()->success(call_user_func($this->getFunctionName($func["name"]), $params));      
     } 
-    // Kein schlimmer Fehler, soll in der Anwendung behandelt werden. Z.B. Datensatz schon vorhanden
+    // Lightwight error like record already exists, handled later
     catch (CTFail $e) {
       return jsend()->fail($e);
     }
@@ -442,22 +571,38 @@ class CTAjaxHandler {
     }    
   }    
 }
-
+//not used
 function ajax() {
   return new CTAjaxHandler();  
 }
 
+/**
+ * Description
+ *
+ */
 class CTInterface {
   private $data = null;
   
+  /**
+   * add param $name to data array
+   * 
+   * @param unknown $name
+   * @param string $mandatory
+   */
   function setParam($name, $mandatory=true) {
     $this->data[$name]=$mandatory;
   }
-  // Nimmt modifieddate und modifieduser dazu!
+  
+  /**
+   * add params modified_date and modified_pid for modified fields
+   */
   function addModifiedParams() {
     $this->data["modified_date"]=false;
     $this->data["modified_pid"]=false;
   }
+  /**
+   * add common parameters: startdate, enddate, repeat_... 
+   */
   
   function addTypicalDateFields() {
     $this->setParam("startdate");
@@ -467,48 +612,68 @@ class CTInterface {
     $this->setParam("repeat_until", false);
     $this->setParam("repeat_option_id", false);    
   }
-        
+
+  /**
+   * Build array for use as DB parameter from $params. Test against $this->data for needed parameters.
+   * 
+   * @param a $params
+   * @throws CTException
+   * 
+   * @return multitype:unknown
+   */
   function getDBParamsArrayFromParams($params) {
-    $res=array();
+    $p=array();
     foreach ($this->data as $key=>$val) {
       if (!isset($params[$key])) {
         if ($val==true)
           throw new CTException("Pflicht-Parameter $key wurde nicht uebergeben!");                  
       }      
       else {
-        $res[":".$key]=$params[$key];
+        $p[":".$key]=$params[$key];
       }
     }
-    return $res;
+    return $p;
   }
-  function getDBInsertArrayFromParams($params, $setOptionalToNullValue=false) {
+  
+  /**
+   * Build array for use in DB funtions. Test against $this->data for needed parameters
+   * 
+   * @param array $params
+   * @param string $setOptionalToNullValue
+   * @throws CTException
+   * 
+   * @return array with parameters
+   */
+  function getDBInsertArrayFromParams($params, $setOptionalToNull=false) {
     global $user;
-    $res=array();
+    $p=array();
     foreach ($this->data as $key=>$val) {
       if (!isset($params[$key])) {
         if ($val==true) {
           throw new CTException("Pflicht-Parameter $key wurde nicht uebergeben!");                  
         }
-        else if ($setOptionalToNullValue) {
-          $res[$key]=null;
+        else if ($setOptionalToNull) {
+          $p[$key]=null;
         }
         else if ($key=="modified_date") {
           $dt = new DateTime();            
-          $res[$key]=$dt->format('Y-m-d H:i:s');
+          $p[$key]=$dt->format('Y-m-d H:i:s');
         }
         else if ($key=="modified_pid") {
-          $res[$key]=$user->id;
+          $p[$key]=$user->id;
         }
       }      
       else { 
-        $res[$key]=$params[$key];
+        $p[$key]=$params[$key];
       }
     }
-    return $res;
+    return $p;
   }
 }
 
-
+/**
+ * not used anywhere
+ */
 class JSONResultObject {
   public $ok = false;
   function setStatus($ok=true) {
@@ -516,19 +681,45 @@ class JSONResultObject {
   }
 }
 
+/**
+ * shorthand
+ * @return new JSEND
+ */
 function jsend() {
   return new JSEND();
 }
 
+/**
+ * description
+ *
+ */
 class JSEND {
+  /**
+   * 
+   * @param string $data
+   * @return array 
+   */
   function success($data=null) {
     return array("status"=>"success", "data"=>$data);  //."" weggenommen am 26.3.2013 f�r Datenr�ckgabe. Warum .""??
   }
-  // Hinweis es hat nicht geklappt. Z.B. keine Rechte
+  
+  /**
+   * Info about failed action, lightweight errors like record already exists.
+   * 
+   * @param unknown $data
+   * @return array
+   */
   function fail($data) {
     return array("status"=>"fail", "data"=>$data."");
   }
-  // Was schlimmes, es wird Fehlerbox aufgeblendet und Anwendung neu gestartet!
+  
+  /**
+   * Errorbox for serious errors, restart application!
+   * 
+   * @param unknown $message
+   * @param string $data
+   * @return multitype:string
+   */
   function error($message, $data=null) {
     if ($data==null)
       return array("status"=>"error", "message"=>$message."");
@@ -537,18 +728,42 @@ class JSEND {
   }
 }
 
+/**
+ * TODO: why not use date('Y-m-d H:i:s') rather then this function and put 'Y-m-d H:i:s' into a constant?
+ */
 function current_date() {
   $dt=new DateTime();
   return $dt->format('Y-m-d H:i:s');
 }
 
+/**
+ * Replaces links and linebreaks with <a> and <br>
+ * 
+ * @param string $text
+ * 
+ * @return string
+ */
 function htmlize($text) {
   $text = preg_replace('@(https?://([-\w\.]+)+(:\d+)?(/([-\w/_\.]*(\?\S+)?)?)?)@', '<a href="$1">$1</a>', $text);
   $text = nl2br($text);
   return $text;
 }
 
+/**
+ * Create html link
+ * 
+ * TODO: why not use http_build_query?
+ * 
+ * @param unknown $name
+ * @param unknown $url
+ * @param string $params
+ * 
+ * @return string
+ */
 function l($name, $url, $params=null) {
+  
+  //$param = $params ? '?'. http_build_query($parameter, '', '&') : '' ;
+  
   if ($params==null) $param="";
   else {
     $param="?";
@@ -559,22 +774,48 @@ function l($name, $url, $params=null) {
       $param.="$key=$p";
     }
   }
+  
+  $params = ($params ? '?'. http_build_query($parameter, '', '&') : '') ;
   return '<a href="'.$url.$param.'">'.$name.'</a>';
 }
 
-function addErrorMessage($msg) {
+/**
+ * Add error div with message to $content
+ * 
+ * @param string $message
+ */
+function addErrorMessage($message) {
   global $content;
-  $content.='<div class="alert alert-error">'.$msg.'</div>';  
-}
-function addInfoMessage($msg, $hide=false) {
-  global $content;
-  $content.='<div class="alert alert-info '.($hide?"hide_automatically":"").'">'.$msg.'</div>';  
+  $content.="<div class='alert alert-error'>$message</div>";  
 }
 
-function t($txt, $p1=null) {
+/**
+ * Add info div with message to $content
+ * 
+ * TODO: use a constant with content hide_automatically in function calls?
+ * 
+ * @param string $message
+ * @param string $hide, default:false
+ */
+ function addInfoMessage($message, $hide=false) {
+  global $content;
+  $content.="<div class='alert alert-info ".($hide?"hide_automatically":"")."'>$message</div>";  
+//  $content.="<div class='alert alert-info $hide">$message</div>";  
+}
+
+/**
+ * get translation of $txt, insert $data into placeholders like {0}
+ * @param string $txt
+ * @param string $data
+ * 
+ * TODO: how to add data to more then one placeholder? getText uses a variable parameter count.
+ * 
+ * @return string, translation of $txt
+ */
+function t($txt, $data=null) {
   global $i18n;
   if (isset($i18n))
-    return $i18n->getText($txt, $p1);
+    return $i18n->getText($txt, $data);
   else return "$txt";
 }
 
@@ -583,12 +824,13 @@ function language_default() {
 }
 
 /**
+ * Write user actions to log table
  * 
- * @param unknown_type $txt
- * @param unknown_type $level  3=Unwichtig 2=Erscheint in PersonDetails 1=Wichtig!!
- * @param unknown_type $personid  Wenn Bezug zur PersonId
+ * @param string $txt
+ * @param int $level default:3; 2, 1. 3=small 2=appears in person details 1=important!!
+ * @param int $personid; needed if related to PersonId
  */
-function ct_log($txt,$level=3,$domainid=-1,$domaintype=CDB_LOG_PERSON,$schreibzugriff_yn=0,$_user=null) {
+function ct_log($txt,$level=3,$domainid=-1,$domaintype=CDB_LOG_PERSON,$writeaccess_yn=0,$_user=null) {
   global $user;
   if ($_user==null) $_user=$user;
   $dt = new DateTime();  
@@ -599,12 +841,20 @@ function ct_log($txt,$level=3,$domainid=-1,$domaintype=CDB_LOG_PERSON,$schreibzu
          ":datum"=>$dt->format('Y-m-d H:i:s'), 
          ":domain_id"=>$domainid, 
          ":domain_type"=>$domaintype,
-         ":schreiben_yn"=>$schreibzugriff_yn,
+         ":schreiben_yn"=>$writeaccess_yn,
          ":txt"=>substr($txt,0,1999)));
 }
 
+//TODO: put constants in extra file or in config file rather then allover in the code
 define('PHP_QPRINT_MAXL', 75);
 
+/**
+ * does what?
+ * 
+ * @param string $str
+ * 
+ * @return string
+ */
 function php_quot_print_encode($str) {
     $lp = 0;
     $ret = '';
@@ -652,16 +902,23 @@ function php_quot_print_encode($str) {
   return $ret;
 }
 
-
+/**
+ * Get array with sorted modules
+ * 
+ * @param string $withCoreModule
+ * @param string $withOfflineModules
+ * 
+ * @return array 
+ */
 function churchcore_getModulesSorted($withCoreModule=false, $withOfflineModules=false) {
   global $config;
 
   if ($withCoreModule) $config["churchcore_sortcode"]=0;
   
-  // Get the module names out of the file system in directory system/*
+  // Get module names out of the file system in directory system/*
   $arr=array();
-  $scandir=scandir("system");
-  foreach ($scandir as $file) {
+  $content=scandir("system");
+  foreach ($content as $file) {
     if ((strPos($file,'church')!==false) && (($file!="churchcore" || $withCoreModule)) 
         && (is_dir("system/".$file))) {
       $arr[]=$file;
@@ -686,12 +943,14 @@ function churchcore_getModulesSorted($withCoreModule=false, $withOfflineModules=
 
 /**
  * Das hier ist die aktuelle Mail-Methode!
- * @param unknown_type $from
- * @param unknown_type $to
- * @param unknown_type $subject
- * @param unknown_type $content
- * @param unknown_type $htmlmail true / false(default)
- * prio 1=sofort, 2=bald, 3=wenn alle 2er weg sind
+ * 
+ * @param string $from
+ * @param string $to
+ * @param string $subject
+ * @param string $content
+ * @param bool $htmlmail, default:false
+ * @param bool $withtemplate, default:true
+ * @param int $priority, default:2, 1, 2; 1=now, 2=soon, 3=after sending more important mails
  */
 function churchcore_mail($from, $to, $subject, $content, $htmlmail=false, $withtemplate=true, $priority=2) {
   global $base_url, $files_dir, $user;
@@ -731,9 +990,9 @@ function churchcore_mail($from, $to, $subject, $content, $htmlmail=false, $witht
     '%sitemail' => variable_get('site_mail', 'info@churchtools.de'),
     '%siteurl' => $base_url,
   );
-  // Content durchgehen
+  // replace variables in content
   $content=strtr($content, $variables);
-  // Nun durch %content honzuf�gen f�r den Body
+  // add content to body
   $variables["%content"]=$content;
   
   ct_log("Speichere Mail an $to von $from - $subject",2,-1,"mail");  
@@ -754,9 +1013,10 @@ function churchcore_mail($from, $to, $subject, $content, $htmlmail=false, $witht
 
 /**
  * System Plain-EMail mit Sender vom Admin und Infoanhang
- * @param unknown_type $recipients (Mehrere mit Komma getrennt!)
- * @param unknown_type $subject
- * @param unknown_type $content
+ * 
+ * @param string $recipients (Mehrere mit Komma getrennt!)
+ * @param string $subject
+ * @param string $content
  */
 function churchcore_systemmail($recipients, $subject, $content, $htmlmail=false, $priority=2) {
   if (variable_get("mail_enabled")) {
@@ -767,7 +1027,11 @@ function churchcore_systemmail($recipients, $subject, $content, $htmlmail=false,
   }  
 }
 
-
+/**
+ * send mails per PHP
+ * 
+ * @param number $maxmails
+ */
 function churchcore_sendMails_PHPMAIL($maxmails=10) {
   global $config, $base_url;
   $db=db_query("select value from {cc_config} where name='currently_mail_sending'")->fetch();
@@ -800,7 +1064,7 @@ function churchcore_sendMails_PHPMAIL($maxmails=10) {
         $header.='X-Mailer: PHP/' . phpversion();
         $error=0;
         $counter++;
-        // Wenn test gesetzt ist, soll er keine Mails senden, sondern nur so tun!
+        // if test is set, do not send real mails, only simulate it!
         if (!isset($config["test"])) {
           if (!mail($mail->receiver, "=?utf-8?Q?".$mail->subject."?=\n", $body, $header)) {
             $counter_error++;
@@ -824,6 +1088,11 @@ function churchcore_sendMails_PHPMAIL($maxmails=10) {
   }
 }
 
+/**
+ * send mails per PEAR
+ *
+ * @param number $maxmails
+ */
 function churchcore_sendMails_PEARMAIL($maxmails=10) {
   global $config, $base_url;
   ct_log("starte senden5");
@@ -897,6 +1166,11 @@ function churchcore_sendMails_PEARMAIL($maxmails=10) {
   }
 }
 
+/**
+ * send mails 
+ *
+ * @param number $maxmails
+ */
 function churchcore_sendMails($maxmails=10) {
   if (variable_get('mail_type','phpmail')=="phpmail")
     churchcore_sendMails_PHPMAIL($maxmails);
@@ -904,7 +1178,14 @@ function churchcore_sendMails($maxmails=10) {
     churchcore_sendMails_PEARMAIL($maxmails);
 }
 
-function churchcore_createPersonLoginStr($id) {
+/**
+ * create login string for emails(?) and save it into DB
+ * 
+ * @param int $id
+ * 
+ * @return string, login string
+ */
+function churchcore_createPersonLoginStr(int $id) {
   $loginstr=random_string(60);
   db_query("update {cdb_person} set loginstr='1' where id=$id and loginstr is null");
   db_query("insert into {cc_loginstr} (person_id, loginstr, create_date) 
@@ -912,43 +1193,50 @@ function churchcore_createPersonLoginStr($id) {
   return $loginstr;
 }
 
-
 /**
+ * send emails to persons with given id(s)
  * 
- * @param unknown_type $ids ids, kommasepariert
- * @param unknown_type $betreff
- * @param unknown_type $inhalt
- * @param $from, absender email, oder wenn null dann current user email 
- * @return ok, oder fehlermeldung
+ * @param string $ids, ids, comma separated
+ * @param string $subject
+ * @param string $content
+ * @param string $from, if empty, current users email 
  */
-function churchcore_sendEMailToPersonids($ids, $betreff, $inhalt, $from=null, $htmlmail=false, $withtemplate=true) {
+function churchcore_sendEMailToPersonids($ids, $subject, $content, $from=null, $htmlmail=false, $withtemplate=true) {
   global $base_url;
 
   if ($from==null) {
-    $user_pid=churchcore_getCurrentUserPid();
-    $res=db_query("select vorname, name, email from {cdb_person} where id =$user_pid")->fetch();
+    $user_pid=$_SESSION["user"]->id;
+    $res=db_query("select vorname, name, email from {cdb_person} where id=$user_pid")->fetch();
     $from="$res->vorname $res->name <$res->email>";
   }
         
   $arr=db_query("select * from {cdb_person} where id in ($ids)");
   $error=array();
   foreach($arr as $p) {
-    $mailtxt=$inhalt;
-    if ($p->email=='') 
+    $mailtxt=$content;
+    if (empty($p->email)) 
       $error[]=$p->vorname." ".$p->name;
     else {    
       $mailtxt=str_replace('\"','"',$mailtxt);
-      $mailtxt=churchcore_replacePersonTemplate($mailtxt, $p);
+      $mailtxt=churchcore_personalizeTemplate($mailtxt, $p);
       //ct_log("[ChurchCore] - Sende Mail an $p->email $mailtxt",2,-1,"mail");
       
-      churchcore_mail($from, $p->email, $betreff, $mailtxt, $htmlmail, $withtemplate);  
+      churchcore_mail($from, $p->email, $subject, $mailtxt, $htmlmail, $withtemplate);  
     }
   }
   if (count($error)>0)
-    throw new CTFail("An folgende Personen konnte wegen fehlender EMail-Adresse keine EMail gesendet werden: ".implode($error,","));    
+    throw new CTFail(t('following.persons.have.no.email.address').' '.implode($error,", "));    
 }
 
-function churchcore_replacePersonTemplate($txt, $p) {
+/**
+ * insert person data into template
+ * 
+ * @param string $txt
+ * @param object $p
+ * 
+ * @return string
+ */
+function churchcore_personalizeTemplate($txt, $p) {
   if ($p==null) return $txt;
   $txt=str_replace("[Vorname]",$p->vorname,$txt);
   $txt=str_replace("[Nachname]",$p->name,$txt);
@@ -958,7 +1246,11 @@ function churchcore_replacePersonTemplate($txt, $p) {
   return $txt;
 }
 
-
+/**
+ * if DB update is needed, update!
+ * 
+ * @return boolean
+ */
 function checkForDBUpdates() {
   global $mapping;
 
@@ -993,6 +1285,14 @@ function checkForDBUpdates() {
   return run_db_updates($db_version);
 }
 
+/**
+ * returns variable $var from global $config or global $mapping or $default
+ * 
+ * @param unknown $var
+ * @param mixed $default
+ * 
+ * @return mixed 
+ */
 function variable_get($var, $default=null) {
   global $config, $mapping;
   if (isset($config[$var]))  
@@ -1004,6 +1304,11 @@ function variable_get($var, $default=null) {
   return null;
 }
 
+/**
+ * 
+ * @param array $array
+ * @param string $key
+ */
 function churchcore_sort (&$array, $key) {
   $sorter=array();
   $ret=array();
@@ -1018,6 +1323,15 @@ function churchcore_sort (&$array, $key) {
   $array=$ret;
 }
 
+/**
+ * TODO: $m is not used, function does nothing, without it
+ *   include_once(drupal_get_path('module', 'churchresource') .'/churchresource_db.inc'); becomes
+ *   include_once("system/churchresource/churchresource_db.inc');
+ *   
+ * @param unknown $m
+ * @param unknown $module
+ * @return string
+ */
 function drupal_get_path($m, $module) {
   return "system/".$module."";
 }
@@ -1055,9 +1369,19 @@ function drupal_json_output($mixed) {
   echo json_encode($mixed, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
 }
 
+/**
+ * read data from DB
+ * 
+ * @param string $tablename
+ * @param string $sql_order
+ * @param string $sql_where
+ * @param string $sql_cols
+ * 
+ * @return object
+ */
 function churchcore_getTableData($tablename, $sql_order="", $sql_where="", $sql_cols="*") {
-  if ($sql_order!="") $sql_order=" order by ".$sql_order;
-    $res = db_query("SELECT $sql_cols FROM `{".$tablename."}` ".($sql_where==""?"":"WHERE $sql_where")." $sql_order");
+  if (!empty($sql_order)) $sql_order=" ORDER BY ".$sql_order;
+  $res = db_query("SELECT $sql_cols FROM `{".$tablename."}` ".($sql_where==""?"":"WHERE $sql_where")." $sql_order");
   $arrs=null;
   foreach ($res as $arr) {
     if (isset($arr->id))
@@ -1068,14 +1392,30 @@ function churchcore_getTableData($tablename, $sql_order="", $sql_where="", $sql_
   return $arrs; 
 }
 
+/**
+ * read data from DB
+ * 
+ * TODO: used only once:   $ressources=churchcore_getTableDataSorted("cr_resource","resourcetype_id,sortkey,bezeichnung");
+ * 
+ * @param string $tablename
+ * @param string  $sortkey
+ * 
+ * @return object
+ */
 function churchcore_getTableDataSorted($tablename, $sortkey) {
-  $res = db_query("SELECT * FROM {".$tablename."} order by $sortkey");
+  $res = db_query("SELECT * FROM {".$tablename."} ORDER BY $sortkey");
   foreach ($res as $arr) {
     $arrs[$arr->id]=$arr;       
   }
   return $arrs; 
 }
 
+/**
+on
+ * 
+ * @param unknown $domain_type
+ * @return object
+ */
 function churchcore_getFiles($domain_type) {
   $res=db_query("select f.*, concat(p.vorname,' ',p.name) as modified_username 
                    from {cc_file} f left join {cdb_person} p on (f.modified_pid=p.id)
@@ -1086,6 +1426,7 @@ function churchcore_getFiles($domain_type) {
   }
   return $arrs;
 }
+
 /**
  * Holt sich die Dateien als Array per DomainId
  * @param $domain_type
@@ -1186,25 +1527,30 @@ function churchcore_renderImage($filename, $width=24) {
  * @param unknown_type $id
  */
 function churchcore_getPersonById($id) {  
-  $sql="select * from {cdb_person} where id=:id";
-  $res=db_query($sql, array(":id"=>$id))->fetch();
+  $res=db_query("select * from {cdb_person} where id=:id", array(":id"=>$id))->fetch();
   return $res;  
 }
 
-
+/**
+ * TODO: whats the difference to the function above??? only one time used
+ * 
+ * @param int $id
+ * @return unknown|NULL
+ */
 function churchcore_getUserById($id) {
-  $p=db_query("select * from {cdb_person} p where id=:id", array(":id"=>$id))->fetch();
-  if ($p!==false)
-    return $p;
+  $res=db_query("select * from {cdb_person} p where id=:id", array(":id"=>$id))->fetch();
+  if ($res!==false)
+    return $res;
   else return null;  
 }
 
 
 /**
+ * get user ids from DB
  * 
  * @param unknown_type $CMSID
- * @param unknown_type $multiple  wenn false dann nur den ersten, ansonsten Kommaseparierte liste
- * @return Bei nicht multiple nur einen, bei multpiple alle, immer null wenn keiner
+ * @param bool $multiple, if false return first user, else return comma separated list
+ * @return one or more ids, null if none found
  */
 function churchcore_getUserByCMSId($CMSID, $multiple=false) {
   $sql="select id from {cdb_person} where cmsuserid='$CMSID'";
@@ -1226,10 +1572,12 @@ function churchcore_getUserByCMSId($CMSID, $multiple=false) {
 }
 
 /**
+ * TODO: sql is the only difference to churchcore_getUserByCMSId, use one for both?
+ * not used anywhere! 
  * 
  * @param unknown_type $CMSID
- * @param unknown_type $multiple  wenn false dann nur den ersten, ansonsten Kommaseparierte liste
- * @return Bei nicht multiple nur einen, bei multpiple alle, immer null wenn keiner
+ * @param bool $multiple, if false return first user, else return comma separated list
+ * @return one or more ids, null if none found
  */
 function churchcore_getCompleteUserByCMSId($CMSID, $multiple=false) {
   $sql="select id, email, vorname, name from {cdb_person} where cmsuserid='$CMSID'";
@@ -1250,14 +1598,20 @@ function churchcore_getCompleteUserByCMSId($CMSID, $multiple=false) {
   }
 }
 
-function churchcore_getCurrentUserPid() {
+/**
+ * which advantage has this function over using $_SESSION["user"]->id? used 3 times, changed there
+ */
+/*function churchcore_getCurrentUserPid() {
   return $_SESSION["user"]->id; 
-}
+}*/
 
 /**
+ * read user settings from DB
  * 
  * @param $modulename
  * @param $user_pid Array oder nur die pid
+ * 
+ * @return array
  */
 function churchcore_getUserSettings($modulename, $user_pid) {
   if ($user_pid==null)
@@ -1291,10 +1645,13 @@ function churchcore_getUserSettings($modulename, $user_pid) {
 
 /**
  * Save User Setting to table cc_usersetting. If $val==null then delete setting
+ * 
  * @param unknown $modulename
  * @param unknown $pid
  * @param unknown $attrib
  * @param unknown $val
+ * 
+ * no return?
  */
 function _churchcore_savePidUserSetting($modulename, $pid, $attrib, $val) {
   if ($val==null) {
@@ -1320,7 +1677,7 @@ function _churchcore_savePidUserSetting($modulename, $pid, $attrib, $val) {
 }
 
 /**
- * Notifications for mailing by updates
+ * Notifications for mailing on updates
  * Optional parameters are $domain_type, $domain_id and $person_id
  */
 function churchcore_getMyNotifications() {
@@ -1346,6 +1703,7 @@ function churchcore_getMyNotifications() {
 }
 
 /**
+ * Save user settings
  * 
  * @param unknown_type $modulename
  * @param unknown_type $user_pid Array oder nur die pid
@@ -1356,22 +1714,22 @@ function churchcore_saveUserSetting($modulename, $user_pid, $attrib, $val) {
   if (($user_pid==null) || ($user_pid<=0)) return;
   
   if (gettype($user_pid)=="array") { 
-    foreach ($user_pid as $pid) {
-      _churchcore_savePidUserSetting($modulename, $pid, $attrib, $val);
-    }
+    foreach ($user_pid as $pid) _churchcore_savePidUserSetting($modulename, $pid, $attrib, $val);
   }
-  else {
-     _churchcore_savePidUserSetting($modulename, $user_pid, $attrib, $val);
-  }      
+  else  _churchcore_savePidUserSetting($modulename, $user_pid, $attrib, $val);
 }
 
 /**
+ * description
+ * used from getBookingFields()
  * 
  * @param $longtext - Beim Editieren
  * @param $shorttext - Bei der Ansicht
  * @param $column_name - Datenbankspalte
  * @param $eol - Eol
  */
+
+$res["note"]=churchcore_getTextField("Notiz","Notiz","note");
 function churchcore_getTextField($longtext, $shorttext, $column_name, $eol='<br/>', $auth=null) {
   $res["type"]="text";
   $res["text"]=$longtext;  // Bei Editieren etc.
@@ -1384,7 +1742,9 @@ function churchcore_getTextField($longtext, $shorttext, $column_name, $eol='<br/
 }
 
 /**
- * 
+ * description
+ * used from getBookingFields()
+ *  
  * @param $longtext
  * @param $shorttext
  * @param $column_name
@@ -1402,13 +1762,17 @@ function churchcore_getDateField($longtext, $shorttext, $column_name, $eol='<br/
 }
 
 /**
- * Gibt eine lesbare Liste zurueck mit allen Aenderungen oder sonst NULL
- * @param $oldarr
- * @param $newarr
+ *  Returns a readable list with all changes or NULL
+ *  
+ * @param unknown $fields
+ * @param unknown $oldarr
+ * @param unknown $newarr
+ * @param string $cut_dates
+ * @return string|NULL
  */
 function churchcore_getFieldChanges($fields, $oldarr, $newarr, $cut_dates=true) {
   $txt="";
-  foreach($newarr as $name => $wert) {
+  foreach($newarr as $name => $value) {
   	$oldval=null;
     if (isset($fields[$name])) {
   	  if ($oldarr!=null)
@@ -1420,23 +1784,23 @@ function churchcore_getFieldChanges($fields, $oldarr, $newarr, $cut_dates=true) 
           $oldval=substr($oldval,0,10);
         
         $oldval=churchcore_stringToDateDe($oldval);
-        $wert=churchcore_stringToDateDe($wert);
+        $value=churchcore_stringToDateDe($value);
       }
       
-	  if (($oldval!=null) && ($wert!=$oldval))
-	    $txt=$txt.$fields[$name]["text"].": $wert  (Vorher: $oldval)\n";       	    
-      else if (($oldval==null) && ($wert!=null))   
-        $txt=$txt.$fields[$name]["text"].": $wert  (Neu)\n";
+	  if (($oldval!=null) && ($value!=$oldval))
+	    $txt=$txt.$fields[$name]["text"].": $value  (Vorher: $oldval)\n";       	    
+      else if (($oldval==null) && ($value!=null))   
+        $txt=$txt.$fields[$name]["text"].": $value  (Neu)\n";
   	}    
   	// For infos which are not in the field-set
     else {
       if (($oldarr!=null) && (isset($oldarr->$name))) {
         $oldval=$oldarr->$name;
       }      
-      if (($oldval==null) && ($wert!=null))       
-        $txt=$txt."$name: $wert (Neu)\n";
-      else if ($oldval!=$wert) 
-        $txt=$txt."$name: $wert (Vorher: $oldval)\n";
+      if (($oldval==null) && ($value!=null))       
+        $txt=$txt."$name: $value (Neu)\n";
+      else if ($oldval!=$value) 
+        $txt=$txt."$name: $value (Vorher: $oldval)\n";
      }
    }
    if ($txt!="")
@@ -1445,19 +1809,23 @@ function churchcore_getFieldChanges($fields, $oldarr, $newarr, $cut_dates=true) 
 }
 
 /**
+ * description
+ * 
  * 
  * @param unknown_type $id e.g. 3
  * @param unknown_type $bezeichnung e.g. Service-Gruppe 
  * @param unknown_type $shortname e.g. servicegroup
  * @param unknown_type $tablename e.g. cs_servicegroup
  * @param unknown_type $sql_order e.g. sortkey
+ * 
+ * @return unknown
  */
 function churchcore_getMasterDataEntry($id, $bezeichnung, $shortname, $tablename, $sql_order="") {
-  $res2["id"]=$id;
-  $res2["bezeichnung"]=$bezeichnung;
-  $res2["shortname"]=$shortname;
-  $res2["tablename"]=$tablename;
-  $res2["sql_order"]=$sql_order;
+  $res["id"]=$id;
+  $res["bezeichnung"]=$bezeichnung;
+  $res["shortname"]=$shortname;
+  $res["tablename"]=$tablename;
+  $res["sql_order"]=$sql_order;
   
   $sql="describe {".$tablename."}";
   $tabledesc=db_query($sql);
@@ -1469,8 +1837,8 @@ function churchcore_getMasterDataEntry($id, $bezeichnung, $shortname, $tablename
     
     $field[$desc->field]=$desc;
   }
-  $res2["desc"]=$field;
-  return $res2; 
+  $res["desc"]=$field;
+  return $res; 
 }
 
 
@@ -1511,13 +1879,13 @@ function datesInConflict($startdate, $enddate, $startdate2, $enddate2) {
     $_enddate2->modify("+1 day");
     $_enddate2->modify("-1 second");
   }
-  // Enddatum2 liegt innerhalb des Datums
+  // enddate2 inside date
   if ((($_enddate2>$startdate) && ($_enddate2<$_enddate))
-      // oder Startdatum 2liegt innerhalb des Datums
+      // or startdate2 inside date
       || (($startdate2>$startdate) && ($startdate2<$_enddate))
-      // oder Datum2 komplett au�erhalb 1
+      // or date2 completely outside date
       || (($startdate2<=$startdate) && ($_enddate2>=$_enddate))
-      // oder Datum2 komplett innerhalb 1
+      // or date2 completely inside date
       || (($startdate2>=$startdate) && ($_enddate2<=$_enddate))) {
     return true;
   }
@@ -1531,22 +1899,22 @@ function churchcore_getAge($date) {
 }
 
 function getAllDatesWithRepeats($r, $_von=-1, $_bis=1) {
-  // $dates wird mein sp�terer Datumscontainer, wo alle Vorkommen enthalten sind.
+  // $dates later will contain all date occurence.
   $dates=array();
-  // Max verhindert bei Fehlern eine Endlosschleife
+  // $max prevents an endless loop on erors
   $max=999;
   
-  $von=new DateTime();
-  $von->modify("+$_von days");
-  $bis=new DateTime();
-  $bis->modify("+$_bis days");
+  $from=new DateTime();
+  $from->modify("+$_von days");
+  $to=new DateTime();
+  $to->modify("+$_bis days");
    
   $d=new DateTime($r->startdate->format('d.m.Y H:i'));  
   $e=new DateTime($r->enddate->format('d.m.Y H:i'));
   
   $repeat_until=new DateTime($r->repeat_until);
   $repeat_until=$repeat_until->modify('+1 day'); // Da der Tag ja mit gelten soll!
-  if ($bis<$repeat_until) $repeat_until=$bis; 
+  if ($to<$repeat_until) $repeat_until=$to; 
   
   if (isset($r->additions))
     $additions=$r->additions;
@@ -1570,7 +1938,7 @@ function getAllDatesWithRepeats($r, $_von=-1, $_bis=1) {
       $exception=false;
       if (isset($r->exceptions)) {
         foreach($r->exceptions as $exc) {
-          // only is exception not used then proove conflict with exception date
+          // if exception is not used then proof conflict with exception date
           if ((!$exception) && (!$exc->used) && (datesInConflict(new DateTime($exc->except_date_start), new DateTime($exc->except_date_end), 
                   $d, $e))) {
             $exception=true;
@@ -1579,16 +1947,16 @@ function getAllDatesWithRepeats($r, $_von=-1, $_bis=1) {
         }
       }
       if (!$exception) {
-        if ((($d<=$von) && ($e>=$von)) || (($e>=$von) && ($e<=$bis)))       
+        if ((($d<=$from) && ($e>=$from)) || (($e>=$from) && ($e<=$to)))       
           $dates[]=new DateTime($d->format('Y-m-d H:i:s'));
       }  
       
       if (($r->repeat_id==1) || ($r->repeat_id==7)) {     
-        $repeat=$r->repeat_id*$r->repeat_frequence; // Also jede zweite Woche gleich 7*2 => 14 Tage
+        $repeat=$r->repeat_id*$r->repeat_frequence; // f.e. each second week is 7*2 => 14 days
         $d->modify("+$repeat days");
         $e->modify("+$repeat days");
       }
-      // monatlich nach Datum
+      // monthly by date
       else if ($r->repeat_id==31) {
         $counter=0;
         do {
@@ -1602,41 +1970,40 @@ function getAllDatesWithRepeats($r, $_von=-1, $_bis=1) {
           $counter=$counter+1;
         } while ($counter<99);
       }
-      // Monatlich nach Wochentag
+      // monthly by weekday
       else if ($r->repeat_id==32) {
-        // letzten Wochentag finden
+        // first find last weekday
         if ($r->repeat_option_id==6) {
-          // Erst mal einige Tage zur�ck, damit wir nicht �ber die Monatsgrenze springen und ein Monat auslassen
+          // go some days back, so we dont jump into the next month and therefor miss one month
           $d->modify("- 5 days");
           $e->modify("- 5 days");
-          // Addiere nun die Monate
+          // add months
           $d->modify("+ ".(1+1*$r->repeat_frequence)." month");
           $e->modify("+ ".(1+1*$r->repeat_frequence)." month");
-          // Gehe erst mal auf den ersten des Tages
+          // first go back to first day of month
           while ($d->format('d')>1) {
             $d->modify("-1 day");
             $e->modify("-1 day");
           }
           $d->modify("-1 day");
           $e->modify("-1 day");
-          // Suche jetzt nach dem gleichen Wochentag
+          // then search for same weekday
           while ($d->format('N')!=$r->startdate->format('N')) {
             $d->modify("-1 day");
             $e->modify("-1 day");
           }
         }
-        // konkreten Wochentag, also z.B. der a.repeat_option_id te Wochentag im Monat, wenn es ihn gibt
+        // distinct weekday, f.e. the a.repeat_option_id th weekday of month, if exists
         else {
           $counter=0;
-          // Addiere die Monate
+          // add months
           $d->setDate($d->format('Y'), $d->format('m')+(1*$r->repeat_frequence), 0);
           $e->setDate($e->format('Y'), $e->format('m')+(1*$r->repeat_frequence), 0);
           while ($counter<$r->repeat_option_id) {
             $m=$d->format("m");
             $d->modify("+1 day");
             $e->modify("+1 day");
-            // Pr�fe ob ich den Monat �berspringe, dann hat der Monat nicht genug Tage 
-            // und Termin f�llt flach, v.a. beim 5.Wochentag im Monat)
+            // test if jumped in next month, then the month has to few days and the event is dropped, f.e. on 5th weekday/month  
             if ($d->format("m")!=$m) $counter=0;
             if ($d->format("N")==$r->startdate->format("N")) $counter=$counter+1;
           }
@@ -1685,15 +2052,22 @@ function createAnonymousUser() {
 }
 
 
-// schaut ob einer der Zahlen von $array1 in $in_array2 ist
+/**
+ * looks up if one number of array1 exists in array2
+ * 
+ * @param array $array1
+ * @param array $in_array2
+ * 
+ * @return boolean
+ */
 function array_in_array($array1, $in_array2) {
-  $drin=false;
+  $found=false;
   foreach ($array1 as $id) {
     if (in_array($id, $in_array2)) {
-      $drin=true;
+      $found=true;
     }    
   }
-  return $drin;      
+  return $found;      
 }
 
 function _implantAuth($auth_table, $IamAdmin, $res, $auth) {
@@ -1954,7 +2328,7 @@ function user_save() {
 
 
 // ----------------------------------------
-// --- DATENBANK_TOOLS
+// --- DATABASE TOOLS
 // ----------------------------------------
 
 $db_pdo;
@@ -1980,14 +2354,15 @@ function escape_string($str) {
   return $db_pdo->quote($str);
 }
 
-/*
+/**
  * Connect to the MySQL database.
  */
 function db_connect() {
     global $config, $db_pdo;
     try {
         $db_pdo = new PDO("mysql:host=${config["db_server"]};dbname=${config["db_name"]};charset=utf8", $config["db_user"], $config["db_password"], array(PDO::ATTR_PERSISTENT => TRUE, PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'));
-    } catch(PDOException $e) {
+    } 
+    catch(PDOException $e) {
         $error_message = "<h3>Database connection error</h3>";
         $error_message .= "<p><strong>Reason: </strong>" . $e->getMessage() . "</p>";
         $error_message .= "<div class='alert alert-info'>";
@@ -2003,9 +2378,12 @@ function db_connect() {
 
 /**
  * ChurchTools primary db access.
- * @param unknown_type $sql String
- * @param unknown_type $params params in an array
- * @param unknown_type $print_error true=>echo the error message, otherwise SQLException will be thrown 
+ * 
+ * @param string $sql String
+ * @param array $params params in an array
+ * @param bool $print_error true=>echo the error message, otherwise SQLException will be thrown 
+ * 
+ * @return object db_accessor
  */
 function db_query($sql, $params=null, $print_error=true) {
   global $db_pdo, $config;
@@ -2075,11 +2453,12 @@ class db_accessor implements Iterator {
   }
 }
 
-/**
+/** 
  * db_update("cs_event")
  * ->fields($fields)
  * ->condition('id',$_GET["id"],"=")
  * ->execute();
+ * 
  * @param $tablename
  * @return db_updatefields
  */
@@ -2087,6 +2466,11 @@ function db_update($tablename) {
   return new db_updatefields($tablename);  
 }
 
+/**
+ * TODO: i dont understand the design/naming of this classes.
+ * I thought classes are made to represent objects, not methods?
+ *
+ */
 class db_fields {
   protected $tablename;
   public function __construct($tablename) {
@@ -2284,16 +2668,13 @@ function churchcore_isAllowedMasterData($masterDataTables, $tablename) {
   return $res;
 }
 
-function churchcore_deleteMasterData($id, $tablename) {
-  db_query("delete from {".$tablename."} where id=:id", array(":id"=>$id));
-}
-
 
 /**
- * Update oder Insert je nach dem ob $Id gesetzt ist oder nicht
- * Wenn Value=null dann macht er auch ein Null. 
- * @param unknown_type $id
- * @param unknown_type $table
+ * Update or Insert depending on $Id set or not
+ * If Value=null "null", will be inserted. 
+ * 
+ * @param int $id
+ * @param string  $table
  */
 function churchcore_saveMasterData($id, $table) {
   // id is not null, so I make an UPDATE
@@ -2310,21 +2691,21 @@ function churchcore_saveMasterData($id, $table) {
     $sql=substr($sql,0,strlen($sql)-2);
     $sql=$sql." where id=$id";
   }
-  // id is null, make INSERT
+  // id is null => INSERT
   else {
-    // hole die MaxId fuer den neuen Datensatz, wir arbeiten hier nicht mit auto_inecrement, damit man IDs waehlen kann
+    // get MaxId for new record. We dont use auto_inecrement, so the IDs can be choosen
     $arr=db_query("select max(id) id from {".$table."}")->fetch();
     $max_id=$arr->id+1;
     
     $sql="insert into {".$_GET["table"]."} (id, ";
-    // Baue Cols zusammen
+    // Build Cols
     $i=0;
     while (isset($_GET["col".$i])) {
       $sql=$sql.$_GET["col".$i].", ";
       $i++;
     }
     $sql=substr($sql,0,strlen($sql)-2);
-    // Baue Values zusammen
+    // build values
     $sql=$sql.") values (".$max_id.",";
     $i=0;
     while (isset($_GET["col".$i])) {

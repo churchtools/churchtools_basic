@@ -115,7 +115,7 @@
   <entry key="email.was.sent">Email envoyé avec succès</entry>
   <entry key="write.email.to.admin">Envoyer un email à l'Admin</entry>
   <entry key="email.not.found">Adresse email inexistante</entry>
-  <entry key="following.persons.have.no.email.address">No email was send to following persons for missing email address:</entry>
+  <entry key="following.persons.have.no.email.address">No email was send to following persons, because they have no email address:</entry>
 		
   <!--  GENERAL MENU ENTRIES -->
   <entry key="menu">Menu</entry>
