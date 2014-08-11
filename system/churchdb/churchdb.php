@@ -185,6 +185,10 @@ function externmapview_main() {
   drupal_add_js(drupal_get_path('module', 'churchdb') .'/cdb_loadandmap.js'); 
   //drupal_add_js(drupal_get_path('module', 'churchdb') .'/cdb_mapview.js'); 
   drupal_add_js(drupal_get_path('module', 'churchdb') .'/cdb_externgroupview.js'); 
+  
+  drupal_add_js(createI18nFile("churchcore"));
+  drupal_add_js(createI18nFile("churchdb"));
+  
 
   // API v3
   $content='<script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=true"></script>';
