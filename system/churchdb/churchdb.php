@@ -1101,7 +1101,7 @@ function churchdb_cron() {
                    FROM {cdb_person} p, {cdb_gemeindeperson} gp
                     where p.id=gp.person_id group by status_id, station_id
               )");
-    db_query("insert into crp_group (
+    db_query("insert into {crp_group} (
                     SELECT curdate(), gruppe_id, status_id, station_id, s.id gruppenteilnehmerstatus_id, 
                         sum(case when datediff(gpg.letzteaenderung,'".$db->max."')>=0 then 1 else 0 end), 
                         count(*) 
