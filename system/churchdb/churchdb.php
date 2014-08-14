@@ -701,7 +701,7 @@ function _getPersonDataForExport($person_ids=null, $template=null) {
           $detail->status_id="Kein Mitglied";
         
       if ($detail->geschlecht_no==1) {
-        $detail->Anrede1="Herr";
+        $detail->Anrede1="Herrn";
         $detail->Anrede2="Lieber";
       }
       else if ($detail->geschlecht_no==2) {
@@ -711,6 +711,7 @@ function _getPersonDataForExport($person_ids=null, $template=null) {
       if (isset($detail->geburtsdatum))
         $detail->age=churchcore_getAge($detail->geburtsdatum);
   
+      // If template was selected
       if ($template!=null) {
         $export_entry=array();
         foreach ($template as $key=>$field) {
@@ -722,6 +723,7 @@ function _getPersonDataForExport($person_ids=null, $template=null) {
           }
         }
       }
+      // Otherwise export everything beside some intern infos
       else {
         $export_entry=(array) $detail;
         if (!user_access("administer persons", "churchcore")) {
@@ -736,6 +738,8 @@ function _getPersonDataForExport($person_ids=null, $template=null) {
           unset($export_entry["gp_id"]);
           unset($export_entry["imageurl"]);
         }
+        // Unset Array, cause this is not exportable
+        unset($export_entry["auth"]);
       }
       $export[$p->p_id]=_export_optimzations($export_entry);
     }
@@ -842,32 +846,31 @@ function churchdb__export() {
   // Now check if there is group_id which I can add group relation Infos to the export
   if (isset($params["groupid"])) {
     foreach ($export as $k=>$key) {
-      $r=db_query("select g.bezeichnung, s.bezeichnung status, DATE_FORMAT(gpg.letzteaenderung, '%d.%m.%Y') letzteaenderung, gpg.comment 
-               from {cdb_gruppe} g, {cdb_gemeindeperson} gp, 
-                     {cdb_gemeindeperson_gruppe} gpg, {cdb_gruppenteilnehmerstatus} s  
-                  where gp.id=gpg.gemeindeperson_id and g.id=:gruppe_id 
-                         and s.intern_code=status_no
-                       and gpg.gruppe_id=g.id and gp.person_id=:person_id", 
-                array(":gruppe_id"=>$params["groupid"], ":person_id"=>$k))->fetch();
-      if ($r!=false) {
-        $export[$k]["Gruppe"]=$r->bezeichnung;
-        $export[$k]["Gruppe_Dabeiseit"]=$r->letzteaenderung;
-        $export[$k]["Gruppen_Kommentar"]=$r->comment;
-        $export[$k]["Gruppen_Status"]=$r->status;
+      if ($key!=null) {
+        $r=db_query("select g.bezeichnung, s.bezeichnung status, DATE_FORMAT(gpg.letzteaenderung, '%d.%m.%Y') letzteaenderung, gpg.comment 
+                 from {cdb_gruppe} g, {cdb_gemeindeperson} gp, 
+                       {cdb_gemeindeperson_gruppe} gpg, {cdb_gruppenteilnehmerstatus} s  
+                    where gp.id=gpg.gemeindeperson_id and g.id=:gruppe_id 
+                           and s.intern_code=status_no
+                         and gpg.gruppe_id=g.id and gp.person_id=:person_id", 
+                  array(":gruppe_id"=>$params["groupid"], ":person_id"=>$k))->fetch();
+        if ($r!=false) {
+          $export[$k]["Gruppe"]=$r->bezeichnung;
+          $export[$k]["Gruppe_Dabeiseit"]=$r->letzteaenderung;
+          $export[$k]["Gruppen_Kommentar"]=$r->comment;
+          $export[$k]["Gruppen_Status"]=$r->status;
+        }
       }
     }    
   }
   
  
-  // Nun werden die Daten ueber Echo ausgegeben
-  $header=true;
-  
   // Get all available columns
   $cols=array();
   foreach ($export as $key=>$row) {
     if ($row!=null) {
       foreach ($row as $a=>$val) {
-        if ($val!=null && $val!="" && gettype($val)!="object" && gettype($val)!="array") 
+        if (gettype($val)!="object" && gettype($val)!="array") 
           $cols[$a]=$a;
       }
     }
@@ -898,7 +901,7 @@ function churchdb__export() {
     if (isset($a["vorname"])) $sort_a.=$a["vorname"]; 
     if (isset($b["name"])) $sort_b.=$b["name"];
     if (isset($b["vorname"])) $sort_b.=$b["vorname"];
-    if (isset($a["id"])) $sort_a.=$b["id"];
+    if (isset($a["id"])) $sort_a.=$a["id"];
     if (isset($b["id"])) $sort_b.=$b["id"];
     
     if ($sort_a==$sort_b) {
