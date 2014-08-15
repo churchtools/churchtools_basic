@@ -5,4 +5,4 @@ Source code of the ChurchTools 2.0 Community Edition. For Pro version, please vi
 
 Development Discussion takes place here: <https://groups.google.com/group/churchtools>
 
-Design Guide: >https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:10/doc:main/>
+Design Guide: <https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:10/doc:main/>
