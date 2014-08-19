@@ -14,6 +14,7 @@ function do_cron() {
     }
   } 
   ct_sendPendingNotifications();
+  ct_log("Cron-Job finished.",2,-1,'cron');
 }
 
 
@@ -26,18 +27,18 @@ function cron_main() {
   churchcore_sendMails();
   
   if (isset($_GET["standby"])) {
-    // Eine Mail mit Feedback-Kopplung 
+    // E-Mail with feedback image 
     if (isset($_GET["mailqueue_id"])) {      
       db_query("update {cc_mail_queue} set reading_count=reading_count+1 where id=:id", 
            array(":id"=>$_GET["mailqueue_id"])); 
     }
-    // Nun normaler Cronjob checken
+    // Check if is time to do a normal cron job 
     if ((isset($config["cronjob_delay"]) && ($config["cronjob_delay"]>0))) {
       $last_cron=db_query("select value old,  UNIX_TIMESTAMP() act from {cc_config} where name='last_cron'")->fetch();
       if ($last_cron!=false) {
         if ($last_cron->act-$config["cronjob_delay"]>$last_cron->old) {
-          do_cron();
           db_query("update {cc_config} set value= UNIX_TIMESTAMP() where name='last_cron'");
+          do_cron();
         }
       }
       else 
