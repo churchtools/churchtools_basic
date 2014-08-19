@@ -683,8 +683,8 @@ StandardTableView.prototype.renderFile = function(file, filename_length) {
     if (filename_length==null) filename_length=25;
     var filename=file.bezeichnung;
     if (i>filename_length) {
-      var filetype=file.filename.substr(i,99);
-      filename=filename.substr(0,filename_length)+"[..]"+filetype;
+      var filetype=file.bezeichnung.substr(i-4,99);
+      filename=filename.substr(0,filename_length-4)+"[..]"+filetype;
     }
     txt=txt+' <a target="_blank" href="?q='+masterData.modulename+'/filedownload&id='+file.id+'&filename='+file.filename+'">'+filename+'</a>';
     txt=txt+'</span><br/>';

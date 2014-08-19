@@ -126,7 +126,7 @@ SongView.prototype.renderFiles = function(filecontainer, arrangement_id) {
     t.renderFilelist("", filecontainer, arrangement_id, function(file_id) {
       delete filecontainer[arrangement_id].files[file_id];
       t.renderFiles(filecontainer, arrangement_id);
-    });
+    },35);
   }
   else {
     t.renderFilelist("", filecontainer, arrangement_id);
