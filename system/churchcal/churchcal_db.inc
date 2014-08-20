@@ -428,7 +428,7 @@ function churchcal_getCalPerCategory($params, $withintern=true) {
             $p=db_query("select * from {cdb_person} where id=:id", array(":id"=>$e->cdb_person_id))->fetch();          
             if ($p!==false) {
               if ($service_texts==null) $service_texts=array();
-              $txt=churchcore_replacePersonTemplate($e->cal_text_template, $p);
+              $txt=churchcore_personalizeTemplate($e->cal_text_template, $p);
             }
           }
           if ($service_texts!==null && array_search($txt, $service_texts)===false) {

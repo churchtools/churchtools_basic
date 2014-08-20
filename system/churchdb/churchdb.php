@@ -416,7 +416,7 @@ function subscribeGroup() {
       if (!$grp)     
         churchdb_addPersonGroupRelation($user->id, $res->id, -2, null, null, null, "Anfrage &uuml;ber Formular");
       else  
-        _churchdb_editPersonGroupRelation($user->id, $res->id, -2, null, "null", "Beendung angefragt durch Formular");
+        _churchdb_editPersonGroupRelation($user->id, $res->id, -2, null, "null", "Beendigung angefragt &uuml;ber Formular");
       addInfoMessage("Die Teilnahme an <i>$res->bezeichnung</i> ist nun beantragt, der Leiter wird informiert. Vielen Dank!");      
     }          
   }
