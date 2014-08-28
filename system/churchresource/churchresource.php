@@ -13,17 +13,17 @@
 
   
 function churchresource_main() {
-  drupal_add_js('system/assets/js/jquery.history.js'); 
+  drupal_add_js(ASSETS.'/js/jquery.history.js'); 
   
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_abstractview.js'); 
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_standardview.js'); 
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_maintainstandardview.js'); 
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_interface.js'); 
+  drupal_add_js(CHURCHCORE .'/cc_abstractview.js'); 
+  drupal_add_js(CHURCHCORE .'/cc_standardview.js'); 
+  drupal_add_js(CHURCHCORE .'/cc_maintainstandardview.js'); 
+  drupal_add_js(CHURCHCORE .'/cc_interface.js'); 
 
-  drupal_add_js(drupal_get_path('module', 'churchresource') .'/cr_loadandmap.js');
-  drupal_add_js(drupal_get_path('module', 'churchresource') .'/cr_maintainview.js');
-  drupal_add_js(drupal_get_path('module', 'churchresource') .'/cr_weekview.js');
-  drupal_add_js(drupal_get_path('module', 'churchresource') .'/cr_main.js');
+  drupal_add_js(CHURCHRESOURCE .'/cr_loadandmap.js');
+  drupal_add_js(CHURCHRESOURCE .'/cr_maintainview.js');
+  drupal_add_js(CHURCHRESOURCE .'/cr_weekview.js');
+  drupal_add_js(CHURCHRESOURCE .'/cr_main.js');
   
   drupal_add_js(createI18nFile("churchcore"));
   drupal_add_js(createI18nFile("churchresource"));
@@ -65,10 +65,10 @@ function churchresource__ajax() {
   drupal_json_output($ajax->call());  
 }
 
-function churchresource_getAdminModel() {
+function churchresource_getAdminForm() {
   global $config;
   
-  $model = new CC_ModulModel("churchresource");      
+  $model = new CTModuleForm("churchresource");      
   $model->addField("churchresource_entries_last_days","", "INPUT_REQUIRED","Wieviel Tage zur&uuml;ck in ChurchResource-Daten geladen werden");
   $model->fields["churchresource_entries_last_days"]->setValue($config["churchresource_entries_last_days"]);  
   return $model;
@@ -132,7 +132,7 @@ function churchresource_getCurrentBookings() {
         
         foreach ($arr as $val) {
           $txt.="<li><p><a href=\"?q=churchresource&id=".$val["id"]."\">".$val["text"]."</a> ";
-          if ($val["repeat_id"]>0) $txt.='<img title="Serie startet vom '.$val["startdate"]->format('d.m.Y H:i').'" src="system/churchresource/images/recurring.png" width="16px"/> ';        
+          if ($val["repeat_id"]>0) $txt.='<img title="Serie startet vom '.$val["startdate"]->format('d.m.Y H:i').'" src=CHURCHRESOURCE."/images/recurring.png" width="16px"/> ';        
           $txt.="(".$resources[$val["resource_id"]]->bezeichnung.")<br/><small>".$val["realstart"]->format('d.m.Y H:i')." ".$val["person_name"]."</small><br/>";
         }
         if ($txt!="") 
@@ -166,41 +166,41 @@ global $user;
   
   $content="<html><head>";
   
-  drupal_add_js("system/assets/js/jquery-1.10.2.min.js");
-  drupal_add_js("system/assets/js/jquery-migrate-1.2.1.min.js");
+  drupal_add_js(ASSETS."/js/jquery-1.10.2.min.js");
+  drupal_add_js(ASSETS."/js/jquery-migrate-1.2.1.min.js");
   
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/shortcut.js'); 
-  drupal_add_js('system/assets/js/jquery.history.js'); 
+  drupal_add_js(CHURCHCORE .'/shortcut.js'); 
+  drupal_add_js(ASSETS.'/js/jquery.history.js'); 
   
-  drupal_add_js('system/assets/ui/jquery.ui.core.min.js');
-  drupal_add_js('system/assets/ui/jquery.ui.datepicker.min.js');
-  drupal_add_js('system/assets/ui/jquery.ui.position.min.js');
-  drupal_add_js('system/assets/ui/jquery.ui.widget.min.js');
-  drupal_add_js('system/assets/ui/jquery.ui.autocomplete.min.js');
-  drupal_add_js('system/assets/ui/jquery.ui.dialog.min.js');
-  drupal_add_js('system/assets/ui/jquery.ui.mouse.min.js');
-  drupal_add_js('system/assets/ui/jquery.ui.draggable.min.js');
-  drupal_add_js('system/assets/ui/jquery.ui.resizable.min.js');
+  drupal_add_js(ASSETS.'/ui/jquery.ui.core.min.js');
+  drupal_add_js(ASSETS.'/ui/jquery.ui.datepicker.min.js');
+  drupal_add_js(ASSETS.'/ui/jquery.ui.position.min.js');
+  drupal_add_js(ASSETS.'/ui/jquery.ui.widget.min.js');
+  drupal_add_js(ASSETS.'/ui/jquery.ui.autocomplete.min.js');
+  drupal_add_js(ASSETS.'/ui/jquery.ui.dialog.min.js');
+  drupal_add_js(ASSETS.'/ui/jquery.ui.mouse.min.js');
+  drupal_add_js(ASSETS.'/ui/jquery.ui.draggable.min.js');
+  drupal_add_js(ASSETS.'/ui/jquery.ui.resizable.min.js');
   
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/churchcore.js'); 
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/churchforms.js'); 
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_abstractview.js'); 
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_standardview.js'); 
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_maintainstandardview.js'); 
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_interface.js'); 
+  drupal_add_js(CHURCHCORE .'/churchcore.js'); 
+  drupal_add_js(CHURCHCORE .'/churchforms.js'); 
+  drupal_add_js(CHURCHCORE .'/cc_abstractview.js'); 
+  drupal_add_js(CHURCHCORE .'/cc_standardview.js'); 
+  drupal_add_js(CHURCHCORE .'/cc_maintainstandardview.js'); 
+  drupal_add_js(CHURCHCORE .'/cc_interface.js'); 
 
-  drupal_add_js(drupal_get_path('module', 'churchresource') .'/cr_loadandmap.js');
-  drupal_add_js(drupal_get_path('module', 'churchresource') .'/cr_maintainview.js');
-  drupal_add_js(drupal_get_path('module', 'churchresource') .'/cr_weekview.js');
-  drupal_add_js(drupal_get_path('module', 'churchresource') .'/cr_main.js');
+  drupal_add_js(CHURCHRESOURCE .'/cr_loadandmap.js');
+  drupal_add_js(CHURCHRESOURCE .'/cr_maintainview.js');
+  drupal_add_js(CHURCHRESOURCE .'/cr_weekview.js');
+  drupal_add_js(CHURCHRESOURCE .'/cr_main.js');
    
   drupal_add_js(createI18nFile("churchcore"));
   drupal_add_js(createI18nFile("churchresource"));
   
   $content=$content.drupal_get_header();
   
-  $content=$content.'<link type="text/css" rel="stylesheet" media="all" href="'.drupal_get_path('module', 'includes').'/churchtools.css" />';
-  $content=$content.'<link type="text/css" rel="stylesheet" media="all" href="'.drupal_get_path('module', 'churchresource').'/cr_printview.css" />';
+  $content=$content.'<link type="text/css" rel="stylesheet" media="all" href="'.INCLUDES.'/churchtools.css" />';
+  $content=$content.'<link type="text/css" rel="stylesheet" media="all" href="'.CHURCHRESOURCE.'/cr_printview.css" />';
     
   $content=$content."</head><body>";
   $content=$content."<input type=\"hidden\" id=\"printview\" value=\"true\"/>";
@@ -252,74 +252,6 @@ function churchresource_getAuthForAjax() {
     $res["admin"]=true;
   }
   return $res;
-}
-
-
-class CTChurchResourceModule extends CTAbstractModule {
-  
-  public function getBookings($params) {
-    return getBookings();  
-  }
-  
-  public function getMasterDataTablenames() {
-    $res=array();
-    $res[1]=churchcore_getMasterDataEntry(1, "Ressource", "resources", "cr_resource","resourcetype_id,sortkey,bezeichnung");
-    $res[2]=churchcore_getMasterDataEntry(2, "Ressourcen-Typ", "resourceTypes", "cr_resourcetype");
-    $res[3]=churchcore_getMasterDataEntry(3, "Status", "status", "cr_status");  
-    return $res;
-  }
-  
-  public function getMasterData() {
-    global $user;
-    $res=array();
-    include_once(drupal_get_path('module', 'churchcal') .'/churchcal_db.inc');
-    $res=$this->getMasterDataTables();
-    $res["masterDataTables"] = $this->getMasterDataTablenames();
-    $res["auth"] = churchresource_getAuthForAjax();
-    $res["status"] = churchcore_getTableData("cr_status");
-    $res["minutes"] = churchcore_getTableData("cr_minutes");
-    $res["hours"] = churchcore_getTableData("cr_hours");
-    $res["repeat"] = churchcore_getTableData("cc_repeat");
-    $res["cdb_bereich"] = churchcore_getTableData("cdb_bereich");
-    $res["cdb_status"] = churchcore_getTableData("cdb_status");
-    $res["cdb_station"] = churchcore_getTableData("cdb_station");
-   
-    $res["modulename"] = $this->getModuleName();
-    $res["modulespath"] = $this->getModulePath();
-    $res["userid"] = $user->cmsuserid; // CMS Username#
-    $res["user_pid"] = $user->id;
-    $res["user_name"] = "$user->vorname $user->name";
-    $res["settings"] =  $this->getSettings();
-    $res["lastLogId"] = churchresource_getLastLogId();	   
-    $res["churchcal_name"] =variable_get('churchcal_name');
-    $res["category"] =churchcore_getTableData("cc_calcategory", null, null, "id, color, bezeichnung");  
-    return $res;
-  } 
-  
-  function pollForNews($params) {
-    global $user;
-    $last_id=$params["last_id"];
-    $res=db_query("select * from {cr_log} where id > $last_id and person_id!='".$user->id."'");
-    $arrs=Array();
-    foreach ($res as $arr) {
-      $arrs[$arr->id]=$arr;   
-    }
-    $arr=Array();
-    $arr["lastLogId"]=churchresource_getLastLogId();
-    $arr["logs"]=$arrs;  
-    return $arr;
-  }  
-  
-  function getLogs($params) {
-    $id=$params["id"];
-    $res=db_query("SELECT l.*, concat(p.vorname,' ',p.name) as person_name from {cr_log} l, {cdb_person} p 
-               where l.person_id=p.id and booking_id=".$id." order by datum desc");
-    $ret=null; 
-    foreach ($res as $arr) {
-      $ret[]=$arr;
-    }
-    return $ret; 	 
-  }
 }
 
 ?>

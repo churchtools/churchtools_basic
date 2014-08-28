@@ -31,7 +31,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-require 'i18n.php';
+require 'i18n.php';  //TODO: if this is not needed (autoloading class TextBundle), i18n.php could be deleted
 
 class I18NTest extends PHPUnit_Framework_TestCase {
 	public function testBasicI18nOperation() {

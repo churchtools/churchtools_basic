@@ -11,10 +11,9 @@ function login_main() {
   
   // Sicherstellen, dass keiner eingelogt ist!
   if (!userLoggedIn()) {    
-    include_once("system/includes/forms.php");
     if (isset($config["login_message"]))
       addInfoMessage($config["login_message"], true);
-    $model = new CC_Model("LoginForm", "prooveLogin", "Login");
+    $model = new CTForm("LoginForm", "prooveLogin", "Login");
     $model->setHeader(t("login.headline"), t("please.fill.following.fields"));    
     $model->addField("email","", "INPUT_REQUIRED",t("email.or.username"), true);
     $model->addField("password","", "PASSWORD",t("password"));
@@ -45,7 +44,7 @@ function login_main() {
     } 
     // Zugriff �ber externe Tools mit GET und zus�tzlichen direct
     else if ((isset($_POST["email"])) && (isset($_POST["password"])) && (isset($_POST["directtool"]))) {
-      include_once("system/churchcore/churchcore_db.inc");
+      include_once(CHURCHCORE."/churchcore_db.inc");
       $sql="select * from {cdb_person} where email=:email and active_yn=1 and archiv_yn=0";
       $res=db_query($sql, array(":email"=>$_POST["email"]))->fetch();
       if ($res==false) {

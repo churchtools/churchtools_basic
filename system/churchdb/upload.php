@@ -1,63 +1,29 @@
 <?php
 
-/**
- * Handle file uploads via XMLHttpRequest
+/** 
+ * FIXME:
+ * content of class qqFileUploader in churchcore/uploadfile.php,
+ * moved into qqFileUploader.class.php is not the same as here.  
+ * There are differences in qqFileUploader::handleUpload, please integrate it to this class
+ * 
  */
-class qqUploadedFileXhr {
-    /**
-     * Save the file to the specified path
-     * @return boolean TRUE on success
-     */
-    function save($path) {    
-        $input = fopen("php://input", "r");
-        $temp = tmpfile();
-        $realSize = stream_copy_to_stream($input, $temp);
-        fclose($input);
-        
-        if ($realSize != $this->getSize()){            
-            return false;
-        }
-        
-        $target = fopen($path, "w");        
-        fseek($temp, 0, SEEK_SET);
-        stream_copy_to_stream($temp, $target);
-        fclose($target);
-        
-        return true;
-    }
-    function getName() {
-        return $_GET['qqfile'];
-    }
-    function getSize() {
-        if (isset($_SERVER["CONTENT_LENGTH"])){
-            return (int)$_SERVER["CONTENT_LENGTH"];            
-        } else {
-            throw new Exception('Getting content length is not supported.');
-        }      
-    }   
+
+function churchdb__uploadImage() {
+  global $files_dir;
+
+  // list of valid extensions, ex. array("jpeg", "xml", "bmp")
+  $allowedExtensions = array();
+  // max file size in bytes
+  $sizeLimit = 6 * 1024 * 1024;
+
+  $uploader = new qqFileUploader($allowedExtensions, $sizeLimit);
+  if (!file_exists("$files_dir/tmp"))
+    mkdir("$files_dir/tmp",0777,true);
+  $result = $uploader->handleUpload("$files_dir/tmp/");
+  // to pass data through iframe you will need to encode all html tags
+  echo htmlspecialchars(json_encode($result), ENT_NOQUOTES);
 }
 
-/**
- * Handle file uploads via regular form post (uses the $_FILES array)
- */
-class qqUploadedFileForm {  
-    /**
-     * Save the file to the specified path
-     * @return boolean TRUE on success
-     */
-    function save($path) {
-        if(!move_uploaded_file($_FILES['qqfile']['tmp_name'], $path)){
-            return false;
-        }
-        return true;
-    }
-    function getName() {
-        return $_FILES['qqfile']['name'];
-    }
-    function getSize() {
-        return $_FILES['qqfile']['size'];
-    }
-}
 
 class qqFileUploader {
     private $allowedExtensions = array();
@@ -180,20 +146,4 @@ class qqFileUploader {
                 'The upload was cancelled, or server error encountered');
         }
     }    
-}
-
-function churchdb__uploadImage() {
-  global $files_dir;
-  
-  // list of valid extensions, ex. array("jpeg", "xml", "bmp")
-  $allowedExtensions = array();
-  // max file size in bytes
-  $sizeLimit = 6 * 1024 * 1024;
-  
-  $uploader = new qqFileUploader($allowedExtensions, $sizeLimit);
-  if (!file_exists("$files_dir/tmp"))
-    mkdir("$files_dir/tmp",0777,true);
-  $result = $uploader->handleUpload("$files_dir/tmp/");
-  // to pass data through iframe you will need to encode all html tags
-  echo htmlspecialchars(json_encode($result), ENT_NOQUOTES);
 }

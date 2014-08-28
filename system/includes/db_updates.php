@@ -5,8 +5,17 @@ function set_version($db_version) {
   set_time_limit(300);
 }
 
+/**
+ * update DB for new versions of CT
+ * 
+ * TODO: do you notice if there are sql errors?
+ *  
+ * @param $db_version
+ * @return boolean
+ */
 function run_db_updates($db_version) {
-  global $config, $base_url, $user;
+  global $config, $base_url, $user, $files_dir;
+
   set_time_limit(300);
 
   switch($db_version) {
@@ -601,6 +610,7 @@ function run_db_updates($db_version) {
 
       db_query("CREATE TABLE {cc_domain_auth} (domain_type varchar(30) NOT NULL, domain_id int(11) NOT NULL, auth_id int(11) NOT NULL,  daten_id int(11) DEFAULT NULL) CHARSET=utf8");
       addInfoMessage("Installiere Tabellen f&uuml;r Version 2.00");
+
       /* fall through to regular update */
     case '2.00':
       db_query("ALTER TABLE {cs_servicegroup} ADD viewall_yn int( 1 ) NOT NULL DEFAULT 0 AFTER bezeichnung");
@@ -793,7 +803,6 @@ function run_db_updates($db_version) {
       set_version("2.15");
     
     case '2.15':
-      global $files_dir;
       db_query("INSERT INTO  {cc_auth} (id, auth, modulename, bezeichnung) values (311, 'view song', 'churchservice', 'Darf die Songs anschauen und Dateien herunterladen')");
       db_query("INSERT INTO  {cc_auth} (id, auth, modulename, bezeichnung) values (312, 'edit song', 'churchservice', 'Darf die Songs editieren und Dateien hochladen')");
       db_query("CREATE TABLE {cs_song} (
@@ -891,36 +900,34 @@ function run_db_updates($db_version) {
       db_query("INSERT INTO {cdb_feldkategorie} VALUES (3, 'Kategorien', 'f_category', 'cdb_gemeindeperson', 'id')");
       db_query("INSERT INTO {cdb_feldkategorie} VALUES (4, 'Gruppe', 'f_group', 'cdb_gruppe', 'id')");
       
-     db_query("
-    CREATE TABLE {cdb_feldtyp} (
-      id int(11) NOT NULL,
-      bezeichnung varchar(30) NOT NULL,
-      intern_code varchar(10) NOT NULL,
-      PRIMARY KEY (id)
-    ) CHARSET=utf8");
+      db_query("CREATE TABLE {cdb_feldtyp} (
+        id int(11) NOT NULL,
+        bezeichnung varchar(30) NOT NULL,
+        intern_code varchar(10) NOT NULL,
+        PRIMARY KEY (id)
+      ) CHARSET=utf8");
     
-    db_query("INSERT INTO {cdb_feldtyp} VALUES (1, 'Textfeld', 'text')");
-    db_query("INSERT INTO {cdb_feldtyp} VALUES (2, 'Auswahlfeld', 'select')");
-    db_query("INSERT INTO {cdb_feldtyp} VALUES (3, 'Datumsfeld', 'date');");
-    db_query("INSERT INTO {cdb_feldtyp} VALUES (4, 'Ja-Nein-Feld', 'checkbox')");
-    db_query("INSERT INTO {cdb_feldtyp} VALUES (5, 'Kommentarfeld', 'textarea')");
+      db_query("INSERT INTO {cdb_feldtyp} VALUES (1, 'Textfeld', 'text')");
+      db_query("INSERT INTO {cdb_feldtyp} VALUES (2, 'Auswahlfeld', 'select')");
+      db_query("INSERT INTO {cdb_feldtyp} VALUES (3, 'Datumsfeld', 'date');");
+      db_query("INSERT INTO {cdb_feldtyp} VALUES (4, 'Ja-Nein-Feld', 'checkbox')");
+      db_query("INSERT INTO {cdb_feldtyp} VALUES (5, 'Kommentarfeld', 'textarea')");
      
-     db_query("
-    CREATE TABLE {cdb_feld} (
-      id int(11) NOT NULL,
-      feldkategorie_id int(11) NOT NULL,
-      feldtyp_id int(11) NOT NULL,
-      db_spalte varchar(50) NOT NULL,
-      db_stammdatentabelle varchar(50) DEFAULT NULL,
-      aktiv_yn int(1) NOT NULL DEFAULT '1',
-      langtext varchar(200) NOT NULL,
-      kurztext varchar(50) NOT NULL,
-      zeilenende varchar(10) NOT NULL,
-      autorisierung varchar(50) DEFAULT NULL,
-      laenge int(3) DEFAULT NULL,
-      sortkey int(11) NOT NULL,
-      PRIMARY KEY (id)
-    ) CHARSET=utf8");
+      db_query("CREATE TABLE {cdb_feld} (
+        id int(11) NOT NULL,
+        feldkategorie_id int(11) NOT NULL,
+        feldtyp_id int(11) NOT NULL,
+        db_spalte varchar(50) NOT NULL,
+        db_stammdatentabelle varchar(50) DEFAULT NULL,
+        aktiv_yn int(1) NOT NULL DEFAULT '1',
+        langtext varchar(200) NOT NULL,
+        kurztext varchar(50) NOT NULL,
+        zeilenende varchar(10) NOT NULL,
+        autorisierung varchar(50) DEFAULT NULL,
+        laenge int(3) DEFAULT NULL,
+        sortkey int(11) NOT NULL,
+        PRIMARY KEY (id)
+      ) CHARSET=utf8");
     
     db_query("INSERT INTO {cdb_feld} VALUES(1, 1, 1, 'titel', NULL, 1, 'Titel', '', '', NULL, 12, 1)");
     db_query("INSERT INTO {cdb_feld} VALUES(2, 1, 1, 'vorname', NULL, 1, 'Vorname', '', '&nbsp;', NULL, 30, 2)");
@@ -982,9 +989,13 @@ function run_db_updates($db_version) {
       db_query("INSERT INTO {cdb_nationalitaet} VALUES(0, 'unbekannt')");
       
       // Add existing nationality values to new table
-     db_query("ALTER TABLE {cdb_nationalitaet} CHANGE  id id INT( 11 ) NOT NULL AUTO_INCREMENT");
-     db_query("insert into {cdb_nationalitaet} (bezeichnung) (select nationalitaet from {cdb_gemeindeperson} gp left join {cdb_nationalitaet} n on (gp.nationalitaet=n.bezeichnung) where n.bezeichnung is null and gp.nationalitaet!=''
-    group by nationalitaet)");
+     db_query("ALTER TABLE {cdb_nationalitaet} CHANGE id id INT( 11 ) NOT NULL AUTO_INCREMENT");
+     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) { 
+                  SELECT nationalitaet 
+                  FROM {cdb_gemeindeperson} gp LEFT JOIN {cdb_nationalitaet} n ON (gp.nationalitaet=n.bezeichnung) 
+                  WHERE n.bezeichnung IS NULL AND gp.nationalitaet!='' 
+                  GROUP BY nationalitaet)"
+               );
       
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('&Auml;gypten')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('&Auml;quatorialguinea')");
@@ -1188,8 +1199,8 @@ function run_db_updates($db_version) {
      
      db_query("ALTER TABLE {cdb_gemeindeperson} ADD nationalitaet_id INT( 11 ) NOT NULL AFTER nationalitaet");
      // Mappe nun die schon gesetzen
-    db_query("update {cdb_gemeindeperson} gp join {cdb_nationalitaet} n on gp.nationalitaet=n.bezeichnung
-    set gp.nationalitaet_id=n.id");
+      db_query("UPDATE {cdb_gemeindeperson} gp JOIN {cdb_nationalitaet} n ON gp.nationalitaet=n.bezeichnung 
+                SET gp.nationalitaet_id=n.id");
     
       db_query("insert into {cc_config} values ('show_remember_me', '1')");
     
@@ -1261,8 +1272,7 @@ function run_db_updates($db_version) {
       bezeichnung varchar(50) NOT NULL,
       kuerzel varchar(10) NOT NULL,
       PRIMARY KEY (id),
-      UNIQUE KEY intern_code (intern_code)
-    ) DEFAULT CHARSET=utf8");
+        UNIQUE KEY intern_code (intern_code)) DEFAULT CHARSET=utf8");
     
       db_query("INSERT INTO {cdb_gruppenteilnehmerstatus} VALUES(1, 0, 'Teilnehmer', '')");
       db_query("INSERT INTO {cdb_gruppenteilnehmerstatus} VALUES(2, 1, 'Leiter', 'L')");
@@ -1365,6 +1375,7 @@ function run_db_updates($db_version) {
       db_query("INSERT INTO {cdb_feld} VALUES(0, 1, 1, 'spitzname', NULL, 1, 'Spitzname', '', '(%) ', NULL, 30, 3)");
       db_query("ALTER TABLE {cdb_beziehungstyp} ADD sortkey INT( 11 ) NOT NULL");
       db_query("ALTER TABLE {cdb_person} ADD loginerrorcount INT( 11 ) NOT NULL AFTER lastlogin");
+      //TODO: add path CONSTANT?
       db_query("INSERT INTO {cc_wiki} VALUES ('main',1,0,'<h2>​<strong>Was ist das Wiki?</strong></h2>\n\n<p><span style=\\\"font-size:14px\\\">D</span><img alt=\\\"\\\" src=\\\"http://intern.churchtools.de/system/assets/img/wiki_logo.png\\\" style=\\\"float:right; height:270px; width:300px\\\" /><span style=\\\"font-size:14px\\\">as Wiki soll als Dokumentation, Informations- und Arbeitsgrundlage f&uuml;r die verschiedenen Dienstbereiche der Gemeinde dienen. Jeder Mitarbeiter eines Dienstbereiches kann auf Wunsch Zugriff auf die entsprechenden Wiki-Kategorien erhalten. Diese Seiten k&ouml;nnen dann&nbsp;von allen aus demselben Dienstbereich gelesen und bearbeitet werden. So k&ouml;nnen aktuelle Information, Abl&auml;ufe, Einstellungen, etc. zeitnah gespeichert werden und sind sofort f&uuml;r alle einsehbar. Damit ist jeder zu jederzeit auf dem neusten Wissenstand.</span></p>\n\n<div><span style=\\\"font-size:14px\\\">Durch das Wiki haben neue Mitarbeiter alle n&ouml;tigen Informationen, Anleitungen und Hintergrundinformationen f&uuml;r ihren Dienst. Erfahrene Mitarbeiter k&ouml;nnen ihr Wissen und gesammelte Informationen dokumentieren und auf sie zur&uuml;ckgreifen.</span></div>\n\n<h2>Weitere Infos</h2>\n\n<div><span style=\\\"font-size:14px\\\">Mehr Infos zum Wiki gibt es <a href=\\\"http://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc:ChurchWiki/\\\" target=\\\"_blank\\\">hier</a>.</span></div>\n',0,'2013-08-30 15:59:42',1)");
       db_query("INSERT INTO {cc_wiki} VALUES ('Sicherheitsbestimmungen',1,0,'<p><strong>Verpflichtung auf das Datengeheimnis gem&auml;&szlig; &sect; 5 Bundesdatenschutzgesetz (BDSG), auf das Fernmeldegeheimnis gem&auml;&szlig; &sect; 88 Telekommunikationsgesetz (TKG) und auf Wahrung von Gesch&auml;ftsgeheimnissen</strong><br />\n<br />\nHallo&nbsp;[Vorname]!<br />\nDie pers&ouml;nlichen Daten unserer Mitarbeiter und Mitglieder wollen wir sch&uuml;tzen. Darum bitten wir Dich, Dich auf das Datengeheimnis wie folgt zu verpflichten:<br />\n<br />\n<strong>1. Verpflichtung auf das Datengeheimnis nach &sect; 5 BDSG</strong><br />\nAufgrund von &sect; 5 BDSG ist mir untersagt, personenbezogene Daten, die mir dienstlich bekannt werden, unbefugt zu erheben, zu verarbeiten oder zu nutzen. Dies gilt sowohl f&uuml;r die dienstliche T&auml;tigkeit innerhalb wie auch au&szlig;erhalb (z.B. bei Kunden und Interessenten) des Unternehmens/der Beh&ouml;rde.<br />\nDie Pflicht zur Wahrung des Datengeheimnisses bleibt auch im Falle einer Versetzung oder nach Beendigung des Arbeits-/Dienstverh&auml;ltnisses bestehen.<br />\n<br />\n<strong>2. Verpflichtung auf das Fernmeldegeheimnis</strong><br />\nAufgrund von &sect; 88 TKG bin ich zur Wahrung des Fernmeldegeheimnisses verpflichtet, so- weit ich im Rahmen meiner T&auml;tigkeit bei der Erbringung gesch&auml;ftsm&auml;&szlig;iger Telekommunikationsdienste mitwirke.<br />\n<br />\n<strong>3. Verpflichtung auf Wahrung von Gesch&auml;ftsgeheimnissen</strong><br />\n&Uuml;ber Angelegenheiten des Unternehmens, die beispielsweise Einzelheiten ihrer Organisation und ihre Einrichtung betreffen, sowie &uuml;ber Gesch&auml;ftsvorg&auml;nge und Zahlen des internen Rechnungswesens, ist auch nach Beendigung des Arbeitsverh&auml;ltnisses von mir Verschwiegenheit zu wahren, sofern sie nicht allgemein &ouml;ffentlich bekannt geworden sind. Hierunter fallen&nbsp;auch Vorg&auml;nge von Drittunternehmen, mit denen ich dienstlich befasst bin. Auf die gesetzli- chen Bestimmungen &uuml;ber unlauteren Wettbewerb wurde ich besonders hingewiesen.<br />\nAlle dienstliche T&auml;tigkeiten betreffenden Aufzeichnungen, Abschriften, Gesch&auml;ftsunterlagen, Ablichtungen dienstlicher oder gesch&auml;ftlicher Vorg&auml;nge, die mir &uuml;berlassen oder von mir angefertigt werden, sind vor Einsichtnahme Unbefugter zu sch&uuml;tzen.<br />\n<br />\nVon diesen Verpflichtungen habe ich Kenntnis genommen. Ich bin mir bewusst, dass ich mich bei Verletzungen des Datengeheimnisses, des Fernmeldegeheimnisses oder von Gesch&auml;ftsgeheimnissen strafbar machen kann, insbesondere nach &sect;&sect; 44, 43 Abs. 2 BDSG, &sect; 206 Strafgesetzbuch (StGB) und nach &sect; 17 Gesetz gegen den unlauteren Wettbewerb (UWG).</p>',0,'0000-00-00 00:00:00',0)");
       db_query("insert into {cc_config} (name, value) values ('accept_datasecurity','0')");
@@ -1391,24 +1402,24 @@ function run_db_updates($db_version) {
       db_query("insert into {cc_config} values ('churchcheckin_name', 'Checkin')");
       
       db_query("CREATE TABLE {cc_printer} (
-      id int(11) NOT NULL AUTO_INCREMENT,
-      bezeichnung varchar(50) NOT NULL,
-      ort varchar(50) NOT NULL,
-      active_yn int(1) not null default '0',
-      modified_date datetime NOT NULL,
-      modified_pid int(11) NOT NULL,  
-      PRIMARY KEY (id),
-      UNIQUE KEY bezeichnung (bezeichnung,ort)
-    ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 ");
+        id int(11) NOT NULL AUTO_INCREMENT,
+        bezeichnung varchar(50) NOT NULL,
+        ort varchar(50) NOT NULL,
+        active_yn int(1) not null default '0',
+        modified_date datetime NOT NULL,
+        modified_pid int(11) NOT NULL,  
+        PRIMARY KEY (id),
+        UNIQUE KEY bezeichnung (bezeichnung,ort)
+      ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 ");
       
       db_query("CREATE TABLE {cc_printer_queue} (
-       id int(11) NOT NULL AUTO_INCREMENT,
+        id int(11) NOT NULL AUTO_INCREMENT,
         printer_id int(11) NOT NULL,
         data blob NOT NULL,
         modified_date datetime NOT NULL,
         modified_pid int(11) NOT NULL,
         PRIMARY KEY (id)
-    ) ENGINE=InnoDB  DEFAULT CHARSET=utf8");
+      ) ENGINE=InnoDB  DEFAULT CHARSET=utf8");
         
       
       db_query("ALTER TABLE {cdb_gruppe} ADD mail_an_leiter_yn INT( 1 ) NOT NULL DEFAULT  '1' AFTER instatistik_yn");
@@ -1419,23 +1430,23 @@ function run_db_updates($db_version) {
       VALUES ('115',  'view group',  'churchdb',  'cdb_gruppe',  'View-Rechte auf andere Gruppen')");
     
       db_query("CREATE TABLE {cdb_gruppe_mailchimp} (
-      gruppe_id int(11) NOT NULL,
-      modified_pid int(11) NOT NULL,
-      modified_date datetime NOT NULL,
-      mailchimp_list_id varchar(30) NOT NULL,
-      optin_yn int(1) NOT NULL DEFAULT '1',
-      goodbye_yn int(1) NOT NULL DEFAULT '0',
-      notifyunsubscribe_yn int(1) NOT NULL DEFAULT '0',
-      PRIMARY KEY (gruppe_id,mailchimp_list_id)
+        gruppe_id int(11) NOT NULL,
+        modified_pid int(11) NOT NULL,
+        modified_date datetime NOT NULL,
+        mailchimp_list_id varchar(30) NOT NULL,
+        optin_yn int(1) NOT NULL DEFAULT '1',
+        goodbye_yn int(1) NOT NULL DEFAULT '0',
+        notifyunsubscribe_yn int(1) NOT NULL DEFAULT '0',
+        PRIMARY KEY (gruppe_id,mailchimp_list_id)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
     
     
       db_query("CREATE TABLE {cdb_gruppe_mailchimp_person} (
-      gruppe_id int(11) NOT NULL,
-      mailchimp_list_id varchar(20) NOT NULL,
-      person_id int(11) NOT NULL,
-      email varchar(50) NOT NULL,
-      PRIMARY KEY (gruppe_id,mailchimp_list_id,person_id)
+        gruppe_id int(11) NOT NULL,
+        mailchimp_list_id varchar(20) NOT NULL,
+        person_id int(11) NOT NULL,
+        email varchar(50) NOT NULL,
+        PRIMARY KEY (gruppe_id,mailchimp_list_id,person_id)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
     
       db_query("insert into {cc_config} values ('churchdb_mailchimp_apikey', '')");
@@ -1523,6 +1534,7 @@ function run_db_updates($db_version) {
       db_query("insert into {cc_calcategory} (select null, bezeichnung, sortkey, color, 1, 0, current_date(), -1 from {cs_category})");
       db_query("ALTER TABLE {cc_cal} CHANGE category_id  old_category_id INT( 11 ) NOT NULL DEFAULT 0");
       db_query("ALTER TABLE {cc_cal} ADD category_id INT( 11 ) NOT NULL AFTER old_category_id");
+      
       $db=db_query("select cal.id cal_id, cs.id cs_id from {cc_calcategory} cal, {cs_category} cs where cal.bezeichnung=cs.bezeichnung");
       // adapt IDs since auto_increment is used now
       if ($db!=null)
@@ -1725,8 +1737,7 @@ function run_db_updates($db_version) {
       db_query("INSERT INTO  {cdb_feld} (id, feldkategorie_id , feldtyp_id , db_spalte , 
          db_stammdatentabelle , aktiv_yn , inneuerstellen_yn , langtext , kurztext , zeilenende , 
          autorisierung , laenge , sortkey )
-         VALUES (
-         NULL ,  '5',  '2',  'bereich_id',  'dep',  '1',  '0',  'Bereich',  'Bereich',  '<br/>', NULL , NULL , 1
+        VALUES (NULL ,  '5',  '2',  'bereich_id',  'dep',  '1',  '0',  'Bereich',  'Bereich',  '<br/>', NULL , NULL , 1
       )");    
       set_version("2.46");
       
@@ -1840,7 +1851,7 @@ function run_db_updates($db_version) {
   cols varchar(255) NOT NULL,
   aggregatorName varchar(255) DEFAULT NULL,
   PRIMARY KEY (id)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5");
+      ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5");
 	    
   db_query("INSERT INTO {crp_report} (id, query_id, bezeichnung, sortkey, rows, cols, aggregatorName) VALUES
     (1, 1, 'Anzahl Personen Gesamt', 10, 'Monat', 'Station,Mitglied', 'Anzahl Personen'),
@@ -1886,7 +1897,7 @@ function run_db_updates($db_version) {
     
     db_query("ALTER TABLE {cc_usersettings} ADD serialized_yn INT( 1 ) NOT NULL DEFAULT '0'");
     
-    // Change the save method for intelligence groups to separte usersettings for each group
+    // Change the save method for intelligente groups to separte usersettings for each group
     $db=db_query("select * from {cc_usersettings} where modulename='churchdb' and attrib='filter'");
     foreach ($db as $filter) {
       $arr=unserialize($filter->value);
@@ -1916,7 +1927,7 @@ function run_db_updates($db_version) {
     }
     
     set_version("2.50");
-  }
+  } //end switch
     
 	  
     $a=db_query("select * from {cc_config} where name='version'",null,false);
@@ -1928,7 +1939,9 @@ function run_db_updates($db_version) {
       addInfoMessage("Datenbankupdates ausgef&uuml;hrt auf v$software_version.");
     else
       addInfoMessage("Datenbankupdates ausgef&uuml;hrt von <I>".variable_get("site_name")."</i>. Versionswechsel von $db_version auf $software_version. $link");
-    cleanI18nFiles();
+  
+    cleandir("$files_dir/files/messages/"); //delete temporal i18n files
+  
     $sitename=$config["site_name"];
     churchcore_systemmail($config["site_mail"], "Neue Version auf ".$config["site_name"], 
         "Datenbankupdates ausgef&uuml;hrt von ".variable_get("site_name")."' v$db_version auf v$software_version. $link<br/><br/>".

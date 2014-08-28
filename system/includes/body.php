@@ -8,13 +8,13 @@
   if (!$embedded) { 
     echo '<p class="pull-right">';
     if (user_access("administer persons", "churchcore"))
-      echo '<a href="#" id="simulate_person" title="'.t("simulate.person").'"><img src="system/churchcore/images/person_simulate.png" style="max-width:16px"/></a>&nbsp; ';
+      echo '<a href="#" id="simulate_person" title="'.t("simulate.person").'"><img src="'.CHURCHCORE.'/images/person_simulate.png" style="max-width:16px"/></a>&nbsp; ';
     if (userLoggedIn()) {
-      echo '<a href="#" id="email_admin" title="'.t("send.email.to.admin").'"><img src="system/churchcore/images/email.png" style="max-width:16px"/></a>&nbsp; ';
-      echo '<a href="#" id="language_selector"><img src="system/churchcore/images/flag_'.$config["language"].'.png" style="max-width:16px"/></a>&nbsp; ';
+      echo '<a href="#" id="email_admin" title="'.t("send.email.to.admin").'"><img src="'.CHURCHCORE.'/images/email.png" style="max-width:16px"/></a>&nbsp; ';
+      echo '<a href="#" id="language_selector"><img src="'.CHURCHCORE.'/images/flag_'.$config["language"].'.png" style="max-width:16px"/></a>&nbsp; ';
     }
     else 
-      echo '<img src="system/churchcore/images/flag_'.$config["language"].'.png" style="max-width:16px"/>&nbsp; ';
+      echo '<img src="'.CHURCHCORE.'/images/flag_'.$config["language"].'.png" style="max-width:16px"/>&nbsp; ';
       
     echo '</p>';      
     echo "<p>"; 
@@ -28,6 +28,6 @@
   ?>
       </footer>
   </div>
-<script src="system/bootstrap/js/bootstrap.js"></script>
+<script src="<?=BOOTSTRAP?>/js/bootstrap.js"></script>
 </body>
 </html>

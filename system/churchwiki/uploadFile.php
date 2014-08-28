@@ -2,6 +2,6 @@
 
 
 function churchwiki__uploadfile() {
-  include_once(drupal_get_path('module', 'churchcore') .'/uploadFile.php');
+  include_once(CHURCHCORE .'/uploadFile.php');
   churchcore__uploadfile();
 }

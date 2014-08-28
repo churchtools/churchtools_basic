@@ -817,7 +817,7 @@ function t($txt, $data=null) {
   if (isset($i18n))
     return $i18n->getText($txt, $data);
   else return "$txt";
-}
+  }
 
 function language_default() {
   return null;
@@ -1387,6 +1387,8 @@ function drupal_json_output($mixed) {
 /**
  * read data from DB
  * 
+ * TODO: maybe always return an array to prevent problems with foreach on the results withouth further testing?  
+ * 
  * @param string $tablename
  * @param string $sql_order
  * @param string $sql_where
@@ -1426,8 +1428,8 @@ function churchcore_getTableDataSorted($tablename, $sortkey) {
 }
 
 /**
-on
- * 
+ * TODO: maybe always return an array to prevent problems with forech on the results. (occured on deleting song)
+ *  
  * @param unknown $domain_type
  * @return object
  */

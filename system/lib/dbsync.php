@@ -1,5 +1,8 @@
 <?php
 
+
+//TODO: not sure where to place this
+
 /**
  * Database Synchronizer class.
  * Used for upgrading the database schema.
@@ -151,6 +154,6 @@ class DBSync {
 }
 
 $dbsync = new DBSync();
-$dbsync->updateSchema("system/DSL/update/mariadb/");
+$dbsync->updateSchema(SYSTEM."/DSL/update/mariadb/");
 
 ?>

@@ -1,34 +1,11 @@
 <?php 
 
-include_once("system/includes/forms.php");
-
-class CC_ModulModel extends CC_Model {
-  public function __construct($modulename) {
-    global $config;
-    
-    parent::__construct("AdminForm_$modulename", "admin_saveSettings");
-    if ((isset($config[$modulename."_name"])) && ($config[$modulename."_name"]!="")) {
-      $this->addField($modulename."_inmenu","", "CHECKBOX",$config[$modulename."_name"]." im Menu auff&uuml;hren");
-      $this->fields[$modulename."_inmenu"]->setValue(variable_get($modulename."_inmenu", "0"));    
-      $this->addField($modulename."_startbutton","", "CHECKBOX",$config[$modulename."_name"]." auf der Startseite als Button anzeigen");
-      $this->fields[$modulename."_startbutton"]->setValue(variable_get($modulename."_startbutton","0"));    
-      $this->addField($modulename."_sortcode","", "INPUT_REQUIRED","Sortierungsnummer im Menu (sortcode)");
-      $this->fields[$modulename."_sortcode"]->setValue(variable_get($modulename."_sortcode", "0"));
-    }    
-  }
-  public function render() {
-    
-    $this->addButton("Speichern","ok");
-    return parent::render();    
-  }
-}
-
-
-
+// TODO: what is better, replace or on duplicate?
 function admin_saveSettings($form) {
   foreach ($form->fields as $key=>$value) {
-    db_query("insert into {cc_config} (name, value) values (:name,:value) on duplicate key update value=:value",
-       array(":name"=>$key, ":value"=>$value));
+    db_query("INSERT INTO {cc_config} (name, value) VALUES (:name,:value) 
+              ON DUPLICATE KEY UPDATE value=:value",
+              array(":name"=>$key, ":value"=>$value));
   }
   loadDBConfig();
 }
@@ -36,17 +13,16 @@ function admin_saveSettings($form) {
 function admin_main() {
   global $config;
   
-  drupal_add_css('system/assets/fileuploader/fileuploader.css'); 
-  drupal_add_js('system/assets/fileuploader/fileuploader.js');
+  drupal_add_css(ASSETS.'/fileuploader/fileuploader.css'); 
+  drupal_add_js(ASSETS.'/fileuploader/fileuploader.js');
   
-  $model = new CC_Model("AdminForm", "admin_saveSettings");
-  $model->addField("site_name","", "INPUT_REQUIRED",t("name.of.website"));
-    $model->fields["site_name"]->setValue($config["site_name"]);
+  $model = new CTForm("AdminForm", "admin_saveSettings");
+  $model->addField("site_name","", "INPUT_REQUIRED",t("name.of.website"))
+    ->setValue($config["site_name"]);
   
 
-  $model->addField("site_logo","", "FILEUPLOAD",t("logo.of.website"));
-  if (isset($config["site_logo"]))
-    $model->fields["site_logo"]->setValue($config["site_logo"]);
+  $model->addField("site_logo","", "FILEUPLOAD",t("logo.of.website"))
+    ->setValue(readConf("site_logo"));
     
   $model->addField("welcome","", "INPUT_REQUIRED",t("welcome.message"));
     $model->fields["welcome"]->setValue($config["welcome"]);
@@ -101,15 +77,15 @@ function admin_main() {
     
   $model->addButton("Speichern","ok");
   
-  $txt_general=$model->render();
+  $txtCommonForm=$model->render();
   
  
   // Now iterate through each module getting the admin forms
   $m=array();
   foreach ($modules as $module) {
-    include_once(drupal_get_path('module', $module)."/$module.php");
-    if (function_exists($module."_getAdminModel")) {
-      $model=call_user_func($module."_getAdminModel");
+    include_once(constant(strtoupper($module))."/$module.php");
+    if (function_exists($module."_getAdminForm")) {
+      $model=call_user_func($module."_getAdminForm");
       if ($model!=null)
         $m[$module]=$model->render();
     }
@@ -126,14 +102,12 @@ function admin_main() {
     $txt.='</ul>';
   $txt.='<div class="tab-content">';
     $txt.='<div class="tab-pane active" id="tab1">';
-      $txt.=$txt_general;  
+      $txt.=$txtCommonForm;  
     $txt.='</div>';
-    foreach($modules as $module) {
-      if (isset($m[$module])) {
-        $txt.='<div class="tab-pane" id="tab'.$module.'">';
-          $txt.=$m[$module];    
-        $txt.='</div>';
-      }
+    foreach($modules as $module) if (isset($m[$module])) {
+      $txt.='<div class="tab-pane" id="tab'.$module.'">';
+        $txt.=$m[$module];    
+      $txt.='</div>';
     }
     
   $txt.='</div></div>';
@@ -145,22 +119,10 @@ function admin_main() {
 function admin__uploadfile() {
   global $files_dir, $config;
   
-  include_once("system/churchcore/uploadFile.php");
+  include_once(CHURCHCORE."/uploadFile.php");
   churchcore__uploadFile();
 }
 
-class CTAdminModule extends CTAbstractModule {
-  function getMasterData() {
-    
-  }
-  function saveLogo($params) {
-    if ($params["filename"]==null)
-      db_query("delete from {cc_config} where name='site_logo'");
-    else 
-      db_query("insert into {cc_config} (name, value) values ('site_logo', :filename) on duplicate key update value=:filename", 
-       array(":filename"=>$params["filename"]));
-  }
-}
 
 function admin__ajax() {
   $module=new CTAdminModule("admin");

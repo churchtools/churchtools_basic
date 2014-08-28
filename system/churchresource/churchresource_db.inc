@@ -1,6 +1,6 @@
 <?php
 
-include_once('./'. drupal_get_path('module', 'churchresource') .'/../churchcore/churchcore_db.inc');
+include_once('./'. CHURCHRESOURCE .'/../churchcore/churchcore_db.inc');
 
 /**
  * 
@@ -136,7 +136,7 @@ function churchresource_updateBooking($params, $changes=null) {
   
   $old_arr=getBooking($params["id"]);
   $buser=churchcore_getPersonById($old_arr->person_id);
-  $ressources=churchcore_getTableDataSorted("cr_resource","resourcetype_id,sortkey,bezeichnung");
+  $ressources=churchcore_getTableData("cr_resource","resourcetype_id,sortkey,bezeichnung");
   
   $i=new CTInterface();
   $i->setParam("resource_id");
