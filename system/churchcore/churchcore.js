@@ -491,6 +491,7 @@ String.prototype.toDateDe = function (withTime) {
   str=str.substr(i+1,99);
 
   // Gibt es noch Sekunden?
+  // TODO: where are seconds really needed? On event times in fact view probably not :-)
   i=str.indexOf(":");
   if (i>0)
     minute=str.substr(0,i);

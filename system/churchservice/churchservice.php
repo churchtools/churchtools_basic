@@ -97,10 +97,8 @@ function churchservice__exportfacts() {
   drupal_add_http_header('Content-Disposition', 'attachment; filename="churchservice_fact_export.csv"', true);
   
   $events = churchcore_getTableData("cs_event", "startdate");
-  $cond="";
-  if (isset($_GET["date"])) {
-    $cond=" and e.startdate>='".$_GET["date"]."'";
-  }  
+  $cond = ($d = readVar("date")) ? " AND e.startdate>='$d'" : '';
+  
   $db = db_query("SELECT e.*, c.bezeichnung, c.category_id FROM {cs_event} e, {cc_cal} c where e.cc_cal_id=c.id $cond order by e.startdate");
   $events = array ();
   foreach ($db as $e) {
@@ -262,13 +260,13 @@ function churchservice_getUserOpenServices() {
   
   if ($id = readVar("eventservice_id")) {
     include_once('./'. CHURCHSERVICE .'/churchservice_ajax.inc');
-    $reason=null;
-    if (isset($_GET["reason"])) $reason=$_GET["reason"];
-    if ($_GET["zugesagt_yn"]==1)
-      churchservice_updateEventService($_GET["eventservice_id"], $user->vorname." ".$user->name, $user->id, 1, $reason);
-    else  
-      churchservice_updateEventService($_GET["eventservice_id"], null, null, 0, $reason);
-    addInfoMessage("Danke f&uuml;r deine R&uuml;ckmeldung!");
+    $reason = readVar("reason", null);
+    if (readVar("zugesagt_yn") == 1) {
+      churchservice_updateEventService($id, $user->vorname." ".$user->name, $user->id, 1, $reason);
+    } else  {
+      churchservice_updateEventService($id, null, null, 0, $reason);
+    }
+    addInfoMessage("Danke für deine Rückmeldung!");
   }
   
   include_once('./'. CHURCHDB .'/churchdb_db.inc');

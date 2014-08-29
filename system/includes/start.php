@@ -6,36 +6,36 @@
  * Copyright (c) 2013 Jens Martin Rauen
  * Licensed under the MIT license, located in LICENSE.txt
  */
+$q = ""; // which module to use
+$config = array (); //
+$mapping = array (); //
+$files_dir = DEFAULT_SITE; // dir for page specific files
 
-$q = "";                  // which module to use
-$config = array ();       //
-$mapping = array ();      //
-$files_dir = DEFAULT_SITE;// dir for page specific files
+$add_header = ""; // http headers?
+$content = ""; // page content
+$user = null; // user
+$embedded = false; //
+$i18n = null; //
 
-$add_header = "";         // http headers?
-$content = "";            // page content
-$user = null;             // user
-$embedded = false;        //
-$i18n = null;             // 
-
-
+// TODO: most functions should be moved to churchcore/functions.php
+// then the remaining code may be put into index.php 
+// or we could put the content of churchtools_main direct in this file 
 
 /**
  * Shutdown fuction, if an error happened, an error message is displayed.
- * FIXME: need to be changed - this errors  are corrupting json answers
- * replace $ajax with something appropriate !
- * if error on ajax is needed. add something like
- * $json['error'] = $info;
- * 
- * error_get_last() dont respects error_reporting() - f.e. deprecated options in php.ini which are not shown, 
- * maybe cant be changed by admins and dont influence scripting causes an error here
- * 
+ * FIXME: need to be changed - this errors are corrupting json answers
+ * replace $ajax with something appropriate!
+ * if error on ajax is needed, add something like $json['error'] = $info;
+ *
+ * error_get_last() dont respects error_reporting() - f.e. deprecated options in php.ini which are not shown
+ * and maybe can not be changed by admins and dont influence scripting causes an error here!
+ *
  * I think heavy core errors shouldnt be shown on the page and all others should be catched by an exception handler.
  */
 function handleShutdown() {
+  $ajax = false;
   $error = error_get_last();
-  $info="";
-  if($error !== NULL){
+  if (!$ajax && $error !== NULL) { // no Error notizes on ajax requests!
     $info = "[ERROR] file:" . $error['file'] . ":" . $error['line'] . " <br/><i>" . $error['message'] . '</i>' . PHP_EOL;
     echo '<div class="alert alert-error">' . $info . '</div>';
   }
@@ -50,66 +50,63 @@ function handleShutdown() {
  * Don't works for more then one subdomain like intern.mghh.churchtools.de
  */
 function loadConfig() {
-    global $files_dir;
-    // Unix default. Should have ".conf" extension as per standards.
-    $config = null;
+  global $files_dir;
+  // Unix default. Should have ".conf" extension as per standards.
+  $config = null;
   
   // read config, based on subdomain.
   // WARNING: This code dont works for per IP address access and supports only last subdomain.
   if (strpos($_SERVER["SERVER_NAME"], ".") > 0) {
     $subdomain = substr($_SERVER["SERVER_NAME"], 0, strpos($_SERVER["SERVER_NAME"], "."));
     $cnf_location = SITES . "/$subdomain/churchtools.config";
-        if (file_exists($cnf_location)) {
-            $config = parse_ini_file($cnf_location);
+    if (file_exists($cnf_location)) {
+      $config = parse_ini_file($cnf_location);
       $files_dir = SITES . "/$subdomain";
-        }
     }
+  }
   
   // if no config, read default config
   $cnf_location = DEFAULT_SITE . "/churchtools.config";
-    if ($config == null && file_exists($cnf_location)) {
-        $config = parse_ini_file($cnf_location);
-    }
+  if ($config == null && file_exists($cnf_location)) {
+    $config = parse_ini_file($cnf_location);
+  }
   
   // if still no config, look in default linux etc location
-    $cnf_location = "/etc/churchtools/default.conf";
-    if ($config == null && @file_exists($cnf_location)) {
-      $config = parse_ini_file($cnf_location);
-    }
-    
+  $cnf_location = "/etc/churchtools/default.conf";
+  if ($config == null && @file_exists($cnf_location)) {
+    $config = parse_ini_file($cnf_location);
+  }
+  
   // still no config? Look fo r host specific config in etc
-    // Package installed, per domain.
-    // All possible virt-hosts in HTTP server has to be symlinked to it.
-    $cnf_location = "/etc/churchtools/hosts/" . $_SERVER["SERVER_NAME"] . ".conf";
-    if ($config == null && @file_exists($cnf_location)) {
-      $config = parse_ini_file($cnf_location);
-    }
-    
+  // Package installed, per domain.
+  // All possible virt-hosts in HTTP server has to be symlinked to it.
+  $cnf_location = "/etc/churchtools/hosts/" . $_SERVER["SERVER_NAME"] . ".conf";
+  if ($config == null && @file_exists($cnf_location)) {
+    $config = parse_ini_file($cnf_location);
+  }
+  
   //
-    if ($config == null) {
+  if ($config == null) {
     $error_message = "<h3>" . "Error: Configuration file was not found." . "</h3>
         <p>Expected locations are:
-            <ul>
-                <li>Default appliance: <code>/etc/churchtools/default.conf</code></li>
-                <li>Per-domain appliance: <code>/etc/churchtools/hosts/" .
-                   $_SERVER["SERVER_NAME"] . ".conf</code></li>
-                <li>Shared hosting per domain: <code><i>YOUR_INSTALLATION</i>/sites/" .
-                   $_SERVER["SERVER_NAME"] . "/churchtools.config</code></li>
-                <li>Hosting per sub-domain: <code><i>YOUR_INSTALLATION</i>/sites/<b>&lt;subdomain&gt;.&lt;domain&gt;</b>/churchtools.config</code></li>
-                <li>Shared hosting default (single installation): <code><i>YOUR_INSTALLATION</i>/" .
-                  DEFAULT_SITE . "/churchtools.config</code></li>
-            </ul>
-            <div class=\"alert alert-info\">You can also use <strong>example</strong> file in
-            <code><i>INSTALLATION</i>/" .
-              DEFAULT_SITE . "/churchtools.example.config</code> by renaming it to
-            either one location that suits your setup and further editing it accordingly.</div>";
-        addErrorMessage($error_message);
+        <ul>
+          <li>Default appliance: <code>/etc/churchtools/default.conf</code></li>
+          <li>Per-domain appliance: <code>/etc/churchtools/hosts/" . $_SERVER["SERVER_NAME"] . ".conf</code></li>
+          <li>Shared hosting per domain: <code><i>YOUR_INSTALLATION</i>/sites/" . $_SERVER["SERVER_NAME"] . "/churchtools.config</code></li>
+          <li>Hosting per sub-domain: <code><i>YOUR_INSTALLATION</i>/sites/<b>&lt;subdomain&gt;.&lt;domain&gt;</b>/churchtools.config</code></li>
+          <li>Shared hosting default (single installation): 
+              <code><i>YOUR_INSTALLATION</i>/" . DEFAULT_SITE . "/churchtools.config</code>
+          </li>
+        </ul>
+        <div class=\"alert alert-info\">You can also use <strong>example</strong> file in
+          <code><i>INSTALLATION</i>/" . DEFAULT_SITE . "/churchtools.example.config</code> 
+          by renaming it to either location that suits your setup and edit it to meet your needs.</div>";
+    
+    addErrorMessage($error_message);
   }
-  else {
-        $config["_current_config_file"] = $cnf_location;
-    }
+  else $config["_current_config_file"] = $cnf_location;
   
-    return $config;
+  return $config;
 }
 
 /**
@@ -118,19 +115,18 @@ function loadConfig() {
 function loadDBConfig() {
   global $config;
   try {
-    $res = db_query("select * from {cc_config}", null, false);
-    foreach ($res as $val) {
-      $config[$val->name] = $val->value;
-    }
+    $res = db_query("SELECT * FROM {cc_config}", null, false);
+    foreach ($res as $val) $config[$val->name] = $val->value;
   }
-  catch (Exception $e) {
+  catch (SQLException $e) {
+    // do nothing
   }
 }
 
 /**
- * Load url mappings for each module and merge them together 
+ * Load url mappings for each module and merge them together
  * module map path like like system/churchdb/churchdb.mapping
- * 
+ *
  * @return array
  */
 function loadMapping() {
@@ -139,9 +135,10 @@ function loadMapping() {
   foreach (churchcore_getModulesSorted(true) as $module) {
     if (file_exists(SYSTEM . "/$module/$module.mapping")) {
       $modMap = parse_ini_file(SYSTEM . "/$module/$module.mapping");
-      if (isset($modMap["page_with_noauth"]) && isset($map["page_with_noauth"])) 
+      if (isset($modMap["page_with_noauth"]) && isset($map["page_with_noauth"])) {
         $modMap["page_with_noauth"] = array_merge($modMap["page_with_noauth"], $map["page_with_noauth"]);
-      $map=array_merge($map, $modMap);
+      }
+      $map = array_merge($map, $modMap);
     }
   }
   return $map;
@@ -159,8 +156,9 @@ function loadUserObjectInSession() {
     if (($q != "logout") && (isset($_COOKIE['RememberMe'])) && ($_COOKIE['RememberMe'] == 1)) {
       if (isset($_COOKIE['CC_SessionId'])) {
         $res = db_query("SELECT * FROM {cc_session} WHERE session=:session AND hostname=:hostname", 
-            array (":session" => $_COOKIE['CC_SessionId'], 
-                   ":hostname" => $_SERVER["HTTP_HOST"]));
+                         array(":session" => $_COOKIE['CC_SessionId'], 
+                               ":hostname" => $_SERVER["HTTP_HOST"]
+               ));
         // if session exists, read user data
         if ($res != false) {
           $res = $res->fetch();
@@ -170,8 +168,8 @@ function loadUserObjectInSession() {
             $_SESSION['user'] = $res;
             addInfoMessage("Willkommen zur&uuml;ck, " . $res->vorname . "!", true);
           }
+        }
       }
-    }
     }
     if (!isset($_SESSION['user'])) {
       createAnonymousUser();
@@ -182,34 +180,55 @@ function loadUserObjectInSession() {
     if (isset($_COOKIE['CC_SessionId'])) {
       $dt = new DateTime();
       db_query("UPDATE {cc_session} SET datum=:datum WHERE person_id=:p_id AND session=:session AND hostname=:hostname", 
-      array (":datum" => $dt->format('Y-m-d H:i:s'), 
-             ":session" => $_COOKIE['CC_SessionId'],
-             ":p_id" => $_SESSION["user"]->id,
-             ":hostname" => $_SERVER["HTTP_HOST"],
-      ));
+               array (":datum" => $dt->format('Y-m-d H:i:s'), 
+                      ":session" => $_COOKIE['CC_SessionId'], 
+                      ":p_id" => $_SESSION["user"]->id, 
+                      ":hostname" => $_SERVER["HTTP_HOST"],
+               ));
     }
   }
 }
 
 /**
- * Gets the base url from the server
+ * Get the base url from the server
+ * original function, renamed
+ *
+ * @return string
+ */
+// function getBaseUrl_() {
+//   $base_url = $_SERVER['HTTP_HOST'];  // churchtools.de
+//   $b = $_SERVER['REQUEST_URI'];       // /index.php?q=home
+//   if (strpos($b, "/index.php") !== false) $b = substr($b, 0, strpos($b, "/index.php")); // remove index.php
+//   if (strpos($b, "?") !== false) $b = substr($b, 0, strpos($b, "?"));                   //remove query string
+//   $base_url = $base_url . $b;         // churchtools.de/
+//   if ($base_url[strlen($base_url) - 1] != "/") $base_url .= "/";
+//   if ((isset($_SERVER['HTTPS'])) && ($_SERVER['HTTPS'] != false)) $base_url = "https://" . $base_url;
+//   else $base_url = "http://" . $base_url;
+  
+//   echo 'Host '. $_SERVER['HTTP_HOST'];
+//   echo '; Request '. $_SERVER['REQUEST_URI'];
+//   echo '; Query '. $_SERVER['QUERY_STRING'];
+  
+//   return $base_url;
+// }
+
+/**
+ * Get the base url in form of http(s)://churchtools.de/
+ * 
+ * TODO: check if the function works correct 
+ * if the values is always like http(s)://churchtools.de/ this could be achieved with $_SERVER['HTTP_HOST'] 
+ * or is this for autodetect installations in subdirectories?
  * 
  * @return string
  */
 function getBaseUrl() {
-  $base_url=$_SERVER['HTTP_HOST'];
-  $b=$_SERVER['REQUEST_URI'];
-  if (strpos($b, "/index.php")!==false)
-    $b=substr($b,0,strpos($b, "/index.php"));
-  if (strpos($b, "?")!==false)
-    $b=substr($b,0,strpos($b, "?"));
-  $base_url=$base_url.$b;  
-  if ($base_url[strlen($base_url)-1]!="/")
-    $base_url.="/";
-  if ((isset($_SERVER['HTTPS'])) && ($_SERVER['HTTPS']!=false))
-    $base_url="https://".$base_url;
-  else $base_url="http://".$base_url;
-  return $base_url;
+  // get path part from requested url and remove index.php
+  $baseUrl = str_replace('index.php', '', parse_url($_SERVER['HTTP_HOST']. $_SERVER['REQUEST_URI'], PHP_URL_PATH));
+  // add http(s):// and assure a single trailing /
+  $baseUrl = (!empty($_SERVER['HTTPS']) ? "https://" : "http://"). trim($baseUrl, '/') . '/';
+  
+//  echo " ::: URL: $baseUrl ::: ";
+  return $baseUrl;
 }
 
 /**
@@ -238,10 +257,10 @@ function pleaseAcceptDatasecurity() {
 
 /**
  * Will call churchservice => churchservice_main or churchservice/ajax => churchservice_ajax
- * 
+ *
  * @param $q - Complete request URL inkl. suburl e.g. churchservice/ajax
- * 
- * TODO: should completely rewritten, using some classes
+ *          
+ *          TODO: should completely rewritten, using some classes
  */
 function churchtools_processRequest($_q) {
   global $mapping, $config, $q;
@@ -264,7 +283,7 @@ function churchtools_processRequest($_q) {
       if (!userLoggedIn()) {
         if (strrpos($q, "ajax") === false) {
           $q = "login";
-          return churchtools_processRequest("login"); 
+          return churchtools_processRequest("login");
         }
         else {
           drupal_json_output(jsend()->error("Session expired!"));
@@ -300,15 +319,14 @@ function churchtools_main() {
   // which module is requested?
   $q = $q_orig = readVar("q", userLoggedIn() ? "home" : readConf("site_startpage", "home"));
   // $currentModule is needed for class autoloading and maybe other include paths
-  list($currentModule) = explode('/', readVar("q")); //get first part of $q or churchcore
+  list ($currentModule) = explode('/', readVar("q")); // get first part of $q or churchcore
   $embedded = readVar("embedded", false);
   
   $base_url = getBaseUrl();
   
-  
   $config = loadConfig();
   
-  if ($config!=null) {  
+  if ($config) {
     if (db_connect()) {
       // DBConfig overwrites the config files
       loadDBConfig();
@@ -331,16 +349,14 @@ function churchtools_main() {
         // Admin should act accordingly, default suggestion is 0755.
         addErrorMessage(t("permission.denied.write.dir", $files_dir));
       }
-      else {
-        session_save_path($files_dir . "/tmp");
-      }
+      else session_save_path($files_dir . "/tmp");
       session_name("ChurchTools_" . $config["db_name"]);
       session_start();
       register_shutdown_function('handleShutdown');
       
       // Check for offline mode. If it's activated display message and return false;
       if (readConf("site_offline") == 1) {
-        if (!isset($_SESSION["user"]) || !in_array($_SESSION["user"]->id, readconf("admin_ids")) ) {
+        if (!isset($_SESSION["user"]) || !in_array($_SESSION["user"]->id, readconf("admin_ids"))) {
           echo t("site.is.down");
           return false;
         }
@@ -358,11 +374,11 @@ function churchtools_main() {
         if (readVar("loginstr") && readVar("id") && userLoggedIn() && $_SESSION["user"]->id != readVar("id")) {
           logout_current_user();
           session_start();
-      }
+        }
         else
           loadUserObjectInSession();
       }
-          
+      
       if ($success) {
         if (isset($_SESSION['user'])) $user = $_SESSION['user'];
         

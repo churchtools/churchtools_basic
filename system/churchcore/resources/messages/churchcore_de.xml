@@ -53,7 +53,7 @@
   <!-- AUTH -->
   <entry key="not.existent">Nicht vorhanden!</entry>
   <entry key="no.sufficient.permission">Keine ausreichende Berechtigung. Das Recht {0} ist notwendig.</entry>
-  
+
   <!-- ABOUT -->
   <entry key="permissions">Berechtigungen</entry>  
   <entry key="current.permissions">Aktuelle Berechtigungen</entry>  

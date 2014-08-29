@@ -67,7 +67,7 @@ function churchdb_getAdminForm() {
   
   $form = new CTModuleForm("churchdb");
 
-  $form->addField("churchdb_maxexporter","", "INPUT_REQUIRED", t('max.allowed.rows.to.export'))
+  $form->addField("churchdb_maxexporter","", "INPUT_REQUIRED", t('max.allowed.rows.to.export'));
     $form->fields["churchdb_maxexporter"]->setValue($config["churchdb_maxexporter"]);
     
   $form->addField("churchdb_home_lat","", "INPUT_REQUIRED",t('center.coordinates.latitude.best.to.find.by.google.maps'));
@@ -365,8 +365,8 @@ function getBirthdaylistContent($desc, $diff_from, $diff_to, $extended=false) {
     $see_details=(user_access("view","churchdb")) && (user_access("view alldata","churchdb"));
     
     $res = getBirthdayList($diff_from, $diff_to);
-    if ($res!=null) {
-      if ($desc!="") $txt.="<p><h4>$desc</h4>";
+    if ($res) {
+      if ($desc) $txt.="<p><h4>$desc</h4>";
       if ($extended) {
         $txt.="<table class=\"table table-condensed\"><tr><th style=\"max-width:65px;\"><th>".t("name").
             (!$compact?"<th>".t("age"):"")."<th>".t("birthday");
@@ -517,11 +517,11 @@ function subscribeGroup() {
         $txt_unsubscribe.="  [beantragt]";
     }
   }
-  if (($txt_subscribe!="") || ($txt_unsubscribe)) {    
+  if (($txt_subscribe) || ($txt_unsubscribe)) {    
     $txt='<form method="GET" action="?q=home">';
-    if ($txt_subscribe!="")
+    if ($txt_subscribe)
       $txt.='<p>'.t("apply.for.group.membership").':<p><select name="subscribegroup"><option>'.$txt_subscribe.'</select>';
-    if ($txt_unsubscribe!="")
+    if ($txt_unsubscribe)
       $txt.='<p>'.t("quit.group.membership").':<p><select name="unsubscribegroup"><option>'.$txt_unsubscribe.'</select>';
     $txt.='<P><button class="btn" type="submit" name="btn">'.t("send").'</button>';
     $txt.='</form>';
@@ -752,7 +752,7 @@ function _getPersonDataForExport($person_ids=null, $template=null) {
   
     // Check allowed persons
   $ps=churchdb_getAllowedPersonData();
-  $bereich=churchcore_getTableData("cdb_bereich");
+  $department=churchcore_getTableData("cdb_bereich");
   $status=churchcore_getTableData("cdb_status");
   $station=churchcore_getTableData("cdb_station");
   $export=array();
@@ -760,11 +760,11 @@ function _getPersonDataForExport($person_ids=null, $template=null) {
     if ($ids==null || in_array($p->p_id, $ids)) {
       $detail=churchdb_getPersonDetails($p->p_id, false);
       $detail->bereich="";
-      $bereiche=array();
+      $departments=array();
       foreach ($p->access as $dep_id) {
-        $bereiche[]=$bereich[$dep_id]->bezeichnung;
+        $departments[]=$department[$dep_id]->bezeichnung;
       }
-      $detail->bereich_id=implode('::', $bereiche);
+      $detail->bereich_id=implode('::', $departments);
       $detail->station_id=$station[$detail->station_id]->bezeichnung;
       if (user_access("view alldetails", "churchdb"))
         $detail->status_id=$status[$detail->status_id]->bezeichnung;
@@ -948,7 +948,7 @@ function churchdb__export() {
   foreach ($export as $key=>$row) if ($row!=null) {
     foreach ($row as $a=>$val) if (gettype($val)!="object" && gettype($val)!="array") {
           $cols[$a]=$a;
-      }
+    }
   }
   
   // Add header
@@ -1046,8 +1046,8 @@ function churchdb__mailviewer() {
       if ($arr->error==0) $txt.='<img title="'.$arr->send_date.'" style="max-width:20px;" src="'.CHURCHCORE.'"/images/check-64.png"/>';
       else $txt.='<img title="'.$arr->send_date.'" style="max-width:20px;" src="'.CHURCHCORE.'"/images/delete_2.png"/>';
     }
-      $txt.="<td>$arr->modified_date<td>$arr->receiver<td>$arr->sender<td><a href=\"?q=churchdb/mailviewer&id=$arr->id\">$arr->subject</a>";
-      $txt.="<td>$arr->reading_count";
+    $txt.="<td>$arr->modified_date<td>$arr->receiver<td>$arr->sender<td><a href=\"?q=churchdb/mailviewer&id=$arr->id\">$arr->subject</a>";
+    $txt.="<td>$arr->reading_count";
     $counter++;
   }
   if (isset($_GET["iframe"])) {
@@ -1062,7 +1062,7 @@ function churchdb__mailviewer() {
   }
   
   $txt.='</table>';
-  if ((!isset($_GET["showmore"])) && ($counter>=$limit))
+  if (!isset($_GET["showmore"]) && $counter>=$limit)
     $txt.='<a href="?q=churchdb/mailviewer&showmore=true" class="btn">Mehr Zeilen anzeigen</a> &nbsp; ';
     
   return $txt;
@@ -1200,7 +1200,7 @@ function churchdb_cron() {
  * @param bool $optin
  */
 function listBatchSubscribe($api, $list_id, $batch, $optin=true) {
-  if (count($batch)==0) return null;
+  if (count($batch)==0) return;
   
   $update_existing = false; // yes, update currently subscribed users TODO: should be replaced by speaking constants
   $replace_interests = false; // no, add interest, don't replace
@@ -1221,7 +1221,7 @@ function listBatchSubscribe($api, $list_id, $batch, $optin=true) {
  * @param bool $send_notify
  */
 function listBatchUnsubscribe($api, $list_id, $batch, $send_goodbye=false, $send_notify=false) {
-  if (count($batch)==0) return null;
+  if (count($batch)==0) return;
   
   $delete_member=false; // flag to completely delete the member from your list instead of just unsubscribing, default to false
   $vals = $api->listBatchUnsubscribe($list_id,$batch,$delete_member, $send_goodbye, $send_notify);

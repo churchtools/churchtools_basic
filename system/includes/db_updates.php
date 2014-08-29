@@ -901,33 +901,33 @@ function run_db_updates($db_version) {
       db_query("INSERT INTO {cdb_feldkategorie} VALUES (4, 'Gruppe', 'f_group', 'cdb_gruppe', 'id')");
       
       db_query("CREATE TABLE {cdb_feldtyp} (
-        id int(11) NOT NULL,
-        bezeichnung varchar(30) NOT NULL,
-        intern_code varchar(10) NOT NULL,
-        PRIMARY KEY (id)
-      ) CHARSET=utf8");
+      id int(11) NOT NULL,
+      bezeichnung varchar(30) NOT NULL,
+      intern_code varchar(10) NOT NULL,
+      PRIMARY KEY (id)
+    ) CHARSET=utf8");
     
-      db_query("INSERT INTO {cdb_feldtyp} VALUES (1, 'Textfeld', 'text')");
-      db_query("INSERT INTO {cdb_feldtyp} VALUES (2, 'Auswahlfeld', 'select')");
-      db_query("INSERT INTO {cdb_feldtyp} VALUES (3, 'Datumsfeld', 'date');");
-      db_query("INSERT INTO {cdb_feldtyp} VALUES (4, 'Ja-Nein-Feld', 'checkbox')");
-      db_query("INSERT INTO {cdb_feldtyp} VALUES (5, 'Kommentarfeld', 'textarea')");
+    db_query("INSERT INTO {cdb_feldtyp} VALUES (1, 'Textfeld', 'text')");
+    db_query("INSERT INTO {cdb_feldtyp} VALUES (2, 'Auswahlfeld', 'select')");
+    db_query("INSERT INTO {cdb_feldtyp} VALUES (3, 'Datumsfeld', 'date');");
+    db_query("INSERT INTO {cdb_feldtyp} VALUES (4, 'Ja-Nein-Feld', 'checkbox')");
+    db_query("INSERT INTO {cdb_feldtyp} VALUES (5, 'Kommentarfeld', 'textarea')");
      
       db_query("CREATE TABLE {cdb_feld} (
-        id int(11) NOT NULL,
-        feldkategorie_id int(11) NOT NULL,
-        feldtyp_id int(11) NOT NULL,
-        db_spalte varchar(50) NOT NULL,
-        db_stammdatentabelle varchar(50) DEFAULT NULL,
-        aktiv_yn int(1) NOT NULL DEFAULT '1',
-        langtext varchar(200) NOT NULL,
-        kurztext varchar(50) NOT NULL,
-        zeilenende varchar(10) NOT NULL,
-        autorisierung varchar(50) DEFAULT NULL,
-        laenge int(3) DEFAULT NULL,
-        sortkey int(11) NOT NULL,
-        PRIMARY KEY (id)
-      ) CHARSET=utf8");
+      id int(11) NOT NULL,
+      feldkategorie_id int(11) NOT NULL,
+      feldtyp_id int(11) NOT NULL,
+      db_spalte varchar(50) NOT NULL,
+      db_stammdatentabelle varchar(50) DEFAULT NULL,
+      aktiv_yn int(1) NOT NULL DEFAULT '1',
+      langtext varchar(200) NOT NULL,
+      kurztext varchar(50) NOT NULL,
+      zeilenende varchar(10) NOT NULL,
+      autorisierung varchar(50) DEFAULT NULL,
+      laenge int(3) DEFAULT NULL,
+      sortkey int(11) NOT NULL,
+      PRIMARY KEY (id)
+    ) CHARSET=utf8");
     
     db_query("INSERT INTO {cdb_feld} VALUES(1, 1, 1, 'titel', NULL, 1, 'Titel', '', '', NULL, 12, 1)");
     db_query("INSERT INTO {cdb_feld} VALUES(2, 1, 1, 'vorname', NULL, 1, 'Vorname', '', '&nbsp;', NULL, 30, 2)");
@@ -989,13 +989,13 @@ function run_db_updates($db_version) {
       db_query("INSERT INTO {cdb_nationalitaet} VALUES(0, 'unbekannt')");
       
       // Add existing nationality values to new table
-     db_query("ALTER TABLE {cdb_nationalitaet} CHANGE id id INT( 11 ) NOT NULL AUTO_INCREMENT");
+     db_query("ALTER TABLE {cdb_nationalitaet} CHANGE  id id INT( 11 ) NOT NULL AUTO_INCREMENT");
      db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) { 
-                  SELECT nationalitaet 
-                  FROM {cdb_gemeindeperson} gp LEFT JOIN {cdb_nationalitaet} n ON (gp.nationalitaet=n.bezeichnung) 
-                  WHERE n.bezeichnung IS NULL AND gp.nationalitaet!='' 
-                  GROUP BY nationalitaet)"
-               );
+               SELECT nationalitaet 
+               FROM {cdb_gemeindeperson} gp LEFT JOIN {cdb_nationalitaet} n ON (gp.nationalitaet=n.bezeichnung) 
+               WHERE n.bezeichnung IS NULL AND gp.nationalitaet!='' 
+               GROUP BY nationalitaet)"
+              );
       
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('&Auml;gypten')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('&Auml;quatorialguinea')");
@@ -1199,8 +1199,7 @@ function run_db_updates($db_version) {
      
      db_query("ALTER TABLE {cdb_gemeindeperson} ADD nationalitaet_id INT( 11 ) NOT NULL AFTER nationalitaet");
      // Mappe nun die schon gesetzen
-      db_query("UPDATE {cdb_gemeindeperson} gp JOIN {cdb_nationalitaet} n ON gp.nationalitaet=n.bezeichnung 
-                SET gp.nationalitaet_id=n.id");
+      db_query("update {cdb_gemeindeperson} gp join {cdb_nationalitaet} n on gp.nationalitaet=n.bezeichnung set gp.nationalitaet_id=n.id");
     
       db_query("insert into {cc_config} values ('show_remember_me', '1')");
     
@@ -1402,18 +1401,18 @@ function run_db_updates($db_version) {
       db_query("insert into {cc_config} values ('churchcheckin_name', 'Checkin')");
       
       db_query("CREATE TABLE {cc_printer} (
-        id int(11) NOT NULL AUTO_INCREMENT,
-        bezeichnung varchar(50) NOT NULL,
-        ort varchar(50) NOT NULL,
-        active_yn int(1) not null default '0',
-        modified_date datetime NOT NULL,
-        modified_pid int(11) NOT NULL,  
-        PRIMARY KEY (id),
+      id int(11) NOT NULL AUTO_INCREMENT,
+      bezeichnung varchar(50) NOT NULL,
+      ort varchar(50) NOT NULL,
+      active_yn int(1) not null default '0',
+      modified_date datetime NOT NULL,
+      modified_pid int(11) NOT NULL,  
+      PRIMARY KEY (id),
         UNIQUE KEY bezeichnung (bezeichnung,ort)
       ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 ");
       
       db_query("CREATE TABLE {cc_printer_queue} (
-        id int(11) NOT NULL AUTO_INCREMENT,
+       id int(11) NOT NULL AUTO_INCREMENT,
         printer_id int(11) NOT NULL,
         data blob NOT NULL,
         modified_date datetime NOT NULL,
@@ -1430,22 +1429,22 @@ function run_db_updates($db_version) {
       VALUES ('115',  'view group',  'churchdb',  'cdb_gruppe',  'View-Rechte auf andere Gruppen')");
     
       db_query("CREATE TABLE {cdb_gruppe_mailchimp} (
-        gruppe_id int(11) NOT NULL,
-        modified_pid int(11) NOT NULL,
-        modified_date datetime NOT NULL,
-        mailchimp_list_id varchar(30) NOT NULL,
-        optin_yn int(1) NOT NULL DEFAULT '1',
-        goodbye_yn int(1) NOT NULL DEFAULT '0',
-        notifyunsubscribe_yn int(1) NOT NULL DEFAULT '0',
+      gruppe_id int(11) NOT NULL,
+      modified_pid int(11) NOT NULL,
+      modified_date datetime NOT NULL,
+      mailchimp_list_id varchar(30) NOT NULL,
+      optin_yn int(1) NOT NULL DEFAULT '1',
+      goodbye_yn int(1) NOT NULL DEFAULT '0',
+      notifyunsubscribe_yn int(1) NOT NULL DEFAULT '0',
         PRIMARY KEY (gruppe_id,mailchimp_list_id)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
     
     
       db_query("CREATE TABLE {cdb_gruppe_mailchimp_person} (
-        gruppe_id int(11) NOT NULL,
-        mailchimp_list_id varchar(20) NOT NULL,
-        person_id int(11) NOT NULL,
-        email varchar(50) NOT NULL,
+      gruppe_id int(11) NOT NULL,
+      mailchimp_list_id varchar(20) NOT NULL,
+      person_id int(11) NOT NULL,
+      email varchar(50) NOT NULL,
         PRIMARY KEY (gruppe_id,mailchimp_list_id,person_id)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
     
@@ -1940,7 +1939,7 @@ function run_db_updates($db_version) {
     else
       addInfoMessage("Datenbankupdates ausgef&uuml;hrt von <I>".variable_get("site_name")."</i>. Versionswechsel von $db_version auf $software_version. $link");
   
-    cleandir("$files_dir/files/messages/"); //delete temporal i18n files
+  cleandir("$files_dir/files/messages/"); //delete temporal i18n files
   
     $sitename=$config["site_name"];
     churchcore_systemmail($config["site_mail"], "Neue Version auf ".$config["site_name"], 

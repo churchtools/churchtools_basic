@@ -577,101 +577,6 @@ function ajax() {
 }
 
 /**
- * Description
- *
- */
-class CTInterface {
-  private $data = null;
-  
-  /**
-   * add param $name to data array
-   * 
-   * @param unknown $name
-   * @param string $mandatory
-   */
-  function setParam($name, $mandatory=true) {
-    $this->data[$name]=$mandatory;
-  }
-  
-  /**
-   * add params modified_date and modified_pid for modified fields
-   */
-  function addModifiedParams() {
-    $this->data["modified_date"]=false;
-    $this->data["modified_pid"]=false;
-  }
-  /**
-   * add common parameters: startdate, enddate, repeat_... 
-   */
-  
-  function addTypicalDateFields() {
-    $this->setParam("startdate");
-    $this->setParam("enddate");
-    $this->setParam("repeat_id");
-    $this->setParam("repeat_frequence", false);
-    $this->setParam("repeat_until", false);
-    $this->setParam("repeat_option_id", false);    
-  }
-
-  /**
-   * Build array for use as DB parameter from $params. Test against $this->data for needed parameters.
-   * 
-   * @param a $params
-   * @throws CTException
-   * 
-   * @return multitype:unknown
-   */
-  function getDBParamsArrayFromParams($params) {
-    $p=array();
-    foreach ($this->data as $key=>$val) {
-      if (!isset($params[$key])) {
-        if ($val==true)
-          throw new CTException("Pflicht-Parameter $key wurde nicht uebergeben!");                  
-      }      
-      else {
-        $p[":".$key]=$params[$key];
-      }
-    }
-    return $p;
-  }
-  
-  /**
-   * Build array for use in DB funtions. Test against $this->data for needed parameters
-   * 
-   * @param array $params
-   * @param string $setOptionalToNullValue
-   * @throws CTException
-   * 
-   * @return array with parameters
-   */
-  function getDBInsertArrayFromParams($params, $setOptionalToNull=false) {
-    global $user;
-    $p=array();
-    foreach ($this->data as $key=>$val) {
-      if (!isset($params[$key])) {
-        if ($val==true) {
-          throw new CTException("Pflicht-Parameter $key wurde nicht uebergeben!");                  
-        }
-        else if ($setOptionalToNull) {
-          $p[$key]=null;
-        }
-        else if ($key=="modified_date") {
-          $dt = new DateTime();            
-          $p[$key]=$dt->format('Y-m-d H:i:s');
-        }
-        else if ($key=="modified_pid") {
-          $p[$key]=$user->id;
-        }
-      }      
-      else { 
-        $p[$key]=$params[$key];
-      }
-    }
-    return $p;
-  }
-}
-
-/**
  * not used anywhere
  */
 class JSONResultObject {
@@ -805,19 +710,30 @@ function addErrorMessage($message) {
 
 /**
  * get translation of $txt, insert $data into placeholders like {0}
- * @param string $txt
- * @param string $data
+ * changed to use more then one placeholder by passing all args to getText.
  * 
- * TODO: how to add data to more then one placeholder? getText uses a variable parameter count.
+ * @param string $txt
+ * @param mixed $data; as much arguments as needed to replace placeholders
  * 
  * @return string, translation of $txt
  */
-function t($txt, $data=null) {
+
+function t($txt) {
   global $i18n;
-  if (isset($i18n))
-    return $i18n->getText($txt, $data);
-  else return "$txt";
+  
+  if (isset($i18n)){
+    //calls the function with the values in $data as arguments like $i18n->getText($data[0], $data[1], ...) 
+    $return = call_user_func_array(array($i18n, "getText"), func_get_args());
   }
+  return $return ? $return : $txt;
+}
+
+// function t($txt, $data=null) {
+//   global $i18n;
+//   if (isset($i18n))
+//     return $i18n->getText($txt, $data);
+//   else return "$txt";
+// }
 
 function language_default() {
   return null;
@@ -1429,7 +1345,7 @@ function churchcore_getTableDataSorted($tablename, $sortkey) {
 
 /**
  * TODO: maybe always return an array to prevent problems with forech on the results. (occured on deleting song)
- *  
+ * 
  * @param unknown $domain_type
  * @return object
  */
@@ -2245,7 +2161,8 @@ function user_access($auth, $modulename) {
 }
 
 function userLoggedIn() {
-  return ((isset($_SESSION['user'])) && ($_SESSION['user']->id>0));   
+//  $t = (isset($_SESSION['user']) && $_SESSION['user']->id>0); //for testing
+  return (isset($_SESSION['user']) && $_SESSION['user']->id>0);   
 }
 
 function addAuth($auth_arr, $id, $auth, $modulename, $datafield, $desc, $adminallowed=1) {
@@ -2324,7 +2241,7 @@ function scramble_password($plain_password) {
 
 function user_check_password($plain_password, $user) {
   $stored_password = $user->password;
-  if (($plain_password==null) || ($plain_password=="")) return null;
+  if (empty($plain_password)) return null;
   if (function_exists('password_verify')) {
     if (password_verify($plain_password, $stored_password)) {
       /* maybe the parameters changed, so we should rekey */

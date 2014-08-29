@@ -3,16 +3,13 @@
 function home_main() {
   global $config, $files_dir, $mapping;
   
-  if ((isset($config["admin_message"])) && ($config["admin_message"]!=""))
-    addErrorMessage($config["admin_message"]);
+  if ($m = readConf("admin_message")) addErrorMessage($m);
   
   checkFilesDir();
   
   $btns = churchcore_getModulesSorted();
   
-  if (isset($_SESSION["family"])) {
-    addInfoMessage(t('there.are.more.users.with.the.same.email'));
-  }
+  if (isset($_SESSION["family"])) addInfoMessage(t('there.are.more.users.with.the.same.email'));
   
   $txt = '
   <div class="hero-unit hidden-phone">
@@ -20,9 +17,10 @@ function home_main() {
     <p class="hidden-phone">'. $config["welcome_subtext"]. '</p>
     <p>';
   
-  foreach ($btns as $key) {
-    if ((isset($config[$key. "_startbutton"]))&& ($config[$key. "_startbutton"]== "1")&& (user_access("view", $key))) 
-      $txt .= '<a class="btn btn-large" href="?q='. $key. '">'. $config[$key. "_name"]. '</a>&nbsp;';
+  foreach ($btns as $key) if (isset($config[$key. "_startbutton"]) 
+                              && $config[$key. "_startbutton"]== "1" 
+                              && user_access("view", $key)) {
+    $txt .= '<a class="btn btn-large" href="?q='. $key. '">'. $config[$key. "_name"]. '</a>&nbsp;';
   }
   $txt .= '</p>';
   $txt .= '</div>';
@@ -160,23 +158,21 @@ function home__memberlist() {
   
   $txt = '<small><i><a class="cdb_hidden" href="?q=home/memberlist_printview" target="_clean">'. t("printview").
        '</a></i></small>';
-  if (user_access("administer settings", "churchcore")) 
-    $txt .= '&nbsp; <small><i><a class="cdb_hidden" href="?q=home/memberlist_settings">'.
-             t("admin.settings"). '</a></i></small>';
+  if (user_access("administer settings", "churchcore")) $txt .= '&nbsp; <small><i><a class="cdb_hidden" href="?q=home/memberlist_settings">'.
+       t("admin.settings"). '</a></i></small>';
   
   $txt .= '<table class="table table-condensed"><tr><th><th>'. t("salutation"). '<th>'. t("name"). '<th>'. t("address").
        '<th>'. t("birth."). '<th>'. t("contact.information"). '</tr><tr>';
   $link = $base_url;
-  
   $res = home_getMemberList();
   foreach ($res as $m) {
     
-    if ($m->imageurl==null) $m->imageurl = "nobody.gif";
+    if (!$m->imageurl) $m->imageurl = "nobody.gif";
     $txt .= "<tr><td><img width=\"65px\"src=\"$base_url$files_dir/fotos/". $m->imageurl. "\"/>";
     $txt .= '<td><div class="dontbreak">'. $m->anrede. '<br/>&nbsp;</div><td><div class="dontbreak">';
     
     if ((user_access("view", "churchdb"))&& (user_access("view alldata", "churchdb"))) 
-      $txt .= "<a href=\"$link?q=churchdb#PersonView/searchEntry:#". $m->person_id. "\">". $m->name. ", ". $m->vorname. "</a>";
+      $txt .= "<a href='$link?q=churchdb#PersonView/searchEntry:#". $m->person_id. "'>". $m->name. ", ". $m->vorname. "</a>";
     else $txt .= $m->name. ", ". $m->vorname;
     
     $txt .= '<br/>&nbsp;</div><td><div class="dontbreak">'. $m->strasse. "<br/>". $m->plz. " ". $m->ort. "</div>";
@@ -191,8 +187,8 @@ function home__memberlist() {
     }
     
     $txt .= "<td><div class=\"dontbreak\">$birthday<br/>&nbsp;</div><td><div class=\"dontbreak\">";
-    if (($fields["memberlist_telefonprivat"]->getValue()) && ($m->telefonprivat!= "")) $txt .= $m->telefonprivat. "<br/>";
-    if (($fields["memberlist_telefonhandy"]->getValue()) && ($m->telefonhandy!= "")) $txt .= $m->telefonhandy. "<br/>";
+    if (($fields["memberlist_telefonprivat"]->getValue())&& ($m->telefonprivat!= "")) $txt .= $m->telefonprivat. "<br/>";
+    if (($fields["memberlist_telefonhandy"]->getValue())&& ($m->telefonhandy!= "")) $txt .= $m->telefonhandy. "<br/>";
     if (($m->telefonprivat== "")&& ($m->telefonhandy== "")) {
       if (($fields["memberlist_telefongeschaeftlich"]->getValue())&& ($m->telefongeschaeftlich!= "")) $txt.= $m->telefongeschaeftlich.
            "<br/>";

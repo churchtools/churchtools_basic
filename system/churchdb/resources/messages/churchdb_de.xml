@@ -123,7 +123,9 @@
   <entry key="really.delete.template">Soll wirklich die Vorlage gelöscht werden?</entry>
   
   <!-- ADMIN SETTINGS --> 
-  <entry key="max.allowed.rows.to.export">Wieviel Datensätze maximal exportiert werden dürfen</entry>
-  <entry key="center.coordinates.latitude.best.to.find.by.google.maps">Koordinaten-Mittelpunkt Latitude (am besten durch Google Maps herauszufinden)</entry>
-  
+   <entry key="max.allowed.rows.to.export">Wieviel Datensätze maximal exportiert werden dürfen</entry>
+   <entry key="center.coordinates.latitude.best.to.find.by.google.maps">Koordinaten-Mittelpunkt Latitude (am besten durch Google Maps herauszufinden)</entry>
+   <entry key=""></entry>
+
+   
 </properties>

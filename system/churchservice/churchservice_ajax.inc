@@ -186,8 +186,8 @@ function churchservice_extractEventServiceData($arr, $auth = null, $event_admin 
   $res["user"] = $arr->modifieduser;
   $res["mailsenddate"] = $arr->mailsenddate;
   if (($auth != null) && ($arr->reason != null)) {
-    if (((isset($auth["leaderservice"])) && (isset($auth["leaderservice"][$arr->service_id]))) 
-        || (isset($auth["admin"])) || ($event_admin)) 
+    if ((isset($auth["leaderservice"]) && isset($auth["leaderservice"][$arr->service_id])) 
+        || isset($auth["admin"]) || $event_admin) 
         $res["reason"] = $arr->reason;
   }
   return $res;
@@ -275,9 +275,7 @@ function churchservice_getAllEventData($params) {
         $services = db_query($sql, array (":event_id" => $arr->id));
         $s = array ();
         foreach ($services as $service) {
-          if (($service->servicegroup_id != null) 
-              && ((isset($auth["viewgroup"][$service->servicegroup_id])) 
-              || ($event_admin))) {
+          if ($service->servicegroup_id != null && (isset($auth["viewgroup"][$service->servicegroup_id]) || $event_admin)) {
             $s[] = churchservice_extractEventServiceData($service, $auth, $event_admin);
           }
         }
@@ -370,12 +368,11 @@ function churchservice_addOrRemoveServiceToEvent($params) {
         // TODO: looks not performant - maybe fetch all needed services together using GROUP BY as array and use in_array()?
         // at least reuse statement rather then building a new one for each while
         while ((!$ok) && ($count < 100)) {
-          $res = db_query(
-              "SELECT count(*) c FROM {cs_eventservice} 
-               WHERE event_id=:event_id and service_id=:service_id and counter=$count", 
-               array (":event_id" => $fields["event_id"], 
-                     ":service_id" => $fields["service_id"]
-          ))->fetch();
+          $res = db_query("SELECT count(*) c FROM {cs_eventservice} 
+                           WHERE event_id=:event_id and service_id=:service_id and counter=$count", 
+                           array(":event_id" => $fields["event_id"], 
+                           ":service_id" => $fields["service_id"]
+                 ))->fetch();
           if ($res->c == 0) $ok = true;
           else $count = $count + 1;
         }
@@ -396,8 +393,8 @@ function churchservice_addOrRemoveServiceToEvent($params) {
              "SELECT max(counter) c FROM {cs_eventservice} 
               WHERE event_id=:event_id and service_id=:service_id and name is null and valid_yn=1", 
               array (":event_id" => $fields["event_id"], 
-                           ":service_id" => $fields["service_id"]
-      ))->fetch();
+                     ":service_id" => $fields["service_id"]
+              ))->fetch();
       if ($res == null) throw new CTFail("Error by query max(counter)");
       else {
         if ($res->c == null) $counter = "counter is null"; //TODO: translate or not?
@@ -406,7 +403,7 @@ function churchservice_addOrRemoveServiceToEvent($params) {
                   WHERE event_id=:event_id and service_id=:service_id and " . $counter, 
                   array(":event_id" => $fields["event_id"], 
                         ":service_id" => $fields["service_id"]
-        ));
+                 ));
         cdb_log("[ChurchService] Entferne Service " . $fields["service_id"] . " $counter vom Event", 2, $fields["event_id"], "service");
         $ist = $ist - 1;
       }
@@ -440,8 +437,7 @@ function churchservice_editService($params) {
   
   if (!isset($auth["editgroup"]) || (!isset($auth["editgroup"][$params["servicegroup_id"]]))) 
     throw new CTNoPermission("editservice", "churchservice");
-    if (($params["id"]!="null") && ($params["id"]!=""))
-       if (!isset($auth["editservice"]) || (!isset($auth["editservice"][$params["id"]]))) 
+  if ($params["id"] && (empty($auth["editservice"]) || empty($auth["editservice"][$params["id"]])) )
     throw new CTNoPermission("editservice", "churchservice");
   
   $i = new CTInterface();
@@ -565,30 +561,46 @@ function churchservice_updateEventService($params) {
            ->fetch();
   $service = churchcore_getTableData("cs_service", "", "id=" . $arr->service_id);
   
-  if (($event!=false) && ($service!=null)) {
+  if ($event && $service) {
     $service = $service[$arr->service_id];
     $subject = "[". readConf('site_name', "ChurchTools"). "] ";
     $txt = "";
     // confirm
     if ($zugesagt_yn == 1) {
-      $txt .= t("surname.name.has.approved.the.service.x.for.date.event", array(
-          $user->vorname, 
-          $user->name, $service->bezeichnung, 
-          $event->datum,   //TODO: remove seconds from date
-          $event->bezeichnung,
-          $name,
-      ));
-      $subject .= t("surname.name.has.approved.a.request", array($user->vorname, $user->name));
+      $txt .= t("surname.name.has.approved.the.service.x.for.date.event",
+                array($user->vorname, 
+                      $user->name, $service->bezeichnung, 
+                      $event->datum,   //TODO: remove seconds from date
+                      $event->bezeichnung,
+                      $name,
+               ));
+      $subject .= t("surname.name.has.approved.a.request", 
+                    array($user->vorname, $user->name));
     }
     // propose
-    else if ($name!=null) {
-      $txt .= t("surname.name.has.proposed.name.for.service.x.for.date.event", $user->vorname. ' '. $user->name);
-      $subject .= t("surname.name.has.proposed.someone", array($user->vorname, $user->name));
+    else if ($name) {
+      $txt .= t("surname.name.has.for.service.x.for.date.event.name.proposed",
+                array($user->vorname, 
+                      $user->name, 
+                      $service->bezeichnung, 
+                      $event->datum, 
+                      $event->bezeichnung, 
+                      $name,
+                ));
+      $subject .= t("surname.name.has.proposed.someone", 
+                    array($user->vorname, $user->name));
     }
     // cancel
     else {
-      $txt .= t("surname.name.has.canceled.the.service.x.for.date.event", $user->vorname. ' '. $user->name);
-      $subject .= t("surname.name.has.canceled.a.request");
+      $txt .= t("surname.name.has.canceled.the.service.x.for.date.event",
+                array($user->vorname, 
+                      $user->name, 
+                      $service->bezeichnung, 
+                      $event->datum, 
+                      $event->bezeichnung, 
+               ));
+      $subject .= t("surname.name.has.canceled.a.request",
+                    array($user->vorname, $user->name));
     }
     if ($reason != null) $txt .= "<p>Folgendes wurde als Grund angegeben: " . $reason;
     
@@ -820,7 +832,7 @@ function churchservice_updateOrInsertTemplate($template_id, $bezeichnung, $stund
       }
       else
         db_query("DELETE FROM {cs_eventtemplate_service} 
-                  WHERE eventtemplate_id=:eventtemplate_id AND service_id=:service_id", 
+                  WHERE eventtemplate_id=:eventtemplate_id AND service_id=:service_id",
                   array(":eventtemplate_id" => $template_id, 
                         ":service_id" => $service,
         ));
@@ -981,7 +993,7 @@ function churchservice_addArrangement($params) {
   $i->setParam("song_id");
   $i->setParam("bezeichnung");
   $i->addModifiedParams();
-  $res=db_insert("cs_song_arrangement")
+  $res = db_insert("cs_song_arrangement")
     ->fields($i->getDBInsertArrayFromParams($params))
     ->execute(false);
   return $res;  
@@ -1024,13 +1036,13 @@ function churchservice_deleteSong($params) {
   $i = new CTInterface();
   $i->setParam("id");
   db_delete("cs_song_arrangement")
-  ->fields($i->getDBInsertArrayFromParams($params))
-  ->condition("song_id", $params["id"], "=")
-  ->execute(false);
+    ->fields($i->getDBInsertArrayFromParams($params))
+    ->condition("song_id", $params["id"], "=")
+    ->execute(false);
   db_delete("cs_song")
-  ->fields($i->getDBInsertArrayFromParams($params))
-  ->condition("id", $params["id"], "=")
-  ->execute(false);
+    ->fields($i->getDBInsertArrayFromParams($params))
+    ->condition("id", $params["id"], "=")
+    ->execute(false);
 }
 
 /**
@@ -1116,7 +1128,7 @@ function churchservice_getServiceGroupPersonWeight() {
       $rel = db_query("SELECT * FROM {cdb_beziehung} 
                        WHERE vater_id=:id or kind_id=:id and beziehungstyp_id=$rel_types->id", 
                        array(":id" => $s->person_id))
-          ->fetch();
+             ->fetch();
       if ($rel != null) {
         if ($rel->kind_id != $s->person_id) $s->relation_id = $rel->kind_id;
         else $s->relation_id = $rel->vater_id;
