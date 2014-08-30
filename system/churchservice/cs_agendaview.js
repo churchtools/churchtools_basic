@@ -439,7 +439,7 @@ AgendaView.prototype.renderFieldResponsible = function(content, event_ids) {
       }
     });
     var sgs=getServiceGroupsFromEvents(event_ids);
-    if (service==null || sgs==null) return content;
+    if (service==null || sgs==null || sgs[service.servicegroup_id]==null) return content;
     else {
       var entries=new Array();
       $.each(sgs[service.servicegroup_id], function(k,s) {
@@ -1222,13 +1222,15 @@ function getServiceGroupsFromEvents(event_ids) {
   if (event_ids==null) return null;
   var servicegroups=new Array();
   $.each(event_ids, function(k,event_id) {
-    $.each(allEvents[event_id].services, function(s, service) {
-      if (service.valid_yn==1) { 
-        if (servicegroups[masterData.service[service.service_id].servicegroup_id]==null)
-          servicegroups[masterData.service[service.service_id].servicegroup_id]=new Array();
-        servicegroups[masterData.service[service.service_id].servicegroup_id].push(service);
-      }
-    });            
+    if (allEvents[event_id].services) {
+      $.each(allEvents[event_id].services, function(s, service) {
+        if (service.valid_yn==1) { 
+          if (servicegroups[masterData.service[service.service_id].servicegroup_id]==null)
+            servicegroups[masterData.service[service.service_id].servicegroup_id]=new Array();
+          servicegroups[masterData.service[service.service_id].servicegroup_id].push(service);
+        }
+      });
+    }
   });  
   return servicegroups;
 }
