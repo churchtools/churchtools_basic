@@ -1,6 +1,6 @@
 <?php 
 
-include_once(CHURCHCORE."/churchcore_db.inc");
+include_once(CHURCHCORE."/churchcore_db.php");
  
  
 function churchcal_handleMeetingRequest($cal_id, $params) {
@@ -35,7 +35,7 @@ function churchcal_handleMeetingRequest($cal_id, $params) {
                where id=:id", array(":id"=>$id))->fetch();
       if ($db!==false) {
         if ($db->invite==1) {
-          include_once(CHURCHDB.'/churchdb_ajax.inc');
+          include_once(CHURCHDB.'/churchdb_ajax.php');
           churchdb_invitePersonToSystem($id);
           $txt.="Da Du noch nicht kein Zugriff auf das System hast, bekommst Du noch eine separate E-Mail, mit der Du Dich dann anmelden kannst!";
         }
@@ -135,12 +135,12 @@ function churchcal_createEvent($params, $source=null) {
   // BENACHRICHTIGE ANDERE MODULE
   $modules=churchcore_getModulesSorted(false, false);  
   if ((in_array("churchresource", $modules) && ($source==null || $source!="churchresource"))) {
-    include_once(CHURCHRESOURCE .'/churchresource_db.inc');
+    include_once(CHURCHRESOURCE .'/churchresource_db.php');
     $params["id"]=$new_id;
     churchresource_updateResourcesFromChurchCal($params, "churchcal");           
   }
   if ((in_array("churchservice", $modules) && ($source==null || $source!="churchservice"))) {
-    include_once(CHURCHSERVICE .'/churchservice_db.inc');
+    include_once(CHURCHSERVICE .'/churchservice_db.php');
     $cs_params=array_merge(array(), $params); 
     $cs_params["cal_id"]=$new_id;
     $cs_params["id"]=null; 
@@ -277,13 +277,13 @@ function churchcal_updateEvent($params, $source=null) {
   // BENACHRICHTIGE ANDERE MODULE
   $modules=churchcore_getModulesSorted(false, false);  
   if ((in_array("churchresource", $modules) && ($source==null || $source!="churchresource"))) {
-    include_once(CHURCHRESOURCE .'/churchresource_db.inc');
+    include_once(CHURCHRESOURCE .'/churchresource_db.php');
     if ($source==null) $source="churchcal";
     $params["cal_id"]=$params["id"];
     churchresource_updateResourcesFromChurchCal($params, $source, $changes);           
   }
   if ((in_array("churchservice", $modules) && ($source==null || $source!="churchservice"))) {
-    include_once(CHURCHSERVICE .'/churchservice_db.inc');
+    include_once(CHURCHSERVICE .'/churchservice_db.php');
     $cs_params=array_merge(array(), $params); 
     $cs_params["cal_id"]=$params["id"];
     $cs_params["id"]=null;   
@@ -334,7 +334,7 @@ function churchcal_getAuthForAjax() {
 function churchcal_getAllowedCategories($withPrivat=true, $onlyIds=false) {
   global $user;
   $withPrivat=false;
-  include_once(CHURCHDB."/churchdb_db.inc");
+  include_once(CHURCHDB."/churchdb_db.php");
   $db=db_query("select * from {cc_calcategory}");
 
   $res=array();
@@ -424,7 +424,7 @@ function churchcal_getCalPerCategory($params, $withintern=true) {
             $txt=$e->cal_text_template;
           }
           if ($e->cdb_person_id!=null) {
-            include_once(CHURCHDB."/churchdb_db.inc");
+            include_once(CHURCHDB."/churchdb_db.php");
             $p=db_query("select * from {cdb_person} where id=:id", array(":id"=>$e->cdb_person_id))->fetch();          
             if ($p!==false) {
               if ($service_texts==null) $service_texts=array();

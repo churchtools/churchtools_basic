@@ -15,7 +15,7 @@
  * main ical function
  */
 function ical_main() {
-  include_once(CHURCHSERVICE.'/churchservice_ajax.inc');
+  include_once(CHURCHSERVICE.'/churchservice_ajax.php');
   call_user_func("churchservice_ical");
 }
 
@@ -28,7 +28,7 @@ function churchservice__ajax() {
     addInfoMessage(t("no.permission.for", $config["churchservice_name"]));
     return " "; // which meaning has this?
   }
-  include_once(CHURCHSERVICE.'/churchservice_ajax.inc');
+  include_once(CHURCHSERVICE.'/churchservice_ajax.php');
   call_user_func("churchservice_ajax"); // why user_func? 
 }
 
@@ -259,7 +259,7 @@ function churchservice_getUserOpenServices() {
   global $user;
   
   if ($id = readVar("eventservice_id")) {
-    include_once('./'. CHURCHSERVICE .'/churchservice_ajax.inc');
+    include_once('./'. CHURCHSERVICE .'/churchservice_ajax.php');
     $reason = readVar("reason", null);
     if (readVar("zugesagt_yn") == 1) {
       churchservice_updateEventService($id, $user->vorname." ".$user->name, $user->id, 1, $reason);
@@ -269,7 +269,7 @@ function churchservice_getUserOpenServices() {
     addInfoMessage("Danke für deine Rückmeldung!");
   }
   
-  include_once('./'. CHURCHDB .'/churchdb_db.inc');
+  include_once('./'. CHURCHDB .'/churchdb_db.php');
   $txt="";
   $pid = $user->id;
   $txt1="";        
@@ -370,7 +370,7 @@ function churchservice_getCurrentEvents() {
 function churchservice_getUserNextServices($shorty=true) {
   global $user;
   
-  include_once('./'. CHURCHDB .'/churchdb_db.inc');
+  include_once('./'. CHURCHDB .'/churchdb_db.php');
   
   $pid=$user->id;
   $res = db_query("SELECT e.id event_id, cal.bezeichnung event, DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') datum, s.bezeichnung service, sg.bezeichnung servicegroup, cdb_person_id, DATE_FORMAT(es.modified_date, '%d.%m.%Y %H:%i') modified_date
@@ -429,7 +429,7 @@ function churchservice_getAbsents($year=null) {
   
   if (user_access("view","churchdb")) {
     $user=$_SESSION["user"];
-    include_once(CHURCHDB.'/churchdb_db.inc');
+    include_once(CHURCHDB.'/churchdb_db.php');
     $groups=churchdb_getMyGroups($user->id, true, true);
     $allPersonIds=churchdb_getAllPeopleIdsFromGroups($groups);
     
@@ -517,7 +517,7 @@ function churchservice_blocks() {
  */
 function churchservice_openservice_rememberdays() {
   global $base_url;
-  include_once("churchservice_db.inc");
+  include_once("churchservice_db.php");
 
   $delay=readConf('churchservice_openservice_rememberdays');
   $dt = new datetime();
@@ -585,7 +585,7 @@ function churchservice_openservice_rememberdays() {
 
     // Person wurde noch nicht eingeladen, also schicke gleich eine Einladung mit!
     if ($res->invite==1) {
-      include_once(CHURCHDB.'/churchdb_ajax.inc');
+      include_once(CHURCHDB.'/churchdb_ajax.php');
       churchdb_invitePersonToSystem($res->p_id);
       $txt.="<p><b>Da Du noch nicht kein Zugriff auf das System hast, bekommst Du noch eine separate E-Mail, mit der Du Dich dann anmelden kannst!.</b>";
     }
@@ -599,7 +599,7 @@ function churchservice_openservice_rememberdays() {
 
 function churchservice_remindme() {
   global $base_url;
-  include_once("churchservice_db.inc");
+  include_once("churchservice_db.php");
   
   $sql="SELECT p.vorname, p.name, p.email, 
           cal.bezeichnung, s.bezeichnung dienst, sg.bezeichnung sg, e.id event_id, 
@@ -663,7 +663,7 @@ function churchcore_checkUserMail($p, $mailtype, $id, $interval) {
 }
 function churchservice_inform_leader() {
   global $base_url;
-  include_once("churchservice_db.inc");
+  include_once("churchservice_db.php");
 
   // Hole erst mal die Gruppen_Ids, damit ich gleich nicht alle Personen holen mu�
   $res=db_query("SELECT cdb_gruppen_ids FROM {cs_service} where cdb_gruppen_ids!='' and cdb_gruppen_ids is not null");
@@ -757,7 +757,7 @@ function churchservice_inform_leader() {
 function churchservice_cron() {
   global $base_url;
   
-  include_once('./'. CHURCHSERVICE .'/churchservice_ajax.inc');
+  include_once('./'. CHURCHSERVICE .'/churchservice_ajax.php');
   
   churchservice_openservice_rememberdays();
   churchservice_remindme();

@@ -147,7 +147,7 @@ function churchcal_getAuth() {
 
 function churchcal_getMyServices() {
   global $user;
-  include_once(CHURCHSERVICE .'/churchservice_db.inc');
+  include_once(CHURCHSERVICE .'/churchservice_db.php');
   
   $res=churchservice_getUserCurrentServices($user->id);
   
@@ -163,7 +163,7 @@ function churchcal_getMyServices() {
 function churchcal_getAbsents($params) {
   global $user;
   
-  include_once(CHURCHDB.'/churchdb_db.inc');
+  include_once(CHURCHDB.'/churchdb_db.php');
   $persons=array();
   
   if (isset($params["cal_ids"])) {
@@ -208,7 +208,7 @@ function churchcal_getBirthdays($params) {
   $all=(isset($params["all"])) && ($params["all"]==true);
   
   
-  include_once(CHURCHDB."/churchdb_db.inc");
+  include_once(CHURCHDB."/churchdb_db.php");
   
   if (!$all) {
     $gpids=churchdb_getMyGroups($user->id, true, false);
@@ -357,13 +357,13 @@ function churchcal_deleteEvent($params, $source=null) {
     
   // BENACHRICHTIGE ANDERE MODULE
   if (($source==null) || ($source!="churchresource")) {
-    include_once(CHURCHRESOURCE .'/churchresource_db.inc');
+    include_once(CHURCHRESOURCE .'/churchresource_db.php');
     if ($source==null) $source="churchcal";
     $params["cal_id"]=$params["id"];
     churchresource_deleteResourcesFromChurchCal($params, $source);
   }
   if (($source==null) || ($source!="churchservice")) {
-    include_once(CHURCHSERVICE .'/churchservice_db.inc');
+    include_once(CHURCHSERVICE .'/churchservice_db.php');
     $cs_params=array_merge(array(), $params);
     $cs_params["cal_id"]=$params["id"];
     $cs_params["informDeleteEvent"]=1;
@@ -626,12 +626,12 @@ function churchcal_getCalEvents() {
 }
 
 function churchcal_getAllowedGroups() {
-  include_once(CHURCHDB.'/churchdb_db.inc');
+  include_once(CHURCHDB.'/churchdb_db.php');
   return churchdb_getAllowedGroups();
 }
   
 function churchcal_getAllowedPersons() {
-  include_once(CHURCHDB.'/churchdb_ajax.inc');
+  include_once(CHURCHDB.'/churchdb_ajax.php');
   return churchdb_getAllowedPersonData('archiv_yn=0');
 }
 
@@ -641,7 +641,7 @@ function churchcal_moveCSEvent() {
 }
 
 function churchcal__ajax() {
-  include_once(CHURCHCAL."/churchcal_db.inc");
+  include_once(CHURCHCAL."/churchcal_db.php");
   
   $module=new CTChurchCalModule("churchcal");
   
@@ -672,7 +672,7 @@ function churchcal__ajax() {
 
 function churchcal__ical() {
   global $base_url, $config;
-  include_once(CHURCHCAL."/churchcal_db.inc");
+  include_once(CHURCHCAL."/churchcal_db.php");
   
   drupal_add_http_header('Content-Type','text/calendar;charset=utf-8',false);
   drupal_add_http_header('Content-Disposition','inline;filename="ChurchTools.ics"',false);  

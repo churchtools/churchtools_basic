@@ -1,6 +1,6 @@
 <?php
 
-include_once (CHURCHCORE . '/churchcore_db.inc');
+include_once (CHURCHCORE . '/churchcore_db.php');
 
 /**
  * get person data
@@ -815,7 +815,7 @@ function churchdb_delFromGroup($g_id, $p_ids) {
 /**
  * set username for person
  *
- * TODO: only used by function with same function name! in churchdb_ajax.inc, check for success
+ * TODO: only used by function with same function name! in churchdb_ajax.php, check for success
  *
  * @param int $id          
  * @param string $username          

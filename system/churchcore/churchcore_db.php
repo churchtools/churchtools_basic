@@ -1256,8 +1256,8 @@ function implode_array($arr, $joiner, $field) {
 
 /*
  * TODO: $m is not used, function does nothing, without it
- *   include_once(drupal_get_path('module', 'churchresource') .'/churchresource_db.inc'); becomes
- *   include_once("system/churchresource/churchresource_db.inc');
+ *   include_once(drupal_get_path('module', 'churchresource') .'/churchresource_db.php'); becomes
+ *   include_once("system/churchresource/churchresource_db.php');
  *   
  * @param unknown $m
  * @param unknown $module

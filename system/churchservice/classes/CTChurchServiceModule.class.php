@@ -24,7 +24,7 @@ class CTChurchServiceModule extends CTAbstractModule {
    */
   public function getMasterData() {
     global $user, $base_url, $files_dir, $config;
-    include_once(CHURCHCAL .'/churchcal_db.inc');
+    include_once(CHURCHCAL .'/churchcal_db.php');
     $auth=churchservice_getAuthorization();
     $res=$this->getMasterDataTables();
     $res["masterDataTables"] = $this->getMasterDataTablenames();

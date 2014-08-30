@@ -1,6 +1,6 @@
 <?php
 
-include_once('./'. CHURCHSERVICE .'/../churchcore/churchcore_db.inc');
+include_once('./'. CHURCHSERVICE .'/../churchcore/churchcore_db.php');
 
 /**
  * Checks if the agenda is a template
@@ -170,7 +170,7 @@ function churchservice_updateEventFromChurchCal($params, $source=null) {
 function churchservice_saveEvent($params, $source=null) {
   global $user;
   
-  include_once(CHURCHCAL .'/churchcal_db.inc');
+  include_once(CHURCHCAL .'/churchcal_db.php');
   $cal_id=null;
   if (($source=="churchcal") && ($params["id"]==null) && (isset($params["cal_id"]))) {
     $cal_id=$params["cal_id"];  

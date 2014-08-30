@@ -314,7 +314,7 @@ function churchtools_processRequest($_q) {
  */
 function churchtools_main() {
   global $q, $q_orig, $currentModule, $add_header, $config, $mapping, $content, $base_url, $files_dir, $user, $embedded, $i18n;
-  include_once (CHURCHCORE . "/churchcore_db.inc");
+  include_once (CHURCHCORE . "/churchcore_db.php");
   
   // which module is requested?
   $q = $q_orig = readVar("q", userLoggedIn() ? "home" : readConf("site_startpage", "home"));

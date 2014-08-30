@@ -52,7 +52,7 @@ function churchresource_main() {
 }  
 
 function churchresource__ajax() {
-  include_once("churchresource_db.inc");
+  include_once("churchresource_db.php");
   
   $module=new CTChurchResourceModule("churchresource");
 
@@ -77,7 +77,7 @@ function churchresource_getAdminForm() {
 function churchresource_getOpenBookings() {
   $txt="";
   if (user_access("administer bookings","churchresource")) {      
-    include_once("churchresource_db.inc");
+    include_once("churchresource_db.php");
     $arr=getOpenBookings();
 	if ($arr!=null) {
       foreach ($arr as $val) {
@@ -93,7 +93,7 @@ function churchresource_getOpenBookings() {
 function churchresource_getCurrentBookings() {
   $txt="";
   if (user_access("view","churchresource")) {      
-    include_once("churchresource_db.inc");       
+    include_once("churchresource_db.php");       
     
 	// Alle buchungen ab jetzt bis morgen mit Status 2
 	$res=getBookings(0, 1, "2");
@@ -199,7 +199,7 @@ global $user;
   
   $content=$content.drupal_get_header();
   
-  $content=$content.'<link type="text/css" rel="stylesheet" media="all" href="'.INCLUDES.'/churchtools.css" />';
+  $content=$content.'<link type="text/css" rel="stylesheet" media="all" href="'.phpLUDES.'/churchtools.css" />';
   $content=$content.'<link type="text/css" rel="stylesheet" media="all" href="'.CHURCHRESOURCE.'/cr_printview.css" />';
     
   $content=$content."</head><body>";

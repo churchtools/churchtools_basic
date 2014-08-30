@@ -1,6 +1,6 @@
 <?php
-include_once (CHURCHCORE . '/churchcore_db.inc');
-include_once (CHURCHDB . '/churchdb_db.inc');
+include_once (CHURCHCORE . '/churchcore_db.php');
+include_once (CHURCHDB . '/churchdb_db.php');
 
 /**
  * get groups responsible for service $service_id
@@ -227,7 +227,7 @@ function churchservice_getAllEventData($params) {
   
   $auth = churchservice_getAuthorization();
   
-  include_once (CHURCHCAL . '/churchcal_db.inc');
+  include_once (CHURCHCAL . '/churchcal_db.php');
   $cat = churchcal_getAllowedCategories(false, true);
   $cat[] = -1;
   
@@ -481,7 +481,7 @@ function churchservice_updateEventService($params) {
   $reason = (isset($params["reason"]) ? $params["reason"] : null);
   $zugesagt_yn = $params["zugesagt_yn"];
   
-  include_once (CHURCHSERVICE . "/churchservice_db.inc");
+  include_once (CHURCHSERVICE . "/churchservice_db.php");
   
   $res = array ();
   
@@ -552,7 +552,7 @@ function churchservice_updateEventService($params) {
       ->execute();
   }
 
-  include_once (CHURCHCORE . "/churchcore_db.inc");
+  include_once (CHURCHCORE . "/churchcore_db.php");
   $leader = churchcore_getPersonById($arr->modified_pid);
 
   $event = db_query("SELECT e.startdate datum, c.bezeichnung FROM {cs_event} e, {cc_cal} c
@@ -722,7 +722,7 @@ function churchservice_ical() {
   
   $content = drupal_get_header();
   
-  include_once ('./' . CHURCHSERVICE . '/churchservice_db.inc');
+  include_once ('./' . CHURCHSERVICE . '/churchservice_db.php');
   $arr = churchservice_getUserCurrentServices($id);
   
   // TODO: use txt Template
@@ -1154,7 +1154,7 @@ function churchservice_delAbsent($id) {
  * churchservice ajax
    */
 function churchservice_ajax() {
-  include_once ("churchservice_db.inc");
+  include_once ("churchservice_db.php");
   
   $module = new CTChurchServiceModule("churchservice");
   $ajax = new CTAjaxHandler($module);

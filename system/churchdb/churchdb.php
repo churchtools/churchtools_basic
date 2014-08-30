@@ -15,7 +15,7 @@
  * 
  */
 function churchdb__ajax() {
-  include_once(CHURCHDB.'/churchdb_ajax.inc');
+  include_once(CHURCHDB.'/churchdb_ajax.php');
   call_user_func("churchdb_ajax"); //TODO: why not calling churchdb_ajax() direct?
 }
 
@@ -284,13 +284,13 @@ function externmapview__ajax() {
     $res=jsend()->success($res);    
   }
   else if ($func=='addPersonGroupRelation') {
-    include_once(CHURCHDB.'/churchdb_ajax.inc');
+    include_once(CHURCHDB.'/churchdb_ajax.php');
     $res=churchdb_addPersonGroupRelation($user->id, $_GET["g_id"], -2, null, null, null, t("request.by.external.mapview"));
     sendConfirmationMail($user->email, $user->vorname, $_GET["g_id"]);    
     $res=jsend()->success($res);
   }
   else if ($func=='editPersonGroupRelation') {
-    include_once(CHURCHDB.'/churchdb_ajax.inc');
+    include_once(CHURCHDB.'/churchdb_ajax.php');
     $res=_churchdb_editPersonGroupRelation($user->id,
        $_GET["g_id"], -2,null, "null", t("request.changed.by.external.mapview"));
     sendConfirmationMail($user->email, $user->vorname, $_GET["g_id"]);    
@@ -304,7 +304,7 @@ function externmapview__ajax() {
       )->fetch();
     $txt="";  
     if ($db!=false) {
-      include_once(CHURCHDB.'/churchdb_ajax.inc');
+      include_once(CHURCHDB.'/churchdb_ajax.php');
       churchdb_addPersonGroupRelation($db->id, $_GET["g_id"], -2, null, null, null, t("request.by.external.mapview").": ".$_GET["Kommentar"]);
       sendConfirmationMail($_GET["E-Mail-Adresse"], $_GET["Vorname"], $_GET["g_id"]);    
       $txt=t("person.found.and.request.sent");      
@@ -360,7 +360,7 @@ function getBirthdaylistContent($desc, $diff_from, $diff_to, $extended=false) {
   if (($extended) && (!user_access("view birthdaylist","churchdb"))) 
     die(t("no.permission.for", "view birthdaylist" )); //TODO: replace arg with translated name of view birthdaylist
     
-    include_once("churchdb_db.inc");
+    include_once("churchdb_db.php");
     
     $see_details=(user_access("view","churchdb")) && (user_access("view alldata","churchdb"));
     
@@ -453,7 +453,7 @@ function getWhoIsOnline() {
  */
 function subscribeGroup() {
   global $user;
-  include_once(CHURCHDB.'/churchdb_db.inc');
+  include_once(CHURCHDB.'/churchdb_db.php');
   
   $sql_gruppenteilnahme="select g.bezeichnung, gpg.* from {cdb_gemeindeperson_gruppe} gpg, {cdb_gemeindeperson} gp, {cdb_gruppe} g 
                    where gpg.gemeindeperson_id=gp.id and gp.person_id=:person_id 
@@ -465,7 +465,7 @@ function subscribeGroup() {
     if (!$res)
       addErrorMessage(t("error.requesting.group.membership"));
     else {
-      include_once(CHURCHDB.'/churchdb_ajax.inc');
+      include_once(CHURCHDB.'/churchdb_ajax.php');
       $grp=db_query($sql_gruppenteilnahme,
         array(":person_id"=>$user->id, ":g_id"=>$_GET["subscribegroup"]))->fetch();
       if (!$grp)     
@@ -481,7 +481,7 @@ function subscribeGroup() {
     if (!$res)
       addErrorMessage(t("error.quitting.membership"));
     else {
-      include_once(CHURCHDB.'/churchdb_ajax.inc');
+      include_once(CHURCHDB.'/churchdb_ajax.php');
       _churchdb_editPersonGroupRelation($user->id, $res->gruppe_id, -1, null, "null", t("request.quitting.by.form"));
       addInfoMessage(t("membership.marked.for.deleting", $res->bezeichnung));      
     }          
@@ -673,7 +673,7 @@ function churchdb__vcard() {
   $id=$_GET["id"];
   drupal_add_http_header('Content-type','text/x-vCard; charset=ISO-8859-1; encoding=ISO-8859-1',true);
   drupal_add_http_header('Content-Disposition','attachment; filename="vcard'.$id.'.vcf"',true);
-  include_once("churchdb_db.inc");
+  include_once("churchdb_db.php");
 
   $sql="
     SELECT  concat(
@@ -856,7 +856,7 @@ function _addGroupRelationDataForExport($export, $template=null) {
 function churchdb__export() {
   drupal_add_http_header('Content-type', 'application/csv; charset=ISO-8859-1; encoding=ISO-8859-1',true);
   drupal_add_http_header('Content-Disposition', 'attachment; filename="churchdb_export.csv"',true);
-  include_once("churchdb_db.inc");
+  include_once("churchdb_db.php");
   
   $params =$_GET;
   $template=null;
@@ -1074,7 +1074,7 @@ function churchdb__mailviewer() {
  */
 function churchdb_cron() {
   global $config;
-  include_once("churchdb_db.inc");
+  include_once("churchdb_db.php");
   
   
   createGroupMeetings();
@@ -1205,7 +1205,7 @@ function listBatchSubscribe($api, $list_id, $batch, $optin=true) {
   $update_existing = false; // yes, update currently subscribed users TODO: should be replaced by speaking constants
   $replace_interests = false; // no, add interest, don't replace
   $vals = $api->listBatchSubscribe($list_id,$batch,$optin, $update_existing, $replace_interests);
-  include_once("churchdb_db.inc");
+  include_once("churchdb_db.php");
   if ($api->errorCode)
     cdb_log("CRON - Fehler beim Subscribe zu MailChimp: Code=".$api->errorCode. " Msg=".$api->errorMessage,2);
   else cdb_log("CRON - MailChimp-Liste $list_id: Addiere ".count($batch)." Personen.",2);  
@@ -1225,7 +1225,7 @@ function listBatchUnsubscribe($api, $list_id, $batch, $send_goodbye=false, $send
   
   $delete_member=false; // flag to completely delete the member from your list instead of just unsubscribing, default to false
   $vals = $api->listBatchUnsubscribe($list_id,$batch,$delete_member, $send_goodbye, $send_notify);
-  include_once("churchdb_db.inc");
+  include_once("churchdb_db.php");
   if ($api->errorCode)
     cdb_log("CRON - Fehler beim Unsubscribe zu MailChimp: Code=".$api->errorCode. " Msg=".$api->errorMessage,2);
   else cdb_log("CRON - MailChimp-Liste $list_id: Entferne ".count($batch)." Personen.",2);  

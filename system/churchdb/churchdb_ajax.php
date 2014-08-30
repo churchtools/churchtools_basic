@@ -1,5 +1,5 @@
 <?php
-include_once("churchdb_db.inc");
+include_once("churchdb_db.php");
 
 /**
  * get person data to search for
@@ -1430,7 +1430,7 @@ function f_functions($params) {
  * churchdb ajax
  */
 function churchdb_ajax() {
-  include_once ("churchdb_db.inc");
+  include_once ("churchdb_db.php");
   
   $module = new CTChurchDBModule("churchdb");
   $ajax = new CTAjaxHandler($module);

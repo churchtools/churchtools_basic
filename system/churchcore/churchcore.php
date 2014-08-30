@@ -225,7 +225,7 @@ function getMimeTypes() {
  */
 function churchcore__filedownload() {
   global $files_dir;
-  include_once(CHURCHCORE."/churchcore_db.inc");
+  include_once(CHURCHCORE."/churchcore_db.php");
   $mime_types=getMimeTypes();
      
   $file=db_query("select * from {cc_file} f where f.id=:id and filename=:filename", 

@@ -19,7 +19,7 @@ class CTHomeModule extends CTAbstractModule {
     $res["modulename"] = "churchcore";
     $modules = churchcore_getModulesSorted();
     if (in_array("churchdb", $modules)) {
-      include_once ('./'. CHURCHDB. '/churchdb_db.inc');
+      include_once ('./'. CHURCHDB. '/churchdb_db.php');
       $res["mygroups"] = churchdb_getMyGroups($user->id, false, false);
       foreach ($res["mygroups"] as $g) {
         if (!isset($g->status_no)|| (($g!= null)&& ($g->members_allowedmail_eachother_yn== 0)&& ($g->status_no!= 1)&&
@@ -27,7 +27,7 @@ class CTHomeModule extends CTAbstractModule {
       }
     }
     if (in_array("churchcal", $modules)) {
-      include_once ('./'. CHURCHCAL. '/churchcal_db.inc');
+      include_once ('./'. CHURCHCAL. '/churchcal_db.php');
       $res["meetingRequests"] = churchcal_getMyMeetingRequest();
     }
     return $res;
@@ -40,7 +40,7 @@ class CTHomeModule extends CTAbstractModule {
    * @return array
    */
   public function updateEventService($params) {
-    include_once ('./'. CHURCHSERVICE. '/churchservice_ajax.inc');
+    include_once ('./'. CHURCHSERVICE. '/churchservice_ajax.php');
     return churchservice_updateEventService($params);
   }
 
@@ -86,7 +86,7 @@ class CTHomeModule extends CTAbstractModule {
    */
   public function sendEMail($params) {
     global $user;
-    include_once ('./'. CHURCHDB. '/churchdb_db.inc');
+    include_once ('./'. CHURCHDB. '/churchdb_db.php');
     $groups = churchdb_getMyGroups($user->id, true, false);
     if (empty($groups[$params["groupid"]])) throw new CTException("Group is not allowed!");
     $ids = churchdb_getAllPeopleIdsFromGroups(array ($params["groupid"]
@@ -100,7 +100,7 @@ class CTHomeModule extends CTAbstractModule {
    * @param array $params
    */
   public function updateMeetingRequest($params) {
-    include_once (CHURCHCAL. '/churchcal_db.inc');
+    include_once (CHURCHCAL. '/churchcal_db.php');
     churchcal_updateMeetingRequest($params);
   }
 
