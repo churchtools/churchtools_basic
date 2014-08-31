@@ -374,6 +374,10 @@
   
   <entry key="no.permisson.to.export.facts">Keine Berechtigung zum Exportieren von Faktendaten (edit facts)</entry>
   
+  <!-- churchresource -->
+  <entry key="edit.masterdata">Stammdaten editieren</entry>
+  <entry key="view.modulname">{0} sehen</entry> <!-- TODO: use it for all similar texts -->
+  
   <!-- forms --> 
   <entry key="again.please">Nochmal bitte...</entry>
   

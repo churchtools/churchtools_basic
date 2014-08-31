@@ -369,6 +369,10 @@
   
   <entry key="no.permisson.to.export.facts">No permission to export fact data (edit facts)</entry>
   
+  <!-- churchresource -->
+  <entry key="edit.masterdata">edit masterdata</entry>
+  <entry key="view.modulname">view {0}</entry> <!-- TODO: use it for all similar texts -->
+  
   <!-- forms --> 
   <entry key="again.please">Again please ...</entry>
   
