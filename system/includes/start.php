@@ -190,30 +190,7 @@ function loadUserObjectInSession() {
 }
 
 /**
- * Get the base url from the server
- * original function, renamed
- *
- * @return string
- */
-// function getBaseUrl_() {
-//   $base_url = $_SERVER['HTTP_HOST'];  // churchtools.de
-//   $b = $_SERVER['REQUEST_URI'];       // /index.php?q=home
-//   if (strpos($b, "/index.php") !== false) $b = substr($b, 0, strpos($b, "/index.php")); // remove index.php
-//   if (strpos($b, "?") !== false) $b = substr($b, 0, strpos($b, "?"));                   //remove query string
-//   $base_url = $base_url . $b;         // churchtools.de/
-//   if ($base_url[strlen($base_url) - 1] != "/") $base_url .= "/";
-//   if ((isset($_SERVER['HTTPS'])) && ($_SERVER['HTTPS'] != false)) $base_url = "https://" . $base_url;
-//   else $base_url = "http://" . $base_url;
-  
-//   echo 'Host '. $_SERVER['HTTP_HOST'];
-//   echo '; Request '. $_SERVER['REQUEST_URI'];
-//   echo '; Query '. $_SERVER['QUERY_STRING'];
-  
-//   return $base_url;
-// }
-
-/**
- * Get the base url in form of http(s)://churchtools.de/
+ * Get the base url in form of http(s)://subdomain.churchtools.de/ or http(s)://server.de/churchtools/
  * 
  * TODO: check if the function works correct 
  * if the values is always like http(s)://churchtools.de/ this could be achieved with $_SERVER['HTTP_HOST'] 
@@ -223,11 +200,12 @@ function loadUserObjectInSession() {
  */
 function getBaseUrl() {
   // get path part from requested url and remove index.php
-  $baseUrl = str_replace('index.php', '', parse_url($_SERVER['HTTP_HOST']. $_SERVER['REQUEST_URI'], PHP_URL_PATH));
+  $baseUrl = str_replace('index.php', '', parse_url($_SERVER['HTTP_HOST']. $_SERVER['REQUEST_URI'], PHP_URL_PATH));  
+  // add hostname
+  $baseUrl = $_SERVER['HTTP_HOST'] . $baseUrl;
   // add http(s):// and assure a single trailing /
   $baseUrl = (!empty($_SERVER['HTTPS']) ? "https://" : "http://"). trim($baseUrl, '/') . '/';
   
-//  echo " ::: URL: $baseUrl ::: ";
   return $baseUrl;
 }
 
