@@ -43,15 +43,15 @@ function churchauth_main() {
   drupal_add_js(createI18nFile("churchcore"));
   
   $content = '
-<div class=\"row-fluid\">
-  <div class=\"span3\">
-    <div id=\"cdb_menu\"></div>
-    <div id=\"cdb_filter\"></div>
+<div class="row-fluid">
+  <div class="span3">
+    <div id="cdb_menu"></div>
+    <div id="cdb_filter"></div>
   </div>
-  <div class=\"span9\">
-    <div id=\"cdb_search\"></div>
-    <div id=\"cdb_group\"></div>
-    <div id=\"cdb_content\"></div>
+  <div class="span9">
+    <div id="cdb_search"></div>
+    <div id="cdb_group"></div>
+    <div id="cdb_content"></div>
   </div>
 </div>';
   

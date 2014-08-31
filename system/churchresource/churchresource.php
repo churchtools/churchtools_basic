@@ -132,7 +132,7 @@ function churchresource_getCurrentBookings() {
         
         foreach ($arr as $val) {
           $txt.="<li><p><a href=\"?q=churchresource&id=".$val["id"]."\">".$val["text"]."</a> ";
-          if ($val["repeat_id"]>0) $txt.='<img title="Serie startet vom '.$val["startdate"]->format('d.m.Y H:i').'" src=CHURCHRESOURCE."/images/recurring.png" width="16px"/> ';        
+          if ($val["repeat_id"]>0) $txt.='<img title="Serie startet vom '.$val["startdate"]->format('d.m.Y H:i').'" src="'.CHURCHRESOURCE.'/images/recurring.png" width="16px"/> ';        
           $txt.="(".$resources[$val["resource_id"]]->bezeichnung.")<br/><small>".$val["realstart"]->format('d.m.Y H:i')." ".$val["person_name"]."</small><br/>";
         }
         if ($txt!="") 

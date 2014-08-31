@@ -1222,7 +1222,7 @@ function getServiceGroupsFromEvents(event_ids) {
   if (event_ids==null) return null;
   var servicegroups=new Array();
   $.each(event_ids, function(k,event_id) {
-    if (allEvents[event_id].services) {
+    if (allEvents[event_id] && allEvents[event_id].services) {
       $.each(allEvents[event_id].services, function(s, service) {
         if (service.valid_yn==1) { 
           if (servicegroups[masterData.service[service.service_id].servicegroup_id]==null)

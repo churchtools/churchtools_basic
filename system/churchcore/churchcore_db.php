@@ -1101,7 +1101,7 @@ function churchcore_sendMails($maxmails=10) {
  * 
  * @return string, login string
  */
-function churchcore_createPersonLoginStr(int $id) {
+function churchcore_createOnTimeLoginKey($id) {
   $loginstr=random_string(60);
   db_query("update {cdb_person} set loginstr='1' where id=$id and loginstr is null");
   db_query("insert into {cc_loginstr} (person_id, loginstr, create_date) 

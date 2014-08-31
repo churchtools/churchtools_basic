@@ -249,9 +249,9 @@ function churchdb_getMyGroups($user_pid, $only_ids = false, $onlyIAmLeader = fal
       if ($auth != null) {
         $res = db_query("SELECT g.* FROM {cdb_gruppe} g WHERE g.id in (" . implode(",", $auth) . ")");
         foreach ($res as $a) if (!isset($arrs[$a->id])) {
-            if ($only_ids) $arrs[$a->id] = $a->id;
-            else $arrs[$a->id] = $a;
-          }
+          if ($only_ids) $arrs[$a->id] = $a->id;
+          else $arrs[$a->id] = $a;
+        }
       }
     }
   }
@@ -261,9 +261,13 @@ function churchdb_getMyGroups($user_pid, $only_ids = false, $onlyIAmLeader = fal
                            WHERE g.distrikt_id=pd.distrikt_id AND pd.person_id=$user_pid");
   foreach ($res as $a) {
     if (!isset($arrs[$a->id])) {
-      if ($only_ids) $arrs[$a->id] = $a->id;
-      else $a->status_no = 2;
-      $arrs[$a->id] = $a;
+      if ($only_ids) {
+        $arrs[$a->id] = $a->id;
+      }
+      else {
+        $a->status_no = 2;
+        $arrs[$a->id] = $a;
+      }
     }
     
     // TODO: is this the same and better to read?
@@ -277,9 +281,13 @@ function churchdb_getMyGroups($user_pid, $only_ids = false, $onlyIAmLeader = fal
                            WHERE g.gruppentyp_id=pd.gruppentyp_id AND pd.person_id=$user_pid");
   foreach ($res as $a) {
     if (!isset($arrs[$a->id])) {
-      if ($only_ids) $arrs[$a->id] = $a->id;
-      else $a->status_no = 2;
-      $arrs[$a->id] = $a;
+      if ($only_ids) {
+        $arrs[$a->id] = $a->id;
+      }
+      else {
+        $a->status_no = 2;
+        $arrs[$a->id] = $a;
+      }
     }
   }
   return $arrs;
@@ -779,7 +787,7 @@ function getBirthdayList($diff_from, $diff_to) {
     $resDepartments = db_query($sqlDepartment, array (":p_id" => $p->person_id));
     $bereich="";
     foreach ($resDepartments as $department) $bereich .= $department->bezeichnung. "<br/>";
-    $arr->bereich=$bereich;
+    $p->bereich=$bereich;
 //     //TODO: maybe use this instead
 //     $bereich=array();
 //     foreach ($resDepartments as $department) $bereich[] = $department->bezeichnung;

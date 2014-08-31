@@ -1043,7 +1043,7 @@ function churchdb__mailviewer() {
   foreach ($res as $arr) {
     $txt.="<tr><td>";
     if ($arr->send_date!=null) {
-      if ($arr->error==0) $txt.='<img title="'.$arr->send_date.'" style="max-width:20px;" src="'.CHURCHCORE.'"/images/check-64.png"/>';
+      if ($arr->error==0) $txt.='<img title="'.$arr->send_date.'" style="max-width:20px;" src="'.CHURCHCORE.'/images/check-64.png"/>';
       else $txt.='<img title="'.$arr->send_date.'" style="max-width:20px;" src="'.CHURCHCORE.'"/images/delete_2.png"/>';
     }
     $txt.="<td>$arr->modified_date<td>$arr->receiver<td>$arr->sender<td><a href=\"?q=churchdb/mailviewer&id=$arr->id\">$arr->subject</a>";

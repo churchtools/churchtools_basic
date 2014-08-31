@@ -326,13 +326,13 @@
   <entry key="person.found.and.request.sent">Person was found and request sent!</entry>
   <entry key="request.by.form">Request by form</entry>
   <entry key="request.quitting.by.form">Ending membership was requested by form</entry>
-  <entry key="membership.requested.by.form.leader.will.be.informed">Membership for <i>{0}</i> is applied, the leader will be informed. Thank you!</entry>
-  <entry key="membership.marked.for.deleting">Membership for <i>{0}</i> was marked for deletion.</entry>
+  <entry key="membership.requested.by.form.leader.will.be.informed">Membership for &lt;i&gt;{0}&lt;/i&gt; is applied, the leader will be informed. Thank you!</entry>
+  <entry key="membership.marked.for.deleting">Membership for &lt;i&gt;{0}&lt;/i&gt; was marked for deletion.</entry>
   <entry key="error.quitting.membership">Group membership could not be deleted.</entry>
   <entry key="cron.error.subscribing.on.mailchimp">CRON - Error subscribing for MailChimp</entry>
   <entry key="username.not.available.ask.admin">The username {0} ist alread in use, please ask an administrator!</entry>
   <entry key="person.already.has.an.username.ask.admin">This user already has an username! Please ask an adminstrator!</entry>
-  <entry key="invitation.email.standard.text">'You are invited to use {0}.<p>Clicke on the following button, to log in the page and choose a password:</p>'</entry>
+  <entry key="invitation.email.standard.text">You are invited to use {0}.&lt;p&gt;Clicke on the following button, to log in the page and choose a password:&lt;/p&gt;</entry>
   <entry key="no.sms.sent.person.has.no.mobile.number">No sms was send for Person has no mobile number stored!</entry>
   <entry key="email.already.used.you.need.more.rights.to.change.this">This email address is already in use. To save an used email you need more permissions.</entry>
   
