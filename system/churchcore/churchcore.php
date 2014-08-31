@@ -8,9 +8,16 @@
  *
  * ChurchCore Module
  * No depencies, but all other modules depend on this.
+ * 
+ * included by churchservice.php, chuchwiki.php
  *
  */
 
+/**
+ * TODO: not used? 
+ * 
+ * @return array $cc_auth
+ */
 function churchcore_getAuth() {
   $cc_auth = array();
   $cc_auth=addAuth($cc_auth, 1, 'administer settings', "churchcore", null, 'Admin-Einstellungen anpassen', 1);
@@ -20,6 +27,9 @@ function churchcore_getAuth() {
   return $cc_auth;
 }
 
+/**
+ * @return array with mime types (filetypes as keys)
+ */
 function getMimeTypes() {
   return array("323" => "text/h323",
   "acx" => "application/internet-property-stream",
@@ -210,9 +220,12 @@ function getMimeTypes() {
   "zip" => "application/zip");
 }
 
+/**
+ * Return an CT file for download
+ */
 function churchcore__filedownload() {
   global $files_dir;
-  include_once("system/churchcore/churchcore_db.inc");
+  include_once(CHURCHCORE."/churchcore_db.php");
   $mime_types=getMimeTypes();
      
   $file=db_query("select * from {cc_file} f where f.id=:id and filename=:filename", 
@@ -221,7 +234,7 @@ function churchcore__filedownload() {
   
   $handle = fopen($filename, "rb");
   if ($handle==false) {
-    echo "Datei konnte nicht gefunden werden!";
+    echo "Die Datei konnte nicht gefunden werden!";
   }
   else {    
     $contents = fread($handle, filesize($filename));
@@ -241,7 +254,11 @@ function churchcore__filedownload() {
   }  
 }
 
-
+/**
+ * view log
+ * 
+ * TODO: maybe the html should be in a sort of template? 
+ */
 function churchcore__logviewer() {
   
   if (!user_access("view logfile","churchcore")) { 

@@ -7,7 +7,7 @@ function do_cron() {
   $btns= churchcore_getModulesSorted(false, false);
   
   foreach ($btns as $key) {
-    include_once("system/$key/$key.php");
+    include_once(constant(strtoupper($key))."/$key.php");
     if (function_exists($key."_cron")) {
       if ((isset($config[$key."_name"])) && ($config[$key."_name"]!=""))
         $arr=call_user_func($key."_cron");
@@ -45,7 +45,7 @@ function cron_main() {
         db_query("insert into {cc_config} (name, value) values ('last_cron', UNIX_TIMESTAMP())");
     }  
     header('Content-Type: image/jpeg');
-    echo file_get_contents('system/assets/img/1x1.png');
+    echo file_get_contents(ASSETS.'/img/1x1.png');
   }
   else {
     do_cron();    

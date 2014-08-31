@@ -21,7 +21,6 @@ function _simulateUser($res) {
 }
 
 function simulate_main() {
-  include_once("system/includes/forms.php");
   
   if (isset($_SESSION["simulate"])) {
     $user=churchcore_getPersonById($_SESSION["simulate"]);
@@ -43,7 +42,7 @@ function simulate_main() {
       return "";
     }
   }
-  $model = new CC_Model("SimulateUserForm", "prooveEmail");
+  $model = new CTForm("SimulateUserForm", "prooveEmail");
   $model->setHeader("Benutzer simulieren", t("simulate.information.text")." ".t("please.enter.valid.email").":");    
   $model->addField("email","", "EMAIL","EMail");
   $model->addButton("Simulieren","ok");

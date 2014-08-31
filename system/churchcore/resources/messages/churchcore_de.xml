@@ -51,12 +51,9 @@
   
   
   <!-- AUTH -->
-  <entry key="not.␣">Nicht vorhanden!</entry>
+  <entry key="not.existent">Nicht vorhanden!</entry>
   <entry key="no.sufficient.permission">Keine ausreichende Berechtigung. Das Recht {0} ist notwendig.</entry>
-  <entry key=""></entry>
-  <entry key=""></entry>
-  <entry key=""></entry>
-  
+
   <!-- ABOUT -->
   <entry key="permissions">Berechtigungen</entry>  
   <entry key="current.permissions">Aktuelle Berechtigungen</entry>  
@@ -164,10 +161,12 @@
   <entry key="mrs.">Frau</entry>
   <entry key="who.is.online">Wer ist online?</entry>
   <entry key="no.entry.found">Keinen Eintrag gefunden.</entry>
-  <entry key="admin.my.membership">Meine Teilnahme verwalten</entry>
+  <entry key="manage.my.membership">Meine Teilnahme verwalten</entry>
   <entry key="todos.in">Aufgaben in {0}</entry>
   <entry key="apply.for.group.membership">Hier kannst Du eine Teilnahme beantragen</entry>
   <entry key="quit.group.membership">Hier kannst Du eine Teilnahme beenden</entry>
+  <entry key="error.requesting.group.membership">Gruppenteilnahme konnte nicht beantragt werden.</entry>
+  
   <entry key="last.x.days">Letzten {0} Tage</entry>
   <entry key="next.x.days">Nächsten {0} Tage</entry>
   <entry key="your.pending.service.requests">Deine offenen Dienstanfragen</entry>
@@ -274,7 +273,7 @@
   <entry key="comments">Kommentare</entry>
   <entry key="please.comment">Gerne kommentieren</entry>
   <entry key="change">wechseln</entry>
-  <entry key="rename">Umbennnen</entry>
+  <entry key="rename">Umbenennen</entry>
   <entry key="download">Herunterladen</entry>
   <entry key="sum">Summe</entry>
   <entry key="id">Id</entry>
@@ -299,11 +298,89 @@
   <!-- 2014-07-23 -->
   <entry key="query">Abfrage</entry>
   <entry key="report">Bericht</entry>
-  <entry key="german">Deutsch</entry>
+  <entry key="german">Deutsch</entry> <!-- TODO: no need to translate language names, should be always in the respective language ;-)  -->
   <entry key="english">Englisch</entry>
   <entry key="french">Französisch</entry>
   <entry key="select.language">Sprache auswählen</entry>
   <entry key="please.select.your.language">Bitte wähle Deine gewünschte Sprache</entry>
   <entry key="close">Schliessen</entry>
       
+  <!-- file upload -->
+  <entry key="uploaddircetdory.not.writable">Serverfehler. Das upload Directory ist nicht beschreibbar.</entry>
+  <entry key="no.uploaded.files">Es wurden keine Dateien hochgeladen.</entry>
+  <entry key="file.is.empty">Die Datei ist leer.</entry>
+  <entry key="file.is.to.large">Die Datei ist zu groß.</entry>
+  <entry key="invalid.fileextension.should.be.one.of.this">Die Datei hat eine ungültige Erweiterung. Erlaubt sind folgende: {0}'</entry>
+  <entry key="could.not.save.for.file.upload.canceled.or.server.error">Die hochgeladene Datei konnte nicht gespeichert werden (Das Hochladen wurde abgebrochen oder es trat ein Serverfehler auf).</entry>
+
+  <!-- churchdb --> 
+  <entry key="request.to.group">Anfrage zur Gruppe {0}.</entry>
+  <entry key="surname">Vorname</entry>
+  <entry key="name">Name</entry>
+  <entry key="email">E-Mail</entry>
+  <entry key="phone">Telefon</entry>
+  <entry key="comment">Kommentar</entry>
+  <entry key="form.request.to.group">Formular-Anfrage zur Gruppe {0}</entry>
+  <entry key="could.not.find.group.leader.please.try.other.ways">Leider konnte kein Gruppenleiter gefunden werden. Bitte versuchen Sie es auf einem anderen Weg!</entry>
+  <entry key="email.send.to">Es wurde eine E-Mail an {0} gesendet!</entry>
+  <entry key="unknown.call">Unbekannter Aufruf: {0}</entry>
+  <entry key="hello.name">Hallo {0}!</entry>
+  <entry key="request.by.external.mapview">Anfrage über externe MapView</entry>
+  <entry key="request.changed.by.external.mapview">Anfrage über externe MapView</entry>
+  <entry key="person.found.and.request.sent">Person wurde gefunden und Anfrage gesendet!</entry>
+  <entry key="request.by.form">Anfrage über Formular</entry>
+  <entry key="request.quitting.by.form">Beendigung angefragt über Formular</entry>
+  <entry key="membership.requested.by.form.leader.will.be.informed">Die Teilnahme an <i>{0}</i> ist nun beantragt, der Leiter wird informiert. Vielen Dank!</entry>
+  <entry key="membership.marked.for.deleting">Die Teilnahme an <i>{0}</i> wurde zum Löschen markiert.</entry>
+  <entry key="error.quitting.membership">Gruppenteilnahme konnte nicht beendet werden.</entry>
+  <entry key="username.not.available.ask.admin">Der Usernamen {0} ist schon vergeben, bitte wende Dich an den Administrator!</entry> <!-- TODO:lieber "wähle einen anderen" statt fragen? -->
+  <entry key="person.already.has.an.username.ask.admin">Diese Person hat schon einen Usernamen! Bitte wende Dich an einen Adminstrator!</entry>
+  <entry key="invitation.email.standard.text">'Du wurdest zur Nutzung von {0} eingeladen.<p>Klicke auf die folgende Schaltfläche, um Dich direkt dort anzumelden und um Dein Passwort zu wählen:</p>'</entry>
+
+  <entry key="no.sms.sent.person.has.no.mobile.number">Keine SMS gesendet, Person hat keine Handynummer gespeichert!</entry>
+  <entry key="email.already.used.you.need.more.rights.to.change.this">Die E-Mail-Adresse ist schon vergeben. Um eine vergebene E-Mail-Adresse zu setzen werden mehr Rechte gebraucht.</entry>
+
+  <!-- churchservice -->
+  <entry key="no.rights.to.add.or.remove.service">Not enough rights in addOrRemoveServiceToEvent: </entry> <!-- needed? -->
+  
+  <entry key="surname.name.has.approved.name.for.service.x.for.date.event">{0} {1} hat den Dienst {2} für  {3} {4} zugesagt.</entry>
+  <entry key="surname.name.has.approved.a.request">hat eine Anfrage zugesagt</entry>
+  <entry key="surname.name.has.proposed.name.for.service.x.for.date.event">{0} {1} hat für den Dienst {2} für {3} {4} {5} vorgeschlagen.</entry>
+  <entry key="surname.name.has.proposed.someone">hat jemanden vorgeschlagen</entry>
+  <entry key="surname.name.has.canceled.the.service.x.for.date.event">{0} {1} hat den Dienst {2} für  {3} {4} abgesagt.</entry>
+  <entry key="surname.name.has.canceled.a.request">{0} {1} hat eine Anfrage abgesagt</entry>
+  <entry key="please.specify.id">Bitte id angeben.</entry>
+  <entry key="file.not.found.in.DB">Datei nicht in der Datenbank gefunden!</entry>
+  <entry key="file.could.not.be.copied.to.x">Datei konnte nicht nach {0} kopiert werden!</entry>
+  
+  <!-- churchservice auth -->
+  <entry key="view.churchservice">ChurchService sehen</entry>
+  <entry key="view.servicegroup.churchservice.cs_servicegroup">Dienstanfragen einzelner Service-Gruppe einsehen</entry>
+  <entry key="edit.servicegroup.churchservice.cs_servicegroup">Dienstanfragen einzelner Service-Gruppe editieren</entry>
+  <entry key="view.history.churchservice">Historie der Anfragen anschauen</entry>
+  <entry key="edit.events.churchservice">Events erstellen, löschen, etc.</entry>
+  <entry key="edit.template.churchservice">Event-Vorlagen editieren</entry>
+  <entry key="manage.absent.churchservice">Abwesenheiten für alle Personen einsehen und pflegen</entry>
+  <entry key="view.facts.churchservice">Fakten sehen</entry>
+  <entry key="edit.facts.churchservice">Fakten einpflegen</entry>
+  <entry key="export.facts.churchservice">Fakten exportieren</entry>
+  <entry key="view.agenda.churchservice.cc_calcategory">Ablaufpläne für einzelne Kalender sehen</entry>
+  <entry key="edit.agenda.churchservice.cc_calcategory">Ablaufpläne für einzelne Kalender editieren</entry>
+  <entry key="edit.agenda.templates.churchservice.cc_calcategory">Ablaufplan-Vorlagen für einzelne Kalender editieren</entry>
+  <entry key="view.songcategory.churchservice.cs_songcategory">Einzelne Song-Kategorien einsehen</entry>
+  <entry key="view.song.churchservice">Songs anschauen und Dateien herunterladen</entry>
+  <entry key="edit.song.churchservice">Songs editieren und Dateien hochladen</entry>
+  <entry key="edit.masterdata.churchservice">Stammdaten editieren</entry>
+  
+  <entry key="no.permisson.to.export.facts">Keine Berechtigung zum Exportieren von Faktendaten (edit facts)</entry>
+  
+  <!-- forms --> 
+  <entry key="again.please">Nochmal bitte...</entry>
+  
+  <!-- Admin preferences TODO: needed for js --> 
+  <entry key="add.to.menu">{0} im Menu aufführen</entry>
+  <entry key="show.as.button.on.home">{0} auf der Startseite als Button anzeigen</entry>
+  <entry key="sortnumber.in.menu">Sortierungsnummer im Menu (sortcode)</entry>
+  <entry key=""></entry>
+
 </properties>

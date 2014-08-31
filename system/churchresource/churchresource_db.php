@@ -1,6 +1,6 @@
 <?php
 
-include_once('./'. drupal_get_path('module', 'churchresource') .'/../churchcore/churchcore_db.inc');
+include_once('./'. CHURCHRESOURCE .'/../churchcore/churchcore_db.php');
 
 /**
  * 
@@ -53,7 +53,7 @@ function churchresource_createBooking($params) {
   $info=churchcore_getTableData("cr_resource");
   $txt="Hier sind alle Buchungsinformationen zusammengefasst:<p><small>";
   $txt.='<table class="table table-condensed">';
-  $txt.="<tr><td>Bezeichnung<td>$res->text";
+  $txt.="<tr><td>Zweck<td>$res->text";
   $txt.="<tr><td>Ressource<td>".$info[$params["resource_id"]]->bezeichnung;
   $txt.="<tr><td>Start<td>".churchcore_stringToDateDe($res->startdate);
   $txt.="<tr><td>Ende<td>".churchcore_stringToDateDe($res->enddate);
@@ -136,7 +136,7 @@ function churchresource_updateBooking($params, $changes=null) {
   
   $old_arr=getBooking($params["id"]);
   $buser=churchcore_getPersonById($old_arr->person_id);
-  $ressources=churchcore_getTableDataSorted("cr_resource","resourcetype_id,sortkey,bezeichnung");
+  $ressources=churchcore_getTableData("cr_resource","resourcetype_id,sortkey,bezeichnung");
   
   $i=new CTInterface();
   $i->setParam("resource_id");

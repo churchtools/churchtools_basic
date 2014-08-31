@@ -34,9 +34,8 @@ function prooveOldPassword($form) {
 }
 
 function profile_main() {
-  include_once("system/includes/forms.php");
 
-  $model = new CC_Model("PasswortChangeForm", "prooveOldPassword");
+  $model = new CTForm("PasswortChangeForm", "prooveOldPassword");
   if ($_SESSION["user"]->password!=null) { 
     $model->setHeader(t("change.password"), t("to.change.password.complete.following.fields"));
     $model->addField("password","", "PASSWORD",t("old.password"));

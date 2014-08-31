@@ -8,10 +8,10 @@
     <meta name="author" content="">
 
 	
-    <link href="system/assets/ui/custom-theme/jquery-ui-1.10.3.custom.css" rel="stylesheet">
-    <link href="system/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <!--  link href="system/assets/ui/jquery-ui-1.8.18.custom.css" rel="stylesheet"-->
-    <link href="system/includes/churchtools.css" rel="stylesheet">
+    <link href="<?=ASSETS?>/ui/custom-theme/jquery-ui-1.10.3.custom.css" rel="stylesheet">
+    <link href="<?=BOOTSTRAP?>/css/bootstrap.min.css" rel="stylesheet">
+    <!--  link href="<?=ASSETS?>/ui/jquery-ui-1.8.18.custom.css" rel="stylesheet"-->
+    <link href="<?=INCLUDES?>/churchtools.css" rel="stylesheet">
     
    <?php if (!$embedded) {?>
     <style>
@@ -22,30 +22,30 @@
     </style>
    <?php } ?>
 
-  <link href="system/bootstrap/css/bootstrap-responsive.min.css" rel="stylesheet">
+  <link href="<?=BOOTSTRAP?>/css/bootstrap-responsive.min.css" rel="stylesheet">
    <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-<script src="system/assets/js/jquery-1.10.2.min.js"></script>
-<script src="system/assets/js/jquery-migrate-1.2.1.min.js"></script>
+<script src="<?=ASSETS?>/js/jquery-1.10.2.min.js"></script>
+<script src="<?=ASSETS?>/js/jquery-migrate-1.2.1.min.js"></script>
 
-<script src="system/churchcore/shortcut.js"></script>
-<script src="system/assets/ui/jquery.ui.core.min.js"></script>
-<script src="system/assets/ui/jquery.ui.position.min.js"></script>
-<script src="system/assets/ui/jquery.ui.widget.min.js"></script>
-<script src="system/assets/ui/jquery.ui.menu.min.js"></script>
-<script src="system/assets/ui/jquery.ui.autocomplete.min.js"></script>
-<script src="system/assets/ui/jquery.ui.datepicker.min.js"></script>
-<script src="system/assets/ui/jquery.ui.dialog.min.js"></script>
-<script src="system/assets/ui/jquery.ui.mouse.min.js"></script>
-<script src="system/assets/ui/jquery.ui.draggable.min.js"></script>
-<script src="system/assets/ui/jquery.ui.droppable.min.js"></script>
-<script src="system/assets/ui/jquery.ui.sortable.min.js"></script>
-<script src="system/assets/ui/jquery.ui.resizable.min.js"></script>
-<script src="system/churchcore/churchcore.js"></script>
-<script src="system/churchcore/churchforms.js"></script>
-<script src="system/churchcore/cc_interface.js"></script>
+<script src="<?=CHURCHCORE?>/shortcut.js"></script>
+<script src="<?=ASSETS?>/ui/jquery.ui.core.min.js"></script>
+<script src="<?=ASSETS?>/ui/jquery.ui.position.min.js"></script>
+<script src="<?=ASSETS?>/ui/jquery.ui.widget.min.js"></script>
+<script src="<?=ASSETS?>/ui/jquery.ui.menu.min.js"></script>
+<script src="<?=ASSETS?>/ui/jquery.ui.autocomplete.min.js"></script>
+<script src="<?=ASSETS?>/ui/jquery.ui.datepicker.min.js"></script>
+<script src="<?=ASSETS?>/ui/jquery.ui.dialog.min.js"></script>
+<script src="<?=ASSETS?>/ui/jquery.ui.mouse.min.js"></script>
+<script src="<?=ASSETS?>/ui/jquery.ui.draggable.min.js"></script>
+<script src="<?=ASSETS?>/ui/jquery.ui.droppable.min.js"></script>
+<script src="<?=ASSETS?>/ui/jquery.ui.sortable.min.js"></script>
+<script src="<?=ASSETS?>/ui/jquery.ui.resizable.min.js"></script>
+<script src="<?=CHURCHCORE?>/churchcore.js"></script>
+<script src="<?=CHURCHCORE?>/churchforms.js"></script>
+<script src="<?=CHURCHCORE?>/cc_interface.js"></script>
 <script> <?php
   echo "var settings=new Object();"; 
   echo "settings.files_url=\"$base_url$files_dir\";"; 
@@ -62,11 +62,11 @@
 ?></script>
 <script src="<?php echo createI18nFile("churchcore"); ?>"></script>
 
- <link rel="shortcut icon" href="system/assets/ico/favicon.ico">
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="system/assets/ico/apple-touch-icon-144-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="system/assets/ico/apple-touch-icon-114-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="system/assets/ico/apple-touch-icon-72-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" href="system/assets/ico/apple-touch-icon-57-precomposed.png">
+ <link rel="shortcut icon" href="<?=ASSETS?>/ico/favicon.ico">
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="<?=ASSETS?>/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="<?=ASSETS?>/ico/apple-touch-icon-114-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="<?=ASSETS?>/ico/apple-touch-icon-72-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" href="<?=ASSETS?>/ico/apple-touch-icon-57-precomposed.png">
     <?php echo $add_header; ?>
 </head>
 
@@ -161,14 +161,14 @@
                   <?php
                     $arr=churchcore_getModulesSorted();
                     foreach ($arr as $key) {
-                      if ((isset($config[$key."_name"])) && (isset($config[$key."_inmenu"])) && ($config[$key."_inmenu"]=="1") 
-                             && ((user_access("view", $key)) || (in_array($key,$mapping["page_with_noauth"])))) {
+                      if (readConf($key."_name") && readConf($key."_inmenu")=="1"  &&
+                            (user_access("view", $key) || in_array($key, $mapping["page_with_noauth"]))) {
                         echo "<li ";
                         if ($q==$key) echo 'class="active"';
                         echo '><a href="?q='.$key.'">';
                         echo $config[$key."_name"];
-                        echo "</a></li>";
-                      }                      
+                        echo "</a></li>".NL;
+                      }                     
                     }  
                    ?>                  
                 </ul>

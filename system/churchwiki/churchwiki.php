@@ -12,8 +12,8 @@
  */
 
 
-function churchwiki_getAdminModel() {
-  $model = new CC_ModulModel("churchwiki");      
+function churchwiki_getAdminForm() {
+  $model = new CTModuleForm("churchwiki");      
   return $model;
 }
 
@@ -85,94 +85,10 @@ function churchwiki_cron() {
 }
 
 function churchwiki__filedownload() {
-  include_once("system/churchcore/churchcore.php");
+  include_once(CHURCHCORE."/churchcore.php");
   churchcore__filedownload();  
 }
 
-
-class CTChurchWikiModule extends CTAbstractModule {
-
-  public function getMasterDataTablenames() {
-    $res=array();
-    $res[1]=churchcore_getMasterDataEntry(1, "Wiki-Kategorien", "wikicategory", "cc_wikicategory","sortkey,bezeichnung");
-  
-    return $res;
-  }
-  
-  public function getMasterData() {
-    global $user, $base_url, $files_dir, $config;
-    
-    $data["wikicategory"]=churchcore_getTableData("cc_wikicategory");
-    $data["auth"]=churchwiki_getAuthForAjax();    
-    
-    $data["settings"]=array();
-    $data["masterDataTables"] = $this->getMasterDataTablenames();
-    $data["files_url"] = $base_url.$files_dir;
-    $data["files_dir"] = $files_dir;
-    $data["modulename"] = "churchwiki";
-    $data["modulespath"] = drupal_get_path('module', 'churchwiki');
-    $data["adminemail"] = variable_get('site_mail', '');
-    return $data;   
-  }
-  
-  public function save($params) {
-    global $user;
-    $auth=churchwiki_getAuthForAjax();  
-    if (($auth["edit"]==false) || ($auth["edit"][$params["wikicategory_id"]]!=$params["wikicategory_id"]))
-        throw new CTNoPermission("edit", "churchwiki");
-    $dt = new DateTime();
-    $text=$_POST["val"];
-    if ($text=="") $text=" "; // Save an emtpy string, so I know there is some data
-    $sql="insert into {cc_wiki} (doc_id, version_no, wikicategory_id, text, modified_date, modified_pid)
-      values (:doc_id, :version_no, :wikicategory_id, :text, :modified_date, :modified_pid)";
-    db_query($sql,array(":doc_id"=>$_POST["doc_id"], 
-      ":version_no"=>churchwiki_getCurrentNo($_POST["doc_id"],$_POST["wikicategory_id"])+1, 
-      ":wikicategory_id"=>$_POST["wikicategory_id"],
-      ":text"=>$text, 
-      ":modified_date"=>$dt->format('Y-m-d H:i:s'), 
-      ":modified_pid"=>$user->id), false);                
-  }
-  
-  public function load($params) {
-    $auth=churchwiki_getAuthForAjax();  
-    if (($auth["view"]==false) || ($auth["view"][$params["wikicategory_id"]]!=$params["wikicategory_id"]))
-      throw new CTNoPermission("view", "churchwiki");
-    if (!isset($params["version_no"]))
-      $data=churchwiki_load($params["doc_id"], $params["wikicategory_id"]);
-    else    
-      $data=churchwiki_load($params["doc_id"], $params["wikicategory_id"], $params["version_no"]);
-    return $data;      
-  }
-    
-  public function loadHistory($params) {  
-    $auth=churchwiki_getAuthForAjax();  
-    if (($params["wikicategory_id"]!=0) && (($auth["view"]==false) || ($auth["view"][$params["wikicategory_id"]]!=$params["wikicategory_id"])))
-      throw new CTNoPermission("view", "churchwiki");
-    $data=db_query("select version_no id, 
-      concat('Version ', version_no,' vom ', modified_date, ' - ',p.vorname, ' ', p.name) as bezeichnung from {cc_wiki} w, {cdb_person} p where w.modified_pid=p.id and doc_id=:doc_id and wikicategory_id=:wikicategory_id order by version_no desc",
-          array(':doc_id'=>$params["doc_id"], ":wikicategory_id"=>$params["wikicategory_id"]));
-    $res_data=array();      
-    foreach ($data as $d) {
-      $res_data[$d->id]=$d;
-    }      
-    return $res_data;
-  }
-  
-  public function showonstartpage($params) {
-    $auth=churchwiki_getAuthForAjax();
-    if (($auth["edit"]==false) || ($auth["edit"][$_POST["wikicategory_id"]]!=$_POST["wikicategory_id"]))
-      throw new CTNoPermission("edit", "churchwiki");
-    return churchwiki_setShowonstartpage($params);
-  }
-  
-  public function delFile($params) {
-    return churchcore_delFile($params["id"]);
-  }
-  
-  public function renameFile($params) {
-    return churchcore_renameFile($params["id"], $params["filename"]);
-  }
-}
 
 
 function churchwiki_getAuthForAjax() {
@@ -291,9 +207,8 @@ function churchwiki_blocks() {
       
 
 function churchwiki__create() {
-  include_once("system/includes/forms.php");
 
-  $model = new CC_Model("EditHtml", "editHtml");
+  $model = new CTForm("EditHtml", "editHtml");
   $model->setHeader("Editieren eines Hilfeeintrages", "Hier kann die Hilfe editiert werden.");    
   $model->addField("doc_id", "", "INPUT_REQUIRED","Doc-Id");
   $model->addField("text", "", "TEXTAREA","Text");
@@ -332,27 +247,26 @@ function help_main() {
 
 function churchwiki_main() {
   global $files_dir;
-  include_once("system/includes/forms.php");
 
-  drupal_add_js('system/assets/js/jquery.history.js'); 
+  drupal_add_js(ASSETS.'/js/jquery.history.js'); 
   
-  drupal_add_css('system/assets/fileuploader/fileuploader.css'); 
-  drupal_add_js('system/assets/fileuploader/fileuploader.js'); 
+  drupal_add_css(ASSETS.'/fileuploader/fileuploader.css'); 
+  drupal_add_js(ASSETS.'/fileuploader/fileuploader.js'); 
   
-  drupal_add_js('system/assets/tablesorter/jquery.tablesorter.min.js'); 
-  drupal_add_js('system/assets/tablesorter/jquery.tablesorter.widgets.min.js'); 
+  drupal_add_js(ASSETS.'/tablesorter/jquery.tablesorter.min.js'); 
+  drupal_add_js(ASSETS.'/tablesorter/jquery.tablesorter.widgets.min.js'); 
   
-  drupal_add_js('system/assets/mediaelements/mediaelement-and-player.min.js'); 
-  drupal_add_css('system/assets/mediaelements/mediaelementplayer.css');
+  drupal_add_js(ASSETS.'/mediaelements/mediaelement-and-player.min.js'); 
+  drupal_add_css(ASSETS.'/mediaelements/mediaelementplayer.css');
   
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_abstractview.js'); 
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_standardview.js'); 
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_maintainstandardview.js'); 
+  drupal_add_js(CHURCHCORE .'/cc_abstractview.js'); 
+  drupal_add_js(CHURCHCORE .'/cc_standardview.js'); 
+  drupal_add_js(CHURCHCORE .'/cc_maintainstandardview.js'); 
   
-  drupal_add_js('system/assets/ckeditor/ckeditor.js');
-  drupal_add_js('system/assets/ckeditor/lang/de.js');
-  drupal_add_js('system/churchwiki/wiki_maintainview.js');
-  drupal_add_js('system/churchwiki/churchwiki.js');
+  drupal_add_js(ASSETS.'/ckeditor/ckeditor.js');
+  drupal_add_js(ASSETS.'/ckeditor/lang/de.js');
+  drupal_add_js(CHURCHWIKI.'/wiki_maintainview.js');
+  drupal_add_js(CHURCHWIKI.'/churchwiki.js');
   
   drupal_add_js(createI18nFile("churchcore"));
   drupal_add_js(createI18nFile("churchwiki"));
@@ -380,26 +294,25 @@ function churchwiki_main() {
 
 function churchwiki__printview() {
   global $files_dir;
-  include_once("system/includes/forms.php");
 
-  drupal_add_js('system/assets/js/jquery.history.js'); 
+  drupal_add_js(ASSETS.'/js/jquery.history.js'); 
   
-  drupal_add_css('system/assets/fileuploader/fileuploader.css'); 
-  drupal_add_js('system/assets/fileuploader/fileuploader.js'); 
+  drupal_add_css(ASSETS.'/fileuploader/fileuploader.css'); 
+  drupal_add_js(ASSETS.'/fileuploader/fileuploader.js'); 
   
-  drupal_add_js('system/assets/tablesorter/jquery.tablesorter.min.js'); 
-  drupal_add_js('system/assets/tablesorter/jquery.tablesorter.widgets.min.js'); 
+  drupal_add_js(ASSETS.'/tablesorter/jquery.tablesorter.min.js'); 
+  drupal_add_js(ASSETS.'/tablesorter/jquery.tablesorter.widgets.min.js'); 
   
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/shortcut.js'); 
+  drupal_add_js(CHURCHCORE .'/shortcut.js'); 
   
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_abstractview.js'); 
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_standardview.js'); 
-  drupal_add_js(drupal_get_path('module', 'churchcore') .'/cc_maintainstandardview.js'); 
+  drupal_add_js(CHURCHCORE .'/cc_abstractview.js'); 
+  drupal_add_js(CHURCHCORE .'/cc_standardview.js'); 
+  drupal_add_js(CHURCHCORE .'/cc_maintainstandardview.js'); 
   
-  drupal_add_js('system/assets/ckeditor/ckeditor.js');
-  drupal_add_js('system/assets/ckeditor/lang/de.js');
-  drupal_add_js('system/churchwiki/wiki_maintainview.js');
-  drupal_add_js('system/churchwiki/churchwiki.js');
+  drupal_add_js(ASSETS.'/ckeditor/ckeditor.js');
+  drupal_add_js(ASSETS.'/ckeditor/lang/de.js');
+  drupal_add_js(CHURCHWIKI.'/wiki_maintainview.js');
+  drupal_add_js(CHURCHWIKI.'/churchwiki.js');
   
   $doc_id="main";
   if (isset($_GET["doc"])) $doc_id=$_GET["doc"];
