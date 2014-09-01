@@ -2,6 +2,8 @@
 
 /**
  * upload file
+ * 
+ * TODO: if this is included only to execute churchcore__uploadfile why not remove the surrounding function and include the code only?
  */
 function churchcore__uploadfile() {
   global $files_dir, $config;

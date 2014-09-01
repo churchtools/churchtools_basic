@@ -380,6 +380,10 @@
   <entry key="create.own.bookings">Eigene Buchugsanfragen erstellen</entry>
   <entry key="administer.bookings">Alle Anfragen editieren, ablehnen, etc.</entry>
   <entry key="assistant.mode">Im Auftrag eines anderen Buchungen durchführen</entry>
+
+  <!-- churchwiki -->
+  <entry key="view.wiki.category">Einzelne Wiki-Kategorien sehen</entry>
+  <entry key="edit.wiki.category">Einzelne Wiki-Kategorien editieren</entry>
   <entry key=""></entry>
   
   <!-- forms --> 

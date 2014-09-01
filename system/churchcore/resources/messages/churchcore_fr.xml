@@ -375,6 +375,10 @@
   <entry key="create.own.bookings">create own booking requests</entry>
   <entry key="administer.bookings">edit, refuse, ... all bookings</entry>
   <entry key="assistant.mode">create bookings for others</entry>
+ 
+  <!-- churchwiki -->
+  <entry key="view.wiki.category">view single wiki category</entry>
+  <entry key="edit.wiki.category">edit single wiki category</entry>
   
   <!-- forms --> 
   <entry key="again.please">Again please ...</entry>
