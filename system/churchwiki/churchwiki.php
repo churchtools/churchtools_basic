@@ -200,11 +200,11 @@ function churchwiki_getWikiInfos() {
   if (!$ids) return "";
   
   $res = db_query("SELECT w.wikicategory_id, w.doc_id, wc.bezeichnung, DATE_FORMAT(w.modified_date , '%d.%m.%Y %H:%i') date, 
-                    CONCAT(p.vorname, ' ', p.name) user  
-                  FROM {cc_wiki} w, {cc_wikicategory} wc, {cdb_person} p 
-                  WHERE wikicategory_id in (" . implode(",", $ids) . ") AND w.wikicategory_id=wc.id 
-                    AND w.modified_pid=p.id AND DATEDIFF(NOW(),modified_date)<2 
-                  ORDER BY w.wikicategory_id, modified_date ASC");
+                     CONCAT(p.vorname, ' ', p.name) user  
+                   FROM {cc_wiki} w, {cc_wikicategory} wc, {cdb_person} p 
+                   WHERE wikicategory_id in (" . implode(",", $ids) . ") AND w.wikicategory_id=wc.id 
+                     AND w.modified_pid=p.id AND DATEDIFF(NOW(),modified_date)<2 
+                   ORDER BY w.wikicategory_id, modified_date ASC");
   $arr = array ();
   foreach ($res as $wiki) $arr[$wiki->bezeichnung][$wiki->doc_id] = $wiki;
 
@@ -264,6 +264,11 @@ function churchwiki__create() {
   return $form->render();
 }
 
+/**
+ * edit
+ * @param CTForm $form
+ * TODO: why notu using REPLACE?
+ */
 function editHtml($form) {
   global $user;
   $dt = new DateTime();
@@ -276,7 +281,6 @@ function editHtml($form) {
                    ":pid" => $user->id,
             ));
   ct_log("Aktualisierung Hilfeseite " . $form->fields["doc_id"]->getValue(), 2, "-1", "help");
-  
   header("Location: ?q=churchwiki&doc=" . $form->fields["doc_id"]->getValue());
 }
 

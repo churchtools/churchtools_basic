@@ -390,9 +390,18 @@ function churchtools_main() {
       }
     }
   }
+  // TODO: i changed  header/footer to as sort of template
+  // probably some more logic could be removed from them by setting some more variables here
+  // put header/footer into new file layout.php and add a variable $content
+  $lang = readConf("language");
+  $simulate = readVar("simulate");
+  $sitename = readConf("site_name");
+  if (readConf("test")) $sitename .= " TEST ";
+  if ($logo = readConf("site_logo")) $logo = "$files_dir/files/logo/$logo";
+
   include (INCLUDES . "/header.php");
   echo $content;
-  include (INCLUDES . "/body.php");
+  include (INCLUDES . "/footer.php");
 }
 
 ?>

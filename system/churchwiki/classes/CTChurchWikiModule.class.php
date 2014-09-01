@@ -95,7 +95,7 @@ class CTChurchWikiModule extends CTAbstractModule {
    */
   public function showonstartpage($params) {
     $auth = churchwiki_getAuthForAjax();
-    $wikicategory_id = readVar("wikicategory_id"); //TODO is this integer or string?
+    $wikicategory_id = readVar("wikicategory_id"); 
     if (!$auth["edit"] || $auth["edit"][$wikicategory_id] != $wikicategory_id) throw new CTNoPermission("edit", "churchwiki");
     return churchwiki_setShowonstartpage($params);
   }
