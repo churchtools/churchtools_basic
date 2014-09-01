@@ -370,6 +370,9 @@
   <!-- churchresource -->
   <entry key="edit.masterdata">edit masterdata</entry>
   <entry key="view.modulname">view {0}</entry> <!-- TODO: use it for all similar texts -->
+  <entry key="create.own.bookings">create own booking requests</entry>
+  <entry key="administer.bookings">edit, refuse, ... all bookings</entry>
+  <entry key="assistant.mode">create bookings for others</entry>
   
   <!-- forms --> 
   <entry key="again.please">Again please ...</entry>

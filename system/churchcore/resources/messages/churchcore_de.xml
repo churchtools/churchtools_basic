@@ -377,6 +377,10 @@
   <!-- churchresource -->
   <entry key="edit.masterdata">Stammdaten editieren</entry>
   <entry key="view.modulname">{0} sehen</entry> <!-- TODO: use it for all similar texts -->
+  <entry key="create.own.bookings">Eigene Buchugsanfragen erstellen</entry>
+  <entry key="administer.bookings">Alle Anfragen editieren, ablehnen, etc.</entry>
+  <entry key="assistant.mode">Im Auftrag eines anderen Buchungen durchführen</entry>
+  <entry key=""></entry>
   
   <!-- forms --> 
   <entry key="again.please">Nochmal bitte...</entry>
