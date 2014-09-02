@@ -122,7 +122,7 @@ class qqFileUploader {
       return array ('error' => t('invalid.fileextension.should.be.one.of.this', implode(', ', $this->allowedExtensions)));
     }
     
-    if ($domainType = readConf("domain_type") && $domainId = readConf("domain_id")) {
+    if ($domainType = getConf("domain_type") && $domainId = getConf("domain_id")) {
       $dt = new DateTime();
       $id = db_insert('cc_file')->fields(array (
           "domain_type" => $domainType, 
@@ -139,7 +139,7 @@ class qqFileUploader {
     if ($this->file->save($filename_absolute)) {
       
       // If image should be resized
-      if ($resize = readVar("resize") && $this->check_jpeg($filename_absolute)) {
+      if ($resize = getVar("resize") && $this->check_jpeg($filename_absolute)) {
         list ($width, $height) = getimagesize($filename_absolute);
         if ($width > $height) {
           $new_width = $resize;

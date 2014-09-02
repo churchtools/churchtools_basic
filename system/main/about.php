@@ -7,7 +7,7 @@
 function about_main() {
   global $config;
   
-  if (readVar("consistentcheck")) {
+  if (getVar("consistentcheck")) {
     return check_db_constraints(false);
   }
   
@@ -15,7 +15,7 @@ function about_main() {
       <div class="row-fluid">
       <div class="span3 bs-docs-sidebar">
         <ul id="navlist" class="nav nav-list bs-docs-sidenav affix-top">
-          <li><a href="#log1">' . t("about") . " " . readConf("site_name") . '</a>';
+          <li><a href="#log1">' . t("about") . " " . getConf("site_name") . '</a>';
   if (user_access("administer persons", "churchcore")) $txt .= '
           <li><a href="#log2">' . t("current.permissions") . '</a>
           <li><a href="#log3">' . t("current.config") . '</a>
@@ -23,7 +23,7 @@ function about_main() {
   $txt .= '
       </div>
       <div class="span9">
-        <anchor id="log1"/><h1>' . t("about") . " " . readConf("site_name") . '</h1>
+        <anchor id="log1"/><h1>' . t("about") . " " . getConf("site_name") . '</h1>
         <div class="well">
           <p>' . t("churchtools.claim") . '<br/>'
              . t("read.more") . ': <a href="http://www.churchtools.de" target="_clean">www.churchtools.de</a>
@@ -42,7 +42,7 @@ function about_main() {
         <br>Browser: ' . $_SERVER['HTTP_USER_AGENT']. '
         <br>ChurchTools2.0-Version: ' . $config["version"];
   
-  if ($user = readVar("user", false, $_SESSION)) {
+  if ($user = getVar("user", false, $_SESSION)) {
     $txt .= "
         <p>" . t("logged.in.as", "$user->vorname $user->name [$user->id]") . " - $user->email";
     
@@ -59,7 +59,7 @@ function about_main() {
     if (user_access("administer persons", "churchcore")) {
       $config["password"] = "****";
       $config["encryptionkey"] = "****";
-      if (readConf("mail_pear_args")) $config["mail_pear_args"]["password"] = "****";
+      if (getConf("mail_pear_args")) $config["mail_pear_args"]["password"] = "****";
       
       ob_start();
       print_r($config);
@@ -186,7 +186,7 @@ function about__ajax() {
   global $config, $user;
   $params = $_POST;
   if ($params["func"] == "sendEmailToAdmin") {
-    churchcore_systemmail(readConf("admin_mail", $config["site_mail"]), $params["subject"], $params["text"], true, 1);
+    churchcore_systemmail(getConf("admin_mail", $config["site_mail"]), $params["subject"], $params["text"], true, 1);
     $res = jsend()->success();
   }
   else if ($params["func"] == "amILoggedIn") {

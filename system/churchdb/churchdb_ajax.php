@@ -279,8 +279,8 @@ function createAddress($params) {
   if ((!isset($params["vorname"])) && (isset($params["givenname"]))) $params["vorname"] = $params["givenname"];
   
   $sql = db_query("SELECT count(*) c FROM {cdb_person}")->fetch();
-  if (readConf('churchdb_maxuser', '100000') * 1 <= $sql->c * 1) { //why * 1?
-    $res["result"] = "Maximale Anzahl von Benutzern erreicht. Erlaubt sind ". readConf('churchdb_maxuser', '50');
+  if (getConf('churchdb_maxuser', '100000') * 1 <= $sql->c * 1) { //why * 1?
+    $res["result"] = "Maximale Anzahl von Benutzern erreicht. Erlaubt sind ". getConf('churchdb_maxuser', '50');
     return $res;
   }
 
@@ -442,7 +442,7 @@ function informLeaderAboutNewGroupMember($group_id, $gp_id, $add_text = null) {
       $content .= '<p><p><a class="btn btn-royal" href="'. $base_url. '?q=churchdb#PersonView/searchEntry:'.
            $persons[$gp_id]->p_id. '">Person ansehen</a>';
       
-      churchdb_send_mail("[". readConf('site_name', 'ChurchTools'). "] Neuer Teilnehmer in der Gruppe ".
+      churchdb_send_mail("[". getConf('site_name', 'ChurchTools'). "] Neuer Teilnehmer in der Gruppe ".
            $p->bezeichnung, $content, $p->email);
     }
   }
@@ -472,7 +472,7 @@ function informLeaderAboutEditedGroupMember($group_id, $gp_id, $add_text = null)
       $content .= '<p><p><a class="btn btn-royal" href="'. $base_url. '?q=churchdb#PersonView/searchEntry:'.
            $personen[$gp_id]->p_id. '">Person ansehen</a>';
       
-      churchdb_send_mail("[". readConf('site_name', 'ChurchTools'). "] Teilnehmerstatus in der Gruppe ".
+      churchdb_send_mail("[". getConf('site_name', 'ChurchTools'). "] Teilnehmerstatus in der Gruppe ".
            $val->bezeichnung. " angepasst", $content, $val->email);
     }
   }
@@ -500,7 +500,7 @@ function informLeaderAboutDeletedGroupMember($group_id, $gp_id) {
       $content .= '<p><p><a class="btn btn-royal" href="'. $base_url. '?q=churchdb#PersonView/searchEntry:'.
            $personen[$gp_id]->p_id. '">Person ansehen</a>';
       
-      churchdb_send_mail("[". readConf('site_name', 'ChurchTools'). "] Teilnehmer in der Gruppe ". $val->bezeichnung. " entfernt", $content, $val->email);
+      churchdb_send_mail("[". getConf('site_name', 'ChurchTools'). "] Teilnehmer in der Gruppe ". $val->bezeichnung. " entfernt", $content, $val->email);
     }
   }
 }
@@ -548,7 +548,7 @@ function churchdb_addPersonGroupRelation($p_id, $g_id, $leader, $date, $followup
   $info = getGroupInfo($g_id);
   cdb_log("Neu: $info->gruppentyp $info->gruppe (P$p_id:G$g_id, ". "Leiter". ": $leader)", 2, $gp_id, CDB_LOG_PERSON, 1);
   $automail = chuchdb_sendAutomaticGroupEMail($g_id, $p_id, $leader);
-  if ((readConf('churchdb_sendgroupmails', true)) && ($info->mail_an_leiter_yn == 1)) {
+  if ((getConf('churchdb_sendgroupmails', true)) && ($info->mail_an_leiter_yn == 1)) {
     $txt = "";
     if ($comment) $txt .= '<p>Kommentar: <i>'. $comment. '</i>';
     if ($automail) $txt .= '<p>Eine automatische E-Mail wurde an die Person gesendet: <i>"'. $automail. '"</i>';
@@ -619,7 +619,7 @@ function _churchdb_editPersonGroupRelation($p_id, $g_id, $leader, $date, $follow
   if ($info_rel->status_no != $leader) {
     $automail = chuchdb_sendAutomaticGroupEMail($g_id, $p_id, $leader);
   }
-  if (readConf('churchdb_sendgroupmails', true) && ($info->mail_an_leiter_yn == 1)) {
+  if (getConf('churchdb_sendgroupmails', true) && ($info->mail_an_leiter_yn == 1)) {
     $txt = "";
     if ($comment)  $txt .= '<p>Kommentar: <i>'. $comment. '</i>';
     if ($automail) $txt .= '<p>Eine automatische E-Mail wurde an die Person gesendet: <i>"'. $automail. '"</i>';
@@ -664,7 +664,7 @@ function _churchdb_delPersonGroupRelation($p_id, $g_id) {
     ->execute();
   
   $info = getGroupInfo($g_id);
-  if (readConf('churchdb_sendgroupmails', true) && $info->mail_an_leiter_yn == 1) 
+  if (getConf('churchdb_sendgroupmails', true) && $info->mail_an_leiter_yn == 1) 
     informLeaderAboutDeletedGroupMember($g_id, $gp_id);
   
   db_query("DELETE FROM {cdb_gemeindeperson_gruppe} WHERE gemeindeperson_id=$gp_id AND gruppe_id=$g_id");
@@ -754,7 +754,7 @@ function sendFieldNotifications($field, $txt) {
   $arr = getAllMailNotifys();
   if (isset($arr[$field]) && $txt!= null) {
     $txt = "<p>Information:<p>". $txt. "<p>Anpassungen von $user->cmsuserid";
-    churchdb_send_mail("[". readConf('site_name', 'ChurchTools'). "] Info Anpassungen in $field", $txt, $arr[$field]->emails);
+    churchdb_send_mail("[". getConf('site_name', 'ChurchTools'). "] Info Anpassungen in $field", $txt, $arr[$field]->emails);
   }
 }
 
@@ -876,7 +876,7 @@ function churchdb_getUserSettings($user_pid) {
   $arr = churchcore_getUserSettings("churchdb", $user_pid);
   if (empty($arr["mailerType"])) $arr["mailerType"] = 0;
   if (empty($arr["mailerSeparator"])) {
-    if (readConf('churchdb_emailseparator', ';') == ';') $arr["mailerSeparator"] = 0;
+    if (getConf('churchdb_emailseparator', ';') == ';') $arr["mailerSeparator"] = 0;
     else $arr["mailerSeparator"] = 1;
   }
   return $arr;
@@ -1166,11 +1166,11 @@ function churchdb_invitePersonToSystem($id) {
   $loginstr = churchcore_createOnTimeLoginKey($id);
   $content = "<h3>Hallo [Vorname],</h3><P>";
   
-  $content .= htmlize(readConf('invite_email_text', "invitation.email.standard.text", readConf('site_name', 'ChurchTools')));
+  $content .= htmlize(getConf('invite_email_text', "invitation.email.standard.text", getConf('site_name', 'ChurchTools')));
   $content .= '<p><a href="'. $base_url. "?q=profile&loginstr=$loginstr&id=$id".
        '" class="btn btn-royal">Auf %sitename anmelden</a>';
-  $res = churchcore_sendEMailToPersonIds($id, "Einladung zu ". readConf('site_name', 'ChurchTools'), $content, readConf('site_mail'), true);
-  cdb_log("Person $id wurde zu ". readConf('site_name', 'ChurchTools'). " eingeladen:". $content, 2, $id);
+  $res = churchcore_sendEMailToPersonIds($id, "Einladung zu ". getConf('site_name', 'ChurchTools'), $content, getConf('site_mail'), true);
+  cdb_log("Person $id wurde zu ". getConf('site_name', 'ChurchTools'). " eingeladen:". $content, 2, $id);
 }
 
 /**

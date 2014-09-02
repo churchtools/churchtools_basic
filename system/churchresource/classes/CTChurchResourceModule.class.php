@@ -45,7 +45,7 @@ class CTChurchResourceModule extends CTAbstractModule {
     $res["user_name"] = "$user->vorname $user->name";
     $res["settings"] = $this->getSettings();
     $res["lastLogId"] = churchresource_getLastLogId();
-    $res["churchcal_name"] = variable_get('churchcal_name');
+    $res["churchcal_name"] = getConf('churchcal_name');
     $res["category"] = churchcore_getTableData("cc_calcategory", null, null, "id, color, bezeichnung");
     return $res;
   }

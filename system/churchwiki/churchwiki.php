@@ -258,7 +258,7 @@ function churchwiki__create() {
   $form->setHeader("Editieren eines Hilfeeintrages", "Hier kann die Hilfe editiert werden.");
   $form->addField("doc_id", "", "INPUT_REQUIRED", "Doc-Id");
   $form->addField("text", "", "TEXTAREA", "Text");
-  if ($doc = readVar("doc")) {
+  if ($doc = getVar("doc")) {
     $form->fields["doc_id"]->setValue($doc);
     $res = db_query("SELECT text FROM {cc_wiki} 
                      WHERE doc_id=:doc_id", 
@@ -329,7 +329,7 @@ function churchwiki_main() {
   drupal_add_js(createI18nFile("churchcore"));
   drupal_add_js(createI18nFile("churchwiki"));
   
-  $doc_id = readVar("doc");
+  $doc_id = getVar("doc");
   
   $content = '
     <div class="row-fluid">

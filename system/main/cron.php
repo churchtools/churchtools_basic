@@ -28,16 +28,16 @@ function cron_main() {
   // always send mails
   churchcore_sendMails();
   
-  if (readVar("standby")) {
+  if (getVar("standby")) {
     // email with feedback image
-    if ($id = readVar("mailqueue_id")) {
+    if ($id = getVar("mailqueue_id")) {
       db_query("UPDATE {cc_mail_queue} 
                 SET reading_count=reading_count+1 
                 WHERE id=:id", 
                 array (":id" => $id));
     }
     // Check if it's time to do a normal cron job
-    if (readConf("cronjob_delay") > 0) {
+    if (getConf("cronjob_delay") > 0) {
       $last_cron = db_query("SELECT value old,  UNIX_TIMESTAMP() act 
                              FROM {cc_config} 
                              WHERE name='last_cron'")
@@ -60,7 +60,7 @@ function cron_main() {
   }
   else {
     do_cron();
-    if (readVar("manual")) {
+    if (getVar("manual")) {
       addInfoMessage(t("cronjob.succeed"));
       return " ";
     }

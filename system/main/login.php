@@ -9,21 +9,21 @@ function login_main() {
   
   $txt = "";
  
-  if ($t = readConf("admin_message")) addErrorMessage($t);
-  if ($t = readVar("message")) addInfoMessage($t);
+  if ($t = getConf("admin_message")) addErrorMessage($t);
+  if ($t = getVar("message")) addInfoMessage($t);
   
   // Sicherstellen, dass keiner eingelogt ist!
   if (!userLoggedIn()) {
-    if ($t = readVar("login_message")) addInfoMessage($t, true);
+    if ($t = getVar("login_message")) addInfoMessage($t, true);
     $form = new CTForm("LoginForm", "validateLogin", "Login");
     $form->setHeader(t("login.headline"), t("please.fill.following.fields"));
     $form->addField("email", "", "INPUT_REQUIRED", t("email.or.username"), true);
     $form->addField("password", "", "PASSWORD", t("password"));
     // TODO: when is this false?
-    if (!readConf("show_remember_me") || readConf("show_remember_me") == 1) $form->addField("rememberMe", "", "CHECKBOX", t("remember.me"));
+    if (!getConf("show_remember_me") || getConf("show_remember_me") == 1) $form->addField("rememberMe", "", "CHECKBOX", t("remember.me"));
     $form->addButton(t("login"), "ok");
     
-    if (readVar("newpwd") && $email = readVar("email")) {
+    if (getVar("newpwd") && $email = getVar("email")) {
       $res = db_query("SELECT COUNT(*) c FROM {cdb_person} 
                        WHERE email=':email' AND archiv_yn=0",
                        array(':email' => $email))
@@ -34,11 +34,11 @@ function login_main() {
             an die das neue Passwort gesendet werden kann! 
             Diese Adresse muss im System schon eingerichtet sein.
             <p>Falls die E-Mail-Adresse schon eingerichtet sein sollte, 
-            wende Dich bitte an <a href="' . readConf("site_mail") . '">' . readConf("site_mail") . '</a>.</div>';
+            wende Dich bitte an <a href="' . getConf("site_mail") . '">' . getConf("site_mail") . '</a>.</div>';
       }
       else {
         $newpwd = random_string(8);
-        // TODO: not needed to send passwords by email, use one time login instead
+        // TODO: not needed to send passwords by email, use one time login key instead
         $scrambled_password = scramble_password($newpwd);
         db_query("UPDATE {cdb_person} 
                   SET password='" . $scrambled_password . "' 
@@ -47,7 +47,7 @@ function login_main() {
         
         $content = "<h3>" . t('hello') . "!</h3>
           <p>" . t('new.password.requested.for.xxx.is.yyy', $email, $newpwd) . "</p>";
-        churchcore_systemmail($email, "[" . readConf('site_name') . "] Neues Passwort", $content, true, 1);
+        churchcore_systemmail($email, "[" . getConf('site_name') . "] Neues Passwort", $content, true, 1);
         churchcore_sendMails(1);
         $txt .= '<div class="alert alert-info">Hinweis: Ein neues Passwort wurde nun an <i>' . $_GET["email"] .
              '</i> gesendet.</div>';
@@ -56,9 +56,9 @@ function login_main() {
     }
     // access through externale tools through GET and additional direct
     // TODO: is it important to look in post only?
-    else if ($email = readVar("email", false, $_POST) 
-             && $password = readVar("password", false, $_POST) 
-             && $directTool = readVar("directtool", false, $_POST)) {
+    else if ($email = getVar("email", false, $_POST) 
+             && $password = getVar("password", false, $_POST) 
+             && $directTool = getVar("directtool", false, $_POST)) {
       include_once (CHURCHCORE . "/churchcore_db.php");
       
       $res = db_query("SELECT * FROM {cdb_person} 
@@ -77,9 +77,9 @@ function login_main() {
         drupal_json_output(jsend()->fail(t('wrong.password')));
       return;
     }
-    // check for login with one time login string in url
+    // check for login with one time login key in url
     // e.g. http://localhost:8888/bootstrap/?q=profile&loginstr=123&id=8
-    else if ($loginString = readVar("loginstr") && $id = readVar('id')) {
+    else if ($loginKey = getVar("loginstr") && $id = getVar('id')) {
       // delete login strings older then 14 days
       db_query("DELETE FROM {cc_loginstr} 
                 WHERE DATEDIFF( current_date, create_date ) > 13");
@@ -93,10 +93,10 @@ function login_main() {
         $txt .= '<div class="alert alert-info">' . t('login.string.too.old') . '</div>';
       }
       else {
-        // delete current loginStr to prevent misuse
+        // delete current loginKey to prevent misuse
         $res = db_query("DELETE FROM {cc_loginstr} 
-                         WHERE loginstr=:loginstr AND person_id=:id", 
-                         array (":loginstr" => $loginString, 
+                         WHERE loginstr=:loginkey AND person_id=:id", 
+                         array (":loginkey" => $loginKey, 
                                 ":id" => $i,
                          ));
         ct_log("Login User $id erfolgreich mit loginstr ", 2, "-1", "login");
@@ -115,7 +115,7 @@ function login_main() {
   // someone is already logged in 
   else {
     // switch to another family user (same email)
-    if ($familyId = readVar("family_id")) {
+    if ($familyId = getVar("family_id")) {
       if (isset($_SESSION["family"][$familyId])) {
         // logout_current_user();
         login_user($_SESSION["family"][$familyId]);
@@ -258,13 +258,13 @@ function login_user($u, $rember_me = false) {
     if (count($family)) $_SESSION["family"] = $family;
   }
   
-  ct_log("Login succeed: $u->email with " . readVar('HTTP_USER_AGENT', "Unkown Browser", $_SERVER), 2, -1, "login");
+  ct_log("Login succeed: $u->email with " . getVar('HTTP_USER_AGENT', "Unkown Browser", $_SERVER), 2, -1, "login");
   
   // on switching family login dont forward to login again
   if ($q != $q_orig) {
     header("Location: ?q=$q_orig");
   }
-  else if ($q == "login") header("Location: ?q=" . readConf("site_startpage", "home"));
+  else if ($q == "login") header("Location: ?q=" . getConf("site_startpage", "home"));
 }
 
 ?>

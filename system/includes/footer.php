@@ -21,7 +21,7 @@
     </p>
 
     <p>
-  <?if (readConf("cronjob_delay") > 0):?>
+  <?if (getConf("cronjob_delay") > 0):?>
       <img src="?q=cron&standby=true"/> 
   <? endif; ?>
 <? endif; ?>

@@ -231,7 +231,7 @@ function churchservice_getAllEventData($params) {
   $cat = churchcal_getAllowedCategories(false, true);
   $cat[] = -1;
   
-  $lastday = -readConf('churchservice_entries_last_days');
+  $lastday = -getConf('churchservice_entries_last_days');
   // $auth=user_access("view servicegroup","churchservice");
   $res = db_query(
       'SELECT e.id, e.startdate startdate, e.valid_yn, cal.startdate cal_startdate, cal.enddate cal_enddate, 
@@ -563,7 +563,7 @@ function churchservice_updateEventService($params) {
   
   if ($event && $service) {
     $service = $service[$arr->service_id];
-    $subject = "[". readConf('site_name', "ChurchTools"). "] ";
+    $subject = "[". getConf('site_name', "ChurchTools"). "] ";
     $txt = "";
     // confirm
     if ($zugesagt_yn == 1) {
@@ -713,7 +713,7 @@ function churchservice_pollForNews($params) {
 function churchservice_ical() {
   global $base_url, $config;
   
-  if (!$id = readVar("id")) echo t("please.specify.id");
+  if (!$id = getVar("id")) echo t("please.specify.id");
   
   drupal_add_http_header('Content-Type', 'text/calendar;charset=utf-8', false);
   drupal_add_http_header('Content-Disposition', 'inline;filename="ChurchTools.ics"', false);
@@ -729,7 +729,7 @@ function churchservice_ical() {
   $txt = "";
   foreach ($arr as $res) {
     $txt .= "BEGIN:VEVENT\r\n";
-    $txt .= "ORGANIZER:MAILTO:" . readConf('site_mail', '') . "\r\n";
+    $txt .= "ORGANIZER:MAILTO:" . getConf('site_mail', '') . "\r\n";
     if ($res->zugesagt_yn == 1) $txt .= "SUMMARY:" . $res->dienst . " (" . $res->servicegroup . ")\r\n";
     else $txt .= "SUMMARY:Anfrage: " . $res->dienst . " (" . $res->servicegroup . ")?\r\n";
     $txt .= "X-MICROSOFT-CDO-BUSYSTATUS:BUSY\r\n";

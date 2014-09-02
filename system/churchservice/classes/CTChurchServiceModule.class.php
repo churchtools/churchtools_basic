@@ -34,7 +34,7 @@ class CTChurchServiceModule extends CTAbstractModule {
     $res["files_url"] = $base_url.$files_dir;
     $res["files_dir"] = $files_dir;
     $res["modulename"] = "churchservice";
-    $res["adminemail"] = variable_get('site_mail', '');
+    $res["adminemail"] = getConf('site_mail', '');
     $res["user_pid"] = $user->id;
     $res["user_name"] = $user->vorname." ".$user->name;
     $res["userid"] = $user->cmsuserid;
@@ -47,7 +47,7 @@ class CTChurchServiceModule extends CTAbstractModule {
 
     $res["eventtemplate_services"] = churchservice_getEventtemplateServices($auth);
     $res["churchcal_name"] =$config["churchcal_name"];
-    $res["songwithcategoryasdir"] = variable_get("churchservice_songwithcategoryasdir", "0");
+    $res["songwithcategoryasdir"] = getConf("churchservice_songwithcategoryasdir", "0");
     $res["songcategory"] = churchcore_getTableData("cs_songcategory","sortkey");
     return $res;
   }

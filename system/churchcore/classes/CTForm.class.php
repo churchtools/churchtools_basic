@@ -101,14 +101,14 @@ class CTForm {
   /**
    * render form
    * 
-   * TODO: if variable source doesn't matter, use REQUEST by removing POST from readVar()
+   * TODO: if variable source doesn't matter, use REQUEST by removing POST from getVar()
    * @return string html content of form
    */
   public function render() {
     global $q_orig;
     
     // check if dada was sent
-    if ($formData = readVar($this->getName(), false, $_POST)) {
+    if ($formData = getVar($this->getName(), false, $_POST)) {
       // reset all checkboxes
       foreach ($this->fields as $field) {
         if ($field->getFieldType() == "CHECKBOX") $field->setValue("off");

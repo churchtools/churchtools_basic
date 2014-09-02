@@ -34,7 +34,7 @@ function churchresource_main() {
   $content = '';
   
   // id for calling a distinct entry
-  if ($id = readVar("id")) $content .= "<input type='hidden' id='filter_id' value='$id'>";
+  if ($id = getVar("id")) $content .= "<input type='hidden' id='filter_id' value='$id'>";
   
   // $content=$content."<div id='cdb_menu'></div> <div id='cdb_filter'></div> <div id='cdb_content'>Fehler: Ist
   // JavaScript deaktiviert?</div>";
@@ -233,7 +233,7 @@ function churchresource__printview() {
   
   $content .= "<input type='hidden' id='printview' value='true'/>";
   
-  if ($curdate = readVar("curdate")) $content .= "<input type='hidden' id='curdate' value='$curdate'/>";
+  if ($curdate = getVar("curdate")) $content .= "<input type='hidden' id='curdate' value='$curdate'/>";
   
   $content .= "<div id='cdb_f_ilter'></div></div> <div id='cdb_content'>Seite wird aufgebaut...</div>";
   $content .= "</body></html>";

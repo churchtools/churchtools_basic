@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
   <meta charset="utf-8">
-  <title><?= $sitename?> - <?= (($n = readConf($q."_name")) ? $n : $q) ?></title>
+  <title><?= $sitename?> - <?= (($n = getConf($q."_name")) ? $n : $q) ?></title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="ChurchTools">
   <meta name="author" content="">
@@ -52,7 +52,7 @@
       settings.user.vorname="<?= $user->vorname ?>";
       settings.user.name="<?= $user->name ?>";
 <? endif; ?>
-      version=<?= readConf("version") ?>;
+      version=<?= getConf("version") ?>;
   </script>
 
  <link rel="shortcut icon" href="<?= ASSETS ?>/ico/favicon.ico">
@@ -88,7 +88,9 @@
             </a>
             <ul class="dropdown-menu">
     <? if (isset($_SESSION["family"])): ?>
-             <caption><?= t('change.to') ?></caption>
+    <?php // TODO: in bootstrap 3.2.0 this looks nice, in CT dropdown-header is missed
+          // <caption> is for tables only! ?>
+             <li class="dropdown-header"> <?= t('change.to') ?></li>
       <? foreach ($_SESSION["family"] as $family): ?>
              <li><a href="?q=login&family_id=<?= $family->id?>"><?= $family->vorname?> <?= $family->name ?></a></li>                       
       <? endforeach; ?>                       
@@ -123,10 +125,10 @@
           <div class="nav-collapse">
             <ul class="nav">
   <? foreach (churchcore_getModulesSorted() as $key): ?>
-    <? if (readConf($key."_name") && readConf($key."_inmenu") == "1"
+    <? if (getConf($key."_name") && getConf($key."_inmenu") == "1"
            && (user_access("view", $key) || in_array($key, $mapping["page_with_noauth"]))):?>
                 <li <?= ($q == $key) ? 'class="active"' : "" ?>>
-                <a href="?q=<?= $key ?>"><?= readConf($key."_name") ?></a></li>
+                <a href="?q=<?= $key ?>"><?= getConf($key."_name") ?></a></li>
     <? endif; ?>                       
   <? endforeach; ?>                       
             </ul>
@@ -142,6 +144,6 @@
      <body style="background:none"> 
      <div>
 <? endif; ?>                       
-<? if (readConf("site_offline") == 1): ?>
+<? if (getConf("site_offline") == 1): ?>
      <div class="alert alert-info"><?= t("offline.mode.is.active") ?></div>
 <? endif; ?>

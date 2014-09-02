@@ -28,7 +28,7 @@ class CTChurchWikiModule extends CTAbstractModule {
     $data["files_dir"] = $files_dir;
     $data["modulename"] = "churchwiki";
     $data["modulespath"] = CHURCHWIKI;
-    $data["adminemail"] = variable_get('site_mail', '');
+    $data["adminemail"] = getConf('site_mail', '');
     return $data;
   }
 
@@ -95,7 +95,7 @@ class CTChurchWikiModule extends CTAbstractModule {
    */
   public function showonstartpage($params) {
     $auth = churchwiki_getAuthForAjax();
-    $wikicategory_id = readVar("wikicategory_id"); 
+    $wikicategory_id = getVar("wikicategory_id"); 
     if (!$auth["edit"] || $auth["edit"][$wikicategory_id] != $wikicategory_id) throw new CTNoPermission("edit", "churchwiki");
     return churchwiki_setShowonstartpage($params);
   }

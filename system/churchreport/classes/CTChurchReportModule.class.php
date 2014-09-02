@@ -31,7 +31,7 @@ class CTChurchReportModule extends CTAbstractModule {
     $data["files_dir"] = $files_dir;
     $data["modulename"] = "churchreport";
     $data["modulespath"] = CHURCHREPORT;
-    $data["adminemail"] = readConf('site_mail', 'info@churchtools.de');
+    $data["adminemail"] = getConf('site_mail', 'info@churchtools.de');
     $queries = churchcore_getTableData("crp_query");
     $data["query"] = array ();
     foreach ($queries as $query) {

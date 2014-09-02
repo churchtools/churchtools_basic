@@ -364,7 +364,7 @@ function churchservice_deleteEvent($params, $source=null) {
               p.id=es.cdb_person_id and es.cdb_person_id is not null and p.email!=''",
         array(":event_id"=>$params["id"]));
     foreach ($db as $p) {
-      $subject="[".variable_get('site_name')."] Absage von ".$db_cal->bezeichnung." ".$db_event->date_de;
+      $subject="[".getConf('site_name')."] Absage von ".$db_cal->bezeichnung." ".$db_event->date_de;
       $txt='<h3>Hallo '.$p->vorname."!</h3>";
       $txt.='Das Event '.$db_cal->bezeichnung." am ".$db_event->date_de.' wurde von <i>'.$user->vorname.' '.$user->name.'</i> abgesagt. Deine Dienstanfrage wurde entsprechend entfernt.';
       churchservice_send_mail($subject, $txt, $p->email);

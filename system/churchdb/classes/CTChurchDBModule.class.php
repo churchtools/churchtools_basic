@@ -36,19 +36,19 @@ class CTChurchDBModule extends CTAbstractModule {
     $res["user_pid"] = $user->id;
     $res["userid"] = $user->vorname. " ". $user->cmsuserid. " [". $user->id. "]";
     $res["auth"] = churchdb_getAuthForAjax();
-    $res["site_name"] = readConf('site_name', 'ChurchTools');
+    $res["site_name"] = getConf('site_name', 'ChurchTools');
     $res["modulespath"] = churchdb_getModulesPath();
     $res["files_url"] = $base_url. $files_dir;
     $res["modulename"] = "churchdb";
-    $res["max_uploadfile_size_kb"] = readConf('max_uploadfile_size_kb');
-    $res["adminemail"] = readConf('site_mail', '');
-    $res["max_exporter"] = readConf('churchdb_maxexporter', '150');
-    $res["groupnotchoosable"] = readConf('churchdb_groupnotchoosable', 30);
-    $res["home_lat"] = readConf('churchdb_home_lat', '53.568537');
-    $res["home_lng"] = readConf('churchdb_home_lng', '10.03656');
+    $res["max_uploadfile_size_kb"] = getConf('max_uploadfile_size_kb');
+    $res["adminemail"] = getConf('site_mail', '');
+    $res["max_exporter"] = getConf('churchdb_maxexporter', '150');
+    $res["groupnotchoosable"] = getConf('churchdb_groupnotchoosable', 30);
+    $res["home_lat"] = getConf('churchdb_home_lat', '53.568537');
+    $res["home_lng"] = getConf('churchdb_home_lng', '10.03656');
     $res["settings"] = churchdb_getUserSettings($user->id);
     $res["last_log_id"] = churchdb_getLastLogId();
-    $res["mailchimp"] = readConf('churchdb_mailchimp_apikey')!= "";
+    $res["mailchimp"] = getConf('churchdb_mailchimp_apikey')!= "";
     if (user_access("administer persons", "churchcore")) $res["auth_table"] = churchdb_getAuthTable();
 
     if (isset($res["auth"]["edit newsletter"])) {

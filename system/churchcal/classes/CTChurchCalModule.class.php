@@ -6,10 +6,10 @@ class CTChurchCalModule extends CTAbstractModule {
     $ret=array();
     $ret["modulename"]="churchcal";
     $ret["modulespath"]=CHURCHCAL;
-    $ret["churchservice_name"]=variable_get("churchservice_name");
-    $ret["churchcal_name"]=variable_get("churchcal_name");
-    $ret["churchresource_name"]=variable_get("churchresource_name");
-    $ret["maincal_name"]=variable_get("churchcal_maincalname", "Gemeindekalender");
+    $ret["churchservice_name"]=getConf("churchservice_name");
+    $ret["churchcal_name"]=getConf("churchcal_name");
+    $ret["churchresource_name"]=getConf("churchresource_name");
+    $ret["maincal_name"]=getConf("churchcal_maincalname", "Gemeindekalender");
     $ret["base_url"]=$base_url;
     $ret["user_pid"]=$user->id;
     if (user_access("view","churchdb")) {

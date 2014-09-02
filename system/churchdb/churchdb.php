@@ -208,7 +208,7 @@ function sendConfirmationMail($mail, $vorname="", $g_id) {
   if ($g!=false) {
     $content="<h3>".t("hello.name")."</h3><p>";
     $content.="Dein Antrag f&uuml;r die Gruppe <i>$g->bezeichnung</i> ist eingegangen. <p>Vielen Dank!";
-    $res = churchcore_mail(variable_get('site_mail'), $mail, "[".variable_get('site_name')."] Teilnahmeantrag zur Gruppe ".$g->bezeichnung, $content, true, true, 2);
+    $res = churchcore_mail(getConf('site_mail'), $mail, "[".getConf('site_name')."] Teilnahmeantrag zur Gruppe ".$g->bezeichnung, $content, true, true, 2);
   }
 }
 /**
@@ -274,8 +274,8 @@ function externmapview__ajax() {
   global $user;
   $func=$_GET["func"];
   if ($func=='loadMasterData') {
-    $res["home_lat"] = variable_get('churchdb_home_lat', '53.568537');
-    $res["home_lng"] = variable_get('churchdb_home_lng', '10.03656');
+    $res["home_lat"] = getConf('churchdb_home_lat', '53.568537');
+    $res["home_lng"] = getConf('churchdb_home_lng', '10.03656');
     $res["districts"]=churchcore_getTableData("cdb_distrikt", "bezeichnung");      
     $res["groups"]=getExternalGroupData();
     $res["modulespath"] = CHURCHDB;
@@ -325,7 +325,7 @@ function externmapview__ajax() {
         $content.="<li>".t('phone').": ".$_GET["Telefon"];
         $content.="<li>".t('comment').": ".$_GET["Kommentar"];
         $content.="</ul>";
-        $res = churchcore_sendEMailToPersonIds($p->id, "[".variable_get('site_name', 'ChurchTools')."] ". t('form.request.to.group', $p->bezeichnung), $content, variable_get('site_mail'), true, true);            
+        $res = churchcore_sendEMailToPersonIds($p->id, "[".getConf('site_name', 'ChurchTools')."] ". t('form.request.to.group', $p->bezeichnung), $content, getConf('site_mail'), true, true);            
       }
       if (count($rec)==0)
         $txt=t("could.not.find.group.leader.please.try.other.ways");

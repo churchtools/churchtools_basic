@@ -8,7 +8,7 @@
 function home_main() {
   global $config, $files_dir, $mapping;
   
-  if ($m = readConf("admin_message")) addErrorMessage($m);
+  if ($m = getConf("admin_message")) addErrorMessage($m);
   
   checkFilesDir();
   
@@ -24,7 +24,7 @@ function home_main() {
   
   // module buttons normal
   foreach ($modules as $m)
-    if (readConf($m . "_startbutton") && user_access("view", $m)) {
+    if (getConf($m . "_startbutton") && user_access("view", $m)) {
       $txt .= "<a class='btn btn-large' href='?q=$m'>" . $config[$m . "_name"] . '</a>&nbsp;';
     }
   $txt .= '
@@ -39,7 +39,7 @@ function home_main() {
   
   // module buttons mobile
   foreach ($modules as $m) {
-    if (readConf($m . "_name") && user_access("view", $m)) {
+    if (getConf($m . "_name") && user_access("view", $m)) {
       $txt .= "<a class='btn btn-large' href='?q=$m'>" . $config[$m . "_name"] . '</a> ';
     }
   }
@@ -49,7 +49,7 @@ function home_main() {
   // blocks[]: label, col(1,2,3) sortkey, html
   $blocks = null;
   foreach ($modules as $m) {
-    if (readConf($m . "_name")) {
+    if (getConf($m . "_name")) {
       include_once (SYSTEM . '/' . $mapping[$m]);
       
       //TODO: this functions are actually only config arrays - handle them as such and put them on a place a admin may even change them.
@@ -138,9 +138,9 @@ function checkFilesDir() {
 function home_getMemberList() {
   global $base_url, $files_dir;
   
-  $status_id = readConf('churchdb_memberlist_status', '1');
+  $status_id = getConf('churchdb_memberlist_status', '1');
   if ($status_id == "") $status_id = "-1"; //TODO: should never occure for default value 1?
-  $station_id = readConf('churchdb_memberlist_station', '1,2,3');
+  $station_id = getConf('churchdb_memberlist_station', '1,2,3');
   if ($station_id == "") $station_id = "-1"; //should never occure for default value 1,2,3?
   
   $res = db_query('SELECT person_id, name, vorname, strasse, ort, plz, land,
@@ -236,7 +236,7 @@ function home__memberlist_printview() {
   
   require_once (ASSETS . '/fpdf17/fpdf.php');
   $compact = true;
-  $compact = readVar("compact");
+  $compact = getVar("compact");
   
   // instanziate inherited class
   $pdf = new PDF('P', 'mm', 'A4');
@@ -299,7 +299,7 @@ function home__memberlist_printview() {
  */
 function home__memberlist_saveSettings($form) {
   
-  if (readVar("btn_1")) {
+  if (getVar("btn_1")) {
     header("Location: ?q=home/memberlist");
     return null;
   }
@@ -322,28 +322,28 @@ function _home__memberlist_getSettingFields() {
   $form->setHeader("Einstellungen f&uuml;r die Mitgliederliste", "Der Administrator kann hier Einstellung vornehmen.");
   
   $form->addField("churchdb_memberlist_status", "", "INPUT_REQUIRED", "Kommaseparierte Liste mit Status-Ids f&uuml;r Mitgliederliste")
-    ->setValue(readConf("churchdb_memberlist_status"));
+    ->setValue(getConf("churchdb_memberlist_status"));
   
   $form->addField("churchdb_memberlist_station", "", "INPUT_REQUIRED", "Kommaseparierte Liste mit Station-Ids f&uuml;r Mitgliederliste")
-    ->setValue(readConf("churchdb_memberlist_station"));
+    ->setValue(getConf("churchdb_memberlist_station"));
   
   $form->addField("memberlist_telefonprivat", "", "CHECKBOX", "Anzeige der privaten Telefonnummer")
-    ->setValue(readConf("memberlist_telefonprivat", true));
+    ->setValue(getConf("memberlist_telefonprivat", true));
   
   $form->addField("memberlist_telefongeschaeftlich", "", "CHECKBOX", "Anzeige der gesch&auml;ftlichen Telefonnummer")
-    ->setValue(readConf("memberlist_telefongeschaeftlich", true));
+    ->setValue(getConf("memberlist_telefongeschaeftlich", true));
   
   $form->addField("memberlist_telefonhandy", "", "CHECKBOX", "Anzeige der Mobil-Telefonnumer")
-    ->setValue(readConf("memberlist_telefonhandy", true));
+    ->setValue(getConf("memberlist_telefonhandy", true));
   
   $form->addField("memberlist_fax", "", "CHECKBOX", "Anzeige der FAX-Nummer")
-    ->setValue(readConf("memberlist_fax", true));
+    ->setValue(getConf("memberlist_fax", true));
   
   $form->addField("memberlist_email", "", "CHECKBOX", "Anzeige der EMail-Adresse")
-    ->setValue(readConf("memberlist_email", true));
+    ->setValue(getConf("memberlist_email", true));
   
   $form->addField("memberlist_birthday_full", "", "CHECKBOX", "Anzeige des gesamten Geburtsdatums (inkl. Geburtsjahr)")
-    ->setValue(readConf("memberlist_birthday_full", false));
+    ->setValue(getConf("memberlist_birthday_full", false));
   
   return $form;
 }

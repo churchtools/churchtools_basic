@@ -99,13 +99,13 @@ function churchresource_createBooking($params) {
       if ($user->id!=$adminid) {
         $p=churchcore_getPersonById($adminid);
         if (($p!=null) && ($p->email!=""))
-          churchresource_send_mail("[".variable_get('site_name', 'ChurchTools')."] Neue Buchungsanfrage: ".$params["text"], $txt_admin, $p->email);
+          churchresource_send_mail("[".getConf('site_name', 'ChurchTools')."] Neue Buchungsanfrage: ".$params["text"], $txt_admin, $p->email);
       }
       else $istUserAdmin=true;      
     }
   }  
   if (!$istUserAdmin)       
-    churchresource_send_mail("[".variable_get('site_name', 'ChurchTools')."] Neue Buchungsanfrage: ".$params["text"], $txt_user, $user->email);
+    churchresource_send_mail("[".getConf('site_name', 'ChurchTools')."] Neue Buchungsanfrage: ".$params["text"], $txt_user, $user->email);
   $txt=churchcore_getFieldChanges(getBookingFields(),null,$res);
   cr_log("CREATE BOOKING\n".$txt,3,$res->id);  
   return $res;
@@ -243,7 +243,7 @@ function churchresource_updateBooking($params, $changes=null) {
         $params["text"]."' fuer ".$ressources[$params["resource_id"]]->bezeichnung.
           " mussten leider von ".$user->vorname." ".$user->name." folgende Tage abgelehnt werden: <b>".
           implode(", ",$days)."</b><p>";
-        churchresource_send_mail("[".variable_get('site_name')."] Aktualisierung der Buchungsanfrage: ".$params["text"], $txt, $buser->email);
+        churchresource_send_mail("[".getConf('site_name')."] Aktualisierung der Buchungsanfrage: ".$params["text"], $txt, $buser->email);
       }          
     }
     
@@ -299,7 +299,7 @@ function churchresource_updateBooking($params, $changes=null) {
     $txt=" wurde leider abgelehnt, bitte suche Dir einen anderen Termin.<p>";        
   }      	               
   else if ($params["status_id"]==99) {
-    $txt=" wurde geloescht, bei Fragen dazu melde Dich bitte bei: ".variable_get('site_mail', 'Gemeinde-Buero unter info@elim-hamburg.de oder 040-2271970')."<p>";        
+    $txt=" wurde geloescht, bei Fragen dazu melde Dich bitte bei: ".getConf('site_mail', 'Gemeinde-Buero unter info@elim-hamburg.de oder 040-2271970')."<p>";        
   }                     
   if ($txt!="" && $buser!=null) {
     $txt="<h3>Hallo ".$buser->vorname."!</h3><p>Deine Buchungsanfrage ".$info.$txt;
@@ -311,7 +311,7 @@ function churchresource_updateBooking($params, $changes=null) {
     $adminmails=explode(",",$ressources[$params["resource_id"]]->admin_person_ids);
     // Wenn der aktuelle User nicht Admin ist ODER wenn der Benutzer nicht der ist, der die Buchung erstellt hat.
     if ((!in_array($user->id, $adminmails)) || ($user->id!=$buser->id))      
-      churchresource_send_mail("[".variable_get('site_name', 'ChurchTools')."] Aktualisierung der Buchungsanfrage: ".$params["text"], $txt, $buser->email);
+      churchresource_send_mail("[".getConf('site_name', 'ChurchTools')."] Aktualisierung der Buchungsanfrage: ".$params["text"], $txt, $buser->email);
   }
 
   if ($changes!=null)
@@ -462,7 +462,7 @@ function churchresource_delAddition($add_id) {
 
 function getBookings($von=null, $bis=null, $status_id_in="") {
   if ($von==null)
-    $von=-variable_get('churchresource_entries_last_days', '90');
+    $von=-getConf('churchresource_entries_last_days', '90');
   if ($bis==null) 
     $bis=999;  
   if ($status_id_in!="") $status_id_in=" and status_id in ($status_id_in)";

@@ -744,8 +744,8 @@ function getAllCommentViewer() {
  */
 function getBirthdayList($diff_from, $diff_to) {
   $list = array ();
-  $status_id = variable_get('churchdb_birthdaylist_status', '1');
-  $station_id = variable_get('churchdb_birthdaylist_station', '1,2,3');
+  $status_id = getConf('churchdb_birthdaylist_status', '1');
+  $station_id = getConf('churchdb_birthdaylist_station', '1,2,3');
   
   // TODO: fields this_year and diff contain the same. What is the meaning of bla?
   $sql = "SELECT * FROM 

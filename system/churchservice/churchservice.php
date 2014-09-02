@@ -83,7 +83,7 @@ function churchservice_getAdminForm() {
     $model->fields["churchservice_reminderhours"]->setValue($config["churchservice_reminderhours"]);  
     
   $model->addField("churchservice_songwithcategoryasdir","", "CHECKBOX","Kategorie als Verzeichnisangabe nutzen f�r Beamersoftware-Export");
-    $model->fields["churchservice_songwithcategoryasdir"]->setValue(readConf("churchservice_songwithcategoryasdir","0"));
+    $model->fields["churchservice_songwithcategoryasdir"]->setValue(getConf("churchservice_songwithcategoryasdir","0"));
     
   return $model;
 }
@@ -97,7 +97,7 @@ function churchservice__exportfacts() {
   drupal_add_http_header('Content-Disposition', 'attachment; filename="churchservice_fact_export.csv"', true);
   
   $events = churchcore_getTableData("cs_event", "startdate");
-  $cond = ($d = readVar("date")) ? " AND e.startdate>='$d'" : '';
+  $cond = ($d = getVar("date")) ? " AND e.startdate>='$d'" : '';
   
   $db = db_query("SELECT e.*, c.bezeichnung, c.category_id FROM {cs_event} e, {cc_cal} c where e.cc_cal_id=c.id $cond order by e.startdate");
   $events = array ();
@@ -258,10 +258,10 @@ function churchservice_main() {
 function churchservice_getUserOpenServices() {
   global $user;
   
-  if ($id = readVar("eventservice_id")) {
+  if ($id = getVar("eventservice_id")) {
     include_once('./'. CHURCHSERVICE .'/churchservice_ajax.php');
-    $reason = readVar("reason", null);
-    if (readVar("zugesagt_yn") == 1) {
+    $reason = getVar("reason", null);
+    if (getVar("zugesagt_yn") == 1) {
       churchservice_updateEventService($id, $user->vorname." ".$user->name, $user->id, 1, $reason);
     } else  {
       churchservice_updateEventService($id, null, null, 0, $reason);
@@ -527,7 +527,7 @@ function churchservice_openservice_rememberdays() {
   global $base_url;
   include_once("churchservice_db.php");
 
-  $delay=readConf('churchservice_openservice_rememberdays');
+  $delay=getConf('churchservice_openservice_rememberdays');
   $dt = new datetime();
   
   // Checken, ob EIN EventService noch nicht gesendet wurde, bzw. schon so alt ist.
@@ -556,7 +556,7 @@ function churchservice_openservice_rememberdays() {
     $txt="<h3>Hallo ".$res->vorname.",</h3><p>";
     
     $inviter=churchcore_getPersonById($res->modified_pid);
-    $txt.="Du wurdest in dem Dienstplan auf ".readConf('site_name', 'ChurchTools');
+    $txt.="Du wurdest in dem Dienstplan auf ".getConf('site_name', 'ChurchTools');
     if ($inviter!=null)        
       $txt.=' von <i>'.$inviter->vorname." ".$inviter->name."</i>";
     $txt.=" zu Diensten vorgeschlagen. <br/>Zum Zu- oder Absagen bitte hier klicken:";
@@ -598,7 +598,7 @@ function churchservice_openservice_rememberdays() {
       $txt.="<p><b>Da Du noch nicht kein Zugriff auf das System hast, bekommst Du noch eine separate E-Mail, mit der Du Dich dann anmelden kannst!.</b>";
     }
     
-    churchservice_send_mail("[".readConf('site_name', 'ChurchTools')."] Es sind noch Dienste offen",$txt,$res->email);
+    churchservice_send_mail("[".getConf('site_name', 'ChurchTools')."] Es sind noch Dienste offen",$txt,$res->email);
     $i=$i+1;
     $res=db_query($sql)->fetch();
   }
@@ -623,24 +623,24 @@ function churchservice_remindme() {
       ORDER BY datum";
   $set=db_query("SELECT * FROM {cc_usersettings} where modulename='churchservice' and attrib='remindMe' and value=1");
   foreach ($set as $p) {
-    $res=db_query($sql, array(":person_id"=>$p->person_id, ":hours"=>readConf('churchservice_reminderhours')));
+    $res=db_query($sql, array(":person_id"=>$p->person_id, ":hours"=>getConf('churchservice_reminderhours')));
     foreach($res as $es) {
-      if (churchcore_checkUserMail($p->person_id, "remindService", $es->eventservice_id, readConf('churchservice_reminderhours'))) {
+      if (churchcore_checkUserMail($p->person_id, "remindService", $es->eventservice_id, getConf('churchservice_reminderhours'))) {
         $txt="<h3>Hallo ".$es->vorname."!</h3>";
         $txt.='<p>Dies ist eine Erinnerung an Deine nächsten Dienste:</p><br/>';
         $txt.='<table class="table table-condensed">';
         // Now he looks 12 hours furhter if there are other services to be reminded
-        $res2=db_query($sql, array(":person_id"=>$p->person_id, ":hours"=>readConf('churchservice_reminderhours')+12));
+        $res2=db_query($sql, array(":person_id"=>$p->person_id, ":hours"=>getConf('churchservice_reminderhours')+12));
         foreach ($res2 as $es2) {
           if ($es2->eventservice_id==$es->eventservice_id ||
-               (churchcore_checkUserMail($p->person_id, "remindService", $es2->eventservice_id, readConf('churchservice_reminderhours')))) {
+               (churchcore_checkUserMail($p->person_id, "remindService", $es2->eventservice_id, getConf('churchservice_reminderhours')))) {
             $txt.='<tr><td>'.$es2->datum.' '.$es2->bezeichnung.'<td>Dienst: '.$es2->dienst." (".$es2->sg.")";
             $txt.='<td style="min-width:79px;"><a href="'.$base_url.'?q=churchservice&id='.$es2->event_id.'" class="btn btn-primary">Event aufrufen</a>';            
           }
         }        
         
         $txt.='</table><br/><br/><a class="btn" href="'.$base_url.'?q=churchservice#SettingsView">Erinnerungen deaktivieren</a>';
-        churchservice_send_mail("[".readConf('site_name', 'ChurchTools')."] Erinnerung an Deinen Dienst",$txt,$es->email);
+        churchservice_send_mail("[".getConf('site_name', 'ChurchTools')."] Erinnerung an Deinen Dienst",$txt,$es->email);
         break;
       }              
     }
@@ -756,7 +756,7 @@ function churchservice_inform_leader() {
         $txt="<h3>Hallo ".$person["person"]->vorname."!</h3><p>Es sind in den nächsten 60 Tagen noch folgende Dienste offen:<ul>".$txt."</ul>";
         $txt.='<p><a href="'.$base_url.'/?q=churchservice" class="btn">'.t("more.information").'</a>&nbsp';
         $txt.='<p><a href="'.$base_url.'/?q=churchservice#SettingsView" class="btn">Benachrichtigung deaktivieren</a>';
-        churchservice_send_mail("[".readConf('site_name', 'ChurchTools')."] Offene Dienste",$txt,$person["person"]->email);
+        churchservice_send_mail("[".getConf('site_name', 'ChurchTools')."] Offene Dienste",$txt,$person["person"]->email);
       }
     }                                
   }

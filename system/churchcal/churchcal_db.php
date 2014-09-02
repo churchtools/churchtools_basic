@@ -27,7 +27,7 @@ function churchcal_handleMeetingRequest($cal_id, $params) {
       
       $txt="<h3>Hallo [Spitzname]!</h3><p>";
       
-      $txt.="<P>Du wurdest auf ".variable_get('site_name', 'ChurchTools');
+      $txt.="<P>Du wurdest auf ".getConf('site_name', 'ChurchTools');
         $txt.=' von <i>'.$user->vorname." ".$user->name."</i>";
       $txt.=" f&uuml;r einen Termin angefragt. ";
       
@@ -43,7 +43,7 @@ function churchcal_handleMeetingRequest($cal_id, $params) {
         $txt.="<p>Zum Zu- oder Absagen bitte hier klicken:";      
         $loginstr=churchcore_createOnTimeLoginKey($id);      
         $txt.='<p><a href="'.$base_url.'?q=home&id='.$id.'&loginstr='.$loginstr.'" class="btn btn-primary">%sitename aufrufen</a>';      
-        churchcore_sendEMailToPersonids($id, "[".variable_get('site_name', 'ChurchTools')."] Neue Termin-Anfrage", $txt, null, true);
+        churchcore_sendEMailToPersonids($id, "[".getConf('site_name', 'ChurchTools')."] Neue Termin-Anfrage", $txt, null, true);
       }
     }
     else {
@@ -52,7 +52,7 @@ function churchcal_handleMeetingRequest($cal_id, $params) {
         ->condition("person_id", $param["person_id"], "=")
         ->condition("cal_id", $param["cal_id"], "=")
         ->execute(false);
-      churchcore_sendEMailToPersonids($id, "[".variable_get('site_name', 'ChurchTools')."] Anpassung in einer Termin-Anfrage", "anpassung", null, true);*/
+      churchcore_sendEMailToPersonids($id, "[".getConf('site_name', 'ChurchTools')."] Anpassung in einer Termin-Anfrage", "anpassung", null, true);*/
     }    
   }
 }

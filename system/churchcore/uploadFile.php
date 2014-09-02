@@ -11,7 +11,7 @@ function churchcore__uploadfile() {
   $allowedExtensions = array ();
   // max file size in bytes
   
-  $sizeLimit = ($s = readConf("max_uploadfile_size_kb")) ? ($s * 1024) : (10 * 1024 * 1024);
+  $sizeLimit = ($s = getConf("max_uploadfile_size_kb")) ? ($s * 1024) : (10 * 1024 * 1024);
 
   $uploader = new qqFileUploader($allowedExtensions, $sizeLimit);
   $file_dir = $files_dir . "/files/" . $_GET["domain_type"] . "/";

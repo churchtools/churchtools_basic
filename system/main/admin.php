@@ -32,7 +32,7 @@ function admin_main() {
     ->setValue($config["site_name"]);
   
   $form->addField("site_logo", "", "FILEUPLOAD", t("logo.of.website"))
-    ->setValue(readConf("site_logo"));
+    ->setValue(getConf("site_logo"));
   
   $form->addField("welcome", "", "INPUT_REQUIRED", t("welcome.message"))
     ->setValue($config["welcome"]);
@@ -47,10 +47,10 @@ function admin_main() {
     ->setValue($config["invite_email_text"]);
   
   $form->addField("admin_message", "", "INPUT_OPTIONAL", "Admin-Nachricht auf Login- und Startseite z.B. f&uuml;r geplante Downtimes")
-    ->setValue(variable_get("admin_message", ""));
+    ->setValue(getConf("admin_message", ""));
   
   if (!isset($config["site_startpage"])) $config["site_startpage"] = "home";
-  $form->addField("site_startpage", "", "INPUT_REQUIRED", "Startseite beim Aufrufen von " . readConf("site_name") . " (Standard ist <i>home</i>, m&ouml;glich ist z.B. churchwiki, churchcal)")
+  $form->addField("site_startpage", "", "INPUT_REQUIRED", "Startseite beim Aufrufen von " . getConf("site_name") . " (Standard ist <i>home</i>, m&ouml;glich ist z.B. churchwiki, churchcal)")
     ->setValue($config["site_startpage"]);
   
   $form->addField("site_mail", "", "EMAIL", "E-Mail-Adresse der Website (E-Mails werden von hier aus gesendet)")
@@ -63,7 +63,7 @@ function admin_main() {
   $modules = churchcore_getModulesSorted(false, true);
   foreach ($modules as $module) {
     $form->addField($module . "_name", "", "INPUT_OPTIONAL", "Name f&uuml;r <i>$module</i> (Bitte Feld leerlassen, wenn das Modul nicht ben&ouml;tigt wird)")
-      ->setValue(variable_get($module . "_name", ""));
+      ->setValue(getConf($module . "_name", ""));
   }
   
   $form->addField("max_uploadfile_size_kb", "", "INPUT_REQUIRED", "Maximale Upload-Dateigr&ouml;sse in Kilobytes (z.B. 10MB entsprechen hier ca. 10000)")
@@ -98,15 +98,15 @@ function admin_main() {
     }
   }
   
-  $txt = '<h1>' . t("settings.for", variable_get("site_name")) . '</h1>
+  $txt = '<h1>' . t("settings.for", getConf("site_name")) . '</h1>
       <p>Der Administrator kann hier Einstellung vornehmen. Diese gelten f&uuml;r alle Benutzer, bitte vorsichtig anpassen!</p>
       <div class="tabbable">
         <ul class="nav nav-tabs">
           <li class="active"><a href="#tab1" data-toggle="tab">' . t("general") . '</a></li>';
   foreach ($modules as $module) {
-    if (isset($m[$module]) && readConf($module . "_name")) {
+    if (isset($m[$module]) && getConf($module . "_name")) {
       $txt .= '
-          <li><a href="#tab' . $module . '" data-toggle="tab">' . readConf($module . "_name") . '</a></li>';
+          <li><a href="#tab' . $module . '" data-toggle="tab">' . getConf($module . "_name") . '</a></li>';
     }
   }
   $txt .= '

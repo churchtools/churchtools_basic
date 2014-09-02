@@ -40,8 +40,8 @@ function churchcal_main() {
     $txt.='<input type="hidden" id="filtercategory_id" name="category_id" value="'.$_GET["category_id"].'"/>';
     
   if ($embedded) {
-    if (variable_get("churchcal_css", "-")!="-") {
-      $txt.='<style>'.variable_get("churchcal_css").'</style>';
+    if (getConf("churchcal_css", "-")!="-") {
+      $txt.='<style>'.getConf("churchcal_css").'</style>';
     }
     if (isset($_GET["cssurl"])) {
       drupal_add_css($_GET["cssurl"]);
@@ -708,7 +708,7 @@ function churchcal__ical() {
       
       foreach (getAllDatesWithRepeats($res, -90, 400) as $d) {
         $txt.="BEGIN:VEVENT\r\n"; 
-        $txt.="ORGANIZER:MAILTO:".variable_get('site_mail', '')."\r\n";
+        $txt.="ORGANIZER:MAILTO:".getConf('site_mail', '')."\r\n";
         $txt.="SUMMARY:".$res->bezeichnung."\r\n";
         //$txt.="X-MICROSOFT-CDO-BUSYSTATUS:BUSY\r\n"; 
         if ($res->link!="")

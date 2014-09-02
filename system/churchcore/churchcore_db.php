@@ -8,41 +8,7 @@ define("CDB_LOG_MASTERDATA", 'masterData');
 define("CDB_LOG_TAG", 'tag');
 
 
-/**
- * Delete all files in folder $dir
- * 
- * @param string $dir; directory name
- */
-function cleandir($dir) {
-  if (is_dir($dir)) {
-    $objects = scandir($dir);
-    foreach ($objects as $object) {
-      if ($object != "." && $object != "..") {
-        if (filetype($dir."/".$object) != "dir") {
-          unlink($dir."/".$object);
-        }
-      }
-    }
-  }
-}
 
-/**
- * Recursively delete all files and directories in folder $dir 
- *
- * @param string $dir; directory name
- */
-function rrmdir($dir) {
-  if (is_dir($dir)) {
-    $objects = scandir($dir);
-    foreach ($objects as $object) {
-      if ($object != "." && $object != "..") {
-        if (filetype($dir."/".$object) == "dir") rrmdir($dir."/".$object); else unlink($dir."/".$object);
-      }
-    }
-    reset($objects);
-    rmdir($dir);
-  }  
-}
 
 /**
  * Delete i18n related .js files
@@ -149,7 +115,7 @@ function ct_sendPendingNotifications($max_delayhours=null) {
                "<p>Hier Deine neuen Benachrichtigungen f&uuml;r ".t($personANDtype->domain_type).":</p>".
                "<ul>$msg</ul>".
                "<p><p><small>Einstellung f&uuml;r Versand: $nt->bezeichnung</small>";
-          churchcore_systemmail($p->email, "[".variable_get('site_name')."] Neue Abonnement-Benachrichtigung (".t($personANDtype->domain_type).")", $msg, true);
+          churchcore_systemmail($p->email, "[".getConf('site_name')."] Neue Abonnement-Benachrichtigung (".t($personANDtype->domain_type).")", $msg, true);
           }
       }
       
@@ -504,8 +470,8 @@ function churchcore_mail($from, $to, $subject, $content, $htmlmail=false, $witht
   $variables = array(
     '%username' => (isset($user->cmsuserid)?$user->cmsuserid:"anonymus"),
     '%useremail' => (isset($user->email)?$user->email:"anonymus"),
-    '%sitename' => variable_get('site_name', 'ChurchTools'),
-    '%sitemail' => variable_get('site_mail', 'info@churchtools.de'),
+    '%sitename' => getConf('site_name', 'ChurchTools'),
+    '%sitemail' => getConf('site_mail', 'info@churchtools.de'),
     '%siteurl' => $base_url,
   );
   // replace variables in content
@@ -537,10 +503,10 @@ function churchcore_mail($from, $to, $subject, $content, $htmlmail=false, $witht
  * @param string $content
  */
 function churchcore_systemmail($recipients, $subject, $content, $htmlmail=false, $priority=2) {
-  if (variable_get("mail_enabled")) {
+  if (getConf("mail_enabled")) {
     $recipients_array=explode(",", $recipients);
     foreach ($recipients_array as $recipient) {
-      churchcore_mail(variable_get('site_mail', ini_get('sendmail_from')), trim($recipient), $subject, $content, $htmlmail, true, $priority);
+      churchcore_mail(getConf('site_mail', ini_get('sendmail_from')), trim($recipient), $subject, $content, $htmlmail, true, $priority);
     }
   }  
 }
@@ -574,8 +540,8 @@ function churchcore_sendMails_PHPMAIL($maxmails=10) {
         else  
           $header.='Content-type: text/plain; charset=utf-8' . "\n";    //'Content-Transfer-Encoding: quoted-printable'. "\n" .
         
-        $header.="From: ".variable_get('site_mail', 'info@churchtools.de')."\n";
-        if ($mail->sender!=variable_get('site_mail', 'info@churchtools.de')) {
+        $header.="From: ".getConf('site_mail', 'info@churchtools.de')."\n";
+        if ($mail->sender!=getConf('site_mail', 'info@churchtools.de')) {
           $header.="Reply-To: $mail->sender\n";
           $header.="Return-Path: $mail->sender\n";
         }
@@ -633,7 +599,7 @@ function churchcore_sendMails_PEARMAIL($maxmails=10) {
       $counter_error=0;
       foreach ($db as $mail) {    
         $headers = array(
-          'From'          => variable_get('site_mail', 'info@churchtools.de'),
+          'From'          => getConf('site_mail', 'info@churchtools.de'),
           'Reply-To'     => $mail->sender,
           'Return-Path'   => $mail->sender,
           'Subject'       => $mail->subject,
@@ -667,7 +633,7 @@ function churchcore_sendMails_PEARMAIL($maxmails=10) {
         if (!isset($config["test"])) {
           $body = $mime->get($mime_params);
           $headers = $mime->headers($headers);
-          $mail_object =& Mail::factory(variable_get('mail_pear_type','mail'), (isset($config["mail_pear_args"])?$config["mail_pear_args"]:null));
+          $mail_object =& Mail::factory(getConf('mail_pear_type','mail'), (isset($config["mail_pear_args"])?$config["mail_pear_args"]:null));
           $ret=@$mail_object->send($mail->receiver, $headers, $body);
           if (@PEAR::isError($ret)) {
             $counter_error++;
@@ -690,7 +656,7 @@ function churchcore_sendMails_PEARMAIL($maxmails=10) {
  * @param number $maxmails
  */
 function churchcore_sendMails($maxmails=10) {
-  if (variable_get('mail_type','phpmail')=="phpmail")
+  if (getConf('mail_type','phpmail')=="phpmail")
     churchcore_sendMails_PHPMAIL($maxmails);
   else
     churchcore_sendMails_PEARMAIL($maxmails);
@@ -801,25 +767,6 @@ function checkForDBUpdates() {
 
   include_once("system/includes/db_updates.php");
   return run_db_updates($db_version);
-}
-
-/**
- * returns variable $var from global $config or global $mapping or $default
- * 
- * @param unknown $var
- * @param mixed $default
- * 
- * @return mixed 
- */
-function variable_get($var, $default=null) {
-  global $config, $mapping;
-  if (isset($config[$var]))  
-    return $config[$var];
-  else if (isset($mapping[$var]))  
-    return $mapping[$var];
-  else if ($default!=null)
-    return $default;
-  return null;
 }
 
 /**
@@ -1581,7 +1528,7 @@ function surroundWithVCALENDER($txt) {
   ."VERSION:2.0\r\n"
   ."PRODID:-//ChurchTools//DE\r\n" 
   ."CALSCALE:GREGORIAN\r\n"
-  ."X-WR-CALNAME:".variable_get('site_name', 'ChurchTools')." ChurchCal-Kalender\r\n"
+  ."X-WR-CALNAME:".getConf('site_name', 'ChurchTools')." ChurchCal-Kalender\r\n"
   ."X-WR-TIMEZONE:".$config["timezone"]."\r\n"
   ."METHOD:PUSH\r\n"
   .$txt

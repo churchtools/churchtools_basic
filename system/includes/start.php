@@ -317,10 +317,10 @@ function churchtools_main() {
   include_once (CHURCHCORE . "/churchcore_db.php");
   
   // which module is requested?
-  $q = $q_orig = readVar("q", userLoggedIn() ? "home" : readConf("site_startpage", "home"));
+  $q = $q_orig = getVar("q", userLoggedIn() ? "home" : getConf("site_startpage", "home"));
   // $currentModule is needed for class autoloading and maybe other include paths
-  list ($currentModule) = explode('/', readVar("q")); // get first part of $q or churchcore
-  $embedded = readVar("embedded", false);
+  list ($currentModule) = explode('/', getVar("q")); // get first part of $q or churchcore
+  $embedded = getVar("embedded", false);
   
   $base_url = getBaseUrl();
   
@@ -331,7 +331,7 @@ function churchtools_main() {
       // DBConfig overwrites the config files
       loadDBConfig();
       
-      date_default_timezone_set(variable_get("timezone", "Europe/Berlin"));
+      date_default_timezone_set(getConf("timezone", "Europe/Berlin"));
       
       if (isset($_COOKIE["language"])) $config["language"] = $_COOKIE["language"];
       
@@ -355,13 +355,13 @@ function churchtools_main() {
       register_shutdown_function('handleShutdown');
       
       // Check for offline mode. If it's activated display message and return false;
-      if (readConf("site_offline") == 1) {
+      if (getConf("site_offline") == 1) {
         if (!isset($_SESSION["user"]) || !in_array($_SESSION["user"]->id, readconf("admin_ids"))) {
           echo t("site.is.down");
           return false;
         }
       }
-      $embedded = readVar("embedded", false);
+      $embedded = getVar("embedded", false);
       $mapping = loadMapping();
       $success = true;
       // Check for DB-Updates and loginstr only if this is not an ajax call.
@@ -371,7 +371,7 @@ function churchtools_main() {
       
       if ($success) {
         // Is there a loginstr which does not fit to the current logged in user?
-        if (readVar("loginstr") && readVar("id") && userLoggedIn() && $_SESSION["user"]->id != readVar("id")) {
+        if (getVar("loginstr") && getVar("id") && userLoggedIn() && $_SESSION["user"]->id != getVar("id")) {
           logout_current_user();
           session_start();
         }
@@ -393,11 +393,11 @@ function churchtools_main() {
   // TODO: i changed  header/footer to as sort of template
   // probably some more logic could be removed from them by setting some more variables here
   // put header/footer into new file layout.php and add a variable $content
-  $lang = readConf("language");
-  $simulate = readVar("simulate");
-  $sitename = readConf("site_name");
-  if (readConf("test")) $sitename .= " TEST ";
-  if ($logo = readConf("site_logo")) $logo = "$files_dir/files/logo/$logo";
+  $lang = getConf("language");
+  $simulate = getVar("simulate");
+  $sitename = getConf("site_name");
+  if (getConf("test")) $sitename .= " TEST ";
+  if ($logo = getConf("site_logo")) $logo = "$files_dir/files/logo/$logo";
 
   include (INCLUDES . "/header.php");
   echo $content;
