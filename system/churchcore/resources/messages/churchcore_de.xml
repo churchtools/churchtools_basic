@@ -86,11 +86,11 @@
   <entry key="please.fill.following.fields">Bitte folgende Felder ausfüllen:</entry>
   <entry key="user">Benutzer</entry>
   <entry key="users">Benutzer</entry>
-  <entry key="email.or.username">EMail-Adresse oder Benutzername</entry>
+  <entry key="email.or.username">Email-Adresse oder Benutzername</entry>
   <entry key="password">Passwort</entry>
   <entry key="remember.me">Zukünftig an mich erinnern</entry>
   <entry key="login">Anmelden</entry>
-  <entry key="email.or.username.unknown">Die EMail-Adresse oder Benutzername ist nicht bekannt!</entry>
+  <entry key="email.or.username.unknown">Die Email-Adresse oder Benutzername ist nicht bekannt!</entry>
   <entry key="forgot.password">Neues Passwort anfordern?</entry>
   <entry key="want.to.receive.new.password">Wirklich neues Passwort anfordern?</entry>
   <entry key="wrong.password">Das Passwort ist nicht korrekt.</entry>
@@ -384,7 +384,14 @@
   <!-- churchwiki -->
   <entry key="view.wiki.category">Einzelne Wiki-Kategorien sehen</entry>
   <entry key="edit.wiki.category">Einzelne Wiki-Kategorien editieren</entry>
+  
+  <!-- login -->
+  <entry key="new.password.requested.for.xxx.is.yyy">Für die E-Mail-Adresse &lt;i&gt;{0}&lt;/i&gt;wurde ein neues Passwort angefordert: {1}</entry>
+  <entry key="email.unknown">Die Email-Adresse ist nicht bekannt!</entry>
+  <entry key="login.string.too.old">Fehler: Der verwendete Login-Link ist nicht mehr aktuell und kann deshalb nicht mehr verwendet werden. Bitte mit E-Mail-Adresse oder Nutzername und Passwort anmelden!</entry>
+  <entry key="login.error.no.id.given">Fehler beim Login, keine Nutzer-Id vorhanden!</entry>
   <entry key=""></entry>
+  
   
   <!-- forms --> 
   <entry key="again.please">Nochmal bitte...</entry>

@@ -476,39 +476,47 @@ function churchservice_getAbsents($year=null) {
 
 function churchservice_blocks() {
   return (array(
-    1=>array(
-      "label"=>t("your.pending.service.requests"),
-      "col"=>2,
-      "sortkey"=>1,
-      "html"=>churchservice_getUserOpenServices(),
-      "help"=>"Offene Dienstanfragen",
-      "class"=>"service-request"
+    1 => array(
+      "label" => t("your.pending.service.requests"),
+      "col" => 2,
+      "sortkey" => 1,
+      "html" => churchservice_getUserOpenServices(),
+      "help" => "Offene Dienstanfragen",
+      "class" => "service-request",
     ),  
-    2=>array(
-      "label"=>t("your.next.services"),
-      "col"=>2,
-      "sortkey"=>2,
-      "html"=>churchservice_getUserNextServices()
+    2 => array(
+      "label" => t("your.next.services"),
+      "col" => 2,
+      "sortkey" => 2,
+      "html" => churchservice_getUserNextServices(),
+      "help" =>  '',
+      "class" =>  '',
     ),  
-    3=>array(
-      "label"=>t("your.current.event.staff"),
-      "col"=>2,
-      "sortkey"=>3,
-      "html"=>churchservice_getCurrentEvents()
+    3 => array(
+      "label" => t("your.current.event.staff"),
+      "col" => 2,
+      "sortkey" => 3,
+      "html" => churchservice_getCurrentEvents(),
+      "help" =>  '',
+      "class" =>  '',
     ),  
-    4=>array(
-      "label"=>t("absence.of.next.x.days", 30),
-      "col"=>2,
-      "sortkey"=>4,
-      "html"=>churchservice_getAbsents()
+    4 => array(
+      "label" => t("absence.of.next.x.days", 30),
+      "col" => 2,
+      "sortkey" => 4,
+      "html" => churchservice_getAbsents(),
+      "help" =>  'Offene Dienstanfragen',
+      "class" =>  '',
     ),  
-    5=>array(
-      "label"=>t("facts.of.last.days"),
-      "col"=>2,
-      "sortkey"=>5,
-      "html"=>churchservice_getFactsOfLastDays()
+    5 => array(
+      "label" => t("facts.of.last.days"),
+      "col" => 2,
+      "sortkey" => 5,
+      "html" => churchservice_getFactsOfLastDays(),
+      "help" =>  '',
+      "class" =>  '',
     ),  
-    ));
+  ));
 } 
 
 

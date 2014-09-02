@@ -169,10 +169,23 @@ function churchresource_getCurrentBookings() {
  */
 function churchresource_blocks() {
   return (array (
-            1 => array ("label" => t("pending.booking.requests"), "col" => 3, "sortkey" => 1, 
-                        "html" => churchresource_getOpenBookings()), 
-            2 => array ("label" => t("current.bookings"), "col" => 3, "sortkey" => 2, 
-                        "html" => churchresource_getCurrentBookings())));
+    1 => array (
+      "label" => t("pending.booking.requests"), 
+      "col" => 3, 
+      "sortkey" => 1, 
+      "html" => churchresource_getOpenBookings(),
+      "help" => '',
+      "class" => '',
+    ), 
+    2 => array (
+      "label" => t("current.bookings"), 
+      "col" => 3, 
+      "sortkey" => 2, 
+      "html" => churchresource_getCurrentBookings(),
+      "help" => '',
+      "class" => '',
+    ),
+  ));
 }
 
 /**

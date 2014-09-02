@@ -102,7 +102,7 @@ class CTForm {
    * render form
    * 
    * TODO: if variable source doesn't matter, use REQUEST by removing POST from readVar()
-   * @return string
+   * @return string html content of form
    */
   public function render() {
     global $q_orig;

@@ -1,219 +1,270 @@
-<?php 
+<?php
 
+/**
+ * main function for login
+ * @return string
+ */
 function login_main() {
-  global $q, $config;
-  $txt="";
+  global $q, $config, $user;
   
-  if ((isset($config["admin_message"])) && ($config["admin_message"]!=""))
-    addErrorMessage($config["admin_message"]);
-  if ((isset($_GET["message"])) && ($_GET["message"]!=""))
-    addInfoMessage($_GET["message"]);
+  $txt = "";
+ 
+  if ($t = readConf("admin_message")) addErrorMessage($t);
+  if ($t = readVar("message")) addInfoMessage($t);
   
   // Sicherstellen, dass keiner eingelogt ist!
-  if (!userLoggedIn()) {    
-    if (isset($config["login_message"]))
-      addInfoMessage($config["login_message"], true);
-    $model = new CTForm("LoginForm", "prooveLogin", "Login");
-    $model->setHeader(t("login.headline"), t("please.fill.following.fields"));    
-    $model->addField("email","", "INPUT_REQUIRED",t("email.or.username"), true);
-    $model->addField("password","", "PASSWORD",t("password"));
-    if ((!isset($config["show_remember_me"])) || ($config["show_remember_me"]==1)) 
-      $model->addField("rememberMe","", "CHECKBOX",t("remember.me"));
-    $model->addButton(t("login"),"ok");
+  if (!userLoggedIn()) {
+    if ($t = readVar("login_message")) addInfoMessage($t, true);
+    $form = new CTForm("LoginForm", "validateLogin", "Login");
+    $form->setHeader(t("login.headline"), t("please.fill.following.fields"));
+    $form->addField("email", "", "INPUT_REQUIRED", t("email.or.username"), true);
+    $form->addField("password", "", "PASSWORD", t("password"));
+    // TODO: when is this false?
+    if (!readConf("show_remember_me") || readConf("show_remember_me") == 1) $form->addField("rememberMe", "", "CHECKBOX", t("remember.me"));
+    $form->addButton(t("login"), "ok");
     
-    if (isset($_GET["newpwd"])) {
-      $res=db_query("select count(*) c from {cdb_person} where email='".$_GET["email"]."' and archiv_yn=0")->fetch();
-      if (($_GET["email"]=="") || ($res->c==0)) {
-        $txt.='<div class="alert alert-error"><p>Bitte ein g&uuml;ltige EMail-Adresse angeben, 
-          an die das neue Passwort gesendet werden kann! 
-          Diese Adresse muss im System schon eingerichtet sein.
-          <p>Falls die E-Mail-Adresse schon eingerichtet sein sollte, 
-          wende Dich bitte an <a href="'.variable_get("site_mail").'">'.variable_get("site_mail").
-        '</a>.</div>';
-      } 
-      else {              
-        $newpwd=random_string(8);
-        $scrambled_password=scramble_password($newpwd);
-        db_query("update {cdb_person} set password='".$scrambled_password."' where email='".$_GET["email"]."'");
-        $content="<h3>Hallo!</h3><p>Ein neues Passwort wurde f&uuml;r die E-Mail-Adresse <i>".$_GET["email"]."</i> angefordert: $newpwd";
-        churchcore_systemmail($_GET["email"], "[".variable_get('site_name')."] Neues Passwort", $content, true, 1);
-        churchcore_sendMails(1);
-        $txt.='<div class="alert alert-info">Hinweis: Ein neues Passwort wurde nun an <i>'.$_GET["email"].'</i> gesendet.</div>';
-        ct_log("Neues Passwort angefordert ".$_GET["email"],2,"-1", "login");
-      }        
-    } 
-    // Zugriff �ber externe Tools mit GET und zus�tzlichen direct
-    else if ((isset($_POST["email"])) && (isset($_POST["password"])) && (isset($_POST["directtool"]))) {
-      include_once(CHURCHCORE."/churchcore_db.php");
-      $sql="select * from {cdb_person} where email=:email and active_yn=1 and archiv_yn=0";
-      $res=db_query($sql, array(":email"=>$_POST["email"]))->fetch();
-      if ($res==false) {
-        drupal_json_output(jsend()->fail("Unbekannte E-Mail-Adresse"));        
-      }
-      else if (user_check_password($_POST["password"], $res)) {      
-      login_user($res);            
-        ct_log("Login durch Direct-Tool ".$_POST["directtool"]." mit ".$_POST["email"],2,"-1", "login");
-        drupal_json_output(jsend()->success());        
-      }
-      else drupal_json_output(jsend()->fail("Falsches Passwort"));        
-      return;
-    }
-    // Pr�fe, ob Login �ber URL mit loginstr erfolgen soll
-    //e.g. http://localhost:8888/bootstrap/?q=profile&loginstr=123&id=8
-    else if ((isset($_GET["loginstr"])) && ($_GET["loginstr"]!="") && (isset($_GET["id"]))) {
-      // L�sche alte cc_loginurrls die �lter sind als 14 tage
-      db_query("delete from {cc_loginstr} where DATEDIFF( current_date, create_date ) > 13");
-      $sql="select * from {cc_loginstr} where loginstr=:loginstr and person_id=:id";      
-      $res=db_query($sql, array(":loginstr"=>$_GET["loginstr"], ":id"=>$_GET["id"]))->fetch();
-      if ($res==false) {
-        $txt.='<div class="alert alert-info">Fehler: Der verwendete Login-Link ist nicht mehr aktuell und kann deshalb nicht mehr verwendet werden. Bitte mit E-Mail-Adresse und Passwort anmelden!</div>';
+    if (readVar("newpwd") && $email = readVar("email")) {
+      $res = db_query("SELECT COUNT(*) c FROM {cdb_person} 
+                       WHERE email=':email' AND archiv_yn=0",
+                       array(':email' => $email))
+             ->fetch();
+      if ($res->c == 0) {
+        $txt .= '
+        <div class="alert alert-error"><p>Bitte ein g&uuml;ltige EMail-Adresse angeben, 
+            an die das neue Passwort gesendet werden kann! 
+            Diese Adresse muss im System schon eingerichtet sein.
+            <p>Falls die E-Mail-Adresse schon eingerichtet sein sollte, 
+            wende Dich bitte an <a href="' . readConf("site_mail") . '">' . readConf("site_mail") . '</a>.</div>';
       }
       else {
-        // Nehme den LoginStr heraus, damit er nicht mi�braucht werden kann.
-        $sql="delete from {cc_loginstr} where loginstr=:loginstr and person_id=:id";      
-        $res=db_query($sql, array(":loginstr"=>$_GET["loginstr"], ":id"=>$_GET["id"]));
-        ct_log("Login User ".$_GET["id"]." erfolgreich mit loginstr ",2,"-1", "login");
-        $res=churchcore_getPersonById($_GET["id"]);  
+        $newpwd = random_string(8);
+        // TODO: not needed to send passwords by email, use one time login instead
+        $scrambled_password = scramble_password($newpwd);
+        db_query("UPDATE {cdb_person} 
+                  SET password='" . $scrambled_password . "' 
+                  WHERE email=:email",
+                  array(':email' => $email));
+        
+        $content = "<h3>" . t('hello') . "!</h3>
+          <p>" . t('new.password.requested.for.xxx.is.yyy', $email, $newpwd) . "</p>";
+        churchcore_systemmail($email, "[" . readConf('site_name') . "] Neues Passwort", $content, true, 1);
+        churchcore_sendMails(1);
+        $txt .= '<div class="alert alert-info">Hinweis: Ein neues Passwort wurde nun an <i>' . $_GET["email"] .
+             '</i> gesendet.</div>';
+        ct_log("Neues Passwort angefordert: $email", 2, "-1", "login");
+      }
+    }
+    // access through externale tools through GET and additional direct
+    // TODO: is it important to look in post only?
+    else if ($email = readVar("email", false, $_POST) 
+             && $password = readVar("password", false, $_POST) 
+             && $directTool = readVar("directtool", false, $_POST)) {
+      include_once (CHURCHCORE . "/churchcore_db.php");
+      
+      $res = db_query("SELECT * FROM {cdb_person} 
+                       WHERE email=:email AND active_yn=1 AND archiv_yn=0", 
+                       array (":email" => $email))
+                       ->fetch();
+      if (!$res) {
+        drupal_json_output(jsend()->fail(t('email.unknown')));
+      }
+      else if (user_check_password($password, $res)) {
+        login_user($res);
+        ct_log("Login durch Direct-Tool $directTool mit $email", 2, "-1", "login");
+        drupal_json_output(jsend()->success());
+      }
+      else
+        drupal_json_output(jsend()->fail(t('wrong.password')));
+      return;
+    }
+    // check for login with one time login string in url
+    // e.g. http://localhost:8888/bootstrap/?q=profile&loginstr=123&id=8
+    else if ($loginString = readVar("loginstr") && $id = readVar('id')) {
+      // delete login strings older then 14 days
+      db_query("DELETE FROM {cc_loginstr} 
+                WHERE DATEDIFF( current_date, create_date ) > 13");
+      
+      $res = db_query("SELECT * FROM {cc_loginstr} 
+                       WHERE loginstr=:loginstr AND person_id=:id", 
+                       array (":loginstr" => $loginstr, 
+                              ":id" => $id
+                       ))->fetch();
+      if (!$res) {
+        $txt .= '<div class="alert alert-info">' . t('login.string.too.old') . '</div>';
+      }
+      else {
+        // delete current loginStr to prevent misuse
+        $res = db_query("DELETE FROM {cc_loginstr} 
+                         WHERE loginstr=:loginstr AND person_id=:id", 
+                         array (":loginstr" => $loginString, 
+                                ":id" => $i,
+                         ));
+        ct_log("Login User $id erfolgreich mit loginstr ", 2, "-1", "login");
+        $res = churchcore_getPersonById($id);
         login_user($res);
       }
     }
     
-    
-    $txt.=$model->render();
-    $txt.='<script>jQuery("#newpwd").click(function(k,a) {
-         if (confirm("'.t('want.to.receive.new.password').'")) {
-           window.location.href="?newpwd=true&email="+jQuery("#LoginForm_email").val()+"&q='.$q.'";
+    $txt .= $form->render();
+    $txt .= '<script>jQuery("#newpwd").click(function(k,a) {
+         if (confirm("' . t('want.to.receive.new.password') . '")) {
+           window.location.href="?newpwd=true&email="+jQuery("#LoginForm_email").val()+"&q=' . $q . '";
             }
           });</script>';
-    
   }
-  // Es ist schon jemand eingelogt!
+  // someone is already logged in 
   else {
-    // Wenn man sich ummelden m�chte und zur Familie geh�rt (also gleiche E-Mail-Adresse)
-    if (isset($_GET["family_id"])) {
-      if (isset($_SESSION["family"][$_GET["family_id"]])) {
-        //logout_current_user();
-        login_user($_SESSION["family"][$_GET["family_id"]]);
-        $txt.='<div class="alert alert-info">Ummelden erfolgreich! Du arbeitest nun mit der Berechtigung von '.$_SESSION["user"]->vorname.' '.$_SESSION["user"]->name.'.</div>';        
-      }    
-      else $txt.='<div class="alert alert-info">Ummelden zu Id:'.$_GET["family_id"].' hat nicht funktioniert, Session ist leer!</div>';
-    } 
+    // switch to another family user (same email)
+    if ($familyId = readVar("family_id")) {
+      if (isset($_SESSION["family"][$familyId])) {
+        // logout_current_user();
+        login_user($_SESSION["family"][$familyId]);
+        $txt .= '<div class="alert alert-info">Ummelden erfolgreich! Du arbeitest nun mit der Berechtigung von ' .
+             $_SESSION["user"]->vorname . ' ' . $_SESSION["user"]->name . '.</div>';
+      }
+      else
+        $txt .= "<div class='alert alert-info'>Ummelden zu Id: $familyId hat nicht funktioniert, Session ist leer!</div>";
+    }
     else {
-      $txt.='<div class="alert alert-info"><i>Hinweis:</i> Du bist angemeldet als '.$_SESSION["user"]->vorname.', weiter geht es <a href="?q=home">hier</a>!</div>';
+      $txt .= '<div class="alert alert-info"><i>Hinweis:</i> Du bist angemeldet als ' . $_SESSION["user"]->vorname .
+           ', weiter geht es <a href="?q=home">hier</a>!</div>';
     }
   }
   return $txt;
 }
 
-
-function prooveLogin($form) {
-  $res=db_query("select * from {cdb_person} where (email=:email or cmsuserid=:email or id=:email) and archiv_yn=0", 
-       array(":email"=>$form->fields["email"]->getValue()));
+/**
+ * validate login form
+ * TODO: is there a difference between returning false or null?
+ * @param CTForm $form
+ * @return bool or null?
+ */
+function validateLogin($form) {
   
-  $account_inactive=false;  
-  $account_errorcountlogin=false;          
-  $wrong_email=true;
-  // Hier ist eine Schleife, da E-Mail-Adressen von Familienmitgliedern mehrfach benutzt werden k�nnen.
-  foreach ($res as $ret) {
-    $wrong_email=false;
-    if ($ret->loginerrorcount>6) 
-      $account_errorcountlogin=true;
+  $res = db_query("SELECT * FROM {cdb_person} 
+                   WHERE (email=:email OR cmsuserid=:email OR id=:email) AND archiv_yn=0", 
+                   array (":email" => $form->fields["email"]->getValue()));
+  
+  $accountInactive = false;
+  $tooMuchLogins = false;
+  $wrongEmail = true;
+  // foreach because family emails may be used for more then one user
+  foreach ($res as $u) {
+    $wrongEmail = false;
+    if ($u->loginerrorcount > 6) $tooMuchLogins = true;
     else {
-      if (user_check_password($form->fields["password"]->getValue(),$ret)) {
-        if ($ret->active_yn==0) {
-          $account_inactive=true;            
-        }
+      if (user_check_password($form->fields["password"]->getValue(), $u)) {
+        if (!$u->active_yn) $accountInactive = true;
         else {
-          if (!isset($form->fields["rememberMe"]))
-            login_user($ret, false);
-          else  
-            login_user($ret, $form->fields["rememberMe"]->getValue());
+          login_user($u, $form->fields["rememberMe"] ? $form->fields["rememberMe"]->getValue() : false);
           return null;
         }
-      } 
+      }
       else {
-        db_query("update {cdb_person} set loginerrorcount=loginerrorcount+1 where id=$ret->id");      
+        db_query("UPDATE {cdb_person} SET loginerrorcount=loginerrorcount+1 
+                  WHERE id=:id",
+                  array(':id' => $u->id));
       }
     }
-  }   
-     
-  if ($wrong_email) {
-    $form->fields["email"]->setError(t('email.or.username.unknown'));
-    ct_log("Login failed: wrong email ".$form->fields["email"]->getValue(),2,"-1", "login");
-    return false;                    
   }
-  else if ($account_inactive) {
-    $form->fields["email"]->setError(t('account.was.locked'));
-    ct_log("Login failed: Access locked ".$form->fields["email"]->getValue(),1,"-1", "login");
+  
+  if ($wrongEmail) {
+    $form->fields["email"]->setError(t('email.or.username.unknown'));
+    ct_log("Login failed: wrong email " . $form->fields["email"]->getValue(), 2, "-1", "login");
     return false;
   }
-  else if ($account_errorcountlogin) {
+  else if ($accountInactive) {
+    $form->fields["email"]->setError(t('account.was.locked'));
+    ct_log("Login failed: Access locked " . $form->fields["email"]->getValue(), 1, "-1", "login");
+    return false;
+  }
+  else if ($tooMuchLogins) {
     $form->fields["email"]->setError(t('account.was.locked.cause.of.to.many.trials'));
-    ct_log("Login failed: To many trials ".$form->fields["email"]->getValue(),1,"-1", "login");
+    ct_log("Login failed: To many trials " . $form->fields["email"]->getValue(), 1, "-1", "login");
     return false;
   }
   else {
-    $form->fields["password"]->setError(t('wrong.password').' <a href="#" id="newpwd">'.t('forgot.password').'</a>');
-    ct_log("Login failed: ".$form->fields["email"]->getValue()." wrong password",2,"-1", "login");
-    return false;                
+    $form->fields["password"]->setError(t('wrong.password') . ' <a href="#" id="newpwd">' . t('forgot.password') .
+         '</a>');
+    ct_log("Login failed: " . $form->fields["email"]->getValue() . " wrong password", 2, "-1", "login");
+    return false;
   }
 }
 
-function login_user($ret, $rember_me=false) {
+/**
+ * 
+ * @param array $u userdata
+ * @param bool $rember_me
+ * @return NULL
+ */
+function login_user($u, $rember_me = false) {
   global $q, $q_orig;
   
-  if (!isset($ret->id)) {
-    addErrorMessage("Keine Id vorhanden, Fehler beim Login!");
+  if (empty($u->id)) {
+    addErrorMessage(t("login.error.no.id.given"));
     return null;
-  }    
-  $_SESSION["email"]=$ret->email;
- 
-  if ($ret->cmsuserid=="") {
-    $ret->cmsuserid=$ret->vorname." ".$ret->name." [".$ret->id."]";
-    db_query("update {cdb_person} set cmsuserid='".$ret->cmsuserid."' where id=$ret->id");      
   }
-  if ($ret->loginstr!=null) {
-    db_query("update {cdb_person} set loginstr=null where id=$ret->id");      
+  $_SESSION["email"] = $u->email;
+  
+  if (!$u->cmsuserid) {
+    $u->cmsuserid = "$u->vorname $u->name [" . $u->id . "]";
+    
+    db_query("UPDATE {cdb_person} 
+              SET cmsuserid=:cmsuserid 
+              WHERE id=:id",
+              array(':cmsuserid' => $u->cmsuserid,
+                    ':id' => $u->id,
+              ));
+  }
+  if ($u->loginstr) {
+    db_query("UPDATE {cdb_person} SET loginstr=NULL WHERE id=$u->id");
   }
   
-  $ret->auth=getUserAuthorization($ret->id);
-  $_SESSION["user"]=$ret;
-
-  // 6 Tage h�lt der Login
-  $ablaufDesCookies = time() + 60 * 60 * 24 * 6;
+  $u->auth = getUserAuthorization($u->id);
+  $_SESSION["user"] = $u;
   
-  setcookie("RememberMe", $rember_me, $ablaufDesCookies);            
-  $_SESSION["sessionid"]=random_string();
-  setcookie("CC_SessionId", $_SESSION["sessionid"], $ablaufDesCookies);
+  // TODO: make time configurable
+  // login is valid for 6 days
+   $cookieExpireTime = time() + 60 * 60 * 24 * 6;
+  
+  setcookie("RememberMe", $rember_me,  $cookieExpireTime);
+  $_SESSION["sessionid"] = random_string();
+  setcookie("CC_SessionId", $_SESSION["sessionid"],  $cookieExpireTime);
   $dt = new DateTime();
   
-  db_query("update {cdb_person} set lastlogin=now(), loginerrorcount=0 where id=".$ret->id);
-//  db_query("delete from {cc_session} where person_id=".$ret->id." AND hostname='".$_SERVER["HTTP_HOST"]."'");
-  db_query("delete from {cc_session} where datediff(now(), datum)>7");             
-  db_query("insert into {cc_session} (person_id, session, hostname, datum) 
-            values (".$ret->id.", '".$_SESSION["sessionid"]."', '".$_SERVER["HTTP_HOST"]."', '".$dt->format('Y-m-d H:i:s')."')");
-
-  if ($ret->email!='') {
-    // Suche Leute aus der Familie, die die gleiche EMail-Adresse haben.  
-    $res=db_query("select * from {cdb_person} where email=:email and archiv_yn=0", array(":email"=>$ret->email));
-    $family=null;
-    $count=0;
-    foreach($res as $p) {
-      if ($p->id!=$ret->id) $family[$p->id]=$p;
+  db_query("UPDATE {cdb_person} SET lastlogin=NOW(), loginerrorcount=0 WHERE id=:id", array(':id' => $u->id));
+  // db_query("DELETE FROM {cc_session} WHERE person_id=".$u->id." AND hostname='".$_SERVER["HTTP_HOST"]."'");
+  db_query("DELETE FROM {cc_session} WHERE datediff(NOW(), datum)>7");
+  db_query("INSERT INTO {cc_session} (person_id, session, hostname, datum) 
+            VALUES (:id, :session, :host, :date)",
+            array( ':id' => $u->id,
+                   ':session' => $_SESSION["sessionid"],
+                   ':host' => $_SERVER["HTTP_HOST"],
+                   ':date' => $dt->format('Y-m-d H:i:s'),
+            ));
+  
+  if ($u->email) {
+    // look for family users with the same email
+    $res = db_query("SELECT * FROM {cdb_person} 
+                     WHERE email=:email AND archiv_yn=0", 
+                     array (":email" => $u->email));
+    $family = array();
+    $count = 0;
+    foreach ($res as $p) {
+      if ($p->id != $u->id) $family[$p->id] = $p;
       $count++;
-      if ($count>15) break;
+      if ($count > 15) break; //no family should have more then 15 users
     }
-    if ($family!=null) $_SESSION["family"]=$family;
+    if (count($family)) $_SESSION["family"] = $family;
   }
   
-  ct_log("Login succeed: ".$ret->email." with ".(isset($_SERVER['HTTP_USER_AGENT'])?$_SERVER['HTTP_USER_AGENT']:"Unkown Browser!"),2,-1, "login");
+  ct_log("Login succeed: $u->email with " . readVar('HTTP_USER_AGENT', "Unkown Browser", $_SERVER), 2, -1, "login");
   
-  // Wenn es Ummelden war, dann nicht weiterleiten, denn sonst w�re das ja wieder Login.
-  if ($q!=$q_orig) {
+  // on switching family login dont forward to login again
+  if ($q != $q_orig) {
     header("Location: ?q=$q_orig");
   }
-  else if ($q=="login")
-    header("Location: ?q=".variable_get("site_startpage", "home"));
+  else if ($q == "login") header("Location: ?q=" . readConf("site_startpage", "home"));
 }
 
 ?>

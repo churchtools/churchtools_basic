@@ -617,37 +617,47 @@ function churchdb_getBlockLookPerson() {
 function churchdb_blocks() {
   global $config;
   return (array(
-    1=>array(
-      "label"=>t("birthdays"),
-      "col"=>1,
-      "sortkey"=>1,
-      "html"=>churchdb_getBlockBirthdays()
+    1 => array(
+      "label" => t("birthdays"),
+      "col" => 1,
+      "sortkey" => 1,
+      "html" => churchdb_getBlockBirthdays(),
+      "help" => '',
+      "class" => '',
     ),  
-    2=>array(
-      "label"=>t("who.is.online"),
-      "col"=>1,
-      "sortkey"=>3,
-      "html"=>getWhoIsOnline()
+    2 => array(
+      "label" => t("who.is.online"),
+      "col" => 1,
+      "sortkey" => 3,
+      "html" => getWhoIsOnline(),
+      "help" => '',
+      "class" => '',
     ),  
-    3=>array(
-      "label"=>t("manage.my.membership"),
-      "col"=>1,
-      "sortkey"=>2,
-      "html"=>subscribeGroup()
+    3 => array(
+      "label" => t("manage.my.membership"),
+      "col" => 1,
+      "sortkey" => 2,
+      "html" => subscribeGroup(),
+      "help" => '',
+      "class" => '',
     ),  
-    4=>array(
-      "label"=>t("todos.in", $config["churchdb_name"]),
-      "col"=>2,
-      "sortkey"=>1,
-      "html"=>churchdb_getTodos()
+    4 => array(
+      "label" => t("todos.in", $config["churchdb_name"]),
+      "col" => 2,
+      "sortkey" => 1,
+      "html" => churchdb_getTodos(),
+      "help" => '',
+      "class" => '',
     ),  
-    5=>array(
-      "label"=>"ChurchMailer",
-      "col"=>1,
-      "sortkey"=>2,
-      "html"=>churchdb_getForum()
+    5 => array(
+      "label" => "ChurchMailer",
+      "col" => 1,
+      "sortkey" => 2,
+      "html" => churchdb_getForum(),
+      "help" => '',
+      "class" => '',
     ),  
-    ));
+  ));
 } 
 
 /**

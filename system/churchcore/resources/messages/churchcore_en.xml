@@ -378,6 +378,12 @@
   <entry key="view.wiki.category">view single wiki category</entry>
   <entry key="edit.wiki.category">edit single wiki category</entry>
   
+  <!-- login -->
+  <entry key="new.password.requested.for.xxx.is.yyy">A new password was requested for email address &lt;i&gt;{0}&lt;/i&gt;: {1}</entry>
+  <entry key="email.unknown">This email address is unknown!</entry>
+  <entry key="login.string.too.old">Error: The used login link is outdated and therefore can not be used anymore. Please login with email or username and password!</entry>
+  <entry key="login.error.no.id.given">Login error, no user id given!</entry>
+  
   <!-- forms --> 
   <entry key="again.please">Again please ...</entry>
   

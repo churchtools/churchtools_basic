@@ -228,15 +228,25 @@ function churchwiki_getWikiInfos() {
  */
 function churchwiki_blocks() {
   global $config;
+  
   return (array (
-                1 => array ("label" => t("important.from", $config["churchwiki_name"]), "col" => 2, "sortkey" => 1, 
-                            "html" => churchwiki_getWikiOnStartpage())
-                // "help"=>"Offene Dienstanfragen"
-                , 
-                2 => array ("label" => t("news.from", $config["churchwiki_name"]), "col" => 2, "sortkey" => 8, 
-                            "html" => churchwiki_getWikiInfos())
-                // "help"=>"Offene Dienstanfragen"
-                ));
+    1 => array (
+      "label" => t("important.from", $config["churchwiki_name"]), 
+      "col" => 2, 
+      "sortkey" => 1, 
+      "html" => churchwiki_getWikiOnStartpage(),
+      "help" => '',
+      "class" => '',
+    ), 
+    2 => array (
+      "label" => t("news.from", $config["churchwiki_name"]), 
+      "col" => 2, 
+      "sortkey" => 8, 
+      "html" => churchwiki_getWikiInfos(),
+      "help" => '',
+      "class" => '',
+    ),
+  ));
 }
 
 /**

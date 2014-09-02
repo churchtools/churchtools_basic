@@ -109,25 +109,24 @@ function churchcal_getUserMeetings() {
 }
 
 function churchcal_blocks() {
-  return (array(
-      1=>array(
-          "label"=>t("your.open.meeting.requests"),
-          "col"=>2,
-          "sortkey"=>1,
-          "html"=>churchcal_getUserOpenMeetingRequests(),
-          "help"=>"Terminanfragen",
-          "class"=>"cal-request"
-      ),
-      2=>array(
-          "label"=>t("your.next.meetings"),
-          "col"=>2,
-          "sortkey"=>2,
-          "html"=>churchcal_getUserMeetings(),
-          "help"=>"Terminanfragen",
-          "class"=>"cal-request"
-      )
-      
-      ));
+  return (array (
+    1 => array (
+      "label" => t("your.open.meeting.requests"), 
+      "col" => 2, 
+      "sortkey" => 1, 
+      "html" => churchcal_getUserOpenMeetingRequests(), 
+      "help" => "Terminanfragen", 
+      "class" => "cal-request",
+    ), 
+    2 => array (
+      "label" => t("your.next.meetings"), 
+      "col" => 2, 
+      "sortkey" => 2, 
+      "html" => churchcal_getUserMeetings(), 
+      "help" => "Terminanfragen", 
+      "class" => "cal-request",
+    ),
+  ));
 }
 
 

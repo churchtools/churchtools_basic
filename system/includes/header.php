@@ -75,7 +75,7 @@
             <span class="icon-bar"></span>
           </a>
           <a class="brand" href=".">
-            <? if ($logo): ?><img src="$logo" style="max-width:100px;max-height:32px;margin:-10px 4px -8px 0px"/><? endif; ?>
+            <? if ($logo): ?><img src="<?= $logo ?>" style="max-width:100px;max-height:32px;margin:-10px 4px -8px 0px"/><? endif; ?>
             <?= $sitename ?>
           </a>
 
@@ -89,8 +89,8 @@
             <ul class="dropdown-menu">
     <? if (isset($_SESSION["family"])): ?>
              <caption><?= t('change.to') ?></caption>
-      <? foreach ($_SESSION["family"] as $family): ?> {
-             <li><a href="?q=login&family_id='.$family->id.'"><?= $family->vorname?> <?= $family->name ?></a></li>                       
+      <? foreach ($_SESSION["family"] as $family): ?>
+             <li><a href="?q=login&family_id=<?= $family->id?>"><?= $family->vorname?> <?= $family->name ?></a></li>                       
       <? endforeach; ?>                       
              <li class="divider"></li>
     <? endif; ?>                       
@@ -123,10 +123,10 @@
           <div class="nav-collapse">
             <ul class="nav">
   <? foreach (churchcore_getModulesSorted() as $key): ?>
-    <? if (readConf($key."_name") && readConf($key."_inmenu")=="1"
+    <? if (readConf($key."_name") && readConf($key."_inmenu") == "1"
            && (user_access("view", $key) || in_array($key, $mapping["page_with_noauth"]))):?>
                 <li <?= ($q == $key) ? 'class="active"' : "" ?>>
-                <a href="?q='.$key.'"><?= readConf($key."_name") ?></a></li>
+                <a href="?q=<?= $key ?>"><?= readConf($key."_name") ?></a></li>
     <? endif; ?>                       
   <? endforeach; ?>                       
             </ul>

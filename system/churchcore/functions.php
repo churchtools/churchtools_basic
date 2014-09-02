@@ -25,8 +25,8 @@ function __autoload($class_name)
 }
 
 /**
- * read var from $_REQUEST or from any other array and return the value
- * $_REQUEST as default array doesnt work
+ * Read var from $_REQUEST or from any other array and return the value.
+ * $_REQUEST as default array doesnt work.
  *
  * @param array $var
  * @param bool $default; default false 
@@ -41,11 +41,10 @@ function readVar($var, $default = false, &$array = false) {
 }
 
 /**
- * read var from $config or from mapping and return the value
- * $_REQUEST as default array doesnt work
+ * Read var from $config or from mapping and return the value.
  *
  * @param array $var
- * @param bool $default; default false 
+ * @param mixed $default; default false 
  * @param array $array as reference; default false ==> $_REQUEST is used, or any array
  * @return mixed value
  */
