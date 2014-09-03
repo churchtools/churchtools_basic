@@ -9,7 +9,7 @@
 $q = ""; // which module to use
 $config = array (); //
 $mapping = array (); //
-$files_dir = DEFAULT_SITE; // dir for page specific files
+$files_dir = null; // dir for page specific files
 
 $add_header = ""; // http headers?
 $content = ""; // page content
@@ -284,15 +284,57 @@ function churchtools_processRequest($_q) {
   return $content;
 }
 
+
+/**
+ * Main entry point for churchtools.
+ * This will be called from /index.php
+ * Function loads constants and simple functions and have a try and catch for the whole application
+ * It calls churchtools_app().
+ */
+function churchtools_main() {
+  try {  
+    //TODO: find a good place for constants.php
+    require ("system/includes/constants.php");
+    include_once (INCLUDES."/functions.php");
+    include_once (INCLUDES."/start.php");
+    churchtools_app ();
+  }
+  catch ( SqlException $e ) {
+    //  TODO: get sql and show it to admin only
+    //  if (DEBUG) {
+    //  echo "<h3>PDO-Error:</h3>", $db->errorCode(), "<br>", $db->lastQuery(), '<br>';
+    //  }
+    //  else {
+    //  echo "<h3>Database-Error:</h3>", "There is an error";
+    //  }
+  
+    CTException::reportError ( $e );
+  }
+  catch ( CTException $e ) {
+    $e->reportError ( $e );
+  }
+  catch ( Exception $e ) {
+    echo '
+<div style="margin:2em;padding:2em;background-color:#ffdddd">
+    <h3>Sorry, but there is an Error:</h3>
+    <p><br/>'. $e->getMessage (). '</p>
+  </div>';
+  }
+}
+
+
+
 /**
  * Main entry point for churchtools.
  * This will be called from /index.php
  * Function loads i18n, configuration, check data security.
  * If everything is ok, it calls churchtools_processRequest()
  */
-function churchtools_main() {
+function churchtools_app() {
   global $q, $q_orig, $currentModule, $add_header, $config, $mapping, $content, $base_url, $files_dir, $user, $embedded, $i18n;
   include_once (CHURCHCORE . "/churchcore_db.php");
+  
+  $files_dir = DEFAULT_SITE;
   
   // which module is requested?
   $q = $q_orig = readVar("q", userLoggedIn() ? "home" : readConf("site_startpage", "home"));
