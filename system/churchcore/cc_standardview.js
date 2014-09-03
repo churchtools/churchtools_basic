@@ -29,6 +29,7 @@ function StandardTableView(options) {
 
   this.showPaging=true;
   this.rowNumbering=true;
+  this.showFoundEntries=true;
 
   if (options!=null) {
     $.each(options, function(k,a) {
@@ -377,21 +378,24 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
         rows.push("</table>");
         rows.push("</div>");
 
-        rows.push('<table class="table table-bordered table-condensed"><tr><td>');
+        if (t.showFoundEntries || t.showPaging)
+          rows.push('<table class="table table-bordered table-condensed"><tr><td>');
 
-        if (t.counter>=masterData.settings["listMaxRows"+t.name]) {
-          if (!churchcore_handyformat()) {
-            rows[rows.length] = _("show.x.from.y.entries", masterData.settings["listMaxRows"+t.name], t.counter);
-            rows.push("&nbsp; &nbsp; &nbsp;"+_("paging")+": <a id=\"offset0\" href=\"#\"><<</a>&nbsp;|&nbsp;<a id=\"offsetMinus\" href=\"#\"><</a>&nbsp;|&nbsp;<a id=\"offsetPlus\" href=\"#\">></a>");
+        if (t.showFoundEntries) {
+          if (t.counter>=masterData.settings["listMaxRows"+t.name]) {
+            if (!churchcore_handyformat()) {
+              rows[rows.length] = _("show.x.from.y.entries", masterData.settings["listMaxRows"+t.name], t.counter);
+              rows.push("&nbsp; &nbsp; &nbsp;"+_("paging")+": <a id=\"offset0\" href=\"#\"><<</a>&nbsp;|&nbsp;<a id=\"offsetMinus\" href=\"#\"><</a>&nbsp;|&nbsp;<a id=\"offsetPlus\" href=\"#\">></a>");
+            }
+            else {
+              rows.push(_("paging")+": <a id=\"offset0\" href=\"#\"><<</a>&nbsp;|&nbsp;<a id=\"offsetMinus\" href=\"#\"><</a>&nbsp;|&nbsp;<a id=\"offsetPlus\" href=\"#\">></a>");
+              rows[rows.length] = '<span class="pull-right">'+
+                _("show.x.from.y.entries", masterData.settings["listMaxRows"+t.name], t.counter)+"  </span><br/>";
+            }
           }
-          else {
-            rows.push(_("paging")+": <a id=\"offset0\" href=\"#\"><<</a>&nbsp;|&nbsp;<a id=\"offsetMinus\" href=\"#\"><</a>&nbsp;|&nbsp;<a id=\"offsetPlus\" href=\"#\">></a>");
-            rows[rows.length] = '<span class="pull-right">'+
-              _("show.x.from.y.entries", masterData.settings["listMaxRows"+t.name], t.counter)+"  </span><br/>";
-          }
+          else
+            rows[rows.length] = _("show.x.entries", t.counter);
         }
-        else
-          rows[rows.length] = _("show.x.entries", t.counter);
 
         if (t.showPaging) {
           if (!churchcore_handyformat()) {
@@ -412,7 +416,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
             rows.push('<span class="pull-right"><a href="#" id="hideAll">'+_("close.each")+'</a></span>');
           }
         }
-        rows.push('</table>');
+        if (t.showFoundEntries || t.showPaging) rows.push('</table>');
 
         if (t.listViewTableHeight!=null) rows.push("<p></p>");
 

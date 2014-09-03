@@ -166,6 +166,25 @@ div.fixed {
 .grouping {
   background-color:#e7eef4 !important;
   font-style:italic;
+}		
+
+@media print {
+   .grouping {
+	  border-width: 2px !important;
+    }
+	.well {
+	  border-width: 4px !important;
+      background-color: #e7eef4 !important;
+	}
+	th {
+      background-color: #e7eef4 !important;
+	}		
+}
+@media screen {
+}
+
+.series {
+  font-style:italic;
 }
 
 td.angefragt, a.angefragt, font.angefragt {
