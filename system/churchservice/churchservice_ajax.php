@@ -490,7 +490,7 @@ function churchservice_updateEventService($params) {
   
   // look if event is still valid
   $arr = db_query("SELECT * FROM {cs_eventservice} WHERE id=:id", array (":id" => $id))->fetch();
-  if (!$arr) return "Eintrag nicht gefunden, id nicht gültig!";
+  if (!$arr) return "Entry not found, id not valid!";
   if ($arr->valid_yn != 1 && !isset($params["valid_yn"])) return "Eintrag konnte nicht angepasst werden, da veraltet. Bitte neu laden!";
   
   // check auth
@@ -567,40 +567,37 @@ function churchservice_updateEventService($params) {
     $txt = "";
     // confirm
     if ($zugesagt_yn == 1) {
-      $txt .= t("surname.name.has.approved.the.service.x.for.date.event",
-                array($user->vorname, 
-                      $user->name, $service->bezeichnung, 
-                      $event->datum,   //TODO: remove seconds from date
-                      $event->bezeichnung,
-                      $name,
-               ));
-      $subject .= t("surname.name.has.approved.a.request", 
-                    array($user->vorname, $user->name));
+      $txt .= t("surname.name.has.approved.name.for.service.x.for.date.event",
+                  $user->vorname, 
+                  $user->name, $service->bezeichnung, 
+                  $event->datum,   //TODO: remove seconds from date
+                  $event->bezeichnung,
+                  $name
+               );
+      $subject .= t("surname.name.has.approved.a.request", $user->vorname, $user->name);
     }
     // propose
     else if ($name) {
-      $txt .= t("surname.name.has.for.service.x.for.date.event.name.proposed",
-                array($user->vorname, 
+      $txt .= t("surname.name.has.proposed.name.for.service.x.for.date.event",
+                      $user->vorname, 
                       $user->name, 
                       $service->bezeichnung, 
                       $event->datum, 
                       $event->bezeichnung, 
-                      $name,
-                ));
-      $subject .= t("surname.name.has.proposed.someone", 
-                    array($user->vorname, $user->name));
+                      $name
+              );
+      $subject .= t("surname.name.has.proposed.someone", $user->vorname, $user->name);
     }
     // cancel
     else {
       $txt .= t("surname.name.has.canceled.the.service.x.for.date.event",
-                array($user->vorname, 
-                      $user->name, 
-                      $service->bezeichnung, 
-                      $event->datum, 
-                      $event->bezeichnung, 
-               ));
-      $subject .= t("surname.name.has.canceled.a.request",
-                    array($user->vorname, $user->name));
+                $user->vorname, 
+                $user->name, 
+                $service->bezeichnung, 
+                $event->datum, 
+                $event->bezeichnung 
+               );
+      $subject .= t("surname.name.has.canceled.a.request", $user->vorname, $user->name);
     }
     if ($reason != null) $txt .= "<p>Folgendes wurde als Grund angegeben: " . $reason;
     

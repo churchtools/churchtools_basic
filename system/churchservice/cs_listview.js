@@ -1906,7 +1906,7 @@ ListView.prototype.renderEntryHistory = function(event_id, service_id, counter, 
 /**
  * event, service_id, id des serviceeintrages
  */
-function tryToGetReason(event, service_id, id) {
+function tryToGetReason(event, service_id, id, person_id) {
   var reason=null;
   $.each(churchcore_sortArray(event.services, "datum", true), function(b, service) {
     if (service.service_id==service_id) {
@@ -1914,8 +1914,9 @@ function tryToGetReason(event, service_id, id) {
         // exit
         return false;
       }
-      if (service.reason!=null)
+      if (service.reason!=null && service.user_id==person_id) {
         reason=service.reason;
+      }
     }
   });
   return reason;
@@ -2031,7 +2032,7 @@ ListView.prototype.renderPersonAuslastung = function (cdb_user_id, event_id, ser
                 txt3=txt3+"angefragt";
               else {
                 txt3=txt3+"abgesagt";
-                var reason=tryToGetReason(event, service.service_id, service.id);
+                var reason=tryToGetReason(event, service.service_id, service.id, cdb_user_id);
                 if (reason!=null) txt3=txt3+" (<i>"+reason+"</i>)";
               }
               txt3=txt3+" f&uuml;r "+event.startdate.toDateEn(true).toStringDeTime()+" "+event.bezeichnung;
