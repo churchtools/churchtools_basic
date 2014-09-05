@@ -155,7 +155,6 @@ div.event_info {
   padding: 4px 1px 4px 11px;
   margin: 0px 3px 3px 1px;
   background: #F9F9F9;
-  max-width:250px;
   line-height:150%;
 }
 
@@ -179,8 +178,14 @@ div.fixed {
 	th {
       background-color: #e7eef4 !important;
 	}		
+	td {
+	  line-height: 16px !important;
+	}
 }
 @media screen {
+	div.event_info {
+      max-width:250px;
+	}
 }
 
 .series {
