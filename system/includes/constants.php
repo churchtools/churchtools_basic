@@ -4,10 +4,11 @@
  */
 
 //TODO: next two maybe not needed?
-define('SITES', 'sites');
-define('DEFAULT_SITE', SITES.'/default');
+define('SITES',          'sites');
+define('DEFAULT_SITE',   SITES.'/default');
+define('PHOTO',          'foto'); //TODO: replace it in code
 
-define('SYSTEM', 'system');
+define('SYSTEM',         'system');
 define('ASSETS',         SYSTEM.'/assets');
 define('BOOTSTRAP',      SYSTEM.'/bootstrap');
 define('INCLUDES',       SYSTEM.'/includes');
@@ -24,6 +25,7 @@ define('CLASSES',        '/classes');
 
 define('NL',        "\n"); //new line, \n, \r, \r\n or \n\r
 
-
+define('PHP_QPRINT_MAXL', 75);
+define('MAX_MAILS', 10);
 
 ?>

@@ -78,7 +78,7 @@ class CTChurchWikiModule extends CTAbstractModule {
        throw new CTNoPermission("view", "churchwiki");
     $res = db_query("SELECT version_no id, CONCAT('Version ', version_no,' vom ', modified_date, ' - ',p.vorname, ' ', p.name) AS bezeichnung 
                      FROM {cc_wiki} w, {cdb_person} p WHERE w.modified_pid=p.id AND doc_id=:doc_id AND wikicategory_id=:wikicategory_id 
-                     ORDER BY version_no desc", 
+                     ORDER BY version_no DESC", 
                      array (':doc_id' => $params["doc_id"], 
                             ':wikicategory_id' => $params["wikicategory_id"],
                      ));

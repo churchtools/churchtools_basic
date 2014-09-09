@@ -227,9 +227,10 @@ function churchcore__filedownload() {
   global $files_dir;
   include_once(CHURCHCORE."/churchcore_db.php");
   $mime_types=getMimeTypes();
-     
-  $file=db_query("select * from {cc_file} f where f.id=:id and filename=:filename", 
-    array(":id"=>$_GET["id"], ":filename"=>$_GET["filename"]))->fetch();
+  $file=db_query("SELECT * FROM {cc_file} f 
+                 WHERE f.id=:id AND filename=:filename", 
+                 array(":id"=>$_GET["id"], ":filename"=>$_GET["filename"]))
+                 ->fetch();
   $filename="$files_dir/files/$file->domain_type/$file->domain_id/$file->filename";
   
   $handle = fopen($filename, "rb");
@@ -291,7 +292,7 @@ function churchcore__logviewer() {
                    (select person_id, datum, level, domain_type, domain_id, txt 
                       from {cdb_log} l where
 						$filter
-						order by l.id desc 
+						order by l.id DESC 
 						limit 0,$limit) as log on (log.person_id=p.id)");
 
   $txt.='<form class="form-inline" action="">';

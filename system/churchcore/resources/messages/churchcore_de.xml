@@ -376,7 +376,7 @@
   
   <!-- churchresource -->
   <entry key="edit.masterdata">Stammdaten editieren</entry>
-  <entry key="view.modulname">{0} sehen</entry> <!-- TODO: use it for all similar texts -->
+  <entry key="view.modulename">{0} sehen</entry> <!-- TODO: use it for all similar texts -->
   <entry key="create.own.bookings">Eigene Buchugsanfragen erstellen</entry>
   <entry key="administer.bookings">Alle Anfragen editieren, ablehnen, etc.</entry>
   <entry key="assistant.mode">Im Auftrag eines anderen Buchungen durchführen</entry>
@@ -400,6 +400,17 @@
   <entry key="add.to.menu">{0} im Menu aufführen</entry>
   <entry key="show.as.button.on.home">{0} auf der Startseite als Button anzeigen</entry>
   <entry key="sortnumber.in.menu">Sortierungsnummer im Menu (sortcode)</entry>
+  <!-- Admin preferences member list -->
+  <entry key="preferences.for.memberlist">Einstellungen für die Mitgliederliste</entry>
+  <entry key="admin.could.change.preferences.here">Der Administrator kann hier einstellen, welche Daten ausgegeben werden sollen.</entry>
+  <entry key=""></entry>
+  
+  <!-- home -->
+  <entry key="directory.x.has.to.be.writable">The directory {0} has to be writeable. Please adjust permissions!</entry>
+  
+  <!-- core db -->
+  <entry key="previously">vorher</entry>
+  <entry key="logout.successful">Logout erfolgreich</entry>
   <entry key=""></entry>
 
 </properties>

@@ -192,17 +192,12 @@ function loadUserObjectInSession() {
 /**
  * Get the base url in form of http(s)://subdomain.churchtools.de/ or http(s)://server.de/churchtools/
  * 
- * TODO: check if the function works correct 
- * if the values is always like http(s)://churchtools.de/ this could be achieved with $_SERVER['HTTP_HOST'] 
- * or is this for autodetect installations in subdirectories?
- * 
  * @return string
  */
 function getBaseUrl() {
+  $baseUrl = $_SERVER['HTTP_HOST'];
   // get path part from requested url and remove index.php
-  $baseUrl = str_replace('index.php', '', parse_url($_SERVER['HTTP_HOST']. $_SERVER['REQUEST_URI'], PHP_URL_PATH));  
-  // add hostname
-  $baseUrl = $_SERVER['HTTP_HOST'] . $baseUrl;
+  $baseUrl .= str_replace('index.php', '', parse_url($_SERVER['HTTP_HOST']. $_SERVER['REQUEST_URI'], PHP_URL_PATH));  
   // add http(s):// and assure a single trailing /
   $baseUrl = (!empty($_SERVER['HTTPS']) ? "https://" : "http://"). trim($baseUrl, '/') . '/';
   

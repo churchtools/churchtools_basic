@@ -247,7 +247,7 @@ function churchresource__printview() {
  */
 function churchresource_getAuth() {
   $cc_auth = array ();
-  $cc_auth = addAuth($cc_auth, 201, 'view', 'churchresource', null, t('view.modulname', 'ChurchResource'), 1);
+  $cc_auth = addAuth($cc_auth, 201, 'view', 'churchresource', null, t('view.modulename', 'ChurchResource'), 1);
   $cc_auth = addAuth($cc_auth, 306, 'create bookings', 'churchresource', null, t('create.bookings'), 1);
   $cc_auth = addAuth($cc_auth, 202, 'administer bookings', 'churchresource', 'cr_resource', t('administer.bookings'), 1);
   $cc_auth = addAuth($cc_auth, 203, 'assistance mode', 'churchresource', null, t('assistant.mode'), 1);

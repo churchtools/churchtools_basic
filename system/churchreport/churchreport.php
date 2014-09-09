@@ -75,7 +75,7 @@ function churchreport_getCurrentNo($doc_id, $wikicategory_id = 0) {
  */
 function churchreport_getAuth() {
   $cc_auth = array ();
-  $cc_auth = addAuth($cc_auth, 701, 'view', 'churchreport', null, t('view.modulname', 'ChurchReport'), 1);
+  $cc_auth = addAuth($cc_auth, 701, 'view', 'churchreport', null, t('view.modulename', 'ChurchReport'), 1);
   $cc_auth = addAuth($cc_auth, 799, 'edit masterdata', 'churchreport', null, t('edit.masterdata'), 1);
   return $cc_auth;
 }

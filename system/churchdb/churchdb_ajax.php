@@ -28,7 +28,7 @@ function churchdb_getPersonDetailsLogs($id) {
   $arrs = "";
   $logs = db_query("SELECT datum, person_id, txt, level FROM {cdb_log}
                       WHERE domain_id=:pid AND domain_type='person'
-            ORDER BY datum desc", array (':pid' => $id));
+            ORDER BY datum DESC", array (':pid' => $id));
   foreach ($logs as $arr) {
     $arrs[] = $arr;
   }
@@ -792,6 +792,14 @@ function churchdb_getModulesPath() {
 
 /**
  * get masterdata tablenames
+ * 
+ *   $res[1] = array( "id"          => $id,
+ *                    "bezeichnung" => $bezeichnung,
+ *                    "shortname"   => $shortname,
+ *                    "tablename"   => $tablename,
+ *                    "sql_order"   => $sql_order,
+ *             );
+ *
  * @return array
  */
 function churchdb_getMasterDataTablenames() {
@@ -858,7 +866,7 @@ function getOldGroupRelations() {
   
   $res = db_query("SELECT gp.person_id id, gpa.gruppe_id gp_id, status_no leiter, gpa.letzteaenderung d, gpa.aenderunguser user 
                    FROM {cdb_gemeindeperson_gruppe_archive} gpa, {cdb_gemeindeperson} gp 
-                   WHERE gpa.gemeindeperson_id=gp.id ORDER BY gpa.letzteaenderung desc");
+                   WHERE gpa.gemeindeperson_id=gp.id ORDER BY gpa.letzteaenderung DESC");
   $arrs = null;
   foreach ($res as $arr) {
     $arrs[] = $arr;

@@ -668,7 +668,9 @@ function churchcal__ajax() {
   drupal_json_output($ajax->call());
 }
 
-
+/**
+ * use template for calendar entries, include text added by surroundWithVCALENDER
+ */
 function churchcal__ical() {
   global $base_url, $config;
   include_once(CHURCHCAL."/churchcal_db.php");

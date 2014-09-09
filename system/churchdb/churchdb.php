@@ -1035,7 +1035,7 @@ function churchdb__mailviewer() {
   $txt='<anchor id="log1"/><h2>'.t("archive.of.sent.messages").'</h2>';
   $res=db_query("select * from {cc_mail_queue} where
 						$filter
-						order by modified_date desc
+						order by modified_date DESC
 						limit $limit");
 
   $txt.='<form class="form-inline" action="">';

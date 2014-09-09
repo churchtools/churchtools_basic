@@ -63,7 +63,7 @@ function home_main() {
   for($i = 1; $i <= 3; $i++) {
     $txt .= '<ul class="span4">';
     if (isset($blocks[$i])) {
-      churchcore_sort($blocks[$i], "sortkey");
+      churchcore_sort($blocks[$i], "sortkey"); //TODO: why not put them in the right order where they are defined?
       foreach ($blocks[$i] as $block) {
         if ($block["html"]) {
           $txt .= '<li class="ct_whitebox '.$block["class"] . '">';
@@ -102,7 +102,7 @@ function checkFilesDir() {
   }
   
   if (!is_writable($files_dir . "/files")) {
-    addErrorMessage("The directory $files_dir/files has to be writeable. Please adjust permissions!");
+    addErrorMessage(t('directory.x.has.to.be.writable', "$files_dir/files"));
   }
   else {
     if (!file_exists($files_dir . "/files/.htaccess")) {
@@ -133,6 +133,7 @@ function checkFilesDir() {
 
 /**
  * get member list ordered by name
+ * 
  * @return array
  */
 function home_getMemberList() {
@@ -144,13 +145,14 @@ function home_getMemberList() {
   if ($station_id == "") $station_id = "-1"; //should never occure for default value 1,2,3?
   
   $res = db_query('SELECT person_id, name, vorname, strasse, ort, plz, land,
-                    YEAR(geburtsdatum) year, MONTH(geburtsdatum) month, DAY(geburtsdatum) day, 
-                    DATE_FORMAT(geburtsdatum, \'%d.%m.%Y\') geburtsdatum, DATE_FORMAT(geburtsdatum, \'%d.%m.\') geburtsdatum_compact,
-                    (CASE WHEN geschlecht_no=1 THEN "' . t("mr.") . '" WHEN geschlecht_no=2 THEN "' . t("mrs.") . '" ELSE "" END) "anrede",
-                    telefonprivat, telefongeschaeftlich, telefonhandy, fax, email, imageurl
-                  FROM {cdb_person} p, {cdb_gemeindeperson} gp 
-                  WHERE gp.person_id=p.id and gp.station_id IN (' . $station_id . ') AND gp.status_id in (' . $status_id . ') AND archiv_yn=0 
-                  ORDER BY name, vorname');
+                     YEAR(geburtsdatum) year, MONTH(geburtsdatum) month, DAY(geburtsdatum) day, 
+                     DATE_FORMAT(geburtsdatum, \'%d.%m.%Y\') geburtsdatum, DATE_FORMAT(geburtsdatum, \'%d.%m.\') geburtsdatum_compact,
+                     (CASE WHEN geschlecht_no=1 THEN "' . t("mr.") . '" WHEN geschlecht_no=2 THEN "' . t("mrs.") . '" ELSE "" END) "anrede",
+                     telefonprivat, telefongeschaeftlich, telefonhandy, fax, email, imageurl
+                   FROM {cdb_person} p, {cdb_gemeindeperson} gp 
+                   WHERE gp.person_id=p.id and gp.station_id IN (:station_id) AND gp.status_id in (:status_id) AND archiv_yn=0 
+                   ORDER BY name, vorname',
+                   array(':station_id' => $station_id, ':status_id' => $status_id));
   $return = array ();
   foreach ($res as $p) $return[] = $p;
   
@@ -159,6 +161,7 @@ function home_getMemberList() {
 
 /**
  * get member list as html
+ * 
  * @return string html content
  */
 function home__memberlist() {
@@ -275,7 +278,7 @@ function home__memberlist_printview() {
     else $pdf->Cell(30, 9, "", 0, 0, 'L');
     if ($fields["memberlist_telefonhandy"]->getValue() && $p->telefonhandy) $pdf->Cell(30, 9, $p->telefonhandy, 0, 0, 'L');
     
-    // Zeilenumbruch
+    // linebreak
     $pdf->Ln(5);
     $pdf->Cell(73);
     $pdf->Cell(48, 10, "$p->plz " . utf8_decode($p->ort), 0, 0, 'L');
@@ -319,11 +322,13 @@ function _home__memberlist_getSettingFields() {
   global $config;
   
   $form = new CTForm("AdminForm", "home__memberlist_saveSettings");
-  $form->setHeader("Einstellungen f&uuml;r die Mitgliederliste", "Der Administrator kann hier Einstellung vornehmen.");
-  
+  $form->setHeader(t('preferences.for.memberlist'), t('admin.could.change.preferences.here'));
+
+  // TODO: use checkboxes with status texts
   $form->addField("churchdb_memberlist_status", "", "INPUT_REQUIRED", "Kommaseparierte Liste mit Status-Ids f&uuml;r Mitgliederliste")
     ->setValue(getConf("churchdb_memberlist_status"));
   
+  // TODO: use checkboxes with status texts
   $form->addField("churchdb_memberlist_station", "", "INPUT_REQUIRED", "Kommaseparierte Liste mit Station-Ids f&uuml;r Mitgliederliste")
     ->setValue(getConf("churchdb_memberlist_station"));
   

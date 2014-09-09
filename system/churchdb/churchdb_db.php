@@ -495,7 +495,7 @@ function churchdb_getPersonDetails($id, $withComments = true) {
     $comments = db_query("SELECT id, text, person_id, datum, comment_viewer_id, relation_name 
                           FROM {cdb_comment}
                           WHERE relation_id=:relid AND relation_name like 'person%'
-                          ORDER BY datum desc", 
+                          ORDER BY datum DESC", 
                           array (':relid' => $id));
     $auth = user_access("view comments", "churchdb");
     if (($comments) && ($auth != null)) { // TODO: test for auth before DB query? if ($withComments &&
@@ -906,7 +906,7 @@ function getGroupMeeting($id) {
 function createGroupMeetings() {
   $res = db_query("SELECT id FROM {cdb_gruppe} WHERE treffen_yn=1");
   $sql = "SELECT * FROM {cdb_gruppentreffen} WHERE gruppe_id=:id AND datumbis>=CURDATE() 
-          ORDER BY datumbis desc";
+          ORDER BY datumbis DESC";
   foreach ($res as $meeting) {
     $res2 = db_query($sql, array (":id" => $meeting->id))
             ->fetch();
@@ -1302,7 +1302,7 @@ function getPersonalNews($p_id) {
   $sql_teilnehmer = "SELECT vorname, name, c.text, c.datum, c.userid, p.id p_id FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg, {cdb_gruppe} g, {cdb_gruppentyp} gt, {cdb_comment} c
        WHERE p.id=gp.person_id AND gpg.gemeindeperson_id=gp.id AND gpg.gruppe_id=g.id AND g.gruppentyp_id=gt.id
               AND gpg.gruppe_id=:g_id AND c.comment_viewer_id=0 AND c.relation_id=p.id AND c.relation_name='person' AND (datediff(c.datum,CURRENT_DATE)>=-31) 
-               ORDER BY c.datum desc";
+               ORDER BY c.datum DESC";
   $res = db_query($sql_gruppen);
   $curtxt = array ();
   foreach ($res as $arr) {
