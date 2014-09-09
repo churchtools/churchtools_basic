@@ -237,7 +237,7 @@ AuthView.prototype.renderEntryDetail= function(domain_id) {
     }
   });
   elem.find("input.paste").click(function() {
-    if (confirm("really.past.permissions")) {
+    if (confirm(_("really.past.permissions"))) {
       $.each(t.clipboard.auth, function(k,a) {
         masterData[t.currentDomain][domain_id].auth[k]=a;
       });

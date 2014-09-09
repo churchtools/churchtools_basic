@@ -9,7 +9,7 @@
 $q = ""; // which module to use
 $config = array (); //
 $mapping = array (); //
-$files_dir = DEFAULT_SITE; // dir for page specific files
+$files_dir = null; // dir for page specific files
 
 $add_header = ""; // http headers?
 $content = ""; // page content
@@ -190,30 +190,7 @@ function loadUserObjectInSession() {
 }
 
 /**
- * Get the base url from the server
- * original function, renamed
- *
- * @return string
- */
-// function getBaseUrl_() {
-//   $base_url = $_SERVER['HTTP_HOST'];  // churchtools.de
-//   $b = $_SERVER['REQUEST_URI'];       // /index.php?q=home
-//   if (strpos($b, "/index.php") !== false) $b = substr($b, 0, strpos($b, "/index.php")); // remove index.php
-//   if (strpos($b, "?") !== false) $b = substr($b, 0, strpos($b, "?"));                   //remove query string
-//   $base_url = $base_url . $b;         // churchtools.de/
-//   if ($base_url[strlen($base_url) - 1] != "/") $base_url .= "/";
-//   if ((isset($_SERVER['HTTPS'])) && ($_SERVER['HTTPS'] != false)) $base_url = "https://" . $base_url;
-//   else $base_url = "http://" . $base_url;
-  
-//   echo 'Host '. $_SERVER['HTTP_HOST'];
-//   echo '; Request '. $_SERVER['REQUEST_URI'];
-//   echo '; Query '. $_SERVER['QUERY_STRING'];
-  
-//   return $base_url;
-// }
-
-/**
- * Get the base url in form of http(s)://churchtools.de/
+ * Get the base url in form of http(s)://subdomain.churchtools.de/ or http(s)://server.de/churchtools/
  * 
  * TODO: check if the function works correct 
  * if the values is always like http(s)://churchtools.de/ this could be achieved with $_SERVER['HTTP_HOST'] 
@@ -223,11 +200,12 @@ function loadUserObjectInSession() {
  */
 function getBaseUrl() {
   // get path part from requested url and remove index.php
-  $baseUrl = str_replace('index.php', '', parse_url($_SERVER['HTTP_HOST']. $_SERVER['REQUEST_URI'], PHP_URL_PATH));
+  $baseUrl = str_replace('index.php', '', parse_url($_SERVER['HTTP_HOST']. $_SERVER['REQUEST_URI'], PHP_URL_PATH));  
+  // add hostname
+  $baseUrl = $_SERVER['HTTP_HOST'] . $baseUrl;
   // add http(s):// and assure a single trailing /
   $baseUrl = (!empty($_SERVER['HTTPS']) ? "https://" : "http://"). trim($baseUrl, '/') . '/';
   
-//  echo " ::: URL: $baseUrl ::: ";
   return $baseUrl;
 }
 
@@ -306,15 +284,57 @@ function churchtools_processRequest($_q) {
   return $content;
 }
 
+
+/**
+ * Main entry point for churchtools.
+ * This will be called from /index.php
+ * Function loads constants and simple functions and have a try and catch for the whole application
+ * It calls churchtools_app().
+ */
+function churchtools_main() {
+  try {  
+    //TODO: find a good place for constants.php
+    require ("system/includes/constants.php");
+    include_once (INCLUDES."/functions.php");
+    include_once (INCLUDES."/start.php");
+    churchtools_app ();
+  }
+  catch ( SqlException $e ) {
+    //  TODO: get sql and show it to admin only
+    //  if (DEBUG) {
+    //  echo "<h3>PDO-Error:</h3>", $db->errorCode(), "<br>", $db->lastQuery(), '<br>';
+    //  }
+    //  else {
+    //  echo "<h3>Database-Error:</h3>", "There is an error";
+    //  }
+  
+    CTException::reportError ( $e );
+  }
+  catch ( CTException $e ) {
+    $e->reportError ( $e );
+  }
+  catch ( Exception $e ) {
+    echo '
+<div style="margin:2em;padding:2em;background-color:#ffdddd">
+    <h3>Sorry, but there is an Error:</h3>
+    <p><br/>'. $e->getMessage (). '</p>
+  </div>';
+  }
+}
+
+
+
 /**
  * Main entry point for churchtools.
  * This will be called from /index.php
  * Function loads i18n, configuration, check data security.
  * If everything is ok, it calls churchtools_processRequest()
  */
-function churchtools_main() {
+function churchtools_app() {
   global $q, $q_orig, $currentModule, $add_header, $config, $mapping, $content, $base_url, $files_dir, $user, $embedded, $i18n;
   include_once (CHURCHCORE . "/churchcore_db.php");
+  
+  $files_dir = DEFAULT_SITE;
   
   // which module is requested?
   $q = $q_orig = getVar("q", userLoggedIn() ? "home" : getConf("site_startpage", "home"));

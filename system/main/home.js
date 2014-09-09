@@ -198,7 +198,7 @@ function renderOpenMeetingRequests(refresh) {
       }
     });
     if (c==0) {
-      if (refresh!=null) rows.push('great.no.request.pending.anymore');
+      if (refresh!=null) rows.push(_('great.no.request.pending.anymore'));
       else $("#cc_openmeetingrequests").parents("li").remove();
     }
     $("#cc_openmeetingrequests").html(rows.join(""));

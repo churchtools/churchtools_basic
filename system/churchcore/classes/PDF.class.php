@@ -13,7 +13,7 @@ class PDF extends FPDF {
     $this->Cell(48, 8, t('name'), 0, 0, 'L');
     $this->Cell(45, 8, t('address'), 0, 0, 'L');
     $this->Cell(20, 8, t('birth.'), 0, 0, 'L');
-    $this->Cell(30, 8, t('contact.informations'), 0, 0, 'L');
+    $this->Cell(30, 8, t('contact.information'), 0, 0, 'L');
     $fields = _home__memberlist_getSettingFields()->fields;
     if ($fields["memberlist_telefonhandy"]->getValue()) $this->Cell(30, 8, t('mobile'), 0, 0, 'L');
     // Zeilenumbruch
