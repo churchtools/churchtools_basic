@@ -568,39 +568,34 @@ function churchservice_updateEventService($params) {
     // confirm
     if ($zugesagt_yn == 1) {
       $txt .= t("surname.name.has.approved.the.service.x.for.date.event",
-                array($user->vorname, 
-                      $user->name, $service->bezeichnung, 
-                      $event->datum,   //TODO: remove seconds from date
-                      $event->bezeichnung,
-                      $name,
-               ));
-      $subject .= t("surname.name.has.approved.a.request", 
-                    array($user->vorname, $user->name));
+                $user->vorname, 
+                $user->name, 
+                $service->bezeichnung, 
+                $event->datum,   //TODO: remove seconds from date
+                $event->bezeichnung,
+                $name);
+      $subject .= t("surname.name.has.approved.a.request", $user->vorname, $user->name);
     }
     // propose
     else if ($name) {
       $txt .= t("surname.name.has.for.service.x.for.date.event.name.proposed",
-                array($user->vorname, 
-                      $user->name, 
-                      $service->bezeichnung, 
-                      $event->datum, 
-                      $event->bezeichnung, 
-                      $name,
-                ));
-      $subject .= t("surname.name.has.proposed.someone", 
-                    array($user->vorname, $user->name));
+                $user->vorname, 
+                $user->name, 
+                $service->bezeichnung, 
+                $event->datum,   //TODO: remove seconds from date
+                $event->bezeichnung,
+                $name);
+      $subject .= t("surname.name.has.proposed.someone", $user->vorname, $user->name);
     }
     // cancel
     else {
       $txt .= t("surname.name.has.canceled.the.service.x.for.date.event",
-                array($user->vorname, 
-                      $user->name, 
-                      $service->bezeichnung, 
-                      $event->datum, 
-                      $event->bezeichnung, 
-               ));
-      $subject .= t("surname.name.has.canceled.a.request",
-                    array($user->vorname, $user->name));
+                $user->vorname, 
+                $user->name, 
+                $service->bezeichnung, 
+                $event->datum,   //TODO: remove seconds from date
+                $event->bezeichnung); 
+      $subject .= t("surname.name.has.canceled.a.request", $user->vorname, $user->name);
     }
     if ($reason != null) $txt .= "<p>Folgendes wurde als Grund angegeben: " . $reason;
     

@@ -42,28 +42,29 @@ function churchservice__filedownload() {
 
 function churchservice_getAuth() {
   $cc_auth = array();
-  $cc_auth=addAuth($cc_auth, 301,'view', 'churchservice', null, t('view.churchservice'), 1);
-  $cc_auth=addAuth($cc_auth, 304,'view servicegroup', 'churchservice', 'cs_servicegroup', t('view.servicegroup.churchservice.cs_servicegroup'), 1);
-  $cc_auth=addAuth($cc_auth, 305,'edit servicegroup', 'churchservice', 'cs_servicegroup', t('edit.servicegroup.churchservice.cs_servicegroup'), 1);
-  $cc_auth=addAuth($cc_auth, 302,'view history', 'churchservice', null, t('view.history.churchservice'), 1);
-  $cc_auth=addAuth($cc_auth, 303,'edit events', 'churchservice', null, t('edit.events.churchservice'), 1);
-  $cc_auth=addAuth($cc_auth, 309,'edit template', 'churchservice', null, t('edit.template.churchservice'), 1);
+  $cc_auth = addAuth($cc_auth, 301, 'view', 'churchservice', null, t('view.churchservice'), 1);
+  $cc_auth = addAuth($cc_auth, 304, 'view servicegroup', 'churchservice', 'cs_servicegroup', t('view.servicegroup.churchservice.cs_servicegroup'), 1);
+  $cc_auth = addAuth($cc_auth, 305, 'edit servicegroup', 'churchservice', 'cs_servicegroup', t('edit.servicegroup.churchservice.cs_servicegroup'), 1);
+  $cc_auth = addAuth($cc_auth, 302, 'view history', 'churchservice', null, t('view.history.churchservice'), 1);
+  $cc_auth = addAuth($cc_auth, 303, 'edit events', 'churchservice', null, t('edit.events.churchservice'), 1);
+  $cc_auth = addAuth($cc_auth, 309, 'edit template', 'churchservice', null, t('edit.template.churchservice'), 1);
   
-  $cc_auth=addAuth($cc_auth, 307,'manage absent', 'churchservice', null, t('manage.absent.churchservice'), 1);
+  $cc_auth = addAuth($cc_auth, 307, 'manage absent', 'churchservice', null, t('manage.absent.churchservice'), 1);
   
-  $cc_auth=addAuth($cc_auth, 321,'view facts', 'churchservice', null,t('view.facts.churchservice'), 1);
-  $cc_auth=addAuth($cc_auth, 308,'edit facts', 'churchservice', null, t('edit.facts.churchservice'), 1);
-  $cc_auth=addAuth($cc_auth, 322,'export facts', 'churchservice', null, t('export.facts.churchservice'), 1);
+  $cc_auth = addAuth($cc_auth, 321, 'view facts', 'churchservice', null, t('view.facts.churchservice'), 1);
+  $cc_auth = addAuth($cc_auth, 308, 'edit facts', 'churchservice', null, t('edit.facts.churchservice'), 1);
+  $cc_auth = addAuth($cc_auth, 322, 'export facts', 'churchservice', null, t('export.facts.churchservice'), 1);
   
-  $cc_auth=addAuth($cc_auth, 331,'view agenda', 'churchservice', 'cc_calcategory', t('view.agenda.churchservice.cc_calcategory'), 1);
-  $cc_auth=addAuth($cc_auth, 332,'edit agenda', 'churchservice', 'cc_calcategory', t('edit.agenda.churchservice.cc_calcategory'), 1);
-  $cc_auth=addAuth($cc_auth, 333,'edit agenda templates', 'churchservice', 'cc_calcategory', t('edit.agenda.templates.churchservice.cc_calcategory'), 1);
+  $cc_auth = addAuth($cc_auth, 331, 'view agenda', 'churchservice', 'cc_calcategory', t('view.agenda.churchservice.cc_calcategory'), 1);
+  $cc_auth = addAuth($cc_auth, 332, 'edit agenda', 'churchservice', 'cc_calcategory', t('edit.agenda.churchservice.cc_calcategory'), 1);
+  $cc_auth = addAuth($cc_auth, 333, 'edit agenda templates', 'churchservice', 'cc_calcategory', t('edit.agenda.templates.churchservice.cc_calcategory'), 1);
   
-  $cc_auth=addAuth($cc_auth, 313,'view songcategory', 'churchservice', 'cs_songcategory', t('view.songcategory.churchservice.cs_songcategory'), 1);
-  $cc_auth=addAuth($cc_auth, 311,'view song', 'churchservice', null, t('view.song.churchservice'), 1);
-  $cc_auth=addAuth($cc_auth, 312,'edit song', 'churchservice', null,t('edit.song.churchservice') , 1);
+  $cc_auth = addAuth($cc_auth, 313, 'view songcategory', 'churchservice', 'cs_songcategory', t('view.songcategory.churchservice.cs_songcategory'), 1);
+  $cc_auth = addAuth($cc_auth, 311, 'view song', 'churchservice', null, t('view.song.churchservice'), 1);
+  $cc_auth = addAuth($cc_auth, 312, 'edit song', 'churchservice', null,t('edit.song.churchservice') , 1);
   
-  $cc_auth=addAuth($cc_auth, 399,'edit masterdata', 'churchservice', null, t('edit.masterdata.churchservice'), 1);
+  $cc_auth = addAuth($cc_auth, 399,'edit masterdata', 'churchservice', null, t('edit.masterdata'), 1);
+  
   return $cc_auth;
 }
 
@@ -74,17 +75,17 @@ function churchservice_getAuth() {
 function churchservice_getAdminForm() {
   global $config;
   
-  $model = new CTModuleForm("churchservice");  
-  $model->addField("churchservice_entries_last_days","", "INPUT_REQUIRED","Wieviel Tage zur�ck in ChurchService-Daten geladen werden");
-    $model->fields["churchservice_entries_last_days"]->setValue($config["churchservice_entries_last_days"]);    
-  $model->addField("churchservice_openservice_rememberdays","", "INPUT_REQUIRED","Nach wieviel Tagen die Dienstanfrage erneut statt findet, wenn sie noch nicht zugesagt oder abgelehnt wurde");
-    $model->fields["churchservice_openservice_rememberdays"]->setValue($config["churchservice_openservice_rememberdays"]);  
-  $model->addField("churchservice_reminderhours","", "INPUT_REQUIRED","Wieviele Stunden im Vorfeld eine Erinnerung an den Dienst erfolgen soll");
-    $model->fields["churchservice_reminderhours"]->setValue($config["churchservice_reminderhours"]);  
-    
-  $model->addField("churchservice_songwithcategoryasdir","", "CHECKBOX","Kategorie als Verzeichnisangabe nutzen f�r Beamersoftware-Export");
-    $model->fields["churchservice_songwithcategoryasdir"]->setValue(getConf("churchservice_songwithcategoryasdir","0"));
-    
+  $model = new CTModuleForm("churchservice");
+  $model->addField("churchservice_entries_last_days", "", "INPUT_REQUIRED", t('data.from.x.how.many.days.in.the.past.to.load', 'ChurchService'))
+    ->setValue($config["churchservice_entries_last_days"]);
+  $model->addField("churchservice_openservice_rememberdays", "", "INPUT_REQUIRED", t('after.how.many.days.service.requests.should.be.repeated'))
+    ->setValue($config["churchservice_openservice_rememberdays"]);
+  $model->addField("churchservice_reminderhours", "", "INPUT_REQUIRED", t('how.many.hours.before.service.send.remember.email'))
+    ->setValue($config["churchservice_reminderhours"]);
+  
+  $model->addField("churchservice_songwithcategoryasdir", "", "CHECKBOX", t('use.category.as.folder.for.beamersoftware.export'))
+    ->setValue(getConf("churchservice_songwithcategoryasdir", "0"));
+  
   return $model;
 }
 

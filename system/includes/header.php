@@ -88,8 +88,7 @@
             </a>
             <ul class="dropdown-menu">
     <? if (isset($_SESSION["family"])): ?>
-    <?php // TODO: in bootstrap 3.2.0 this looks nice, in CT dropdown-header is missed
-          // <caption> is for tables only! ?>
+    <?php // TODO: in bootstrap 3.2.0 this looks nice, in CT dropdown-header is missed - manually added to bootstrap for now ?>
              <li class="dropdown-header"> <?= t('change.to') ?></li>
       <? foreach ($_SESSION["family"] as $family): ?>
              <li><a href="?q=login&family_id=<?= $family->id?>"><?= $family->vorname?> <?= $family->name ?></a></li>                       

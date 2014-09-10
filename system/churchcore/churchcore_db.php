@@ -1844,10 +1844,13 @@ function logout_current_user() {
 }
 
 /**
+ * check if user can access module $modulename and look for $auth
  * 
- * @param array $auth
- * @param string $modulename
- * @return boolean
+ * what is in $auths[$modulename][$auth]?
+ * 
+ * @param string $auth; f.e. view
+ * @param string $modulename; f.e. churchservice
+ * @return mixed auth; may be bool, int or array in form of 0=>0, 1=>1
  */
 function user_access($auth, $modulename) {
   global $config;

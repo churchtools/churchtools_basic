@@ -348,6 +348,9 @@
   <entry key="file.not.found.in.DB">File not found in database!</entry>
   <entry key="file.could.not.be.copied.to.x">File could not be copied to {0}!</entry>
   
+  <!-- churchcore auth -->
+  <entry key="edit.masterdata">Edit masterdata</entry>
+
   <!-- churchservice auth -->
   <entry key="view.churchservice">View ChurchService </entry>
   <entry key="view.servicegroup.churchservice.cs_servicegroup">View service requests of single service Groups</entry>
@@ -368,10 +371,34 @@
   <entry key="edit.masterdata.churchservice">Edit masterdata</entry>
   
   <entry key="no.permisson.to.export.facts">No permission to export fact data (edit facts)</entry>
-  
+
+  <!-- churchdb auth -->
+  <entry key="view.birthdaylist">view birthdaylist</entry>
+  <entry key="view.memberliste">view memberliste</entry>
+  <entry key="view.statistics">view statistics</entry>
+  <entry key="view.tags">view tags</entry>
+  <entry key="view.history">view history</entry>
+  <entry key="view.comments">view comments</entry>
+  <entry key="view.addressc">view additional address data of visible persons (street)</entry>
+  <entry key="view.alldetails">view all information of visible persons, including address data, group memberships, ...</entry>
+  <entry key="view.archive">view archive of persons</entry>
+  <entry key="use.complex.filters">"complex filters" can be used</entry>
+  <entry key="archivate.persons">put persons in and get them out of archive</entry>
+  <entry key="edit.relations">edit relations of visible persons</entry>
+  <entry key="edit.groups">edit group memberships of visible persons</entry>
+  <entry key="create.persons">right to create persons</entry>
+  <entry key="create.persons.without.agreement">right to create persons without agreement</entry>
+  <entry key="write.access.persons">write access for all visible persons</entry>
+  <entry key="view.alldata">view all persons of the respective departement</entry> <!-- TODO: is departement right here? -->
+  <entry key="send.sms">use sms interface</entry>
+  <entry key="export.data">export data of all(!) persons</entry>
+  <entry key="view.group">view single groups - including hidden groups</entry>
+  <entry key="view.group.statistics">view group statistics of all groups</entry>
+  <entry key="administer.groups">administer groups (create, edit, delete, ...)</entry>
+  <entry key=""></entry>
+   
   <!-- churchresource -->
-  <entry key="edit.masterdata">edit masterdata</entry>
-  <entry key="view.modulname">view {0}</entry> <!-- TODO: use it for all similar texts -->
+  <entry key="view.modulename">view {0}</entry> <!-- TODO: use it for all similar texts -->
   <entry key="create.own.bookings">create own booking requests</entry>
   <entry key="administer.bookings">edit, refuse, ... all bookings</entry>
   <entry key="assistant.mode">create bookings for others</entry>
@@ -393,6 +420,35 @@
   <entry key="add.to.menu">Add {0} to menu</entry>
   <entry key="show.as.button.on.home">Show {0} as button on start page</entry>
   <entry key="sortnumber.in.menu">Sort number in menu (sortcode)</entry>
+  <!-- Admin preferences member list -->
+  <entry key="preferences.for.memberlist">Preferences for memberlist</entry>
+  <entry key="admin.could.change.preferences.here">As admin you can configure, which data should be output.</entry>
+  <!-- Admin preferences churchdb -->
+  <entry key="max.allowed.rows.to.export">maximal row count for export</entry>
+  <entry key="center.coordinates.latitude">latitude of center coordinates (best to find out using Google Maps)</entry>
+  <entry key="center.coordinates.longitude">longitude of center coordinates (best to find out using Google Maps)</entry>
+  <entry key="email.default.separator">default separator to use for multiple recipients on ChurchDB-E-Mailer</entry>
+  <entry key="days.to.show.terminated.groups">how long after termination groups should be present</entry>
+  <entry key="status.ids.for.birthdaylist.comma.separated">comma separated list of status ids for birthday list</entry>
+  <entry key="station.ids.for.birthdaylist.comma.separated">comma separated list of station ids for birthday list</entry>
+  <entry key="api.key.mailchimp.if.used">if integration of MailChimp.com should be used, insert the API-Key here.</entry>
+  <entry key="api.key.smspromote.if.used">if integration of smspromote.dem should be used, insert the API-Key here.</entry>
+  <entry key="send.groupchanges.to.leaders">Send changes in groups to leaders, co-leaders and supervisors</entry>
+  <entry key="user.is.allowed.to.change.own.address">Users can change their own data</entry>
+  <!-- Admin preferences churchservice -->
+  <entry key="after.how.many.days.service.requests.should.be.repeated">After how many days service requests should be repeated, if they not yet approved or canceled</entry>
+  <entry key="how.many.hours.before.service.send.remember.email">How many hours before service reminder email should be send</entry>
+  <entry key="use.category.as.folder.for.beamersoftware.export">Use song category as folder for beamer software export</entry>
+  <!-- Admin preferences churchresource -->
   <entry key=""></entry>
-
+  <entry key=""></entry>
+  <entry key=""></entry>  
+  <!-- home -->
+  <entry key="directory.x.has.to.be.writable">The directory {0} has to be writeable. Please adjust permissions!</entry>
+  
+  <!-- core db -->
+  <entry key="previously">previously</entry>
+  <entry key="logout.successful">Logout successful</entry>
+  <entry key=""></entry>
+  
 </properties>

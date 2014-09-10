@@ -61,10 +61,11 @@ function churchreport_getAdminForm() {
  * @return int
  */
 function churchreport_getCurrentNo($doc_id, $wikicategory_id = 0) {
-  $res = db_query("SELECT MAX(version_no) c FROM {cc_wiki} WHERE doc_id=:doc_id and wikicategory_id=:wikicategory_id", 
-      array (":doc_id" => $doc_id,
-             ":wikicategory_id" => $wikicategory_id,
-      ))->fetch();
+  $res = db_query("SELECT MAX(version_no) c 
+                   FROM {cc_wiki} 
+                   WHERE doc_id=:doc_id and wikicategory_id=:wikicategory_id", 
+                   array (":doc_id" => $doc_id, ":wikicategory_id" => $wikicategory_id))
+                   ->fetch();
   if ($res == false) return -1;
   else return $res->c;
 }

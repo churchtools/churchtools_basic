@@ -80,8 +80,8 @@ function churchresource_getAdminForm() {
   global $config;
   
   $model = new CTModuleForm("churchresource");
-  $model->addField("churchresource_entries_last_days", "", "INPUT_REQUIRED", "Wieviel Tage zur&uuml;ck in ChurchResource-Daten geladen werden");
-  $model->fields["churchresource_entries_last_days"]->setValue($config["churchresource_entries_last_days"]);
+  $model->addField("churchresource_entries_last_days", "", "INPUT_REQUIRED", t('data.from.x.how.many.days.in.the.past.to.load', 'ChurchResource'))
+    ->setValue($config["churchresource_entries_last_days"]);
   return $model;
 }
 

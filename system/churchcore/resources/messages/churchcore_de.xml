@@ -333,7 +333,7 @@
   <entry key="membership.requested.by.form.leader.will.be.informed">Die Teilnahme an &lt;i&gt;{0}&lt;/i&gt; ist nun beantragt, der Leiter wird informiert. Vielen Dank!</entry>
   <entry key="membership.marked.for.deleting">Die Teilnahme an &lt;i&gt;{0}&lt;/i&gt; wurde zum Löschen markiert.</entry>
   <entry key="error.quitting.membership">Gruppenteilnahme konnte nicht beendet werden.</entry>
-  <entry key="username.not.available.ask.admin">Der Usernamen {0} ist schon vergeben, bitte wende Dich an den Administrator!</entry> <!-- TODO:lieber "wähle einen anderen" statt fragen? -->
+  <entry key="username.not.available.ask.admin">Der Username {0} ist schon vergeben, bitte wende Dich an den Administrator!</entry> <!-- TODO:lieber "wähle einen anderen" statt fragen? -->
   <entry key="person.already.has.an.username.ask.admin">Diese Person hat schon einen Usernamen! Bitte wende Dich an einen Administrator!</entry>
   <entry key="invitation.email.standard.text">Du wurdest zur Nutzung von {0} eingeladen.&lt;p&gt;Klicke auf die folgende Schaltfläche, um Dich direkt dort anzumelden und um Dein Passwort zu wählen:&lt;/p&gt;</entry>
 
@@ -353,6 +353,9 @@
   <entry key="file.not.found.in.DB">Datei nicht in der Datenbank gefunden!</entry>
   <entry key="file.could.not.be.copied.to.x">Datei konnte nicht nach {0} kopiert werden!</entry>
   
+  <!-- churchcore auth -->
+  <entry key="edit.masterdata">Stammdaten editieren</entry>
+
   <!-- churchservice auth -->
   <entry key="view.churchservice">ChurchService sehen</entry>
   <entry key="view.servicegroup.churchservice.cs_servicegroup">Dienstanfragen einzelner Service-Gruppe einsehen</entry>
@@ -370,12 +373,34 @@
   <entry key="view.songcategory.churchservice.cs_songcategory">Einzelne Song-Kategorien einsehen</entry>
   <entry key="view.song.churchservice">Songs anschauen und Dateien herunterladen</entry>
   <entry key="edit.song.churchservice">Songs editieren und Dateien hochladen</entry>
-  <entry key="edit.masterdata.churchservice">Stammdaten editieren</entry>
-  
   <entry key="no.permisson.to.export.facts">Keine Berechtigung zum Exportieren von Faktendaten (edit facts)</entry>
   
+  <!-- churchdb auth -->
+  <entry key="view.birthdaylist">Geburtagsliste einsehen</entry>
+  <entry key="view.memberliste">Mitgliederliste einsehen</entry>
+  <entry key="view.statistics">Gesamtstatistik einsehen</entry>
+  <entry key="view.tags">Tags einsehen</entry>
+  <entry key="view.history">Historie eines Datensatzes ansehen</entry>
+  <entry key="view.comments">Kommentare einsehen</entry>
+  <entry key="view.addressc">Zusätzlich Adressdaten der sichtbaren Personen einsehen (Strasse)</entry>
+  <entry key="view.alldetails">Alle Informationen der sichtbaren Person sehen, inkl. Adressdaten, Gruppenzuordnung, etc.</entry>
+  <entry key="view.archive">Personen-Archiv einsehen</entry>
+  <entry key="use.complex.filters">"Weitere Filter" darf verwendet werden</entry>
+  <entry key="archivate.persons">Personen ins Archiv verschieben und zurückholen</entry>
+  <entry key="edit.relations">Beziehungen der sichtbaren Personen editieren</entry>
+  <entry key="edit.groups">Alle Gruppenzuordnungen der sichtbaren Personen editieren</entry>
+  <entry key="create.persons">Darf Personen erstellen</entry>
+  <entry key="create.persons.without.agreement">Darf Personen auch ohne Einverständnis erstellen.</entry>
+  <entry key="write.access.persons">Schreibzugriff auf alle sichtbaren Personen</entry>
+  <entry key="view.alldata">Alle Personen des jeweiligen Bereiches sichtbar machen</entry>
+  <entry key="send.sms">SMS-Schnittstelle verwenden</entry>
+  <entry key="export.data">Die Daten aller(!) Personen exportieren</entry>
+  <entry key="view.group">Einzelne Gruppen einsehen - inklusive versteckte Gruppen</entry>
+  <entry key="view.group.statistics">Gruppenstatistik aller Gruppen einsehen</entry>
+  <entry key="administer.groups">Gruppen administrieren, d.h. erstellen, löschen, etc.</entry>
+  <entry key=""></entry>
+  
   <!-- churchresource -->
-  <entry key="edit.masterdata">Stammdaten editieren</entry>
   <entry key="view.modulename">{0} sehen</entry> <!-- TODO: use it for all similar texts -->
   <entry key="create.own.bookings">Eigene Buchugsanfragen erstellen</entry>
   <entry key="administer.bookings">Alle Anfragen editieren, ablehnen, etc.</entry>
@@ -390,8 +415,6 @@
   <entry key="email.unknown">Die Email-Adresse ist nicht bekannt!</entry>
   <entry key="login.string.too.old">Fehler: Der verwendete Login-Link ist nicht mehr aktuell und kann deshalb nicht mehr verwendet werden. Bitte mit E-Mail-Adresse oder Nutzername und Passwort anmelden!</entry>
   <entry key="login.error.no.id.given">Fehler beim Login, keine Nutzer-Id vorhanden!</entry>
-  <entry key=""></entry>
-  
   
   <!-- forms --> 
   <entry key="again.please">Nochmal bitte...</entry>
@@ -399,10 +422,30 @@
   <!-- Admin preferences TODO: needed for js --> 
   <entry key="add.to.menu">{0} im Menu aufführen</entry>
   <entry key="show.as.button.on.home">{0} auf der Startseite als Button anzeigen</entry>
-  <entry key="sortnumber.in.menu">Sortierungsnummer im Menu (sortcode)</entry>
+  <entry key="sortnumber.in.menu">Sortiernummer im Menu (sortcode)</entry>
+  <entry key="data.from.x.how.many.days.in.the.past.to.load">Wieviel Tage in der Vergangenheit liegende Daten in {0} geladen werden</entry>
   <!-- Admin preferences member list -->
   <entry key="preferences.for.memberlist">Einstellungen für die Mitgliederliste</entry>
   <entry key="admin.could.change.preferences.here">Der Administrator kann hier einstellen, welche Daten ausgegeben werden sollen.</entry>
+  <!-- Admin preferences churchdb -->
+  <entry key="max.allowed.rows.to.export">Wieviel Datensätze maximal exportiert werden dürfen</entry>
+  <entry key="center.coordinates.latitude">Koordinaten-Mittelpunkt Latitude (am besten durch Google Maps herauszufinden)</entry>
+  <entry key="center.coordinates.longitude">Koordination-Mittelpunkt Longitudinal (am besten durch Google Maps herauszufinden)</entry>
+  <entry key="email.default.separator">Standard-Separator für mehrere Empfänger beim ChurchDB-E-Mailer</entry>
+  <entry key="days.to.show.terminated.groups">Wie lange nach dem Abschlussdatum die Gruppe noch unter Meine Gruppen präsent sein soll</entry>
+  <entry key="status.ids.for.birthdaylist.comma.separated">Kommaseparierte Liste mit Status-Ids für Geburtstagsliste</entry>
+  <entry key="station.ids.for.birthdaylist.comma.separated">Kommaseparierte Liste mit Station-Ids für Geburtstagsliste</entry>
+  <entry key="api.key.mailchimp.if.used">Wenn die Integration von MailChimp.com genutzt werden soll, bitte hier den API-Key angeben.</entry>
+  <entry key="api.key.smspromote.if.used">Wenn die Integration von smspromote.dem genutzt werden soll, bitte hier den API-Key angeben.</entry>
+  <entry key="send.groupchanges.to.leaders">Sende Änderungen in Gruppen an Leiter, Co-Leiter und Supervisore</entry>
+  <entry key="user.is.allowed.to.change.own.address">Jeder Benutzer darf seine eigenen Stammdaten anpassen</entry>
+  <!-- Admin preferences churchservice -->
+  <entry key="after.how.many.days.service.requests.should.be.repeated">Nach wieviel Tagen die Dienstanfrage erneut statt findet, wenn sie noch nicht zugesagt oder abgelehnt wurde</entry>
+  <entry key="how.many.hours.before.service.send.remember.email">Wieviele Stunden vor einem Dienst die Erinnerung an den Dienst erfolgen soll</entry>
+  <entry key="use.category.as.folder.for.beamersoftware.export">Benutze Kategorie als Verzeichnisangabe für Beamersoftware-Export</entry>
+  <!-- Admin preferences churchresource -->
+  <entry key=""></entry>
+  <entry key=""></entry>
   <entry key=""></entry>
   
   <!-- home -->

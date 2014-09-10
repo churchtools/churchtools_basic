@@ -26,34 +26,35 @@ function churchdb__ajax() {
  */
 function churchdb_getAuth() {
   $cc_auth = array();
-  $cc_auth=addAuth($cc_auth, 121,'view birthdaylist', 'churchdb', null, 'Geburtagsliste einsehen', 1);
-  $cc_auth=addAuth($cc_auth, 122,'view memberliste', 'churchdb', null, 'Mitgliederliste einsehen', 1);
+  $cc_auth=addAuth($cc_auth, 121,'view birthdaylist', 'churchdb', null, t('view.birthdaylist'), 1);
+  $cc_auth=addAuth($cc_auth, 122,'view memberliste', 'churchdb', null, t('view.memberliste'), 1);
   
-  $cc_auth=addAuth($cc_auth, 101,'view', 'churchdb', null, 'ChurchDB sehen', 1);
-  $cc_auth=addAuth($cc_auth, 106,'view statistics', 'churchdb', null, 'Gesamtstatistik einsehen', 1);
-  $cc_auth=addAuth($cc_auth, 107,'view tags', 'churchdb', null, 'Tags einsehen', 1);
-  $cc_auth=addAuth($cc_auth, 108,'view history', 'churchdb', null, 'Historie eines Datensatzes ansehen', 1);
-  $cc_auth=addAuth($cc_auth, 113,'view comments', 'churchdb', 'cdb_comment_viewer', 'Kommentare einsehen', 1);
-  $cc_auth=addAuth($cc_auth, 105,'view address', 'churchdb', null, 'Zus&auml;tzlich Adressdaten der sichtbaren Personen einsehen (Strasse)', 1);
-  $cc_auth=addAuth($cc_auth, 103,'view alldetails', 'churchdb', null, 'Alle Informationen der sichtbaren Person sehen, inkl. Adressdaten, Gruppenzuordnung, etc.', 1);
-  $cc_auth=addAuth($cc_auth, 116,'view archive', 'churchdb', null, 'Personen-Archiv einsehen', 1);
-  $cc_auth=addAuth($cc_auth, 120,'complex filter', 'churchdb', null, '"Weitere Filter" darf verwendet werden', 1);
-  $cc_auth=addAuth($cc_auth, 118,'push/pull archive', 'churchdb', null, 'Personen ins Archiv verschieben und zur&uuml;ckholen', 1);
-  $cc_auth=addAuth($cc_auth, 109,'edit relations', 'churchdb', null, 'Beziehungen der sichtbaren Personen editieren', 1);
-  $cc_auth=addAuth($cc_auth, 110,'edit groups', 'churchdb', null, 'Alle Gruppenzuordnungen der sichtbaren Personen editieren', 1);
-  $cc_auth=addAuth($cc_auth, 119,'create person', 'churchdb', null, 'Darf Personen erstellen', 1);
-  $cc_auth=addAuth($cc_auth, 123,'create person without agreement', 'churchdb', null, 'Darf Personen auch ohne Einverst&auml;ndnis erstellen.', 1);
+  $cc_auth=addAuth($cc_auth, 101,'view', 'churchdb', null, t('view.modulename', 'ChurchDB'), 1);
+  $cc_auth=addAuth($cc_auth, 106,'view statistics', 'churchdb', null, t('view.statistics'), 1);
+  $cc_auth=addAuth($cc_auth, 107,'view tags', 'churchdb', null, t('view.tags'), 1);
+  $cc_auth=addAuth($cc_auth, 108,'view history', 'churchdb', null,t('view.history') , 1);
+  $cc_auth=addAuth($cc_auth, 113,'view comments', 'churchdb', 'cdb_comment_viewer', t('view.comments'), 1);
+  $cc_auth=addAuth($cc_auth, 105,'view address', 'churchdb', null,t('view.address'), 1);
+  $cc_auth=addAuth($cc_auth, 103,'view alldetails', 'churchdb', null, t('view.alldetails'), 1);
+  $cc_auth=addAuth($cc_auth, 116,'view archive', 'churchdb', null, t('view.archive'), 1);
+  $cc_auth=addAuth($cc_auth, 120,'complex filter', 'churchdb', null, t('use.complex.filters'), 1);
+  $cc_auth=addAuth($cc_auth, 118,'push/pull archive', 'churchdb', null, t('archivate.persons'), 1);
+  $cc_auth=addAuth($cc_auth, 109,'edit relations', 'churchdb', null, t('edit.relations'), 1);
+  $cc_auth=addAuth($cc_auth, 110,'edit groups', 'churchdb', null, t('edit.groups'), 1);
+  $cc_auth=addAuth($cc_auth, 119,'create person', 'churchdb', null, t('create.persons'), 1);
+  $cc_auth=addAuth($cc_auth, 123,'create person without agreement', 'churchdb', null, t('create.persons.without.agreement'), 1);
   
-  $cc_auth=addAuth($cc_auth, 111,'write access', 'churchdb', null, 'Schreibzugriff auf alle sichtbaren Personen', 1);
-  $cc_auth=addAuth($cc_auth, 102,'view alldata', 'churchdb', 'cdb_bereich', 'Alle Personen des jeweiligen Bereiches sichtbar machen', 1);
-  $cc_auth=addAuth($cc_auth, 117,'send sms', 'churchdb', null, 'SMS-Schnittstelle verwenden', 1);
-  $cc_auth=addAuth($cc_auth, 112,'export data', 'churchdb', null, 'Die Daten aller(!) Personen exportieren', 1);
+  $cc_auth=addAuth($cc_auth, 111,'write access', 'churchdb', null, 'write.access.persons', 1);
+  $cc_auth=addAuth($cc_auth, 102,'view alldata', 'churchdb', 'cdb_bereich', t('view.alldata'), 1);
+  $cc_auth=addAuth($cc_auth, 117,'send sms', 'churchdb', null, t('send.sms'), 1);
+  $cc_auth=addAuth($cc_auth, 112,'export data', 'churchdb', null, t('export.data'), 1);
   
-  $cc_auth=addAuth($cc_auth, 115,'view group', 'churchdb', 'cdb_gruppe', 'Einzelne Gruppen einsehen - inklusive versteckte Gruppen', 0);
-  $cc_auth=addAuth($cc_auth, 104,'view group statistics', 'churchdb', null, 'Gruppenstatistik aller Gruppen einsehen', 1);  
-  $cc_auth=addAuth($cc_auth, 114,'administer groups', 'churchdb', null, 'Gruppen administrieren, d.h. erstellen, l&ouml;schen, etc.', 1);
+  $cc_auth=addAuth($cc_auth, 115,'view group', 'churchdb', 'cdb_gruppe', t('view.group'), 0);
+  $cc_auth=addAuth($cc_auth, 104,'view group statistics', 'churchdb', null, 'view.group.statistics', 1);  
+  $cc_auth=addAuth($cc_auth, 114,'administer groups', 'churchdb', null, t('administer.groups'), 1);
   
-  $cc_auth=addAuth($cc_auth, 199,'edit masterdata', 'churchdb', null, 'Stammdaten editieren', 1);
+  $cc_auth=addAuth($cc_auth, 199,'edit masterdata', 'churchdb', null, 'edit.masterdata', 1);
+  
   return $cc_auth;
 }
 
@@ -67,37 +68,39 @@ function churchdb_getAdminForm() {
   
   $form = new CTModuleForm("churchdb");
 
-  $form->addField("churchdb_maxexporter","", "INPUT_REQUIRED", t('max.allowed.rows.to.export'));
-    $form->fields["churchdb_maxexporter"]->setValue($config["churchdb_maxexporter"]);
+  $form->addField("churchdb_maxexporter","", "INPUT_REQUIRED", t('max.allowed.rows.to.export'))
+    ->setValue($config["churchdb_maxexporter"]);
     
-  $form->addField("churchdb_home_lat","", "INPUT_REQUIRED",t('center.coordinates.latitude.best.to.find.by.google.maps'));
-    $form->fields["churchdb_home_lat"]->setValue($config["churchdb_home_lat"]);
+  $form->addField("churchdb_home_lat","", "INPUT_REQUIRED",t('center.coordinates.latitude'))
+    ->setValue($config["churchdb_home_lat"]);
     
-  $form->addField("churchdb_home_lng","", "INPUT_REQUIRED","Koordination-Mittelpunkt Longitudinal (am besten durch Google Maps herauszufinden)");
-    $form->fields["churchdb_home_lng"]->setValue($config["churchdb_home_lng"]);
+  $form->addField("churchdb_home_lng","", "INPUT_REQUIRED",t('center.coordinates.longitude'))
+    ->setValue($config["churchdb_home_lng"]);
         
-  $form->addField("churchdb_emailseparator","", "INPUT_REQUIRED","Standard-Separator f&uuml;r mehrere Empf&auml;nger beim ChurchDB-E-Mailer");
-    $form->fields["churchdb_emailseparator"]->setValue($config["churchdb_emailseparator"]);
+  $form->addField("churchdb_emailseparator","", "INPUT_REQUIRED",t('email.default.separator'))
+    ->setValue($config["churchdb_emailseparator"]);
     
-  $form->addField("churchdb_groupnotchoosable","", "INPUT_REQUIRED","Wie lange zur&uuml;ck nach Abschlussdatum die Gruppe noch unter Meine Gruppen pr&auml;sent sein soll");
-    $form->fields["churchdb_groupnotchoosable"]->setValue($config["churchdb_groupnotchoosable"]);
+  $form->addField("churchdb_groupnotchoosable","", "INPUT_REQUIRED",t('days.to.show.terminated.groups'))
+    ->setValue($config["churchdb_groupnotchoosable"]);
     
-  $form->addField("churchdb_birthdaylist_status","", "INPUT_REQUIRED","Kommaseparierte Liste mit Status-Ids f&uuml;r Geburtstagsliste");
-    $form->fields["churchdb_birthdaylist_status"]->setValue($config["churchdb_birthdaylist_status"]);    
-  $form->addField("churchdb_birthdaylist_station","", "INPUT_REQUIRED","Kommaseparierte Liste mit Station-Ids f&uuml;r Geburtstagsliste");
-    $form->fields["churchdb_birthdaylist_station"]->setValue($config["churchdb_birthdaylist_station"]);
+  $form->addField("churchdb_birthdaylist_status","", "INPUT_REQUIRED",t('status.ids.for.birthdaylist.comma.separated'))
+    ->setValue($config["churchdb_birthdaylist_status"]);    
+  $form->addField("churchdb_birthdaylist_station","", "INPUT_REQUIRED",t('station.ids.for.birthdaylist.comma.separated'))
+    ->setValue($config["churchdb_birthdaylist_station"]);
 
-  $form->addField("churchdb_mailchimp_apikey","", "INPUT_OPTIONAL",'Wenn die Integration von MailChimp.com genutzt werden soll, bitte hier den API-Key angeben. <a target="_clean" href="http://intern.churchtools.de/?q=help&doc=MailChimp-Integration">Weitere Informationen</a>');
-    $form->fields["churchdb_mailchimp_apikey"]->setValue($config["churchdb_mailchimp_apikey"]);
-  $form->addField("churchdb_smspromote_apikey","", "INPUT_OPTIONAL",'Wenn die Integration von smspromote.de genutzt werden soll, bitte hier den API-Key angeben.  <a target="_clean" href="http://intern.churchtools.de/?q=help&doc=smspromote-Integration">Weitere Informationen</a>');
-    $form->fields["churchdb_smspromote_apikey"]->setValue($config["churchdb_smspromote_apikey"]);
+  $form->addField("churchdb_mailchimp_apikey","", "INPUT_OPTIONAL",t('api.key.mailchimp.if.used'). 
+    ' <a target="_clean" href="http://intern.churchtools.de/?q=help&doc=MailChimp-Integration">' . t('more.information') . '</a>')
+    ->setValue($config["churchdb_mailchimp_apikey"]);
+  $form->addField("churchdb_smspromote_apikey","", "INPUT_OPTIONAL",t('api.key.smspromote.if.used'). 
+    ' <a target="_clean" href="http://intern.churchtools.de/?q=help&doc=smspromote-Integration">' . t('more.information') . '</a>')
+    ->setValue($config["churchdb_smspromote_apikey"]);
     
-  $form->addField("churchdb_sendgroupmails","", "CHECKBOX","Sende &Auml;nderungen in Gruppen an Leiter, Co-Leiter und Supervisore");
-    $form->fields["churchdb_sendgroupmails"]->setValue($config["churchdb_sendgroupmails"]);
+  $form->addField("churchdb_sendgroupmails","", "CHECKBOX",t('send.groupchanges.to.leaders'))
+    ->setValue($config["churchdb_sendgroupmails"]);
 
   if (!isset($config["churchdb_changeownaddress"])) $config["churchdb_changeownaddress"]=false;
-  $form->addField("churchdb_changeownaddress","", "CHECKBOX","Jeder Benutzer darf seine eigenen Stammdaten anpassen");
-    $form->fields["churchdb_changeownaddress"]->setValue($config["churchdb_changeownaddress"]);
+  $form->addField("churchdb_changeownaddress","", "CHECKBOX",t('user.is.allowed.to.change.own.address'))
+    ->setValue($config["churchdb_changeownaddress"]);
     
   return $form;  
 }
