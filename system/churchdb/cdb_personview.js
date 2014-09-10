@@ -4762,8 +4762,10 @@ PersonView.prototype.renderGroupContent = function(g_id) {
     var datumvon=new Date();
     gruppentreffen_id=-1;
     if (json!=null) {
+      var now = new Date();
       $.each(churchcore_sortData(json,"datumvon"), function(k,a) {
-        if (a.eintragerfolgt_yn==0) {
+        // Only of not checked in and event is in the past
+        if (a.eintragerfolgt_yn==0 && a.datumvon.toDateEn(true)<now) {
           rows2.push('<legend>'+form_renderImage({src:"persons.png"})+'&nbsp;'+_("please.maintain.a.group.meeting")+'</legend>');
           rows2.push('<span class="pull-right">')
           rows2.push('<input type="button" class="btn" value="'+_("submit.selection")+'"/>&nbsp;');

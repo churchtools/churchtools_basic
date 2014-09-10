@@ -225,7 +225,7 @@ function churchcal_getBirthdays($params) {
     return $arrs;
   }
   else {
-    $persons=churchdb_getAllowedPersonData("geburtsdatum is not null", "p.id p_id, p.id, gp.id gp_id, concat(p.vorname, ' ',p.name) as name, geburtsdatum birthday");
+    $persons=churchdb_getAllowedPersonData("archiv_yn=0 and geburtsdatum is not null", "p.id p_id, p.id, gp.id gp_id, concat(p.vorname, ' ',p.name) as name, geburtsdatum birthday");
     return $persons;
   }
 }  
