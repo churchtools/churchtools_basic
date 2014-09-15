@@ -154,7 +154,7 @@
   <entry key="entry.message.here">Hier Nachricht eingeben...</entry>
   <entry key="request.from">Anfrage von</entry>
   <entry key="confirm.with.reservation">Zusage mit Vorbehalt!</entry>
-  <entry key="great.no.request.pending.anymore">Super, es ist keine Anfragen mehr offen!</entry>
+  <entry key="great.no.request.pending.anymore">Super, es ist keine Anfrage mehr offen!</entry>
   <entry key="you.have.denied.the.request">Du hast die Anfrage abgesagt.</entry>
   <entry key="your.confirmation.in.reservation.was.saved">Deine vorläufige Zusage wurde gespeichert.</entry>
   <entry key="mr.">Herr</entry>
@@ -352,10 +352,12 @@
   <entry key="please.specify.id">Bitte id angeben.</entry>
   <entry key="file.not.found.in.DB">Datei nicht in der Datenbank gefunden!</entry>
   <entry key="file.could.not.be.copied.to.x">Datei konnte nicht nach {0} kopiert werden!</entry>
+  <entry key="pending.service.requests">Offene Dienstanfragen: </entry> 
+  <entry key="there.are.pending.services">Es sind noch Dienste offen</entry> 
   
   <!-- churchcore auth -->
   <entry key="edit.masterdata">Stammdaten editieren</entry>
-
+  
   <!-- churchservice auth -->
   <entry key="view.churchservice">ChurchService sehen</entry>
   <entry key="view.servicegroup.churchservice.cs_servicegroup">Dienstanfragen einzelner Service-Gruppe einsehen</entry>
@@ -427,6 +429,9 @@
   <!-- Admin preferences member list -->
   <entry key="preferences.for.memberlist">Einstellungen für die Mitgliederliste</entry>
   <entry key="admin.could.change.preferences.here">Der Administrator kann hier einstellen, welche Daten ausgegeben werden sollen.</entry>
+  <!-- Admin preferences churchcal -->
+  <entry key="name.of.main.calendar">Name des Hauptkalenders</entry>
+  <entry key="css.for.embedded.cal">CSS für das Einbetten des Kalenders</entry>
   <!-- Admin preferences churchdb -->
   <entry key="max.allowed.rows.to.export">Wieviel Datensätze maximal exportiert werden dürfen</entry>
   <entry key="center.coordinates.latitude">Koordinaten-Mittelpunkt Latitude (am besten durch Google Maps herauszufinden)</entry>
@@ -454,6 +459,36 @@
   <!-- core db -->
   <entry key="previously">vorher</entry>
   <entry key="logout.successful">Logout erfolgreich</entry>
+
+  <!-- churchcal -->
+  <entry key="meeting.requests">Terminanfragen</entry>
+  <entry key="new.meeting.request">Neue Terminanfrage</entry>
+  <entry key="no.create.right.for.id.x">Keine Rechte beim Erstellen im Kalender mit der Id {0}</entry>
+  <entry key="no.agenda.found.for.event">Konnte keine Agenda für das Event {0} finden!</entry>
+  <entry key="x.not.found">{0} nicht vorhanden!</entry> <!-- TODO: let all sorts of not found errors use this -->
+  <entry key="item">Position</entry>
+  <entry key="agenda">Ablaufplan</entry>
+  <entry key="event">Event</entry> <!-- maybe its better to use Veranstaltung for events -->
+  <entry key="event.could.not.be.copied">Event in {0} konnte nicht kopiert werden!</entry>
+  <entry key="template.can.not.be.added.to.existing.service">Zu einem bestehenden Service kann keine Vorlage hinzugefügt werden!</entry>
+  <entry key="remove.event">Entferne Event!</entry>
+  <entry key="cancelation.of.event.date">Absage von {0} am {1}</entry>
+  <entry key="thank.you.for.feedback">Danke für deine Rückmeldung!</entry>
+  
+  
+  <!-- churchcal auth -->
+  <entry key="view.churchcal">ChurchCal sehen</entry>
+  <entry key="view.single.calendar">Einzelnen Kalender sehen</entry>
+  <entry key="edit.single.calendar">In einzelnen Kalendern Termine erstellen, editieren etc.</entry>
+  <entry key="create.group.calendar">Gruppenkalender erstellen</entry>
+  <entry key="administer.group.calendar">Gruppenkalender administrieren</entry>
+  <entry key="administer.church.calendar">Gemeindekalender administrieren</entry>
+  <entry key="manual.event.not.found">Manuellen Termin #{0} nicht gefunden!</entry>
+  <entry key="event.not.found">Termin #{0} nicht gefunden!</entry>
+  <entry key="category.does.not.exist">Kategorie nicht vorhanden</entry>
+  <entry key="deleting.failed.because.of.remaining.services">Es sind noch Dienste mit dem Kalender verbunden. Kann ihn deshalb nicht entfernen!</entry>
   <entry key=""></entry>
 
+  <entry key=""></entry>
+  
 </properties>

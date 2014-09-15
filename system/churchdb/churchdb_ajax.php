@@ -1223,7 +1223,8 @@ function churchdb_invitePersonToSystem($id) {
   $content .= '<p><a href="'. $base_url. "?q=profile&loginstr=$loginstr&id=$id".
        '" class="btn btn-royal">Auf %sitename anmelden</a>';
   $res = churchcore_sendEMailToPersonIds($id, "Einladung zu ". getConf('site_name', 'ChurchTools'), $content, getConf('site_mail'), true);
-  cdb_log("Person $id wurde zu ". getConf('site_name', 'ChurchTools'). " eingeladen:". $content, 2, $id);
+  cdb_log("Person $id wurde zu ". getConf('site_name', 'ChurchTools'). " eingeladen:". $content, 2, $id); 
+  //TODO: is $content in log really needed? no name; if admin clicks link, ontimelogin will be deleted, ...
 }
 
 /**

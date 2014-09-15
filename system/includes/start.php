@@ -15,7 +15,8 @@ $add_header = ""; // http headers?
 $content = ""; // page content
 $user = null; // user
 $embedded = false; //
-$i18n = null; //
+$i18n = null; // translation object 
+$ajax = false; // to find out if its an ajax call
 
 // TODO: most functions should be moved to churchcore/functions.php
 // then the remaining code may be put into index.php 
@@ -24,7 +25,8 @@ $i18n = null; //
 /**
  * Shutdown fuction, if an error happened, an error message is displayed.
  * FIXME: need to be changed - this errors are corrupting json answers
- * replace $ajax with something appropriate!
+ * 
+ * global $ajax currently will be set to true in CTAjaxHandler! (there are errors caused by debugging which was hindering)
  * if error on ajax is needed, add something like $json['error'] = $info;
  *
  * error_get_last() dont respects error_reporting() - f.e. deprecated options in php.ini which are not shown
@@ -33,7 +35,7 @@ $i18n = null; //
  * I think heavy core errors shouldnt be shown on the page and all others should be catched by an exception handler.
  */
 function handleShutdown() {
-  $ajax = false;
+  global $ajax;
   $error = error_get_last();
   if (!$ajax && $error !== NULL) { // no Error notizes on ajax requests!
     $info = "[ERROR] file:" . $error['file'] . ":" . $error['line'] . " <br/><i>" . $error['message'] . '</i>' . PHP_EOL;
@@ -195,13 +197,12 @@ function loadUserObjectInSession() {
  * @return string
  */
 function getBaseUrl() {
-  $baseUrl = $_SERVER['HTTP_HOST'];
   // get path part from requested url and remove index.php
-  $baseUrl .= str_replace('index.php', '', parse_url($_SERVER['HTTP_HOST']. $_SERVER['REQUEST_URI'], PHP_URL_PATH));  
+  $baseUrl = str_replace('index.php', '', parse_url($_SERVER['HTTP_HOST']. $_SERVER['REQUEST_URI'], PHP_URL_PATH));
   // add http(s):// and assure a single trailing /
   $baseUrl = (!empty($_SERVER['HTTPS']) ? "https://" : "http://"). trim($baseUrl, '/') . '/';
-  
-  return $baseUrl;
+  // echo " ::: URL: $baseUrl ::: ";
+  return $baseUrl;  
 }
 
 /**

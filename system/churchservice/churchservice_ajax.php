@@ -10,7 +10,11 @@ include_once (CHURCHDB . '/churchdb_db.php');
  */
 function churchservice_getGroupsOfService($service_id) {
   // get groupIds for services
-  $res = db_query("SELECT cdb_gruppen_ids FROM {cs_service} WHERE id=$service_id");
+  
+  //SELECT GROUP_CONCAT(cdb_gruppen_ids) AS ids FROM cs_service group by id having id=24
+  $res = db_query("SELECT cdb_gruppen_ids FROM {cs_service} 
+                   WHERE id=:service_id",
+                   array(':service_id' => $service_id));
   $arr = array ();
   foreach ($res as $entry) if ($entry->cdb_gruppen_ids != null) {
       $arr[] = $entry->cdb_gruppen_ids;
@@ -29,19 +33,20 @@ function churchservice_getGroupsOfService($service_id) {
  */
 function churchservice_getGroupsOfServiceGroup($servicegroup_id) {
   // get groupIds for servicegroup
-  $res = db_query("SELECT cdb_gruppen_ids FROM {cs_service} WHERE servicegroup_id=$servicegroup_id");
+  $res = db_query("SELECT cdb_gruppen_ids 
+                   FROM {cs_service} 
+                   WHERE servicegroup_id=:servicegroup_id",
+                   array(':servicegroup_id' => $servicegroup_id));
   $arr = array ();
-  foreach ($res as $entry) {
-    if ($entry->cdb_gruppen_ids != null) {
-      $arr[] = $entry->cdb_gruppen_ids;
-  }
+  foreach ($res as $entry) if ($entry->cdb_gruppen_ids != null) {
+    $arr[] = $entry->cdb_gruppen_ids;
   }
   // implode comma separated id values and then explode them alltogether
   if (count($arr) == 0) return $arr;
   else return explode(",", implode(',', $arr));
 }
 
-$auth = null; // TODO: delete ???
+$auth = null; // FIXME: delete this? dont let it stay here!
 
 /**
  * get church service authorisation
@@ -90,15 +95,19 @@ function churchservice_getAuthorization() {
   
   if (isset($auth["view servicegroup"])) $res_view = $auth["view servicegroup"];
   else $res_view = array ();
-  //check if user is in one of the groups of servicegroup 
+  //check if user is member in a group of servicegroup 
   $arr = churchcore_getTableData("cs_servicegroup", "sortkey");
   
   $myTnGroups = churchdb_getMyGroups($user_pid, true, false);
   $myLdGroups = churchdb_getMyGroups($user_pid, true, true);
   
+  // TODO: maybe put $arr and churchservice_getGroupsOfServiceGroup in one request:
+//   SELECT cs_servicegroup.*,cs_service.*
+//   FROM cs_servicegroup, cs_service
+//   WHERE cs_service.servicegroup_id=cs_servicegroup.id AND (servicegroup_id = 1 OR viewall_yn=1)
   foreach ($arr as $grp) {
     $groups = churchservice_getGroupsOfServiceGroup($grp->id);
-    if (($grp->viewall_yn == 1) || (array_in_array($groups, $myTnGroups))) {
+    if ($grp->viewall_yn == 1 || array_in_array($groups, $myTnGroups)) {
       $res_view[$grp->id] = true;
     }
   }
@@ -137,7 +146,7 @@ function churchservice_getAuthorization() {
   }
   $res["memberservice"] = $res_member;
   $res["leaderservice"] = $res_leader;
-  $res["editservice"] = $res_edit;
+  $res["editservice"]   = $res_edit;
   
   if (isset($auth["view agenda"]))  $res["view agenda"] = $auth["view agenda"];
   if (isset($auth["edit agenda"])) {
@@ -202,10 +211,8 @@ function churchservice_getNewEventData($params) {
   global $user;
   $last_id = $params["last_id"];
   $arr = db_query("SELECT event_id FROM {cs_eventservice} 
-                   WHERE modified_pid!=:user and id>=:last_id group by event_id", array (
-                    ":user" => $user->id, 
-                    ":last_id" => $last_id)
-  );
+                   WHERE modified_pid!=:user and id>=:last_id group by event_id", 
+                   array (":user" => $user->id, ":last_id" => $last_id));
   $events = array ();
   foreach ($arr as $data) {
     $event = churchservice_getAllEventData(array ("id" => $data->event_id));
@@ -240,23 +247,21 @@ function churchservice_getAllEventData($params) {
        FROM {cs_event} e, {cc_cal} cal 
        WHERE cal.id=e.cc_cal_id AND '.($id != null ? "e.id=$id" : "1=1")." AND cal.category_id in (" . implode(",", $cat) . ")");
   
-  $sql = "SELECT es.service_id, es.name, es.cdb_person_id, es.id eventservice_id, es.counter,
-               es.zugesagt_yn, es.valid_yn, es.modified_date, es.modified_pid, es.mailsenddate,
-               case when p.id is null then '?' else  
-               concat(p.vorname, ' ',p.name) end as modifieduser, 
-               es.reason, s.servicegroup_id 
-          FROM {cs_service} s, {cs_eventservice} es left join {cdb_person} p on (es.modified_pid=p.id) 
-          WHERE es.service_id=s.id and event_id=:event_id";
   $events = array ();
   if ($res != false) {
     foreach ($res as $arr) {
-      // check booking info, damit ich weiï¿½, dass er hier nicht das Datum ï¿½ndern darf.
       // check booking info to know if date can be changed here
       // TODO: dont SELECT * if SELECT id is sufficient
-      $b = db_query("SELECT * FROM {cr_booking} WHERE cc_cal_id=:cal_id", array (":cal_id" => $arr->cc_cal_id))->fetch();
+      $b = db_query( "SELECT * FROM {cr_booking} 
+                      WHERE cc_cal_id=:cal_id", 
+                      array (":cal_id" => $arr->cc_cal_id))
+                      ->fetch();
       $arr->bookings = $b != false;
       // Check if agenda items are available for this event
-      $b = db_query("SELECT * FROM {cs_event_item} WHERE event_id=:event_id limit 1", array (":event_id" => $arr->id))->fetch();
+      $b = db_query( "SELECT * FROM {cs_event_item} 
+                      WHERE event_id=:event_id limit 1", 
+                      array (":event_id" => $arr->id))
+                      ->fetch();
       $arr->agenda = $b != false;
       
       // here we go!
@@ -271,8 +276,18 @@ function churchservice_getAllEventData($params) {
       $event_enddate->modify("+" . $diff . " seconds");
       $arr->enddate = $event_enddate->format('Y-m-d H:i:s');
       
-      if ((1 == 1) && ($arr->datediff > $lastday)) { ///TODO: remove 1 == 1
-        $services = db_query($sql, array (":event_id" => $arr->id));
+      if ((1 == 1) && $arr->datediff > $lastday) { ///TODO: remove 1 == 1
+        
+        $services = db_query("
+          SELECT es.service_id, es.name, es.cdb_person_id, es.id eventservice_id, es.counter,
+               es.zugesagt_yn, es.valid_yn, es.modified_date, es.modified_pid, es.mailsenddate,
+               case when p.id is null then '?' else  
+               concat(p.vorname, ' ',p.name) end as modifieduser, 
+               es.reason, s.servicegroup_id 
+          FROM {cs_service} s, {cs_eventservice} es left join {cdb_person} p on (es.modified_pid=p.id) 
+          WHERE es.service_id=s.id and event_id=:event_id", 
+          array (":event_id" => $arr->id));
+        
         $s = array ();
         foreach ($services as $service) {
           if ($service->servicegroup_id != null && (isset($auth["viewgroup"][$service->servicegroup_id]) || $event_admin)) {
@@ -295,11 +310,10 @@ function churchservice_getAllEventData($params) {
 function churchService_adminOfEvent($event_id) {
   $res = db_query("SELECT admin FROM {cs_event} WHERE id=$event_id")->fetch();
   $admins = explode(",", $res->admin);
-  $dabei = false;
   foreach ($admins as $u) {
-    if ($u == $_SESSION["user"]->id) $dabei = true;
+    if ($u == $_SESSION["user"]->id) return true;
   }
-  return $dabei;
+  return false;
 }
  /**
   * add/remove service to event
@@ -323,10 +337,10 @@ function churchservice_addOrRemoveServiceToEvent($params) {
     $fields["modified_pid"] = $user->id;
     
     $db = db_query("SELECT count(*) c FROM {cs_eventservice} 
-                    WHERE event_id=:event_id and service_id=:service_id and valid_yn=1", array (
-                        ":service_id" => $fields["service_id"], 
-                        ":event_id" => $fields["event_id"]
-    ))->fetch();
+                    WHERE event_id=:event_id and service_id=:service_id and valid_yn=1", 
+                    array (":service_id" => $fields["service_id"], 
+                           ":event_id" => $fields["event_id"]
+                    ))->fetch();
     // should not be changed or created
     $soll = 0;  //TODO: replase ist/soll by have/need; is/shall; is/should?
     $ist = $db->c;
@@ -344,17 +358,17 @@ function churchservice_addOrRemoveServiceToEvent($params) {
       // If only one exists but more should be added, set counter to 1 for better looking.
       if (($ist == 1) && ($soll > 1)) 
         db_query("UPDATE {cs_eventservice} set counter=1 
-                  WHERE event_id=:event_id and service_id=:service_id and counter is null", array (
-                      ":event_id" => $fields["event_id"],
-                      ":service_id" => $fields["service_id"]
-        ));
+                  WHERE event_id=:event_id and service_id=:service_id and counter is null", 
+                  array (":event_id" => $fields["event_id"],
+                         ":service_id" => $fields["service_id"]
+                  ));
       // If more then one exists but should be only one now, set counter to 0 for better looking.
       if (($ist > 1) && ($soll == 1)) 
         db_query("UPDATE {cs_eventservice} set counter=null 
-                  WHERE event_id=:event_id and service_id=:service_id and counter=1", array (
-                      ":event_id" => $fields["event_id"], 
-                      ":service_id" => $fields["service_id"]
-        ));  
+                  WHERE event_id=:event_id and service_id=:service_id and counter=1", 
+                  array (":event_id" => $fields["event_id"], 
+                         ":service_id" => $fields["service_id"]
+                  ));  
     }
     // echo "ist: $ist, soll: $soll";
     while ($ist < $soll) {
@@ -371,8 +385,8 @@ function churchservice_addOrRemoveServiceToEvent($params) {
           $res = db_query("SELECT count(*) c FROM {cs_eventservice} 
                            WHERE event_id=:event_id and service_id=:service_id and counter=$count", 
                            array(":event_id" => $fields["event_id"], 
-                           ":service_id" => $fields["service_id"]
-                 ))->fetch();
+                                 ":service_id" => $fields["service_id"]
+                           ))->fetch();
           if ($res->c == 0) $ok = true;
           else $count = $count + 1;
         }
@@ -387,8 +401,8 @@ function churchservice_addOrRemoveServiceToEvent($params) {
     while ($ist > $soll) {
       // Hole den hï¿½chsten freien Count, wenn es keinen gibt, dann stimmt was nicht, denn
       // das wird ja eigentlich ï¿½ber JS sichergestellt, dass nur das gelï¿½scht werden kann, wenn was frei ist
-      // get max free counter; if none something is wrong, for JS assures to delete only, if something is free
-      //TODO: i dont understand this sentence :-)
+      // get max free counter; if none - something is wrong for JS assures to delete only, if it is free
+      //TODO: check translation
       $res = db_query(
              "SELECT max(counter) c FROM {cs_eventservice} 
               WHERE event_id=:event_id and service_id=:service_id and name is null and valid_yn=1", 
@@ -435,10 +449,12 @@ function churchservice_deleteService($params) {
 function churchservice_editService($params) {
   $auth = churchservice_getAuthorization();
   
-  if (!isset($auth["editgroup"]) || (!isset($auth["editgroup"][$params["servicegroup_id"]]))) 
+  if (!isset($auth["editgroup"]) || (!isset($auth["editgroup"][$params["servicegroup_id"]]))) {
     throw new CTNoPermission("editservice", "churchservice");
-  if ($params["id"] && (empty($auth["editservice"]) || empty($auth["editservice"][$params["id"]])) )
+  }
+  if ($params["id"] && (empty($auth["editservice"]) || empty($auth["editservice"][$params["id"]]))) {
     throw new CTNoPermission("editservice", "churchservice");
+  }
   
   $i = new CTInterface();
   $i->setParam("id", false);
@@ -489,17 +505,20 @@ function churchservice_updateEventService($params) {
   if ($cdb_person_id == "null") $cdb_person_id = null;
   
   // look if event is still valid
-  $arr = db_query("SELECT * FROM {cs_eventservice} WHERE id=:id", array (":id" => $id))->fetch();
+  $arr = db_query("SELECT * FROM {cs_eventservice} 
+                   WHERE id=:id", 
+                   array (":id" => $id))
+                   ->fetch();
   if (!$arr) return "Eintrag nicht gefunden, id nicht gültig!";
   if ($arr->valid_yn != 1 && !isset($params["valid_yn"])) return "Eintrag konnte nicht angepasst werden, da veraltet. Bitte neu laden!";
   
   // check auth
   $auth = churchservice_getAuthorization();
     // Es ist trotzdem erlaubt, wenn die PersonId eingetragen ist, dann wurde er ja angefragt
-  if ((!isset($auth["editservice"][$arr->service_id])) && 
-      (!isset($auth["memberservice"][$arr->service_id])) &&
-      (!churchService_adminOfEvent($arr->event_id)) && 
-      ($arr->cdb_person_id != $user->id)) 
+  if (!isset($auth["editservice"][$arr->service_id]) && 
+      !isset($auth["memberservice"][$arr->service_id]) &&
+      !churchService_adminOfEvent($arr->event_id) && 
+      $arr->cdb_person_id != $user->id) 
       throw new CTNoPermission("editservice", "churchservice");
     
   // Wenn die neue ï¿½nderung vom gleichen User kommt und noch kein Cron gelaufen ist,
@@ -532,23 +551,23 @@ function churchservice_updateEventService($params) {
   else {
     // new entry for edit
     $new_id = db_insert("cs_eventservice")
-    ->fields(array (
-        "event_id" => $arr->event_id, 
-        "service_id" => $arr->service_id, 
-        "valid_yn" => 1, 
-        "counter" => $arr->counter, 
-        "name" => $name, 
-        "cdb_person_id" => $cdb_person_id, 
-        "zugesagt_yn" => $zugesagt_yn, 
-        "reason" => $reason, 
-        "modified_date" => $dt->format('Y-m-d H:i:s'), 
-        "modified_pid" => $user->id
-    ))->execute();
+                ->fields(array (
+                    "event_id" => $arr->event_id, 
+                    "service_id" => $arr->service_id, 
+                    "valid_yn" => 1, 
+                    "counter" => $arr->counter, 
+                    "name" => $name, 
+                    "cdb_person_id" => $cdb_person_id, 
+                    "zugesagt_yn" => $zugesagt_yn, 
+                    "reason" => $reason, 
+                    "modified_date" => $dt->format('Y-m-d H:i:s'), 
+                    "modified_pid" => $user->id
+                ))->execute();
   
     //if all ok set existing entry to old
     db_update("cs_eventservice")
-    ->fields(array ("valid_yn" => 0))
-    ->condition("id", $id, "=")
+      ->fields(array ("valid_yn" => 0))
+      ->condition("id", $id, "=")
       ->execute();
   }
 
@@ -558,7 +577,7 @@ function churchservice_updateEventService($params) {
   $event = db_query("SELECT e.startdate datum, c.bezeichnung FROM {cs_event} e, {cc_cal} c
                      WHERE e.cc_cal_id=c.id and e.id=:event_id", 
                      array (":event_id" => $arr->event_id))
-           ->fetch();
+                     ->fetch();
   $service = churchcore_getTableData("cs_service", "", "id=" . $arr->service_id);
   
   if ($event && $service) {
@@ -684,7 +703,7 @@ function churchservice_getLastLogId($last_id = 0) {
   $arr = db_query("SELECT MAX(id) max FROM {cs_eventservice} 
                    WHERE modified_pid!=:user AND id>=:last_id", 
                    array (":user" => $user->id, ":last_id" => $last_id))
-         ->fetch();
+                  ->fetch();
   
   return $arr->max;
 }
@@ -769,7 +788,7 @@ function churchservice_saveNote($event_id, $text) {
 function churchservice_getEventtemplateServices($auth) {
   if (!isset($auth["write"])) return null;
   
-    $res = db_query("SELECT * FROM {cs_eventtemplate_service}");
+  $res = db_query("SELECT * FROM {cs_eventtemplate_service}");
   $arrs = null;
     foreach ($res as $arr) {
     $es = isset($arrs[$arr->eventtemplate_id]) ? $arrs[$arr->eventtemplate_id] : array ();
@@ -781,6 +800,7 @@ function churchservice_getEventtemplateServices($auth) {
 
 /**
  * update or insert event template
+ * 
  * @param int $template_id; if no id insert, else update
  * @param unknown $stunde
  * @param unknown $minute
@@ -807,6 +827,7 @@ function churchservice_updateOrInsertTemplate($template_id, $bezeichnung, $stund
     $arr = db_query("SELECT MAX(id) id FROM {cs_eventtemplate}")->fetch();
     $template_id = $arr->id + 1;
     $fields["id"] = $template_id;
+    
     db_insert("cs_eventtemplate")
       ->fields($fields)
       ->execute();
@@ -825,14 +846,14 @@ function churchservice_updateOrInsertTemplate($template_id, $bezeichnung, $stund
                   array (":eventtemplate_id" => $template_id,
                          ":service_id" => $service, 
                          ":count" => $val
-        ));
+                  ));
       }
       else
         db_query("DELETE FROM {cs_eventtemplate_service} 
                   WHERE eventtemplate_id=:eventtemplate_id AND service_id=:service_id",
                   array(":eventtemplate_id" => $template_id, 
                         ":service_id" => $service,
-        ));
+                    ));
     }
   }
 }
@@ -901,7 +922,10 @@ function churchservice_addNewSong($params) {
   $i->setParam("copyright");
   $i->addModifiedParams();
   
-  $params["song_id"] = db_insert("cs_song")->fields($i->getDBInsertArrayFromParams($params))->execute(false);
+  $params["song_id"] = db_insert("cs_song")
+                         ->fields($i->getDBInsertArrayFromParams($params))
+                         ->execute(false);
+  
   $params["bezeichnung"] = "Standard-Arrangement";
   $params["default_yn"] = 1;
   $i = new CTInterface();
@@ -912,7 +936,10 @@ function churchservice_addNewSong($params) {
   $i->setParam("tonality");
   $i->setParam("default_yn");
   $i->addModifiedParams();
-  db_insert("cs_song_arrangement")->fields($i->getDBInsertArrayFromParams($params))->execute(false);
+  db_insert("cs_song_arrangement")
+    ->fields($i->getDBInsertArrayFromParams($params))
+    ->execute(false);
+    
   return $params["song_id"];
 }
 
@@ -1052,11 +1079,13 @@ function churchservice_makeAsStandardArrangement($params) {
   $i->setParam("default_yn");
   $i->setParam("song_id");
   $i->addModifiedParams();
+  
   db_update("cs_song_arrangement")
     ->fields($i->getDBInsertArrayFromParams($params))
     ->condition("song_id", $params["song_id"], "=")
     ->execute(false);
   $params["default_yn"] = 1;
+  
   db_update("cs_song_arrangement")
     ->fields($i->getDBInsertArrayFromParams($params))
     ->condition("id", $params["id"], "=")
@@ -1082,7 +1111,8 @@ function churchservice_editServiceGroupPersonWeight($params) {
       ->execute(false);
   }
   catch (Exception $e) {
-    db_query("UPDATE {cs_servicegroup_person_weight} 
+    db_query("
+        UPDATE {cs_servicegroup_person_weight} 
         SET max_per_month=:max_per_month, relation_weight=:relation_weight, morning_weight=:morning_weight
         WHERE servicegroup_id=:servicegroup_id and person_id=:person_id", 
         $i->getDBParamsArrayFromParams($params));
@@ -1102,7 +1132,8 @@ function churchservice_saveFact($params) {
   
   $dt = new datetime();
   
-  if ($value == "") db_query("DELETE FROM {cs_event_fact} WHERE event_id=$event_id and fact_id=$fact_id");
+  if ($value == "") db_query("DELETE FROM {cs_event_fact} 
+                              WHERE event_id=$event_id and fact_id=$fact_id");
   else db_query(
       "INSERT INTO {cs_event_fact} (event_id, fact_id, value, modified_date, modified_pid)
        VALUES ($event_id, $fact_id, $value, '" . $dt->format('Y-m-d H:i:s') . "', $user->id)
@@ -1125,7 +1156,7 @@ function churchservice_getServiceGroupPersonWeight() {
       $rel = db_query("SELECT * FROM {cdb_beziehung} 
                        WHERE vater_id=:id or kind_id=:id and beziehungstyp_id=$rel_types->id", 
                        array(":id" => $s->person_id))
-             ->fetch();
+                       ->fetch();
       if ($rel != null) {
         if ($rel->kind_id != $s->person_id) $s->relation_id = $rel->kind_id;
         else $s->relation_id = $rel->vater_id;

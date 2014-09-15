@@ -19,6 +19,8 @@ class CTAjaxHandler {
   private $funcs = array();
 
   public function __construct($module) {
+    global $ajax;
+    $ajax = true;
     $this->module=$module;
     $this->modulename=$module->getModuleName();
   }

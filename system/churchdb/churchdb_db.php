@@ -209,7 +209,7 @@ function churchdb_getAllowedGroups() {
  */
 function churchdb_getMyGroups($userPid, $onlyIds = false, $onlyUserIsLeader = false, $onlySuperGroups = false) {
   global $user, $config;
-  if ($userPid == null) return array ();
+  if ($userPid == null) return array();
   
   $arrs = array ();
   if (!$onlySuperGroups) {
@@ -217,23 +217,23 @@ function churchdb_getMyGroups($userPid, $onlyIds = false, $onlyUserIsLeader = fa
           SELECT g.*, gpg.status_no, gt.anzeigen_in_meinegruppen_teilnehmer_yn, datediff(current_date, g.abschlussdatum) abschlusstage
           FROM {cdb_gruppe} g, {cdb_gemeindeperson_gruppe} gpg, {cdb_gemeindeperson} gp, {cdb_gruppentyp} gt
           WHERE gp.person_id=$userPid AND gpg.gemeindeperson_id=gp.id AND gpg.gruppe_id=g.id AND g.gruppentyp_id=gt.id");
-    foreach ($res as $a) {
+    foreach ($res as $g) {
       // if user is leader or no leadership needed
-      if ((!$onlyUserIsLeader) || ($a->status_no > 0)) {
+      if ((!$onlyUserIsLeader) || ($g->status_no > 0)) {
         // if view members allowed and group not marked for deleting
         
         // TODO: use speaking constants for status numbers or something like group->isLeader($pId)
         // if user is leader and group termination is not to far in the past
-        if (($a->anzeigen_in_meinegruppen_teilnehmer_yn == 1 && $a->status_no != -1)
-            || ($a->status_no > 0 && ($a->abschlusstage == null || $a->abschlusstage < $config["churchdb_groupnotchoosable"]))
+        if (($g->anzeigen_in_meinegruppen_teilnehmer_yn == 1 && $g->status_no != -1)
+            || ($g->status_no > 0 && ($g->abschlusstage == null || $g->abschlusstage < $config["churchdb_groupnotchoosable"]))
     // => Habe ich erst mal rausgenommen, denn sonst sieht man pl�tzlich  mit alldetails Leute aus Freizeiten oder mit gleichen Merkmalen!        
             // or user has permission to view all details 
             //|| ((isset($user->auth["churchdb"])) && (isset($user->auth["churchdb"]["view alldetails"]))))
             )
             // if group is hidden or user is leader
-          if ($a->versteckt_yn == 0 || ($a->status_no > 0 && $a->status_no < 4)) {
-          if ($onlyIds) $arrs[$a->id] = $a->id;
-          else $arrs[$a->id] = $a;
+          if ($g->versteckt_yn == 0 || ($g->status_no > 0 && $g->status_no < 4)) {
+          if ($onlyIds) $arrs[$g->id] = $g->id;
+          else $arrs[$g->id] = $g;
         }
       }
     }
@@ -243,9 +243,9 @@ function churchdb_getMyGroups($userPid, $onlyIds = false, $onlyUserIsLeader = fa
       $auth = user_access("view group", "churchdb");
       if ($auth != null) {
         $res = db_query("SELECT g.* FROM {cdb_gruppe} g WHERE g.id in (" . implode(",", $auth) . ")");
-        foreach ($res as $a) if (!isset($arrs[$a->id])) {
-          if ($onlyIds) $arrs[$a->id] = $a->id;
-          else $arrs[$a->id] = $a;
+        foreach ($res as $g) if (!isset($arrs[$g->id])) {
+          if ($onlyIds) $arrs[$g->id] = $g->id;
+          else $arrs[$g->id] = $g;
         }
       }
     }
@@ -255,35 +255,35 @@ function churchdb_getMyGroups($userPid, $onlyIds = false, $onlyUserIsLeader = fa
   $res = db_query("SELECT g.* 
                    FROM {cdb_gruppe} g, {cdb_person_distrikt} pd
                    WHERE g.distrikt_id=pd.distrikt_id AND pd.person_id=$userPid");
-  foreach ($res as $a) {
-    if (!isset($arrs[$a->id])) {
+  foreach ($res as $g) {
+    if (!isset($arrs[$g->id])) {
       if ($onlyIds) {
-        $arrs[$a->id] = $a->id;
+        $arrs[$g->id] = $g->id;
       }
       else {
-        $a->status_no = 2;
-        $arrs[$a->id] = $a;
+        $g->status_no = 2;
+        $arrs[$g->id] = $g;
       }
     }
     
     // TODO: is this the same and better to read?
-    // foreach ($res as $a) if (!isset($arrs[$a->id])){
-    // $a->status_no=2;
-    // $arrs[$a->id]= $onlyIds ? $arrs[$a->id]=$a->id : $arrs[$a->id]=$a;
+    // foreach ($res as $g) if (!isset($arrs[$g->id])){
+    // $g->status_no=2;
+    // $arrs[$g->id]= $onlyIds ? $arrs[$g->id]=$g->id : $arrs[$g->id]=$g;
     // }
   }
   // get groups user is grouptype leader for
   $res = db_query("SELECT g.* 
                    FROM {cdb_gruppe} g, {cdb_person_gruppentyp} pd
                    WHERE g.gruppentyp_id=pd.gruppentyp_id AND pd.person_id=$userPid");
-  foreach ($res as $a) {
-    if (!isset($arrs[$a->id])) {
+  foreach ($res as $g) {
+    if (!isset($arrs[$g->id])) {
       if ($onlyIds) {
-        $arrs[$a->id] = $a->id;
+        $arrs[$g->id] = $g->id;
       }
       else {
-        $a->status_no = 2;
-        $arrs[$a->id] = $a;
+        $g->status_no = 2;
+        $arrs[$g->id] = $g;
       }
     }
   }

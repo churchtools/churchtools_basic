@@ -1108,7 +1108,7 @@ function send2Calendar(a,b) {
     calendar.yearCalendar(a,b);
   else if (viewName=="eventView")
     calendar.eventCalendar(a,b);
-  else alert("Unbeaknnter send Calendar");
+  else alert("Unbekannter send Calendar");
   
 }
 
