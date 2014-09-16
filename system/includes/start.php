@@ -155,38 +155,41 @@ function loadUserObjectInSession() {
   global $q;
   if (!isset($_SESSION['user'])) {
     // Wenn nicht ausgeloggt wird und RememberMe bei der letzten Anmeldung aktiviert wurde
-    if (($q != "logout") && (isset($_COOKIE['RememberMe'])) && ($_COOKIE['RememberMe'] == 1)) {
+    if ($q != "logout" && isset($_COOKIE['RememberMe']) && $_COOKIE['RememberMe'] == 1) {
       if (isset($_COOKIE['CC_SessionId'])) {
-        $res = db_query("SELECT * FROM {cc_session} WHERE session=:session AND hostname=:hostname", 
+        $res = db_query("SELECT * FROM {cc_session} 
+                         WHERE session=:session AND hostname=:hostname", 
                          array(":session" => $_COOKIE['CC_SessionId'], 
                                ":hostname" => $_SERVER["HTTP_HOST"]
                ));
         // if session exists, read user data
-        if ($res != false) {
+        if ($res) {
           $res = $res->fetch();
           if (isset($res->person_id)) {
-            $res = db_query("select * from {cdb_person} where id=:id", array (":id" => $res->person_id))->fetch();
+            $res = db_query("SELECT * FROM {cdb_person} 
+                             WHERE id=:id", 
+                             array (":id" => $res->person_id))
+                             ->fetch();
             $res->auth = getUserAuthorization($res->id);
             $_SESSION['user'] = $res;
-            addInfoMessage("Willkommen zur&uuml;ck, " . $res->vorname . "!", true);
+            addInfoMessage(t('welcome.back.x', $res->vorname), true);
           }
         }
       }
     }
-    if (!isset($_SESSION['user'])) {
-      createAnonymousUser();
-    }
+    if (!isset($_SESSION['user']))  createAnonymousUser();
   }
   else {
     $_SESSION["user"]->auth = getUserAuthorization($_SESSION["user"]->id);
     if (isset($_COOKIE['CC_SessionId'])) {
       $dt = new DateTime();
-      db_query("UPDATE {cc_session} SET datum=:datum WHERE person_id=:p_id AND session=:session AND hostname=:hostname", 
-               array (":datum" => $dt->format('Y-m-d H:i:s'), 
-                      ":session" => $_COOKIE['CC_SessionId'], 
-                      ":p_id" => $_SESSION["user"]->id, 
-                      ":hostname" => $_SERVER["HTTP_HOST"],
-               ));
+      db_query("UPDATE {cc_session} SET datum=:datum 
+                WHERE person_id=:p_id AND session=:session AND hostname=:hostname", 
+                array (":datum" => $dt->format('Y-m-d H:i:s'), 
+                       ":session" => $_COOKIE['CC_SessionId'], 
+                       ":p_id" => $_SESSION["user"]->id, 
+                       ":hostname" => $_SERVER["HTTP_HOST"],
+                ));
     }
   }
 }
@@ -211,10 +214,13 @@ function getBaseUrl() {
 function pleaseAcceptDatasecurity() {
   global $user, $q;
   include_once (CHURCHWIKI . "/churchwiki.php");
-  if (isset($_GET["acceptsecurity"])) {
-    db_query("update {cdb_person} set acceptedsecurity=current_date() where id=$user->id");
+  if (getVar("acceptsecurity")) {
+    db_query("UPDATE {cdb_person} 
+              SET acceptedsecurity=current_date() 
+              WHERE id=$user->id");
     $user->acceptedsecurity = new DateTime();
     addInfoMessage(t("datasecurity.accept.thanks"));
+    
     return churchtools_processRequest($q);
   }
   
@@ -226,11 +232,12 @@ function pleaseAcceptDatasecurity() {
   $text = '<div class="container-fluid"><div class="well">' . $text;
   $text .= '<a href="?q=' . $q . '&acceptsecurity=true" class="btn btn-important">' . t("datasecurity.accept") . '</a>';
   $text .= '</div></div>';
+  
   return $text;
 }
 
 /**
- * Will call churchservice => churchservice_main or churchservice/ajax => churchservice_ajax
+ * calls churchservice => churchservice_main or churchservice/ajax => churchservice_ajax
  *
  * @param $q - Complete request URL inkl. suburl e.g. churchservice/ajax
  *          
@@ -253,14 +260,16 @@ function churchtools_processRequest($_q) {
     
     if ((!user_access("view", $_q)) && (!in_array($_q, $mapping["page_with_noauth"])) && ($_q != "login")
          && (!in_array($_q, (isset($config["page_with_noauth"]) ? $config["page_with_noauth"] : array ())))) {
-      // Wenn kein Benutzer angemeldet ist, dann zeige nun die Anmeldemaske
       if (!userLoggedIn()) {
+      // only show login
         if (strrpos($q, "ajax") === false) {
           $q = "login";
+          
           return churchtools_processRequest("login");
         }
         else {
           drupal_json_output(jsend()->error("Session expired!"));
+          
           die();
         }
       }
@@ -268,6 +277,7 @@ function churchtools_processRequest($_q) {
         $name = $_q;
         if (isset($config[$_q . "_name"])) $name = $config[$_q . "_name"];
         addInfoMessage(t("no.permission.for", $name));
+        
         return "";
       }
     }
@@ -284,7 +294,7 @@ function churchtools_processRequest($_q) {
 /**
  * Main entry point for churchtools.
  * This will be called from /index.php
- * Function loads constants and simple functions and have a try and catch for the whole application
+ * Function load constants and simple functions and have a try and catch for the whole application
  * It calls churchtools_app().
  */
 function churchtools_main() {
@@ -293,7 +303,7 @@ function churchtools_main() {
     require ("system/includes/constants.php");
     include_once (INCLUDES."/functions.php");
     include_once (INCLUDES."/start.php");
-    churchtools_app ();
+    churchtools_app();
   }
   catch ( SqlException $e ) {
     //  TODO: get sql and show it to admin only
@@ -321,6 +331,8 @@ function churchtools_main() {
 
 
 /**
+ * TODO: put this into churchtools_main, no need for two functions
+ * 
  * Main entry point for churchtools.
  * This will be called from /index.php
  * Function loads i18n, configuration, check data security.
@@ -339,13 +351,12 @@ function churchtools_app() {
   $embedded = getVar("embedded", false);
   
   $base_url = getBaseUrl();
-  
   $config = loadConfig();
-  
   if ($config) {
     if (db_connect()) {
       // DBConfig overwrites the config files
       loadDBConfig();
+      if (empty($config['site_name'])) $config['site_name'] = 'ChurchTools'; //dont allow site_name to be empty
       
       date_default_timezone_set(getConf("timezone", "Europe/Berlin"));
       
@@ -406,10 +417,10 @@ function churchtools_app() {
       }
     }
   }
-  // TODO: i changed  header/footer to as sort of template
+  // TODO: i changed header/footer to a sort of template
   // probably some more logic could be removed from them by setting some more variables here
   // put header/footer into new file layout.php and add a variable $content
-  $lang = getConf("language");
+  $lang     = getConf("language");
   $simulate = getVar("simulate");
   $sitename = getConf("site_name");
   if (getConf("test")) $sitename .= " TEST ";

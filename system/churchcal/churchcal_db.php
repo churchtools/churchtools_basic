@@ -38,11 +38,11 @@ function churchcal_handleMeetingRequest($cal_id, $params) {
         ->fields($i->getDBInsertArrayFromParams($param))
         ->execute(false);
       
-      $txt="<h3>" . t('hello') . "[Spitzname]!</h3><p>";
+      $txt = "<h3>" . t('hello') . "[Spitzname]!</h3><p>";
       
-      $txt.="<P>Du wurdest auf ".getConf('site_name', 'ChurchTools');
-        $txt.=' von <i>'.$user->vorname." ".$user->name."</i>";
-      $txt.=" f&uuml;r einen Termin angefragt. ";
+      $txt .= "<P>Du wurdest auf ".getConf('site_name');
+      $txt .= ' von <i>'.$user->vorname." ".$user->name."</i>";
+      $txt .= " f&uuml;r einen Termin angefragt. ";
       
       // if person was not yet invited to churchtools send invitation
       $db=db_query("SELECT IF (password IS NULL AND loginstr IS NULL AND lastlogin IS NULL,1,0) as invite 
@@ -60,7 +60,7 @@ function churchcal_handleMeetingRequest($cal_id, $params) {
         $txt.="<p>Zum Zu- oder Absagen bitte hier klicken:";      
         $loginstr=churchcore_createOnTimeLoginKey($id);      
         $txt.='<p><a href="'.$base_url.'?q=home&id='.$id.'&loginstr='.$loginstr.'" class="btn btn-primary">%sitename aufrufen</a>';      
-        churchcore_sendEMailToPersonids($id, "[".getConf('site_name', 'ChurchTools')."] " . t('new.meeting.request'), $txt, null, true);
+        churchcore_sendEMailToPersonids($id, "[".getConf('site_name')."] " . t('new.meeting.request'), $txt, null, true);
       }
     }
     else {
@@ -69,7 +69,7 @@ function churchcal_handleMeetingRequest($cal_id, $params) {
         ->condition("person_id", $param["person_id"], "=")
         ->condition("cal_id", $param["cal_id"], "=")
         ->execute(false);
-      churchcore_sendEMailToPersonids($id, "[".getConf('site_name', 'ChurchTools')."] Anpassung in einer Termin-Anfrage", "anpassung", null, true);*/
+      churchcore_sendEMailToPersonids($id, "[".getConf('site_name')."] Anpassung in einer Termin-Anfrage", "anpassung", null, true);*/
     }    
   }
 }

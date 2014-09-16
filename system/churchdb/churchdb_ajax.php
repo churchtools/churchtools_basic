@@ -461,7 +461,7 @@ function informLeaderAboutNewGroupMember($group_id, $gp_id, $add_text = null) {
       $content .= '<p><p><a class="btn btn-royal" href="'. $base_url. '?q=churchdb#PersonView/searchEntry:'.
            $persons[$gp_id]->p_id. '">Person ansehen</a>';
       
-      churchdb_send_mail("[". getConf('site_name', 'ChurchTools'). "] Neuer Teilnehmer in der Gruppe ".
+      churchdb_send_mail("[". getConf('site_name'). "] Neuer Teilnehmer in der Gruppe ".
            $p->bezeichnung, $content, $p->email);
     }
   }
@@ -491,7 +491,7 @@ function informLeaderAboutEditedGroupMember($group_id, $gp_id, $add_text = null)
       $content .= '<p><p><a class="btn btn-royal" href="' . $base_url . '?q=churchdb#PersonView/searchEntry:' .
            $personen[$gp_id]->p_id . '">Person ansehen</a>';
       
-      churchdb_send_mail("[" . getConf('site_name', 'ChurchTools') . "] Teilnehmerstatus in der Gruppe " .
+      churchdb_send_mail("[" . getConf('site_name') . "] Teilnehmerstatus in der Gruppe " .
            $val->bezeichnung . " angepasst", $content, $val->email);
     }
   }
@@ -519,7 +519,7 @@ function informLeaderAboutDeletedGroupMember($group_id, $gp_id) {
       $content .= '<p><p><a class="btn btn-royal" href="' . $base_url . '?q=churchdb#PersonView/searchEntry:' .
            $personen[$gp_id]->p_id . '">Person ansehen</a>';
       
-      churchdb_send_mail("[" . getConf('site_name', 'ChurchTools') . "] Teilnehmer in der Gruppe " . $val->bezeichnung .
+      churchdb_send_mail("[" . getConf('site_name') . "] Teilnehmer in der Gruppe " . $val->bezeichnung .
            " entfernt", $content, $val->email);
     }
   }
@@ -794,7 +794,7 @@ function sendFieldNotifications($field, $txt) {
   $arr = getAllMailNotifys();
   if (isset($arr[$field]) && $txt!= null) {
     $txt = "<p>Information:<p>". $txt. "<p>Anpassungen von $user->cmsuserid";
-    churchdb_send_mail("[". getConf('site_name', 'ChurchTools'). "] Info Anpassungen in $field", $txt, $arr[$field]->emails);
+    churchdb_send_mail("[". getConf('site_name'). "] Info Anpassungen in $field", $txt, $arr[$field]->emails);
   }
 }
 
@@ -1219,11 +1219,11 @@ function churchdb_invitePersonToSystem($id) {
   $loginstr = churchcore_createOnTimeLoginKey($id);
   $content = "<h3>Hallo [Vorname],</h3><P>";
   
-  $content .= htmlize(getConf('invite_email_text', "invitation.email.standard.text", getConf('site_name', 'ChurchTools')));
+  $content .= htmlize(getConf('invite_email_text', "invitation.email.standard.text", getConf('site_name')));
   $content .= '<p><a href="'. $base_url. "?q=profile&loginstr=$loginstr&id=$id".
        '" class="btn btn-royal">Auf %sitename anmelden</a>';
-  $res = churchcore_sendEMailToPersonIds($id, "Einladung zu ". getConf('site_name', 'ChurchTools'), $content, getConf('site_mail'), true);
-  cdb_log("Person $id wurde zu ". getConf('site_name', 'ChurchTools'). " eingeladen:". $content, 2, $id); 
+  $res = churchcore_sendEMailToPersonIds($id, "Einladung zu ". getConf('site_name'), $content, getConf('site_mail'), true);
+  cdb_log("Person $id wurde zu ". getConf('site_name'). " eingeladen:". $content, 2, $id); 
   //TODO: is $content in log really needed? no name; if admin clicks link, ontimelogin will be deleted, ...
 }
 

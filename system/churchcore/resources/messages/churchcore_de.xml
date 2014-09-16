@@ -336,9 +336,15 @@
   <entry key="username.not.available.ask.admin">Der Username {0} ist schon vergeben, bitte wende Dich an den Administrator!</entry> <!-- TODO:lieber "wähle einen anderen" statt fragen? -->
   <entry key="person.already.has.an.username.ask.admin">Diese Person hat schon einen Usernamen! Bitte wende Dich an einen Administrator!</entry>
   <entry key="invitation.email.standard.text">Du wurdest zur Nutzung von {0} eingeladen.&lt;p&gt;Klicke auf die folgende Schaltfläche, um Dich direkt dort anzumelden und um Dein Passwort zu wählen:&lt;/p&gt;</entry>
-
   <entry key="no.sms.sent.person.has.no.mobile.number">Keine SMS gesendet, Person hat keine Handynummer gespeichert!</entry>
   <entry key="email.already.used.you.need.more.rights.to.change.this">Die E-Mail-Adresse ist schon vergeben. Um eine vergebene E-Mail-Adresse zu setzen werden mehr Rechte gebraucht.</entry>
+  <entry key="template.x.not.found">Die Vorlage '{0}' wurde nicht gefunden!</entry>
+  <entry key="show.more.rows">Mehr Zeilen anzeigen</entry>
+  <entry key="salutation.man.1">Herrn</entry>
+  <entry key="salutation.man.2">Lieber</entry>
+  <entry key="salutation.woman.1">Frau</entry>
+  <entry key="salutation.woman.2">Liebe</entry>
+  <entry key=""></entry>
 
   <!-- churchservice -->
   <entry key="no.rights.to.add.or.remove.service">Not enough rights in addOrRemoveServiceToEvent: </entry> <!-- needed? -->
@@ -407,6 +413,21 @@
   <entry key="create.own.bookings">Eigene Buchugsanfragen erstellen</entry>
   <entry key="administer.bookings">Alle Anfragen editieren, ablehnen, etc.</entry>
   <entry key="assistant.mode">Im Auftrag eines anderen Buchungen durchführen</entry>
+  <entry key="here.are.all.ressources.listed">Hier sind alle Buchungsinformationen zusammengefasst</entry>
+  <entry key="purpose">Zweck</entry>
+  <entry key="start">Beginn</entry>
+  <entry key="end">Ende</entry>
+  <entry key="repeat.type">Wiederholungstyp</entry>
+  <entry key="repeat.to">Wiederholung</entry>
+  <entry key="exceptions">Ausnahmen</entry>
+  <entry key="additions">Weitere Termine</entry>
+  <entry key="new.booking.request">Neue Buchungsanfrage</entry>
+  <entry key="updated.booking.request">Aktualisierung der Buchungsanfrage</entry>
+  <entry key="bookingX.for.resource.on.datetime">'{0}' für {1} ({2}h{3})</entry>
+  <entry key="booking.in"> in {0}</entry>
+  <entry key="">{0}</entry>
+  <entry key="user.was.deleted">Der Benutzer wurde gelöscht.</entry>
+  <entry key=""></entry>
 
   <!-- churchwiki -->
   <entry key="view.wiki.category">Einzelne Wiki-Kategorien sehen</entry>
@@ -455,6 +476,7 @@
   
   <!-- home -->
   <entry key="directory.x.has.to.be.writable">The directory {0} has to be writeable. Please adjust permissions!</entry>
+  <entry key="welcome.back.x">Willkommen zurück, {0}!</entry>
   
   <!-- core db -->
   <entry key="previously">vorher</entry>

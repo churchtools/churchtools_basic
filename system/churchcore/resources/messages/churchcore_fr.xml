@@ -337,6 +337,15 @@
   <entry key="invitation.email.standard.text">You are invited to use {0}.&lt;p&gt;Clicke on the following button, to log in the page and choose a password:&lt;/p&gt;</entry>
   <entry key="no.sms.sent.person.has.no.mobile.number">NO sms was send for Person has no mobile number stored!</entry>
   <entry key="email.already.used.you.need.more.rights.to.change.this">This email address is already in use. To save an used email you need more permissions.</entry>
+  <entry key="template.x.not.found">Template '{0}' not found!</entry>
+  <entry key="show.more.rows">Mehr Zeilen anzeigen</entry>
+  <entry key="salutation.man.1">Mr.</entry>
+  <entry key="salutation.man.2">Dear</entry>
+  <entry key="salutation.woman.1">Mrs.</entry>
+  <entry key="salutation.woman.2">Dear</entry>
+
+  <!-- churchservice -->
+  <entry key="no.rights.to.add.or.remove.service">Not enough rights in addOrRemoveServiceToEvent: </entry> <!-- needed? -->
   
   <entry key="surname.name.has.proposed.name.for.service.x.for.date.event">{0} {1} has confirmed service {2} for {3} {4}.</entry>
   <entry key="surname.name.has.approved.a.request">has approved a request</entry>
@@ -347,6 +356,8 @@
   <entry key="please.specify.id">Please specify id.</entry>
   <entry key="file.not.found.in.DB">File not found in database!</entry>
   <entry key="file.could.not.be.copied.to.x">File could not be copied to {0}!</entry>
+  <entry key="pending.service.requests">Pending service requests: </entry> 
+  <entry key="there.are.pending.services">There are pending service requests</entry> 
   
   <!-- churchcore auth -->
   <entry key="edit.masterdata">Edit masterdata</entry>
@@ -402,7 +413,22 @@
   <entry key="create.own.bookings">create own booking requests</entry>
   <entry key="administer.bookings">edit, refuse, ... all bookings</entry>
   <entry key="assistant.mode">create bookings for others</entry>
- 
+  <entry key="here.are.all.ressources.listed">All booking resources are listed here</entry>
+  <entry key="purpose">Purpose</entry>
+  <entry key="start">Start</entry>
+  <entry key="end">End</entry>
+  <entry key="repeat.type">Repeat type</entry>
+  <entry key="repeat.to">Repeats</entry>
+  <entry key="exceptions">Exceptions</entry>
+  <entry key="additions">Additional dates</entry>
+  <entry key="new.booking.request">New bookings</entry>
+  <entry key="updated.booking.request">Update of booking request</entry>
+  <entry key="bookingX.for.resource.on.datetime">'{0}' for {1} ({2}h{3})</entry>
+  <entry key="booking.in"> in {0}</entry>
+  <entry key="">{0}</entry>
+  <entry key="user.was.deleted">User was deleted.</entry>
+  <entry key=""></entry>
+   
   <!-- churchwiki -->
   <entry key="view.wiki.category">view single wiki category</entry>
   <entry key="edit.wiki.category">edit single wiki category</entry>
@@ -423,6 +449,9 @@
   <!-- Admin preferences member list -->
   <entry key="preferences.for.memberlist">Preferences for memberlist</entry>
   <entry key="admin.could.change.preferences.here">As admin you can configure, which data should be output.</entry>
+  <!-- Admin preferences churchcal -->
+  <entry key="name.of.main.calendar">Name of main calendar</entry>
+  <entry key="css.for.embedded.cal">CSS for embedded calendars</entry>
   <!-- Admin preferences churchdb -->
   <entry key="max.allowed.rows.to.export">maximal row count for export</entry>
   <entry key="center.coordinates.latitude">latitude of center coordinates (best to find out using Google Maps)</entry>
@@ -443,8 +472,10 @@
   <entry key=""></entry>
   <entry key=""></entry>
   <entry key=""></entry>  
+
   <!-- home -->
   <entry key="directory.x.has.to.be.writable">The directory {0} has to be writeable. Please adjust permissions!</entry>
+  <entry key="welcome.back.x">Welcome back, {0}!</entry>
   
   <!-- core db -->
   <entry key="previously">previously</entry>

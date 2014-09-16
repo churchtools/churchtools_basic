@@ -36,7 +36,7 @@ class CTChurchDBModule extends CTAbstractModule {
     $res["user_pid"] = $user->id;
     $res["userid"] = $user->vorname. " ". $user->cmsuserid. " [". $user->id. "]";
     $res["auth"] = churchdb_getAuthForAjax();
-    $res["site_name"] = getConf('site_name', 'ChurchTools');
+    $res["site_name"] = getConf('site_name');
     $res["modulespath"] = churchdb_getModulesPath();
     $res["files_url"] = $base_url. $files_dir;
     $res["modulename"] = "churchdb";

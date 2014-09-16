@@ -586,7 +586,7 @@ function churchservice_openservice_rememberdays() {
     
     // TODO: use mail template
     $inviter = churchcore_getPersonById($res->modified_pid);
-    $txt .= "Du wurdest im Dienstplan auf " . getConf('site_name', 'ChurchTools');
+    $txt .= "Du wurdest im Dienstplan auf " . getConf('site_name');
     if ($inviter) $txt .= ' von <i>' . $inviter->vorname . " " . $inviter->name . "</i>";
     $txt .= " zu Diensten vorgeschlagen. <br/>Zum Zu- oder Absagen bitte hier klicken:";
     
@@ -628,7 +628,7 @@ function churchservice_openservice_rememberdays() {
       $txt .= "<p><b>Da Du noch nicht kein Zugriff auf das System hast, bekommst Du noch eine separate E-Mail, mit der Du Dich dann anmelden kannst!.</b>";
     }
     
-    churchservice_send_mail("[" . getConf('site_name', 'ChurchTools') . "] " . t('there.are.pending.services'), $txt, $res->email);
+    churchservice_send_mail("[" . getConf('site_name') . "] " . t('there.are.pending.services'), $txt, $res->email);
     $i = $i + 1;
     $res = db_query($sql)->fetch();
   }
@@ -684,7 +684,7 @@ function churchservice_remindme() {
         }
         
         $txt .= '</table><br/><br/><a class="btn" href="' . $base_url . '?q=churchservice#SettingsView">Erinnerungen deaktivieren</a>';
-        churchservice_send_mail("[" . getConf('site_name', 'ChurchTools') . "] Erinnerung an Deinen Dienst", $txt, $es->email);
+        churchservice_send_mail("[" . getConf('site_name') . "] Erinnerung an Deinen Dienst", $txt, $es->email);
         break;
       }
     }
@@ -826,7 +826,7 @@ function churchservice_inform_leader() {
            "!</h3><p>Es sind in den nächsten 60 Tagen noch folgende Dienste offen:<ul>" . $txt . "</ul>";
       $txt .= '<p><a href="' . $base_url . '/?q=churchservice" class="btn">' . t("more.information") . '</a>&nbsp';
       $txt .= '<p><a href="' . $base_url . '/?q=churchservice#SettingsView" class="btn">Benachrichtigung deaktivieren</a>';
-      churchservice_send_mail("[" . getConf('site_name', 'ChurchTools') . "] Offene Dienste", $txt, $person["person"]->email);
+      churchservice_send_mail("[" . getConf('site_name') . "] Offene Dienste", $txt, $person["person"]->email);
     }
   }
 }

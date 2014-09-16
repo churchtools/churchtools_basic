@@ -476,7 +476,7 @@ function churchcore_mail($from, $to, $subject, $content, $htmlmail = false, $wit
   $variables = array (
     '%username' => (isset($user->cmsuserid) ? $user->cmsuserid : "anonymus"), 
     '%useremail' => (isset($user->email) ? $user->email : "anonymus"), 
-    '%sitename' => getConf('site_name', 'ChurchTools'), 
+    '%sitename' => getConf('site_name'), 
     '%sitemail' => getConf('site_mail', 'info@churchtools.de'), '%siteurl' => $base_url,
   );
   // replace variables in content
@@ -1661,7 +1661,7 @@ function surroundWithVCALENDER($txt) {
        . "VERSION:2.0\r\n"
        . "PRODID:-//ChurchTools//DE\r\n" 
        . "CALSCALE:GREGORIAN\r\n"
-       . "X-WR-CALNAME:".getConf('site_name', 'ChurchTools')." ChurchCal-Kalender\r\n"
+       . "X-WR-CALNAME:".getConf('site_name')." ChurchCal-Kalender\r\n"
        . "X-WR-TIMEZONE:".$config["timezone"]."\r\n"
        . "METHOD:PUSH\r\n"
        . $txt
@@ -1673,6 +1673,7 @@ function createAnonymousUser() {
   $user->name = "Anonymous";
   $user->vorname = "";
   $user->email = "";
+  $user->cmsid = "";
   $user->auth = getUserAuthorization($user->id);
   $_SESSION['user'] = $user;
 }
