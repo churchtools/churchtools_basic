@@ -101,7 +101,7 @@ function eventCalendar(element, options, eventSources) {
         if (a.start>=t.startdate && (t.enddate==null || a.start<=t.enddate)) {
           if ((filterName=="") || (a.title.toUpperCase().indexOf(_filter)>=0)
                 || (a.notizen!=null && a.notizen.toUpperCase().indexOf(_filter)>=0)) {
-            rows.push('<tr><td>');
+            rows.push('<tr class="c'+a.category_id+'"><td>');
             
             if (!minical) {
               if ((a.notizen!=null) || (a.link!=null)) 

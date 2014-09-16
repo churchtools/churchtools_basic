@@ -94,7 +94,14 @@
              <li><a href="?q=login&family_id=<?= $family->id?>"><?= $family->vorname?> <?= $family->name ?></a></li>                       
       <? endforeach; ?>                       
              <li class="divider"></li>
-    <? endif; ?>                       
+    <? endif; ?>
+    
+             <li><a href="?q=profile"><?= $user->password ? t("change.password"): t("set.password") ?></a></li>
+    <? if (user_access("view", "churchdb") && !empty($user->email)): ?>
+             <li><a href="?q=churchdb/mailviewer"><?= t('sent.messages')?></a></li>
+    <? endif; ?>
+             <li class="divider"></li>
+
                
 <? if (user_access("administer settings", "churchcore")): ?><li><a href="?q=admin"><?= t('admin.settings')?></a></li><? endif; ?>                       
 <? if (user_access("administer persons",  "churchcore")): ?><li><a href="?q=churchauth"><?= t('admin.permissions')?></a></li><? endif; ?>                       
@@ -115,8 +122,8 @@
   <? else: ?>
          <div class="pull-right">
            <ul class="nav">
-              <li<?= ($q == "login") ? 'class="active"' : '' ?>>
-                <a href="?q=login"><i class="icon-user icon-white"></i><?= t("login") ?></a>
+              <li<?= ($q == "login") ? ' class="active"' : '' ?>>
+                <a href="?q=login"><i class="icon-user icon-white"></i>&nbsp;<?= t("login") ?></a>
               </li>';
            </ul>
          </div>

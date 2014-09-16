@@ -120,7 +120,7 @@ class TextBundle {
      * Write the current bundle as a JavaScript file to $filename
      * @param type $path
      */
-    public function writeJSFile($filename, $modulename="churchcore") {
+    public function writeJSFile($filename, $modulename = "churchcore") {
         $content=array();
         foreach ($this->bundle as $key=>$val) {
           $content[]='"'.$key.'":"'.$val.'"';
