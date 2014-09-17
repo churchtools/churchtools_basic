@@ -104,4 +104,22 @@
   <entry key="days_diff">Intervalle de jours</entry>
   <entry key="info">Info</entry>
   
+  <entry key="i.have.the.permission.from.this.user.for.x">I have the permission from this person to add and edit his data in {0}.</entry>
+  <entry key="please.confirm.agreement">Please confirm the agreement to save the data.</entry>
+
+ <!-- EXPORT -->
+  <entry key="export">Export</entry>
+  <entry key="export.settings">Export settings</entry>
+  <entry key="chose.export.template">Chose export template</entry>
+  <entry key="template.for.columns.in.exporting">Template for columns in export</entry>
+  <entry key="aggregate.relations">Aggregate relations</entry>
+  <entry key="export.related.persons">Export related persons in addition</entry>
+  <entry key="select.mygroup.to.export.data">To export, please select a group under my group where you are a leader.</entry>
+  <entry key="it.is.only.allowed.to.export.x.entries">It is only allowed to filter {0} entries. Please filter more specified!</entry>
+  <entry key="select.template">Select template</entry>
+  <entry key="chose.fields">Chose your fields</entry>
+  <entry key="discard.changes">Discard changes?</entry>
+  <entry key="please.fillin.a.name">Please enter a name</entry>
+  <entry key="really.delete.template">Really delete this template?</entry>  
+  
 </properties>

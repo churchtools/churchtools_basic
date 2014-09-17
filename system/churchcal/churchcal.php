@@ -707,7 +707,7 @@ function churchcal__ical() {
       $diff=$res->enddate->format("U")-$res->startdate->format("U");
       $subid=0;
       
-      foreach (getAllDatesWithRepeats($res, -90, 400) as $d) {
+      foreach (getAllDatesWithRepeats($res, -90, 730) as $d) {
         $txt.="BEGIN:VEVENT\r\n"; 
         $txt.="ORGANIZER:MAILTO:".variable_get('site_mail', '')."\r\n";
         $txt.="SUMMARY:".$res->bezeichnung."\r\n";

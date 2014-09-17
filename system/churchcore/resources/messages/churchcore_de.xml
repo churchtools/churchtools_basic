@@ -200,7 +200,7 @@
   <entry key="list.of.masterdata">Stammdaten</entry>
   <entry key="count.rows">Anzahl Zeilen</entry>
   <entry key="show">zeige</entry>
-  <entry key="show.x.entries">Zeige {0} gefundene Einträgen</entry>
+  <entry key="show.x.entries">Zeige {0} gefundene Einträge</entry>
   <entry key="show.x.from.y.entries">Zeige {0} von {1} Einträgen</entry>
   <entry key="paging">Blättern</entry>
   <entry key="number.of.rows">Zeilenanzahl</entry>
@@ -380,7 +380,8 @@
   <!-- Admin preferences TODO: needed for js --> 
   <entry key="add.to.menu">{0} im Menu aufführen</entry>
   <entry key="show.as.button.on.home">{0} auf der Startseite als Button anzeigen</entry>
-  <entry key="sortnumber.in.menu">Sortierungsnummer im Menu (sortcode)</entry>
-  <entry key=""></entry>
+  <entry key="sortnumber.in.menu">Sortierungsnummer im Menu (sortcode)</entry>  
+  <entry key="max.allowed.rows.to.export">Wieviel Datensätze maximal exportiert werden dürfen</entry>
+  <entry key="center.coordinates.latitude.best.to.find.by.google.maps">Koordinaten-Mittelpunkt Latitude (am besten durch Google Maps herauszufinden)</entry>
 
 </properties>

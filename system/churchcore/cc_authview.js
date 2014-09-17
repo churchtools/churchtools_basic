@@ -29,7 +29,7 @@ AuthView.prototype.checkFilter = function(a) {
 
   if ((this.filter["searchAuth"]!=null) && (a.auth==null)) return false;
   
-  if (this.filter["searchEntry"]!=null) {
+  if (this.filter["searchEntry"]!=null && a.bezeichnung) {
     if (a.bezeichnung.toUpperCase().indexOf(this.filter["searchEntry"].toUpperCase())>=0) return true;
     return false;
   }

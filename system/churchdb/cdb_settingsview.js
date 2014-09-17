@@ -29,7 +29,7 @@ SettingsView.prototype.renderMenu = function() {
     $("#cdb_menu a").click(function () {
       if ($(this).attr("id")=="apersonview") {
         menuDepth="amain";
-        churchInterface.setCurrentView(personView, true);
+        churchInterface.setCurrentView(personView, false);
       }
       return false;
     });

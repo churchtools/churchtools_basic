@@ -75,14 +75,14 @@ function churchservice_getAdminForm() {
   global $config;
   
   $model = new CTModuleForm("churchservice");  
-  $model->addField("churchservice_entries_last_days","", "INPUT_REQUIRED","Wieviel Tage zur�ck in ChurchService-Daten geladen werden");
+  $model->addField("churchservice_entries_last_days","", "INPUT_REQUIRED","Wieviel Tage zurück in ChurchService-Daten geladen werden");
     $model->fields["churchservice_entries_last_days"]->setValue($config["churchservice_entries_last_days"]);    
   $model->addField("churchservice_openservice_rememberdays","", "INPUT_REQUIRED","Nach wieviel Tagen die Dienstanfrage erneut statt findet, wenn sie noch nicht zugesagt oder abgelehnt wurde");
     $model->fields["churchservice_openservice_rememberdays"]->setValue($config["churchservice_openservice_rememberdays"]);  
   $model->addField("churchservice_reminderhours","", "INPUT_REQUIRED","Wieviele Stunden im Vorfeld eine Erinnerung an den Dienst erfolgen soll");
     $model->fields["churchservice_reminderhours"]->setValue($config["churchservice_reminderhours"]);  
     
-  $model->addField("churchservice_songwithcategoryasdir","", "CHECKBOX","Kategorie als Verzeichnisangabe nutzen f�r Beamersoftware-Export");
+  $model->addField("churchservice_songwithcategoryasdir","", "CHECKBOX","Kategorie als Verzeichnisangabe nutzen für Beamersoftware-Export");
     $model->fields["churchservice_songwithcategoryasdir"]->setValue(readConf("churchservice_songwithcategoryasdir","0"));
     
   return $model;

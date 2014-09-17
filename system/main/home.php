@@ -11,6 +11,7 @@ function home_main() {
   
   if (isset($_SESSION["family"])) addInfoMessage(t('there.are.more.users.with.the.same.email'));
   
+  // Start buttons for Desktop-View
   $txt = '
   <div class="hero-unit hidden-phone">
     <h1>'. $config["welcome"]. '</h1>
@@ -25,16 +26,17 @@ function home_main() {
   $txt .= '</p>';
   $txt .= '</div>';
   
+  // Start buttons for Mobile-View
   $txt .= '<div class="well visible-phone">
     <h1>'. t("welcome"). '!</h1>
     <p>'. $_SESSION["user"]->vorname. ', '. t("chose.your.possibilities"). ':</p>
     <ul class="nav nav-pills nav-stacked">';
   
-  foreach ($btns as $key) {
-    if ((isset($config[$key. "_name"]))&& ($config[$key. "_name"]!= "")&& (user_access("view", $key))) {
-      include_once (SYSTEM. '/'. $mapping[$key]);
-      $txt .= '<li><a class="btn btn-large" href="?q='. $key. '">'. $config[$key. "_name"]. '</a> ';
-    }
+  foreach ($btns as $key) if (isset($config[$key. "_startbutton"]) 
+                              && $config[$key. "_startbutton"]== "1" 
+                              && user_access("view", $key)) {
+    include_once (SYSTEM. '/'. $mapping[$key]);
+    $txt .= '<li><a class="btn btn-large" href="?q='. $key. '">'. $config[$key. "_name"]. '</a> ';
   }
   $txt .= '</ul>';
   $txt .= '</div>';

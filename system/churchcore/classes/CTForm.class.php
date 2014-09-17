@@ -403,7 +403,7 @@ class CC_Button extends CC_HTMLElement {
    */
   public function render() {
     return '<button class="'. $this->getClass(). '" type="submit" name="'. $this->getName(). '">'. '
-            <i class="icon-$this->icon"></i>'. $this->label. '</button>'.NL;
+            <i class="icon-'.$this->icon.'"></i> '. $this->label. '</button>'.NL;
   }
 
 }

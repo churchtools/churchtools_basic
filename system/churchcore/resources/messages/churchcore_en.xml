@@ -374,6 +374,7 @@
   <entry key="add.to.menu">Add {0} to menu</entry>
   <entry key="show.as.button.on.home">Show {0} as button on start page</entry>
   <entry key="sortnumber.in.menu">Sort number in menu (sortcode)</entry>
-  <entry key=""></entry>
+  <entry key="max.allowed.rows.to.export">Wieviel Datensätze maximal exportiert werden dürfen</entry>
+  <entry key="center.coordinates.latitude.best.to.find.by.google.maps">Koordinaten-Mittelpunkt Latitude (am besten durch Google Maps herauszufinden)</entry>
 
 </properties>

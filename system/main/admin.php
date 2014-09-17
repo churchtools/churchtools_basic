@@ -75,7 +75,7 @@ function admin_main() {
   $model->addField("site_offline","", "CHECKBOX","Seite offline schalten");
     $model->fields["site_offline"]->setValue($config["site_offline"]);
     
-  $model->addButton("Speichern","ok");
+  $model->addButton(t("save"), "ok");
   
   $txtCommonForm=$model->render();
   

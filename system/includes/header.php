@@ -6,12 +6,13 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	    <meta name="description" content="ChurchTools">
     <meta name="author" content="">
+    <meta name="ROBOTS" content="NOINDEX, NOFOLLOW">
 
 	
     <link href="<?=ASSETS?>/ui/custom-theme/jquery-ui-1.10.3.custom.css" rel="stylesheet">
     <link href="<?=BOOTSTRAP?>/css/bootstrap.min.css" rel="stylesheet">
     <!--  link href="<?=ASSETS?>/ui/jquery-ui-1.8.18.custom.css" rel="stylesheet"-->
-    <link href="<?=INCLUDES?>/churchtools.css" rel="stylesheet">
+    <link href="<?=INCLUDES?>/churchtools.css?<?php echo $config["version"]?>" rel="stylesheet">
     
    <?php if (!$embedded) {?>
     <style>
@@ -43,9 +44,9 @@
 <script src="<?=ASSETS?>/ui/jquery.ui.droppable.min.js"></script>
 <script src="<?=ASSETS?>/ui/jquery.ui.sortable.min.js"></script>
 <script src="<?=ASSETS?>/ui/jquery.ui.resizable.min.js"></script>
-<script src="<?=CHURCHCORE?>/churchcore.js"></script>
-<script src="<?=CHURCHCORE?>/churchforms.js"></script>
-<script src="<?=CHURCHCORE?>/cc_interface.js"></script>
+<script src="<?=CHURCHCORE?>/churchcore.js?<?php echo $config["version"]?>"></script>
+<script src="<?=CHURCHCORE?>/churchforms.js?<?php echo $config["version"]?>"></script>
+<script src="<?=CHURCHCORE?>/cc_interface.js?<?php echo $config["version"]?>"></script>
 <script> <?php
   echo "var settings=new Object();"; 
   echo "settings.files_url=\"$base_url$files_dir\";"; 

@@ -65,7 +65,7 @@ class CTAuthModule extends CTAbstractModule {
     $res["person"] = churchcore_getTableData("cdb_person", "name, vorname", null, "id, concat(name, ', ', vorname) as bezeichnung");
     $res["person"][-1] = new stdClass();
     $res["person"][-1]->id = -1;
-    $res["person"][-1]->bezeichnung = "- " + _("public.user") + " -";
+    $res["person"][-1]->bezeichnung = "- " . t("public.user") . " -";
     $res["gruppe"] = churchcore_getTableData("cdb_gruppe", null, null, "id, bezeichnung");
     $res["status"] = churchcore_getTableData("cdb_status");
     $res["publiccalendar_name"] = variable_get("churchcal_maincalname", "Church Calendar");

@@ -149,7 +149,7 @@ function createI18nFile($modulename) {
     $i18n->load($modulename, $config["language"]);   
     $i18n->writeJSFile($filename, $modulename);
   }
-  return $filename;  
+  return $filename."?".$config["version"];  
 }
 
 /**
@@ -1992,6 +1992,7 @@ function createAnonymousUser() {
   $user->name="Anonymous";
   $user->vorname="";
   $user->email="";
+  $user->cmsuserid="anonymous";
   $user->auth=getUserAuthorization($user->id);
   $_SESSION['user']=$user;
 }
