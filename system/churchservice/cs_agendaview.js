@@ -370,7 +370,8 @@ AgendaView.prototype.renderField = function(o, dataField, smallVersion) {
           if (user_access("viewsong")) 
             s='<a href="#" class="view-song" data-song-id="'+song.id+'" data-arrangement-id="'+o.arrangement_id+'">'+s+'</a>';
             
-          if (o.bezeichnung=="") bezeichnung="Song: <i>"+s+"</i>";
+          if (o.bezeichnung=="") 
+            bezeichnung=(!$("#printview").val()?"Song: ":"")+"<i>"+s+"</i>";
           else bezeichnung=bezeichnung+ "<i> - "+s+'</i>';
           arr=song.arrangement[o.arrangement_id];
           if (arr!=null && arr.tonality!="" || arr.bpm!="") {
@@ -451,7 +452,7 @@ AgendaView.prototype.renderFieldResponsible = function(content, event_ids) {
       var entries=new Array();
       $.each(sgs[service.servicegroup_id], function(k,s) {
         if (s.service_id==service.id) {
-          entries.push(_renderServiceEntry(s));
+          entries.push(listView.renderPersonName(s));
         }
       });        
       if (entries.length==0) return content;
@@ -781,7 +782,7 @@ AgendaView.prototype.editItem = function(item) {
     form.addInput({cssid:"duration_m", controlgroup_start:true, type:"mini", label:"Dauer (m:s)"});
     form.addHtml(' : ');
     form.addInput({cssid:"duration_s", controlgroup_end:true, type:"mini"});
-    form.addInput({cssid:"responsible", label:"Verantwortlich"});
+    form.addInput({cssid:"responsible", label:"Zuständig"});
     form.addTextarea({cssid:"note", label:"Notiz", rows:4});
     form.addCheckbox({cssid:"preservice_yn", label:"Position liegt zeitlich vor dem Event"});
   }
@@ -1254,16 +1255,6 @@ function getServiceGroupsFromEvents(event_ids) {
   return servicegroups;
 }
 
-function _renderServiceEntry(entry) {
-  var rows=new Array();
-  if (entry.name==null) rows.push('<font class="offen">?</font>');
-  else if (entry.zugesagt_yn==0)
-    rows.push('<font class="offen">'+entry.name+'?</font>');
-  else 
-    rows.push(entry.name);
-  return rows.join("");
-}
-
 AgendaView.prototype.renderListHeader = function(smallVersion) {
   var t=this;
   
@@ -1284,7 +1275,7 @@ AgendaView.prototype.renderListHeader = function(smallVersion) {
               $.each(servicegroups[sg.id], function(j, s) {
                 if (s.service_id==service.id) {
                   rows.push(''+service.bezeichnung+": ");
-                  rows.push(_renderServiceEntry(s));
+                  rows.push(listView.renderPersonName(s));
                   rows.push('&nbsp; &nbsp; ');
                 }
               });
@@ -1304,19 +1295,19 @@ AgendaView.prototype.renderListHeader = function(smallVersion) {
   if (smallVersion==null) smallVersion=false;
   var rows = new Array();
   if (t.currentAgenda.template_yn==1) {
-    rows.push('<th width="40px">Gesamt');     
+    rows.push('<th width="38px">Gesamt');     
   } 
   else if (t.currentAgenda.event_ids!=null) {
     if (churchcore_countObjectElements(t.currentAgenda.event_ids)==1)
-      rows.push('<th width="40px">Uhrzeit'); 
+      rows.push('<th width="38px">Uhrzeit'); 
     else {      
       $.each(t.currentAgenda.event_ids, function(k,a) {
         if (allEvents[a]!=null)
-          rows.push('<th width="40px">'+allEvents[a].startdate.toDateEn(true).toStringDeTime());      
+          rows.push('<th width="38px">'+allEvents[a].startdate.toDateEn(true).toStringDeTime());      
       });
     }
   }
-  rows.push('<th width="45px">L&auml;nge<th style="min-width:200px">Text<th>Verantwortlich');
+  rows.push('<th style="min-width=36px">h:m<th style="min-width:200px">Text<th>Zuständig');
 
   var groups=new Object();
   if (smallVersion)

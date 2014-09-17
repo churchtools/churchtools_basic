@@ -1286,12 +1286,13 @@ PersonView.prototype.createMultiselect = function(name, bezeichnung, data, refre
 
   if ((masterData.settings[filterName]=="") || (masterData.settings[filterName]==null))
     delete masterData.settings[filterName];
-  if (t.filter[filterName]==null) {
+  if (t.filter[filterName]==null || (typeof t.filter[filterName])=="string") {
     t.makeMasterDataMultiselectFilter(name, masterData.settings[filterName], data);
     refresh=true;
   }
-  if (refresh)
+  if (refresh) {
     t.filter[filterName].render2Div(filterName, {label:bezeichnung});
+  }
 };
 
 PersonView.prototype.getListHeader = function() {
@@ -1929,6 +1930,7 @@ PersonView.prototype.checkFilter = function(a) {
                  (a.vorname.toUpperCase().indexOf(search)<0) &&
                  ((a.email==null) || (a.email.toUpperCase().indexOf(search)!=0)) &&
                  (a.spitzname.toUpperCase().indexOf(search)!=0) &&
+                 (a.cmsuserid==null || a.cmsuserid.toUpperCase().indexOf(search)!=0) &&
                  (a.id!=search) &&
                  (!checkKommentar(a.gruppe, search))) {
         res=false;

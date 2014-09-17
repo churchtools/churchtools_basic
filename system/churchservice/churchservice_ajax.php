@@ -178,6 +178,8 @@ function churchservice_extractEventServiceData($arr, $auth = null, $event_admin 
   $res["service_id"] = $arr->service_id;
   $res["counter"] = $arr->counter;
   $res["name"] = $arr->name;
+  if (isset($arr->cmsuserid))
+    $res["cmsuserid"] = $arr->cmsuserid;
   $res["cdb_person_id"] = $arr->cdb_person_id;
   $res["zugesagt_yn"] = $arr->zugesagt_yn;
   $res["valid_yn"] = $arr->valid_yn;
@@ -244,8 +246,10 @@ function churchservice_getAllEventData($params) {
                es.zugesagt_yn, es.valid_yn, es.modified_date, es.modified_pid, es.mailsenddate,
                case when p.id is null then '?' else  
                concat(p.vorname, ' ',p.name) end as modifieduser, 
-               es.reason, s.servicegroup_id 
-          FROM {cs_service} s, {cs_eventservice} es left join {cdb_person} p on (es.modified_pid=p.id) 
+               es.reason, s.servicegroup_id ,
+               cmsuser.cmsuserid
+          FROM {cs_service} s, {cs_eventservice} es left join {cdb_person} p on (es.modified_pid=p.id)
+          LEFT JOIN {cdb_person} cmsuser on (es.cdb_person_id=cmsuser.id) 
           WHERE es.service_id=s.id and event_id=:event_id";
   $events = array ();
   if ($res != false) {

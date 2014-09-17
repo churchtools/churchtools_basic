@@ -179,7 +179,19 @@ div.fixed {
       background-color: #e7eef4 !important;
 	}		
 	td {
-	  line-height: 16px !important;
+	  line-height: 100% !important;
+	}
+	table.table-condensed td {
+	  padding: 3px 2px 2px 4px !important;
+	}
+	.event_info {
+	  line-height: 110% !important;
+	}
+	legend {
+	  margin-bottom: 8px !important;
+	}
+	.well {
+	  padding: 12px !important;
 	}
 }
 @media screen {

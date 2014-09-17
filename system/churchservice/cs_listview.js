@@ -868,23 +868,14 @@ ListView.prototype.renderEventServiceEntry = function(event_id, services, bin_ic
         rows.push(': </b></font>');
     }
     _class='';
-    style='';
-    if (services.zugesagt_yn==0) style=style+"color:red;";
     if ((services.cdb_person_id!=null) && (services.cdb_person_id==masterData.user_pid))
       if (services.zugesagt_yn==1)
         _class="zugesagt";
       else
         _class="angefragt";
 
-    rows.push('<font class="'+_class+'" style="'+style+'">');
-
-    var name=services.name;
-    if ((service.cdb_gruppen_ids!=null) && (services.name==null))
-      name=services.cdb_person_id;
-
-    if (name!=null) rows.push(name.trim(18));
-    if ((name==null) || (services.zugesagt_yn==0)) rows.push("?");
-
+    rows.push('<font class="'+_class+'">'); 
+      rows.push(t.renderPersonName(services));
     rows.push('</font>');
     if (edit) rows.push('</a>');
     else rows.push('</span>');
@@ -1039,8 +1030,12 @@ ListView.prototype.renderListEntry = function(event) {
 
     if (!event.agenda && user_access("edit agenda", event.category_id))
       rows.push(form_renderImage({src:"agenda_plus.png", htmlclass:"show-agenda", link:true, label:"Ablaufplan zum Event hinzufügen", width:20}));
-    else if (agendaview)
-      rows.push(form_renderImage({src:"agenda.png", htmlclass:"show-agenda", link:true, label:"Ablaufplan anzeigen", width:20}));
+    else if (agendaview) {
+      if (user_access("view agenda", event.category_id))      
+        rows.push(form_renderImage({src:"agenda_call.png", htmlclass:"call-agenda", link:true, label:"Ablaufplan aufrufen", width:20}));
+      else
+        rows.push(form_renderImage({src:"agenda.png", htmlclass:"show-agenda", link:true, label:"Ablaufplan anzeigen", width:20}));      
+    }
   }
 
 
@@ -1846,6 +1841,18 @@ ListView.prototype.showAuslastung = function() {
 
   form_showOkDialog("Anzeige der Auslastung der Mitarbeiter", rows.join(""));
 };
+
+ListView.prototype.renderPersonName = function(entry) {
+  if (entry==null || entry.name==null) return '<font class="offen">?</font>';
+  var name=entry.name;
+  if (masterData.settings.showFullName==0 && entry.cmsuserid!=null)
+    name=entry.cmsuserid;
+  
+  if (entry.zugesagt_yn==0)
+    return '<font class="offen">'+name+'?</font>';
+  else 
+    return name;  
+}
 
 /**
  *
@@ -2776,6 +2783,20 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
       t.entryDetailClick($(this).parents("tr").attr("id"));
     }
   });
+  
+  $(cssid+" a.call-agenda").click(function() {
+    var event=allEvents[$(this).parents("tr").attr("id")];
+    if (event.agenda) {
+      songView.loadSongData();
+      agendaView.loadAgendaForEvent(event.id, function(data) {
+        agendaView.currentAgenda=allAgendas[data.id];
+        churchInterface.setCurrentView(agendaView);      
+      });
+    }
+    return false;
+  });
+
+  
 
 
   $(cssid+" a").click(function (a) {
@@ -3507,7 +3528,7 @@ ListView.prototype.renderEntryDetail = function (event_id) {
         rows.push(' ENTWURF');
       rows.push('&nbsp;');
       if (user_access("view agenda", event.category_id))
-        rows.push(form_renderImage({src:"agenda_call.png", htmlclass:"show-agenda", data:[{name:"id", value:data.id}], link:true, label:"Ablaufplan aufrufen", width:20})+"&nbsp;");
+        rows.push(form_renderImage({src:"agenda_call.png", htmlclass:"call-agenda", data:[{name:"id", value:data.id}], link:true, label:"Ablaufplan aufrufen", width:20})+"&nbsp;");
       rows.push(form_renderImage({src:"printer.png", htmlclass:"print-agenda", data:[{name:"id", value:data.id}], link:true, label:"Druckansicht", width:20}));
 
       rows.push('</legend>');
@@ -3521,7 +3542,7 @@ ListView.prototype.renderEntryDetail = function (event_id) {
       rows.push('</div>');
       var elem=$("tr[id=" + event_id + "]").after(rows.join("")).next();
       agendaView.addFurtherListCallbacks("tr.detail[data-id="+event_id+"]", true);
-      elem.find("a.show-agenda").click(function() {
+      elem.find("a.call-agenda").click(function() {
         agendaView.currentAgenda=allAgendas[$(this).attr("data-id")];
         churchInterface.setCurrentView(agendaView);
         return false;

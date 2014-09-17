@@ -90,6 +90,12 @@ SettingsView.prototype.renderList = function() {
     cssid:"listViewTableHeight", label:"Titelleiste der Tabelle fixieren",
     checked: (masterData.settings.listViewTableHeight==null) || (masterData.settings.listViewTableHeight==1)
   }));
+  rows.push(form_renderCheckbox({
+    cssid:"showFullName", label:"Anzeige mit Vor- und Nachnamen anstatt des Benutzernames",
+    checked: (masterData.settings.showFullName==null) || (masterData.settings.showFullName==1)
+  }));
+  
+  
   $.each(churchcore_sortData(masterData.servicegroup,"sortkey"), function(k,a) {
     if (masterData.auth.viewgroup[a.id]!=null) {
       rows.push('<tr><td width="50%"><td>');
