@@ -994,7 +994,7 @@ function run_db_updates($db_version) {
                SELECT nationalitaet 
                FROM {cdb_gemeindeperson} gp LEFT JOIN {cdb_nationalitaet} n ON (gp.nationalitaet=n.bezeichnung) 
                WHERE n.bezeichnung IS NULL AND gp.nationalitaet!='' 
-               GROUP BY nationalitaet)"
+               GROUP BY nationalitaet"
               );
       
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('&Auml;gypten')");

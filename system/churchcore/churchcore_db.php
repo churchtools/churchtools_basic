@@ -972,11 +972,18 @@ function churchcore_sendMails_PHPMAIL($maxmails=10) {
         else  
           $header.='Content-type: text/plain; charset=utf-8' . "\n";    //'Content-Transfer-Encoding: quoted-printable'. "\n" .
         
-        $header.="From: ".variable_get('site_mail', 'info@churchtools.de')."\n";
-        if ($mail->sender!=variable_get('site_mail', 'info@churchtools.de')) {
-          $header.="Reply-To: $mail->sender\n";
-          $header.="Return-Path: $mail->sender\n";
+        // See churchtools.example.config for more details
+        if (variable_get("mail_with_user_from_address", "0")=="0") {
+          $header.="From: ".variable_get('site_mail', 'info@churchtools.de')."\n";
+          if ($mail->sender!=variable_get('site_mail', 'info@churchtools.de')) {
+            $header.="Reply-To: $mail->sender\n";
+            $header.="Return-Path: $mail->sender\n";
+          }
         }
+        else {
+          $header.="From: ".$mail->sender."\n";
+        }
+        
         $header.='X-Mailer: PHP/' . phpversion();
         $error=0;
         $counter++;

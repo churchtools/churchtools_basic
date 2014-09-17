@@ -3165,7 +3165,7 @@ PersonView.prototype.renderDetails = function (id) {
         rows.push("<p><small><i>Hinweis: Das FollowUp geht dann in die Stufe "+(b.followup_count_no*1+1)+"</i></small>");
       rows.push("</div>");
 
-      rows[rows.length]='<p><input type="button" class="btn btn-royal" id="idFollowupSave_'+g_id+'_'+id+'" value="'+_("save")+'/>&nbsp;';
+      rows[rows.length]='<p><input type="button" class="btn btn-royal" id="idFollowupSave_'+g_id+'_'+id+'" value="'+_("save")+'"/>&nbsp;';
       rows[rows.length]='<input type="button" class="btn btn-alert" id="idFollowupAbort_'+g_id+'_'+id+'" value="FollowUp l&ouml;schen"/>&nbsp;&nbsp;';
       rows[rows.length]='<a href="#" id="idFollowupCancel_'+g_id+'_'+id+'">Sp&auml;ter durchf&uuml;hren</a>';
 
