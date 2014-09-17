@@ -115,7 +115,7 @@ class CTForm {
       }
       // set values
       foreach ($formData as $key => $val) {
-        $this->fields[$key]->setValue($val);
+        $this->fields[$key]->setValue(htmlspecialchars($val));
       }
       //validate values
       $isValid = true;
