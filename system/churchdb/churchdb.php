@@ -344,7 +344,7 @@ function externmapview__ajax() {
         $res = churchcore_sendEMailToPersonIds($p->id, "[" . getConf('site_name') . "] " .
              t('form.request.to.group', $p->bezeichnung), $content, getConf('site_mail'), true, true);
       }
-      if (count($rec) == 0) $txt = t("could.not.find.group.leader.please.try.other.ways");
+      if (!count($rec)) $txt = t("could.not.find.group.leader.please.try.other.ways");
       else {
         $txt = t("email.send.to", implode($rec, ", "));
         sendConfirmationMail($email, $surname, $groupId);
@@ -374,7 +374,9 @@ function getBirthdaylistContent($desc, $diff_from, $diff_to, $extended = false) 
   $txt = "";
   $compact = getVar('compact');
   
-  if ($extended && !user_access("view birthdaylist", "churchdb")) die(t("no.permission.for", "view birthdaylist")); // TODO: use exception?
+  if ($extended && !user_access("view birthdaylist", "churchdb")) {
+    die(t("no.permission.for", "view birthdaylist")); // TODO: use exception?
+  }
   
   include_once ("churchdb_db.php");
   
@@ -386,7 +388,8 @@ function getBirthdaylistContent($desc, $diff_from, $diff_to, $extended = false) 
     if ($extended) {
       $txt .= "<table class='table table-condensed'><tr><th style='max-width:65px;'><th>" . t("name") .
            (!$compact ? "<th>" . t("age") : "") . "<th>" . t("birthday");
-      //TODO: I would prefer to use closing tags
+      // TODO: I would prefer to use closing tags
+      // TODO: use template
       if ($see_details) $txt.= "<th>" . t("status") . "<th>" . t("station") . "<th>" . t("department");
     }
     foreach ($res as $arr) {
@@ -403,9 +406,9 @@ function getBirthdaylistContent($desc, $diff_from, $diff_to, $extended = false) 
         if ($see_details) $txt .= "<a data-person-id='$arr->person_id' href='$base_url?q=churchdb#PersonView/searchEntry:#" . $arr->person_id . "'>";
         $txt .= $arr->vorname . " ";
         if (!empty($arr->spitzname)) $txt .= "($arr->spitzname) ";
-        $txt .= $arr->name . (!$compact ? "<td> " . $arr->age : "") . "<td>" . (!$compact ? $arr->geburtsdatum_d : $arr->geburtsdatum_compact);
+        $txt .= $arr->name . (!$compact ? "<td> ". $arr->age : ""). "<td>". (!$compact ? $arr->geburtsdatum_d : $arr->geburtsdatum_compact);
         
-        if ($see_details) $txt .= " <td> " . $arr->status . "<td>" . $arr->bezeichnung . "<td>" . $arr->bereich;
+        if ($see_details) $txt .= " <td> ". $arr->status. "<td>". $arr->bezeichnung. "<td>". $arr->bereich;
       }
       else {
         if ($arr->imageurl) $arr->imageurl = "nobody.gif";
@@ -992,7 +995,7 @@ function churchdb__export() {
   $cols = array ();
   foreach ($export as $key => $row) if ($row) {
     foreach ($row as $a => $val){
-      if (gettype($val) != "object" && gettype($val) != "array") $cols[$a] = $a;
+      if (!is_object($val) && !is_array($val)) $cols[$a] = $a;
     }
   }
     

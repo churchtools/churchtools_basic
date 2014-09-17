@@ -1437,30 +1437,27 @@ function churchdb_sendsms($ids, $txt) {
  */
 function f_functions($params) {
   $function = $params["func"];
-  $fields = getAllFields("intern_code='$function'");
+  $fields = getAllFields("intern_code = '$function'");
   
-  // Prüfe, ob eine E_Mail-Adresse gesetz werden soll die es schon gibt ohne Schreibrechte.
-  // Das soll verhindert werden, denn sonst kann sich jemand die E-Mail eines Admins geben...
-  if ((isset($params["email"])&& (!user_access("write access", "churchdb")))) {
+  // Check if someone try to set an existing email, but have no write access to churchdb
+  // otherwise someone could use the email of an admin...
+  if (isset($params["email"]) && !user_access("write access", "churchdb")) {
     // Check, if the email address has changed
     $db = db_query("SELECT * FROM {cdb_person} p 
                     WHERE id=:id", 
                     array (":id" => $params["id"]))
                     ->fetch();
-    if ($db->email!= $params["email"]) {
+    if ($db->email != $params["email"]) {
       // Check, if another user has this email
       $db = db_query("SELECT * FROM {cdb_person} p 
                       WHERE email=:email AND id!=:id", 
                       array (":email" => $params["email"], ":id" => $params["id"]))
                       ->fetch();
-      if ($db!=false) {
-        throw new CTFail("Die E-Mail-Adresse ist schon vergeben. Um eine vergebene E-Mail-Adresse zu setzen werden mehr Rechte gebraucht.");
-      }
+      if ($db) throw new CTFail(t('email.already.used.you.need.more.rights.to.change.this'));
     }
   }
-  if ($function == "f_group") {
-    saveGeocodeGruppe($params["id"], "", "");
-  }
+  if ($function == "f_group") saveGeocodeGruppe($params["id"], "", "");
+
   foreach ($fields["fields"] as $key => $value) {
     if (isset($params[$key])) $arr[$key] = $params[$key];
   }
@@ -1498,8 +1495,8 @@ function churchdb_ajax() {
   $module = new CTChurchDBModule("churchdb");
   $ajax = new CTAjaxHandler($module);
   
-  // $t=microtime(true);
-  // $timer="start:".round(microtime(true)-$t,3)." ";
+  // $t = microtime(true);
+  // $timer = "start:".round(microtime(true)-$t,3)." ";
   
   drupal_json_output($ajax->call());
 }

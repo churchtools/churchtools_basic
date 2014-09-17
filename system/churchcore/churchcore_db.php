@@ -56,7 +56,7 @@ function createI18nFile($modulename) {
 
 /**
  * 
- * @param unknown $domain_type
+ * @param string $domain_type
  * @param unknown $domain_id
  * @param string $txt
  * @param int $loglevel; default: 2
@@ -2410,6 +2410,8 @@ function churchcore_isAllowedMasterData($masterDataTables, $tablename) {
 }
 
 /**
+ * TODO: move into CTAbstractModule
+ * 
  * Update or Insert depending on $id set or not
  * If Value=null "null", will be inserted.
  *

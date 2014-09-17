@@ -309,7 +309,7 @@
   <entry key="file.is.empty">File is empty.</entry>
   <entry key="file.is.to.large">File is too large</entry>
   <entry key="invalid.fileextension.should.be.one.of.this">File has an invalid extension, it should be one of {0}'</entry>
-  <entry key="could.not.save.for.file.upload.canceled.or.server.error">Could not save uploaded file. The upload was cancelled, or server error encountered</entry>
+  <entry key="could.not.save.file.upload.canceled.or.server.error">Could not save uploaded file. The upload was cancelled, or server error encountered</entry>
 
 <!-- churchdb --> 
   <entry key="request.to.group">Request to group {0}.</entry>
@@ -333,6 +333,9 @@
   <entry key="error.quitting.membership">Group membership could not be deleted.</entry>
   <entry key="cron.error.subscribing.on.mailchimp">CRON - Error subscribing for MailChimp</entry>
   <entry key="username.not.available.ask.admin">The username {0} ist alread in use, please ask an administrator!</entry>
+  <entry key="id.not.defined">No ID given!</entry> 
+  <entry key="username.not.defined">No username given!</entry> 
+  <entry key="id.x.or.username.y.not.defined">ID {0} or Username {1} not given!</entry> 
   <entry key="person.already.has.an.username.ask.admin">This user already has an username! Please ask an adminstrator!</entry>
   <entry key="invitation.email.standard.text">You are invited to use {0}.&lt;p&gt;Clicke on the following button, to log in the page and choose a password:&lt;/p&gt;</entry>
   <entry key="no.sms.sent.person.has.no.mobile.number">NO sms was send for Person has no mobile number stored!</entry>
@@ -476,6 +479,7 @@
   <!-- home -->
   <entry key="directory.x.has.to.be.writable">The directory {0} has to be writeable. Please adjust permissions!</entry>
   <entry key="welcome.back.x">Welcome back, {0}!</entry>
+  <entry key="message.from.x">Message from {0}</entry>
   
   <!-- core db -->
   <entry key="previously">previously</entry>

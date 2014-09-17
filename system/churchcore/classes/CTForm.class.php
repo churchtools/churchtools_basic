@@ -21,15 +21,22 @@ class CTForm {
   const FILEUPLOAD = 'FILEUPLOAD';
   const PASSWORD = 'PASSWORD';
   
-  public $fields = array ();
+  public  $fields = array ();
   private $buttons = array ();
   private $validator = null; //name of validate function
   private $name;
   private $header;
   private $subheader;
   private $help_url;
-  public $fieldTypes = array (self::INPUT_REQUIRED, self::INPUT_OPTIONAL, self::TEXTAREA, self::EMAIL, self::PASSWORD, 
-                              self::CHECKBOX, self::FILEUPLOAD);
+  public  $fieldTypes = array (
+              self::INPUT_REQUIRED, 
+              self::INPUT_OPTIONAL, 
+              self::TEXTAREA, 
+              self::EMAIL, 
+              self::PASSWORD, 
+              self::CHECKBOX, 
+              self::FILEUPLOAD,
+          );
 
   /**
    * Constructor
@@ -123,7 +130,7 @@ class CTForm {
         if (!$field->isValid()) $isValid = false;
       }
       if ($isValid) {
-        if (!$this->validator || !is_callable($this->validator)) return "no or invalid validator given!"; 
+        if (!$this->validator || !is_callable($this->validator)) return "No or invalid validator given!"; 
         $ret = call_user_func($this->validator, $this);
         // if ($ret!=true)
         // return $ret;
@@ -180,7 +187,7 @@ class CC_HTMLElement {
    * @param string $class          
    */
   public function __construct($name, $class) {
-    $this->name = $name;
+    $this->name  = $name;
     $this->class = $class;
   }
 

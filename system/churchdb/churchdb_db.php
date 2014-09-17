@@ -57,9 +57,7 @@ function churchdb_getAllowedPersonData($cond = '', $fields = "p.id p_id, gp.id g
       $res = false;  // TODO: is this res the same as the db result??? if not rename it?
 
       foreach ($allowedDeps as $allowedDep) {
-        if (isset($departments[$p->p_id][$allowedDep])) {
-          $res = true;
-        }
+        if (isset($departments[$p->p_id][$allowedDep])) $res = true;
       }
       if ($res) {
         if (isset($departments[$p->p_id])) $p->access = $departments[$p->p_id];
@@ -148,7 +146,9 @@ function getAuthForPerson($id) {
 function getAuthForDomain($id, $domain_type) {
   if (!user_access("administer persons", "churchcore")) return null;
   
-  $res = db_query("SELECT * FROM {cc_domain_auth} WHERE domain_type='$domain_type' AND domain_id=" . $id);
+  $res = db_query("SELECT * FROM {cc_domain_auth} 
+                   WHERE domain_type=:domain AND domain_id=:id",
+                   array(":domain" => $domain_type, ":id" => $id));
   $arr_auth = null;
   foreach ($res as $p) {
     if ($p->daten_id == null) $arr_auth[$p->auth_id] = $p->auth_id;
@@ -165,17 +165,16 @@ function getAuthForDomain($id, $domain_type) {
  * Is person $user_id in one of $groups?
  *
  * @param int $user_id          
- * @param array $groups,
- *          array of group Ids
+ * @param array $groups, array of group Ids
  *          
  * @return boolean
  */
 function churchdb_isPersonInGroups($user_id, $groups) {
   $res = db_query("SELECT COUNT(*) c
-               FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg
-                      WHERE p.id=gp.person_id AND gpg.gemeindeperson_id=gp.id AND p.id=:id
-           AND gpg.gruppe_id in (" .  implode(",", $groups) . ") ", array (':id' => $user_id))
-         ->fetch();
+                   FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg
+                   WHERE p.id=gp.person_id AND gpg.gemeindeperson_id=gp.id AND p.id=:id
+                     AND gpg.gruppe_id in (" .  implode(",", $groups) . ") ", array (':id' => $user_id))
+                   ->fetch();
   return ($res->c > 0); // use !empty()?
 }
 
@@ -202,12 +201,12 @@ function churchdb_getAllowedGroups() {
  *
  * @param int $userPid          
  * @param bool $onlyIds; default: false, return array of IDs or of person data?
- * @param bool $onlyUserIsLeader; default: false, only where user is group leader
+ * @param bool $onlyIfUserIsLeader; default: false, only where user is group leader
  * @param bool $onlySuperGroup; default: false, only where user is district or grouptype leader
  *          
  * @return array, never null
  */
-function churchdb_getMyGroups($userPid, $onlyIds = false, $onlyUserIsLeader = false, $onlySuperGroups = false) {
+function churchdb_getMyGroups($userPid, $onlyIds = false, $onlyIfUserIsLeader = false, $onlySuperGroups = false) {
   global $user, $config;
   if ($userPid == null) return array();
   
@@ -219,7 +218,7 @@ function churchdb_getMyGroups($userPid, $onlyIds = false, $onlyUserIsLeader = fa
           WHERE gp.person_id=$userPid AND gpg.gemeindeperson_id=gp.id AND gpg.gruppe_id=g.id AND g.gruppentyp_id=gt.id");
     foreach ($res as $g) {
       // if user is leader or no leadership needed
-      if ((!$onlyUserIsLeader) || ($g->status_no > 0)) {
+      if ((!$onlyIfUserIsLeader) || ($g->status_no > 0)) {
         // if view members allowed and group not marked for deleting
         
         // TODO: use speaking constants for status numbers or something like group->isLeader($pId)
@@ -239,7 +238,7 @@ function churchdb_getMyGroups($userPid, $onlyIds = false, $onlyUserIsLeader = fa
     }
     
     // get groups the user has view permission for
-    if (!$onlyUserIsLeader) {
+    if (!$onlyIfUserIsLeader) {
       $auth = user_access("view group", "churchdb");
       if ($auth != null) {
         $res = db_query("SELECT g.* FROM {cdb_gruppe} g WHERE g.id in (" . implode(",", $auth) . ")");
@@ -257,9 +256,7 @@ function churchdb_getMyGroups($userPid, $onlyIds = false, $onlyUserIsLeader = fa
                    WHERE g.distrikt_id=pd.distrikt_id AND pd.person_id=$userPid");
   foreach ($res as $g) {
     if (!isset($arrs[$g->id])) {
-      if ($onlyIds) {
-        $arrs[$g->id] = $g->id;
-      }
+      if ($onlyIds) $arrs[$g->id] = $g->id;
       else {
         $g->status_no = 2;
         $arrs[$g->id] = $g;
@@ -268,7 +265,7 @@ function churchdb_getMyGroups($userPid, $onlyIds = false, $onlyUserIsLeader = fa
     
     // TODO: is this the same and better to read?
     // foreach ($res as $g) if (!isset($arrs[$g->id])){
-    // $g->status_no=2;
+    // $g->status_no = 2;
     // $arrs[$g->id]= $onlyIds ? $arrs[$g->id]=$g->id : $arrs[$g->id]=$g;
     // }
   }
@@ -278,9 +275,7 @@ function churchdb_getMyGroups($userPid, $onlyIds = false, $onlyUserIsLeader = fa
                    WHERE g.gruppentyp_id=pd.gruppentyp_id AND pd.person_id=$userPid");
   foreach ($res as $g) {
     if (!isset($arrs[$g->id])) {
-      if ($onlyIds) {
-        $arrs[$g->id] = $g->id;
-      }
+      if ($onlyIds) $arrs[$g->id] = $g->id;
       else {
         $g->status_no = 2;
         $arrs[$g->id] = $g;
@@ -325,7 +320,9 @@ function churchdb_getAllowedDeps() {
   $allowedDeps = user_access("view alldata", "churchdb");
   if ($allowedDeps == null) $allowedDeps = array ();
   // add departments user is in
-  $res = db_query("SELECT * FROM {cdb_bereich_person} WHERE person_id=" . $_SESSION["user"]->id);
+  $res = db_query("SELECT * FROM {cdb_bereich_person} 
+                   WHERE person_id=:id",
+                   array(":id" => $_SESSION["user"]->id));
   foreach ($res as $auth) {
     $allowedDeps[$auth->bereich_id] = $auth->bereich_id;
   }
@@ -433,11 +430,12 @@ function churchdb_getPersonDetails($id, $withComments = true) {
     if (!$allowed) {
       $myGroups = churchdb_getMyGroups($user->id, true, false);
       if (count($myGroups) > 0) {
-        $res = db_query("SELECT COUNT(*) c
-                 FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg
-                 WHERE p.id=gp.person_id AND gpg.gemeindeperson_id=gp.id AND p.id=:id
-                   AND gpg.gruppe_id in (" . implode(",", $myGroups) . ") ", array (':id' => $id
-            ))->fetch();
+        $res = db_query("
+          SELECT COUNT(*) c
+          FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg
+          WHERE p.id=gp.person_id AND gpg.gemeindeperson_id=gp.id AND p.id=:id
+            AND gpg.gruppe_id in (" . implode(",", $myGroups) . ") ", array (':id' => $id
+          ))->fetch();
         if ($res->c > 0) {
           $allowed = true;
         }
@@ -447,18 +445,20 @@ function churchdb_getPersonDetails($id, $withComments = true) {
       // TODO: maybe shorten next 2 lines to: if ($allowedDeps=user_access("view alldata", "churchdb")) {
       $allowedDeps = user_access("view alldata", "churchdb");
       if ($allowedDeps != null) {
-        $res = db_query('SELECT COUNT(*) as c FROM {cdb_bereich_person}
-            WHERE person_id=:p_id AND bereich_id in (' . implode(',', $allowedDeps). ')', 
-            array (':p_id' => $id), false)
-            ->fetch();
+        $res = db_query('
+          SELECT COUNT(*) as c FROM {cdb_bereich_person}
+          WHERE person_id=:p_id AND bereich_id in (' . implode(',', $allowedDeps). ')', 
+          array (':p_id' => $id), false)
+          ->fetch();
         if ($res->c > 0) $allowed = true;
       }
     }
     if (!$allowed) return "no access";
   }
   
-  $res=db_query("SELECT f.*, fk.intern_code FROM {cdb_feld} f, {cdb_feldkategorie} fk WHERE f.feldkategorie_id=fk.id
-              AND fk.intern_code IN ('f_address', 'f_church', 'f_category') AND aktiv_yn=1");
+  $res=db_query("SELECT f.*, fk.intern_code 
+                 FROM {cdb_feld} f, {cdb_feldkategorie} fk 
+                 WHERE f.feldkategorie_id=fk.id AND fk.intern_code IN ('f_address', 'f_church', 'f_category') AND aktiv_yn=1");
   
   $sqlFields = array ();
   $sqlFields[] = "p.id id";
@@ -469,8 +469,8 @@ function churchdb_getPersonDetails($id, $withComments = true) {
   $sqlFields[] = "cmsuserid";
 
   foreach ($res as $res2) {
-    if (($res2->autorisierung==null) || (_checkPersonAuthorisation($res2->autorisierung, $userIsLeader, $userIsSuperLeader))) {
-      if (($res2->intern_code=="f_address") || ($userIsLeader) || (user_access('view alldetails',"churchdb"))){
+    if (($res2->autorisierung == null) || (_checkPersonAuthorisation($res2->autorisierung, $userIsLeader, $userIsSuperLeader))) {
+      if (($res2->intern_code == "f_address") || ($userIsLeader) || (user_access('view alldetails',"churchdb"))){
         $sqlFields[]=$res2->db_spalte; 
       }
     }
@@ -480,7 +480,9 @@ function churchdb_getPersonDetails($id, $withComments = true) {
     $sql .= ', p.letzteaenderung, p.aenderunguser, p.createdate, if (loginstr IS NULL , 0 , 1) AS einladung, p.active_yn, p.lastlogin';
   }
   
-  $sql .= ' FROM {cdb_person} p, {cdb_gemeindeperson} gp WHERE p.id=gp.person_id AND p.id=:pid';
+  $sql .= ' 
+      FROM {cdb_person} p, {cdb_gemeindeperson} gp 
+      WHERE p.id=gp.person_id AND p.id=:pid';
   
   $person = db_query($sql, array (':pid' => $id))->fetch();
   if ($withComments) {
@@ -500,6 +502,7 @@ function churchdb_getPersonDetails($id, $withComments = true) {
     }
   }
   $person->auth = getAuthForPerson($id);
+  
   return $person;
 }
 
@@ -513,10 +516,8 @@ function churchdb_getPersonDetails($id, $withComments = true) {
  */
 function churchdb_isPersonSuperLeaderOfPerson($superleader_id, $person_id) {
   $myGroups = churchdb_getMyGroups($superleader_id, true, false, true);
-  if (count($myGroups) > 0) {
-    return churchdb_isPersonInGroups($person_id, $myGroups);
-  }
-  return false;
+  
+  return (!count($myGroups)) ? false : churchdb_isPersonInGroups($person_id, $myGroups);
 }
 
 /**
@@ -528,26 +529,21 @@ function churchdb_isPersonSuperLeaderOfPerson($superleader_id, $person_id) {
  */
 function churchdb_isPersonLeaderOfPerson($leader_id, $person_id) {
   $myGroups = churchdb_getMyGroups($leader_id, true, true);
-  if (count($myGroups) > 0) {
-    return churchdb_isPersonInGroups($person_id, $myGroups);
-  }
-  return false;
+
+  return (!count($myGroups)) ? false : churchdb_isPersonInGroups($person_id, $myGroups);
 }
 
-// Gibt ein Array zurï¿½ck mit allen p_ids in den Gruppen myGroups
-// myGroups: array mit gruppen, z.B. zu holen ï¿½ber churchdb_getMyGroups()
 /**
  * get ids of all persons in groups $myGroups
  *
- * @param array $myGroups
- *          with groups
+ * @param array $myGroups, f.e. from churchdb_getMyGroups()
  *          
- * @return array with person ids
+ * @return array with person ids of persons in $myGroups
  */
 function churchdb_getAllPeopleIdsFromGroups($myGroups) {
   $allPersons = null;
   if (count($myGroups)) {
-    $res = db_query("SELECT p.id p_id
+    $res = db_query("SELECT p.id AS p_id
                      FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg 
                      WHERE p.id=gp.person_id AND gpg.gemeindeperson_id=gp.id 
                      AND gpg.gruppe_id IN (" . implode(",", $myGroups) . ") ");
@@ -565,7 +561,8 @@ function churchdb_getAllPeopleIdsFromGroups($myGroups) {
  * get last used id of table cdb_log
  */
 function churchdb_getLastLogId() {
-  $arr = db_query("SELECT max(id) id FROM {cdb_log}")->fetch();
+  $arr = db_query("SELECT max(id) id FROM {cdb_log}")
+                   ->fetch();
   return $arr->id;
 }
 
@@ -579,14 +576,15 @@ function churchdb_getLastLogId() {
 function churchdb_pollForNews($last_id) {
   global $user;
   $res = db_query("SELECT * FROM {cdb_log} 
-                   WHERE id > $last_id AND person_id!=$user->id");
-  $arr_logs = Array ();
-  foreach ($res as $log) {
-    $arr_logs[$log->id] = $log;
-  }
-  $return = Array ();
-  $return["lastLogId"] = churchdb_getLastLogId();
-  $return["logs"] = $arr_logs;
+                   WHERE id > :last_id AND person_id != :user",
+                   array(":last_id" => $last_id, ":user" => $user->id));
+  $arr_logs = array();
+  foreach ($res as $log) $arr_logs[$log->id] = $log;
+  
+  $return = array(
+    "lastLogId" => churchdb_getLastLogId(),
+    "logs"      => $arr_logs,
+  );
   return $return;
 }
 
@@ -608,9 +606,8 @@ function getAllRelations() {
   $res = db_query('SELECT id, vater_id v_id, kind_id k_id, beziehungstyp_id typ_id 
                    FROM {cdb_beziehung}');
   $arrs = null;
-  foreach ($res as $arr) {
-    $arrs[$arr->id] = $arr;
-  }
+  foreach ($res as $arr) $arrs[$arr->id] = $arr;
+  
   return $arrs;
 }
 
@@ -622,6 +619,7 @@ function getAllRelations() {
 function getAllGroups() {
   $arr = churchcore_getTableData("cdb_gruppe", "bezeichnung");
   if (!$arr) return null;
+  
   foreach ($arr as $val) {
     $tags = db_query("SELECT tag_id 
                       FROM {cdb_gruppe_tag} gt 
@@ -684,6 +682,8 @@ function _churchdb_getGemeindepersonIdFromPersonId($p_id) {
  * TODO: rename function
  * What means Gemeindeperson? churchmember data? If yes, its not a person, but additional data.
  * Why not use the person id as unique id?
+ * 
+ * TODO2: function is obsolete for person id is always the same as cdb id. Put all data in one table.
  *
  * @param int $p_id          
  *
@@ -746,7 +746,7 @@ function getAllCommentViewer() {
  */
 function getBirthdayList($diff_from, $diff_to) {
   $list = array ();
-  $status_id = getConf('churchdb_birthdaylist_status', '1');
+  $status_id  = getConf('churchdb_birthdaylist_status', '1');
   $station_id = getConf('churchdb_birthdaylist_station', '1,2,3');
   
   // TODO: fields this_year and diff contain the same. What is the meaning of bla?
@@ -791,9 +791,9 @@ function getBirthdayList($diff_from, $diff_to) {
       WHERE bp.bereich_id=b.id AND bp.person_id=:p_id 
       ORDER BY bezeichnung", 
       array (":p_id" => $p->person_id));
-    $bereich="";
+    $bereich = "";
     foreach ($resDepartments as $department) $bereich .= $department->bezeichnung. "<br/>";
-    $p->bereich=$bereich;
+    $p->bereich = $bereich;
 //     //TODO: maybe use this instead
 //     $bereich=array();
 //     foreach ($resDepartments as $department) $bereich[] = $department->bezeichnung;
@@ -837,7 +837,7 @@ function churchdb_delFromGroup($g_id, $p_ids) {
  * @return string "ok"
  */
 function setCMSUser($id, $username) {
-  if (!$id || !$username) return "id ($id) oder username ($username) nicht definiert!";
+  if (!$id || !$username) return t('id.x.or.username.y.not.defined', $id, $username);
   
   $arr = db_query("SELECT id FROM {cdb_person} WHERE cmsuserid='$username'")->fetch();
   if ($arr) return t('username.not.available.ask.admin', $arr->id);
@@ -851,23 +851,30 @@ function setCMSUser($id, $username) {
 }
 // TODO: changed function setCMSUser, use if you like it; use :parameters in sql
 // function setCMSUser($id, $username) {
-// $err = array();
-
-// if (empty($id)) $err[] = t("id.not.defined");
-// if (empty($username)) $err[] = t("username.not.defined");
-// if (!empty($err))
-// return implode('<br/>', $err);
-
-// //TODO: use :parameters
-// if ($arr=db_query("SELECT id FROM {cdb_person} WHERE cmsuserid='$username'")->fetch())
-// return t("username.not.available.ask.admin", $username); //is the id important to echo? Is the ask.admin part
-// important?
-
-// if ($arr=db_query("SELECT cmsuserid FROM {cdb_person} WHERE id=$id AND cmsuserid > ''")->fetch()) //sql not tested
-// return t("person.already.has.an.username.ask.admin");
-
-// db_query("UPDATE {cdb_person} SET cmsuserid='$username' WHERE id=$id");
-// return "ok";
+//   $err = array();
+  
+//   if (empty($id)) $err[] = t("id.not.defined"); //TODO: if you dont want this, delete entry from xml 
+//   if (empty($username)) $err[] = t("username.not.defined"); //TODO: if you dont want this, delete entry from xml 
+//   if (!empty($err)) return implode('<br/>', $err);
+  
+//   if ($arr = db_query("SELECT id FROM {cdb_person} 
+//                        WHERE cmsuserid = :username",
+//                        array(":user" => $username))
+//                        ->fetch()) {
+//     return t("username.not.available.ask.admin", $username); //is the id important to echo? Is the ask.admin part important?
+//   }
+//   if ($arr = db_query("SELECT cmsuserid FROM {cdb_person} 
+//                        WHERE id = :id AND cmsuserid > ''",
+//                        array(":id" => $id))
+//                        ->fetch()) { //sql not tested
+//     return t("person.already.has.an.username.ask.admin");
+//   }
+//   db_query("UPDATE {cdb_person} 
+//             SET cmsuserid = :username 
+//             WHERE id = :id",
+//             array(":user" => $username, ":id" => $id));
+  
+//   return "ok";
 // }
 
 /**
@@ -880,15 +887,18 @@ function setCMSUser($id, $username) {
  */
 function getGroupMeeting($id) {
   $meetings = null;
+  
   $res = db_query("SELECT * FROM {cdb_gruppentreffen} 
                    WHERE gruppe_id=:id ORDER BY datumbis", 
                    array (":id" => $id));
+  
   foreach ($res as $meeting) {
     $res2 = db_query("
       SELECT gp.person_id p_id, treffen_yn 
       FROM {cdb_gruppentreffen_gemeindeperson} gtg, {cdb_gemeindeperson} gp 
   	  WHERE gtg.gemeindeperson_id=gp.id AND gtg.gruppentreffen_id=:id",
       array(':id' => $meeting->id));
+    
     $entries = array ();
     foreach ($res2 as $entry) $entries[] = $entry;
     $meeting->entries = $entries;
@@ -1001,7 +1011,8 @@ function editCheckinGroupMeetingStats($params) {
   global $user;
   $dt = new DateTime();
   
-  db_query("UPDATE {cdb_gruppentreffen} SET eintragerfolgt_yn=1 WHERE id=:id", 
+  db_query("UPDATE {cdb_gruppentreffen} 
+            SET eintragerfolgt_yn=1 WHERE id=:id", 
             array (":id" => $params["gruppentreffen_id"]));
   
   $gp_id = _churchdb_getGemeindepersonIdFromPersonId($params["p_id"]);
@@ -1259,7 +1270,7 @@ function getPersonalNews($p_id) {
   }
   $txt = "";
   if (count($curtxt)) {
-    $txt .= "<h3>Neue Personen in Deinen Gruppen</h3>" . implode("<br/>", $curtxt);
+    $txt .= "<h3>" . t('new.persons.in.your.groups') . "</h3>" . implode("<br/>", $curtxt);
   }
   
   // please (re?)view following persons
@@ -1296,10 +1307,10 @@ function getPersonalNews($p_id) {
       if (($count_ich->c == 0) && ($count_bez_alle->c < 3) && ($count_gruppentreffen->c == 0)) $txt2[] = _churchdb_a($p->id, $p->vorname .
            " " . $p->name) . " ($count_bez_alle->c/$count_gruppentreffen->c)";
     }
-    if (count($txt2)) $curtxt[] = "<i>In Gruppe $arr->bezeichnung</i><br/>" . implode("<br/>", $txt2);
+    if (count($txt2)) $curtxt[] = "<i>" . t('in.group.x', $arr->bezeichnung) . "</i><br/>" . implode("<br/>", $txt2);
   }
   if (!$curtxt) {
-    $txt .= "<br/><h3>Folgende Personen bitte einmal anschauen</h3>" . implode("<br/>", $curtxt);
+    $txt .= "<br/><h3>" . t('please.look.at.this.persons') . "</h3>" . implode("<br/>", $curtxt);
   }
   
   // Geburtstage
@@ -1322,10 +1333,10 @@ function getPersonalNews($p_id) {
     foreach ($res as $p) {
       $txt2 = $txt2 . _churchdb_a($p->person_id, "$p->vorname $p->name") . " $p->geburtsdatum (in $p->diff Tagen) <br/>";
     }
-    if ($txt2) $curtxt[] = "<i>In Gruppe $arr->bezeichnung</i><br/>$txt2<br/>";
+    if ($txt2) $curtxt[] = "<i>" . t('in.group.x', $arr->bezeichnung) . "</i><br/>$txt2<br/>";
   }
   if ($curtxt) {
-    $txt .= "<br/><h3>Geburtstage Deiner Personen in den n&auml;chsten 31 Tagen</h3>" . implode("<br/>", $curtxt);
+    $txt .= "<br/><h3>" . t('birthdays.of.your.persons.in.next.31.days') . "</h3>" . implode("<br/>", $curtxt);
   }
   
   $sql_teilnehmer = "
@@ -1338,17 +1349,20 @@ function getPersonalNews($p_id) {
   $res = db_query($sql_gruppen);
   $curtxt = array ();
   foreach ($res as $arr) {
-    $res2 = db_query($sql_teilnehmer, array (":g_id" => $arr->g_id
-    ));
+    $res2 = db_query($sql_teilnehmer, array (":g_id" => $arr->g_id));
     foreach ($res2 as $p) {
       $curtxt[] = _churchdb_a($p->p_id, "$p->vorname $p->name") . " - \"$p->text\" ($p->datum von $p->userid)<br/>";
     }
   }
   if (count($curtxt)) {
-    $txt .= "<br/><h3>Neue Kommentare zu Deinen Personen</h3>" . implode("<br/>", $curtxt);
+    $txt .= "<br/>
+        <h3>" . t('new.comments.to.your.persons') . "</h3>" . implode("<br/>", $curtxt);
   }
-  
-  if ($txt) $txt = "<div style=\"margin:3px;padding:5px\"><h2>Persönliche Infos für $person->vorname $person->name</h2>$txt</div>";
+  if ($txt) $txt = "
+      <div style=\"margin:3px;padding:5px\">
+        <h2>" . t('personal.information.for.x', $person->vorname . ' ' . $person->name) . "</h2>
+        $txt
+      </div>" . NL;
   
   return $txt;
 }
@@ -1359,10 +1373,9 @@ function getPersonalNews($p_id) {
  * @param int $g_id          
  */
 function churchdb_countMembersInGroup($g_id) {
-  $res = db_query("SELECT COUNT(*) c FROM {cdb_gemeindeperson_gruppe} p WHERE gruppe_id=$g_id AND status_no=0")->fetch();
+  $res = db_query("SELECT COUNT(*) c 
+                   FROM {cdb_gemeindeperson_gruppe} p 
+                   WHERE gruppe_id=$g_id AND status_no=0")
+               ->fetch();
   return $res->c;
 }
-
-
-
-

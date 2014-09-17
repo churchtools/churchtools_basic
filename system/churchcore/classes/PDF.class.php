@@ -1,6 +1,13 @@
 <?php
+/**
+ * PDF, extends FPDF
+ *
+ */
 class PDF extends FPDF {
-  // Kopfzeile
+
+  /**
+   * Header
+   */
   function Header() {
     // Logo
     // $this->Image(ASSETS.'/img/ct-icon_256.png',10,8,33);
@@ -24,7 +31,9 @@ class PDF extends FPDF {
     $this->Line(8, $this->GetY()- 1, 204, $this->GetY()- 1);
   }
 
-  // Fusszeile
+  /**
+   * Footer
+   */
   function Footer() {
     // Position 1,5 cm von unten
     $this->SetY(-10);

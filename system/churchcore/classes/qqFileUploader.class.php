@@ -160,7 +160,7 @@ class qqFileUploader {
       
       return array ('success' => true, "id" => $id, "filename" => "$filename.$ext", "bezeichnung" => "$bezeichnung.$ext");
     }
-    else return array ('error' => t('could.not.save.file.upvoad.canceled.ot.server.error'));
+    else return array ('error' => t('could.not.save.file.upload.canceled.or.server.error'));
   }
 
 }
@@ -180,9 +180,7 @@ class qqUploadedFileXhr {
     $realSize = stream_copy_to_stream($input, $temp);
     fclose($input);
     
-    if ($realSize != $this->getSize()) {
-      return false;
-    }
+    if ($realSize != $this->getSize()) return false;
     
     $target = fopen($path, "w");
     fseek($temp, 0, SEEK_SET);

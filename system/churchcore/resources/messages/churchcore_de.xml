@@ -311,7 +311,7 @@
   <entry key="file.is.empty">Die Datei ist leer.</entry>
   <entry key="file.is.to.large">Die Datei ist zu groß.</entry>
   <entry key="invalid.fileextension.should.be.one.of.this">Die Datei hat eine ungültige Erweiterung. Erlaubt sind folgende: {0}'</entry>
-  <entry key="could.not.save.for.file.upload.canceled.or.server.error">Die hochgeladene Datei konnte nicht gespeichert werden (Das Hochladen wurde abgebrochen oder es trat ein Serverfehler auf).</entry>
+  <entry key="could.not.save.file.upload.canceled.or.server.error">Die hochgeladene Datei konnte nicht gespeichert werden (Das Hochladen wurde abgebrochen oder es trat ein Serverfehler auf).</entry>
 
   <!-- churchdb --> 
   <entry key="request.to.group">Anfrage zur Gruppe {0}.</entry>
@@ -334,6 +334,9 @@
   <entry key="membership.marked.for.deleting">Die Teilnahme an &lt;i&gt;{0}&lt;/i&gt; wurde zum Löschen markiert.</entry>
   <entry key="error.quitting.membership">Gruppenteilnahme konnte nicht beendet werden.</entry>
   <entry key="username.not.available.ask.admin">Der Username {0} ist schon vergeben, bitte wende Dich an den Administrator!</entry> <!-- TODO:lieber "wähle einen anderen" statt fragen? -->
+  <entry key="id.not.defined">Es wurde keine ID angegeben!</entry> 
+  <entry key="username.not.defined">Es wurde kein Benutzername angegeben!</entry> 
+  <entry key="id.x.or.username.y.not.defined">ID {0} oder Benutzername {1} wurde nicht angegeben!</entry> 
   <entry key="person.already.has.an.username.ask.admin">Diese Person hat schon einen Usernamen! Bitte wende Dich an einen Administrator!</entry>
   <entry key="invitation.email.standard.text">Du wurdest zur Nutzung von {0} eingeladen.&lt;p&gt;Klicke auf die folgende Schaltfläche, um Dich direkt dort anzumelden und um Dein Passwort zu wählen:&lt;/p&gt;</entry>
   <entry key="no.sms.sent.person.has.no.mobile.number">Keine SMS gesendet, Person hat keine Handynummer gespeichert!</entry>
@@ -344,6 +347,12 @@
   <entry key="salutation.man.2">Lieber</entry>
   <entry key="salutation.woman.1">Frau</entry>
   <entry key="salutation.woman.2">Liebe</entry>
+  <entry key="in.group.x">In Gruppe {0}</entry>
+  <entry key="new.persons.in.your.groups">Neue Personen in Deinen Gruppen</entry>
+  <entry key="please.look.at.this.persons">Folgende Personen bitte einmal anschauen</entry>
+  <entry key="birthdays.of.your.persons.in.next.31.days">Geburtstage Deiner Personen in den nächsten 31 Tagen</entry>
+  <entry key="new.comments.to.your.persons">Neue Kommentare zu Deinen Personen</entry>
+  <entry key="personal.information.for.x">Persönliche Infos für {0}</entry>
   <entry key=""></entry>
 
   <!-- churchservice -->
@@ -477,6 +486,7 @@
   <!-- home -->
   <entry key="directory.x.has.to.be.writable">The directory {0} has to be writeable. Please adjust permissions!</entry>
   <entry key="welcome.back.x">Willkommen zurück, {0}!</entry>
+  <entry key="message.from.x">Nachricht von {0}</entry>
   
   <!-- core db -->
   <entry key="previously">vorher</entry>
