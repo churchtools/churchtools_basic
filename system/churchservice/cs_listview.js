@@ -1002,7 +1002,7 @@ ListView.prototype.renderListEntry = function(event) {
   if (event.valid_yn==0) {
     rows.push("<div class=\"event_info\"><small>Event wurde abgesagt!</small></div>");
   }
-  else {    
+  else {
     var _authMerker=masterData.auth.write || _bin_ich_admin;
     if ((event.special!=null) && (event.special!="")) {
       rows.push('<div class="event_info'+(_authMerker?" editable":"")+'">'+event.special.htmlize()+'</div>');
@@ -2301,28 +2301,28 @@ ListView.prototype.editService = function(service_id, sg_id) {
 };
 
 ListView.prototype.renderAddServiceToServicegroup = function(event, sg_id, user_pid) {
-	var rows=new Array();
-	rows.push('<div id="in_edit" class="addService">');
-	rows.push('<div class="checkbox"><label for="cb_enableAll"><input type="checkbox" id="cb_enableAll"/> <b>Service</b></label>');
-	var _bin_ich_admin=bin_ich_admin(event.admin);
+  var rows=new Array();
+  rows.push('<div id="in_edit" class="addService">');
+  rows.push('<div class="checkbox"><label for="cb_enableAll"><input type="checkbox" id="cb_enableAll"/> <b>Service</b></label>');
+  var _bin_ich_admin=bin_ich_admin(event.admin);
 
-	$.each(this.getAdditionalServicesToServicegroup(event, sg_id, _bin_ich_admin), function(i,s) {
-		//rrr    rows.push('<tr><td><input type="checkbox" '+s.checked+' id="on_'+s.id+'"/><td><p>'+masterData.service[s.id].bezeichnung);
-		rows.push('</div><div class="checkbox"><label for="on_'+s.id+'"><input type="checkbox" '+s.checked+' id="on_'+s.id+'"/> '+masterData.service[s.id].bezeichnung+'');
-		if (masterData.service[s.id].notiz!="")
-			rows.push('&nbsp; <small>('+masterData.service[s.id].notiz+")</small>");
-		if ((masterData.auth.editgroup!=null) && (masterData.auth.editgroup[sg_id])) {
-			rows.push('<span class="pull-right">'+form_renderImage({htmlclass:"edit-service", link:true, data:[{name:"service-id", value:s.id}], src:"options.png", width:20})+'</span></label>');
-		}
-		else {
-			rows.push('</label>');
-		}
-	});
-	if ((masterData.auth.editgroup!=null) && (masterData.auth.editgroup[sg_id])) {
-		rows.push('</div><div class="checkbox"><label><i><a href="#" class="newService">Neuen Service erstellen</a></i><span class="pull-right">'
-				+form_renderImage({cssid:"addService", src:"plus.png", width:20})+'</span>');
-	}
-	rows.push("</label></div></div>");
+  $.each(this.getAdditionalServicesToServicegroup(event, sg_id, _bin_ich_admin), function(i,s) {
+    //rrr    rows.push('<tr><td><input type="checkbox" '+s.checked+' id="on_'+s.id+'"/><td><p>'+masterData.service[s.id].bezeichnung);
+    rows.push('</div><div class="checkbox"><label for="on_'+s.id+'"><input type="checkbox" '+s.checked+' id="on_'+s.id+'"/> '+masterData.service[s.id].bezeichnung+'');
+    if (masterData.service[s.id].notiz!="")
+      rows.push('&nbsp; <small>('+masterData.service[s.id].notiz+")</small>");
+    if ((masterData.auth.editgroup!=null) && (masterData.auth.editgroup[sg_id])) {
+      rows.push('<span class="pull-right">'+form_renderImage({htmlclass:"edit-service", link:true, data:[{name:"service-id", value:s.id}], src:"options.png", width:20})+'</span></label>');
+    }
+    else {
+      rows.push('</label>');
+    }
+  });
+  if ((masterData.auth.editgroup!=null) && (masterData.auth.editgroup[sg_id])) {
+    rows.push('</div><div class="checkbox"><label><i><a href="#" class="newService">Neuen Service erstellen</a></i><span class="pull-right">'
+        +form_renderImage({cssid:"addService", src:"plus.png", width:20})+'</span>');
+  }
+  rows.push("</label></div></div>");
 
   var elem = this.showDialog("Service zum Event hinzufügen oder entfernen", rows.join(""), 450, 500, {
       "Speichern": function() {
@@ -2823,7 +2823,7 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
       value:allEvents[id].special,
       type:"textarea",
       data:id,
-      render: 
+      render:
         function(txt) {
           return '<small>'+txt.htmlize()+'</div>';
         },
@@ -2933,7 +2933,8 @@ function ical_abo() {
   rows.push('<legend>Dienstplan abonnieren</legend>Deine Termine dieses Kalenders k&ouml;nnen abonniert werden. Hierzu kann die Adresse anbei in einen beliebigen Kalender importiert werden,'+
              ' der iCal unterst&uuml;tzt.<br><br>');
   var id=$(this).attr("data-id");
-  rows.push(form_renderInput({label:"iCal-URL", value:settings.base_url+"?q=ical&id="+masterData.user_pid, disable:true}));
+//  rows.push(form_renderInput({label:"iCal-URL", value:settings.base_url+"?q=ical&id="+masterData.user_pid, disable:true}));
+  rows.push(form_renderInput({label:"<a href='"+settings.base_url+"?q=ical&id="+masterData.user_pid+"'>iCal-URL</a>", value:settings.base_url+"?q=ical&id="+masterData.user_pid, disable:true}));
   form_showOkDialog("Kalender abonnieren", rows.join(""));
 }
 
@@ -3133,7 +3134,7 @@ ListView.prototype.addAbsentButton = function () {
   window.setTimeout(function() {
     if ($("#btn_abwesenheit").length==0) {
       $("#dp_currentdate div.ui-datepicker-buttonpane").
-           append('<button type="button" id="btn_abwesenheit" '+ 
+           append('<button type="button" id="btn_abwesenheit" '+
           'class="ui-datepicker-current ui-state-default ui-priority-secondary ui-corner-all">'+_("maintain.absence")+'</button>');
       $("#btn_abwesenheit").hover(function(k,a) {
         $(this).addClass("ui-state-hover");
