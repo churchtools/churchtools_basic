@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * ChurchTools 2.0
  * http://www.churchtools.de
@@ -29,7 +29,7 @@ function churchservice__ajax() {
     return " "; // which meaning has this?
   }
   include_once(CHURCHSERVICE.'/churchservice_ajax.php');
-  call_user_func("churchservice_ajax"); // why user_func? 
+  call_user_func("churchservice_ajax"); // why user_func?
 }
 
 /**
@@ -37,7 +37,7 @@ function churchservice__ajax() {
  */
 function churchservice__filedownload() {
   include_once(CHURCHCORE."/churchcore.php");
-  churchcore__filedownload();  
+  churchcore__filedownload();
 }
 
 function churchservice_getAuth() {
@@ -63,13 +63,13 @@ function churchservice_getAuth() {
   $cc_auth = addAuth($cc_auth, 311, 'view song', 'churchservice', null, t('view.song.churchservice'), 1);
   $cc_auth = addAuth($cc_auth, 312, 'edit song', 'churchservice', null,t('edit.song.churchservice') , 1);
   
-  $cc_auth = addAuth($cc_auth, 399,'edit masterdata', 'churchservice', null, t('edit.masterdata'), 1);
+  $cc_auth = addAuth($cc_auth, 399, 'edit masterdata', 'churchservice', null, t('edit.masterdata'), 1);
   
   return $cc_auth;
 }
 
 /**
- * get form for churchservice system preferences  
+ * get form for churchservice system preferences
  * @return CTModuleForm
  */
 function churchservice_getAdminForm() {
@@ -104,9 +104,9 @@ function churchservice__exportfacts() {
   $events = churchcore_getTableData("cs_event", "startdate");
   $cond = ($d = getVar("date")) ? " AND e.startdate>='$d'" : '';
   
-  $db = db_query("SELECT e.*, c.bezeichnung, c.category_id 
-                  FROM {cs_event} e, {cc_cal} c 
-                  WHERE e.cc_cal_id=c.id $cond 
+  $db = db_query("SELECT e.*, c.bezeichnung, c.category_id
+                  FROM {cs_event} e, {cc_cal} c
+                  WHERE e.cc_cal_id=c.id $cond
                   ORDER BY e.startdate");
   $events = array ();
   foreach ($db as $e) {
@@ -184,7 +184,7 @@ function churchservice__printview() {
   drupal_add_js(createI18nFile("churchservice"));
   
   $content = "";
-  // ids for direct links 
+  // ids for direct links
   if ($id = getVar("id")) $content .= "<input type='hidden' id='externevent_id' value='$id'/>";
   if ($sId = getVar("service_id")) $content .= "<input type='hidden' id='service_id' value='$sId'/>";
   if ($date = getVar("date")) $content .= "<input type='hidden' id='currentdate' value='$date'/>";
@@ -212,32 +212,32 @@ function churchservice__printview() {
 function churchservice_main() {
   global $version, $files_dir, $config;
   
-  drupal_add_css(ASSETS.'/fileuploader/fileuploader.css'); 
+  drupal_add_css(ASSETS.'/fileuploader/fileuploader.css');
   
-  drupal_add_js(BOOTSTRAP.'/js/bootstrap-multiselect.js'); 
-  drupal_add_js(ASSETS.'/fileuploader/fileuploader.js'); 
-  drupal_add_js(ASSETS.'/js/jquery.history.js'); 
+  drupal_add_js(BOOTSTRAP.'/js/bootstrap-multiselect.js');
+  drupal_add_js(ASSETS.'/fileuploader/fileuploader.js');
+  drupal_add_js(ASSETS.'/js/jquery.history.js');
   
-  drupal_add_js(ASSETS.'/mediaelements/mediaelement-and-player.min.js'); 
+  drupal_add_js(ASSETS.'/mediaelements/mediaelement-and-player.min.js');
   drupal_add_css(ASSETS.'/mediaelements/mediaelementplayer.css');
     
   drupal_add_js(ASSETS.'/ckeditor/ckeditor.js');
-  drupal_add_js(ASSETS.'/ckeditor/lang/de.js');  
+  drupal_add_js(ASSETS.'/ckeditor/lang/de.js');
     
-  drupal_add_js(CHURCHCORE .'/cc_abstractview.js'); 
-  drupal_add_js(CHURCHCORE .'/cc_standardview.js'); 
-  drupal_add_js(CHURCHCORE .'/cc_maintainstandardview.js'); 
+  drupal_add_js(CHURCHCORE .'/cc_abstractview.js');
+  drupal_add_js(CHURCHCORE .'/cc_standardview.js');
+  drupal_add_js(CHURCHCORE .'/cc_maintainstandardview.js');
   
-  drupal_add_js(CHURCHSERVICE .'/cs_loadandmap.js'); 
-  drupal_add_js(CHURCHSERVICE .'/cs_settingsview.js'); 
-  drupal_add_js(CHURCHSERVICE .'/cs_maintainview.js'); 
-  drupal_add_js(CHURCHSERVICE .'/cs_listview.js'); 
-  //drupal_add_js(CHURCHSERVICE .'/cs_testview.js'); 
-  drupal_add_js(CHURCHSERVICE .'/cs_calview.js'); 
-  drupal_add_js(CHURCHSERVICE .'/cs_factview.js'); 
-  drupal_add_js(CHURCHSERVICE .'/cs_agendaview.js'); 
-  drupal_add_js(CHURCHSERVICE .'/cs_songview.js'); 
-  drupal_add_js(CHURCHSERVICE .'/cs_main.js'); 
+  drupal_add_js(CHURCHSERVICE .'/cs_loadandmap.js');
+  drupal_add_js(CHURCHSERVICE .'/cs_settingsview.js');
+  drupal_add_js(CHURCHSERVICE .'/cs_maintainview.js');
+  drupal_add_js(CHURCHSERVICE .'/cs_listview.js');
+  //drupal_add_js(CHURCHSERVICE .'/cs_testview.js');
+  drupal_add_js(CHURCHSERVICE .'/cs_calview.js');
+  drupal_add_js(CHURCHSERVICE .'/cs_factview.js');
+  drupal_add_js(CHURCHSERVICE .'/cs_agendaview.js');
+  drupal_add_js(CHURCHSERVICE .'/cs_songview.js');
+  drupal_add_js(CHURCHSERVICE .'/cs_main.js');
     
   drupal_add_js(createI18nFile("churchcore"));
   drupal_add_js(createI18nFile("churchservice"));
@@ -247,15 +247,15 @@ function churchservice_main() {
   if ($id = getVar("id")) $content .= "<input type='hidden' id='externevent_id' value='$id'/>";
   if ($sId = getVar("service_id")) $content .= "<input type='hidden' id='service_id' value='$sId'/>";
     
-  $content .= " 
+  $content .= "
 <div class='row-fluid'>
   <div class='span3'>
     <div id='cdb_menu'></div>
     <div id='cdb_filter'></div>
-  </div>  
+  </div>
   <div class='span9'>
-    <div id='cdb_search'></div> 
-    <div id='cdb_group'></div> 
+    <div id='cdb_search'></div>
+    <div id='cdb_group'></div>
     <div id='cdb_content'></div>
   </div>
 </div>
@@ -266,7 +266,7 @@ function churchservice_main() {
 /**
  * get pending service requests of current user
  * TODO: rename to getPendingRequests or getPendingRequestsOfUser
- * 
+ *
  * @return string
  */
 function churchservice_getUserOpenServices() {
@@ -289,12 +289,12 @@ function churchservice_getUserOpenServices() {
 //  $pid = $user->id; //not used
   $res = db_query("
     SELECT cal.bezeichnung AS event, e.id AS event_id, es.id AS eventservice_id, allowtonotebyconfirmation_yn,
-      DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') AS datum, s.bezeichnung AS service, s.id AS service_id, 
+      DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') AS datum, s.bezeichnung AS service, s.id AS service_id,
       sg.bezeichnung AS servicegroup, concat(p.vorname, ' ', p.name) AS modifieduser, p.id AS modified_pid
-    FROM {cs_eventservice} es, {cs_event} e, {cs_servicegroup} sg, {cs_service} s, {cdb_person} p, {cc_cal} cal 
-    WHERE e.valid_yn=1 AND cal.id=e.cc_cal_id AND cdb_person_id=:user_id AND e.startdate>=CURRENT_DATE() 
-      AND es.modified_pid=p.id AND zugesagt_yn=0 AND es.valid_yn=1 AND es.event_id=e.id  
-      AND es.service_id=s.id AND sg.id=s.servicegroup_id 
+    FROM {cs_eventservice} es, {cs_event} e, {cs_servicegroup} sg, {cs_service} s, {cdb_person} p, {cc_cal} cal
+    WHERE e.valid_yn=1 AND cal.id=e.cc_cal_id AND cdb_person_id=:user_id AND e.startdate>=CURRENT_DATE()
+      AND es.modified_pid=p.id AND zugesagt_yn=0 AND es.valid_yn=1 AND es.event_id=e.id
+      AND es.service_id=s.id AND sg.id=s.servicegroup_id
     ORDER BY datum",
     array(':user_id' => $user->id));
   
@@ -302,7 +302,7 @@ function churchservice_getUserOpenServices() {
   
   foreach ($res as $arr) {
     $nr++;
-    $txt2 .= "<div class='service-request' style='display:none;' data-id='$arr->eventservice_id' 
+    $txt2 .= "<div class='service-request' style='display:none;' data-id='$arr->eventservice_id'
                 data-modified-user='$arr->modifieduser'";
     
     if ($arr->allowtonotebyconfirmation_yn == 1) {
@@ -311,7 +311,7 @@ function churchservice_getUserOpenServices() {
     if (user_access('view', 'churchdb')) $txt2 .= " data-modified-pid='$arr->modified_pid'";
     $txt2 .= ">";
     
-    $txt2 .= "<a href='?q=churchservice&id=$arr->event_id'>$arr->datum - $arr->event</a>: 
+    $txt2 .= "<a href='?q=churchservice&id=$arr->event_id'>$arr->datum - $arr->event</a>:
               <a href='?q=churchservice&id=$arr->event_id'><b>$arr->service</b></a> ($arr->servicegroup)" . NL;
     
     $files = churchcore_getFilesAsDomainIdArr("service", $arr->event_id);
@@ -348,16 +348,16 @@ function churchservice_getCurrentEvents() {
   $groupWhere = ' AND ('. implode(' IN (cdb_gruppen_ids) OR ', $mygroups). ' IN (cdb_gruppen_ids))';
   $txt = "";
   
-  $events = db_query("SELECT e.id, DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') datum, bezeichnung 
-                      FROM {cs_event} e, {cc_cal} cal 
-                      WHERE e.valid_yn=1 AND cal.id=e.cc_cal_id AND DATE_ADD(e.startdate, INTERVAL 3 hour) > NOW() 
-                        AND DATEDIFF(e.startdate, NOW())<3 
+  $events = db_query("SELECT e.id, DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') datum, bezeichnung
+                      FROM {cs_event} e, {cc_cal} cal
+                      WHERE e.valid_yn=1 AND cal.id=e.cc_cal_id AND DATE_ADD(e.startdate, INTERVAL 3 hour) > NOW()
+                        AND DATEDIFF(e.startdate, NOW())<3
                       ORDER BY e.startdate");
   foreach ($events as $event) {
     $firstrow = true;
     $services = db_query("SELECT es.name, s.cdb_gruppen_ids, s.bezeichnung, es.zugesagt_yn
-                          FROM {cs_eventservice} es, {cs_service} s, {cs_servicegroup} sg 
-                          WHERE es.valid_yn=1 AND es.service_id=s.id AND s.servicegroup_id=sg.id 
+                          FROM {cs_eventservice} es, {cs_service} s, {cs_servicegroup} sg
+                          WHERE es.valid_yn=1 AND es.service_id=s.id AND s.servicegroup_id=sg.id
                           AND es.event_id=$event->id $groupWhere
                           ORDER BY sg.sortkey, s.sortkey");
     
@@ -390,11 +390,11 @@ function churchservice_getUserNextServices($short = true) {
   
   $pid = $user->id;
   $res = db_query("
-    SELECT e.id event_id, cal.bezeichnung AS event, DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') AS datum, 
-      s.bezeichnung AS service, sg.bezeichnung AS servicegroup, cdb_person_id, 
+    SELECT e.id event_id, cal.bezeichnung AS event, DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') AS datum,
+      s.bezeichnung AS service, sg.bezeichnung AS servicegroup, cdb_person_id,
       DATE_FORMAT(es.modified_date, '%d.%m.%Y %H:%i') AS modified_date
-    FROM {cs_eventservice} es, {cs_event} e, {cc_cal} cal, {cs_servicegroup} sg, {cs_service} s 
-    WHERE cal.id=e.cc_Cal_id AND e.valid_yn=1 AND cdb_person_id=:pid AND e.startdate>=current_date AND zugesagt_yn=1 
+    FROM {cs_eventservice} es, {cs_event} e, {cc_cal} cal, {cs_servicegroup} sg, {cs_service} s
+    WHERE cal.id=e.cc_Cal_id AND e.valid_yn=1 AND cdb_person_id=:pid AND e.startdate>=current_date AND zugesagt_yn=1
       AND es.valid_yn=1 AND es.event_id=e.id AND es.service_id=s.id AND sg.id=s.servicegroup_id order by e.startdate",
     array(':pid' => $pid));
   
@@ -403,7 +403,7 @@ function churchservice_getUserNextServices($short = true) {
   foreach ($res as $arr) {
     $nr++;
     if (($nr <= 5) || (!$short)) {
-      $txt .= "<p><a href='?q=churchservice&id='$arr->event_id'>$arr->datum - $arr->event</a>: 
+      $txt .= "<p><a href='?q=churchservice&id='$arr->event_id'>$arr->datum - $arr->event</a>:
                <a href='?q=churchservice&id='$arr->event_id'><b>$arr->service</b></a> ($arr->servicegroup)";
       $files = churchcore_getFilesAsDomainIdArr("service", $arr->event_id);
       $txt .= '<span class="pull-right">';
@@ -429,9 +429,9 @@ function churchservice_getFactsOfLastDays() {
   $txt = '';
   if (user_access("view facts", "churchservice")) {
     $res = db_query("
-      SELECT e.id, cal.bezeichnung AS eventname, DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') AS datum, f.bezeichnung AS factname, value 
+      SELECT e.id, cal.bezeichnung AS eventname, DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') AS datum, f.bezeichnung AS factname, value
       FROM {cs_fact} f, {cs_event_fact} ef, {cs_event} e, {cc_cal} cal
-      WHERE cal.id=e.cc_cal_id AND ef.fact_id=f.id AND ef.event_id=e.id 
+      WHERE cal.id=e.cc_cal_id AND ef.fact_id=f.id AND ef.event_id=e.id
         AND DATEDIFF(NOW(), e.startdate)<3 and DATEDIFF(NOW(), e.startdate)>=0
       ORDER BY e.startdate, factname");
     $event = null;
@@ -462,11 +462,11 @@ function churchservice_getAbsents($year = null) {
     $allPersonIds = churchdb_getAllPeopleIdsFromGroups($groups);
     
     if (count($groups) > 0 && count($allPersonIds) > 0) {
-      $sql = "SELECT p.id p_id, p.name, p.vorname, DATE_FORMAT(a.startdate, '%d.%m.') AS startdate_short, 
-                DATE_FORMAT(a.startdate, '%d.%m.%Y') AS startdate, DATE_FORMAT(a.enddate, '%d.%m.%Y') AS enddate, 
-                a.bezeichnung, ar.bezeichnung reason 
-              FROM {cdb_person} p, {cs_absent} a, {cs_absent_reason} ar 
-              WHERE a.absent_reason_id=ar.id AND p.id=a.person_id 
+      $sql = "SELECT p.id p_id, p.name, p.vorname, DATE_FORMAT(a.startdate, '%d.%m.') AS startdate_short,
+                DATE_FORMAT(a.startdate, '%d.%m.%Y') AS startdate, DATE_FORMAT(a.enddate, '%d.%m.%Y') AS enddate,
+                a.bezeichnung, ar.bezeichnung reason
+              FROM {cdb_person} p, {cs_absent} a, {cs_absent_reason} ar
+              WHERE a.absent_reason_id=ar.id AND p.id=a.person_id
               AND p.id in (" . implode(",", $allPersonIds) . ") ";
       if ($year == null) $sql .= "AND DATEDIFF(a.enddate,NOW())>=-1 AND DATEDIFF(a.enddate,NOW())<=31";
       else $sql .= "AND (DATE_FORMAT(a.startdate, '%Y')=$year OR DATE_FORMAT(a.enddate, '%Y')=$year)";
@@ -492,6 +492,7 @@ function churchservice_getAbsents($year = null) {
         $txt .= '</ul>';
       }
       if ($year == null && user_access("view", "churchcal")) {
+        // TODO: switch one some sort of absence calendars or at least put an message onto empty cal page
         $txt .= '<p style="line-height:100%" align="right"><a href="?q=churchcal&viewname=yearView">' . t("more") . '</a></p>';
       }
     }
@@ -512,7 +513,7 @@ function churchservice_blocks() {
       "html" => churchservice_getUserOpenServices(),
       "help" => "Offene Dienstanfragen",
       "class" => "service-request",
-    ),  
+    ),
     2 => array(
       "label" => t("your.next.services"),
       "col" => 2,
@@ -520,7 +521,7 @@ function churchservice_blocks() {
       "html" => churchservice_getUserNextServices(),
       "help" =>  '',
       "class" =>  '',
-    ),  
+    ),
     3 => array(
       "label" => t("your.current.event.staff"),
       "col" => 2,
@@ -528,7 +529,7 @@ function churchservice_blocks() {
       "html" => churchservice_getCurrentEvents(),
       "help" =>  '',
       "class" =>  '',
-    ),  
+    ),
     4 => array(
       "label" => t("absence.of.next.x.days", 30),
       "col" => 2,
@@ -536,7 +537,7 @@ function churchservice_blocks() {
       "html" => churchservice_getAbsents(),
       "help" =>  t('pending.service.requests'),
       "class" =>  '',
-    ),  
+    ),
     5 => array(
       "label" => t("facts.of.last.days"),
       "col" => 2,
@@ -544,7 +545,7 @@ function churchservice_blocks() {
       "html" => churchservice_getFactsOfLastDays(),
       "help" =>  '',
       "class" =>  '',
-    ),  
+    ),
   ));
 }
 
@@ -562,21 +563,21 @@ function churchservice_openservice_rememberdays() {
   
   // get ONE eventService needed to send (not yet send or still pending).
   // from persons having ?email ??und auch gemappt wurde??.
-  $sql = "SELECT es.id, p.id p_id, p.vorname, p.email, es.modified_pid, 
-            IF (password IS NULL AND loginstr IS NULL AND lastlogin IS NULL,1,0) AS invite  
-          FROM {cs_eventservice} es, {cs_event} e, {cc_cal} cal, {cs_service} s, {cdb_person} p 
-          WHERE e.valid_yn=1 AND e.cc_cal_id=cal.id AND es.valid_yn=1 AND es.zugesagt_yn=0 
-            AND es.cdb_person_id IS NOT NULL AND es.service_id=s.id AND s.sendremindermails_yn=1 
+  $sql = "SELECT es.id, p.id p_id, p.vorname, p.email, es.modified_pid,
+            IF (password IS NULL AND loginstr IS NULL AND lastlogin IS NULL,1,0) AS invite
+          FROM {cs_eventservice} es, {cs_event} e, {cc_cal} cal, {cs_service} s, {cdb_person} p
+          WHERE e.valid_yn=1 AND e.cc_cal_id=cal.id AND es.valid_yn=1 AND es.zugesagt_yn=0
+            AND es.cdb_person_id IS NOT NULL AND es.service_id=s.id AND s.sendremindermails_yn=1
             AND es.event_id=e.id AND e.Startdate>=current_date
             AND ((es.mailsenddate IS NULL) OR (DATEDIFF(current_date,es.mailsenddate)>=$delay))
             AND p.email!='' AND p.id=es.cdb_person_id LIMIT 1";
   $res = db_query($sql)->fetch();
   
-  $sql2 = "SELECT es.id id, cal.bezeichnung AS event, DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') AS datum, 
+  $sql2 = "SELECT es.id id, cal.bezeichnung AS event, DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') AS datum,
              e.id event_id, s.bezeichnung service, sg.bezeichnung servicegroup, es.mailsenddate
-           FROM {cs_eventservice} es, {cs_event} e, {cc_cal} cal, {cs_service} s, {cs_servicegroup} sg 
-           WHERE e.valid_yn=1 AND cal.id=e.cc_cal_id AND es.valid_yn=1 AND es.zugesagt_yn=:zugesagt 
-             AND es.cdb_person_id=:p_id AND s.sendremindermails_yn=1 AND es.event_id=e.id 
+           FROM {cs_eventservice} es, {cs_event} e, {cc_cal} cal, {cs_service} s, {cs_servicegroup} sg
+           WHERE e.valid_yn=1 AND cal.id=e.cc_cal_id AND es.valid_yn=1 AND es.zugesagt_yn=:zugesagt
+             AND es.cdb_person_id=:p_id AND s.sendremindermails_yn=1 AND es.event_id=e.id
              AND es.service_id=s.id AND sg.id=s.servicegroup_id AND e.startdate>=current_date
            ORDER BY e.startdate";
   $i = 0;
@@ -641,24 +642,24 @@ function churchservice_remindme() {
   global $base_url;
   include_once ("churchservice_db.php");
   
-  $sql = "SELECT p.vorname, p.name, p.email, cal.bezeichnung, s.bezeichnung AS dienst, sg.bezeichnung AS sg, e.id AS event_id, 
+  $sql = "SELECT p.vorname, p.name, p.email, cal.bezeichnung, s.bezeichnung AS dienst, sg.bezeichnung AS sg, e.id AS event_id,
            DATE_FORMAT(e.Startdate, '%d.%m.%Y %H:%i') AS datum, es.id AS eventservice_id
-          FROM {cs_eventservice} es, {cs_service} s, {cs_event} e, {cc_cal} cal, {cs_servicegroup} sg, {cdb_person} p 
+          FROM {cs_eventservice} es, {cs_service} s, {cs_event} e, {cc_cal} cal, {cs_servicegroup} sg, {cdb_person} p
           WHERE cal.id=e.cc_cal_id AND e.id=es.event_id AND s.id=es.service_id
-            AND es.cdb_person_id=:person_id AND p.id=:person_id AND p.email!='' 
+            AND es.cdb_person_id=:person_id AND p.id=:person_id AND p.email!=''
             AND e.valid_yn=1 AND es.valid_yn=1 AND es.zugesagt_yn=1
             AND UNIX_TIMESTAMP(e.startdate)-UNIX_TIMESTAMP(now())<60*60*(:hours) AND UNIX_TIMESTAMP(e.startdate)-UNIX_TIMESTAMP(now())>0
-            AND s.sendremindermails_yn=1 AND s.servicegroup_id=sg.id 
+            AND s.sendremindermails_yn=1 AND s.servicegroup_id=sg.id
           ORDER BY datum"; //is UNIX_TIMESTAMP outdated here?
   
-//  $usersToRemind = db_query("SELECT * FROM {cc_usersettings} 
-  $usersToRemind = db_query("SELECT id FROM {cc_usersettings} 
+//  $usersToRemind = db_query("SELECT * FROM {cc_usersettings}
+  $usersToRemind = db_query("SELECT id FROM {cc_usersettings}
                              WHERE modulename='churchservice' AND attrib='remindMe' AND value=1");
   
   foreach ($usersToRemind as $p) {
     //get eventservices to be reminded now
-    $res = db_query($sql, 
-        array (":person_id" => $p->person_id, 
+    $res = db_query($sql,
+        array (":person_id" => $p->person_id,
                ":hours" => getConf('churchservice_reminderhours'),
         ));
     foreach ($res as $es) {
@@ -668,14 +669,14 @@ function churchservice_remindme() {
         $txt .= '<p>Dies ist eine Erinnerung an Deine nächsten Dienste:</p><br/>';
         $txt .= '<table class="table table-condensed">';
         //get eventservices to be reminded in the next 12 hours
-        $res2 = db_query($sql, 
-                         array (":person_id" => $p->person_id, 
+        $res2 = db_query($sql,
+                         array (":person_id" => $p->person_id,
                                 ":hours" => getConf('churchservice_reminderhours') + 12,
                          ));
         foreach ($res2 as $es2) {
-          if ($es2->eventservice_id == $es->eventservice_id || (churchcore_checkUserMail($p->person_id, 
-                                                                                         "remindService", 
-                                                                                         $es2->eventservice_id, 
+          if ($es2->eventservice_id == $es->eventservice_id || (churchcore_checkUserMail($p->person_id,
+                                                                                         "remindService",
+                                                                                         $es2->eventservice_id,
                                                                                          getConf('churchservice_reminderhours')))) {
             $txt .= '<tr><td>' . $es2->datum . ' ' . $es2->bezeichnung . '<td>Dienst: ' . $es2->dienst . " (" . $es2->sg . ")";
             $txt .= '<td style="min-width:79px;"><a href="' . $base_url . '?q=churchservice&id=' . $es2->event_id .
@@ -692,9 +693,9 @@ function churchservice_remindme() {
 }
 
 /**
- * something about send mails in DB 
+ * something about send mails in DB
  * TODO: explain, maybe rename churchcore_checkUserMail
- * 
+ *
  * @param int $personId
  * @param unknown $mailtype
  * @param unknown $domainId
@@ -702,32 +703,32 @@ function churchservice_remindme() {
  * @return boolean
  */
 function churchcore_checkUserMail($personId, $mailtype, $domainId, $interval) {
-  $res = db_query("SELECT letzte_mail FROM {cc_usermails} 
-                   WHERE person_id=:person_id AND mailtype=:mailtype AND domain_id=:domain_id", 
-                   array (":person_id" => $personId, 
-                          ":mailtype" => $mailtype, 
+  $res = db_query("SELECT letzte_mail FROM {cc_usermails}
+                   WHERE person_id=:person_id AND mailtype=:mailtype AND domain_id=:domain_id",
+                   array (":person_id" => $personId,
+                          ":mailtype" => $mailtype,
                           ":domain_id" => $domainId,
                          ))->fetch();
   $dt = new DateTime();
   if (!$res) {
     db_insert("cc_usermails")
-      ->fields(array ("person_id" => $p, 
-                      "mailtype"  => $mailtype, 
-                      "domain_id" => $domainId, 
+      ->fields(array ("person_id" => $p,
+                      "mailtype"  => $mailtype,
+                      "domain_id" => $domainId,
                       "letzte_mail" => $dt->format('Y-m-d H:i:s'),
       ))->execute();
       
-    return true; //TODO: use on duplicate update or replace 
+    return true; //TODO: use on duplicate update or replace
   }
   else {
     $lm = new DateTime($result->letzte_mail);
     $dt = new DateTime(date("Y-m-d", strtotime("-" . $interval . " hour")));
     if ($lm < $dt) {
       $dt = new DateTime();
-      db_query("UPDATE {cc_usermails} SET letzte_mail=:dt 
-                WHERE person_id=:p AND mailtype=:mailtype AND domain_id=:domain_id", 
-                array(":person_id" => $personId, 
-                      ":mailtype"  => $mailtype, 
+      db_query("UPDATE {cc_usermails} SET letzte_mail=:dt
+                WHERE person_id=:p AND mailtype=:mailtype AND domain_id=:domain_id",
+                array(":person_id" => $personId,
+                      ":mailtype"  => $mailtype,
                       ":domain_id" => $domainId,
                       ":dt" => $dt->format('Y-m-d H:i:s'),
                 ));
@@ -747,7 +748,7 @@ function churchservice_inform_leader() {
   include_once ("churchservice_db.php");
   
   // get all group ids from services
-  $res = db_query("SELECT cdb_gruppen_ids FROM {cs_service} 
+  $res = db_query("SELECT cdb_gruppen_ids FROM {cs_service}
                    WHERE cdb_gruppen_ids!='' AND cdb_gruppen_ids IS NOT NULL");
 //                   WHERE cdb_gruppen_ids>''); // TODO: works too
   
@@ -756,7 +757,7 @@ function churchservice_inform_leader() {
   if (!count($arr)) return false;
   
   // get persons being (co)leader of one of this service groups
-  $res = db_query("SELECT p.id person_id, gpg.gruppe_id, p.email, p.vorname, p.cmsuserid 
+  $res = db_query("SELECT p.id person_id, gpg.gruppe_id, p.email, p.vorname, p.cmsuserid
                    FROM {cdb_person} p, {cdb_gemeindeperson_gruppe} gpg, {cdb_gemeindeperson} gp
                    WHERE gpg.gemeindeperson_id=gp.id and p.id=gp.person_id and status_no>=1 and status_no<=2
                      AND gpg.gruppe_id in (" . implode(",", $arr) . ")");
@@ -792,8 +793,8 @@ function churchservice_inform_leader() {
   
   // get matching services
   // TODO: nearly the same request as above (additonal bezeichnung, id service_id)
-  $res = db_query("SELECT cdb_gruppen_ids, bezeichnung, id AS service_id 
-                   FROM {cs_service} 
+  $res = db_query("SELECT cdb_gruppen_ids, bezeichnung, id AS service_id
+                   FROM {cs_service}
                    WHERE cdb_gruppen_ids is not null");
   foreach ($res as $d) {
     $group_ids = explode(",", $d->cdb_gruppen_ids);
@@ -809,12 +810,12 @@ function churchservice_inform_leader() {
   // Gehe nun die Personen durch und suche nach Events
   // get events for each person
   foreach ($persons as $person_id => $person) if ($person) {
-    $res = db_query("SELECT es.id, c.bezeichnung AS event, 
-                       DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') AS datum, es.name, s.bezeichnung AS service 
-                     FROM {cs_event} e, {cs_eventservice} es, {cs_service} s, {cc_cal} c 
+    $res = db_query("SELECT es.id, c.bezeichnung AS event,
+                       DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') AS datum, es.name, s.bezeichnung AS service
+                     FROM {cs_event} e, {cs_eventservice} es, {cs_service} s, {cc_cal} c
                      WHERE e.valid_yn=1 AND c.id=e.cc_cal_id AND es.service_id in (" . implode(",", $person["service"]) . ")
                        AND es.event_id=e.id AND es.service_id=s.id AND es.valid_yn=1 AND zugesagt_yn=0
-                       AND e.startdate>current_date AND DATEDIFF(e.startdate,CURRENT_DATE)<=60 
+                       AND e.startdate>current_date AND DATEDIFF(e.startdate,CURRENT_DATE)<=60
                      ORDER BY e.startdate");
     $txt = '';
     foreach ($res as $es) {

@@ -58,5 +58,3 @@ interface CTModuleInterface {
    */
   public function getMasterDataTablenames();
 }
-
-?>

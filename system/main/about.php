@@ -197,5 +197,3 @@ function about__ajax() {
     $res = jsend()->error("Unkown call: " . $params["func"]);
   drupal_json_output($res);
 }
-
-?>

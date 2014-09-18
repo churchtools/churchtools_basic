@@ -327,8 +327,7 @@ function churchcal_updateEvent($params, $source = null) {
     $cs_params["cal_id"] = $params["id"];
     $cs_params["id"] = null;
     
-    // FIXME: without the if there was an error on changing events (endtime).
-    // is there somethin else wrong?  
+    // FIXME: without the if there was an error on changing events (endtime). Is there somethin else wrong?  
     if (isset($old_cal)) $cs_params["old_startdate"] = $old_cal->startdate; 
     if ($source == null) $source = "churchcal";
     
@@ -436,7 +435,7 @@ function churchcal_getCalPerCategory($params, $withintern = true) {
   
   $data = null;
   
-  // Agreggiere, falls es mehrere Bookings oder Events pro calendareintrag gibt.
+  // collect bookings/events if more then one per calendar entry
   foreach ($res as $arr) {
     if (isset($data[$arr->id])) $elem = $data[$arr->id];
     else {
@@ -458,7 +457,7 @@ function churchcal_getCalPerCategory($params, $withintern = true) {
     }
     if ($arr->event_id) {
       // Get additional Service text infos, like "Preaching with [Vorname]"
-      $service_texts = null;
+      $service_texts = null; // TODO: why not $service_texts = array() here?
       $es = db_query("
         SELECT es.name, s.id, es.cdb_person_id, s.cal_text_template from {cs_service} s, {cs_eventservice} es 
         WHERE es.event_id=:event_id AND es.service_id=s.id and es.valid_yn=1 and es.zugesagt_yn=1 
@@ -467,7 +466,7 @@ function churchcal_getCalPerCategory($params, $withintern = true) {
       
       foreach ($es as $e) if ($e) {
         if (strpos($e->cal_text_template, "[") === false) {
-          if (!$service_texts == null) $service_texts = array ();
+          if (!$service_texts) $service_texts = array ();
           $txt = $e->cal_text_template;
         }
         if ($e->cdb_person_id) {
@@ -477,11 +476,11 @@ function churchcal_getCalPerCategory($params, $withintern = true) {
                          array (":id" => $e->cdb_person_id))
                          ->fetch();
           if ($p) {
-            if ($service_texts == null) $service_texts = array ();
+            if (!$service_texts) $service_texts = array ();
             $txt = churchcore_personalizeTemplate($e->cal_text_template, $p);
           }
         }
-        if ($service_texts !== null && array_search($txt, $service_texts) === false) { //TODO: maybe use in_array() instead
+        if ($service_texts && array_search($txt, $service_texts) === false) { //TODO: maybe use in_array() instead
           $service_texts[] = $txt;
         }
       }
@@ -495,52 +494,29 @@ function churchcal_getCalPerCategory($params, $withintern = true) {
     $data[$arr->id] = $elem;
   }
   
-  if ($data == null) {
-    return array ();
-  }
+  if ($data == null) return array();
   
   $exceptions = churchcore_getTableData("cc_cal_except");
   if ($exceptions) foreach ($exceptions as $e) {
     // there may be exceptions without event
     if (isset($data[$e->cal_id])) {
-      if (!isset($data[$e->cal_id]->exceptions)) $a = array ();
-      else $a = $data[$e->cal_id]->exceptions;
-      $a[$e->id] = new stdClass();
-      $a[$e->id]->id = $e->id;
-      $a[$e->id]->except_date_start = $e->except_date_start;
-      $a[$e->id]->except_date_end = $e->except_date_end;
-      $data[$e->cal_id]->exceptions = $a;
-    }
-//     TODO: is this better? longer, but fewer lines
-//     if (isset($data[$e->cal_id])) {
-//       if (!isset($data[$e->cal_id]->exceptions)) $data[$e->cal_id]->exceptions = array();
-//       $data[$e->cal_id]->exceptions[$e->id] = new stdClass();
-//       $data[$e->cal_id]->exceptions[$e->id]->id = $e->id;
-//       $data[$e->cal_id]->exceptions[$e->id]->except_date_start = $e->except_date_start;
-//       $data[$e->cal_id]->exceptions[$e->id]->except_date_end = $e->except_date_end;
-//     }    
+      if (!isset($data[$e->cal_id]->exceptions)) $data[$e->cal_id]->exceptions = array();
+      $data[$e->cal_id]->exceptions[$e->id] = new stdClass();
+      $data[$e->cal_id]->exceptions[$e->id]->id = $e->id;
+      $data[$e->cal_id]->exceptions[$e->id]->except_date_start = $e->except_date_start;
+      $data[$e->cal_id]->exceptions[$e->id]->except_date_end = $e->except_date_end;
+    }    
   }
   $additions = churchcore_getTableData("cc_cal_add");
   if ($additions) foreach ($additions as $e) {
     // there may be additions without event
     if (isset($data[$e->cal_id])) {
-      if (!isset($data[$e->cal_id]->additions)) $a = array ();
-      else $a = $data[$e->cal_id]->additions;
-      $a[$e->id] = new stdClass();
-      $a[$e->id]->id = $e->id;
-      $a[$e->id]->add_date = $e->add_date;
-      $a[$e->id]->with_repeat_yn = $e->with_repeat_yn;
-      $data[$e->cal_id]->additions = $a;
+      if (!isset($data[$e->cal_id]->additions)) $data[$e->cal_id]->additions = array();
+      $data[$e->cal_id]->additions[$e->id] = new stdClass();
+      $data[$e->cal_id]->additions[$e->id]->id = $e->id;
+      $data[$e->cal_id]->additions[$e->id]->add_date = $e->add_date;
+      $data[$e->cal_id]->additions[$e->id]->with_repeat_yn = $e->with_repeat_yn;
     }
-//   TODO: is this better?
-//   if ($additions) foreach ($additions as $a) {
-//     if (isset($data[$a->cal_id])) {
-//       if (!isset($data[$a->cal_id]->additions)) $data[$a->cal_id]->additions = array();
-//       $data[$a->cal_id]->additions[$a->id] = new stdClass();
-//       $data[$a->cal_id]->additions[$a->id]->id = $a->id;
-//       $data[$a->cal_id]->additions[$a->id]->add_date = $a->add_date;
-//       $data[$a->cal_id]->additions[$a->id]->with_repeat_yn = $a->with_repeat_yn;
-//     }    
   }
   
   $ret = array ();
@@ -553,5 +529,3 @@ function churchcal_getCalPerCategory($params, $withintern = true) {
   
   return $ret;
 }
-
-?>

@@ -2,7 +2,7 @@
 
 /**
  * home main function
- * 
+ *
  * @return string html content
  */
 function home_main() {
@@ -31,7 +31,8 @@ function home_main() {
     </p>
   </div>';
   
-  $txt .= '<div class="well visible-phone">
+  $txt .= '
+  <div class="well visible-phone">
     <h1>' . t("welcome") . '!</h1>
     <p>' . $_SESSION["user"]->vorname . ', ' .
        t("chose.your.possibilities") . ':</p>
@@ -43,8 +44,8 @@ function home_main() {
       $txt .= "<a class='btn btn-large' href='?q=$m'>" . $config[$m . "_name"] . '</a> ';
     }
   }
-  $txt .= '</ul>';
-  $txt .= '</div>';
+  $txt .= '</ul>' . NL;
+  $txt .= '</div>' . NL;
   
   // blocks[]: label, col(1,2,3) sortkey, html
   $blocks = null;
@@ -75,14 +76,13 @@ function home_main() {
                  '" target="_clean"><i class="icon-question-sign"></i></a>';
             $txt .= '</div>';
           }
-          
           $txt .= $block["html"];
         }
       }
     }
-    $txt .= '</ul>';
+    $txt .= '</ul>' . NL;
   }
-  $txt .= '</div>';
+  $txt .= '</div>' . NL;
   
   drupal_add_js(MAIN . '/home.js');
   
@@ -97,9 +97,7 @@ function home_main() {
  */
 function checkFilesDir() {
   global $files_dir;
-  if (!file_exists($files_dir . "/files")) {
-    mkdir($files_dir . "/files", 0777, true);
-  }
+  if (!file_exists($files_dir . "/files")) mkdir($files_dir . "/files", 0777, true);
   
   if (!is_writable($files_dir . "/files")) {
     addErrorMessage(t('directory.x.has.to.be.writable', "$files_dir/files"));
@@ -133,24 +131,24 @@ function checkFilesDir() {
 
 /**
  * get member list ordered by name
- * 
+ *
  * @return array
  */
 function home_getMemberList() {
   global $base_url, $files_dir;
   
   $status_id = getConf('churchdb_memberlist_status', '1');
-  if ($status_id == "") $status_id = "-1"; //TODO: should never occure for default value 1?
+  if ($status_id == "") $status_id = "-1"; //TODO: delete, should never occure for default value 1?
   $station_id = getConf('churchdb_memberlist_station', '1,2,3');
   if ($station_id == "") $station_id = "-1"; //should never occure for default value 1,2,3?
   
   $res = db_query('SELECT person_id, name, vorname, strasse, ort, plz, land,
-                     YEAR(geburtsdatum) year, MONTH(geburtsdatum) month, DAY(geburtsdatum) day, 
+                     YEAR(geburtsdatum) year, MONTH(geburtsdatum) month, DAY(geburtsdatum) day,
                      DATE_FORMAT(geburtsdatum, \'%d.%m.%Y\') geburtsdatum, DATE_FORMAT(geburtsdatum, \'%d.%m.\') geburtsdatum_compact,
                      (CASE WHEN geschlecht_no=1 THEN "' . t("mr.") . '" WHEN geschlecht_no=2 THEN "' . t("mrs.") . '" ELSE "" END) "anrede",
                      telefonprivat, telefongeschaeftlich, telefonhandy, fax, email, imageurl
-                   FROM {cdb_person} p, {cdb_gemeindeperson} gp 
-                   WHERE gp.person_id=p.id and gp.station_id IN (:station_id) AND gp.status_id in (:status_id) AND archiv_yn=0 
+                   FROM {cdb_person} p, {cdb_gemeindeperson} gp
+                   WHERE gp.person_id=p.id and gp.station_id IN (:station_id) AND gp.status_id in (:status_id) AND archiv_yn=0
                    ORDER BY name, vorname',
                    array(':station_id' => $station_id, ':status_id' => $status_id));
   $return = array ();
@@ -161,7 +159,7 @@ function home_getMemberList() {
 
 /**
  * get member list as html
- * 
+ *
  * @return string html content
  */
 function home__memberlist() {
@@ -171,17 +169,19 @@ function home__memberlist() {
     addErrorMessage(t("no.permission.for", t("list.of.members")));
     return " ";
   }
-  //TODO: turn into template
+  //TODO: use template
   $fields = _home__memberlist_getSettingFields()->fields;
   
   $txt = '<small><i><a class="cdb_hidden" href="?q=home/memberlist_printview" target="_clean">' . t("printview") .
        '</a></i></small>';
-  if (user_access("administer settings", "churchcore")) $txt .= '&nbsp; <small><i><a class="cdb_hidden" href="?q=home/memberlist_settings">' .
-       t("admin.settings") . '</a></i></small>';
+  if (user_access("administer settings", "churchcore")) {
+    $txt .= '&nbsp; <small><i><a class="cdb_hidden" href="?q=home/memberlist_settings">' . t("admin.settings") . '</a></i></small>';
+  }
   
   $txt .= '<table class="table table-condensed"><tr><th><th>' . t("salutation") . '<th>' . t("name") . '<th>' .
-       t("address") . '<th>' . t("birth.") . '<th>' . t("contact.information") . '</tr><tr>';
+       t("address") . '<th>' . t("DOB") . '<th>' . t("contact.information") . '</tr><tr>';
   $link = $base_url;
+  
   $res = home_getMemberList();
   foreach ($res as $m) {
     if (!$m->imageurl) $m->imageurl = "nobody.gif";
@@ -195,7 +195,6 @@ function home__memberlist() {
     $txt .= '<br/>&nbsp;</div><td><div class="dontbreak">' . $m->strasse . "<br/>" . $m->plz . " " . $m->ort . "</div>";
     
     $birthday = "";
-    // TODO: i remember similar code - put in function?
     if ($m->geburtsdatum) {
       if ($m->year < 7000) $birthday = "$m->day.$m->month.";
       if ($m->year != 1004 && $fields["memberlist_birthday_full"]->getValue()) {
@@ -221,9 +220,9 @@ function home__memberlist() {
 
 /**
  * get member list as pdf
- * 
+ *
  * TODO: maybe using ISO-8859-1 is not a good idea on going international
- * 
+ *
  * @return string
  */
 function home__memberlist_printview() {
@@ -296,9 +295,9 @@ function home__memberlist_printview() {
 /**
  * save settings for member list
  * TODO: should return success
- * 
+ *
  * @param CTForm $form
- * @return 
+ * @return
  */
 function home__memberlist_saveSettings($form) {
   
@@ -308,11 +307,9 @@ function home__memberlist_saveSettings($form) {
   }
   else {
     foreach ($form->fields as $key => $value) {
-      db_query("INSERT INTO {cc_config} (name, value) 
-                VALUES (:name,:value) ON DUPLICATE KEY UPDATE value=:value", 
-                array (":name" => $key, 
-                       ":value" => $value,
-                ));
+      db_query("INSERT INTO {cc_config} (name, value)
+                VALUES (:name,:value) ON DUPLICATE KEY UPDATE value=:value",
+                array (":name" => $key, ":value" => $value));
     }
     loadDBConfig();
   }
@@ -325,42 +322,42 @@ function _home__memberlist_getSettingFields() {
   $form->setHeader(t('preferences.for.memberlist'), t('admin.could.change.preferences.here'));
 
   // TODO: use checkboxes with status texts
-  $form->addField("churchdb_memberlist_status", "", "INPUT_REQUIRED", "Kommaseparierte Liste mit Status-Ids f&uuml;r Mitgliederliste")
+  $form->addField("churchdb_memberlist_status", "", "INPUT_REQUIRED", t('status.ids.for.birthdaylist.comma.separated'))
     ->setValue(getConf("churchdb_memberlist_status"));
   
   // TODO: use checkboxes with status texts
-  $form->addField("churchdb_memberlist_station", "", "INPUT_REQUIRED", "Kommaseparierte Liste mit Station-Ids f&uuml;r Mitgliederliste")
+  $form->addField("churchdb_memberlist_station", "", "INPUT_REQUIRED", t('station.ids.for.birthdaylist.comma.separated'))
     ->setValue(getConf("churchdb_memberlist_station"));
   
-  $form->addField("memberlist_telefonprivat", "", "CHECKBOX", "Anzeige der privaten Telefonnummer")
+  $form->addField("memberlist_telefonprivat", "", "CHECKBOX", t('show.fon.number'))
     ->setValue(getConf("memberlist_telefonprivat", true));
   
-  $form->addField("memberlist_telefongeschaeftlich", "", "CHECKBOX", "Anzeige der gesch&auml;ftlichen Telefonnummer")
+  $form->addField("memberlist_telefongeschaeftlich", "", "CHECKBOX", t('show.business.fon.number'))
     ->setValue(getConf("memberlist_telefongeschaeftlich", true));
   
-  $form->addField("memberlist_telefonhandy", "", "CHECKBOX", "Anzeige der Mobil-Telefonnumer")
+  $form->addField("memberlist_telefonhandy", "", "CHECKBOX", t('show.mobile.number'))
     ->setValue(getConf("memberlist_telefonhandy", true));
   
-  $form->addField("memberlist_fax", "", "CHECKBOX", "Anzeige der FAX-Nummer")
+  $form->addField("memberlist_fax", "", "CHECKBOX", t('show.fax.number'))
     ->setValue(getConf("memberlist_fax", true));
   
-  $form->addField("memberlist_email", "", "CHECKBOX", "Anzeige der EMail-Adresse")
+  $form->addField("memberlist_email", "", "CHECKBOX", t('show.email'))
     ->setValue(getConf("memberlist_email", true));
   
-  $form->addField("memberlist_birthday_full", "", "CHECKBOX", "Anzeige des gesamten Geburtsdatums (inkl. Geburtsjahr)")
+  $form->addField("memberlist_birthday_full", "", "CHECKBOX", t('show.complete.birthday.including.year'))
     ->setValue(getConf("memberlist_birthday_full", false));
   
   return $form;
 }
 
 /**
- * 
+ *
  * @return string html content of form
  */
 function home__memberlist_settings() {
   $form = _home__memberlist_getSettingFields();
-  $form->addButton("Speichern", "ok");
-  $form->addButton("Zur&uuml;ck", "arrow-left");
+  $form->addButton(t('save'), "ok");
+  $form->addButton(t('back'), "arrow-left");
   
   return $form->render();
 }
@@ -371,5 +368,3 @@ function home__ajax() {
   
   drupal_json_output($ajax->call());
 }
-
-?>

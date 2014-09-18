@@ -18,7 +18,7 @@ class CTModuleForm extends CTForm {
       $this->addField($modulename. "_startbutton", "", "CHECKBOX", t('show.as.button.on.home', $m))
         ->setValue(getConf($modulename . "_startbutton", "0"));
       
-      $this->addField($modulename. "_sortcode", "", "INPUT_REQUIRED", t('sortnumber.in.menu'))
+      $this->addField($modulename. "_sortcode", "", "INPUT_REQUIRED", t('sortorder.in.menu'))
         ->setValue(getConf($modulename . "_sortcode", "0"));
     }
   }

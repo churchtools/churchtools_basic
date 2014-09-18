@@ -39,15 +39,15 @@ function churchresource_main() {
   // $content=$content."<div id='cdb_menu'></div> <div id='cdb_filter'></div> <div id='cdb_content'>Fehler: Ist
   // JavaScript deaktiviert?</div>";
   
-  $content .= ' 
+  $content .= '
 <div class="row-fluid">
   <div class="span3">
     <div id="cdb_menu"></div>
     <div id="cdb_filter"></div>
-  </div>  
+  </div>
   <div class="span9">
-    <div id="cdb_search"></div> 
-    <div id="cdb_group"></div> 
+    <div id="cdb_search"></div>
+    <div id="cdb_group"></div>
     <div id="cdb_content"></div>
   </div>
 </div>';
@@ -56,7 +56,7 @@ function churchresource_main() {
 }
 
 /**
- * 
+ *
  */
 function churchresource__ajax() {
   include_once ("churchresource_db.php");
@@ -170,17 +170,17 @@ function churchresource_getCurrentBookings() {
 function churchresource_blocks() {
   return (array (
     1 => array (
-      "label" => t("pending.booking.requests"), 
-      "col" => 3, 
-      "sortkey" => 1, 
+      "label" => t("pending.booking.requests"),
+      "col" => 3,
+      "sortkey" => 1,
       "html" => churchresource_getOpenBookings(),
       "help" => '',
       "class" => '',
-    ), 
+    ),
     2 => array (
-      "label" => t("current.bookings"), 
-      "col" => 3, 
-      "sortkey" => 2, 
+      "label" => t("current.bookings"),
+      "col" => 3,
+      "sortkey" => 2,
       "html" => churchresource_getCurrentBookings(),
       "help" => '',
       "class" => '',
@@ -247,7 +247,7 @@ function churchresource__printview() {
  */
 function churchresource_getAuth() {
   $cc_auth = array ();
-  $cc_auth = addAuth($cc_auth, 201, 'view', 'churchresource', null, t('view.modulename', 'ChurchResource'), 1);
+  $cc_auth = addAuth($cc_auth, 201, 'view', 'churchresource', null, t('view.x', 'ChurchResource'), 1);
   $cc_auth = addAuth($cc_auth, 306, 'create bookings', 'churchresource', null, t('create.bookings'), 1);
   $cc_auth = addAuth($cc_auth, 202, 'administer bookings', 'churchresource', 'cr_resource', t('administer.bookings'), 1);
   $cc_auth = addAuth($cc_auth, 203, 'assistance mode', 'churchresource', null, t('assistant.mode'), 1);
@@ -286,5 +286,3 @@ function churchresource_getAuthForAjax() {
   }
   return $res;
 }
-
-?>

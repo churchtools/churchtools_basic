@@ -1,7 +1,7 @@
 <?php
 
 
-//TODO: not sure where to place this
+//TODO: not sure where to place this. There are statements at end of file!
 
 /**
  * Database Synchronizer class.
@@ -155,5 +155,3 @@ class DBSync {
 
 $dbsync = new DBSync();
 $dbsync->updateSchema(SYSTEM."/DSL/update/mariadb/");
-
-?>

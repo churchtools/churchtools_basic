@@ -88,8 +88,8 @@ function loadConfig() {
   }
   
   //
-  if ($config == null) {
-    $error_message = "<h3>" . "Error: Configuration file was not found." . "</h3>
+  if ($config == null) { // TODO: maybe use template
+    $error_message = "<h3>" . t('error.config.file.not.found') . "</h3>
         <p>Expected locations are:
         <ul>
           <li>Default appliance: <code>/etc/churchtools/default.conf</code></li>
@@ -157,6 +157,7 @@ function loadUserObjectInSession() {
     // Wenn nicht ausgeloggt wird und RememberMe bei der letzten Anmeldung aktiviert wurde
     if ($q != "logout" && isset($_COOKIE['RememberMe']) && $_COOKIE['RememberMe'] == 1) {
       if (isset($_COOKIE['CC_SessionId'])) {
+        
         $res = db_query("SELECT * FROM {cc_session} 
                          WHERE session=:session AND hostname=:hostname", 
                          array(":session" => $_COOKIE['CC_SessionId'], 
@@ -166,6 +167,7 @@ function loadUserObjectInSession() {
         if ($res) {
           $res = $res->fetch();
           if (isset($res->person_id)) {
+            
             $res = db_query("SELECT * FROM {cdb_person} 
                              WHERE id=:id", 
                              array (":id" => $res->person_id))
@@ -183,6 +185,7 @@ function loadUserObjectInSession() {
     $_SESSION["user"]->auth = getUserAuthorization($_SESSION["user"]->id);
     if (isset($_COOKIE['CC_SessionId'])) {
       $dt = new DateTime();
+      
       db_query("UPDATE {cc_session} SET datum=:datum 
                 WHERE person_id=:p_id AND session=:session AND hostname=:hostname", 
                 array (":datum" => $dt->format('Y-m-d H:i:s'), 
@@ -192,20 +195,6 @@ function loadUserObjectInSession() {
                 ));
     }
   }
-}
-
-/**
- * Get the base url in form of http(s)://subdomain.churchtools.de/ or http(s)://server.de/churchtools/
- * 
- * @return string
- */
-function getBaseUrl() {
-  // get path part from requested url and remove index.php
-  $baseUrl = str_replace('index.php', '', parse_url($_SERVER['HTTP_HOST']. $_SERVER['REQUEST_URI'], PHP_URL_PATH));
-  // add http(s):// and assure a single trailing /
-  $baseUrl = (!empty($_SERVER['HTTPS']) ? "https://" : "http://"). trim($baseUrl, '/') . '/';
-  // echo " ::: URL: $baseUrl ::: ";
-  return $baseUrl;  
 }
 
 /**
@@ -286,7 +275,7 @@ function churchtools_processRequest($_q) {
     if ($content == null) die();
   }
   else
-    addErrorMessage(t("mapping.not.found", $_q));
+    addErrorMessage(t("mapping.not.found", "<i>$_q</i>"));
   return $content;
 }
 
@@ -417,6 +406,7 @@ function churchtools_app() {
       }
     }
   }
+  
   // TODO: i changed header/footer to a sort of template
   // probably some more logic could be removed from them by setting some more variables here
   // put header/footer into new file layout.php and add a variable $content
@@ -424,11 +414,9 @@ function churchtools_app() {
   $simulate = getVar("simulate");
   $sitename = getConf("site_name");
   if (getConf("test")) $sitename .= " TEST ";
-  if ($logo = getConf("site_logo")) $logo = "$files_dir/files/logo/$logo";
+  $logo = ($logo = getConf("site_logo")) ? "$files_dir/files/logo/$logo" : '';
 
   include (INCLUDES . "/header.php");
   echo $content;
   include (INCLUDES . "/footer.php");
 }
-
-?>

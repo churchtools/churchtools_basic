@@ -63,12 +63,12 @@ function churchcal_main() {
   else
     $txt .= '
       <div class="row-fluid">
-		<div class="span3"><div id="cdb_filter"></div></div>
-		<div class="span9"><div id="header" class="pull-right"></div><div id="calendar"></div></div>
+    <div class="span3"><div id="cdb_filter"></div></div>
+    <div class="span9"><div id="header" class="pull-right"></div><div id="calendar"></div></div>
         <p align=right><small>
-          <a target="_blank" href="' . $base_url .'?q=churchcal&embedded=true&category_id=null"> ' . getConf("churchcal_name") . ' ' . t("embedding") . '</a>
+          <a target="_blank" href="' . $base_url .'?q=churchcal&embedded=true&category_id=null"> ' . t("embed", getConf("churchcal_name")) . '</a>
           <a target="_clean" href="http://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc:ChurchCal%C2%A0einbetten/"><i class="icon-question-sign"></i></a>
-          &nbsp; <a id="abo" href="' . $base_url . '?q=churchcal/ical">' . $config["churchcal_name"] . ' ' . t("subscribe.per.ical") . '</a>' . '</small>';
+          &nbsp; <a id="abo" href="' . $base_url . '?q=churchcal/ical">' . $config["churchcal_name"] . ' ' . t("subscribe.to.ical") . '</a>' . '</small>';
   
   if ($d = getVar("date"))     $txt .= '<input type="hidden" name="viewdate" id="viewdate" value="' . $d . '"/>';
   if ($v = getVar("viewname")) $txt .= '<input type="hidden" name="viewname" id="viewname" value="' . $v . '"/>';
@@ -77,7 +77,7 @@ function churchcal_main() {
 }
 
 /**
- * 
+ *
  * @return CTModuleForm
  */
 function churchcal_getAdminForm() {
@@ -96,7 +96,7 @@ function churchcal_getAdminForm() {
 }
 
 /**
- * 
+ *
  * @return string; empty div
  */
 function churchcal_getUserOpenMeetingRequests() {
@@ -104,7 +104,7 @@ function churchcal_getUserOpenMeetingRequests() {
 }
 
 /**
- * 
+ *
  * @return string; empty div
  */
 function churchcal_getUserMeetings() {
@@ -112,25 +112,25 @@ function churchcal_getUserMeetings() {
 }
 
 /**
- * 
+ *
  * @return array
  */
 function churchcal_blocks() {
   return (array (
           1 => array (
-              "label" => t("your.open.meeting.requests"), 
-              "col" => 2, 
-              "sortkey" => 1, 
-              "html" => churchcal_getUserOpenMeetingRequests(), 
-              "help" => t('meeting.requests'), 
+              "label" => t("your.open.meeting.requests"),
+              "col" => 2,
+              "sortkey" => 1,
+              "html" => churchcal_getUserOpenMeetingRequests(),
+              "help" => t('meeting.requests'),
               "class" => "cal-request",
-          ), 
+          ),
           2 => array (
-              "label" => t("your.next.meetings"), 
-              "col" => 2, 
-              "sortkey" => 2, 
-              "html" => churchcal_getUserMeetings(), 
-              "help" => t('meeting.requests'), 
+              "label" => t("your.next.meetings"),
+              "col" => 2,
+              "sortkey" => 2,
+              "html" => churchcal_getUserMeetings(),
+              "help" => t('meeting.requests'),
               "class" => "cal-request",
           ),
    ));
@@ -164,8 +164,8 @@ function churchcal_getMyServices() {
 
 /**
  * if group_id is given then get only this group, else all groups user is member of
- *  
- * @param $params          
+ *
+ * @param $params
  * @return array
  */
 function churchcal_getAbsents($params) {
@@ -176,8 +176,8 @@ function churchcal_getAbsents($params) {
   
   if($cal_ids = getVar("cal_ids", false, $params)) {
     // who has rights for this calendar?
-    $res = db_query("SELECT * 
-                     FROM  {cc_domain_auth} d 
+    $res = db_query("SELECT *
+                     FROM  {cc_domain_auth} d
                      WHERE d.auth_id=403 AND d.daten_id IN (" . implode(",", $cal_ids) . ")");
     
     if ($res) foreach ($res as $auth) {
@@ -196,7 +196,7 @@ function churchcal_getAbsents($params) {
   if (count($persons)) {
     // get absences
     $res = db_query("SELECT p.id AS p_id, a.startdate, a.enddate, p.vorname, p.name, absent_reason_id AS reason_id
-                     FROM {cs_absent} a, {cdb_person} p 
+                     FROM {cs_absent} a, {cdb_person} p
                      WHERE p.id IN (" . implode(',', $persons) . ") AND a.person_id=p.id");
     foreach ($res as $a) $arrs[] = $a;
   }
@@ -206,7 +206,7 @@ function churchcal_getAbsents($params) {
 /**
  * get birthdays (all or from own groups)
  * @param array $params
- * @return 
+ * @return
  */
 function churchcal_getBirthdays($params) {
   global $user;
@@ -220,9 +220,9 @@ function churchcal_getBirthdays($params) {
     $gpids = churchdb_getMyGroups($user->id, true, false);
     if (!$gpids) return null;
     
-    $res = db_query("SELECT p.id, gp.geburtsdatum AS birthday, CONCAT(p.vorname, ' ', p.name) AS name 
-                     FROM {cdb_person} p, {cdb_gemeindeperson_gruppe} gpg, {cdb_gemeindeperson} gp 
-                     WHERE gpg.gruppe_id IN (" . implode(',', $gpids) . ") AND gpg.gemeindeperson_id=gp.id AND 
+    $res = db_query("SELECT p.id, gp.geburtsdatum AS birthday, CONCAT(p.vorname, ' ', p.name) AS name
+                     FROM {cdb_person} p, {cdb_gemeindeperson_gruppe} gpg, {cdb_gemeindeperson} gp
+                     WHERE gpg.gruppe_id IN (" . implode(',', $gpids) . ") AND gpg.gemeindeperson_id=gp.id AND
                        gp.person_id=p.id AND p.archiv_yn=0 AND gp.geburtsdatum IS NOT NULL");
     $arrs = array ();
     foreach ($res as $a) $arrs[$a->id] = $a;
@@ -238,25 +238,25 @@ function churchcal_getBirthdays($params) {
 }
 
 /**
- * get some sort of auth 
+ * get some sort of auth
  * TODO: explain name or rename
- * 
- * @param array $params; 
- * @return array auth; [gruppe|person][403|404][[auth,ids]]     
+ *
+ * @param array $params;
+ * @return array auth; [gruppe|person][403|404][[auth,ids]]
  */
 function churchcal_getShares($params) {
   // 403=read, 404=edit
   $cat = churchcal_getAllowedCategories(true, true);
   if (!in_array($params["cat_id"], $cat)) throw new CTNoPermission("Not allowed Category", "churchcal");
   
-  $res = db_query("SELECT * 
-                  FROM {cc_domain_auth} 
-                  WHERE auth_id IN (403,404) AND domain_type IN ('gruppe','person') AND daten_id=:cat_id", 
+  $res = db_query("SELECT *
+                  FROM {cc_domain_auth}
+                  WHERE auth_id IN (403,404) AND domain_type IN ('gruppe','person') AND daten_id=:cat_id",
                   array (":cat_id" => $params["cat_id"]));
   $ret = array ();
   if ($res) foreach ($res as $auth) { // TODO: simplify this, f.e. fewer help vars, use ?:
     $domainType = array ();
-    if (!isset($ret[$auth->domain_type])) $domainType = $ret[$auth->domain_type];
+    if (isset($ret[$auth->domain_type])) $domainType = $ret[$auth->domain_type];
     $authId = array ();
     if (isset($domainType[$auth->auth_id])) $authId = $domainType[$auth->auth_id];
     $authId[] = $auth->domain_id;
@@ -268,9 +268,9 @@ function churchcal_getShares($params) {
 
 /**
  * [gruppe|person][403|404][[auth,ids]]
- * 
- * @param array $params  
- * @return        
+ *
+ * @param array $params
+ * @return
  */
 function churchcal_saveShares($params) {
   $log = "";
@@ -283,11 +283,11 @@ function churchcal_saveShares($params) {
         if (!isset($params[$domainType]) || !isset($params[$domainType][$authKey]) || !in_array($domainId, $params[$domainType][$authKey])) {
           $log .= "<p>Delete $domainType, $authKey, $domainId";
           
-          db_query("DELETE FROM {cc_domain_auth} 
-                    WHERE domain_type=:domaintype AND domain_id=:domain_id AND auth_id=:auth_id AND daten_id=:daten_id", 
-                    array (':domain_id' => $domainId, 
-                           ":domaintype" => $domainType, 
-                           ":auth_id" => $authKey, 
+          db_query("DELETE FROM {cc_domain_auth}
+                    WHERE domain_type=:domaintype AND domain_id=:domain_id AND auth_id=:auth_id AND daten_id=:daten_id",
+                    array (':domain_id' => $domainId,
+                           ":domaintype" => $domainType,
+                           ":auth_id" => $authKey,
                            ":daten_id" => $params["cat_id"],
           ));
         }
@@ -301,10 +301,10 @@ function churchcal_saveShares($params) {
           $log .= "<p>Add $domainType, $authKey, $domainId";
           
           db_query("INSERT INTO {cc_domain_auth} (domain_type, domain_id, auth_id, daten_id)
-                    VALUES( :domaintype, :domain_id, :auth_id, :daten_id)", 
-                    array (':domain_id' => $domainId, 
-                           ":domaintype" => $domainType, 
-                           ":auth_id" => $authKey, 
+                    VALUES( :domaintype, :domain_id, :auth_id, :daten_id)",
+                    array (':domain_id' => $domainId,
+                           ":domaintype" => $domainType,
+                           ":auth_id" => $authKey,
                            ":daten_id" => $params["cat_id"]
                     ));
         }
@@ -368,8 +368,8 @@ function churchcal_addAddition($params) {
 function churchcal_delAddition($params) {
   ct_log("del add", 1);
   
-  $db = db_query("SELECT cal_id FROM {cc_cal_add} 
-                  WHERE id=:id", 
+  $db = db_query("SELECT cal_id FROM {cc_cal_add}
+                  WHERE id=:id",
                   array (":id" => $params["id"]))
                   ->fetch();
   
@@ -405,14 +405,14 @@ function churchcal_deleteEvent($params, $source = null) {
   }
   if (!$source || $source != "churchservice") {
     include_once (CHURCHSERVICE . '/churchservice_db.php');
-    $cs_params = array_merge(array(), $params); //TODO: whats this for? 
+    $cs_params = array_merge(array(), $params); //TODO: whats this for?
     $cs_params["cal_id"] = $params["id"];
     $cs_params["informDeleteEvent"] = 1;
     $cs_params["deleteCalEntry"] = 1;
     if (!$source) $source = "churchcal";
     
-    $db = db_query("SELECT * FROM {cs_event} 
-                    WHERE cc_cal_id=:cal_id", 
+    $db = db_query("SELECT * FROM {cs_event}
+                    WHERE cc_cal_id=:cal_id",
                     array (":cal_id" => $cs_params["cal_id"]));
     
     foreach ($db as $cs) {
@@ -429,14 +429,14 @@ function churchcal_deleteEvent($params, $source = null) {
 /**
  * get resources with booking dates
  * @param array $params
- * @return array resources 
+ * @return array resources
  */
 function churchcal_getResource($params) {
   $resource_ids = $params["resource_id"];
   $res = db_query("
     SELECT r.id resource_id, r.bezeichnung ort, s.bezeichnung status, b.status_id, b.id, b.startdate, b.enddate,
-       b.repeat_id, b.repeat_frequence, b.repeat_until, b.repeat_option_id, b.text bezeichnung 
-    FROM {cr_resource} r, {cr_booking} b, {cr_status} s 
+       b.repeat_id, b.repeat_frequence, b.repeat_until, b.repeat_option_id, b.text bezeichnung
+    FROM {cr_resource} r, {cr_booking} b, {cr_status} s
     WHERE b.status_id!=99 AND s.id=b.status_id AND b.resource_id=r.id AND r.id IN (" . implode(",", $resource_ids) . ")");
   
   $excs = churchcore_getTableData("cr_exception", "except_date_start");
@@ -468,17 +468,17 @@ function churchcal_getResource($params) {
  * @return array
  */
 function churchcal_getEventsFromOtherModules() {
-  $res = db_query("SELECT e.id, e.datum AS startdate, e.bezeichnung, category_id 
-                   FROM {cs_event} e, {cs_category} c 
+  $res = db_query("SELECT e.id, e.datum AS startdate, e.bezeichnung, category_id
+                   FROM {cs_event} e, {cs_category} c
                    WHERE e.category_id=c.id AND c.show_in_churchcal_yn=1");
   $arrs = null;
   foreach ($res as $arr) {
     $arrs[$arr->id] = $arr;
   }
   //get resource bookings which should be shown in calendar
-  $res = db_query("SELECT r.id resource_id, r.bezeichnung ort, b.id, b.startdate, b.enddate, 
-                     b.repeat_id, b.repeat_frequence, b.repeat_until, b.text AS bezeichnung 
-                   FROM {cr_resource} r, {cr_booking} b 
+  $res = db_query("SELECT r.id resource_id, r.bezeichnung ort, b.id, b.startdate, b.enddate,
+                     b.repeat_id, b.repeat_frequence, b.repeat_until, b.text AS bezeichnung
+                   FROM {cr_resource} r, {cr_booking} b
                    WHERE b.status_id!=99 and b.resource_id=r.id and b.show_in_churchcal_yn=1");
   $excs = churchcore_getTableData("cr_exception", "except_date_start");
   $adds = churchcore_getTableData("cr_addition", "add_date");
@@ -496,7 +496,7 @@ function churchcal_getEventsFromOtherModules() {
 }
 
 /**
- * 
+ *
  * @param string $cond; sql where condition
  * @return array cal events
  */
@@ -543,9 +543,9 @@ function churchcal_getAllEvents($cond = "") {
 function churchcal_isUserOwnerOf($category_id) {
   global $user;
   if (!$category_id) return false;
-  $res = db_query('SELECT modified_pid 
-                   FROM {cc_calcategory} 
-                   WHERE id=:id', 
+  $res = db_query('SELECT modified_pid
+                   FROM {cc_calcategory}
+                   WHERE id=:id',
                    array (":id" => $category_id))
                    ->fetch();
   return ($res) ? $res->modified_pid == $user->id : false;
@@ -601,15 +601,15 @@ function churchcal_saveCategory($params) {
     if (getVar('accessgroup', false, $params)) {
       db_query("INSERT INTO {cc_domain_auth} (domain_type, domain_id, auth_id, daten_id)
                 VALUES ('gruppe', :accessgroup, :auth, :id)",
-                array(':accessgroup' =>  $params["accessgroup"], 
-                      ':auth' => (getVar('writeaccess', false, $params) == true) ? 404 : 403, 
+                array(':accessgroup' =>  $params["accessgroup"],
+                      ':auth' => (getVar('writeaccess', false, $params) == true) ? 404 : 403,
                       ':id' => $id,
                 ));
     }
   }
   else {
-    $c = db_query("SELECT * FROM {cc_calcategory} 
-                   WHERE id=:id", 
+    $c = db_query("SELECT * FROM {cc_calcategory}
+                   WHERE id=:id",
                    array (":id" => $id))
                    ->fetch();
     db_update("cc_calcategory")
@@ -624,8 +624,8 @@ function churchcal_deleteCategory($params) {
   global $user;
    $id = getVar('id', false, $params);
   
-  $data = db_query("SELECT * FROM {cc_calcategory} 
-                    WHERE id=:id", 
+  $data = db_query("SELECT * FROM {cc_calcategory}
+                    WHERE id=:id",
                     array (":id" => $id))
                     ->fetch();
   
@@ -634,9 +634,9 @@ function churchcal_deleteCategory($params) {
   $auth = user_access("edit category", "churchcal");
   if ($data->modified_pid != $user->id && (!$auth || !isset($auth[$id]))) throw new CTNoPermission("Edit Category", "churchcal");
   
-  $c = db_query("SELECT COUNT(*) c 
-                 FROM {cs_event} e, {cc_cal} cal 
-                 WHERE cal.id=e.cc_cal_id  cal.category_id=:id", 
+  $c = db_query("SELECT COUNT(*) c
+                 FROM {cs_event} e, {cc_cal} cal
+                 WHERE cal.id=e.cc_cal_id  cal.category_id=:id",
                  array (":id" => $id))
                  ->fetch();
   if ($c->c > 0) throw new CTFail(t('deleting.failed.because.of.remaining.services'));
@@ -654,8 +654,8 @@ function churchcal_deleteCategory($params) {
 function churchcal_isAllowedToEditEvent($id) {
   global $user;
   
-  $data = db_query("SELECT * FROM {cc_cal} 
-                    WHERE id=:id", 
+  $data = db_query("SELECT * FROM {cc_cal}
+                    WHERE id=:id",
                     array (":id" => $id))
                     ->fetch();
   if (!$data) throw new CTException(t('event.not.found', $id));
@@ -669,7 +669,7 @@ function churchcal_isAllowedToEditEvent($id) {
 }
 
 /**
- * 
+ *
  * @return array cal events
  */
 function churchcal_getCalEvents() {
@@ -741,8 +741,8 @@ function churchcal__ical() {
   $catNames = null;
   
   if (($security = getVar("security")) && ($id = getVar("id"))) {
-    $db = db_query("SELECT * FROM {cc_calcategory} 
-                    WHERE id=:id AND randomurl=:randomurl", 
+    $db = db_query("SELECT * FROM {cc_calcategory}
+                    WHERE id=:id AND randomurl=:randomurl",
                     array (":id" => $id, ":randomurl" => $security))
                     ->fetch();
     if ($db) {
@@ -763,7 +763,7 @@ function churchcal__ical() {
       
     $res->startdate = new DateTime($res->startdate);
     $res->enddate = new DateTime($res->enddate);
-    $diff = $res->enddate->format("U") - $res->startdate->format("U"); // TODO: use DateTime function like next line? 
+    $diff = $res->enddate->format("U") - $res->startdate->format("U"); // TODO: use DateTime function like next line?
 //     $diff = $res->enddate->diff($res->startdate);
     $subid = 0;
     
@@ -782,7 +782,7 @@ function churchcal__ical() {
       // $ts = $diff + $d->format("U");
       // $enddate=new DateTime("@$ts");
       $enddate = clone $d;
-      $enddate->modify("+$diff seconds"); 
+      $enddate->modify("+$diff seconds");
 //       $enddate->modify($diff);
       
       // all day event
@@ -803,5 +803,3 @@ function churchcal__ical() {
   
   echo surroundWithVCALENDER($txt);
 }
-
-?>

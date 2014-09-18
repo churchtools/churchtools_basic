@@ -10,8 +10,8 @@ function do_cron() {
   $btns = churchcore_getModulesSorted(false, false);
   foreach ($btns as $key) {
     include_once (constant(strtoupper($key)) . "/$key.php");
-    if (function_exists($key . "_cron")) {
-      if (getConf($key . "_name")) $arr = call_user_func($key . "_cron");
+    if (function_exists($key . "_cron") && getConf($key . "_name")) {
+      $arr = call_user_func($key . "_cron");
     }
   }
   ct_sendPendingNotifications();
@@ -32,7 +32,7 @@ function cron_main() {
     // email with feedback image
     if ($id = getVar("mailqueue_id")) {
       db_query("UPDATE {cc_mail_queue} 
-                SET reading_count=reading_count+1 
+                SET reading_count = reading_count + 1 
                 WHERE id=:id", 
                 array (":id" => $id));
     }
@@ -41,7 +41,7 @@ function cron_main() {
       $last_cron = db_query("SELECT value old,  UNIX_TIMESTAMP() act 
                              FROM {cc_config} 
                              WHERE name='last_cron'")
-                   ->fetch();
+                             ->fetch();
       if ($last_cron) {
         if ($last_cron->act - $config["cronjob_delay"] > $last_cron->old) {
           db_query("UPDATE {cc_config} 

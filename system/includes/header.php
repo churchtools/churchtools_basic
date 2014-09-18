@@ -89,25 +89,34 @@
             <ul class="dropdown-menu">
     <? if (isset($_SESSION["family"])): ?>
     <?php // TODO: in bootstrap 3.2.0 this looks nice, in CT dropdown-header is missed - manually added to bootstrap for now ?>
-             <li class="dropdown-header"> <?= t('change.to') ?></li>
+              <li class="dropdown-header"> <?= t('change.to') ?></li>
       <? foreach ($_SESSION["family"] as $family): ?>
-             <li><a href="?q=login&family_id=<?= $family->id?>"><?= $family->vorname?> <?= $family->name ?></a></li>                       
+              <li><a href="?q=login&family_id=<?= $family->id?>"><?= $family->vorname?> <?= $family->name ?></a></li>                       
       <? endforeach; ?>                       
-             <li class="divider"></li>
+              <li class="divider"></li>
     <? endif; ?>
     
-             <li><a href="?q=profile"><?= $user->password ? t("change.password"): t("set.password") ?></a></li>
+              <li><a href="?q=profile"><?= $user->password ? t("change.password"): t("set.password") ?></a></li>
     <? if (user_access("view", "churchdb") && !empty($user->email)): ?>
-             <li><a href="?q=churchdb/mailviewer"><?= t('sent.messages')?></a></li>
+              <li><a href="?q=churchdb/mailviewer"><?= t('sent.messages')?></a></li>
     <? endif; ?>
-             <li class="divider"></li>
+              <li class="divider"></li>
 
-               
-<? if (user_access("administer settings", "churchcore")): ?><li><a href="?q=admin"><?= t('admin.settings')?></a></li><? endif; ?>                       
-<? if (user_access("administer persons",  "churchcore")): ?><li><a href="?q=churchauth"><?= t('admin.permissions')?></a></li><? endif; ?>                       
-<? if (user_access("administer settings", "churchcore")): ?><li><a href="?q=cron&manual=true"><?= t('start.cronjob')?></a></li><? endif; ?>                       
-<? if (user_access("view logfile",        "churchcore")): ?><li><a href="?q=churchcore/logviewer"><?= t('logviewer')?></a></li><? endif; ?>                       
-<? if (user_access("administer settings", "churchcore")): ?><li class="divider"></li><? endif; ?>                       
+    <? if (user_access("administer settings", "churchcore")): ?>
+              <li><a href="?q=admin"><?= t('admin.settings')?></a></li>
+    <? endif; ?>                       
+    <? if (user_access("administer persons",  "churchcore")): ?>
+              <li><a href="?q=churchauth"><?= t('admin.permissions')?></a></li>
+    <? endif; ?>                       
+    <? if (user_access("administer settings", "churchcore")): ?>
+              <li><a href="?q=cron&manual=true"><?= t('start.cronjob')?></a></li>
+    <? endif; ?>                       
+    <? if (user_access("view logfile",        "churchcore")): ?>
+              <li><a href="?q=churchcore/logviewer"><?= t('logviewer')?></a></li>
+    <? endif; ?>                       
+    <? if (user_access("administer settings", "churchcore")): ?>
+              <li class="divider"></li>
+    <? endif; ?>                       
   
              <li><a href="?q=about"><?= t('about')?> <?= $sitename ?></a></li>
              <li class="divider"></li>

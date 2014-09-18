@@ -28,7 +28,7 @@ function churchdb_getAuth() {
   $cc_auth = addAuth($cc_auth, 121, 'view birthdaylist', 'churchdb', null, t('view.birthdaylist'), 1);
   $cc_auth = addAuth($cc_auth, 122, 'view memberliste', 'churchdb', null, t('view.memberliste'), 1);
   
-  $cc_auth = addAuth($cc_auth, 101, 'view', 'churchdb', null, t('view.modulename', 'ChurchDB'), 1);
+  $cc_auth = addAuth($cc_auth, 101, 'view', 'churchdb', null, t('view.x', 'ChurchDB'), 1);
   $cc_auth = addAuth($cc_auth, 106, 'view statistics', 'churchdb', null, t('view.statistics'), 1);
   $cc_auth = addAuth($cc_auth, 107, 'view tags', 'churchdb', null, t('view.tags'), 1);
   $cc_auth = addAuth($cc_auth, 108, 'view history', 'churchdb', null, t('view.history'), 1);
@@ -157,12 +157,12 @@ function churchdb_main() {
     <div id="cdb_menu"></div>
     <div id="cdb_todos"></div>
     <div id="cdb_filter"></div>
-  </div>  
+  </div>
   <div class="span9">
-    <div id="cdb_info"></div> 
-    <div id="cdb_search"></div> 
+    <div id="cdb_info"></div>
+    <div id="cdb_search"></div>
     <div id="cdb_precontent"></div>
-    <div id="cdb_group"></div> 
+    <div id="cdb_group"></div>
     <div id="cdb_content"></div>
   </div>
 </div>';
@@ -179,13 +179,13 @@ function getExternalGroupData() {
   global $user;
   $res = db_query("SELECT id, bezeichnung, treffzeit, zielgruppe, max_teilnehmer,
                    geolat, geolng, treffname, versteckt_yn, valid_yn, distrikt_id, offen_yn, oeffentlich_yn
-                   FROM {cdb_gruppe} 
+                   FROM {cdb_gruppe}
                    WHERE oeffentlich_yn=1 AND versteckt_yn=0 AND valid_yn=1");
   $arr = array ();
   foreach ($res as $g) {
     $db = db_query("SELECT status_no FROM {cdb_gemeindeperson_gruppe} gpg, {cdb_gemeindeperson} gp
-                    WHERE gp.id=gpg.gemeindeperson_id AND gpg.gruppe_id=:gruppe_id AND gp.person_id=:person_id", 
-                    array (":gruppe_id" => $g->id, 
+                    WHERE gp.id=gpg.gemeindeperson_id AND gpg.gruppe_id=:gruppe_id AND gp.person_id=:person_id",
+                    array (":gruppe_id" => $g->id,
                            ":person_id" => $user->id,
                     ))->fetch();
     if ($db) $g->status_no = $db->status_no;
@@ -201,13 +201,13 @@ function getExternalGroupData() {
  * extract($vars);
  * eval ('$content = "$message"');
  *
- * @param string $mail          
- * @param string $vorname          
- * @param int $g_id          
+ * @param string $mail
+ * @param string $vorname
+ * @param int $g_id
  */
 function sendConfirmationMail($mail, $vorname = "", $g_id) {
-  $g = db_query("SELECT * FROM {cdb_gruppe} 
-                 WHERE id=:id", 
+  $g = db_query("SELECT * FROM {cdb_gruppe}
+                 WHERE id=:id",
                  array (":id" => $g_id))
                  ->fetch();
   if ($g) {
@@ -311,10 +311,10 @@ function externmapview__ajax() {
     $res = jsend()->success($res);
   }
   else if ($func == 'sendEMail') {
-    $db = db_query('SELECT * FROM {cdb_person} 
-                    WHERE UPPER(email) LIKE UPPER(:email) AND UPPER(vorname) LIKE UPPER(:vorname) AND UPPER(name) LIKE UPPER(:name)', 
-                    array (':email' => $email, 
-                           ':vorname' => $surname, 
+    $db = db_query('SELECT * FROM {cdb_person}
+                    WHERE UPPER(email) LIKE UPPER(:email) AND UPPER(vorname) LIKE UPPER(:vorname) AND UPPER(name) LIKE UPPER(:name)',
+                    array (':email' => $email,
+                           ':vorname' => $surname,
                            ':name' => $name,
                     ))->fetch();
     $txt = "";
@@ -325,10 +325,10 @@ function externmapview__ajax() {
       $txt = t("person.found.and.request.sent");
     }
     else {
-      $res = db_query("SELECT vorname, p.id id, g.bezeichnung 
+      $res = db_query("SELECT vorname, p.id id, g.bezeichnung
                        FROM {cdb_gemeindeperson_gruppe} gpg, {cdb_gemeindeperson} gp, {cdb_person} p, {cdb_gruppe} g
-                       WHERE gpg.gemeindeperson_id=gp.id AND gp.person_id=p.id AND g.id=:gruppe_id 
-                         AND gpg.gruppe_id=g.id AND status_no>=1 AND status_no!=4", 
+                       WHERE gpg.gemeindeperson_id=gp.id AND gp.person_id=p.id AND g.id=:gruppe_id
+                         AND gpg.gruppe_id=g.id AND status_no>=1 AND status_no!=4",
                        array (":gruppe_id" => $groupId));
       $rec = array ();
       foreach ($res as $p) {
@@ -365,7 +365,7 @@ function externmapview__ajax() {
  * @param int $diff_from; age?
  * @param int $diff_to; age?
  * @param bool $extended; show extended list?
- * 
+ *
  * @return string; html
  */
 function getBirthdaylistContent($desc, $diff_from, $diff_to, $extended = false) {
@@ -432,15 +432,15 @@ function getBirthdaylistContent($desc, $diff_from, $diff_to, $extended = false) 
 
 /**
  * get list of online users (html)
- * 
+ *
  * @return string; html user list or null
  */
 function getWhoIsOnline() {
   global $user;
   if (!user_access("view whoisonline", "churchcore")) return null;
   $dt = new DateTime();
-  $res = db_query("SELECT p.id, vorname, name, hostname, s.datum 
-                   FROM {cdb_person} p, {cc_session} s 
+  $res = db_query("SELECT p.id, vorname, name, hostname, s.datum
+                   FROM {cdb_person} p, {cc_session} s
                    WHERE s.person_id=p.id order by name, vorname");
   $txt = "";
   
@@ -458,22 +458,22 @@ function getWhoIsOnline() {
  * do several things??? with groups and memberships
  *
  * TODO: rename, maybe to groupMembership?
- * 
+ *
  * @return string; html form
  */
 function subscribeGroup() {
   global $user;
   include_once (CHURCHDB . '/churchdb_db.php');
   
-  $sql_gruppenteilnahme = "SELECT g.bezeichnung, gpg.* 
-                           FROM {cdb_gemeindeperson_gruppe} gpg, {cdb_gemeindeperson} gp, {cdb_gruppe} g 
+  $sql_gruppenteilnahme = "SELECT g.bezeichnung, gpg.*
+                           FROM {cdb_gemeindeperson_gruppe} gpg, {cdb_gemeindeperson} gp, {cdb_gruppe} g
                            WHERE gpg.gemeindeperson_id=gp.id AND gp.person_id=:person_id AND gpg.gruppe_id=g.id AND g.id=:g_id";
   
   $sGroup = getVar("subscribegroup");
   if ($sGroup > 0) {
     
-    $res = db_query("SELECT * FROM {cdb_gruppe} 
-                     WHERE id=:id AND offen_yn=1", 
+    $res = db_query("SELECT * FROM {cdb_gruppe}
+                     WHERE id=:id AND offen_yn=1",
                      array (":id" => $sGroup))
                      ->fetch();
     
@@ -481,36 +481,36 @@ function subscribeGroup() {
     else {
       include_once (CHURCHDB . '/churchdb_ajax.php');
       
-      $grp = db_query($sql_gruppenteilnahme, 
+      $grp = db_query($sql_gruppenteilnahme,
                       array (":person_id" => $user->id, ":g_id" => $sGroup))
                       ->fetch();
       
       if (!$grp) churchdb_addPersonGroupRelation($user->id, $res->id, -2, null, null, null, t("request.by.form"));
-      else _churchdb_editPersonGroupRelation($user->id, $res->id, -2, null, "null", t("request.quitting.by.form"));
-      addInfoMessage(t("membership.requested.by.form.leader.will.be.informed"), $res->bezeichnung);
+      else _churchdb_editPersonGroupRelation($user->id, $res->id, -2, null, "null", t("request.quit.membership.by.form"));
+      addInfoMessage(t("membership.requested.by.form.leader.will.be.informed"), "<i>$res->bezeichnung</i>");
     }
   }
   if ($sGroup > 0) {
-    $res = db_query($sql_gruppenteilnahme, 
+    $res = db_query($sql_gruppenteilnahme,
                     array (":person_id" => $user->id, ":g_id" => sGroup))
                     ->fetch();
     if (!$res) addErrorMessage(t("error.quitting.membership"));
     else {
       include_once (CHURCHDB . '/churchdb_ajax.php');
-      _churchdb_editPersonGroupRelation($user->id, $res->gruppe_id, -1, null, "null", t("request.quitting.by.form"));
-      addInfoMessage(t("membership.marked.for.deleting", $res->bezeichnung));
+      _churchdb_editPersonGroupRelation($user->id, $res->gruppe_id, -1, null, "null", t("request.quit.membership.by.form"));
+      addInfoMessage(t("membership.marked.for.deleting", "<i>$res->bezeichnung</i>"));
     }
   }
   
   // get groups the user is member of or requested membership
-  $res = db_query("SELECT gpg.gruppe_id, status_no 
+  $res = db_query("SELECT gpg.gruppe_id, status_no
                    FROM {cdb_gemeindeperson_gruppe} gpg, {cdb_gemeindeperson} gp
                    WHERE gpg.gemeindeperson_id=gp.id AND gp.person_id=$user->id");
   $mygroups = array ();
   foreach ($res as $p) $mygroups[$p->gruppe_id] = $p;
   
   // get all open groups
-  $res = db_query("SELECT * FROM {cdb_gruppe} p 
+  $res = db_query("SELECT * FROM {cdb_gruppe} p
                    WHERE offen_yn=1 AND ((abschlussdatum IS NULL) OR (DATE_ADD( abschlussdatum, INTERVAL 1 DAY ) > NOW( )))");
   $txt = "";
   $txt_subscribe = "";
@@ -543,7 +543,7 @@ function subscribeGroup() {
 }
 
 /**
- * 
+ *
  * @return string html content
  */
 function churchdb_getBlockBirthdays() {
@@ -582,9 +582,9 @@ function churchdb_getTodos() {
   
   $groups = db_query("
       SELECT p.id, p.vorname, p.name, g.bezeichnung, gpg.status_no, s.bezeichnung AS status
-      FROM {cdb_person} p, {cdb_gruppe} g, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg, {cdb_gruppenteilnehmerstatus} s 
-      WHERE s.intern_code=gpg.status_no AND gpg.gemeindeperson_id=gp.id AND gp.person_id=p.id AND gpg.gruppe_id=g.id 
-        AND ((gpg.gruppe_id IN (" . implode(',', $mygroups) . ") AND gpg.status_no<-1) 
+      FROM {cdb_person} p, {cdb_gruppe} g, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg, {cdb_gruppenteilnehmerstatus} s
+      WHERE s.intern_code=gpg.status_no AND gpg.gemeindeperson_id=gp.id AND gp.person_id=p.id AND gpg.gruppe_id=g.id
+        AND ((gpg.gruppe_id IN (" . implode(',', $mygroups) . ") AND gpg.status_no<-1)
           OR (gpg.gruppe_id IN (" . implode(',', $mysupergroups) . ") AND gpg.status_no=-1))
       ORDER BY status");
   
@@ -617,7 +617,7 @@ function churchdb_getTodos() {
 }
 
 /**
- * 
+ *
  * @return string html
  */
 function churchdb_getForum() {
@@ -644,43 +644,43 @@ function churchdb_blocks() {
   global $config;
   $return = array (
     1 => array (
-        "label" => t("birthdays"), 
-        "col" => 1, 
-        "sortkey" => 1, 
-        "html" => churchdb_getBlockBirthdays(), 
-        "help" => '', 
+        "label" => t("birthdays"),
+        "col" => 1,
+        "sortkey" => 1,
+        "html" => churchdb_getBlockBirthdays(),
+        "help" => '',
         "class" => '',
     ),
     2 => array (
-        "label" => t("who.is.online"), 
-        "col" => 1, 
-        "sortkey" => 3, 
+        "label" => t("who.is.online"),
+        "col" => 1,
+        "sortkey" => 3,
         "html" => getWhoIsOnline(),
-        "help" => '', 
+        "help" => '',
         "class" => '',
-    ), 
+    ),
     3 => array (
-        "label" => t("manage.my.membership"), 
-        "col" => 1, 
-        "sortkey" => 2, 
-        "html" => subscribeGroup(), 
-        "help" => '', 
+        "label" => t("manage.my.membership"),
+        "col" => 1,
+        "sortkey" => 2,
+        "html" => subscribeGroup(),
+        "help" => '',
         "class" => '',
-    ), 
+    ),
     4 => array (
-        "label" => t("todos.in", $config["churchdb_name"]), 
-        "col" => 2, 
+        "label" => t("todos.in", $config["churchdb_name"]),
+        "col" => 2,
         "sortkey" => 1,
-        "html" => churchdb_getTodos(), 
-        "help" => '', 
+        "html" => churchdb_getTodos(),
+        "help" => '',
         "class" => '',
-    ), 
+    ),
     5 => array (
-        "label" => "ChurchMailer", 
-        "col" => 1, 
-        "sortkey" => 2, 
-        "html" => churchdb_getForum(), 
-        "help" => '', 
+        "label" => "ChurchMailer",
+        "col" => 1,
+        "sortkey" => 2,
+        "html" => churchdb_getForum(),
+        "help" => '',
         "class" => '',
     ));
   
@@ -693,9 +693,9 @@ function churchdb_blocks() {
  * @return string; html
  */
 function churchdb__birthdaylist() {
-  $txt = "<ul>" 
-            . getBirthdaylistContent(t("last.x.days", 7), -7, -1, true) 
-            . getBirthdaylistContent(t("today"), 0, 0, true) 
+  $txt = "<ul>"
+            . getBirthdaylistContent(t("last.x.days", 7), -7, -1, true)
+            . getBirthdaylistContent(t("today"), 0, 0, true)
             . getBirthdaylistContent(t("next.x.days", 30), 1, 30, true) .
          "</ul>";
   if (user_access("view memberliste", "churchdb")) {
@@ -717,12 +717,12 @@ function churchdb__vcard() {
   $sql = "
     SELECT  concat(
       'BEGIN:VCARD\n','VERSION:3.0\n',
-  	  'N:',name,';',vorname,'\n',
-      'NICKNAME:',spitzname,'\n',      
-  	  'EMAIL;TYPE=INTERNET:',email,'\n',
-  	  'TEL;type=HOME;type=VOICE:',telefonprivat,'\n',
-  	  'TEL;type=WORK;type=VOICE:',telefongeschaeftlich,'\n',
-  	  'TEL;type=CELL;type=VOICE;type=pref:',telefonhandy,'\n',";
+      'N:',name,';',vorname,'\n',
+      'NICKNAME:',spitzname,'\n',
+      'EMAIL;TYPE=INTERNET:',email,'\n',
+      'TEL;type=HOME;type=VOICE:',telefonprivat,'\n',
+      'TEL;type=WORK;type=VOICE:',telefongeschaeftlich,'\n',
+      'TEL;type=CELL;type=VOICE;type=pref:',telefonhandy,'\n',";
   
   if (user_access("view alldetails", "churchdb")) {
     $sql .= "
@@ -731,8 +731,8 @@ function churchdb__vcard() {
   }
   $sql .= "
       'END:VCARD'
-    ) vcard 
-    FROM {cdb_person} p, {cdb_gemeindeperson} gp 
+    ) vcard
+    FROM {cdb_person} p, {cdb_gemeindeperson} gp
     WHERE gp.person_id=p.id and p.id = :id";
   
   $person = db_query($sql, array (":id" => $id))->fetch();
@@ -742,7 +742,7 @@ function churchdb__vcard() {
 /**
  * optimize person data for export
  *
- * @param unknown $arr          
+ * @param unknown $arr
  * @return array <number, string>
  */
 function _export_optimzations($arr) {
@@ -766,7 +766,7 @@ function _export_optimzations($arr) {
 }
 
 /**
- * 
+ *
  * @param string $templatename
  * @throws Exception
  * @return NULL
@@ -863,7 +863,7 @@ function _getPersonDataForExport($person_ids = null, $template = null) {
 }
 
 /**
- * 
+ *
  * @param array $export
  * @param string $template
  * @return unknown|string
@@ -920,13 +920,13 @@ function churchdb__export() {
     if ($relPart && $relId) {
       $id = null;
       if ($relPart == "k") {
-        $rel = db_query("SELECT * FROM {cdb_beziehung} 
+        $rel = db_query("SELECT * FROM {cdb_beziehung}
                         WHERE beziehungstyp_id=" . $relId . " AND vater_id=" . $key)
                         ->fetch();
         if ($rel) $id = $rel->kind_id;
       }
       if (!$id || $relPart == "k") {
-        $rel = db_query("SELECT * FROM {cdb_beziehung} 
+        $rel = db_query("SELECT * FROM {cdb_beziehung}
                          WHERE beziehungstyp_id=" . $relId . " AND kind_id=" . $key)
                          ->fetch();
         $id = $rel->vater_id;
@@ -975,10 +975,10 @@ function churchdb__export() {
     foreach ($export as $k => $key) {
       if ($key != null) {
         $r = db_query("
-           SELECT g.bezeichnung, s.bezeichnung status, DATE_FORMAT(gpg.letzteaenderung, '%d.%m.%Y') letzteaenderung, gpg.comment 
-           FROM {cdb_gruppe} g, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg, {cdb_gruppenteilnehmerstatus} s  
-           WHERE gp.id=gpg.gemeindeperson_id and g.id=:gruppe_id and s.intern_code=status_no and gpg.gruppe_id=g.id and gp.person_id=:person_id", 
-           array (":gruppe_id" => $groupId, 
+           SELECT g.bezeichnung, s.bezeichnung status, DATE_FORMAT(gpg.letzteaenderung, '%d.%m.%Y') letzteaenderung, gpg.comment
+           FROM {cdb_gruppe} g, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg, {cdb_gruppenteilnehmerstatus} s
+           WHERE gp.id=gpg.gemeindeperson_id and g.id=:gruppe_id and s.intern_code=status_no and gpg.gruppe_id=g.id and gp.person_id=:person_id",
+           array (":gruppe_id" => $groupId,
                   ":person_id" => $k,
                  ))->fetch();
         if ($r) {
@@ -1000,12 +1000,12 @@ function churchdb__export() {
   }
     
   // Add header
-  $sql = "SELECT langtext from {cdb_feld} 
+  $sql = "SELECT langtext from {cdb_feld}
           WHERE db_spalte=:db_spalte";
   foreach ($cols as $col) {
     $res = db_query($sql, array (":db_spalte" => $col))->fetch();
     if (!$res) {
-      $txt = t($col); 
+      $txt = t($col);
       // TODO: test for actually used DB encoding?
       if (substr($txt, 0, 3) != "***") echo mb_convert_encoding('"' . $txt . '";', 'ISO-8859-1', 'UTF-8');
       else echo mb_convert_encoding('"' . $col . '";', 'ISO-8859-1', 'UTF-8');
@@ -1088,7 +1088,7 @@ function churchdb__mailviewer() {
   $txt .= '</form>';
   
   $txt .= '<table class="table table-condensed table-bordered">';
-  $txt .= "<tr><th>" . t("status") . "<th>" . t("date") . "<th>" . t("receiver") . "<th>" . t("sender") . 
+  $txt .= "<tr><th>" . t("status") . "<th>" . t("date") . "<th>" . t("receiver") . "<th>" . t("sender") .
               "<th>" . t("subject"). "<th>" . t("read") . NL;
   $counter = 0;
   if ($res) foreach ($res as $arr) {
@@ -1146,8 +1146,8 @@ function churchdb_cron() {
   foreach ($res as $id) if (!isset($tag[$id->id])) {
     // TODO this sort of query is for reusing prepared statements - but probably no important speed advantage to
     // change it :-)
-    db_query("DELETE FROM {cdb_tag} 
-              WHERE id=:id", 
+    db_query("DELETE FROM {cdb_tag}
+              WHERE id=:id",
               array (":id" => $id->id));
     cdb_log("CRON - Delete Tag Id: $id->id $id->bezeichnung, not used", 2);
   }
@@ -1163,7 +1163,7 @@ function churchdb_cron() {
   db_query("DELETE FROM {cc_mail_queue}
             WHERE (DATE_ADD( modified_date, INTERVAL 14  DAY ) < NOW( )) AND send_date IS NOT NULL AND modified_pid=-1 AND error=0");
   
-  db_query("DELETE FROM {cc_mail_queue} 
+  db_query("DELETE FROM {cc_mail_queue}
             WHERE (DATE_ADD( modified_date, INTERVAL 90  DAY ) < NOW( ))");
   
   // Synce MailChimp
@@ -1171,25 +1171,25 @@ function churchdb_cron() {
     include_once (ASSETS . "/mailchimp-api-class/inc/MCAPI.class.php");
     $api = new MCAPI($config["churchdb_mailchimp_apikey"]);
     $list_id = null;
-    $db = db_query("SELECT * FROM {cdb_gruppe_mailchimp} 
+    $db = db_query("SELECT * FROM {cdb_gruppe_mailchimp}
                     ORDER BY mailchimp_list_id");
     
     foreach ($db as $lists) {
       $list_id = $lists->mailchimp_list_id;
       // get all subscribers not beeing in the group anymore
       $db_group = db_query("
-        SELECT * 
-        FROM (SELECT * FROM {cdb_gruppe_mailchimp_person} m WHERE m.mailchimp_list_id='$list_id' AND gruppe_id=:g_id) AS m 
+        SELECT *
+        FROM (SELECT * FROM {cdb_gruppe_mailchimp_person} m WHERE m.mailchimp_list_id='$list_id' AND gruppe_id=:g_id) AS m
               LEFT JOIN  (SELECT gpg.gruppe_id, gp.person_id FROM {cdb_gemeindeperson_gruppe} gpg, {cdb_gemeindeperson} gp
                 WHERE gp.id=gpg.gemeindeperson_id) gp on (gp.gruppe_id=m.gruppe_id and gp.person_id=m.person_id)
         WHERE gp.person_id is null", array (":g_id" => $lists->gruppe_id));
       $batch = array ();
       foreach ($db_group as $p) {
         $batch[] = array ("EMAIL" => $p->email);
-        db_query("DELETE FROM {cdb_gruppe_mailchimp_person}  
-                  WHERE (email=:email AND gruppe_id=:g_id AND mailchimp_list_id=:list_id)", 
-                  array (":email" => $p->email, 
-                         ":g_id" => $lists->gruppe_id, 
+        db_query("DELETE FROM {cdb_gruppe_mailchimp_person}
+                  WHERE (email=:email AND gruppe_id=:g_id AND mailchimp_list_id=:list_id)",
+                  array (":email" => $p->email,
+                         ":g_id" => $lists->gruppe_id,
                          ":list_id" => $list_id,
                   ));
       }
@@ -1197,26 +1197,26 @@ function churchdb_cron() {
       
       // get persons not yet subscribed (not in table cdb_gruppe_mailchimp_personen)
       $db_groups = db_query("
-        SELECT * 
-        FROM (SELECT p.id AS p_id, p.vorname, p.name, p.email AS p_email, gpg.gruppe_id AS g_id 
+        SELECT *
+        FROM (SELECT p.id AS p_id, p.vorname, p.name, p.email AS p_email, gpg.gruppe_id AS g_id
               FROM {cdb_gemeindeperson} gp, {cdb_person} p, {cdb_gemeindeperson_gruppe} gpg
-              WHERE gp.person_id=p.id AND gpg.gemeindeperson_id=gp.id AND gpg.status_no>=0 AND p.email!='' 
-                AND gpg.gruppe_id=$lists->gruppe_id) AS t 
-              LEFT JOIN {cdb_gruppe_mailchimp_person} m 
+              WHERE gp.person_id=p.id AND gpg.gemeindeperson_id=gp.id AND gpg.status_no>=0 AND p.email!=''
+                AND gpg.gruppe_id=$lists->gruppe_id) AS t
+              LEFT JOIN {cdb_gruppe_mailchimp_person} m
                 ON (m.gruppe_id=t.g_id and m.person_id=t.p_id and m.mailchimp_list_id='$list_id')
         WHERE m.gruppe_id is null");
       $batch = array ();
       foreach ($db_groups as $p) {
         $batch[] = array (
-            "EMAIL" => $p->p_email, 
-            "FNAME" => $p->vorname, 
+            "EMAIL" => $p->p_email,
+            "FNAME" => $p->vorname,
             "LNAME" => $p->name,
         );
-        db_query("INSERT INTO {cdb_gruppe_mailchimp_person} (person_id, gruppe_id, mailchimp_list_id, email) 
-                  VALUES (:p_id, :g_id, :list_id, :email)", 
-                  array(":p_id" => $p->p_id, 
-                        ":g_id" => $p->g_id, 
-                        ":list_id" => $list_id, 
+        db_query("INSERT INTO {cdb_gruppe_mailchimp_person} (person_id, gruppe_id, mailchimp_list_id, email)
+                  VALUES (:p_id, :g_id, :list_id, :email)",
+                  array(":p_id" => $p->p_id,
+                        ":g_id" => $p->g_id,
+                        ":list_id" => $list_id,
                         ":email" => $p->p_email,
                   ));
       }
@@ -1225,26 +1225,26 @@ function churchdb_cron() {
   }
   
   // delete old mails
-  db_query("DELETE FROM {cc_mail_queue} 
+  db_query("DELETE FROM {cc_mail_queue}
             WHERE send_date IS NOT NULL AND DATEDIFF(send_date, NOW())<-60");
   
   // Do Statistics
-  $db = db_query("SELECT MAX(date) AS max, CURDATE() AS now 
+  $db = db_query("SELECT MAX(date) AS max, CURDATE() AS now
                   FROM {crp_person}")
                   ->fetch();
   // TODO: add $db->max != $db->now to sql query?
   if ($db->max != $db->now) {
     db_query("INSERT INTO {crp_person} (
-                SELECT CURDATE(), status_id, station_id, 
-                  SUM(CASE WHEN DATEDIFF(erstkontakt,'" . $db->max . "')>=0 THEN 1 ELSE 0 END), 
-                  COUNT(*) 
+                SELECT CURDATE(), status_id, station_id,
+                  SUM(CASE WHEN DATEDIFF(erstkontakt,'" . $db->max . "')>=0 THEN 1 ELSE 0 END),
+                  COUNT(*)
                 FROM {cdb_person} p, {cdb_gemeindeperson} gp
                 WHERE p.id=gp.person_id group by status_id, station_id
               )");
     db_query("INSERT into {crp_group} (
-                SELECT curdate(), gruppe_id, status_id, station_id, s.id gruppenteilnehmerstatus_id, 
-                    SUM(CASE WHEN DATEDIFF(gpg.letzteaenderung,'" . $db->max . "')>=0 THEN 1 ELSE 0 END), 
-                    COUNT(*) 
+                SELECT curdate(), gruppe_id, status_id, station_id, s.id gruppenteilnehmerstatus_id,
+                    SUM(CASE WHEN DATEDIFF(gpg.letzteaenderung,'" . $db->max . "')>=0 THEN 1 ELSE 0 END),
+                    COUNT(*)
                 FROM {cdb_gemeindeperson_gruppe} gpg, {cdb_gruppenteilnehmerstatus} s, {cdb_gemeindeperson} gp, {cdb_gruppe} g
                 WHERE gpg.gemeindeperson_id=gp.id AND gpg.status_no=s.intern_code
                       AND gpg.gruppe_id=g.id AND (g.abschlussdatum IS NULL OR DATEDIFF(g.abschlussdatum, curdate())>-366)
@@ -1258,10 +1258,10 @@ function churchdb_cron() {
 /**
  * subscribe all persons in $batch to $list_id
  *
- * @param object $api          
- * @param string $list_id          
- * @param array $batch          
- * @param bool $optin          
+ * @param object $api
+ * @param string $list_id
+ * @param array $batch
+ * @param bool $optin
  */
 function listBatchSubscribe($api, $list_id, $batch, $optin = true) {
   if (count($batch) == 0) return;
@@ -1278,16 +1278,16 @@ function listBatchSubscribe($api, $list_id, $batch, $optin = true) {
 /**
  * unsubscribe all persons in $batch from $list_id
  *
- * @param string $api          
- * @param string $list_id          
- * @param array $batch          
- * @param bool $send_goodbye          
- * @param bool $send_notify          
+ * @param string $api
+ * @param string $list_id
+ * @param array $batch
+ * @param bool $send_goodbye
+ * @param bool $send_notify
  */
 function listBatchUnsubscribe($api, $list_id, $batch, $send_goodbye = false, $send_notify = false) {
   if (count($batch) == 0) return;
   
-  $delete_member = false; // flag to completely delete the member from your list instead of just unsubscribing, 
+  $delete_member = false; // flag to completely delete the member from your list instead of just unsubscribing,
                           // default to false
   $vals = $api->listBatchUnsubscribe($list_id, $batch, $delete_member, $send_goodbye, $send_notify);
   include_once ("churchdb_db.php");

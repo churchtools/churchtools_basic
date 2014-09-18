@@ -1952,5 +1952,3 @@ function run_db_updates($db_version) {
     }
     return true;
 }
-
-?>

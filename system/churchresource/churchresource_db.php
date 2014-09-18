@@ -122,18 +122,18 @@ function churchresource_createBooking($params) {
  */
 function getBookingFields() {
   $res = array(
-    "id" => churchcore_getTextField("Booking-Id", "Id", "id"),
-    "resource_id" => churchcore_getTextField("Resource", "Res", "resource_id"),
-    "person_id" => churchcore_getTextField("UserId", "User", "person_id"),
-    "startdate" => churchcore_getDateField("Startdatum", "Start", "startdate"),
-    "enddate" => churchcore_getDateField("Enddatum", "Ende", "enddate"),
-    "repeat_id" => churchcore_getTextField("Wiederholungs-Id", "Wdh.", "repeat_id"),
+    "id"            => churchcore_getTextField("Booking-Id", "Id", "id"),
+    "resource_id"   => churchcore_getTextField("Resource", "Res", "resource_id"),
+    "person_id"     => churchcore_getTextField("UserId", "User", "person_id"),
+    "startdate"     => churchcore_getDateField("Startdatum", "Start", "startdate"),
+    "enddate"       => churchcore_getDateField("Enddatum", "Ende", "enddate"),
+    "repeat_id"     => churchcore_getTextField("Wiederholungs-Id", "Wdh.", "repeat_id"),
     "repeat_frequence" => churchcore_getTextField("Wiederholungsfrequenz", "Wdh.-Freq.", "repeat_frequence"),
-    "repeat_until" => churchcore_getDateField("Wiederholungs-Ende", "Wdh.-Ende", "repeat_until"),
-    "status_id" => churchcore_getTextField("Status", "Status", "status_id"),
-    "text" => churchcore_getTextField("Text", "Text", "text"),
-    "location" => churchcore_getTextField("Ort", "Ort", "location"),
-    "note" => churchcore_getTextField("Notiz", "Notiz", "note"),
+    "repeat_until"  => churchcore_getDateField("Wiederholungs-Ende", "Wdh.-Ende", "repeat_until"),
+    "status_id"     => churchcore_getTextField("Status", "Status", "status_id"),
+    "text"          => churchcore_getTextField("Text", "Text", "text"),
+    "location"      => churchcore_getTextField("Ort", "Ort", "location"),
+    "note"          => churchcore_getTextField("Notiz", "Notiz", "note"),
     );
   
   return $res;

@@ -11,4 +11,3 @@
       header("Location: ?q=".getConf("site_startpage", "home"));
   }
 
-?>

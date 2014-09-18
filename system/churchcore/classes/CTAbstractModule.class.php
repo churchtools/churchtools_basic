@@ -234,4 +234,3 @@ abstract class CTAbstractModule implements CTModuleInterface {
   }
 
 }
-?>

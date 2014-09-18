@@ -13,7 +13,7 @@
 
 /**
  * get form for admin settings
- * 
+ *
  * @return CTModuleForm
  */
 function churchwiki_getAdminForm() {
@@ -23,14 +23,14 @@ function churchwiki_getAdminForm() {
 
 /**
  *
- * @param string $doc_id          
- * @param int $wikicategory_id          
+ * @param string $doc_id
+ * @param int $wikicategory_id
  * @return int
  */
 function churchwiki_getCurrentNo($doc_id, $wikicategory_id = 0) {
-  $res = db_query("SELECT MAX(version_no) c FROM {cc_wiki} 
-                   WHERE doc_id=:doc_id and wikicategory_id=:wikicategory_id", 
-                   array (":doc_id" => $doc_id, 
+  $res = db_query("SELECT MAX(version_no) c FROM {cc_wiki}
+                   WHERE doc_id=:doc_id and wikicategory_id=:wikicategory_id",
+                   array (":doc_id" => $doc_id,
                           ":wikicategory_id" => $wikicategory_id,
                    ))->fetch();
   
@@ -43,7 +43,7 @@ function churchwiki_getCurrentNo($doc_id, $wikicategory_id = 0) {
  */
 function churchwiki_getAuth() {
   $cc_auth = array ();
-  $cc_auth = addAuth($cc_auth, 501, 'view', 'churchwiki', null, t('view.modulename', 'ChurchWiki'), 1);
+  $cc_auth = addAuth($cc_auth, 501, 'view', 'churchwiki', null, t('view.x', 'ChurchWiki'), 1);
   $cc_auth = addAuth($cc_auth, 502, 'view category', 'churchwiki', 'cc_wikicategory', t('view.wiki.category'), 1);
   $cc_auth = addAuth($cc_auth, 503, 'edit category', 'churchwiki', 'cc_wikicategory', t('edit.wiki.category'), 1);
   $cc_auth = addAuth($cc_auth, 599, 'edit masterdata', 'churchwiki', null, t('edit.masterdata'), 1);
@@ -52,7 +52,7 @@ function churchwiki_getAuth() {
 }
 
 /**
- * 
+ *
  * @param array $params
  */
 function churchwiki_setShowonstartpage($params) {
@@ -72,22 +72,22 @@ function churchwiki_setShowonstartpage($params) {
 
 /**
  * load content of wiki page
- * 
+ *
  * @param string $doc_id
  * @param int $wikicategory_id
  * @param int $version_no
- * @return db result 
+ * @return db result
  */
 function churchwiki_load($doc_id, $wikicategory_id, $version_no = null) {
   
   if (!$version_no) $version_no = churchwiki_getCurrentNo($doc_id, $wikicategory_id);
   ct_log("Aufruf Hilfeseite $wikicategory_id:$doc_id ($version_no)", 2, "-1", "help");
   
-  $data = db_query("SELECT p.vorname, p.name, doc_id, version_no, wikicategory_id, text, modified_date, modified_pid, auf_startseite_yn 
-                    FROM {cc_wiki} w LEFT JOIN {cdb_person} p ON (w.modified_pid=p.id) 
-                    WHERE version_no=:version_no AND doc_id=:doc_id AND wikicategory_id=:wikicategory_id", 
-                    array (':doc_id' => $doc_id, 
-                           ':wikicategory_id' => $wikicategory_id, 
+  $data = db_query("SELECT p.vorname, p.name, doc_id, version_no, wikicategory_id, text, modified_date, modified_pid, auf_startseite_yn
+                    FROM {cc_wiki} w LEFT JOIN {cdb_person} p ON (w.modified_pid=p.id)
+                    WHERE version_no=:version_no AND doc_id=:doc_id AND wikicategory_id=:wikicategory_id",
+                    array (':doc_id' => $doc_id,
+                           ':wikicategory_id' => $wikicategory_id,
                            ':version_no' => $version_no,
                     ))->fetch();
   if (isset($data->text)) {
@@ -106,10 +106,10 @@ function churchwiki_load($doc_id, $wikicategory_id, $version_no = null) {
 function churchwiki_cron() {
   // get all dada older then 90 days and the newest version_no
   $db = db_query("SELECT MAX(version_no) version_no, wikicategory_id, doc_id FROM {cc_wiki}
-                  WHERE DATE_ADD( modified_date, INTERVAL 90  DAY ) < NOW( )   
+                  WHERE DATE_ADD( modified_date, INTERVAL 90  DAY ) < NOW( )
                   GROUP BY wikicategory_id, doc_id");
   foreach ($db as $e) {
-    db_query("DELETE FROM {cc_wiki} 
+    db_query("DELETE FROM {cc_wiki}
               WHERE wikicategory_id=$e->wikicategory_id AND doc_id='$e->doc_id' AND version_no<$e->version_no");
   }
 }
@@ -142,9 +142,9 @@ function churchwiki__ajax() {
   
   $auth = churchwiki_getAuthForAjax();
   
-  if ((!user_access("view", "churchwiki")) 
-      && (!in_array("churchwiki", $mapping["page_with_noauth"])) 
-      && (!in_array("churchwiki", $config["page_with_noauth"]))) 
+  if ((!user_access("view", "churchwiki"))
+      && (!in_array("churchwiki", $mapping["page_with_noauth"]))
+      && (!in_array("churchwiki", $config["page_with_noauth"])))
       throw new CTNoPermission("view", "churchwiki");
   
   $module = new CTChurchWikiModule("churchwiki");
@@ -161,17 +161,17 @@ function churchwiki_getWikiOnStartpage() {
   if (!user_access("view", "churchwiki")) return "";
   $ids = user_access("view category", "churchwiki");
   if (!$ids) return "";
-  $res = db_query("SELECT w.wikicategory_id, w.doc_id, wc.bezeichnung, version_no, 
-                     DATE_FORMAT(w.modified_date , '%d.%m.%Y %H:%i') date, CONCAT(p.vorname, ' ', p.name) user  
-                   FROM {cc_wiki} w, {cc_wikicategory} wc, {cdb_person} p 
-                   WHERE wikicategory_id in (" . implode(",", $ids) . ") AND w.wikicategory_id=wc.id AND w.modified_pid=p.id AND w.auf_startseite_yn=1 
+  $res = db_query("SELECT w.wikicategory_id, w.doc_id, wc.bezeichnung, version_no,
+                     DATE_FORMAT(w.modified_date , '%d.%m.%Y %H:%i') date, CONCAT(p.vorname, ' ', p.name) user
+                   FROM {cc_wiki} w, {cc_wikicategory} wc, {cdb_person} p
+                   WHERE wikicategory_id in (" . implode(",", $ids) . ") AND w.wikicategory_id=wc.id AND w.modified_pid=p.id AND w.auf_startseite_yn=1
                    ORDER BY w.wikicategory_id, modified_date Asc");
   $arr = array();
   foreach ($res as $wiki) {
     // Hole nun die max. Version_no
-    $w = db_query("SELECT MAX(version_no) version_no FROM {cc_wiki} 
-                   WHERE doc_id=:doc_id AND wikicategory_id=:wikicategory_id", 
-                   array (":doc_id" => $wiki->doc_id, 
+    $w = db_query("SELECT MAX(version_no) version_no FROM {cc_wiki}
+                   WHERE doc_id=:doc_id AND wikicategory_id=:wikicategory_id",
+                   array (":doc_id" => $wiki->doc_id,
                           ":wikicategory_id" => $wiki->wikicategory_id,
                    ))->fetch();
     if ($w->version_no == $wiki->version_no) $arr[$wiki->bezeichnung][$wiki->doc_id] = $wiki;
@@ -191,7 +191,7 @@ function churchwiki_getWikiOnStartpage() {
 }
 
 /**
- * 
+ *
  * @return string
  */
 function churchwiki_getWikiInfos() {
@@ -199,11 +199,11 @@ function churchwiki_getWikiInfos() {
   $ids = user_access("view category", "churchwiki");
   if (!$ids) return "";
   
-  $res = db_query("SELECT w.wikicategory_id, w.doc_id, wc.bezeichnung, DATE_FORMAT(w.modified_date , '%d.%m.%Y %H:%i') date, 
-                     CONCAT(p.vorname, ' ', p.name) user  
-                   FROM {cc_wiki} w, {cc_wikicategory} wc, {cdb_person} p 
-                   WHERE wikicategory_id in (" . implode(",", $ids) . ") AND w.wikicategory_id=wc.id 
-                     AND w.modified_pid=p.id AND DATEDIFF(NOW(),modified_date)<2 
+  $res = db_query("SELECT w.wikicategory_id, w.doc_id, wc.bezeichnung, DATE_FORMAT(w.modified_date , '%d.%m.%Y %H:%i') date,
+                     CONCAT(p.vorname, ' ', p.name) user
+                   FROM {cc_wiki} w, {cc_wikicategory} wc, {cdb_person} p
+                   WHERE wikicategory_id in (" . implode(",", $ids) . ") AND w.wikicategory_id=wc.id
+                     AND w.modified_pid=p.id AND DATEDIFF(NOW(),modified_date)<2
                    ORDER BY w.wikicategory_id, modified_date ASC");
   $arr = array ();
   foreach ($res as $wiki) $arr[$wiki->bezeichnung][$wiki->doc_id] = $wiki;
@@ -223,7 +223,7 @@ function churchwiki_getWikiInfos() {
 }
 
 /**
- * 
+ *
  * @return array
  */
 function churchwiki_blocks() {
@@ -231,17 +231,17 @@ function churchwiki_blocks() {
   
   return (array (
     1 => array (
-      "label" => t("important.from", $config["churchwiki_name"]), 
-      "col" => 2, 
-      "sortkey" => 1, 
+      "label" => t("important.from", $config["churchwiki_name"]),
+      "col" => 2,
+      "sortkey" => 1,
       "html" => churchwiki_getWikiOnStartpage(),
       "help" => '',
       "class" => '',
-    ), 
+    ),
     2 => array (
-      "label" => t("news.from", $config["churchwiki_name"]), 
-      "col" => 2, 
-      "sortkey" => 8, 
+      "label" => t("news.from", $config["churchwiki_name"]),
+      "col" => 2,
+      "sortkey" => 8,
       "html" => churchwiki_getWikiInfos(),
       "help" => '',
       "class" => '',
@@ -250,18 +250,19 @@ function churchwiki_blocks() {
 }
 
 /**
- * 
+ *
  * @return string
  */
 function churchwiki__create() {
   $form = new CTForm("EditHtml", "editHtml");
-  $form->setHeader("Editieren eines Hilfeeintrages", "Hier kann die Hilfe editiert werden.");
+// TODO: help entry or better wiki entry?
+  $form->setHeader(t('edit.help.entry'), t('edit.help.entry.subtitle'));
   $form->addField("doc_id", "", "INPUT_REQUIRED", "Doc-Id");
   $form->addField("text", "", "TEXTAREA", "Text");
   if ($doc = getVar("doc")) {
     $form->fields["doc_id"]->setValue($doc);
-    $res = db_query("SELECT text FROM {cc_wiki} 
-                     WHERE doc_id=:doc_id", 
+    $res = db_query("SELECT text FROM {cc_wiki}
+                     WHERE doc_id=:doc_id",
                      array (":doc_id" => $doc))
            ->fetch();
     if ($res) {
@@ -282,12 +283,12 @@ function churchwiki__create() {
 function editHtml($form) {
   global $user;
   $dt = new DateTime();
-  db_query("INSERT INTO {cc_wiki} (doc_id, text, modified_date, modified_pid) 
-            VALUES (:doc_id, :text, :date, :pid) 
-            ON DUPLICATE KEY UPDATE text=:text, modified_date=:date, modified_pid=:pid", 
-            array (":text" => $form->fields["text"]->getValue(), 
-                   ":doc_id" => $form->fields["doc_id"]->getValue(), 
-                   ":date" => $dt->format('Y-m-d H:i:s'), 
+  db_query("INSERT INTO {cc_wiki} (doc_id, text, modified_date, modified_pid)
+            VALUES (:doc_id, :text, :date, :pid)
+            ON DUPLICATE KEY UPDATE text=:text, modified_date=:date, modified_pid=:pid",
+            array (":text" => $form->fields["text"]->getValue(),
+                   ":doc_id" => $form->fields["doc_id"]->getValue(),
+                   ":date" => $dt->format('Y-m-d H:i:s'),
                    ":pid" => $user->id,
             ));
   ct_log("Aktualisierung Hilfeseite " . $form->fields["doc_id"]->getValue(), 2, "-1", "help");
@@ -388,4 +389,3 @@ function churchwiki__printview() {
   
   return $content;
 }
-?>

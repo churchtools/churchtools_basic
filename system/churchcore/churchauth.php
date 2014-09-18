@@ -26,7 +26,7 @@ function churchauth__ajax() {
  */
 function churchauth_main() {
   if (!user_access("administer persons", "churchcore")) {
-    addInfoMessage(t("no.permission.for", "administer persons"));
+    addInfoMessage(t("no.permission.for", "<i>administer persons</i>"));
     return " ";
   }
   

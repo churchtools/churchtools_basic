@@ -61,9 +61,9 @@ function churchreport_getAdminForm() {
  * @return int
  */
 function churchreport_getCurrentNo($doc_id, $wikicategory_id = 0) {
-  $res = db_query("SELECT MAX(version_no) c 
-                   FROM {cc_wiki} 
-                   WHERE doc_id=:doc_id and wikicategory_id=:wikicategory_id", 
+  $res = db_query("SELECT MAX(version_no) c
+                   FROM {cc_wiki}
+                   WHERE doc_id=:doc_id and wikicategory_id=:wikicategory_id",
                    array (":doc_id" => $doc_id, ":wikicategory_id" => $wikicategory_id))
                    ->fetch();
   if ($res == false) return -1;
@@ -76,7 +76,7 @@ function churchreport_getCurrentNo($doc_id, $wikicategory_id = 0) {
  */
 function churchreport_getAuth() {
   $cc_auth = array ();
-  $cc_auth = addAuth($cc_auth, 701, 'view', 'churchreport', null, t('view.modulename', 'ChurchReport'), 1);
+  $cc_auth = addAuth($cc_auth, 701, 'view', 'churchreport', null, t('view.x', 'ChurchReport'), 1);
   $cc_auth = addAuth($cc_auth, 799, 'edit masterdata', 'churchreport', null, t('edit.masterdata'), 1);
   return $cc_auth;
 }
@@ -95,5 +95,3 @@ function churchreport__ajax() {
   $res = $ajax->call();
   drupal_json_output($res);
 }
-
-?>

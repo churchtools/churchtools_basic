@@ -2317,7 +2317,7 @@ function dump_database() {
   $dir = $files_dir . "/db_backup";
   if (!file_exists($dir)) mkdir($dir, 0700, true);
   if (!is_writable($dir)) {
-    addErrorMessage(t('permission.denied.write.dir', $dir));
+    addErrorMessage(t('permission.denied.write.dir', "<i>$dir</i>"));
   }
   else {
     if (!file_exists($dir . "/.htaccess")) {

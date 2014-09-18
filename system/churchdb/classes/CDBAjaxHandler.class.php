@@ -16,5 +16,3 @@
 class CDBAjaxHandler extends CTAjaxHandler {
 //   TODO: use module specific ajax handlers for ajax functions? Is this the same as CTChurchXxxModule?
 }
-
-?>

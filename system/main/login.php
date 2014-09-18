@@ -20,49 +20,46 @@ function login_main() {
     $form->addField("email", "", "INPUT_REQUIRED", t("email.or.username"), true);
     $form->addField("password", "", "PASSWORD", t("password"));
     // TODO: when is this false?
-    if (!getConf("show_remember_me") || getConf("show_remember_me") == 1) $form->addField("rememberMe", "", "CHECKBOX", t("remember.me"));
+    if (!getConf("show_remember_me") || getConf("show_remember_me") == 1) $form->addField("rememberMe", "", "CHECKBOX", t("remember.me") . ' (' . t('remember.me.info') . '!)');
     $form->addButton(t("login"), "ok");
     
     if (getVar("newpwd") && $email = getVar("email")) {
-      $res = db_query("SELECT COUNT(*) c FROM {cdb_person} 
+      $res = db_query("SELECT COUNT(*) c FROM {cdb_person}
                        WHERE email=':email' AND archiv_yn=0",
                        array(':email' => $email))
              ->fetch();
       if ($res->c == 0) {
         $txt .= '
-        <div class="alert alert-error"><p>Bitte ein g&uuml;ltige EMail-Adresse angeben, 
-            an die das neue Passwort gesendet werden kann! 
-            Diese Adresse muss im System schon eingerichtet sein.
-            <p>Falls die E-Mail-Adresse schon eingerichtet sein sollte, 
-            wende Dich bitte an <a href="' . getConf("site_mail") . '">' . getConf("site_mail") . '</a>.</div>';
+        <div class="alert alert-error">
+            <p>' . t('login.error.longtext', '<a href="' . getConf("site_mail") . '">' . getConf("site_mail") . '</a>') . '
+        </div>';
       }
       else {
         $newpwd = random_string(8);
         // TODO: not needed to send passwords by email, use one time login key instead
         $scrambled_password = scramble_password($newpwd);
-        db_query("UPDATE {cdb_person} 
-                  SET password='" . $scrambled_password . "' 
+        db_query("UPDATE {cdb_person}
+                  SET password='" . $scrambled_password . "'
                   WHERE email=:email",
                   array(':email' => $email));
         
         $content = "<h3>" . t('hello') . "!</h3>
-          <p>" . t('new.password.requested.for.xxx.is.yyy', $email, $newpwd) . "</p>";
+          <p>" . t('new.password.requested.for.x.is.y', "<i>$email</i>", $newpwd) . "</p>";
         churchcore_systemmail($email, "[" . getConf('site_name') . "] Neues Passwort", $content, true, 1);
         churchcore_sendMails(1);
-        $txt .= '<div class="alert alert-info">Hinweis: Ein neues Passwort wurde nun an <i>' . $_GET["email"] .
-             '</i> gesendet.</div>';
+        $txt .= '<div class="alert alert-info">' . t('new.password.was.sent.to.x', "<i>$_GET[email]</i>") . '</div>';
         ct_log("Neues Passwort angefordert: $email", 2, "-1", "login");
       }
     }
     // access through externale tools through GET and additional direct
     // TODO: is it important to look in post only?
-    else if ($email = getVar("email", false, $_POST) 
-             && $password = getVar("password", false, $_POST) 
+    else if ($email = getVar("email", false, $_POST)
+             && $password = getVar("password", false, $_POST)
              && $directTool = getVar("directtool", false, $_POST)) {
       include_once (CHURCHCORE . "/churchcore_db.php");
       
-      $res = db_query("SELECT * FROM {cdb_person} 
-                       WHERE email=:email AND active_yn=1 AND archiv_yn=0", 
+      $res = db_query("SELECT * FROM {cdb_person}
+                       WHERE email=:email AND active_yn=1 AND archiv_yn=0",
                        array (":email" => $email))
                        ->fetch();
       if (!$res) {
@@ -70,7 +67,7 @@ function login_main() {
       }
       else if (user_check_password($password, $res)) {
         login_user($res);
-        ct_log("Login durch Direct-Tool $directTool mit $email", 2, "-1", "login");
+        ct_log("Login by Direct-Tool $directTool with $email", 2, "-1", "login");
         drupal_json_output(jsend()->success());
       }
       else
@@ -81,12 +78,12 @@ function login_main() {
     // e.g. http://localhost:8888/bootstrap/?q=profile&loginstr=123&id=8
     else if ($loginKey = getVar("loginstr") && $id = getVar('id')) {
       // delete login strings older then 14 days
-      db_query("DELETE FROM {cc_loginstr} 
+      db_query("DELETE FROM {cc_loginstr}
                 WHERE DATEDIFF( current_date, create_date ) > 13");
       
-      $res = db_query("SELECT * FROM {cc_loginstr} 
-                       WHERE loginstr=:loginstr AND person_id=:id", 
-                       array (":loginstr" => $loginstr, 
+      $res = db_query("SELECT * FROM {cc_loginstr}
+                       WHERE loginstr=:loginstr AND person_id=:id",
+                       array (":loginstr" => $loginstr,
                               ":id" => $id
                        ))->fetch();
       if (!$res) {
@@ -94,9 +91,9 @@ function login_main() {
       }
       else {
         // delete current loginKey to prevent misuse
-        $res = db_query("DELETE FROM {cc_loginstr} 
-                         WHERE loginstr=:loginkey AND person_id=:id", 
-                         array (":loginkey" => $loginKey, 
+        $res = db_query("DELETE FROM {cc_loginstr}
+                         WHERE loginstr=:loginkey AND person_id=:id",
+                         array (":loginkey" => $loginKey,
                                 ":id" => $i,
                          ));
         ct_log("Login User $id erfolgreich mit loginstr ", 2, "-1", "login");
@@ -112,22 +109,26 @@ function login_main() {
             }
           });</script>';
   }
-  // someone is already logged in 
+  // someone is already logged in
   else {
     // switch to another family user (same email)
     if ($familyId = getVar("family_id")) {
       if (isset($_SESSION["family"][$familyId])) {
         // logout_current_user();
         login_user($_SESSION["family"][$familyId]);
-        $txt .= '<div class="alert alert-info">Ummelden erfolgreich! Du arbeitest nun mit der Berechtigung von ' .
-             $_SESSION["user"]->vorname . ' ' . $_SESSION["user"]->name . '.</div>';
+        $txt .= '<div class="alert alert-info">'
+          . t('user.succesfully.changed.now.you.work.with.permissions.of.x', $_SESSION["user"]->vorname . ' ' . $_SESSION["user"]->name) .
+        '</div>';
       }
       else
-        $txt .= "<div class='alert alert-info'>Ummelden zu Id: $familyId hat nicht funktioniert, Session ist leer!</div>";
+        $txt .= "<div class='alert alert-info'>"
+            . t('user.change.to.familyX.failed.session.is.empty', $familyId) .
+        "</div>";
     }
     else {
-      $txt .= '<div class="alert alert-info"><i>Hinweis:</i> Du bist angemeldet als ' . $_SESSION["user"]->vorname .
-           ', weiter geht es <a href="?q=home">hier</a>!</div>';
+      $txt .= '<div class="alert alert-info">'
+          . t('you.are.logged.in.as.x.click.y.to.continue', $_SESSION["user"]->vorname, '<a href="?q=home">' .t('home') . '</a>') .
+      '</div>';
     }
   }
   return $txt;
@@ -141,8 +142,8 @@ function login_main() {
  */
 function validateLogin($form) {
   
-  $res = db_query("SELECT * FROM {cdb_person} 
-                   WHERE (email=:email OR cmsuserid=:email OR id=:email) AND archiv_yn=0", 
+  $res = db_query("SELECT * FROM {cdb_person}
+                   WHERE (email=:email OR cmsuserid=:email OR id=:email) AND archiv_yn=0",
                    array (":email" => $form->fields["email"]->getValue()));
   
   $accountInactive = false;
@@ -161,7 +162,7 @@ function validateLogin($form) {
         }
       }
       else {
-        db_query("UPDATE {cdb_person} SET loginerrorcount=loginerrorcount+1 
+        db_query("UPDATE {cdb_person} SET loginerrorcount=loginerrorcount+1
                   WHERE id=:id",
                   array(':id' => $u->id));
       }
@@ -192,7 +193,7 @@ function validateLogin($form) {
 }
 
 /**
- * 
+ *
  * @param array $u userdata
  * @param bool $rember_me
  * @return NULL
@@ -201,7 +202,7 @@ function login_user($u, $rember_me = false) {
   global $q, $q_orig;
   
   if (empty($u->id)) {
-    addErrorMessage(t("login.error.no.id.given"));
+    addErrorMessage(t("login.error.no.id.specified"));
     return null;
   }
   $_SESSION["email"] = $u->email;
@@ -209,15 +210,18 @@ function login_user($u, $rember_me = false) {
   if (!$u->cmsuserid) {
     $u->cmsuserid = "$u->vorname $u->name [" . $u->id . "]";
     
-    db_query("UPDATE {cdb_person} 
-              SET cmsuserid=:cmsuserid 
+    db_query("UPDATE {cdb_person}
+              SET cmsuserid=:cmsuserid
               WHERE id=:id",
               array(':cmsuserid' => $u->cmsuserid,
                     ':id' => $u->id,
               ));
   }
   if ($u->loginstr) {
-    db_query("UPDATE {cdb_person} SET loginstr=NULL WHERE id=$u->id");
+    db_query("UPDATE {cdb_person}
+              SET loginstr=NULL
+              WHERE id=:id",
+              array(':id' => $u->id));
   }
   
   $u->auth = getUserAuthorization($u->id);
@@ -235,7 +239,7 @@ function login_user($u, $rember_me = false) {
   db_query("UPDATE {cdb_person} SET lastlogin=NOW(), loginerrorcount=0 WHERE id=:id", array(':id' => $u->id));
   // db_query("DELETE FROM {cc_session} WHERE person_id=".$u->id." AND hostname='".$_SERVER["HTTP_HOST"]."'");
   db_query("DELETE FROM {cc_session} WHERE datediff(NOW(), datum)>7");
-  db_query("INSERT INTO {cc_session} (person_id, session, hostname, datum) 
+  db_query("INSERT INTO {cc_session} (person_id, session, hostname, datum)
             VALUES (:id, :session, :host, :date)",
             array( ':id' => $u->id,
                    ':session' => $_SESSION["sessionid"],
@@ -245,8 +249,8 @@ function login_user($u, $rember_me = false) {
   
   if ($u->email) {
     // look for family users with the same email
-    $res = db_query("SELECT * FROM {cdb_person} 
-                     WHERE email=:email AND archiv_yn=0", 
+    $res = db_query("SELECT * FROM {cdb_person}
+                     WHERE email=:email AND archiv_yn=0",
                      array (":email" => $u->email));
     $family = array();
     $count = 0;
@@ -261,10 +265,6 @@ function login_user($u, $rember_me = false) {
   ct_log("Login succeed: $u->email with " . getVar('HTTP_USER_AGENT', "Unkown Browser", $_SERVER), 2, -1, "login");
   
   // on switching family login dont forward to login again
-  if ($q != $q_orig) {
-    header("Location: ?q=$q_orig");
-  }
+  if ($q != $q_orig) header("Location: ?q=$q_orig");
   else if ($q == "login") header("Location: ?q=" . getConf("site_startpage", "home"));
 }
-
-?>

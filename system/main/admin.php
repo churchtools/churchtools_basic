@@ -1,23 +1,8 @@
 <?php
 
-// TODO: what is better, replace or on duplicate?
-/**
- * save admin settings and reload config
- * 
- * @param CTForm $form          
- */
-function admin_saveSettings($form) {
-  foreach ($form->fields as $key => $value) {
-    db_query("INSERT INTO {cc_config} (name, value) 
-              VALUES (:name,:value) 
-              ON DUPLICATE KEY UPDATE value=:value", array (":name" => $key, ":value" => $value));
-  }
-  loadDBConfig();
-}
-
 /**
  * main function for admin
- * 
+ *
  * @return string
  */
 function admin_main() {
@@ -26,67 +11,67 @@ function admin_main() {
   drupal_add_css(ASSETS . '/fileuploader/fileuploader.css');
   drupal_add_js(ASSETS . '/fileuploader/fileuploader.js');
   
-  $form = new CTForm("AdminForm", "admin_saveSettings");
+  $form = new CTForm('AdminForm', 'admin_saveSettings');
   
-  $form->addField("site_name", "", "INPUT_REQUIRED", t("name.of.website"))
-    ->setValue($config["site_name"]);
+  $form->addField('site_name', '', 'INPUT_REQUIRED', t('site.name'))
+    ->setValue($config['site_name']);
   
-  $form->addField("site_logo", "", "FILEUPLOAD", t("logo.of.website"))
-    ->setValue(getConf("site_logo"));
+  $form->addField('site_logo', '', 'FILEUPLOAD', t('site.logo'))
+    ->setValue(getConf('site_logo'));
   
-  $form->addField("welcome", "", "INPUT_REQUIRED", t("welcome.message"))
-    ->setValue($config["welcome"]);
+  $form->addField('welcome', '', 'INPUT_REQUIRED', t('welcome.message'))
+    ->setValue($config['welcome']);
   
-  $form->addField("welcome_subtext", "", "INPUT_REQUIRED", "Untertitel der Willkommensnachricht")
-    ->setValue($config["welcome_subtext"]);
+  $form->addField('welcome_subtext', '', 'INPUT_REQUIRED', t('subtitle.welcome.message'))
+    ->setValue($config['welcome_subtext']);
   
-  $form->addField("login_message", "", "INPUT_REQUIRED", "Willkommensnachricht vor dem Login")
-    ->setValue($config["login_message"]);
+  $form->addField('login_message', '', 'INPUT_REQUIRED', t('welcome.message.before.login'))
+    ->setValue($config['login_message']);
   
-  $form->addField("invite_email_text", "", "TEXTAREA", "Text der Einladungs-EMail")
-    ->setValue($config["invite_email_text"]);
+  $form->addField('invite_email_text', '', 'TEXTAREA', t('text.of.invitation.email'))
+    ->setValue($config['invite_email_text']);
   
-  $form->addField("admin_message", "", "INPUT_OPTIONAL", "Admin-Nachricht auf Login- und Startseite z.B. f&uuml;r geplante Downtimes")
-    ->setValue(getConf("admin_message", ""));
+  $form->addField('admin_message', '', 'INPUT_OPTIONAL', t('admin.message.on.home.and.login.pages.for.planned.downtimes'))
+    ->setValue(getConf('admin_message', ''));
   
-  if (!isset($config["site_startpage"])) $config["site_startpage"] = "home";
-  $form->addField("site_startpage", "", "INPUT_REQUIRED", "Startseite beim Aufrufen von " . getConf("site_name") . " (Standard ist <i>home</i>, m&ouml;glich ist z.B. churchwiki, churchcal)")
-    ->setValue($config["site_startpage"]);
+  if (!isset($config['site_startpage'])) $config['site_startpage'] = 'home';
+  $form->addField('site_startpage', '', 'INPUT_REQUIRED', t('startpage.for.siteX.standard.is.y', getConf('site_name'), '<i>home</i>'))
+    ->setValue($config['site_startpage']);
   
-  $form->addField("site_mail", "", "EMAIL", "E-Mail-Adresse der Website (E-Mails werden von hier aus gesendet)")
-    ->setValue($config["site_mail"]);
+  $form->addField('site_mail', '', 'EMAIL', t('emailaddress.for.site.as.sender.for.emails'))
+    ->setValue($config['site_mail']);
   
-  $form->addField("admin_mail", "", "EMAIL", "E-Mail-Adressen der Admins f&uuml;r Anfragen von Benutzern (Kommasepariert)")
-    ->setValue(isset($config["admin_mail"]) ? $config["admin_mail"] : $config["site_mail"]);
+  $form->addField('admin_mail', '', 'EMAIL', t('admin.emails.for.user.requests'))
+    ->setValue(isset($config['admin_mail']) ? $config['admin_mail'] : $config['site_mail']);
   
   // iterate through modules for naming them
   $modules = churchcore_getModulesSorted(false, true);
   foreach ($modules as $module) {
-    $form->addField($module . "_name", "", "INPUT_OPTIONAL", "Name f&uuml;r <i>$module</i> (Bitte Feld leerlassen, wenn das Modul nicht ben&ouml;tigt wird)")
-      ->setValue(getConf($module . "_name", ""));
+    $form->addField($module . '_name', '', 'INPUT_OPTIONAL', t('name.for.moduleX.keep.empty.to.deactivate', "<i>$module</i>"))
+      ->setValue(getConf($module . '_name', ''));
   }
   
-  $form->addField("max_uploadfile_size_kb", "", "INPUT_REQUIRED", "Maximale Upload-Dateigr&ouml;sse in Kilobytes (z.B. 10MB entsprechen hier ca. 10000)")
-    ->setValue($config["max_uploadfile_size_kb"]);
+  $form->addField('max_uploadfile_size_kb', '', 'INPUT_REQUIRED', t('max.upload.size.in.kb'))
+    ->setValue($config['max_uploadfile_size_kb']);
   
-  $form->addField("cronjob_delay", "", "INPUT_REQUIRED", "Zeit in Sekunden zwischen automatischen Cronjob (0=kein automatischer Cron, sinnvolle Werte z.B. 3600)")
-    ->setValue($config["cronjob_delay"]);
+  $form->addField('cronjob_delay', '', 'INPUT_REQUIRED', t('time.in.seconds.beetwen.cronjobs.with.explanation'))
+    ->setValue($config['cronjob_delay']);
   
-  $form->addField("timezone", "", "INPUT_REQUIRED", "Standard-Zeitzone. Z.b. Europe/Berlin")
-    ->setValue($config["timezone"]);
+  $form->addField('timezone', '', 'INPUT_REQUIRED', t('standard.timezone.like.europe.berlin'))
+    ->setValue($config['timezone']);
   
-  $form->addField("show_remember_me", "", "CHECKBOX", "Anzeige von <i>Zuk&uuml;nftig an mich erinnern</i> auf der Login-Seite")
-    ->setValue($config["show_remember_me"]);
+  $form->addField('show_remember_me', '', 'CHECKBOX', t('show.remember.me.on.login.page', '<i>'. t('remember.me') . '</i>'))
+    ->setValue($config['show_remember_me']);
   
-  $form->addField("mail_enabled", "", "CHECKBOX", "Senden von E-Mails erlauben")
-    ->setValue($config["mail_enabled"]);
+  $form->addField('mail_enabled', '', 'CHECKBOX', t('enable.sending.emails'))
+    ->setValue($config['mail_enabled']);
   
-  $form->addField("site_offline", "", "CHECKBOX", "Seite offline schalten")
-    ->setValue($config["site_offline"]);
+  $form->addField('site_offline', '', 'CHECKBOX', t('disable.site'))
+    ->setValue($config['site_offline']);
   
-  $form->addButton("Speichern", "ok");
+  $form->addButton(t('save'), 'ok');
   
-  $txtCommonForm = $form->render();
+  $txtCommonForm =  $form->render();
   
   // iterate through modules getting the admin forms
   $m = array ();
@@ -99,7 +84,7 @@ function admin_main() {
   }
   
   $txt = '<h1>' . t("settings.for", getConf("site_name")) . '</h1>
-      <p>Der Administrator kann hier Einstellung vornehmen. Diese gelten f&uuml;r alle Benutzer, bitte vorsichtig anpassen!</p>
+      <p>' . t('admin.settings.info.text') . '</p>
       <div class="tabbable">
         <ul class="nav nav-tabs">
           <li class="active"><a href="#tab1" data-toggle="tab">' . t("general") . '</a></li>';
@@ -112,7 +97,7 @@ function admin_main() {
   $txt .= '
         </ul>
         <div class="tab-content">
-        <div class="tab-pane active" id="tab1">' . $txtCommonForm. '</div>';
+        <div class="tab-pane active" id="tab1">' . $txtCommonForm . '</div>';
   
   foreach ($modules as $module) if (isset($m[$module])) {
     $txt .= '<div class="tab-pane" id="tab' . $module . '">' . $m[$module] . '</div>';
@@ -121,6 +106,23 @@ function admin_main() {
   $txt .= '</div></div>';
   
   return $txt;
+}
+
+/**
+ * save admin settings and reload config
+ *
+ * TODO: feature: automatically downsize logo file
+ *
+ * @param CTForm $form
+ */
+function admin_saveSettings($form) {
+  foreach ($form->fields as $key => $value) {
+    db_query("INSERT INTO {cc_config} (name, value)
+              VALUES (:name,:value)
+              ON DUPLICATE KEY UPDATE value=:value", array (":name" => $key, ":value" => $value));
+  }
+  // TODO: test if max_uploadfile_size_kb is bigger then allowed in php.ini
+  loadDBConfig();
 }
 
 

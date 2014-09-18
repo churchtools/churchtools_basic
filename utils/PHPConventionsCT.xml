@@ -25,7 +25,7 @@
 <setting id="org.eclipse.php.formatter.core.formatter.alignment_for_conditional_expression_indent_policy" value="0"/>
 <setting id="org.eclipse.php.formatter.core.formatter.alignment_for_conditional_expression_line_wrap_policy" value="0"/>
 <setting id="org.eclipse.php.formatter.core.formatter.alignment_for_expressions_in_array_initializer_force_split" value="false"/>
-<setting id="org.eclipse.php.formatter.core.formatter.alignment_for_expressions_in_array_initializer_indent_policy" value="1"/>
+<setting id="org.eclipse.php.formatter.core.formatter.alignment_for_expressions_in_array_initializer_indent_policy" value="0"/>
 <setting id="org.eclipse.php.formatter.core.formatter.alignment_for_expressions_in_array_initializer_line_wrap_policy" value="1"/>
 <setting id="org.eclipse.php.formatter.core.formatter.alignment_for_parameters_in_method_declaration_force_split" value="false"/>
 <setting id="org.eclipse.php.formatter.core.formatter.alignment_for_parameters_in_method_declaration_indent_policy" value="0"/>
@@ -55,7 +55,7 @@
 <setting id="org.eclipse.php.formatter.core.formatter.comment.indent_parameter_description" value="true"/>
 <setting id="org.eclipse.php.formatter.core.formatter.comment.indent_root_tags" value="true"/>
 <setting id="org.eclipse.php.formatter.core.formatter.comment.insert_new_line_before_root_tags" value="true"/>
-<setting id="org.eclipse.php.formatter.core.formatter.comment.insert_new_line_for_parameter" value="true"/>
+<setting id="org.eclipse.php.formatter.core.formatter.comment.insert_new_line_for_parameter" value="false"/>
 <setting id="org.eclipse.php.formatter.core.formatter.comment.line_length" value="120"/>
 <setting id="org.eclipse.php.formatter.core.formatter.comment.new_lines_at_block_boundaries" value="true"/>
 <setting id="org.eclipse.php.formatter.core.formatter.comment.new_lines_at_javadoc_boundaries" value="true"/>
@@ -76,7 +76,7 @@
 <setting id="org.eclipse.php.formatter.core.formatter.indentation.size" value="2"/>
 <setting id="org.eclipse.php.formatter.core.formatter.insert_new_line_after_opening_brace_in_array_initializer" value="false"/>
 <setting id="org.eclipse.php.formatter.core.formatter.insert_new_line_before_catch_in_try_statement" value="true"/>
-<setting id="org.eclipse.php.formatter.core.formatter.insert_new_line_before_closing_brace_in_array_initializer" value="true"/>
+<setting id="org.eclipse.php.formatter.core.formatter.insert_new_line_before_closing_brace_in_array_initializer" value="false"/>
 <setting id="org.eclipse.php.formatter.core.formatter.insert_new_line_before_else_in_if_statement" value="true"/>
 <setting id="org.eclipse.php.formatter.core.formatter.insert_new_line_before_finally_in_try_statement" value="true"/>
 <setting id="org.eclipse.php.formatter.core.formatter.insert_new_line_before_while_in_do_statement" value="true"/>
@@ -165,14 +165,14 @@
 <setting id="org.eclipse.php.formatter.core.formatter.insert_space_before_opening_brace_in_switch" value="true"/>
 <setting id="org.eclipse.php.formatter.core.formatter.insert_space_before_opening_brace_in_type_declaration" value="true"/>
 <setting id="org.eclipse.php.formatter.core.formatter.insert_space_before_opening_bracket_in_array_reference" value="false"/>
-<setting id="org.eclipse.php.formatter.core.formatter.insert_space_before_opening_paren_in_array_creation" value="true"/>
+<setting id="org.eclipse.php.formatter.core.formatter.insert_space_before_opening_paren_in_array_creation" value="false"/>
 <setting id="org.eclipse.php.formatter.core.formatter.insert_space_before_opening_paren_in_catch" value="true"/>
 <setting id="org.eclipse.php.formatter.core.formatter.insert_space_before_opening_paren_in_for" value="false"/>
 <setting id="org.eclipse.php.formatter.core.formatter.insert_space_before_opening_paren_in_foreach" value="true"/>
 <setting id="org.eclipse.php.formatter.core.formatter.insert_space_before_opening_paren_in_if" value="true"/>
-<setting id="org.eclipse.php.formatter.core.formatter.insert_space_before_opening_paren_in_list" value="true"/>
+<setting id="org.eclipse.php.formatter.core.formatter.insert_space_before_opening_paren_in_list" value="false"/>
 <setting id="org.eclipse.php.formatter.core.formatter.insert_space_before_opening_paren_in_method_declaration" value="false"/>
-<setting id="org.eclipse.php.formatter.core.formatter.insert_space_before_opening_paren_in_method_invocation" value="true"/>
+<setting id="org.eclipse.php.formatter.core.formatter.insert_space_before_opening_paren_in_method_invocation" value="false"/>
 <setting id="org.eclipse.php.formatter.core.formatter.insert_space_before_opening_paren_in_switch" value="true"/>
 <setting id="org.eclipse.php.formatter.core.formatter.insert_space_before_opening_paren_in_while" value="true"/>
 <setting id="org.eclipse.php.formatter.core.formatter.insert_space_before_postfix_operator" value="false"/>
