@@ -1,4 +1,4 @@
-	 
+   
 // Constructor
 function MaintainStandardView() {
   StandardTableView.call(this);
@@ -26,20 +26,20 @@ MaintainStandardView.prototype.renderMenu = function() {
   var navi = new CC_Navi();
   navi.addEntry(true,null,_("list.of.masterdata"));
   navi.addSearch(searchEntry);
-  navi.renderDiv("cdb_search");  
-  // Callbacks 
+  navi.renderDiv("cdb_search");
+  // Callbacks
   this.implantStandardFilterCallbacks(this, "cdb_search");
-};  
+};
 
 MaintainStandardView.prototype.renderFilter = function() {
   var rows = new Array();
 
   var form = new CC_Form();
   form.setLabel(_("filter.functions"));
-  form.addCheckbox({cssid:"searchChecked", label:_("selected")});  
+  form.addCheckbox({cssid:"searchChecked", label:_("selected")});
   rows.push(form.render(true));
   
-  $("#cdb_filter").html(rows.join("")); 
+  $("#cdb_filter").html(rows.join(""));
   this.implantStandardFilterCallbacks(this, "cdb_filter");
 
 };
@@ -59,7 +59,7 @@ MaintainStandardView.prototype.checkFilter = function(a) {
 };
 
 MaintainStandardView.prototype.getListHeader = function() {
-  str="<th>Nr.<th>"+_("masterdata")+"<th>"+_("count.rows");
+  str="<th>Nr.<th>"+_("masterdata")+"<th>"+_("row.count");
   return str;
 };
 
@@ -93,11 +93,11 @@ MaintainStandardView.prototype.renderListEntry = function(a) {
 
 MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
   var this_object=this;
-  if (data_id==null) 
+  if (data_id==null)
     data_id=pos_id;
   table=this.getData()[pos_id];
   
-  var rows = new Array();  
+  var rows = new Array();
   $("tr[id=detail" + pos_id + "]").remove();
 
   $("tr[id=" + pos_id + "]").after("<tr id=\"detail" + pos_id + "\"><td colspan=\"10\" id=\"groupinfosTD" + pos_id + "\">"+form_renderImage({src:"loading.gif"})+"</td></tr>");
@@ -108,13 +108,13 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
   $.each(table.desc, function(i,b) {
     if ((i.indexOf("_id")>0) && (i.indexOf("_ids")==-1) && (masterData[table.shortname]!=null)) {
       var t=i.substr(0,i.indexOf("_id"));
-      row.push(form_renderSelect({fields: {"data-table-name":t}, 
-        data:masterData[t], 
-        type:"medium", 
+      row.push(form_renderSelect({fields: {"data-table-name":t},
+        data:masterData[t],
+        type:"medium",
         selected: (table.filter!=null && table.filter[t]!=null?table.filter[t]:""),
         freeoption:true,
         htmlclass:"filter",
-        controlgroup:false}));      
+        controlgroup:false}));
     }
   });
   if (row.length>0)
@@ -122,7 +122,7 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
   
   
   
-  rows[rows.length]="<p style='line-height:100%'><small><table><tr>";  
+  rows[rows.length]="<p style='line-height:100%'><small><table><tr>";
   
   // Tabellenheader
   $.each(table.desc, function(k,a) {
@@ -132,14 +132,14 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
       else rows.push(" &or;");
     
     rows.push('</a></b></i>');
-  });  
+  });
   if (table.special_func!=null) rows.push("<td><b><i>Funktionen</i></b>");
   rows.push("<td><b><i>"+_("delete")+"</b></i><tr>");
   
   
   if (masterData[table.shortname]!=null) {
     var data=masterData[table.shortname];
-    // Tabellen-Daten  
+    // Tabellen-Daten
     $.each(churchcore_sortData(masterData[table.shortname],this.sortKey,this.sortAsc, (this.sortKey!="id") && (this.sortKey!="sortkey")), function(k,a) {
       var filter=false;
       var row=new Array();
@@ -147,7 +147,7 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
         row.push("<td>");
         if ((b.type.indexOf("int")==0) && (i.indexOf("_yn")>0)) {
           row.push('<a href="#" id="change_yn_'+a.id+'" val="'+a[i]+'" col="'+i+'">');
-          row.push(this_object.renderYesNo(a[i]));        
+          row.push(this_object.renderYesNo(a[i]));
           row.push('</a>');
         }
         else if ((i.indexOf("_id")>0) && (i.indexOf("_ids")==-1) && (a[i]!=null) && (a[i]!="")) {
@@ -156,12 +156,12 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
           var arr=new Array();
           if ((masterData[t]!=null) && (masterData[t][a[i]]!=null) && (masterData[t][a[i]].bezeichnung!=null)) {
             var fields = {table:table.tablename,shorttablename:table.shortname,row:a.id,col:i};
-            arr.push(form_renderSelect({fields:fields, 
+            arr.push(form_renderSelect({fields:fields,
               htmlclass:"datafield",
-              data:masterData[t], 
-              selected:a[i], 
-              type:"small", 
-              freeoption:b.Null=="YES", 
+              data:masterData[t],
+              selected:a[i],
+              type:"small",
+              freeoption:b.Null=="YES",
               controlgroup:false}));
           }
           else
@@ -188,7 +188,7 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
       
       row.push('<td>'+form_renderImage({
         label: _("delete"),
-        cssid:'delete_'+a.id, 
+        cssid:'delete_'+a.id,
         src: 'trashbox.png',
         htmlclass: "small"
       }));
@@ -200,14 +200,14 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
     });
   }
 
-  rows[rows.length]="</table></small>";  
+  rows[rows.length]="</table></small>";
   rows[rows.length]="<p>"+form_renderImage({
     label: _("add.new.entry"),
-    cssid:'create', 
+    cssid:'create',
     src: 'plus.png',
     htmlclass: "small"
   });
-    rows[rows.length]="</div>";  
+    rows[rows.length]="</div>";
   
   $("#groupinfosTD"+pos_id).html(rows.join(""));
 
@@ -218,13 +218,13 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
       $("#groupinfosTD"+pos_id).remove();
       return false;
     }
-    else if ($(this).attr("id").indexOf("edit_")==0) {   
+    else if ($(this).attr("id").indexOf("edit_")==0) {
       this_object.renderEditEntry($(this).attr("id").substr(5,99), table.id);
     }
     else if ($(this).attr("id").indexOf("special_func_")==0) {
       this_object[$(this).attr("func")].apply(this_object,[$(this).attr("id").substr(13,99), table.id])
     }
-    else if ($(this).attr("id").indexOf("change_yn_")==0) {   
+    else if ($(this).attr("id").indexOf("change_yn_")==0) {
       obj=new Object();
       obj.func="saveMasterData";
       obj.table=table.tablename;
@@ -232,14 +232,14 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
       obj.col0=$(this).attr("col");
       obj.value0=($(this).attr("val")==0?1:0);
       churchInterface.jsendWrite(obj, function(ok, data) {
-        if (!ok) 
+        if (!ok)
           alert(_("error.occured")+data);
-        else {  
+        else {
           masterData[table.shortname][obj.id][obj.col0]=obj.value0;
           masterData.masterDataTables[table.id].open=true;
           this_object.renderList(masterData.masterDataTables[table.id]);
         }
-      });      
+      });
       return false;
     }
     else if ($(this).attr("id").indexOf("delete_")==0) {
@@ -253,12 +253,12 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
               masterData.masterDataTables[id].open=true;
               masterData.masterDataTables[id].filter=filter;
               this_object.renderList(masterData.masterDataTables[id]);
-            }); 
+            });
           }
-        });      
+        });
       }
     }
-    else if ($(this).attr("id")=="create") {         
+    else if ($(this).attr("id")=="create") {
       this_object.renderEditEntry(null, table.id);
     }
     else if (table.desc[$(this).attr("id")]!=null) {
@@ -273,9 +273,9 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
     if (table.filter==null) table.filter= new Object();
     if ($(this).val()!="")
       table.filter[$(this).attr("data-table-name")]=$(this).val();
-    else 
+    else
       delete table.filter[$(this).attr("data-table-name")];
-    this_object.renderList(masterData.masterDataTables[table.id]);        
+    this_object.renderList(masterData.masterDataTables[table.id]);
   });
   $("#cdb_content select.datafield").change(function(c) {
     obj.func="saveMasterData";
@@ -290,7 +290,7 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
       else {
         masterData[obj.shorttablename][obj.id][obj.col0]=obj.value0;
       }
-    });      
+    });
     return false;
   });
 
@@ -316,13 +316,13 @@ MaintainStandardView.prototype.renderEditEntry = function (id, table_id) {
       form.addCheckbox({label:_(a.field), cssid:"Input"+a.field, checked:entry[a.field]==1});
     }
     // select
-    else if ((a.field.indexOf("_id")>0) && (a.field.indexOf("_ids")==-1) 
+    else if ((a.field.indexOf("_id")>0) && (a.field.indexOf("_ids")==-1)
            && (masterData[a.field.substr(0,a.field.length-3)]!=null)) {
       // Wenn es einen gesetzen Filter gibt, setze ich den Standard wert darauf!
       if ((entry[a.field]==null) && (table.filter!=null) && (table.filter[a.field.substr(0,a.field.length-3)]!=null))
-        entry[a.field]=table.filter[a.field.substr(0,a.field.length-3)];    
+        entry[a.field]=table.filter[a.field.substr(0,a.field.length-3)];
       form.addSelect({
-        label: _(a.field), cssid:"Input"+a.field, selected:entry[a.field], data:masterData[a.field.substr(0,a.field.length-3)]   
+        label: _(a.field), cssid:"Input"+a.field, selected:entry[a.field], data:masterData[a.field.substr(0,a.field.length-3)]
       });
     }
     else {
@@ -337,16 +337,16 @@ MaintainStandardView.prototype.renderEditEntry = function (id, table_id) {
         size=size_arr[1];
       if ((a.type=="blob") || ((size!=null) && (size>100))) {
         form.addTextarea({
-          label: _(a.field), cssid:"Input"+a.field, data:value, rows:5, htmlclass:(a["Null"]=="YES"?"nullable":"")   
+          label: _(a.field), cssid:"Input"+a.field, data:value, rows:5, htmlclass:(a["Null"]=="YES"?"nullable":"")
         });
       }
-      else {      
+      else {
         if ((a.field=="sortkey") && (value==null)) value="0";
         form.addInput({
-          label: _(a.field), cssid:"Input"+a.field, value:value, htmlclass:(a["Null"]=="YES"?"nullable":"")   
+          label: _(a.field), cssid:"Input"+a.field, value:value, htmlclass:(a["Null"]=="YES"?"nullable":"")
         });
       }
-    }    
+    }
   });
  
   var elem = this.showDialog((id==null?_("add.new.entry"):_("change.of.dataset")), form.render(null, "horizontal"), 500, 450);
@@ -365,8 +365,8 @@ MaintainStandardView.prototype.renderEditEntry = function (id, table_id) {
       else if ($(this).attr("type")=="checkbox") {
         if ($(this).attr("checked")=="checked")
           obj["value"+k]=1;
-           else  
-          obj["value"+k]=0;            
+           else
+          obj["value"+k]=0;
       }
       else
         obj["value"+k]=$(this).val();
@@ -386,9 +386,9 @@ MaintainStandardView.prototype.renderEditEntry = function (id, table_id) {
             masterData.masterDataTables[table_id].open=true;
           }
           this_object.renderList();
-        }); 
+        });
       }
-    });      
+    });
   });
 };
 

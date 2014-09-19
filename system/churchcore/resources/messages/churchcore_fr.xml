@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-  <entry key="permission.denied.write.dir">Répertoire {0} modifiable!</entry>
+  <entry key="permission.denied.write.dir">Répertoire '{0}' non modifiable!</entry>
   <entry key="site.is.down">Cette page est en cours de modification. Merci de réessayer ultérieurement.</entry>
-  <entry key="datasecurity.accept.thanks">Merci d'accepter les conditions d'utilisation sur la protection des données!</entry>
   <entry key="datasecurity.accept">Accepter les conditions d'utilisation sur la protection des données</entry>
-  <entry key="no.permission.for">Pas d'autorisation pour {0}</entry>
-  <entry key="mapping.not.found">{0} introuvable dans churchtools.mapping!</entry>
-  <entry key="fields.with.asterisk.has.to.be.filled">Les champs marqués d'une * sont obligatoires.</entry>
+  <entry key="datasecurity.accept.thanks">Merci d'accepter les conditions d'utilisation sur la protection des données!</entry>
+  <entry key="no.permission.for">Pas d'autorisation pour '{0}'</entry>
+  <entry key="mapping.not.found">'{0}' introuvable dans churchtools.mapping!</entry>
+  <entry key="fields.with.asterisk.has.to.be.filled">Les champs marqués d'une astérisque (*) sont obligatoires.</entry>
   <entry key="please.complete.this.field">Merci de compléter ce fichier!</entry>
   <entry key="please.enter.valid.email">Merci d'entrer une adresse email valide!</entry>
   <entry key="getting.help">Aide</entry>
-
+  
   <!-- HEADER -->
   <entry key="exit.simulation">Arrêter la simulation</entry>
   <entry key="change.password">Changer le mot de passe</entry>
   <entry key="set.password">Entrer le mot de passe</entry>
-  <entry key="sent.messages">Messages envoyés</entry>  
+  <entry key="sent.messages">Messages envoyés</entry>
   <entry key="admin.settings">Réglages Admin</entry>
   <entry key="admin.permissions">Permissions Admin</entry>
   <entry key="start.cronjob">Démarrer Cron-Job</entry>
@@ -27,22 +27,22 @@
   <entry key="offline.mode.is.active">Attention, le mode hors ligne est activé!</entry>
   <entry key="person">Personne</entry>
   <entry key="persons">Personnes</entry>
-  <entry key="simulate.person">Simuler une personne</entry>
-  <entry key="now.will.be.simulated">Maintenant nous allons faire une simulation sur l'utilisateur {0}. Pour retourner à l'utilisateur précédent, cliquer dans le menu utilisateurs sur 'Arrêter la simulation'.</entry>
-  <entry key="simulate.information.text">Un administrateur peut vérifier les droits d'un utilisateur en faisant une simulation de ses droits.</entry>  
-  <entry key="name.of.person">Inscrire le nom de la personne</entry>
-  <entry key="send.email.to.admin">Envoyer un email à l'Admin</entry>  
+  <entry key="simulate.user">Simuler une usager</entry>
+  <entry key="now.user.x.will.be.simulated">Maintenant nous allons faire une simulation sur l'utilisateur {0}. Pour retourner à l'utilisateur précédent, cliquer dans le menu utilisateurs sur 'Arrêter la simulation'.</entry>
+  <entry key="simulate.information.text">Un administrateur peut vérifier les droits d'un utilisateur en faisant une simulation de ses droits.</entry>
+  <entry key="name.of.person">Nom de la personne</entry>
+  <entry key="write.email.to.admin">Écrire un email à l'Admin</entry>
   
   <!-- HOME -->
   <entry key="there.are.more.users.with.the.same.email">Plusieurs utilisateurs avec la même adresse email. Elles peuvent être changées dans le menu en haut à droite.</entry>
   <entry key="chose.your.possibilities">Choisis tes possibilités</entry>
   <entry key="open.help">Ouvrir l'aide</entry>
-  <entry key="salutation">Titre</entry>
+  <entry key="salutation">Salutation</entry>
   <entry key="name">Nom</entry>
   <entry key="address">Adresse</entry>
-  <entry key="age">Age</entry>
+  <entry key="age">Âge</entry>
   <entry key="birthday">Date de naissance</entry>
-  <entry key="birth.">Né le</entry>
+  <entry key="DOB">Né le</entry>
   <entry key="contact.information">Informations de contact</entry>
   <entry key="mobile">Portable</entry>
   <entry key="page">Page</entry>
@@ -55,8 +55,8 @@
   <entry key="no.sufficient.permission">No sufficient permission! You need the right {0}.</entry>
   
   <!-- ABOUT -->
-  <entry key="permissions">Autorisations</entry>  
-  <entry key="current.permissions">Autorisations courantes</entry>  
+  <entry key="permissions">Autorisations</entry>
+  <entry key="current.permissions">Autorisations courantes</entry>
   <entry key="current.config">Configuration actuelle</entry>
   <entry key="consistence.check">Vérification des données</entry>
   <entry key="churchtools.claim">ChurchTools est un excellent logiciel pour le devoir CRM dans le cadre de l'église ou d'associations.</entry>
@@ -68,7 +68,6 @@
   <entry key="detailed.report">Rapport détaillé</entry>
   
   <!-- PROFILE -->
-  <entry key="change.password">Changer le mot de passe</entry>
   <entry key="to.change.password.complete.following.fields">Pour changer le mot de passe, compléter les champs suivants</entry>
   <entry key="old.password">Ancien mot de passe</entry>
   <entry key="new.password">Nouveau mot de passe</entry>
@@ -80,7 +79,7 @@
   <entry key="password.is.incorrect">Mot de passe incorrect.</entry>
   <entry key="password.changes.successfully">Mot de passe modifié avec succès</entry>
   <entry key="set.password">Confirmer le mot de passe</entry>
-    
+  
   <!-- LOGIN -->
   <entry key="login.headline">Inscription</entry>
   <entry key="please.fill.following.fields">Merci de compléter les champs suivants:</entry>
@@ -89,17 +88,17 @@
   <entry key="email.or.username">Adresse email ou nom d'utilisateur</entry>
   <entry key="password">Mot de passe</entry>
   <entry key="remember.me">Se souvenir de moi</entry>
+  <entry key="remember.me.info">only check on personal devices</entry>
   <entry key="login">S'inscrire</entry>
   <entry key="email.or.username.unknown">Email ou nom d'utilisateur inconnu!</entry>
   <entry key="forgot.password">Mot de passe oublié?</entry>
   <entry key="want.to.receive.new.password">Voulez-vous recevoir un nouveau mot de passe?</entry>
   <entry key="wrong.password">Mot de passe incorrect.</entry>
   <entry key="account.was.locked">Compte bloqué!</entry>
-  <entry key="account.was.locked.cause.of.to.many.trials">Compte bloqué suite à trop d'essais d'inscription erronés! Merci de réessayer ultérieurement.</entry>
+  <entry key="account.was.locked.cause.of.to.many.trials">Compte bloqué temporaire suite à trop d'essais d'inscription erronés! Merci de réessayer ultérieurement.</entry>
   
-
-  <!-- MAIL -->  
-  <entry key="archive.of.sent.messages">Archives des email/sms envoyés</entry>
+  <!-- MAIL -->
+  <entry key="archive.of.sent.messages">Archives des email/SMS envoyés</entry>
   <entry key="filter">Filtrer</entry>
   <entry key="back">Précédent</entry>
   <entry key="status">Statut</entry>
@@ -113,10 +112,9 @@
   <entry key="send">Envoyer</entry>
   <entry key="cancel">Annulation</entry>
   <entry key="email.was.sent">Email envoyé avec succès</entry>
-  <entry key="write.email.to.admin">Envoyer un email à l'Admin</entry>
   <entry key="email.not.found">Adresse email inexistante</entry>
   <entry key="following.persons.have.no.email.address">No email was send to following persons for missing email address:</entry>
-		
+    
   <!--  GENERAL MENU ENTRIES -->
   <entry key="menu">Menu</entry>
   <entry key="back.to.main.menu">Retour au menu principal</entry>
@@ -126,14 +124,29 @@
   <entry key="help">Aide</entry>
   <entry key="more">Plus</entry>
   <entry key="more.information">Plus d'infos</entry>
-  <entry key="show.all">Montrer tout</entry> 
+  <entry key="show.all">Montrer tout</entry>
   <entry key="search">Recherche</entry>
   
   <!-- ADMIN -->
   <entry key="settings.for">Réglages pour {0}</entry>
-  <entry key="name.of.website">Nom du site web</entry>
-  <entry key="logo.of.website">Logo du site web (max. 32x32px)</entry>
-  <entry key="welcome.message">Message de bienvenue</entry>	
+  <entry key="site.name">Nom du site web</entry>
+  <entry key="site.logo">Logo du site web (max. 32x32px)</entry>
+  <entry key="welcome.message">Message de bienvenue</entry>
+  <entry key="subtitle.welcome.message">Subtitle of Welcome Message</entry>
+  <entry key="welcome.message.before.login">Welcome Message before login</entry>
+  <entry key="text.of.invitation.email">Text of invitation email (max. 255 Zeichen!)</entry>
+  <entry key="admin.message.on.home.and.login.pages.for.planned.downtimes">Admin message on login- and startpage, f.e. for planned downtimes</entry>
+  <entry key="startpage.for.siteX.standard.is.y">Startpage on calling {0} (standard is {1}, allowed values are f.e. churchwiki, churchcal)</entry>
+  <entry key="emailaddress.for.site.as.sender.for.emails">Email address of site (emails comes from this sender)</entry>
+  <entry key="admin.emails.for.user.requests">E-Mail addresses of admins for user requests (comma separated)</entry>
+  <entry key="name.for.moduleX.keep.empty.to.deactivate">Name for {0} (keep field empty to deactivate modul)</entry>
+  <entry key="max.upload.size.in.kb">Maximal file upload size in kilobytes (f.e. 10000 = ca. 10MB)</entry>
+  <entry key="time.in.seconds.beetwen.cronjobs.with.explanation">Time in seconds between automatic Cronjobs (0 = no Cron, an useful value is f.e. 3600)</entry>
+  <entry key="standard.timezone.like.europe.berlin">Standard timezonef.e. Europe/Berlin</entry>
+  <entry key="show.remember.me.on.login.page">Show {0} on login page</entry>
+  <entry key="enable.sending.emails">Enable sending emails</entry>
+  <entry key="disable.site">Switch site offline</entry>
+  <entry key="admin.settings.info.text">Here you can configure system settings. They effect all users, please be careful!</entry>
   
   <!--  MODULES -->
   <entry key="service">Service</entry>
@@ -161,24 +174,23 @@
   <entry key="mrs.">Madame</entry>
   <entry key="who.is.online">Qui est en ligne?</entry>
   <entry key="no.entry.found">Pas d'entrée trouvée.</entry>
-  <entry key="admin.my.membership">Gérer ma participation</entry>
+  <entry key="manage.my.membership">Gérer ma participation</entry>
   <entry key="todos.in">Devoirs en {0}</entry>
   <entry key="apply.for.group.membership">Ici tu peux demander ta participation</entry>
   <entry key="quit.group.membership">Ici tu peux arrêter ta participation</entry>
+  <entry key="error.requesting.group.membership">Group membership could not be applied.</entry>
   <entry key="last.x.days">Derniers {0} jours</entry>
   <entry key="next.x.days">Prochains {0} jours</entry>
   <entry key="your.pending.service.requests">Tes demandes de service ouvertes</entry>
   <entry key="your.next.services">Tes prochains services</entry>
   <entry key="your.current.event.staff">Ton équipe d'évènements actuelle</entry>
   <entry key="absence.of.next.x.days">Les absents des prochains {0} jours</entry>
-  <entry key="facts.of.last.days">Les éléments des derniers jours</entry>  
+  <entry key="facts.of.last.days">Les éléments des derniers jours</entry>
   <entry key="your.open.meeting.requests">Tes demandes de rdv ouvertes</entry>
-  <entry key="your.next.meetings">Tes prochains rdv</entry>  
+  <entry key="your.next.meetings">Tes prochains rdv</entry>
   <entry key="pending.booking.requests">Enregistrements en attente</entry>
   <entry key="current.bookings">Enregistrements actuels</entry>
   
-
-
 <!-- 17.7.2014 -->
   <entry key="reload">Recharger</entry>
   <entry key="session.expired.please.login">Session expirée, merci de vous reconnecter!</entry>
@@ -192,36 +204,36 @@
   <entry key="none.selected">Aucune sélection</entry>
   <entry key="all.selected">Sélection globale</entry>
   <entry key="select.all">Tout sélectionner</entry>
-  <entry key="deselect.all">Tout dé-sélectionner</entry>  
+  <entry key="deselect.all">Tout dé-sélectionner</entry>
   <entry key="selected">Sélectionné</entry>
   <entry key="chosen">Choisi</entry>
   <entry key="masterdata">Données de base</entry>
   <entry key="list.of.masterdata">Liste des données de base</entry>
-  <entry key="count.rows">Nombre de lignes</entry>
+  <entry key="row.count">Nombre de lignes</entry>
   <entry key="show">Voir</entry>
   <entry key="show.x.entries">Voir {0} entrées</entry>
   <entry key="show.x.from.y.entries">Voir {0} de {1} entrées</entry>
   <entry key="paging">Feuilleter</entry>
   <entry key="number.of.rows">Nombre de lignes</entry>
-  <entry key="open.each">Ouvrir tout</entry>
-  <entry key="close.each">Fermer tout</entry>
+  <entry key="open.all">Ouvrir tout</entry>
+  <entry key="close.all">Fermer tout</entry>
   <entry key="add">Ajouter</entry>
   <entry key="add.new.request">Ajouter une nouvelle demande</entry>
   <entry key="add.new.person">Ajouter une nouvelle personne</entry>
-  <entry key="add.new.entry">Ajouter une nouvelle entrée</entry>  
+  <entry key="add.new.entry">Ajouter une nouvelle entrée</entry>
   <entry key="copy">Copier</entry>
   <entry key="delete">Effacer</entry>
   <entry key="all">Tout</entry>
   <entry key="important.from">Important de {0}</entry>
   <entry key="news.from">Nouvelles de {0}</entry>
-  <entry key="to.the.top">Vers le haut</entry>  
+  <entry key="to.the.top">Vers le haut</entry>
   <entry key="main.page">Page principale</entry>
   <entry key="upload.file">Télécharger le fichier</entry>
   <entry key="drop.file.for.uploading.here">Emplacement pour les fichiers à télécharger</entry>
   <entry key="error.occured">Une erreur est survenue</entry>
   <entry key="create">Créer</entry>
   <entry key="resources">Ressources</entry>
-  <entry key="embedding">Intégrer</entry>
+  <entry key="embed">Intégrer</entry>
   <entry key="subscribe.per.ical">Souscrire par iCal</entry>
   <entry key="caption">Légende</entry>
   <entry key="description">Description</entry>
@@ -239,7 +251,7 @@
   <entry key="really.past.permissions">Vraiment ajouter les autorisations ici? Les autorisations déjà existantes ne seront pas modifiées par cet ajout.</entry>
   <entry key="only.show.user.with.permissions">Voir uniquement les utilisateurs avec autorisations</entry>
   <entry key="creator">Créateur</entry>
-  <entry key="change.of.dataset">Changement d'ensembles de données</entry>  
+  <entry key="change.of.dataset">Changement d'ensembles de données</entry>
   <entry key="personal.calendar">Agenda personnel</entry>
   <entry key="group.calendar">Groupe d'agendas</entry>
   
@@ -275,15 +287,15 @@
   <entry key="rename">Renommer</entry>
   <entry key="download">Télécharger</entry>
   <entry key="sum">Somme</entry>
-  <entry key="id">Identifiant</entry>
-  <entry key="sortkey">Clé de tri</entry>
+  <entry key="id">ID</entry>
+  <entry key="sortorder">Clé de tri</entry>
   <entry key="bezeichnung">Titre</entry>
   <entry key="really.delete.dataset.x.be.careful">Vraiment enlever l'ensemble des données {0} ? Assurez-vous qu'aucune donnée soit référencée dans l'ensemble des données, pour ne pas avoir de problème!</entry>
   <entry key="really.delete.file">Etes-vous sûr de vouloir supprimer ce fichier?</entry>
   <entry key="send.bcc.copy.to.myself">M'envoyer une copie bcc.</entry>
   <entry key="send.email.to.x">Envoyer email à {0}</entry>
   <entry key="caution.that.email.will.be.send.to.x.persons">Etes-vous sûr de vouloir envoyer un email à {0} personnes?</entry>
-  <entry key="please.fillin.name">Merci de remplir le nom</entry>
+  <entry key="please.fillin.name">Merci de remplir le nom</entry> <!-- not used -->
   <entry key="looking.for.visible.persons.in.all.your.departments">A la recherche de personnes visibles pour toi dans tous les départements.</entry>
   <entry key="looking.for.a.person">Choix d'une personne</entry>
   <entry key="public.user">Utilisateur public</entry>
@@ -293,33 +305,31 @@
   <entry key="show.more.rows">Voir plus de lignes</entry>
   <entry key="count.accesses">Nombre d'accès</entry>
   <entry key="cronjob.succeed">Cron-Job accompli!</entry>
-
+  
   <!-- 2014-07-23 -->
   <entry key="query">Interrogation</entry>
   <entry key="report">Report</entry>
-  <entry key="german">Allemand </entry>
-  <entry key="english">Anglais</entry>
-  <entry key="french">Français</entry>
   <entry key="select.language">Sélect langue</entry>
   <entry key="please.select.your.language">Sélectionnez votre langue</entry>
-      
-  <!-- file upload -->  	  
+  <entry key="close">Fermer</entry>
+  
+  <!-- file upload -->
   <entry key="uploaddircetdory.not.writable">Server error. Upload directory isn't writable.</entry>
   <entry key="no.uploaded.files">No files were uploaded.</entry>
   <entry key="file.is.empty">File is empty.</entry>
   <entry key="file.is.to.large">File is too large</entry>
   <entry key="invalid.fileextension.should.be.one.of.this">File has an invalid extension, it should be one of {0}'</entry>
-  <entry key="could.not.save.for.file.upload.canceled.or.server.error">Could not save uploaded file. The upload was cancelled, or server error encountered</entry>
+  <entry key="could.not.save.file.upload.canceled.or.server.error">Could not save uploaded file. The upload was cancelled, or server error encountered</entry>
 
-<!-- churchdb --> 
+<!-- churchdb -->
   <entry key="request.to.group">Request to group {0}.</entry>
   <entry key="surname">Surname</entry>
   <entry key="name">Name</entry>
   <entry key="email">Email</entry>
   <entry key="phone">Phone</entry>
   <entry key="comment">Comment</entry>
-  <entry key="form.request.to.group">request by form for group {0}</entry>
-  <entry key="could.not.find.group.leader.please.try.other.ways">orry, no group leader was found. Please try it using other ways!</entry>
+  <entry key="form.request.to.group">Request by form for group {0}</entry>
+  <entry key="could.not.find.group.leader.please.try.other.ways">Sorry, no group leader was found. Please try using other ways!</entry>
   <entry key="email.send.to">Email was sent to{0}!</entry>
   <entry key="unknown.call">Unknown call: {0}</entry>
   <entry key="hello.name">Hello {0}!</entry>
@@ -327,35 +337,57 @@
   <entry key="request.changed.by.external.mapview">Request changed by external MapView</entry>
   <entry key="person.found.and.request.sent">Person was found and request sent!</entry>
   <entry key="request.by.form">Request by form</entry>
-  <entry key="request.quitting.by.form">Ending membership was requested by form</entry>
-  <entry key="membership.requested.by.form.leader.will.be.informed">Membership for &lt;i&gt;{0}&lt;/i&gt; is applied, the leader will be informed. Thank you!</entry>
+  <entry key="request.quit.membership.by.form">Ending membership was requested by form</entry>
+  <entry key="membership.requested.by.form.leader.will.be.informed">Membership for {0} is applied, the leader will be informed. Thank you!</entry>
   <entry key="membership.marked.for.deleting">Membership for &lt;i&gt;{0}&lt;/i&gt; was marked for deletion.</entry>
   <entry key="error.quitting.membership">Group membership could not be deleted.</entry>
   <entry key="cron.error.subscribing.on.mailchimp">CRON - Error subscribing for MailChimp</entry>
   <entry key="username.not.available.ask.admin">The username {0} ist alread in use, please ask an administrator!</entry>
+  <entry key="id.not.defined">No ID specified!</entry>
+  <entry key="username.not.defined">No username specified!</entry>
+  <entry key="id.x.or.username.y.not.defined">ID {0} or Username {1} not specified!</entry>
   <entry key="person.already.has.an.username.ask.admin">This user already has an username! Please ask an adminstrator!</entry>
-  <entry key="invitation.email.standard.text">You are invited to use {0}.&lt;p&gt;Clicke on the following button, to log in the page and choose a password:&lt;/p&gt;</entry>
-  <entry key="no.sms.sent.person.has.no.mobile.number">NO sms was send for Person has no mobile number stored!</entry>
+  <entry key="invitation.email.standard.text">You are invited to use {0}.&lt;p&gt;Click the following button to log in the page and choose a password:&lt;/p&gt;</entry>
+  <entry key="no.sms.sent.person.has.no.mobile.number">No sms was send for Person has no mobile number stored!</entry>
   <entry key="email.already.used.you.need.more.rights.to.change.this">This email address is already in use. To save an used email you need more permissions.</entry>
+  <entry key="template.x.not.found">Template '{0}' not found!</entry>
+  <entry key="show.more.rows">Show more rows</entry>
+  <entry key="salutation.man.1">Mr.</entry>
+  <entry key="salutation.man.2">Dear</entry>
+  <entry key="salutation.woman.1">Mrs.</entry>
+  <entry key="salutation.woman.2">Dear</entry>
+  <entry key="in.group.x">in group {0}</entry>
+  <entry key="new.persons.in.your.groups">New Persons in your groups</entry>
+  <entry key="please.look.at.this.persons">Please look at following persons</entry>
+  <entry key="birthdays.of.your.persons.in.next.31.days">Birthdays of your persons in next 31 days</entry>
+  <entry key="new.comments.to.your.persons">New comments to your persons</entry>
+  <entry key="personal.information.for.x">Personal information for {0}</entry>
+  <entry key=""></entry>
   
-  <entry key="surname.name.has.proposed.name.for.service.x.for.date.event">{0} {1} has confirmed service {2} for {3} {4}.</entry>
-  <entry key="surname.name.has.approved.a.request">has approved a request</entry>
-  <entry key="surname.name.has.proposed.name.for.service.x.for.date.event">{0} {1} has proposed {5} for service {2} for {3} {4}.</entry>
-  <entry key="surname.name.has.proposed.someone">has someone proposed</entry>
-  <entry key="surname.name.has.canceled.the.service.x.for.date.event">{0} {1} denied service {2} on  {3} {4}.</entry>
-  <entry key="surname.name.has.canceled.a.request">{0} {1}has canceled a request</entry>
+  <!-- churchservice -->
+  <entry key="no.rights.to.add.or.remove.service">Not enough rights in addOrRemoveServiceToEvent: </entry> <!-- needed? -->
+  <entry key="surname.name.has.confirmed.service.x.for.date.event">{0} {1} has confirmed service {2} for event {4} on {3}.</entry>
+  <entry key="surname.name.has.confirmed.request">{0} {1} has confirmed request</entry>
+  <entry key="surname.name.has.proposed.x.for.service.y.on.date.event">{0} {1} has proposed {5} for service {2} for event {4} on {3}.</entry>
+  <entry key="surname.name.has.proposed.someone">{0} {1} has someone proposed</entry>
+  <entry key="surname.name.has.canceled.service.x.on.date.event">{0} {1} canceled service {2} for event {4} on {3}.</entry>
+  <entry key="surname.name.has.canceled.request">{0} {1}has canceled a request</entry>
   <entry key="please.specify.id">Please specify id.</entry>
   <entry key="file.not.found.in.DB">File not found in database!</entry>
   <entry key="file.could.not.be.copied.to.x">File could not be copied to {0}!</entry>
+  <entry key="pending.service.requests">Pending service requests: </entry>
+  <entry key="there.are.pending.services">There are pending service requests</entry>
+  
+  <!-- churchcore auth -->
+  <entry key="edit.masterdata">Edit masterdata</entry>
   
   <!-- churchservice auth -->
-  <entry key="view.churchservice">View ChurchService </entry>
-  <entry key="view.servicegroup.churchservice.cs_servicegroup">View service requests of single service Groups</entry>
-  <entry key="edit.servicegroup.churchservice.cs_servicegroup">Edit service requests of single service Groups</entry>
+  <entry key="view.servicegroup.churchservice.cs_servicegroup">View services of single service Groups</entry>
+  <entry key="edit.servicegroup.churchservice.cs_servicegroup">Edit services of single service Groups</entry>
   <entry key="view.history.churchservice">View request history</entry>
   <entry key="edit.events.churchservice">Create, edit, delete events</entry>
   <entry key="edit.template.churchservice">Edit event templates</entry>
-  <entry key="manage.absent.churchservice">View and manage absence for all persons</entry>
+  <entry key="manage.absent.churchservice">View and manage absences for all persons</entry>
   <entry key="view.facts.churchservice">View facts</entry>
   <entry key="edit.facts.churchservice">Edit facts</entry>
   <entry key="export.facts.churchservice">Export facts</entry>
@@ -368,15 +400,141 @@
   <entry key="edit.masterdata.churchservice">Edit masterdata</entry>
   
   <entry key="no.permisson.to.export.facts">No permission to export fact data (edit facts)</entry>
+
+  <!-- churchdb auth -->
+  <entry key="view.birthdaylist">View Birthdaylist</entry>
+  <entry key="view.memberliste">View Memberliste</entry>
+  <entry key="view.statistics">View Statistics</entry>
+  <entry key="view.tags">View Tags</entry>
+  <entry key="view.history">View History</entry>
+  <entry key="view.comments">View Comments</entry>
+  <entry key="view.addressc">View additional address data of visible persons (street)</entry>
+  <entry key="view.alldetails">View all information of visible persons, including address data, group memberships, ...</entry>
+  <entry key="view.archive">View archive of persons</entry>
+  <entry key="use.complex.filters">"Complex filters" can be used</entry>
+  <entry key="archivate.persons">Put persons in and get them out of archive</entry>
+  <entry key="edit.relations">Edit relations of visible persons</entry>
+  <entry key="edit.groups">Edit group memberships of visible persons</entry>
+  <entry key="create.persons">Right to create persons</entry>
+  <entry key="create.persons.without.agreement">Right to create persons without agreement</entry>
+  <entry key="write.access.persons">Write access for all visible persons</entry>
+  <entry key="view.alldata">View all persons of the active departement</entry> <!-- TODO: is departement right here? -->
+  <entry key="send.sms">Use SMS interface</entry>
+  <entry key="export.data">Export data of all(!) persons</entry>
+  <entry key="view.group">View single groups - including hidden groups</entry>
+  <entry key="view.group.statistics">View group statistics of all groups</entry>
+  <entry key="administer.groups">Administer Groups (create, edit, delete, ...)</entry>
   
-  <!-- forms --> 
+  <!-- churchresource -->
+  <entry key="view.x">View {0}</entry> <!-- TODO: use it for all similar texts -->
+  <entry key="create.own.bookings">Create own booking requests</entry>
+  <entry key="administer.bookings">Edit, refuse, ... all bookings</entry>
+  <entry key="assistant.mode">Create bookings for others</entry>
+  <entry key="here.are.all.ressources.listed">All booking resources are listed here</entry>
+  <entry key="purpose">Purpose</entry>
+  <entry key="start">Start</entry>
+  <entry key="end">End</entry>
+  <entry key="repeat.type">Repeat Type</entry>
+  <entry key="repeat.to">Repeats</entry>
+  <entry key="exceptions">Exceptions</entry>
+  <entry key="additions">Additional Dates</entry>
+  <entry key="new.booking.request">New Bookings</entry>
+  <entry key="updated.booking.request">Update of booking request</entry>
+  <entry key="bookingX.for.resource.on.datetime">'{0}' for {1} ({2}h{3})</entry>
+  <entry key="booking.in"> in {0}</entry>
+  <entry key="user.was.deleted">User was deleted.</entry>
+  
+  <!-- churchwiki -->
+  <entry key="view.wiki.category">View single wiki category</entry>
+  <entry key="edit.wiki.category">Edit single wiki category</entry>
+  <entry key="edit.help.entry">Edit Help Entry</entry>
+  <entry key="edit.help.entry.subtitle">Here you can edit the help.</entry>
+  
+  <!-- login -->
+  <entry key="new.password.requested.for.x.is.y">A new password was requested for email address {0}: {1}</entry>
+  <entry key="email.unknown">This email address is unknown!</entry>
+  <entry key="login.string.too.old">Error: The used login link is outdated and therefore can not be used anymore. Please login with email or username and password!</entry>
+  <entry key="login.error.no.id.specified">Login error, no user id specified!</entry>
+  <entry key="login.error.longtext">Please specify a valid email address for sending the new password! There must already be an user with this address. &lt;p&gt;If there is an user with this email, please contact {0}.</entry>
+  <entry key="new.password.was.sent.to.x">Note: A new password was sent to {0}.</entry>
+  <entry key="user.succesfully.changed.now.you.work.with.permissions.of.x">User succesfully changed! Now you work with permissions of {0}.</entry>
+  <entry key="user.change.to.familyX.failed.session.is.empty">User changing to Id {0} failed, session ist empty!</entry>
+  <entry key="you.are.logged.in.as.x.click.y.to.continue">You are logged in as {0}, click {1} to continue.</entry>
+  
+  <!-- forms -->
   <entry key="again.please">Again please ...</entry>
   
-  <!-- Admin preferences TODO: needed for js --> 
+  <!-- Admin preferences TODO: needed for js -->
   <entry key="add.to.menu">Add {0} to menu</entry>
   <entry key="show.as.button.on.home">Show {0} as button on start page</entry>
-  <entry key="sortnumber.in.menu">Sort number in menu (sortcode)</entry>
-  <entry key="max.allowed.rows.to.export">Wieviel Datensätze maximal exportiert werden dürfen</entry>
-  <entry key="center.coordinates.latitude.best.to.find.by.google.maps">Koordinaten-Mittelpunkt Latitude (am besten durch Google Maps herauszufinden)</entry>
+  <entry key="sortorder.in.menu">Sort order in menu (sortcode)</entry>
+  <entry key="data.from.x.how.many.days.in.the.past.to.load">For how many days past shall data in {0} be load?</entry>
+  <!-- Admin preferences member list -->
+  <entry key="preferences.for.memberlist">Preferences for memberlist</entry>
+  <entry key="admin.could.change.preferences.here">Which data should be included?</entry>
+  <!-- Admin preferences churchcal -->
+  <entry key="name.of.main.calendar">Name of main calendar</entry>
+  <entry key="css.for.embedded.cal">CSS for embedded calendars</entry>
+  <!-- Admin preferences churchdb -->
+  <entry key="max.allowed.rows.to.export">Maximal row count for export</entry>
+  <entry key="center.coordinates.latitude">Latitude of center coordinates (best to find out using Google Maps)</entry>
+  <entry key="center.coordinates.longitude">Longitude of center coordinates (best to find out using Google Maps)</entry>
+  <entry key="email.default.separator">Default separator to use for multiple recipients on ChurchDB-Emailer</entry>
+  <entry key="days.to.show.terminated.groups">How many days after termination should groups be present?</entry>
+  <entry key="status.ids.for.birthdaylist.comma.separated">Status ids for birthday list (comma separated)</entry>
+  <entry key="station.ids.for.birthdaylist.comma.separated">Station ids for birthday list (comma separated)</entry>
+  <entry key="api.key.mailchimp.if.used">API-Key for integration of MailChimp.com (only if you want to use it).</entry>
+  <entry key="api.key.smspromote.if.used">API-Key for integration of SMSpromote.de (only if you want to use it).</entry>
+  <entry key="send.groupchanges.to.leaders">Send changes in groups to leaders, co-leaders and supervisors</entry>
+  <entry key="user.is.allowed.to.change.own.address">Users can change their own data</entry>
+  <!-- Admin preferences churchservice -->
+  <entry key="after.how.many.days.service.requests.should.be.repeated">After how many days should pending service requests emails be repeated?</entry>
+  <entry key="how.many.hours.before.service.send.remember.email">How many hours before service should reminder email be send?</entry>
+  <entry key="use.category.as.folder.for.beamersoftware.export">Use song category as folder for beamer software export</entry>
+  <!-- Admin preferences churchresource -->
+  
+  <!-- home -->
+  <entry key="home">Startseite</entry>
+  <entry key="directory.x.has.to.be.writable">The directory '{0}' has to be writeable. Please adjust permissions!</entry>
+  <entry key="welcome.back.x">Welcome back, {0}!</entry>
+  <entry key="message.from.x">Message from {0}</entry>
+  <entry key="error.config.file.not.found">Error: config file not found!</entry>
+  <entry key="show.fon.number">Show private phone number</entry>
+  <entry key="show.business.fon.number">Show business phone number</entry>
+  <entry key="show.mobile.number">Show cellphone number</entry>
+  <entry key="show.fax.number">Show fax number</entry>
+  <entry key="show.email">Show email address</entry>
+  <entry key="show.complete.birthday.including.year">Show complete birthday date including year of birth</entry>
+  
+  <!-- core db -->
+  <entry key="previously">previously</entry>
+  <entry key="logout.successful">Logout successful</entry>
 
+  <!-- churchcal -->
+  <entry key="meeting.requests">Meeting requests</entry>
+  <entry key="new.meeting.request">New meeting request</entry>
+  <entry key="no.create.right.for.cal.id.x">You have no create right in calendar with id {0}</entry>
+  <entry key="no.agenda.found.for.event">Agenda for event {0} could not be found!</entry>
+  <entry key="x.not.found">{0} could not be found!</entry> <!-- TODO: let all sorts of not found errors use this -->
+  <entry key="item">item</entry>
+  <entry key="agenda">agenda</entry>
+  <entry key="event">event</entry>
+  <entry key="event.could.not.be.copied">Event in {0} could not be copied!</entry>
+  <entry key="template.can.not.be.added.to.existing.service">Template can not be added to existing service!</entry>
+  <entry key="remove.event">Remove event!</entry>
+  <entry key="cancelation.of.event.date">Cancelation from {0} on {1}</entry>
+  <entry key="thank.you.for.feedback">Thank you for feedback!</entry>
+  
+  
+  <!-- churchcal auth -->
+  <entry key="view.single.calendar">View single calendar </entry>
+  <entry key="edit.single.calendar">Create / edit events in single calendars</entry>
+  <entry key="create.group.calendar">Create group calendar</entry>
+  <entry key="administer.group.calendar">administer group calendar</entry>
+  <entry key="administer.church.calendar">administer church calendar</entry>
+  <entry key="manual.event.not.found">Manual event '{0}' not found!</entry>
+  <entry key="event.not.found">Event '{0}' not found!</entry>
+  <entry key="category.does.not.exist">Category don't exist</entry>
+  <entry key="deleting.failed.because.of.remaining.services">Calendar could not be deleted. Thera are still services bound to this calendar!</entry>
+  
 </properties>

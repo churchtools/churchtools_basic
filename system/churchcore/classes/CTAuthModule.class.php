@@ -62,16 +62,16 @@ class CTAuthModule extends CTAbstractModule {
     }
     $res["modules"] = churchcore_getModulesSorted(true, false);
 
-    $res["person"] = churchcore_getTableData("cdb_person", "name, vorname", null, "id, concat(name, ', ', vorname) as bezeichnung");
-    $res["person"][-1] = new stdClass();
+    $res["person"]      = churchcore_getTableData("cdb_person", "name, vorname", null, "id, concat(name, ', ', vorname) as bezeichnung");
+    $res["person"][-1]  = new stdClass();
     $res["person"][-1]->id = -1;
     $res["person"][-1]->bezeichnung = "- " . t("public.user") . " -";
-    $res["gruppe"] = churchcore_getTableData("cdb_gruppe", null, null, "id, bezeichnung");
-    $res["status"] = churchcore_getTableData("cdb_status");
-    $res["publiccalendar_name"] = variable_get("churchcal_maincalname", "Church Calendar");
-    $res["category"] = churchcore_getTableData("cc_calcategory", null, null, "id, bezeichnung, privat_yn, oeffentlich_yn");
-    $res["modulename"] = "churchcore";
-    $res["admins"] = $config["admin_ids"];
+    $res["publiccalendar_name"] = getConf("churchcal_maincalname", "Church Calendar");
+    $res["gruppe"]      = churchcore_getTableData("cdb_gruppe", null, null, "id, bezeichnung");
+    $res["status"]      = churchcore_getTableData("cdb_status");
+    $res["category"]    = churchcore_getTableData("cc_calcategory", null, null, "id, bezeichnung, privat_yn, oeffentlich_yn");
+    $res["modulename"]  = "churchcore";
+    $res["admins"]      = $config["admin_ids"];
     
     $auths = churchcore_getTableData("cc_domain_auth");
     if ($auths) foreach ($auths as $auth) {

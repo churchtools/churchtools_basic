@@ -102,7 +102,6 @@ class qqFileUploader {
    */
   function handleUpload($uploadDirectory, $replaceOldFile = false) {
     global $user;
-    
     if (!is_writable($uploadDirectory))  return array ('error' => t("uploaddircetdory.not.writable"));
     if (!$this->file) return array ('error' => t('no.uploaded.files'));
     
@@ -121,12 +120,13 @@ class qqFileUploader {
     if ($this->allowedExtensions && !in_array(strtolower($ext), $this->allowedExtensions)) {
       return array ('error' => t('invalid.fileextension.should.be.one.of.this', implode(', ', $this->allowedExtensions)));
     }
-    
-    if ($domainType = readConf("domain_type") && $domainId = readConf("domain_id")) {
+    //TODO: should return error if no id or type or somethin else is wrong!!!
+    if (getVar("domain_type") && getVar("domain_id")) {
       $dt = new DateTime();
+      
       $id = db_insert('cc_file')->fields(array (
-          "domain_type" => $domainType, 
-          "domain_id" => $domainId, 
+          "domain_type" =>  getVar("domain_type"), 
+          "domain_id" =>  getVar("domain_id"), 
           "filename" => $filename . '.' . $ext, 
           "bezeichnung" => $bezeichnung . '.' . $ext, 
           "modified_date" => $dt->format('Y-m-d H:i:s'), 
@@ -139,7 +139,7 @@ class qqFileUploader {
     if ($this->file->save($filename_absolute)) {
       
       // If image should be resized
-      if ($resize = readVar("resize") && $this->check_jpeg($filename_absolute)) {
+      if ($resize = getVar("resize") && $this->check_jpeg($filename_absolute)) {
         list ($width, $height) = getimagesize($filename_absolute);
         if ($width > $height) {
           $new_width = $resize;
@@ -160,7 +160,7 @@ class qqFileUploader {
       
       return array ('success' => true, "id" => $id, "filename" => "$filename.$ext", "bezeichnung" => "$bezeichnung.$ext");
     }
-    else return array ('error' => t('could.not.save.file.upvoad.canceled.ot.server.error'));
+    else return array ('error' => t('could.not.save.file.upload.canceled.or.server.error'));
   }
 
 }
@@ -180,9 +180,7 @@ class qqUploadedFileXhr {
     $realSize = stream_copy_to_stream($input, $temp);
     fclose($input);
     
-    if ($realSize != $this->getSize()) {
-      return false;
-    }
+    if ($realSize != $this->getSize()) return false;
     
     $target = fopen($path, "w");
     fseek($temp, 0, SEEK_SET);

@@ -405,15 +405,15 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
             });
             rows.push("&nbsp; &nbsp; &nbsp; ");
             if ((masterData.settings["listMaxRows"+t.name]<=20) || (t.counter<=20))
-              rows.push("&nbsp;<a href=\"#\" id=\"showAll\">"+_("open.each")+"</a>");
-            rows.push("&nbsp; &nbsp; <a href=\"#\" id=\"hideAll\">"+_("close.each")+"</a>");
+              rows.push("&nbsp;<a href=\"#\" id=\"showAll\">"+_("open.all")+"</a>");
+            rows.push("&nbsp; &nbsp; <a href=\"#\" id=\"hideAll\">"+_("close.all")+"</a>");
           }
           else {
             rows.push(_("show")+"  ");
             $.each(t.availableRowCounts, function(i,k) {
               rows.push('<a href="#" class="changemaxrow" data-id="'+k+'">'+k+'</a> | ');
             });
-            rows.push('<span class="pull-right"><a href="#" id="hideAll">'+_("close.each")+'</a></span>');
+            rows.push('<span class="pull-right"><a href="#" id="hideAll">'+_("close.all")+'</a></span>');
           }
         }
         if (t.showFoundEntries || t.showPaging) rows.push('</table>');

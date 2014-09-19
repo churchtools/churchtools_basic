@@ -48,7 +48,9 @@ class CTInterface {
   function getDBParamsArrayFromParams($params) {
     $p = array ();
     foreach ($this->data as $key => $val) {
-      if (!isset($params[$key]) && $val == true) throw new CTException("Pflicht-Parameter $key wurde nicht uebergeben!");
+      if (!isset($params[$key]) && $val == true) {
+        throw new CTException("Pflicht-Parameter $key wurde nicht uebergeben!");
+      }
       else $p[":" . $key] = $params[$key];
     }
     return $p;
@@ -84,5 +86,3 @@ class CTInterface {
   }
 
 }
-
-?>

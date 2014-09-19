@@ -14,4 +14,3 @@ class CTNoPermission extends CTFail {
     parent::__construct( t('no.sufficient.permission', "$auth ($modulename)"));
   }
 }
-?>

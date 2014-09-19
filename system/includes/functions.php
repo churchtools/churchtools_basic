@@ -20,20 +20,20 @@
  **/
 function __autoload($class_name)
 {
-  if (file_exists(CHURCHCORE.CLASSES."/" .$class_name.'.class.php')) include CHURCHCORE.CLASSES. "/". $class_name.'.class.php';
-  else include constant(strtoupper($GLOBALS['currentModule'])). CLASSES. "/". $class_name. '.class.php';
+  if (file_exists(CHURCHCORE.CLASSES."/".$class_name.'.class.php')) include CHURCHCORE.CLASSES."/".$class_name.'.class.php';
+  else include constant(strtoupper($GLOBALS['currentModule'])).CLASSES."/".$class_name.'.class.php';
 }
 
 /**
- * read var from $_REQUEST or from any other array and return the value
- * $_REQUEST as default array doesnt work
+ * Read var from $_REQUEST or from any other array and return the value or default.
+ * $_REQUEST as default array doesnt work.
  *
  * @param array $var
  * @param bool $default; default false 
  * @param array $array as reference; default false ==> $_REQUEST is used, or any array
  * @return mixed value
  */
-function readVar($var, $default = false, &$array = false) {
+function getVar($var, $default = false, &$array = false) {
   if ($array === false) $array =& $_REQUEST;
   $var = isset($array[$var]) ? $array[$var] : $default;
 //  echo $var.$array[$var]."<br>";
@@ -41,19 +41,93 @@ function readVar($var, $default = false, &$array = false) {
 }
 
 /**
- * read var from $config or from mapping and return the value
- * $_REQUEST as default array doesnt work
+ * Read var from $config or $mapping and return the value or default.
  *
  * @param array $var
- * @param bool $default; default false 
- * @param array $array as reference; default false ==> $_REQUEST is used, or any array
+ * @param mixed $default; default false 
  * @return mixed value
  */
-function readConf($var, $default = false) {
+function getConf($var, $default = false) {
   global $config, $mapping;
   
   $var = isset($config[$var]) ? $config[$var] : (isset($mapping[$var]) ? $mapping[$var] : $default);
   return $var;
 }
 
-?>
+/**
+ * Delete all files in folder $dir
+ *
+ * @param string $dir; directory name
+ */
+function cleandir($dir) {
+  if (is_dir($dir)) {
+    $objects = scandir($dir);
+    foreach ($objects as $object) {
+      if ($object != "." && $object != "..") {
+        if (filetype($dir."/".$object) != "dir") {
+          unlink($dir."/".$object);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Recursively delete all files and directories in folder $dir
+ *
+ * @param string $dir; directory name
+ */
+function rrmdir($dir) {
+  if (is_dir($dir)) {
+    $objects = scandir($dir);
+    foreach ($objects as $object) {
+      if ($object != "." && $object != "..") {
+        if (filetype($dir."/".$object) == "dir") rrmdir($dir."/".$object); else unlink($dir."/".$object);
+      }
+    }
+    reset($objects);
+    rmdir($dir);
+  }
+}
+
+/**
+ * Get the base url in form of http(s)://subdomain.churchtools.de/ or http(s)://server.de/churchtools/
+ *
+ * @return string
+ */
+function getBaseUrl() {
+  // get path part from requested url and remove index.php
+  $baseUrl = str_replace('index.php', '', parse_url($_SERVER['HTTP_HOST']. $_SERVER['REQUEST_URI'], PHP_URL_PATH));
+  // add http(s):// and assure a single trailing /
+  $baseUrl = (!empty($_SERVER['HTTPS']) ? "https://" : "http://"). trim($baseUrl, '/') . '/';
+  // echo " ::: URL: $baseUrl ::: ";
+  return $baseUrl;
+}
+
+/**
+ * TODO: not finished
+ * 
+ * @param string $template, may include an folder like email/file
+ * @param string $module
+ */
+function getTemplateContent($template, $module) {
+  $file = constant(strtoupper($module)) . TEMPLATES . "/$template.html";
+  
+  return file_get_contents($file);;
+}
+/**
+ * TODO: not finished
+ * 
+ * @param string $template
+ * @param string $module
+ */
+function getTemplateContent1($template, $module, $params) {
+  extract ($params);
+  ob_start();
+  include(constant(strtoupper($module)) . TEMPLATES . "/$template.html");
+//   include(constant(strtoupper($module)) . TEMPLATES . (empty($hasError) ? "/$template.html" : 'error.html'));
+  $content = ob_get_contents();
+  ob_end_clean();
+  
+  return $content;
+}

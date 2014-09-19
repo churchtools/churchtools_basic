@@ -32,5 +32,3 @@ class CTException extends Exception {
       return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
   }
 }
-
-?>

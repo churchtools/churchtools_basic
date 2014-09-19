@@ -1,14 +1,14 @@
 <?php
 /**
  * contains CTForm and the only from this class used classes CC_Button, CC_Field, CC_HTMLElement
- * 
+ *
  */
 
 
 
 /**
  * Html form
- * 
+ *
  *
  */
 class CTForm {
@@ -21,22 +21,29 @@ class CTForm {
   const FILEUPLOAD = 'FILEUPLOAD';
   const PASSWORD = 'PASSWORD';
   
-  public $fields = array ();
+  public  $fields = array ();
   private $buttons = array ();
   private $validator = null; //name of validate function
   private $name;
   private $header;
   private $subheader;
   private $help_url;
-  public $fieldTypes = array (self::INPUT_REQUIRED, self::INPUT_OPTIONAL, self::TEXTAREA, self::EMAIL, self::PASSWORD, 
-                              self::CHECKBOX, self::FILEUPLOAD);
+  public  $fieldTypes = array (
+              self::INPUT_REQUIRED,
+              self::INPUT_OPTIONAL,
+              self::TEXTAREA,
+              self::EMAIL,
+              self::PASSWORD,
+              self::CHECKBOX,
+              self::FILEUPLOAD,
+          );
 
   /**
    * Constructor
-   * 
-   * @param string $name          
-   * @param string $validator; name of a user function to use for validation         
-   * @param string $help_url; last part of help on churchtools.de           
+   *
+   * @param string $name
+   * @param string $validator; name of a user function to use for validation
+   * @param string $help_url; last part of help on churchtools.de
    */
   public function __construct($name, $validator, $help_url = null) {
     $this->name = $name;
@@ -47,14 +54,14 @@ class CTForm {
   /**
    * add field to form, return $field object
    *
-   * @param string $name          
-   * @param string $class          
+   * @param string $name
+   * @param string $class
    * @param string $fieldType
    *          - one of this constants: self::INPUT_REQUIRED, self::INPUT_OPTIONAL, self::TEXTAREA,
    *          self::EMAIL, self::PASSWORD, self::CHECKBOX, self::FILEUPLOAD
-   * @param string $label          
+   * @param string $label
    * @param string $autofocus
-   * 
+   *
    * @return added field for use of add()->setValue()
    */
   public function addField($name, $class, $fieldType, $label = "", $autofocus = false) {
@@ -72,16 +79,16 @@ class CTForm {
 
   /**
    * add button to form
-   * 
-   * @param string $label          
-   * @param string $icon, css class, will be prefixed by 'icon-'          
+   *
+   * @param string $label
+   * @param string $icon, css class, will be prefixed by 'icon-'
    */
   public function addButton($label, $icon) {
     $this->buttons[] = new CC_Button("btn_" . count($this->buttons), $label, $icon);
   }
 
   /**
-   * set form header 
+   * set form header
    * @param string $big, the title
    * @param string $small, default = false the subtitle
    */
@@ -100,15 +107,15 @@ class CTForm {
 
   /**
    * render form
-   * 
-   * TODO: if variable source doesn't matter, use REQUEST by removing POST from readVar()
-   * @return string
+   *
+   * TODO: if variable source doesn't matter, use REQUEST by removing POST from getVar()
+   * @return string html content of form
    */
   public function render() {
     global $q_orig;
     
     // check if dada was sent
-    if ($formData = readVar($this->getName(), false, $_POST)) {
+    if ($formData = getVar($this->getName(), false, $_POST)) {
       // reset all checkboxes
       foreach ($this->fields as $field) {
         if ($field->getFieldType() == "CHECKBOX") $field->setValue("off");
@@ -123,7 +130,7 @@ class CTForm {
         if (!$field->isValid()) $isValid = false;
       }
       if ($isValid) {
-        if (!$this->validator || !is_callable($this->validator)) return "no or invalid validator given!"; 
+        if (!$this->validator || !is_callable($this->validator)) return "No or invalid validator given!";
         $ret = call_user_func($this->validator, $this);
         // if ($ret!=true)
         // return $ret;
@@ -165,7 +172,7 @@ class CTForm {
 
 
 /*************************************************************************************
- * 
+ *
  * Class for Html Element
  *
  *************************************************************************************/
@@ -176,11 +183,11 @@ class CC_HTMLElement {
 
   /**
    *
-   * @param string $name          
-   * @param string $class          
+   * @param string $name
+   * @param string $class
    */
   public function __construct($name, $class) {
-    $this->name = $name;
+    $this->name  = $name;
     $this->class = $class;
   }
 
@@ -214,7 +221,7 @@ class CC_HTMLElement {
 
 
 /*************************************************************************************
- * 
+ *
  * Class for Html form field
  *
  *************************************************************************************/
@@ -225,14 +232,14 @@ class CC_Field extends CC_HTMLElement {
   private $error = null;
 
 /**
- * 
+ *
  * @param CTForm $form; parent form of field
  * @param string $name
  * @param string $class, css
  * @param string $fieldType
  * @param string $label
  * @param string $autofocus
- */  
+ */
   public function __construct($form, $name, $class, $fieldType, $label, $autofocus = false) {
     parent::__construct($name, $class);
     $this->form = $form;
@@ -265,15 +272,15 @@ class CC_Field extends CC_HTMLElement {
 
   /**
    * check validity
-   * 
+   *
    * // add some more tests, maybe use sanitize filters or use them in the calling code
-   * 
+   *
    * @return boolean
    */
 //   $args = array(
 //       'username'      => array('filter' => FILTER_SANITIZE_STRING, 'flags'  => FILTER_FLAG_NO_ENCODE_QUOTES),
 //       'user_password' => array('filter' => FILTER_SANITIZE_STRING, 'flags'  => FILTER_FLAG_NO_ENCODE_QUOTES),
-//       'user_email' 	 => FILTER_SANITIZE_EMAIL,
+//       'user_email'    => FILTER_SANITIZE_EMAIL,
 //       'user_website'  => FILTER_SANITIZE_URL,
 //   );
 //   $formData = filter_input_array(INPUT_POST, $args);
@@ -336,9 +343,10 @@ class CC_Field extends CC_HTMLElement {
         $txt .= '&nbsp; <img style="max-width:100px;max-height:100px" src="'.$files_dir."/files/logo/".$this->value.'"/>'.
                 '&nbsp; <a href="#" id="del_logo">l&ouml;schen</a>';
       }
-      $txt .= '</span></label>'.NL.'<div id="upload_button">'. t('again.please'). '</div>'.NL;
-      $txt .= '<input type="hidden" name="'. $this->form->getName(). '['.$this->getName().']" id="'.
-                $this->form->getName().'_'.$this->getName().'" value="'.$this->value.'"/>'.NL;
+      
+      $txt .= '</span></label><div id="upload_button">'. t('again.please'). '</div>';
+      $txt .= '<input type="hidden" name="' . $this->form->getName() . '['.$this->getName() .']" id="' .
+                $this->form->getName() . '_' . $this->getName() . '" value="' . $this->value . '"/>';
       $txt .= '<script>
         jQuery(document).ready(function() {
           var uploader = new qq.FileUploader({
@@ -377,7 +385,7 @@ class CC_Field extends CC_HTMLElement {
 
 
 /**************************************************************************************
- * 
+ *
  * Class for Html form button
  *
  *************************************************************************************/
@@ -386,7 +394,7 @@ class CC_Button extends CC_HTMLElement {
   private $icon;
 
   /**
-   * 
+   *
    * @param string $name
    * @param string $label
    * @param string $icon

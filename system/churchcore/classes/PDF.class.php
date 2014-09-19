@@ -1,6 +1,13 @@
 <?php
+/**
+ * PDF, extends FPDF
+ *
+ */
 class PDF extends FPDF {
-  // Kopfzeile
+
+  /**
+   * Header
+   */
   function Header() {
     // Logo
     // $this->Image(ASSETS.'/img/ct-icon_256.png',10,8,33);
@@ -12,7 +19,7 @@ class PDF extends FPDF {
     $this->Cell(13, 8, t('salutation'), 0, 0, 'L');
     $this->Cell(48, 8, t('name'), 0, 0, 'L');
     $this->Cell(45, 8, t('address'), 0, 0, 'L');
-    $this->Cell(20, 8, t('birth.'), 0, 0, 'L');
+    $this->Cell(20, 8, t('DOB'), 0, 0, 'L');
     $this->Cell(30, 8, t('contact.information'), 0, 0, 'L');
     $fields = _home__memberlist_getSettingFields()->fields;
     if ($fields["memberlist_telefonhandy"]->getValue()) $this->Cell(30, 8, t('mobile'), 0, 0, 'L');
@@ -24,7 +31,9 @@ class PDF extends FPDF {
     $this->Line(8, $this->GetY()- 1, 204, $this->GetY()- 1);
   }
 
-  // Fusszeile
+  /**
+   * Footer
+   */
   function Footer() {
     // Position 1,5 cm von unten
     $this->SetY(-10);

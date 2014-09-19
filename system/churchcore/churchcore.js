@@ -5,7 +5,7 @@ dayNames= ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag',
 // Contains all masterData
 var masterData=new Object();
  
-function _(s) {  
+function _(s) {
   var modulename="churchcore"
   res=lang[modulename][s];
   if (res==null && masterData!=null && masterData.modulename!=null) {
@@ -14,9 +14,9 @@ function _(s) {
   if (res==null)
     return "***"+s+"***";
   $.each(arguments, function(k,a) {
-    if (k>0) res=res.replace("{"+(k-1), a).replace("}","");        
-  });  
-  return res;  
+    if (k>0) res=res.replace("{"+(k-1), a).replace("}","");
+  });
+  return res;
 }
 
 function log(s) {
@@ -27,11 +27,11 @@ function log(s) {
 }
 
 function churchcore_handyformat() {
-  return window.innerWidth<767;  
+  return window.innerWidth<767;
 }
 
 function churchcore_tabletformat() {
-  return window.innerWidth<900;  
+  return window.innerWidth<900;
 }
 
 function churchcore_touchscreen() {
@@ -45,7 +45,7 @@ function churchcore_touchscreen() {
  */
 function churchcore_getAuthAsArray(auth) {
   var arr=new Array();
-  if (auth!=null && auth!="") { 
+  if (auth!=null && auth!="") {
     $.each(auth.split("||"), function(k,a) {
       if (a.trim()!="") arr.push(a.trim());
     });
@@ -63,7 +63,7 @@ function user_access(auth, datafield) {
   $.each(churchcore_getAuthAsArray(auth), function(k,a) {
     if (masterData.auth!=null && masterData.auth[a.trim()])
       if (datafield==null) res=true;
-      else if (masterData.auth[a.trim()][datafield]!=null) res=true;          
+      else if (masterData.auth[a.trim()][datafield]!=null) res=true;
   });
   return res;
 }
@@ -93,7 +93,7 @@ function churchcore_sortData(data, sortVariable, reverse, alphanumeric, sortVari
     return churchcore_sortData_alpha(data, sortVariable, reverse, sortVariable2);
   else
     return churchcore_sortData_numeric(data, sortVariable, reverse, sortVariable2);
-}  
+}
 
 function churchcore_isObjectEmpty(obj) {
   if (obj==null) return false;
@@ -142,13 +142,13 @@ function churchcore_sortData_alpha(data, sortVariable, reverse, sortVariable2) {
       }
       else return 1*r ;
     }
-    else if (b1==null) { 
+    else if (b1==null) {
       if ((a[sortVariable2!=null] && (b[sortVariable2]!=null))) {
         a1=a[sortVariable2];
         b1=b[sortVariable2];
       }
       else return (-1)*r;
-    }    
+    }
     
     if (((typeof a1)=="string") && ((typeof b1)=="string")) {
       a1 = a1.toLowerCase();
@@ -166,7 +166,7 @@ function churchcore_sortData_alpha(data, sortVariable, reverse, sortVariable2) {
     
     if (a1==b1)
       return 0;
-    else if (a1>b1) return 1*r; 
+    else if (a1>b1) return 1*r;
     else return (-1)*r;
   }
   var arr = new Array();
@@ -203,13 +203,13 @@ function churchcore_sortData_numeric(data, sortVariable, reverse, sortVariable2)
       }
       else return 1*r ;
     }
-    else if (b1==null) { 
+    else if (b1==null) {
       if ((a[sortVariable2!=null] && (b[sortVariable2]!=null))) {
         a1=a[sortVariable2];
         b1=b[sortVariable2];
       }
       else return (-1)*r;
-    }    
+    }
 
     if (a1*1>b1*1) return 1*r;
     else return (-1)*r;
@@ -232,7 +232,7 @@ function churchcore_sortArray(data, sortVariable, reverse, alphanumeric) {
     return churchcore_sortArray_alpha(data, sortVariable, reverse);
   else
     return churchcore_sortArray_numeric(data, sortVariable, reverse);
-}  
+}
   
 
 function churchcore_sortArray_alpha(arr, sortVariable, reverse) {
@@ -268,12 +268,12 @@ function churchcore_sortArray_numeric(arr, sortVariable, reverse) {
 // Sortiert nach Sortkey oder wenn der nicht da ist nach Bezeichnung.
 churchcore_sortMasterData = function (data) {
   function sortfunc(a,b) {
-    if ((a==null) || (b==null)) return 0;        
+    if ((a==null) || (b==null)) return 0;
 
     // Erst schauen, ob es ein SortKey gibt, sonst gehe nach Bezeichnung
     if ((a.sortkey!=null) || (b.sortkey!=null)) {
       if (a.sortkey==null) return 1;
-      if (b.sortkey==null) return -1;      
+      if (b.sortkey==null) return -1;
       // Erzwinge numerisch
       if (a.sortkey*1>b.sortkey*1) return 1;
       else return -1;
@@ -284,7 +284,7 @@ churchcore_sortMasterData = function (data) {
       if ((b.id!=null) && (b.id==0)) return 1;
 
       if (a.bezeichnung==null) return 1;
-      if (b.bezeichnung==null) return -1;      
+      if (b.bezeichnung==null) return -1;
       
       var a1 = a.bezeichnung.toLowerCase();
       a1 = a1.replace(/\u00e4/g,"azz");
@@ -370,10 +370,10 @@ String.prototype.formatSM = function() {
 String.prototype.trim = function (len) {
   var str=this.replace(/^(\s|\u00A0)+|(\s|\u00A0)+$/g, '');
   if (len==null) len=str.length;
-  if (str.length>len) 
-	return str.substr(0,len-2)+"..";
-  else 
-	return str;  	
+  if (str.length>len)
+  return str.substr(0,len-2)+"..";
+  else
+  return str;
 };
 
 /**
@@ -410,7 +410,7 @@ String.prototype.toDateEn = function (withTime) {
   else {
     var times=datetime[1].split(":");
     return new Date(dates[0], dates[1]-1, dates[2], times[0], times[1]);
-  }  
+  }
 };
 
 
@@ -426,26 +426,26 @@ String.prototype.toDateDe = function (withTime) {
   var i=str.indexOf(".");
   var day=0;
   
-  if (i>0) 
+  if (i>0)
     day=str.substr(0,i);
   else {
     var d = new Date();
     str=str.toLowerCase();
     // 0 = today!
-    if (str=="0") { 
+    if (str=="0") {
       return d;
     }
-    // Wenn es sich um eine Differenzmeldung geht, also 15t    
-    else if (str.indexOf("t")>0) { 
+    // Wenn es sich um eine Differenzmeldung geht, also 15t
+    else if (str.indexOf("t")>0) {
       d.addDays(str.substr(0,str.indexOf("t"))*(-1))
     }
-    else if (str.indexOf("w")>0) { 
+    else if (str.indexOf("w")>0) {
       d.addDays(str.substr(0,str.indexOf("w"))*(-7))
     }
-    else if (str.indexOf("m")>0) { 
+    else if (str.indexOf("m")>0) {
       d.setMonth(d.getMonth()-str.substr(0,str.indexOf("m"))*1);
     }
-    else if (str.indexOf("j")>0) { 
+    else if (str.indexOf("j")>0) {
       d.setFullYear(d.getFullYear()-str.substr(0,str.indexOf("j"))*1+7000);
     }
     // Only Year, so I add 7000 years
@@ -462,14 +462,14 @@ String.prototype.toDateDe = function (withTime) {
   str=str.substr(i+1,99);
   
   i=str.indexOf(".");
-  if (i>0) 
+  if (i>0)
     month=str.substr(0,i);
-  else if (str>0 && str<=12) { 
+  else if (str>0 && str<=12) {
     month=str;
     str="";
     i=0;
   }
-  else return null; 
+  else return null;
   
   str=str.substr(i+1,99);
   if (str.indexOf(" ")>0)
@@ -510,7 +510,7 @@ function churchcore_isAllDayDate(start, end) {
 }
 
 String.prototype.isGermanDateFormat = function() {
-  return this.search(/([1-9]|0[1-9]|[12][0-9]|3[01])\.([1-9]|0[1-9]|1[012])\.(19|20)\d\d/)!=-1;  
+  return this.search(/([1-9]|0[1-9]|[12][0-9]|3[01])\.([1-9]|0[1-9]|1[012])\.(19|20)\d\d/)!=-1;
 };
 
 
@@ -530,7 +530,7 @@ Date.prototype.toStringDe = function (withTime) {
 
   var str="";
 
-  if (this.getFullYear()<7000) {  
+  if (this.getFullYear()<7000) {
     day=this.getDate();
     if (day<10) day="0"+day;
     month=this.getMonth()+1;
@@ -561,47 +561,47 @@ Date.prototype.toStringDeTime = function () {
 
 function churchcore_getTimeDiff(lastTime) {
   var d=new Date();
-  return (d.getTime()-lastTime.getTime());  
+  return (d.getTime()-lastTime.getTime());
 }
 
 Date.prototype.toStringEn = function (withTime) {
-  if (this==null) return null;	
+  if (this==null) return null;
   d=this;
   if (d==0) return "Kein Datum";
   day=d.getDate();
   if (day<10) day="0"+day;
   month=d.getMonth()+1;
   if (month<10) month="0"+month;
-  if (!withTime) 
+  if (!withTime)
     return d.getFullYear()+"-"+month+"-"+day;
-  else 
+  else
   return d.getFullYear()+"-"+month+"-"+day+" "+d.getHours()+":"+d.getMinutes();
 };
 
 
 Date.prototype.addDays = function(days) {
   this.setDate(this.getDate()+days);
-}; 
+};
 
 Date.prototype.getKW = function() {
-  D0=new Date(this.getFullYear(),0,4); 
-  if(D0.getDay()>0)while(D0.getDay()>0)D0.setDate(D0.getDate()+1); 
-  D0.setDate(D0.getDate()-7); 
-  diff=(this-D0)/6048e5; 
-  diff=diff<=0?'53 (0)':Math.ceil(diff); 
+  D0=new Date(this.getFullYear(),0,4);
+  if(D0.getDay()>0)while(D0.getDay()>0)D0.setDate(D0.getDate()+1);
+  D0.setDate(D0.getDate()-7);
+  diff=(this-D0)/6048e5;
+  diff=diff<=0?'53 (0)':Math.ceil(diff);
   return diff;
 };
 
 /**
- * Get Age in Years 
+ * Get Age in Years
  * returns object:
  *    txt: e.g. "Ca. 12" |�"12"
  *    num: 12
- *    approx: true (now date given)  
+ *    approx: true (now date given)
  */
 Date.prototype.getAgeInYears = function() {
   if (this.getFullYear()==1004) return {};
-  var jetzt=new Date(); 
+  var jetzt=new Date();
   var d=new Date(this.getTime());
   var txt="";
   var i=null;
@@ -615,7 +615,7 @@ Date.prototype.getAgeInYears = function() {
   i=( d>jetzt?(jetzt.getFullYear()-this.getFullYear()-1):(jetzt.getFullYear()-this.getFullYear()));
   txt=txt+i;
   return {txt:txt, num:i, approx:approx};
-}; 
+};
 
 Date.prototype.getDayInText = function() {
   var ArrayTage = new Array
@@ -625,8 +625,8 @@ Date.prototype.getDayInText = function() {
 
 Date.prototype.sameDay = function(date) {
   if (date==null) return false;
-  return ((this.getFullYear()==date.getFullYear()) 
-      && (this.getMonth()==date.getMonth()) 
+  return ((this.getFullYear()==date.getFullYear())
+      && (this.getMonth()==date.getMonth())
       && (this.getDate()==date.getDate()));
 };
 
@@ -673,7 +673,7 @@ function churchcore_datesInConflict(startdate, enddate, startdate2, enddate2) {
     // Wenn ganztags setze Enddatum auf 23:59:59
     _enddate2.addDays(1);
     _enddate2=new Date(_enddate2.getTime()-1);
-  }  
+  }
   // Enddatum2 liegt innerhalb des Datums
   if (((_enddate2>startdate) && (_enddate2<_enddate))
       // oder Startdatum 2liegt innerhalb des Datums
@@ -682,13 +682,13 @@ function churchcore_datesInConflict(startdate, enddate, startdate2, enddate2) {
       || ((startdate2<=startdate) && (_enddate2>=_enddate))
       // oder Datum2 komplett innerhalb 1
       || ((startdate2>=startdate) && (_enddate2<=_enddate))) {
-    if (debug) { 
+    if (debug) {
       console.log("DateConflict! Datum1:"+startdate.toStringDe(true)+"=>"+_enddate.toStringDe(true)+"   -    "+
         "Datum2:"+startdate2.toStringDe(true)+" "+_enddate2.toStringDe(true));
     }
     return true;
   }
-  return false;    
+  return false;
 }
 
   
@@ -704,7 +704,7 @@ function cc_copyArray(source) {
 }
 
 /**
- * Reimplement the jQuery.getScript function. 
+ * Reimplement the jQuery.getScript function.
  * See here for more information why
  * http://techmonks.net/getscript-and-firebug-code/
  */
@@ -796,25 +796,25 @@ function churchcore_storeObject(key, value) {
   if (typeof(localStorage) == 'object' ) {
     try {
       localStorage.setItem(key, JSON.stringify(value));
-    }  
+    }
     catch (e) {
       log("Fehler bei setObject von "+key+": "+e);
 //      if (e == QUOTA_EXCEEDED_ERR) {
 //      }
     }
-  }  
+  }
 }
 
 function churchcore_retrieveObject(key) {
   try {
-    if (typeof(localStorage) == 'object' ) 
+    if (typeof(localStorage) == 'object' )
       return JSON.parse(localStorage.getItem(key));
     else return null;
-    } 
+    }
   catch (e) {
     log("Fehler beim einladen von "+key+"!");
     return null;
-  }  
+  }
 }
 
 Storage.prototype.setObject = function(key, value) {
@@ -838,7 +838,7 @@ function churchcore_getAllDatesWithRepeats(o) {
   var dates=new Array();
   var diff=null;
   if (o.enddate!=null)
-    diff=o.enddate.getTime()-o.startdate.getTime();    
+    diff=o.enddate.getTime()-o.startdate.getTime();
 
 
   // repear_until gibt mir vor, wann Schlu� ist.
@@ -877,7 +877,7 @@ function churchcore_getAllDatesWithRepeats(o) {
         else
           dates.push({startdate:new Date(d), enddate:null});
       }
-      if ((o.repeat_id==1) || (o.repeat_id==7)) {     
+      if ((o.repeat_id==1) || (o.repeat_id==7)) {
         d.addDays(o.repeat_id*o.repeat_frequence); // Also jede zweite Woche gleich 7*2 => 14 Tage
       }
       // monatlich nach Datum
@@ -911,7 +911,7 @@ function churchcore_getAllDatesWithRepeats(o) {
           while (counter<o.repeat_option_id) {
             var m=d.getMonth();
             d.addDays(1);
-            // Pr�fe ob ich den Monat �berspringe, dann hat der Monat nicht genug Tage 
+            // Pr�fe ob ich den Monat �berspringe, dann hat der Monat nicht genug Tage
             // und Termin f�llt flach, v.a. beim 5.Wochentag im Monat)
             if (d.getMonth()!=m) counter=0;
             if (d.getDay()==a.add_date.toDateEn().getDay()) counter=counter+1;
@@ -923,12 +923,12 @@ function churchcore_getAllDatesWithRepeats(o) {
       }
       
       max=max-1;
-    } while ((d<_repeat_until) && (max>0) && (a.with_repeat_yn==1) && (o.repeat_id>0) && (o.repeat_frequence>0));    
-  }); 
+    } while ((d<_repeat_until) && (max>0) && (a.with_repeat_yn==1) && (o.repeat_id>0) && (o.repeat_frequence>0));
+  });
   
   if (max==0) log("Maximale Wiederholung erreicht! ["+o.id+"]");
   return dates;
-}  
+}
 
 $(document).ready(function() {
   $("#email_admin").click(function() {
@@ -944,7 +944,7 @@ $(document).ready(function() {
           if (!ok) alert(data);
           else {
             alert(_("email.was.sent"));
-            elem.dialog("close");          
+            elem.dialog("close");
           }
         }, null, false, "about");
       }
@@ -963,9 +963,9 @@ $(document).ready(function() {
   });
   $("#language_selector").click(function() {
     var form = new CC_Form();
-    var data = [{id:"de", bezeichnung:_("german")}, 
-                {id:"en", bezeichnung:_("english")}, 
-                {id:"fr", bezeichnung:_("french")}]; 
+    var data = [{id:"de", bezeichnung:"deutsch"},
+                {id:"en", bezeichnung:"english"},
+                {id:"fr", bezeichnung:"français"}];
     form.addHtml('<p><p>');
     form.addSelect({data:data, label:_("please.select.your.language"), htmlclass:"language"});
     var elem=form_showDialog(_("select.language"), form.render(null, "vertical"), 300, 300).

@@ -36,19 +36,19 @@ class CTChurchDBModule extends CTAbstractModule {
     $res["user_pid"] = $user->id;
     $res["userid"] = $user->vorname. " ". $user->cmsuserid. " [". $user->id. "]";
     $res["auth"] = churchdb_getAuthForAjax();
-    $res["site_name"] = readConf('site_name', 'ChurchTools');
+    $res["site_name"] = getConf('site_name');
     $res["modulespath"] = churchdb_getModulesPath();
     $res["files_url"] = $base_url. $files_dir;
     $res["modulename"] = "churchdb";
-    $res["max_uploadfile_size_kb"] = readConf('max_uploadfile_size_kb');
-    $res["adminemail"] = readConf('site_mail', '');
-    $res["max_exporter"] = readConf('churchdb_maxexporter', '150');
-    $res["groupnotchoosable"] = readConf('churchdb_groupnotchoosable', 30);
-    $res["home_lat"] = readConf('churchdb_home_lat', '53.568537');
-    $res["home_lng"] = readConf('churchdb_home_lng', '10.03656');
+    $res["max_uploadfile_size_kb"] = getConf('max_uploadfile_size_kb');
+    $res["adminemail"] = getConf('site_mail', '');
+    $res["max_exporter"] = getConf('churchdb_maxexporter', '150');
+    $res["groupnotchoosable"] = getConf('churchdb_groupnotchoosable', 30);
+    $res["home_lat"] = getConf('churchdb_home_lat', '53.568537');
+    $res["home_lng"] = getConf('churchdb_home_lng', '10.03656');
     $res["settings"] = churchdb_getUserSettings($user->id);
     $res["last_log_id"] = churchdb_getLastLogId();
-    $res["mailchimp"] = readConf('churchdb_mailchimp_apikey')!= "";
+    $res["mailchimp"] = getConf('churchdb_mailchimp_apikey')!= "";
     if (user_access("administer persons", "churchcore")) $res["auth_table"] = churchdb_getAuthTable();
 
     if (isset($res["auth"]["edit newsletter"])) {
@@ -62,29 +62,51 @@ class CTChurchDBModule extends CTAbstractModule {
     return $res;
   }
 
-
+  /**
+   * get relations for person
+   * @param array $params
+   * @return array with retalions
+   */
   public function getAllRels($params) {
     return getAllRelations();
   }
 
 
+  /**
+   * handle mailchimp actions
+   * @param array $params
+   * @return stdClass|int|nothing
+   */
   public function mailchimp($params) {
     if ($params["sub"]== "load") return churchdb_loadMailchimp();
     else if ($params["sub"]== "add") return churchdb_addMailchimpRelation($params);
     else if ($params["sub"]== "del") return churchdb_delMailchimpRelation($params);
   }
 
-
+  /**
+   * send SMS
+   * @param array $params
+   * @return array
+   */
   public function sendsms($params) {
     $this->checkPerm("send sms");
     return churchdb_sendsms($params["ids"], $params["smstxt"]);
   }
 
-
+  /**
+   * get log news newer then last_id
+   * @param array $params (last_id)
+   * @return array
+   */
   public function pollForNews($params) {
     return churchdb_pollForNews($params["last_id"]);
   }
 
+  /**
+   * 
+   * @param unknown $params (p_id)
+   * @return NULL|array of person objects
+   */
   public function getAllPersonData($params) {
     if (isset($params["p_id"])) {
       // Check against SQL-Injection
@@ -112,6 +134,11 @@ class CTChurchDBModule extends CTAbstractModule {
     return churchdb_getPersonDetailsLogs($params["id"]);
   }
 
+  /**
+   * 
+   * @param array $params
+   * @return array (searchable, oldGroupRelations, tagRelations)
+   */
   public function getSearchableData($params) {
     $res["searchable"] = getSearchableData();
     $res["oldGroupRelations"] = getOldGroupRelations();
@@ -131,6 +158,7 @@ class CTChurchDBModule extends CTAbstractModule {
     $this->checkPerm("create person");
     $res = createAddress($params);
     if (isset($res["id"])) $this->logPerson($params, 2);
+    
     return $res;
   }
 
@@ -166,9 +194,15 @@ class CTChurchDBModule extends CTAbstractModule {
     $res = saveNote($params["id"], $params["note"], $params["comment_viewer"], (isset($params["relation_name"]) ? $params["relation_name"] : "person"));
     if (isset($params["followup_count_no"])) {
       $gp_id = _churchdb_getGemeindepersonIdFromPersonId($params["id"]);
-      db_query("UPDATE {cdb_gemeindeperson_gruppe} SET followup_count_no=". $params["followup_count_no"].
-      ", followup_add_diff_days=". $params["followup_add_diff_days"]. " WHERE gemeindeperson_id=". $gp_id.
-      " AND gruppe_id=". $params["followup_gid"]);
+      
+      db_query("UPDATE {cdb_gemeindeperson_gruppe} 
+                SET followup_count_no=:followup_count, followup_add_diff_days=:followup_diff 
+                WHERE gemeindeperson_id=:gp_id AND gruppe_id=:followup_gid",
+                array(':followup_count' => $params["followup_count_no"],
+                      ':followup_add_diff_days' => $params["followup_diff"],
+                      ':gp_id' => $gp_id,
+                      ':followup_gid' => $params["followup_gid"]
+                ));
     }
     $this->logPerson($params, 2);
     return $res;
@@ -189,14 +223,15 @@ class CTChurchDBModule extends CTAbstractModule {
   public function GroupMeeting($params) {
     $this->logGroup($params, 3);
 
-    if ($params["sub"]== "getList") $res = getGroupMeeting($params["g_id"]);
-    else if ($params["sub"]== "canceled") $res = cancelGroupMeeting($params["gt_id"]);
-    else if ($params["sub"]== "create") createGroupMeetings();
-    else if ($params["sub"]== "stats") $res = getGroupMeetingStats($params["id"]);
-    else if ($params["sub"]== "delete") $res = deleteGroupMeetingStats($params["id"]);
+    if      ($params["sub"]== "getList")        $res = getGroupMeeting($params["g_id"]);
+    else if ($params["sub"]== "canceled")       $res = cancelGroupMeeting($params["gt_id"]);
+    else if ($params["sub"]== "create")         createGroupMeetings();
+    else if ($params["sub"]== "stats")          $res = getGroupMeetingStats($params["id"]);
+    else if ($params["sub"]== "delete")         $res = deleteGroupMeetingStats($params["id"]);
     else if ($params["sub"]== "saveProperties") $res = savePropertiesGroupMeetingStats($params);
-    else if ($params["sub"]== "editCheckin") $res = editCheckinGroupMeetingStats($params);
+    else if ($params["sub"]== "editCheckin")    $res = editCheckinGroupMeetingStats($params);
     else throw new CTException("Error in GroupMeeting, unkown sub.");
+    
     return $res;
   }
 
@@ -206,8 +241,10 @@ class CTChurchDBModule extends CTAbstractModule {
 
   public function del_note($params) {
     $this->checkPerm("write access");
-    $sql = "DELETE FROM {cdb_comment} WHERE id=". $params["comment_id"];
-    db_query($sql);
+    
+    db_query("DELETE FROM {cdb_comment} 
+              WHERE id=:id",
+              array(':id' => $params["comment_id"]));
     $this->logPerson($params);
   }
 
@@ -245,21 +282,30 @@ class CTChurchDBModule extends CTAbstractModule {
   public function delPersonTag($params) {
     $this->logPerson($params);
     $gp_id = _churchdb_getGemeindepersonIdFromPersonId($params["id"]);
-    db_query("DELETE FROM {cdb_gemeindeperson_tag} WHERE tag_id=". $params["tag_id"]. " AND gemeindeperson_id=$gp_id");
+    
+    db_query("DELETE FROM {cdb_gemeindeperson_tag} 
+              WHERE tag_id=:tag_id AND gemeindeperson_id=:gp_id",
+              array(':id' => $params["tag_id"], ':gp_id' => $gp_id));
   }
 
   public function delGroupTag($params) {
-    db_query("DELETE FROM {cdb_gruppe_tag} WHERE tag_id=". $params["tag_id"]. " AND gruppe_id=". $params["id"]);
+    
+    db_query("DELETE FROM {cdb_gruppe_tag} 
+              WHERE tag_id=:tag_id AND gruppe_id=:gp_id",
+              array(':id' => $params["tag_id"], ':gp_id' => $gp_id));
   }
 
   public function addNewTag($params) {
     global $user;
+    
     $dt = new DateTime();
-    $new_id = db_insert('cdb_tag')->fields(array (
+    $new_id = db_insert('cdb_tag')
+      ->fields(array (
         "bezeichnung" => $params["bezeichnung"],
         "letzteaenderung" => $dt->format('Y-m-d H:i:s'),
         "aenderunguser" => $user->cmsuserid,
-    ))->execute();
+      ))->execute();
+      
     return $new_id;
     cdb_log("addNewTag: ". $params["bezeichnung"], 2, $new_id, CDB_LOG_TAG); // never executed!
   }
@@ -267,21 +313,25 @@ class CTChurchDBModule extends CTAbstractModule {
   public function addPersonTag($params) {
     $dt = new DateTime();
     $gp_id = _churchdb_getGemeindepersonIdFromPersonId($params["id"]);
-    $new_id = db_insert('cdb_gemeindeperson_tag')->fields(array (
+    
+    $new_id = db_insert('cdb_gemeindeperson_tag')
+      ->fields(array (
         "gemeindeperson_id" => $gp_id,
         "tag_id" => $params["tag_id"],
         "letzteaenderung" => $dt->format('Y-m-d H:i:s'),
-    ))->execute();
+      ))->execute();
     $this->logPerson($params);
   }
 
   public function addGroupTag($params) {
     $dt = new DateTime();
-    $new_id = db_insert('cdb_gruppe_tag')->fields(array (
+    
+    $new_id = db_insert('cdb_gruppe_tag')
+      ->fields(array (
         "gruppe_id" => $params["id"],
         "tag_id" => $params["tag_id"],
         "letzteaenderung" => $dt->format('Y-m-d H:i:s'),
-    ))->execute();
+      ))->execute();
     $this->logPerson($params);
   }
 
@@ -289,21 +339,24 @@ class CTChurchDBModule extends CTAbstractModule {
     global $user;
     $this->checkPerm("administer groups");
     $dt = new DateTime();
-    $new_id = db_insert('cdb_person_distrikt')->fields(array (
+    $new_id = db_insert('cdb_person_distrikt')
+      ->fields(array (
         "person_id" => $params["id"],
         "distrikt_id" => $params["distrikt_id"],
         "modified_pid" => $user->id,
         "modified_date" => $dt->format('Y-m-d H:i:s'),
-    ))->execute();
+      ))->execute();
     $this->logPerson($params);
   }
 
   public function delPersonDistrictRelation($params) {
     $this->checkPerm("administer groups");
-    db_query("DELETE FROM {cdb_person_distrikt} WHERE person_id=:id AND distrikt_id=:distrikt_id", array (
-    ":id" => $params["id"],
-    ":distrikt_id" => $params["distrikt_id"],
-    ));
+    
+    db_query("DELETE FROM {cdb_person_distrikt} 
+              WHERE person_id=:id AND distrikt_id=:distrikt_id", 
+              array (":id" => $params["id"], 
+                     ":distrikt_id" => $params["distrikt_id"],
+              ));
     $this->logPerson($params);
   }
 
@@ -311,21 +364,25 @@ class CTChurchDBModule extends CTAbstractModule {
     global $user;
     $this->checkPerm("administer groups");
     $dt = new DateTime();
-    $new_id = db_insert('cdb_person_gruppentyp')->fields(array (
+    
+    $new_id = db_insert('cdb_person_gruppentyp')
+      ->fields(array (
         "person_id" => $params["id"],
         "gruppentyp_id" => $params["gruppentyp_id"],
         "modified_pid" => $user->id,
         "modified_date" => $dt->format('Y-m-d H:i:s')
-    ))->execute();
+      ))->execute();
     $this->logPerson($params);
   }
 
   public function delPersonGruppentypRelation($params) {
     $this->checkPerm("administer groups");
-    db_query("DELETE FROM {cdb_person_gruppentyp} WHERE person_id=:id AND gruppentyp_id=:gruppentyp_id", array (
-    ":id" => $params["id"],
-    ":gruppentyp_id" => $params["gruppentyp_id"],
-    ));
+    
+    db_query("DELETE FROM {cdb_person_gruppentyp} 
+        WHERE person_id=:id AND gruppentyp_id=:gruppentyp_id", 
+        array (":id" => $params["id"], 
+               ":gruppentyp_id" => $params["gruppentyp_id"],
+        ));
     $this->logPerson($params);
   }
 
@@ -343,9 +400,9 @@ class CTChurchDBModule extends CTAbstractModule {
 
   public function addPersonGroupRelation($params) {
     return churchdb_addPersonGroupRelation($params["id"], $params["g_id"], $params["leader"], $params["date"],
-        (isset($params["followup_count_no"]) ? $params["followup_count_no"] : null),
-        (isset($params["followup_erfolglos_zurueck_gruppen_id"]) ? $params["followup_erfolglos_zurueck_gruppen_id"] : null),
-        (isset($params["comment"]) ? $params["comment"] : null));
+        getVar("followup_count_no", null, $param),
+        getVar("followup_erfolglos_zurueck_gruppen_id", null, $param),
+        getVar("comment", null, $param));
   }
 
   public function getPersonByName($params) {
@@ -365,19 +422,22 @@ class CTChurchDBModule extends CTAbstractModule {
     return churchdb_setPersonPassword($params["id"], $params["password"]);
   }
 
+  // TODO: is $_POST imporant here or is $_REQUEST sufficient?
   public function sendEMailToPersonIds($params) {
     return churchcore_sendEMailToPersonIds($_POST["ids"], $_POST["betreff"], $_POST["inhalt"], null, true, false);
   }
 
   public function loadAuthData($params) {
     if (user_access("administer persons", "churchcore")) {
-      $res["cdb_bereich"] = (object) churchcore_getTableData("cdb_bereich");
-      $res["cdb_comment_viewer"] = (object) churchcore_getTableData("cdb_comment_viewer");
-      $res["cs_servicegroup"] = (object) churchcore_getTableData("cs_servicegroup");
-      $res["cs_songcategory"] = (object) churchcore_getTableData("cs_songcategory");
-      $res["cc_wikicategory"] = (object) churchcore_getTableData("cc_wikicategory");
-      $res["cc_calcategory"] = (object) churchcore_getTableData("cc_calcategory");
-      $res["cr_resource"] = (object) churchcore_getTableData("cr_resource");
+      $res = array("cdb_bereich"        => (object) churchcore_getTableData("cdb_bereich"),
+                   "cdb_comment_viewer" => (object) churchcore_getTableData("cdb_comment_viewer"),
+                   "cs_servicegroup"    => (object) churchcore_getTableData("cs_servicegroup"),
+                   "cs_songcategory"    => (object) churchcore_getTableData("cs_songcategory"),
+                   "cc_wikicategory"    => (object) churchcore_getTableData("cc_wikicategory"),
+                   "cc_calcategory"     => (object) churchcore_getTableData("cc_calcategory"),
+                   "cr_resource"        => (object) churchcore_getTableData("cr_resource"),
+             );
+      
       return $res;
     }
   }
@@ -394,23 +454,27 @@ class CTChurchDBModule extends CTAbstractModule {
 
   public function getGroupAutomaticEMail($params) {
     $this->checkPerm("administer groups");
-    return db_query("SELECT * FROM {cdb_gruppenteilnehmer_email} WHERE gruppe_id=:gruppe_id AND status_no=:status_no", array (
-        ":gruppe_id" => $params["id"],
-        ":status_no" => $params["status_no"]
-    ))->fetch();
+    
+    return db_query("SELECT * FROM {cdb_gruppenteilnehmer_email} 
+                     WHERE gruppe_id=:gruppe_id AND status_no=:status_no", 
+                     array (
+                       ":gruppe_id" => $params["id"],
+                       ":status_no" => $params["status_no"],
+                     ))->fetch();
   }
 
   public function saveGroupAutomaticEMail($params) {
     $this->checkPerm("administer groups");
-    db_query("INSERT INTO {cdb_gruppenteilnehmer_email} (gruppe_id, status_no, aktiv_yn, sender_pid, email_betreff, email_inhalt)
-         VALUES (:gruppe_id, :status_no, :aktiv_yn, :sender_pid, :email_betreff, :email_inhalt)
-         ON DUPLICATE KEY UPDATE aktiv_yn=:aktiv_yn, sender_pid=:sender_pid, email_betreff=:email_betreff, email_inhalt=:email_inhalt", array (
-         ':gruppe_id' => $params["id"],
-         ':status_no' => $params["status_no"],
-         ':aktiv_yn' => $params["aktiv_yn"],
-         ':sender_pid' => $params["sender_pid"],
-         ':email_betreff' => $params["email_betreff"],
-         ':email_inhalt' => $params["email_inhalt"],
+    db_query("
+      INSERT INTO {cdb_gruppenteilnehmer_email} (gruppe_id, status_no, aktiv_yn, sender_pid, email_betreff, email_inhalt)
+      VALUES (:gruppe_id, :status_no, :aktiv_yn, :sender_pid, :email_betreff, :email_inhalt)
+      ON DUPLICATE KEY UPDATE aktiv_yn=:aktiv_yn, sender_pid=:sender_pid, email_betreff=:email_betreff, email_inhalt=:email_inhalt", 
+      array ( ':gruppe_id' => $params["id"],
+              ':status_no' => $params["status_no"],
+              ':aktiv_yn' => $params["aktiv_yn"],
+              ':sender_pid' => $params["sender_pid"],
+              ':email_betreff' => $params["email_betreff"],
+              ':email_inhalt' => $params["email_inhalt"],
     ));
   }
 
@@ -462,4 +526,3 @@ class CTChurchDBModule extends CTAbstractModule {
   }
 
 }
-?>

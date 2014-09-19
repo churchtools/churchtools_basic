@@ -173,7 +173,7 @@ div.fixed {
     }
 	.well {
 	  border-width: 4px !important;
-      background-color: #e7eef4 !important;
+    background-color: #e7eef4 !important;
 	}
 	th {
       background-color: #e7eef4 !important;
@@ -197,7 +197,7 @@ div.fixed {
 @media screen {
 	div.event_info {
       max-width:250px;
-	}
+  }
 }
 
 .series {

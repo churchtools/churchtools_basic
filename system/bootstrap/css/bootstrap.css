@@ -4712,6 +4712,16 @@ a.thumbnail:hover {
 .open .dropdown-toggle {
   outline: 0;
 }
+
+.dropdown-header {
+  display: block;
+  padding: 3px 20px;
+  font-size: 12px;
+  line-height: 1.42857143;
+  color: #777;
+  white-space: nowrap;
+}
+
 .caret {
   display: inline-block;
   width: 0;

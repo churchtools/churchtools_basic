@@ -94,18 +94,20 @@ class TextBundle {
    *          any params as variables for the key variable.
    */
   public function getText($text) {
-    $args = null;
+    $args = false;
     if (func_num_args() > 1) {
       $args = array_slice(func_get_args(), 1);
     }
     
-    $template = null;
+    $template = false;
     if (isset($this->bundle[$text])) {
       $template = $this->bundle[$text];
     }
-    // TODO: maybe add missed text keys to the xml file for easier translating?
+    else{
+      // TODO: maybe add missed text keys to the xml file for easier translating?
+    }
     
-    if ($template != null && $args != null) {
+    if ($template && $args ) {
       $idx = 0;
       foreach ($args as $arg) {
         $template = str_replace("}", "", str_replace("{" . $idx, $arg, $template)); // %$#@^$ PHP's curly brackets! >:-(
@@ -113,7 +115,7 @@ class TextBundle {
       }
     }
     
-    return $template != null ? $template : ("***" . $text . "***");
+    return $template ? $template : ("***" . $text . "***");
   }
 
   /**

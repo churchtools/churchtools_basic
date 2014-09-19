@@ -22,8 +22,10 @@ class CTHomeModule extends CTAbstractModule {
       include_once ('./'. CHURCHDB. '/churchdb_db.php');
       $res["mygroups"] = churchdb_getMyGroups($user->id, false, false);
       foreach ($res["mygroups"] as $g) {
-        if (!isset($g->status_no)|| (($g!= null)&& ($g->members_allowedmail_eachother_yn== 0)&& ($g->status_no!= 1)&&
-            ($g->status_no!= 2))) unset($res["mygroups"][$g->id]);
+        if (!isset($g->status_no) || 
+            (($g!= null) && ($g->members_allowedmail_eachother_yn== 0) && ($g->status_no!= 1) && ($g->status_no!= 2))) {
+          unset($res["mygroups"][$g->id]);
+        }
       }
     }
     if (in_array("churchcal", $modules)) {
@@ -52,19 +54,28 @@ class CTHomeModule extends CTAbstractModule {
    */
   public function undoLastUpdateEventService($params) {
     global $user;
-    if ($params["old_id"]!= $params["new_id"]) {
-      $db = db_query("select * from {cs_eventservice} where id=:id and modified_pid=:user_id",
-          array (':id' => $params["new_id"], ':user_id' => $user->id))->fetch();
-      if ($db == false) throw new CTNoPermission("undoLastUpdateEventService", "home");
+    if ($params["old_id"] !=  $params["new_id"]) {
+      $db = db_query("SELECT * FROM {cs_eventservice} 
+                      WHERE id=:id AND modified_pid=:user_id",
+                      array (':id' => $params["new_id"], ':user_id' => $user->id))
+                      ->fetch();
+      if (!$db) throw new CTNoPermission("undoLastUpdateEventService", "home");
 
-      db_query('delete from {cs_eventservice} where id=:id and modified_pid=:user_id',
-      array (':id' => $params["new_id"], ':user_id' => $user->id));
-      db_query('update {cs_eventservice} set valid_yn=1 where id=:id ', array (':id' => $params["old_id"]));
+      db_query('DELETE FROM {cs_eventservice} 
+                WHERE id=:id and modified_pid=:user_id',
+                array (':id' => $params["new_id"], ':user_id' => $user->id));
+      
+      db_query('UPDATE {cs_eventservice} SET valid_yn=1 
+                WHERE id=:id ', 
+                array (':id' => $params["old_id"]));
     }
     else {
-      db_query('update {cs_eventservice} set valid_yn=1, cdb_person_id=:user_id,
-               zugesagt_yn=0, name=:name where id=:id and modified_pid=:user_id',
-               array (':id' => $params["old_id"], ':user_id' => $user->id,'name' => "$user->vorname $user->name"));
+      db_query('UPDATE {cs_eventservice} SET valid_yn=1, cdb_person_id=:user_id, zugesagt_yn=0, name=:name 
+                WHERE id=:id and modified_pid=:user_id',
+                array (':id' => $params["old_id"], 
+                       ':user_id' => $user->id,
+                       'name' => "$user->vorname $user->name",
+                ));
     }
   }
 
@@ -75,8 +86,12 @@ class CTHomeModule extends CTAbstractModule {
    */
   public function addReasonToEventService($params) {
     global $user;
-    db_query('update {cs_eventservice} set reason=:reason where id=:id and modified_pid=:user_id',
-    array (':reason' => $params["reason"], ':id' => $params["id"], ':user_id' => $user->id));
+    db_query('UPDATE {cs_eventservice} SET reason=:reason 
+              WHERE id=:id AND modified_pid=:user_id',
+              array (':reason' => $params["reason"], 
+                     ':id' => $params["id"], 
+                     ':user_id' => $user->id,
+              ));
   }
 
   /**
@@ -89,10 +104,8 @@ class CTHomeModule extends CTAbstractModule {
     include_once ('./'. CHURCHDB. '/churchdb_db.php');
     $groups = churchdb_getMyGroups($user->id, true, false);
     if (empty($groups[$params["groupid"]])) throw new CTException("Group is not allowed!");
-    $ids = churchdb_getAllPeopleIdsFromGroups(array ($params["groupid"]
-    ));
-    churchcore_sendEMailToPersonids(implode(",", $ids), "[". variable_get('site_name', 'ChurchTools').
-    "] Nachricht von $user->vorname $user->name", $params["message"], null, true);
+    $ids = churchdb_getAllPeopleIdsFromGroups(array($params["groupid"]));
+    churchcore_sendEMailToPersonids(implode(",", $ids), "[" . getConf('site_name') . "] " . t('message.from.x', "$user->vorname  $user->name"), $params["message"], null, true);
   }
 
   /**
@@ -105,4 +118,3 @@ class CTHomeModule extends CTAbstractModule {
   }
 
 }
-?>
