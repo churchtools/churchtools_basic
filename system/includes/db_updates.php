@@ -1926,31 +1926,36 @@ function run_db_updates($db_version) {
     }
     
     set_version("2.50");
+
+  case '2.50':
+    
+    db_query("ALTER TABLE {cs_item} CHANGE note note VARCHAR(1024)");
+    set_version("2.51");    
+    
   } //end switch
-    
 	  
-    $a=db_query("select * from {cc_config} where name='version'",null,false);
-    $software_version=$a->fetch()->value;
-    
-    $link=' <a href="https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc:changelog/" target="_clean">Neuigkeiten anschauen</a>';
-    
-    if ($db_version == "nodb")
-      addInfoMessage("Datenbankupdates ausgef&uuml;hrt auf v$software_version.");
-    else
-      addInfoMessage("Datenbankupdates ausgef&uuml;hrt von <I>".variable_get("site_name")."</i>. Versionswechsel von $db_version auf $software_version. $link");
+  $a=db_query("select * from {cc_config} where name='version'",null,false);
+  $software_version=$a->fetch()->value;
+  
+  $link=' <a href="https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc:changelog/" target="_clean">Neuigkeiten anschauen</a>';
+  
+  if ($db_version == "nodb")
+    addInfoMessage("Datenbankupdates ausgef&uuml;hrt auf v$software_version.");
+  else
+    addInfoMessage("Datenbankupdates ausgef&uuml;hrt von <I>".variable_get("site_name")."</i>. Versionswechsel von $db_version auf $software_version. $link");
   
   cleandir("$files_dir/files/messages/"); //delete temporal i18n files
   
-    $sitename=$config["site_name"];
-    churchcore_systemmail($config["site_mail"], "Neue Version auf ".$config["site_name"], 
-        "Datenbankupdates ausgef&uuml;hrt von ".variable_get("site_name")."' v$db_version auf v$software_version. $link<br/><br/>".
-           "<a href=\"$base_url\" class=\"btn\">$sitename aufrufen</a>", true);
-    if (userLoggedIn()) {
-      $user=$_SESSION["user"];
-      $user->auth=getUserAuthorization($user->id);
-      $_SESSION["user"]=$user;
-    }
-    return true;
+  $sitename=$config["site_name"];
+  churchcore_systemmail($config["site_mail"], "Neue Version auf ".$config["site_name"], 
+      "Datenbankupdates ausgef&uuml;hrt von ".variable_get("site_name")."' v$db_version auf v$software_version. $link<br/><br/>".
+         "<a href=\"$base_url\" class=\"btn\">$sitename aufrufen</a>", true);
+  if (userLoggedIn()) {
+    $user=$_SESSION["user"];
+    $user->auth=getUserAuthorization($user->id);
+    $_SESSION["user"]=$user;
+  }
+  return true;
 }
 
 ?>

@@ -491,23 +491,25 @@ function churchdb_getPersonDetails($id, $withComments = true) {
   $sql .= ' FROM {cdb_person} p, {cdb_gemeindeperson} gp WHERE p.id=gp.person_id AND p.id=:pid';
   
   $person = db_query($sql, array (':pid' => $id))->fetch();
-  if ($withComments) {
-    $comments = db_query("SELECT id, text, person_id, datum, comment_viewer_id, relation_name 
-                          FROM {cdb_comment}
-                          WHERE relation_id=:relid AND relation_name like 'person%'
-                          ORDER BY datum desc", 
-                          array (':relid' => $id));
-    $auth = user_access("view comments", "churchdb");
-    if (($comments) && ($auth != null)) { // TODO: test for auth before DB query? if ($withComments &&
-                                        // $auth=user_access("view comments","churchdb"))
-      $arrs = null;
-      foreach ($comments as $arr) {
-        if ((isset($auth[$arr->comment_viewer_id])) && ($auth[$arr->comment_viewer_id] == $arr->comment_viewer_id)) $arrs[] = $arr;
+  if ($person!==false) {
+    if ($withComments) {
+      $comments = db_query("SELECT id, text, person_id, datum, comment_viewer_id, relation_name 
+                            FROM {cdb_comment}
+                            WHERE relation_id=:relid AND relation_name like 'person%'
+                            ORDER BY datum desc", 
+                            array (':relid' => $id));
+      $auth = user_access("view comments", "churchdb");
+      if (($comments) && ($auth != null)) { // TODO: test for auth before DB query? if ($withComments &&
+                                          // $auth=user_access("view comments","churchdb"))
+        $arrs = null;
+        foreach ($comments as $arr) {
+          if ((isset($auth[$arr->comment_viewer_id])) && ($auth[$arr->comment_viewer_id] == $arr->comment_viewer_id)) $arrs[] = $arr;
+        }
+        $person->comments = $arrs;
       }
-      $person->comments = $arrs;
     }
+    $person->auth = getAuthForPerson($id);
   }
-  $person->auth = getAuthForPerson($id);
   return $person;
 }
 
