@@ -15,17 +15,17 @@ $add_header = ""; // http headers?
 $content = ""; // page content
 $user = null; // user
 $embedded = false; //
-$i18n = null; // translation object 
+$i18n = null; // translation object
 $ajax = false; // to find out if its an ajax call
 
 // TODO: most functions should be moved to churchcore/functions.php
-// then the remaining code may be put into index.php 
-// or we could put the content of churchtools_main direct in this file 
+// then the remaining code may be put into index.php
+// or we could put the content of churchtools_main direct in this file
 
 /**
- * Shutdown fuction, if an error happened, an error message is displayed.
+ * Shutdown function, if an error happened, an error message is displayed.
  * FIXME: need to be changed - this errors are corrupting json answers
- * 
+ *
  * global $ajax currently will be set to true in CTAjaxHandler! (there are errors caused by debugging which was hindering)
  * if error on ajax is needed, add something like $json['error'] = $info;
  *
@@ -96,12 +96,12 @@ function loadConfig() {
           <li>Per-domain appliance: <code>/etc/churchtools/hosts/" . $_SERVER["SERVER_NAME"] . ".conf</code></li>
           <li>Shared hosting per domain: <code><i>YOUR_INSTALLATION</i>/sites/" . $_SERVER["SERVER_NAME"] . "/churchtools.config</code></li>
           <li>Hosting per sub-domain: <code><i>YOUR_INSTALLATION</i>/sites/<b>&lt;subdomain&gt;.&lt;domain&gt;</b>/churchtools.config</code></li>
-          <li>Shared hosting default (single installation): 
+          <li>Shared hosting default (single installation):
               <code><i>YOUR_INSTALLATION</i>/" . DEFAULT_SITE . "/churchtools.config</code>
           </li>
         </ul>
         <div class=\"alert alert-info\">You can also use <strong>example</strong> file in
-          <code><i>INSTALLATION</i>/" . DEFAULT_SITE . "/churchtools.example.config</code> 
+          <code><i>INSTALLATION</i>/" . DEFAULT_SITE . "/churchtools.example.config</code>
           by renaming it to either location that suits your setup and edit it to meet your needs.</div>";
     
     addErrorMessage($error_message);
@@ -158,9 +158,9 @@ function loadUserObjectInSession() {
     if ($q != "logout" && isset($_COOKIE['RememberMe']) && $_COOKIE['RememberMe'] == 1) {
       if (isset($_COOKIE['CC_SessionId'])) {
         
-        $res = db_query("SELECT * FROM {cc_session} 
-                         WHERE session=:session AND hostname=:hostname", 
-                         array(":session" => $_COOKIE['CC_SessionId'], 
+        $res = db_query("SELECT * FROM {cc_session}
+                         WHERE session=:session AND hostname=:hostname",
+                         array(":session" => $_COOKIE['CC_SessionId'],
                                ":hostname" => $_SERVER["HTTP_HOST"]
                ));
         // if session exists, read user data
@@ -168,8 +168,8 @@ function loadUserObjectInSession() {
           $res = $res->fetch();
           if (isset($res->person_id)) {
             
-            $res = db_query("SELECT * FROM {cdb_person} 
-                             WHERE id=:id", 
+            $res = db_query("SELECT * FROM {cdb_person}
+                             WHERE id=:id",
                              array (":id" => $res->person_id))
                              ->fetch();
             $res->auth = getUserAuthorization($res->id);
@@ -186,11 +186,11 @@ function loadUserObjectInSession() {
     if (isset($_COOKIE['CC_SessionId'])) {
       $dt = new DateTime();
       
-      db_query("UPDATE {cc_session} SET datum=:datum 
-                WHERE person_id=:p_id AND session=:session AND hostname=:hostname", 
-                array (":datum" => $dt->format('Y-m-d H:i:s'), 
-                       ":session" => $_COOKIE['CC_SessionId'], 
-                       ":p_id" => $_SESSION["user"]->id, 
+      db_query("UPDATE {cc_session} SET datum=:datum
+                WHERE person_id=:p_id AND session=:session AND hostname=:hostname",
+                array (":datum" => $dt->format('Y-m-d H:i:s'),
+                       ":session" => $_COOKIE['CC_SessionId'],
+                       ":p_id" => $_SESSION["user"]->id,
                        ":hostname" => $_SERVER["HTTP_HOST"],
                 ));
     }
@@ -204,8 +204,8 @@ function pleaseAcceptDatasecurity() {
   global $user, $q;
   include_once (CHURCHWIKI . "/churchwiki.php");
   if (getVar("acceptsecurity")) {
-    db_query("UPDATE {cdb_person} 
-              SET acceptedsecurity=current_date() 
+    db_query("UPDATE {cdb_person}
+              SET acceptedsecurity=current_date()
               WHERE id=$user->id");
     $user->acceptedsecurity = new DateTime();
     addInfoMessage(t("datasecurity.accept.thanks"));
@@ -229,7 +229,7 @@ function pleaseAcceptDatasecurity() {
  * calls churchservice => churchservice_main or churchservice/ajax => churchservice_ajax
  *
  * @param $q - Complete request URL inkl. suburl e.g. churchservice/ajax
- *          
+ *
  *          TODO: should completely rewritten, using some classes
  */
 function churchtools_processRequest($_q) {
@@ -287,7 +287,7 @@ function churchtools_processRequest($_q) {
  * It calls churchtools_app().
  */
 function churchtools_main() {
-  try {  
+  try {
     //TODO: find a good place for constants.php
     require ("system/includes/constants.php");
     include_once (INCLUDES."/functions.php");
@@ -321,7 +321,7 @@ function churchtools_main() {
 
 /**
  * TODO: put this into churchtools_main, no need for two functions
- * 
+ *
  * Main entry point for churchtools.
  * This will be called from /index.php
  * Function loads i18n, configuration, check data security.

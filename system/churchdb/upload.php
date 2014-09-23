@@ -1,11 +1,10 @@
 <?php
 
-/** 
- * FIXME:
- * content of class qqFileUploader in churchcore/uploadfile.php,
- * moved into qqFileUploader.class.php is not the same as here.  
+/**
+ * FIXME:content of class qqFileUploader in churchcore/uploadfile.php,
+ * moved into qqFileUploader.class.php is not the same as here.
  * There are differences in qqFileUploader::handleUpload, please integrate it to this class
- * 
+ *
  */
 
 function churchdb__uploadImage() {
@@ -30,31 +29,31 @@ function churchdb__uploadImage() {
 //     private $sizeLimit = 10485760;
 //     private $file;
 
-//     function __construct(array $allowedExtensions = array(), $sizeLimit = 10485760){        
+//     function __construct(array $allowedExtensions = array(), $sizeLimit = 10485760){
 //         $allowedExtensions = array_map("strtolower", $allowedExtensions);
             
-//         $this->allowedExtensions = $allowedExtensions;        
+//         $this->allowedExtensions = $allowedExtensions;
 //         $this->sizeLimit = $sizeLimit;
         
-//         $this->checkServerSettings();       
+//         $this->checkServerSettings();
 
 //         if (isset($_GET['qqfile'])) {
 //             $this->file = new qqUploadedFileXhr();
 //         } elseif (isset($_FILES['qqfile'])) {
 //             $this->file = new qqUploadedFileForm();
 //         } else {
-//             $this->file = false; 
+//             $this->file = false;
 //         }
 //     }
     
-//     private function checkServerSettings(){        
+//     private function checkServerSettings(){
 //         $postSize = $this->toBytes(ini_get('post_max_size'));
-//         $uploadSize = $this->toBytes(ini_get('upload_max_filesize'));        
+//         $uploadSize = $this->toBytes(ini_get('upload_max_filesize'));
         
 //         if ($postSize < $this->sizeLimit || $uploadSize < $this->sizeLimit){
-//             $size = max(1, $this->sizeLimit / 1024 / 1024) . 'M';             
-//             die("{'error':'Bitte post_max_size und upload_max_filesize erhoehen auf mindestens $size (current-PostSize:$postSize, current-UploadSize: $uploadSize)'}");    
-//         }        
+//             $size = max(1, $this->sizeLimit / 1024 / 1024) . 'M';
+//             die("{'error':'Bitte post_max_size und upload_max_filesize erhoehen auf mindestens $size (current-PostSize:$postSize, current-UploadSize: $uploadSize)'}");
+//         }
 //     }
     
 //     private function toBytes($str){
@@ -63,7 +62,7 @@ function churchdb__uploadImage() {
 //         switch($last) {
 //             case 'g': $val *= 1024;
 //             case 'm': $val *= 1024;
-//             case 'k': $val *= 1024;        
+//             case 'k': $val *= 1024;
 //         }
 //         return $val;
 //     }
@@ -125,7 +124,7 @@ function churchdb__uploadImage() {
 //               if ($width>$height) {
 //                 $new_width=235; $new_height=$height*$new_width/$width;
 //               } else {
-//                 $new_height=200; $new_width=$width*$new_height/$height; 
+//                 $new_height=200; $new_width=$width*$new_height/$height;
 //               }
               
 //               // Resample
@@ -134,16 +133,16 @@ function churchdb__uploadImage() {
 //               imagecopyresampled($image_p, $image, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
               
 //               // Output
-//               imagejpeg($image_p, $files_dir."/fotos/".$filename, 100);    
+//               imagejpeg($image_p, $files_dir."/fotos/".$filename, 100);
 //               return array('success'=>true, 'filename'=>$filename);
 //           }
-//           else 
+//           else
 //             return array('error'=> 'Datei konnte nicht von '.$filename_old.' nach '.$filename.' verschoben werden.');
           
-//         } 
+//         }
 //         else {
 //             return array('error'=> 'Could not save uploaded file.' .
 //                 'The upload was cancelled, or server error encountered');
 //         }
-//     }    
+//     }
 // }

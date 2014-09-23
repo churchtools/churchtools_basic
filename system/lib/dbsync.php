@@ -30,7 +30,7 @@ class DBSync {
     
     /**
      * Set table prefix. Default is none.
-     * 
+     *
      * @param type $prefix
      */
     public function setTablePrefix($prefix) {
@@ -40,7 +40,7 @@ class DBSync {
     /**
      * Connect to the database.
      * Note: Currently only MariaDB supported.
-     * 
+     *
      * @global mysqli
      * @param type $vendor
      * @param type $host
@@ -66,7 +66,7 @@ class DBSync {
 
     /**
      * Query the database.
-     * 
+     *
      * @param type $template
      * @param type $params
      */
@@ -80,7 +80,7 @@ class DBSync {
         if ($params != null) {
             foreach ($params as $ref => $value) {
                 $value = escape_string($value);
-                if (gettype($value) == "string") {
+                if (is_string($value)) {
                     $value = "'" . $value . "'";
                 }
 
