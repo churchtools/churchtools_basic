@@ -653,8 +653,8 @@ function churchservice_remindme() {
           ORDER BY datum"; //is UNIX_TIMESTAMP outdated here?
   
 //  $usersToRemind = db_query("SELECT * FROM {cc_usersettings}
-  $usersToRemind = db_query("SELECT id FROM {cc_usersettings}
-                             WHERE modulename='churchservice' AND attrib='remindMe' AND value=1");
+  $usersToRemind = db_query("SELECT person_id FROM {cc_usersettings}
+                             WHERE modulename='churchservice' AND attrib='remindMe' AND value=1", array());
   
   foreach ($usersToRemind as $p) {
     //get eventservices to be reminded now
@@ -721,12 +721,12 @@ function churchcore_checkUserMail($personId, $mailtype, $domainId, $interval) {
     return true; //TODO: use on duplicate update or replace
   }
   else {
-    $lm = new DateTime($result->letzte_mail);
+    $lm = new DateTime($res->letzte_mail);
     $dt = new DateTime(date("Y-m-d", strtotime("-" . $interval . " hour")));
     if ($lm < $dt) {
       $dt = new DateTime();
       db_query("UPDATE {cc_usermails} SET letzte_mail=:dt
-                WHERE person_id=:p AND mailtype=:mailtype AND domain_id=:domain_id",
+                WHERE person_id=:person_id AND mailtype=:mailtype AND domain_id=:domain_id",
                 array(":person_id" => $personId,
                       ":mailtype"  => $mailtype,
                       ":domain_id" => $domainId,

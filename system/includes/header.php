@@ -42,7 +42,7 @@
   <script src="<?= CHURCHCORE ?>/churchforms.js"></script>
   <script src="<?= CHURCHCORE ?>/cc_interface.js"></script>
   <script src="<?= createI18nFile("churchcore") ?>"></script>
-  <script> 
+  <script>
       var settings=new Object();
       settings.files_url="<?= $base_url . $files_dir ?>";
       settings.base_url="<?= $base_url ?>";
@@ -82,7 +82,7 @@
 
   <? if (userLoggedIn()): ?>
           <div class="btn-group pull-right">
-            <? if ($simulate) :?><a class="btn" href="?q=simulate&link=<? $q ?>"><?= t('exit.simulation') ?></a><? endif; ?>   
+            <? if ($simulate) :?><a class="btn" href="?q=simulate&link=<? $q ?>"><?= t('exit.simulation') ?></a><? endif; ?>
             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
               <i class="icon-user"></i>&nbsp;<span class="hidden-phone"><?= $user->vorname?> <?= $user->name ?></span>
               <span class="caret"></span>
@@ -92,8 +92,8 @@
     <?php // TODO: in bootstrap 3.2.0 this looks nice, in CT dropdown-header is missed - manually added to bootstrap for now ?>
               <li class="dropdown-header"> <?= t('change.to') ?></li>
       <? foreach ($_SESSION["family"] as $family): ?>
-              <li><a href="?q=login&family_id=<?= $family->id?>"><?= $family->vorname?> <?= $family->name ?></a></li>                       
-      <? endforeach; ?>                       
+              <li><a href="?q=login&family_id=<?= $family->id?>"><?= $family->vorname?> <?= $family->name ?></a></li>
+      <? endforeach; ?>
               <li class="divider"></li>
     <? endif; ?>
     
@@ -105,19 +105,19 @@
 
     <? if (user_access("administer settings", "churchcore")): ?>
               <li><a href="?q=admin"><?= t('admin.settings')?></a></li>
-    <? endif; ?>                       
+    <? endif; ?>
     <? if (user_access("administer persons",  "churchcore")): ?>
               <li><a href="?q=churchauth"><?= t('admin.permissions')?></a></li>
-    <? endif; ?>                       
+    <? endif; ?>
     <? if (user_access("administer settings", "churchcore")): ?>
               <li><a href="?q=cron&manual=true"><?= t('start.cronjob')?></a></li>
-    <? endif; ?>                       
+    <? endif; ?>
     <? if (user_access("view logfile",        "churchcore")): ?>
               <li><a href="?q=churchcore/logviewer"><?= t('logviewer')?></a></li>
-    <? endif; ?>                       
+    <? endif; ?>
     <? if (user_access("administer settings", "churchcore")): ?>
               <li class="divider"></li>
-    <? endif; ?>                       
+    <? endif; ?>
   
              <li><a href="?q=about"><?= t('about')?> <?= $sitename ?></a></li>
              <li class="divider"></li>
@@ -134,7 +134,7 @@
            <ul class="nav">
               <li<?= ($q == "login") ? ' class="active"' : '' ?>>
                 <a href="?q=login"><i class="icon-user icon-white"></i>&nbsp;<?= t("login") ?></a>
-              </li>';
+              </li>
            </ul>
          </div>
   <? endif; ?>
@@ -145,21 +145,21 @@
            && (user_access("view", $key) || in_array($key, $mapping["page_with_noauth"]))):?>
                 <li <?= ($q == $key) ? 'class="active"' : "" ?>>
                 <a href="?q=<?= $key ?>"><?= getConf($key."_name") ?></a></li>
-    <? endif; ?>                       
-  <? endforeach; ?>                       
+    <? endif; ?>
+  <? endforeach; ?>
             </ul>
               <!--form class="navbar-search pull-right">
                 <input type="text" class="search-query" placeholder="Search">
-              </form-->  
+              </form-->
           </div><!--/.nav-collapse -->
         </div>
       </div>
-    </div>    
+    </div>
     <div class="container-fluid" id="page">
-<? else: ?>                       
-     <body style="background:none"> 
+<? else: ?>
+     <body style="background:none">
      <div>
-<? endif; ?>                       
+<? endif; ?>
 <? if (getConf("site_offline") == 1): ?>
      <div class="alert alert-info"><?= t("offline.mode.is.active") ?></div>
 <? endif; ?>
