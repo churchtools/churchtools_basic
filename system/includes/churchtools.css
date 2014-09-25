@@ -2,8 +2,14 @@
   margin-bottom: 13px;
 }
 
+.hoveractor {
+	position: relative;
+}
 .hoverreactor {
   display:none;
+  position:absolute;
+  top:5px;
+  right:5px;
 }
 
 small {
@@ -165,7 +171,7 @@ div.fixed {
 .grouping {
   background-color:#e7eef4 !important;
   font-style:italic;
-}		
+}
 
 @media print {
    .grouping {
@@ -177,7 +183,7 @@ div.fixed {
 	}
 	th {
       background-color: #e7eef4 !important;
-	}		
+	}
 	td {
 	  line-height: 100% !important;
 	}
