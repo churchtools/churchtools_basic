@@ -11,8 +11,8 @@ class qqFileUploader {
   /**
    * create qqUploadedFileXhr or qqUploadedFileForm depending of variable set (get or file)
    *
-   * @param array $allowedExtensions          
-   * @param number $sizeLimit          
+   * @param array $allowedExtensions
+   * @param number $sizeLimit
    */
   function __construct(array $allowedExtensions = array(), $sizeLimit = 10485760) {
     $this->allowedExtensions = array_map("strtolower", $allowedExtensions);
@@ -50,7 +50,7 @@ class qqFileUploader {
    * check for jpeg file header and footer - also try to fix it
    *
    * @param unknown $f, file
-   * @param string $fix, default false          
+   * @param string $fix, default false
    *
    * @return boolean
    */
@@ -95,8 +95,8 @@ class qqFileUploader {
   /**
    * process uploaded files (test, save to DB + upload dir)
    *
-   * @param string $uploadDirectory         
-   * @param bool $replaceOldFile       
+   * @param string $uploadDirectory
+   * @param bool $replaceOldFile
    *
    * @return array ('success'=>true) or ('error'=>'error message')
    */
@@ -125,11 +125,11 @@ class qqFileUploader {
       $dt = new DateTime();
       
       $id = db_insert('cc_file')->fields(array (
-          "domain_type" =>  getVar("domain_type"), 
-          "domain_id" =>  getVar("domain_id"), 
-          "filename" => $filename . '.' . $ext, 
-          "bezeichnung" => $bezeichnung . '.' . $ext, 
-          "modified_date" => $dt->format('Y-m-d H:i:s'), 
+          "domain_type" =>  getVar("domain_type"),
+          "domain_id" =>  getVar("domain_id"),
+          "filename" => $filename . '.' . $ext,
+          "bezeichnung" => $bezeichnung . '.' . $ext,
+          "modified_date" => $dt->format('Y-m-d H:i:s'),
           "modified_pid" => $user->id
       ))->execute();
     }
@@ -138,24 +138,40 @@ class qqFileUploader {
     $filename_absolute = "$uploadDirectory$filename.$ext";
     if ($this->file->save($filename_absolute)) {
       
+// Sample for resizing using different max values for x, y
+//       $maxX = getVar("resizeX");
+//       $maxY = getVar("resizeY");
+//       list ($x, $y) = getimagesize($filename_absolute)
+//       if ($maxX < $x Or $maxY < $y)
+//       {
+//         $ratio = min($maxX/$x, $maxY/$y);
+//         if (!$ratio) $ratio = max($maxX/$x, $maxY/$y);
+//         if (!$ratio) $ratio = 1;
+//         $width  = round($x * $ratio);
+//         $height = round($y * $ratio);
+//       }
+      
       // If image should be resized
-      if ($resize = getVar("resize") && $this->check_jpeg($filename_absolute)) {
+      if (($resize = getVar("resize")) && $this->check_jpeg($filename_absolute)) {
         list ($width, $height) = getimagesize($filename_absolute);
-        if ($width > $height) {
-          $new_width = $resize;
-          $new_height = $height * $new_width / $width;
+        // only resize if needed!
+        if ($resize < $width Or $resize < $height) {
+          if ($width > $height ) {
+            $new_width = $resize;
+            $new_height = $height * $new_width / $width;
+          }
+          else {
+            $new_height = $resize;
+            $new_width = $width * $new_height / $height;
+          }
+          
+          $image_p = imagecreatetruecolor($new_width, $new_height);
+          $image = imagecreatefromjpeg($filename_absolute);
+          imagecopyresampled($image_p, $image, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
+          
+          // Output
+          imagejpeg($image_p, $filename_absolute, 100);
         }
-        else {
-          $new_height = $resize;
-          $new_width = $width * $new_height / $height;
-        }
-        
-        $image_p = imagecreatetruecolor($new_width, $new_height);
-        $image = imagecreatefromjpeg($filename_absolute);
-        imagecopyresampled($image_p, $image, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
-        
-        // Output
-        imagejpeg($image_p, $filename_absolute, 100);
       }
       
       return array ('success' => true, "id" => $id, "filename" => "$filename.$ext", "bezeichnung" => "$bezeichnung.$ext");
@@ -201,7 +217,7 @@ class qqUploadedFileXhr {
 
   /**
    * get uploadfile size
-   * 
+   *
    * @throws Exception
    *
    * @return int

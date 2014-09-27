@@ -76,7 +76,7 @@ function login_main() {
     }
     // check for login with one time login key in url
     // e.g. http://localhost:8888/bootstrap/?q=profile&loginstr=123&id=8
-    else if ($loginKey = getVar("loginstr") && $id = getVar('id')) {
+    else if (($loginstr = getVar("loginstr")) && ($id = getVar('id'))) {
       // delete login strings older then 14 days
       db_query("DELETE FROM {cc_loginstr}
                 WHERE DATEDIFF( current_date, create_date ) > 13");
@@ -92,8 +92,8 @@ function login_main() {
       else {
         // delete current loginKey to prevent misuse
         $res = db_query("DELETE FROM {cc_loginstr}
-                         WHERE loginstr=:loginkey AND person_id=:id",
-                         array (":loginkey" => $loginKey,
+                         WHERE loginstr=:loginstr AND person_id=:id",
+                         array (":loginstr" => $loginstr,
                                 ":id" => $i,
                          ));
         ct_log("Login User $id erfolgreich mit loginstr ", 2, "-1", "login");
