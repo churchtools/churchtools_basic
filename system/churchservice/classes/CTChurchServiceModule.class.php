@@ -229,7 +229,7 @@ class CTChurchServiceModule extends CTAbstractModule {
     $auth = churchservice_getAuthorization();
     $allowedAgendas = $auth["view agenda"];
     
-    $where = "calcategory_id IN (" . implode(",", $allowedAgendas) . ") AND template_yn=1";
+    $where = "calcategory_id IN (" . db_implode($allowedAgendas) . ") AND template_yn=1";
     $data = churchcore_getTableData("cs_agenda", null, $where);
     return $data;
   }
@@ -242,7 +242,7 @@ class CTChurchServiceModule extends CTAbstractModule {
    * @return agenda oder null if not found or not allowed
    */
   public function loadAgendas($params) {
-    $where = "id IN (" . implode(",", $params["ids"]) . ")";
+    $where = "id IN (" . db_implode($params["ids"]) . ")";
     $data = churchcore_getTableData("cs_agenda", null, $where);
     $auth = churchservice_getAuthorization();
     $allowedAgendas = array ();

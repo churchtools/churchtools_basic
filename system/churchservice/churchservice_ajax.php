@@ -247,7 +247,7 @@ function churchservice_getAllEventData($params) {
           e.cc_cal_id, cal.bezeichnung, e.special, cal.category_id, e.admin, cal.repeat_id,
          datediff(e.startdate,CURRENT_DATE) datediff
        FROM {cs_event} e, {cc_cal} cal
-       WHERE cal.id=e.cc_cal_id AND '.($id != null ? "e.id=$id" : "1=1")." AND cal.category_id in (" . implode(",", $cat) . ")");
+       WHERE cal.id=e.cc_cal_id AND '.($id != null ? "e.id=$id" : "1=1")." AND cal.category_id in (" . db_implode($cat) . ")");
   
 
   $events = array ();
@@ -663,7 +663,7 @@ function churchservice_updateEventService($params) {
  * @return array with persons
  */
 function churchservice_getPersonByGroupIds($params) {
-  $ids = $params["ids"];
+  $ids = db_cleanParam($params["ids"]);
   $res = db_query("SELECT g.bezeichnung, gpg.gruppe_id g_id, p.id p_id, gp.id gp_id, p.vorname, p.name,
                           p.email, gp.imageurl, p.cmsuserid, gpg.status_no leiter
                   FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg, {cdb_gruppe} g

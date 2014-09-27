@@ -74,7 +74,7 @@ function churchdb_getAllowedPersonData($cond = '', $fields = "p.id p_id, gp.id g
         SELECT $fields
         FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg 
         WHERE p.id=gp.person_id AND gpg.gemeindeperson_id=gp.id 
-        AND gpg.gruppe_id in (" . implode(",", $myGroups) . ") " . $where
+        AND gpg.gruppe_id in (" . db_implode($myGroups) . ") " . $where
     );
     foreach ($res as $p) {
       if (!isset($allPersons[$p->p_id])) {
@@ -173,7 +173,7 @@ function churchdb_isPersonInGroups($user_id, $groups) {
   $res = db_query("SELECT COUNT(*) c
                    FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg
                    WHERE p.id=gp.person_id AND gpg.gemeindeperson_id=gp.id AND p.id=:id
-                     AND gpg.gruppe_id in (" .  implode(",", $groups) . ") ", array (':id' => $user_id))
+                     AND gpg.gruppe_id in (" .  db_implode($groups) . ") ", array (':id' => $user_id))
                    ->fetch();
   return ($res->c > 0); // use !empty()?
 }
@@ -241,7 +241,7 @@ function churchdb_getMyGroups($userPid, $onlyIds = false, $onlyIfUserIsLeader = 
     if (!$onlyIfUserIsLeader) {
       $auth = user_access("view group", "churchdb");
       if ($auth != null) {
-        $res = db_query("SELECT g.* FROM {cdb_gruppe} g WHERE g.id in (" . implode(",", $auth) . ")");
+        $res = db_query("SELECT g.* FROM {cdb_gruppe} g WHERE g.id in (" . db_implode($auth) . ")");
         foreach ($res as $g) if (!isset($arrs[$g->id])) {
           if ($onlyIds) $arrs[$g->id] = $g->id;
           else $arrs[$g->id] = $g;
@@ -434,7 +434,7 @@ function churchdb_getPersonDetails($id, $withComments = true) {
           SELECT COUNT(*) c
           FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg
           WHERE p.id=gp.person_id AND gpg.gemeindeperson_id=gp.id AND p.id=:id
-            AND gpg.gruppe_id in (" . implode(",", $myGroups) . ") ", array (':id' => $id
+            AND gpg.gruppe_id in (" . db_implode($myGroups) . ") ", array (':id' => $id
           ))->fetch();
         if ($res->c > 0) {
           $allowed = true;
@@ -447,7 +447,7 @@ function churchdb_getPersonDetails($id, $withComments = true) {
       if ($allowedDeps != null) {
         $res = db_query('
           SELECT COUNT(*) as c FROM {cdb_bereich_person}
-          WHERE person_id=:p_id AND bereich_id in (' . implode(',', $allowedDeps). ')', 
+          WHERE person_id=:p_id AND bereich_id in (' . db_implode($allowedDeps). ')', 
           array (':p_id' => $id), false)
           ->fetch();
         if ($res->c > 0) $allowed = true;
@@ -546,7 +546,7 @@ function churchdb_getAllPeopleIdsFromGroups($myGroups) {
     $res = db_query("SELECT p.id AS p_id
                      FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg 
                      WHERE p.id=gp.person_id AND gpg.gemeindeperson_id=gp.id 
-                     AND gpg.gruppe_id IN (" . implode(",", $myGroups) . ") ");
+                     AND gpg.gruppe_id IN (" . db_implode($myGroups) . ") ");
     foreach ($res as $p) {
       // FIXME: add "GROUP BY p_id" to sql to prevent double ids - also applicable for other queries here
       if (!isset($allPersons[$p->p_id])) {

@@ -125,6 +125,9 @@ function churchdb_main() {
   drupal_add_js(ASSETS . '/ckeditor/ckeditor.js');
   drupal_add_js(ASSETS . '/ckeditor/lang/de.js');
   
+  drupal_add_js(createI18nFile("churchcore"));
+  drupal_add_js(createI18nFile("churchdb"));
+  
   drupal_add_js(CHURCHCORE . '/cc_abstractview.js');
   drupal_add_js(CHURCHCORE . '/cc_standardview.js');
   drupal_add_js(CHURCHCORE . '/cc_maintainstandardview.js');
@@ -140,9 +143,6 @@ function churchdb_main() {
   drupal_add_js(CHURCHDB . '/cdb_mapview.js');
   drupal_add_js(CHURCHDB . '/cdb_maintainview.js');
   drupal_add_js(CHURCHDB . '/cdb_main.js');
-  
-  drupal_add_js(createI18nFile("churchcore"));
-  drupal_add_js(createI18nFile("churchdb"));
   
   // API v3
   $content = '<script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=true"></script>';
@@ -584,8 +584,8 @@ function churchdb_getTodos() {
       SELECT p.id, p.vorname, p.name, g.bezeichnung, gpg.status_no, s.bezeichnung AS status
       FROM {cdb_person} p, {cdb_gruppe} g, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg, {cdb_gruppenteilnehmerstatus} s
       WHERE s.intern_code=gpg.status_no AND gpg.gemeindeperson_id=gp.id AND gp.person_id=p.id AND gpg.gruppe_id=g.id
-        AND ((gpg.gruppe_id IN (" . implode(',', $mygroups) . ") AND gpg.status_no<-1)
-          OR (gpg.gruppe_id IN (" . implode(',', $mysupergroups) . ") AND gpg.status_no=-1))
+        AND ((gpg.gruppe_id IN (" . db_implode($mygroups) . ") AND gpg.status_no<-1)
+          OR (gpg.gruppe_id IN (" . db_implode($mysupergroups) . ") AND gpg.status_no=-1))
       ORDER BY status");
   
   if (!$groups) return "";

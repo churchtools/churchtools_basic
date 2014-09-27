@@ -6,18 +6,14 @@ include_once("churchdb_db.php");
  *
  * @return array with persons, key = id
  */
-function getSearchableData() {
-  $persons = db_query(
-      'SELECT person_id id, geburtsdatum, familienstand_no, geschlecht_no, hochzeitsdatum, nationalitaet_id,  
-              erstkontakt, zugehoerig, eintrittsdatum, austrittsdatum, taufdatum, plz, geburtsort, imageurl, cmsuserid
-       FROM {cdb_person} p, {cdb_gemeindeperson} gp 
-       WHERE p.id=gp.person_id'
-  );
+function getSearchableData() { 
+  $persons = churchdb_getAllowedPersonData('', 'person_id p_id, person_id id, geburtsdatum, familienstand_no, geschlecht_no, hochzeitsdatum, nationalitaet_id,  
+              erstkontakt, zugehoerig, eintrittsdatum, austrittsdatum, taufdatum, plz, geburtsort, imageurl, cmsuserid');
   foreach ($persons as $arr) {
-    $arr->auth = getAuthForPerson($arr->id);
-    $arrs[$arr->id] = $arr;
+    unset($persons[$arr->id]->p_id);
+    $persons[$arr->id]->auth = getAuthForPerson($arr->id);
   }
-  return $arrs;
+  return $persons;
 }
 
 /**
@@ -945,7 +941,7 @@ function _churchdb_getPersonById($id) {
     // get matching persons by departement and id
     $res = db_query("SELECT p.name, p.vorname, p.id, p.cmsuserid,  p.email, p.telefonprivat, p.telefongeschaeftlich, p.telefonhandy, gp.imageurl
         FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_bereich_person} bp 
-        WHERE p.archiv_yn=0 AND bp.person_id=p.id AND gp.person_id=p.id AND bp.bereich_id IN (". implode(",", $auth). ") AND p.id IN ($id)");
+        WHERE p.archiv_yn=0 AND bp.person_id=p.id AND gp.person_id=p.id AND bp.bereich_id IN (". db_implode($auth). ") AND p.id IN ($id)");
     foreach ($res as $p) $data[$p->id] = $p;
   }
   // get groups i have view permission for
@@ -956,7 +952,7 @@ function _churchdb_getPersonById($id) {
          "SELECT p.name, p.vorname, p.id, p.cmsuserid, p.email, p.telefonprivat, p.telefongeschaeftlich, p.telefonhandy, gp.imageurl
           FROM {cdb_gemeindeperson} gp, {cdb_person} p, {cdb_gemeindeperson_gruppe} gpg
           WHERE p.archiv_yn=0 AND gpg.gemeindeperson_id = gp.id AND gp.person_id = p.id
-            AND gpg.gruppe_id IN (". implode(",", $g_ids). ")
+            AND gpg.gruppe_id IN (". db_implode($g_ids). ")
             AND p.id IN ($id) ORDER BY p.vorname, p.name");
     foreach ($res as $p) if (!isset($data[$p->id])) { 
       $data[$p->id] = $p; // if person not already inserted, add them
@@ -991,7 +987,7 @@ function _churchdb_getPersonByName($searchpattern, $withMyDepartment = false) {
     $res = db_query(
        "SELECT p.*, gp.imageurl 
         FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_bereich_person} bp 
-        WHERE p.archiv_yn=0 AND bp.person_id=p.id AND gp.person_id=p.id AND bp.bereich_id IN (". implode(",", $auth). ") 
+        WHERE p.archiv_yn=0 AND bp.person_id=p.id AND gp.person_id=p.id AND bp.bereich_id IN (". db_implode($auth). ") 
           AND (UPPER(name) LIKE UPPER('". $searchpattern. "%') OR UPPER(vorname) LIKE UPPER('". $searchpattern. "%')
                OR (CONCAT(UPPER(vorname),' ',UPPER(name)) LIKE UPPER('". $searchpattern. "%') )
           OR (CONCAT(UPPER(spitzname),' ',UPPER(name)) LIKE UPPER('". $searchpattern. "%') )
@@ -1018,7 +1014,7 @@ function _churchdb_getPersonByName($searchpattern, $withMyDepartment = false) {
     $res = db_query("SELECT p.name, p.vorname, p.id, gp.imageurl
           FROM {cdb_gemeindeperson} gp, {cdb_person} p, {cdb_gemeindeperson_gruppe} gpg
           WHERE p.archiv_yn=0 AND gpg.gemeindeperson_id = gp.id AND gp.person_id = p.id
-            AND gpg.gruppe_id IN (". implode(",", $g_ids). ")
+            AND gpg.gruppe_id IN (". db_implode($g_ids). ")
             AND (UPPER(p.vorname) LIKE UPPER('". $searchpattern. "%') 
             OR UPPER(p.vorname) LIKE UPPER('". $searchpattern. "%')) 
           ORDER BY p.vorname, p.name");
@@ -1046,7 +1042,7 @@ function churchdb_getAuthForAjax() {
   global $config;
   $auth = $_SESSION["user"]->auth["churchdb"];
   $allowedDeps = churchdb_getAllowedDeps();
-  $res["dep"] = churchcore_getTableData("cdb_bereich", "", "id IN (". implode(",", $allowedDeps). ")");
+  $res["dep"] = churchcore_getTableData("cdb_bereich", "", "id IN (". db_implode($allowedDeps). ")");
   if (isset($auth["view comments"])) foreach ($auth["view comments"] as $key => $value) {
     $res["comment_viewer"][$key] = $value;
   }
@@ -1351,17 +1347,17 @@ function churchdb_smspromote($param) {
   
   $response_code_arr = array ();
   $response_code_arr[0] = "Keine Verbindung zum Gateway";
-  $response_code_arr[10] = "Empfänger fehlerhaft";
+  $response_code_arr[10] = "Empfï¿½nger fehlerhaft";
   $response_code_arr[20] = "Absenderkennung zu lang";
   $response_code_arr[30] = "Nachrichtentext zu lang";
   $response_code_arr[31] = "Messagetyp nicht korrekt";
   $response_code_arr[40] = "Falscher SMS-Typ";
   $response_code_arr[50] = "Fehler bei Login";
   $response_code_arr[60] = "Guthaben zu gering";
-  $response_code_arr[70] = "Netz wird von Route nicht unterstützt";
-  $response_code_arr[71] = "Feature nicht über diese Route möglich";
+  $response_code_arr[70] = "Netz wird von Route nicht unterstï¿½tzt";
+  $response_code_arr[71] = "Feature nicht ï¿½ber diese Route mï¿½glich";
   $response_code_arr[80] = "SMS konnte nicht versendet werden";
-  $response_code_arr[90] = "Versand nicht möglich";
+  $response_code_arr[90] = "Versand nicht mï¿½glich";
   $response_code_arr[100]= "SMS wurde erfolgreich versendet.";
   
   $body = $param["message"]. "<br><br><i>Status: ". $response_code_arr[$response_code]. "</i>";
@@ -1405,7 +1401,7 @@ function churchdb_sendsms($ids, $txt) {
   
   $db = db_query("SELECT id, telefonhandy, vorname, name, spitzname 
                   FROM {cdb_person} 
-                  WHERE id IN (". implode(',', $ids). ")");
+                  WHERE id IN (". db_implode($ids). ")");
   $res = array ();
   $res["withoutmobilecount"] = 0;
   $res["smscount"] = 0;

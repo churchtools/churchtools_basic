@@ -1722,7 +1722,7 @@ CC_Navi.prototype.render = function(asButton) {
   if (!asButton) {
     rows.push('<ul class="nav nav-tabs '+(churchcore_handyformat()?"nav-stacked":"")+'">');
       each(this.entries, function(k,a) {
-        rows.push('<li class="'+(this.active?"active":"")+'"><a href="#" id="'+this.id+'">'+this.label+'</a></li>');
+        rows.push('<li class="'+(a.active?"active":"")+'"><a href="#" id="'+a.id+'">'+a.label+'</a></li>');
       });
       if (this.search!=null) rows.push('<li class="pull-right">'+this.search);
     rows.push('</ul>');
@@ -1737,7 +1737,7 @@ CC_Navi.prototype.render = function(asButton) {
       rows.push('<button class="btn dropdown-toggle" data-toggle="dropdown">'+activename+' <span class="caret"></span></button>');
       rows.push('<ul class="dropdown-menu">');
       each(this.entries, function(k,a) {
-        rows.push('<li class="'+(this.active?"active":"")+'"><a href="#" id="'+this.id+'">'+this.label+'</a></li>');
+        rows.push('<li class="'+(a.active?"active":"")+'"><a href="#" id="'+a.id+'">'+a.label+'</a></li>');
       });
       rows.push("</ul></span>");
     }

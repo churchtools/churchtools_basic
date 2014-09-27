@@ -164,7 +164,7 @@ function churchwiki_getWikiOnStartpage() {
   $res = db_query("SELECT w.wikicategory_id, w.doc_id, wc.bezeichnung, version_no,
                      DATE_FORMAT(w.modified_date , '%d.%m.%Y %H:%i') date, CONCAT(p.vorname, ' ', p.name) user
                    FROM {cc_wiki} w, {cc_wikicategory} wc, {cdb_person} p
-                   WHERE wikicategory_id in (" . implode(",", $ids) . ") AND w.wikicategory_id=wc.id AND w.modified_pid=p.id AND w.auf_startseite_yn=1
+                   WHERE wikicategory_id in (" . db_implode($ids) . ") AND w.wikicategory_id=wc.id AND w.modified_pid=p.id AND w.auf_startseite_yn=1
                    ORDER BY w.wikicategory_id, modified_date Asc");
   $arr = array();
   foreach ($res as $wiki) {
@@ -202,7 +202,7 @@ function churchwiki_getWikiInfos() {
   $res = db_query("SELECT w.wikicategory_id, w.doc_id, wc.bezeichnung, DATE_FORMAT(w.modified_date , '%d.%m.%Y %H:%i') date,
                      CONCAT(p.vorname, ' ', p.name) user
                    FROM {cc_wiki} w, {cc_wikicategory} wc, {cdb_person} p
-                   WHERE wikicategory_id in (" . implode(",", $ids) . ") AND w.wikicategory_id=wc.id
+                   WHERE wikicategory_id in (" . db_implode($ids) . ") AND w.wikicategory_id=wc.id
                      AND w.modified_pid=p.id AND DATEDIFF(NOW(),modified_date)<2
                    ORDER BY w.wikicategory_id, modified_date ASC");
   $arr = array ();

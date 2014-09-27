@@ -430,7 +430,7 @@ function churchcal_getCalPerCategory($params, $withintern = true) {
       LEFT JOIN {cs_event} e ON (cal.id=e.cc_cal_id) 
       LEFT JOIN {cr_booking} b ON (cal.id=b.cc_cal_id) 
       LEFT JOIN {cdb_person} p ON (cal.modified_pid=p.id)
-      WHERE cal.category_id IN (". implode(",", $params["category_ids"]).") ".(!$withintern ? " and intern_yn=0" : "")." 
+      WHERE cal.category_id IN (". db_implode($params["category_ids"]).") ".(!$withintern ? " and intern_yn=0" : "")." 
       ORDER by category_id");
   
   $data = null;

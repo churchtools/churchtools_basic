@@ -2081,6 +2081,25 @@ function db_connect() {
 }
 
 /**
+ * Allow only numbers and commata  
+ * 
+ * @param unknown $ids
+ * @return mixed
+ */
+function db_cleanParam($ids) {
+  return preg_replace("/[^0-9\,-]/iu" , "UNALLOWED CHARS:[$ids]" , $ids);
+}
+
+/**
+ * Implode $arr to comma seperated WHERE condition and clean string 
+ * @param unknown $arr
+ */
+function db_implode($arr) {
+  return db_cleanParam( implode(",", $arr) );
+}
+
+
+/**
  * ChurchTools primary db access.
  *
  * @param string $sql;
