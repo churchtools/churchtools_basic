@@ -26,7 +26,7 @@ AgendaView.prototype.getData = function(sorted, withHeader) {
   if (sorted) {
     var arr=new Array();
     if (this.currentAgenda.items!=null)
-    $.each(churchcore_sortData(this.currentAgenda.items, "sortkey", null, false), function(k,a) {
+    each(churchcore_sortData(this.currentAgenda.items, "sortkey", null, false), function(k,a) {
       arr.push(a);        
     });
     return arr;
@@ -39,7 +39,7 @@ AgendaView.prototype.addMoreCols = function() {
   var rows = new Array();
   var t=this;
   rows.push("<legend>Auswahl der Servicegruppen</legend>");
-  $.each(churchcore_sortData(masterData.servicegroup,"sortkey"), function(k,a) {
+  each(churchcore_sortData(masterData.servicegroup,"sortkey"), function(k,a) {
     if (masterData.auth.viewgroup[a.id]!=null) {
       rows.push(form_renderCheckbox({
         cssid:"viewgroup_agenda"+a.id, label:a.bezeichnung, controlgroup:false,
@@ -114,7 +114,7 @@ AgendaView.prototype.exportCurrentAgendaToSongBeamer = function () {
   var rows=new Array();
   rows.push("object AblaufPlanItems: TAblaufPlanItems");
   rows.push("\r\n  items = <");
-  $.each(t.getData(true), function(i,a) {
+  each(t.getData(true), function(i,a) {
     var song=null;
     if (a.arrangement_id>0) 
       song=songView.getSongFromArrangement(a.arrangement_id);
@@ -164,7 +164,7 @@ AgendaView.prototype.exportCurrentAgendaToProPresenter = function () {
         '<NSDate serialization-native-value="'+dt.toStringEn(false)+'T10:00:00+0200" serialization-dictionary-key="playlistModifiedDate"></NSDate>'+
         '<NSMutableArray containerClass="NSMutableArray" serialization-dictionary-key="playlistChildren">');
     var count=0;
-    $.each(t.getData(true), function(i,a) {
+    each(t.getData(true), function(i,a) {
       var song=null;
       if (a.arrangement_id>0) 
         song=songView.getSongFromArrangement(a.arrangement_id);
@@ -225,7 +225,7 @@ AgendaView.prototype.editAgenda = function(agenda, template) {
       // If copy or copy as template I have to delete ids, so it will be copied!
       if (obj.copy==1 || obj.copy_as_template==1) {
         obj.items=$.extend(true, {}, agenda.items);
-        $.each(obj.items, function(k,i) {
+        each(obj.items, function(k,i) {
           delete i.id;
           delete i.event_ids;
         });
@@ -261,7 +261,7 @@ AgendaView.prototype.getNewItem = function(options) {
   var o={bezeichnung:"Neue Position", note:"", sortkey:0, duration:"0", preservice_yn:0, 
       header_yn:0, responsible:""};
   if (options!=null)
-    $.each(options, function(k,a) {
+    each(options, function(k,a) {
       o[k]=a;
     });
   return o;
@@ -271,7 +271,7 @@ AgendaView.prototype.deleteAgenda = function(agenda) {
   var t=this;
   if (confirm("Wirklich den aktuellen Ablaufplan mit allen seinen Positionen löschen?")) {
     if (agenda.event_ids!=null) {
-      $.each(agenda.event_ids, function(k,a) {
+      each(agenda.event_ids, function(k,a) {
         if (allEvents[a]!=null)
           allEvents[a].agenda=false;
       });
@@ -303,7 +303,7 @@ function sortData(data, origindex, newindex) {
   origitem.sortkey=newitem.sortkey;
   var sortkey=0;
   // Now renumber all other sortkeys
-  $.each(data, function(k,a) {
+  each(data, function(k,a) {
     if (a.id!=origitem.id) {
       // If the sortkey is the same as the original, the original will keep his sortkey
       if (sortkey==origitem.sortkey) sortkey=sortkey+1;
@@ -440,7 +440,7 @@ AgendaView.prototype.renderFieldResponsible = function(content, event_ids) {
   if ((txt.substr(0,1)=="[") && (txt.indexOf("]")>0)) {
     txt=content.substr(1,txt.indexOf("]")-1);
     var service=null;
-    $.each(masterData.service, function(k,s) {
+    each(masterData.service, function(k,s) {
       if (s.bezeichnung==txt) {
         service=s;
         return false;
@@ -450,7 +450,7 @@ AgendaView.prototype.renderFieldResponsible = function(content, event_ids) {
     if (service==null || sgs==null || sgs[service.servicegroup_id]==null) return content;
     else {
       var entries=new Array();
-      $.each(sgs[service.servicegroup_id], function(k,s) {
+      each(sgs[service.servicegroup_id], function(k,s) {
         if (s.service_id==service.id) {
           entries.push(listView.renderPersonName(s));
         }
@@ -707,7 +707,7 @@ AgendaView.prototype.addItem = function(orig_item_id, post, header, arrangement)
   if (post) sortkey=sortkey+1;
   
   // Move all positions one position behind
-  $.each(t.currentAgenda.items, function(k,a) {
+  each(t.currentAgenda.items, function(k,a) {
     if (a.sortkey*1>=sortkey) a.sortkey=a.sortkey*1+1;
   });
   
@@ -739,7 +739,7 @@ AgendaView.prototype.getPrevItem = function(item) {
   var t=this;
   
   var res=null;
-  $.each(t.getData(true, true), function(k,a) {
+  each(t.getData(true, true), function(k,a) {
     if (a.id==item.id) return false;
     else res=a; 
   });
@@ -751,7 +751,7 @@ AgendaView.prototype.getNextItem = function(item) {
   
   var next=false;
   var res=null;
-  $.each(t.getData(true, true), function(k,a) {
+  each(t.getData(true, true), function(k,a) {
     if (a.id==item.id) next=true;
     else if (next) {
       res=a;
@@ -809,7 +809,7 @@ AgendaView.prototype.editItem = function(item) {
       else alert("Keine weitere Position vorhanden!");
     },
     "Speichern": function() {
-      $.each(form.getAllValsAsObject(), function(k,a) {
+      each(form.getAllValsAsObject(), function(k,a) {
         item[k]=a;
       });
       item.duration=((item.duration_m*60)+(item.duration_s*1))+"";
@@ -880,7 +880,7 @@ AgendaView.prototype.renderFilter = function() {
   
   var arr=new Array();
   if (allAgendas!=null) {
-    $.each(allAgendas, function(k,a) {
+    each(allAgendas, function(k,a) {
       if (a.template_yn==0) arr.push(a);
     });
     if (arr.length>0) {
@@ -889,7 +889,7 @@ AgendaView.prototype.renderFilter = function() {
       arr=arr2.concat(arr);
     }
     arr.push({bezeichnung:"-- Vorlagen --"});
-    $.each(churchcore_sortData(allAgendas, "bezeichnung"), function(k,a) {
+    each(churchcore_sortData(allAgendas, "bezeichnung"), function(k,a) {
       if (a.template_yn==1)
         arr.push({id:a.id, bezeichnung:a.bezeichnung.trim(50)});
     });
@@ -917,7 +917,7 @@ AgendaView.prototype.loadTemplates = function () {
         if (!ok) alert("Fehler beim Laden der Daten: "+data);
         else {
           if (data!=null) {
-            $.each(data, function(k,a) {
+            each(data, function(k,a) {
               if (allAgendas==null) allAgendas=new Object();
               allAgendas[a.id]=a;
             });
@@ -934,9 +934,9 @@ AgendaView.prototype.loadAgendaForEvent = function(event_id, func) {
   
   var agenda_id=null;
   if (allAgendas!=null) {
-    $.each(allAgendas, function(k,a) {
+    each(allAgendas, function(k,a) {
       if (a.event_ids!=null) {
-        $.each(a.event_ids, function(i,e) {
+        each(a.event_ids, function(i,e) {
           if (e==event_id) agenda_id=a.id;
           return false;
         });
@@ -974,7 +974,7 @@ AgendaView.prototype.loadAgendaForEvent = function(event_id, func) {
 AgendaView.prototype.getAgendaForEventIdIfOnline = function (event_id) {
   if (allAgendas==null) return null;
   var res=null;
-  $.each(allAgendas, function(k,a) {
+  each(allAgendas, function(k,a) {
     if (churchcore_inArray(event_id, a.event_ids)) {
       res=a;
       return false;
@@ -1015,7 +1015,7 @@ AgendaView.prototype.getListHeader = function () {
         else {
           if (data!=null) {
             if (allAgendas==null) allAgendas=new Object();
-            $.each(data, function(k,a) {
+            each(data, function(k,a) {
               allAgendas[a.id]=a;
             });
             if (listView.currentEvent==null && masterData.settings.currentAgenda!=null)
@@ -1057,10 +1057,10 @@ AgendaView.prototype.getListHeader = function () {
         
         var arr2=new Array();
         if (allAgendas!=null) {
-          $.each(allAgendas, function(k,a) {
+          each(allAgendas, function(k,a) {
             if (a.template_yn==0) {
               var add=false;
-              $.each(a.event_ids, function(i,e) {
+              each(a.event_ids, function(i,e) {
                 if (allEvents[e]!=null && (allEvents[e].startdate.substr(0,10)==listView.currentEvent.startdate.substr(0,10))
                    && (allEvents[e].category_id==a.calcategory_id))
                   add=true;
@@ -1078,13 +1078,13 @@ AgendaView.prototype.getListHeader = function () {
           arr.push({id:"", bezeichnung:"-- Vorlage auswählen --"});
         }
         if (allAgendas!=null) {
-          $.each(allAgendas, function(k,a) {
+          each(allAgendas, function(k,a) {
             if (a.template_yn==1 && listView.currentEvent.category_id==a.calcategory_id) arr.push(a);
           });
         }
         if (allAgendas!=null) {
           arr.push({id:"", bezeichnung:"-- Vorlage anderer Kalender auswählen --"});
-          $.each(allAgendas, function(k,a) {
+          each(allAgendas, function(k,a) {
             if (a.template_yn==1 && listView.currentEvent.category_id!=a.calcategory_id) arr.push(a);
           });
         }
@@ -1184,7 +1184,7 @@ AgendaView.prototype.getListHeader = function () {
   });
   $("#cdb_group .go-to-event").click(function() {
     var startdate=new Date(2000);
-    $.each(t.currentAgenda.event_ids, function(k,a) {
+    each(t.currentAgenda.event_ids, function(k,a) {
       if (allEvents[a]!=null && allEvents[a].startdate.toDateEn(false)>startdate)
         startdate=allEvents[a].startdate.toDateEn(false);
     });
@@ -1226,9 +1226,9 @@ AgendaView.prototype.getAllowedServiceGroupsWithComments = function() {
   var t=this;
   var groups=new Object();
   if (t.currentAgenda.items!=null) {
-    $.each(t.currentAgenda.items, function(k,a) {
+    each(t.currentAgenda.items, function(k,a) {
       if (a.servicegroup!=null) {
-        $.each(a.servicegroup, function(i,s) {
+        each(a.servicegroup, function(i,s) {
           if (s!="" && s!="\n" && masterData.auth.viewgroup[i])  
             groups[i]=masterData.servicegroup[i];
         });
@@ -1241,9 +1241,9 @@ AgendaView.prototype.getAllowedServiceGroupsWithComments = function() {
 function getServiceGroupsFromEvents(event_ids) {
   if (event_ids==null) return null;
   var servicegroups=new Array();
-  $.each(event_ids, function(k,event_id) {
+  each(event_ids, function(k,event_id) {
     if (allEvents[event_id] && allEvents[event_id].services) {
-      $.each(allEvents[event_id].services, function(s, service) {
+      each(allEvents[event_id].services, function(s, service) {
         if (service.valid_yn==1) { 
           if (servicegroups[masterData.service[service.service_id].servicegroup_id]==null)
             servicegroups[masterData.service[service.service_id].servicegroup_id]=new Array();
@@ -1267,12 +1267,12 @@ AgendaView.prototype.renderListHeader = function(smallVersion) {
     var servicegroups=getServiceGroupsFromEvents(t.currentAgenda.event_ids);
     if (servicegroups!=null) {
       
-      $.each(churchcore_sortMasterData(masterData.servicegroup), function(k,sg) {
+      each(churchcore_sortMasterData(masterData.servicegroup), function(k,sg) {
         if (servicegroups[sg.id]!=null && masterData.settings["viewgroup_agenda"+sg.id]=="1") {
           rows.push('<tr><td><b>'+sg.bezeichnung+'&nbsp;&nbsp;</b><td style="width:90%"><small>');
-          $.each(churchcore_sortMasterData(masterData.service), function(i,service) {
+          each(churchcore_sortMasterData(masterData.service), function(i,service) {
             if (service.servicegroup_id==sg.id) {
-              $.each(servicegroups[sg.id], function(j, s) {
+              each(servicegroups[sg.id], function(j, s) {
                 if (s.service_id==service.id) {
                   rows.push(''+service.bezeichnung+": ");
                   rows.push(listView.renderPersonName(s));
@@ -1301,7 +1301,7 @@ AgendaView.prototype.renderListHeader = function(smallVersion) {
     if (churchcore_countObjectElements(t.currentAgenda.event_ids)==1)
       rows.push('<th width="38px">Uhrzeit'); 
     else {      
-      $.each(t.currentAgenda.event_ids, function(k,a) {
+      each(t.currentAgenda.event_ids, function(k,a) {
         if (allEvents[a]!=null)
           rows.push('<th width="38px">'+allEvents[a].startdate.toDateEn(true).toStringDeTime());      
       });
@@ -1313,7 +1313,7 @@ AgendaView.prototype.renderListHeader = function(smallVersion) {
   if (smallVersion)
     groups=t.getAllowedServiceGroupsWithComments();
   else {
-    $.each(t.sortMasterData(masterData.servicegroup), function(k,a) {
+    each(t.sortMasterData(masterData.servicegroup), function(k,a) {
       if ((masterData.settings["viewgroup_agenda"+a.id]==null) || (masterData.settings["viewgroup_agenda"+a.id]==1))
         if (masterData.auth.viewgroup[a.id]) {
           groups[k]=a;
@@ -1321,7 +1321,7 @@ AgendaView.prototype.renderListHeader = function(smallVersion) {
     });    
   } 
 
-  $.each(groups, function(k,a) {
+  each(groups, function(k,a) {
     rows.push('<th class="hoveractor" style="min-width:60px" id="header'+a.id+'">'+a.bezeichnung);
     rows.push('<span class="hoverreactor pull-right">');
     rows.push('<a href="#" id="delCol'+a.id+'">'+form_renderImage({src:"minus.png",width:16})+'</a> ');
@@ -1362,7 +1362,7 @@ AgendaView.prototype.startNewAgenda = function(template_agenda, copying) {
   if (copying) {
     // Load Items from template
     t.loadItems(template_agenda.id, function() {
-      $.each(t.currentAgenda.items, function(k,a) {
+      each(t.currentAgenda.items, function(k,a) {
         delete a.id;
         a.event_ids=new Array();
         a.event_ids.push(listView.currentEvent.id);
@@ -1376,7 +1376,7 @@ AgendaView.prototype.startNewAgenda = function(template_agenda, copying) {
   }
   else {
     if (t.currentAgenda.items!=null) {
-      $.each(t.currentAgenda.items, function(k,a) {
+      each(t.currentAgenda.items, function(k,a) {
         a.event_ids.push(listView.currentEvent.id);
       });
     } 
@@ -1422,7 +1422,7 @@ AgendaView.prototype.renderListEntry = function (event, smallVersion) {
       rows.push('<td class="clickable" data-field="time-1"></td>');              
     }
     else if (t.currentAgenda.event_ids!=null) {
-      $.each(t.currentAgenda.event_ids, function(i,a) {
+      each(t.currentAgenda.event_ids, function(i,a) {
         if (allEvents[a]!=null)
           rows.push('<td class="clickable" data-field="time'+a+'"></td>');        
       });
@@ -1445,7 +1445,7 @@ AgendaView.prototype.renderListEntry = function (event, smallVersion) {
     if (smallVersion)
       groups=t.getAllowedServiceGroupsWithComments();
     else {
-      $.each(t.sortMasterData(masterData.servicegroup), function(k,a) {
+      each(t.sortMasterData(masterData.servicegroup), function(k,a) {
         if ((masterData.settings["viewgroup_agenda"+a.id]==null) || (masterData.settings["viewgroup_agenda"+a.id]==1))
           if (masterData.auth.viewgroup[a.id]) {
             groups[k]=a;
@@ -1453,7 +1453,7 @@ AgendaView.prototype.renderListEntry = function (event, smallVersion) {
       });    
     }   
     
-    $.each(groups, function(k,a) {
+    each(groups, function(k,a) {
       rows.push('<td class="editable textarea" data-field="servicegroup'+a.id+'">');    
       rows.push(t.renderField(event, "servicegroup"+a.id, true));
     });
@@ -1475,7 +1475,7 @@ AgendaView.prototype.renderTimes = function() {
   if (t.currentAgenda==null || t.currentAgenda.items==null) return;
   
   var preservice_seconds=0;
-  $.each(t.getData(), function(k,item) {
+  each(t.getData(), function(k,item) {
     if (item.preservice_yn==1)
       preservice_seconds=preservice_seconds+item.duration*1;
   });
@@ -1484,7 +1484,7 @@ AgendaView.prototype.renderTimes = function() {
 
   // Get Starttimes from all Events
   var time = new Array();
-  $.each(t.currentAgenda.event_ids, function(k,a) {
+  each(t.currentAgenda.event_ids, function(k,a) {
     if (allEvents[a]!=null) 
       time[a]=allEvents[a].startdate.toDateEn(true);
     else {
@@ -1495,8 +1495,8 @@ AgendaView.prototype.renderTimes = function() {
   });
   var elem=$("table.AgendaView");
   // Now go through the Items and render the times
-  $.each(t.getData(true), function(k,item) {
-    $.each(t.currentAgenda.event_ids, function(i,a) {
+  each(t.getData(true), function(k,item) {
+    each(t.currentAgenda.event_ids, function(i,a) {
       if ((t.currentAgenda.template_yn==1 || churchcore_inArray(a, item.event_ids)) && item.header_yn==0) {
         var rows=new Array();
         rows.push(time[a].toStringDeTime()+"h");

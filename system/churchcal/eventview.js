@@ -52,7 +52,7 @@ function eventCalendar(element, options, eventSources) {
     t.render();
   }
   function removeEventSource(s) {
-    $.each(t.eventSources, function(k,a) {
+    each(t.eventSources, function(k,a) {
       if (a==s) delete t.eventSources[k];
     });
     t.render();
@@ -70,14 +70,14 @@ function eventCalendar(element, options, eventSources) {
       var allData= new Array();
       
       // Get together events with same name and category
-      $.each(t.eventSources, function(k,s) {
+      each(t.eventSources, function(k,s) {
         if (s!=null) {
-          $.each(s.events, function(i,event) {
+          each(s.events, function(i,event) {
             event.container=s.container;
             event.category_id=s.category_id;
             event.compare=s.category_id+"_"+event.start.toStringEn(false)+"_"+event.title;
             var drin=false;
-            $.each(allData, function(i,b) {
+            each(allData, function(i,b) {
               if (b.start!=event.start && b.compare==event.compare) {
                 drin=true;
                 if (b.multi==null) {
@@ -97,7 +97,7 @@ function eventCalendar(element, options, eventSources) {
       rows.push('<table class="table table-condensed">');
       var _filter=filterName.toUpperCase();
       var count=0;
-      $.each(churchcore_sortData(allData, "start"), function(k,a) {
+      each(churchcore_sortData(allData, "start"), function(k,a) {
         if (a.start>=t.startdate && (t.enddate==null || a.start<=t.enddate)) {
           if ((filterName=="") || (a.title.toUpperCase().indexOf(_filter)>=0)
                 || (a.notizen!=null && a.notizen.toUpperCase().indexOf(_filter)>=0)) {
@@ -120,7 +120,7 @@ function eventCalendar(element, options, eventSources) {
               }
               else { 
                 rows.push(a.start.toStringDe()+" - ");
-                $.each(churchcore_sortData(a.multi, null, true), function(i,b) {
+                each(churchcore_sortData(a.multi, null, true), function(i,b) {
                   rows.push(b.toStringDeTime()+" | ");
                 });
               }

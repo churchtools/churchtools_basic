@@ -52,10 +52,10 @@ $.widget("ct.permissioner", {
   _create:function() {
     var t=this;
     var children=new Array();
-    $.each(masterData.modules, function(k,modulename) {
+    each(masterData.modules, function(k,modulename) {
       var child=new Array();
       var expand=false;
-      $.each(churchcore_sortMasterData(masterData.auth_table_plain), function(i,auth) {
+      each(churchcore_sortMasterData(masterData.auth_table_plain), function(i,auth) {
         if (auth.modulename==modulename) {
           if (auth.datenfeld!=null) {
             var expand_datenfeld=new Object();
@@ -66,7 +66,7 @@ $.widget("ct.permissioner", {
               
               child_daten.push({title:"-- "+_("all")+" --", select:(masterData[t.options.domain_type][t.options.domain_id].auth!=null && masterData[t.options.domain_type][t.options.domain_id].auth[auth.id]!=null && masterData[t.options.domain_type][t.options.domain_id].auth[auth.id][-1]!=null), key:auth.id+"_-1"});
     
-              $.each(churchcore_sortMasterData(masterData[masterData.auth_table_plain[auth.id].datenfeld]), function(h, datenfeld) {
+              each(churchcore_sortMasterData(masterData[masterData.auth_table_plain[auth.id].datenfeld]), function(h, datenfeld) {
                 var select=false;
                 if ((masterData[t.options.domain_type][t.options.domain_id]!=null) && (masterData[t.options.domain_type][t.options.domain_id].auth!=null) 
                      && (masterData[t.options.domain_type][t.options.domain_id].auth[auth.id]!=null) && 
@@ -92,7 +92,7 @@ $.widget("ct.permissioner", {
                 }
               });
               // Wenn es Sub-Kategorien gibt, muss ich die hier noch einfügen.
-              $.each(sub_child_daten, function(k,a) {
+              each(sub_child_daten, function(k,a) {
                 child_daten.push({title:k, isFolder:true, children:a});
               });
             }
@@ -124,7 +124,7 @@ $.widget("ct.permissioner", {
       onSelect: function(select, node) {
         // If "-- Alle --" was selected then I have to enable all!"
         if (node.data.key.indexOf("_-1")>0) {
-          $.each(node.parent.childList, function(k,c) {
+          each(node.parent.childList, function(k,c) {
             if (c.data.key!=node.data.key && !ImadeTheChange) {
               c.select(node.bSelected);
             }
@@ -238,7 +238,7 @@ AuthView.prototype.renderEntryDetail= function(domain_id) {
   });
   elem.find("input.paste").click(function() {
     if (confirm(_("really.past.permissions"))) {
-      $.each(t.clipboard.auth, function(k,a) {
+      each(t.clipboard.auth, function(k,a) {
         masterData[t.currentDomain][domain_id].auth[k]=a;
       });
       masterData[t.currentDomain][domain_id].saveable=true;
@@ -274,7 +274,7 @@ AuthView.prototype.renderListEntry = function(a) {
   var rows_module=new Array();
   if (a.auth!=null) {
     var modules=new Object();
-    $.each(a.auth, function(auth_id,daten) {
+    each(a.auth, function(auth_id,daten) {
       if (masterData.auth_table_plain[auth_id]==null) {
         log('No Auth in masterData.auth_table_plain for AuthId:'+auth_id);
       }
@@ -282,7 +282,7 @@ AuthView.prototype.renderListEntry = function(a) {
         var txt=masterData.auth_table_plain[auth_id].auth;    
         if (typeof daten=="object") {
           var rows=new Array();
-          $.each(daten, function(i, d) {
+          each(daten, function(i, d) {
             if (d==-1) rows.push("<i>alle</i>");
             else if ((masterData[masterData.auth_table_plain[auth_id].datenfeld]==null))
               rows.push('<font color="red">'+masterData.auth_table_plain[auth_id].datenfeld+" not available!</font>");
@@ -298,9 +298,9 @@ AuthView.prototype.renderListEntry = function(a) {
         modules[masterData.auth_table_plain[auth_id].modulename].push(txt);
       }
     });
-    $.each(modules, function(k,module) {
+    each(modules, function(k,module) {
       var rows_zeile=new Array();
-      $.each(module, function(i,b) {
+      each(module, function(i,b) {
         rows_zeile.push(b);
       });
       rows_module.push("<b>"+k+": </b>"+rows_zeile.join(", ").trim(500));
@@ -327,7 +327,7 @@ function loadAuthViewMasterData(func) {
   churchInterface.jsendRead({func:"getMasterData"}, function(ok,data) {
     if (!ok) alert("Fehler: "+data);
     else {
-      $.each(data, function(k,a) {
+      each(data, function(k,a) {
         masterData[k]=a;
       });
       if (func!=null) func();
@@ -366,7 +366,7 @@ AuthView.prototype.renderFilter = function() {
   
   var data=new Array();
   var modulename="";
-  $.each(churchcore_sortData(masterData.auth_table_plain, "modulename"), function(k,a) {
+  each(churchcore_sortData(masterData.auth_table_plain, "modulename"), function(k,a) {
     if (modulename!=a.modulename) {
       modulename=a.modulename;
       data.push({id:-1, bezeichnung:"-- "+a.modulename+' --'});
@@ -381,7 +381,7 @@ AuthView.prototype.renderFilter = function() {
   $("#cdb_filter").html(form.render(true, "inline"));
     
   // Set values of current filters
-  $.each(this.filter, function(k,a) {
+  each(this.filter, function(k,a) {
     $("#"+k).val(a);
   });
 

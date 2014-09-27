@@ -17,8 +17,8 @@ songView = new SongView();
 SongView.prototype.getSongFromArrangement = function(arrangement_id) {
   var song=null;
   if (allSongs!=null)
-    $.each(allSongs, function(k,a) {
-      $.each(a.arrangement, function(i,b) {
+    each(allSongs, function(k,a) {
+      each(a.arrangement, function(i,b) {
         if (b.id==arrangement_id) {
           if (a.active_arrangement_id!=null)
             a.active_arrangement_id=arrangement_id;
@@ -35,7 +35,7 @@ SongView.prototype.getData = function(sorted) {
   if (sorted) {
     var list=new Array();
     if (allSongs!=null)
-      $.each(churchcore_sortData(allSongs,"bezeichnung"), function(k,song) {
+      each(churchcore_sortData(allSongs,"bezeichnung"), function(k,song) {
         list.push(song);
       });
     return list;
@@ -89,7 +89,7 @@ SongView.prototype.renderFilter = function () {
  
   $("#cdb_filter").html(rows.join(""));
    
-  $.each(this.filter, function(k,a) {
+  each(this.filter, function(k,a) {
     $("#"+k).val(a);
   });
    
@@ -182,7 +182,7 @@ SongView.prototype.renderEntryDetail = function(pos_id) {
   rows.push('</div>');
   
   var navi = new CC_Navi();
-  $.each(song.arrangement, function(k,a) {
+  each(song.arrangement, function(k,a) {
     navi.addEntry(a.id==song.active_arrangement_id,"view-"+a.id,a.bezeichnung);
   });
   if (masterData.auth.editsong)
@@ -554,7 +554,7 @@ SongView.prototype.getListHeader = function () {
   var t=this;
 
   if (t.songselect!=null) {
-    $.each(allSongs, function(k,a) {
+    each(allSongs, function(k,a) {
       a.open=false;
     });
     t.filter["searchStandard"]="true";
@@ -601,7 +601,7 @@ SongView.prototype.groupingFunction = function() {
 SongView.prototype.getDefaultArrangement = function(song) {
   if (song==null) return null;
   var ret=null;
-  $.each(song.arrangement, function(k,a) {
+  each(song.arrangement, function(k,a) {
     ret=a;
     if (a.default_yn==1) return false;
   });
@@ -625,7 +625,7 @@ SongView.prototype.renderListEntry = function (list) {
     rows.push('&nbsp; <span class="hoverreactor"><a href="#" class="edit-song" data-id="'+list.song_id+'">'+form_renderImage({src:"options.png", width:16})+'</a></span>');
   if (this.filter.searchStandard!=null) {
     rows.push("<br/>");
-    $.each(song.arrangement, function(k,a) {
+    each(song.arrangement, function(k,a) {
       var txt=a.bezeichnung;
       if (a.id==song.active_arrangement_id)
         rows.push('<span class="label label-info">'+txt+'</span> ');

@@ -3,9 +3,9 @@
 // Innerhalb des Objektes werden dann die Events gehalten separiert nach Kategorie
 function CalSourceType() {
   var t=this;
-  // HŠlt die Daten nach category_id auf
+  // Hï¿½lt die Daten nach category_id auf
   t.data = new Object();
-  // Timer zum Laden der Daten. Erst werden alle Categorien als "needData" markiert und dann lŠdt er
+  // Timer zum Laden der Daten. Erst werden alle Categorien als "needData" markiert und dann lï¿½dt er
   t.timer=null;
 }
 
@@ -67,7 +67,7 @@ CalSourceType.prototype.refreshView = function(category_id, needRefresh) {
     this.needData(category_id, needRefresh);
   }
   else {
-    $.each(t.data, function(k,a) {
+    each(t.data, function(k,a) {
       if (a.status=="loaded") {
         t.hideData(k);
         t.needData(k, needRefresh);
@@ -79,7 +79,7 @@ CalSourceType.prototype.refreshView = function(category_id, needRefresh) {
 CalSourceType.prototype.collectData = function() {
   var t=this;
   var ids=new Array();
-  $.each(t.data, function(k,a) {
+  each(t.data, function(k,a) {
     if (a.status=="needData") ids.push(k);
   });
   if (ids.length>0) {
@@ -94,7 +94,7 @@ CalSourceType.prototype.jsonCall = function(ids) {
 Temp.prototype = CalSourceType.prototype;
 
 // ---------------------------------------------------------------------------------------------------------
-// Der CalCC-Type lŠdt die Daten aus der CC_CAL-Tabelle 
+// Der CalCC-Type lï¿½dt die Daten aus der CC_CAL-Tabelle 
 //---------------------------------------------------------------------------------------------------------
 function CalCCType() {
   CalSourceType.call(this);
@@ -106,9 +106,9 @@ CalCCType.prototype.jsonCall = function(ids) {
   churchInterface.jsendRead({func:"getCalPerCategory", category_ids:ids}, function(ok, cats) {
     if (ok) {
       if (cats!=null) {
-        $.each(cats, function(k,events) {
+        each(cats, function(k,events) {
           t.data[k].events=events;
-          $.each(t.data[k].events, function(i,a) {
+          each(t.data[k].events, function(i,a) {
             a.startdate=a.startdate.toDateEn(true);
             a.enddate=a.enddate.toDateEn(true);
             if (a.repeat_until!=null)
@@ -134,7 +134,7 @@ CalCCType.prototype.getName = function(category_id) {
 
 
 //---------------------------------------------------------------------------------------------------------
-//Der CalBirthday-Type lŠdt die Daten aus der CS_EVENT-Tabelle 
+//Der CalBirthday-Type lï¿½dt die Daten aus der CS_EVENT-Tabelle 
 //---------------------------------------------------------------------------------------------------------
 function CalBirthdayType() {
 CalSourceType.call(this);
@@ -149,7 +149,7 @@ CalBirthdayType.prototype.jsonCall = function(ids) {
       var d = new Date();
       var cs_events= new Array();
       if (json!=null) {
-        $.each(json, function(k,a) {
+        each(json, function(k,a) {
           for (var i=-1;i<=1;i++) {
             var o=Object();
             o.title= a.name;
@@ -176,7 +176,7 @@ CalBirthdayType.prototype.getName = function(category_id) {
 
 
 //---------------------------------------------------------------------------------------------------------
-//Der CalAllBirthday-Type lŠdt die Daten aus der CS_EVENT-Tabelle 
+//Der CalAllBirthday-Type lï¿½dt die Daten aus der CS_EVENT-Tabelle 
 //---------------------------------------------------------------------------------------------------------
 function CalAllBirthdayType() {
 CalSourceType.call(this);
@@ -192,7 +192,7 @@ churchInterface.jsendRead({func:"getBirthdays", all:true}, function(ok, json) {
     var cs_events= new Array();
     var i=10;
     if (json!=null) {
-      $.each(json, function(k,a) {
+      each(json, function(k,a) {
         if (a.birthday!=null) {
           for (var i=-1;i<=1;i++) {
             var o=Object();
@@ -222,7 +222,7 @@ return "Geburtstage (Alle)";
 
 
 //---------------------------------------------------------------------------------------------------------
-//Der CalResource-Type lŠdt die Daten aus der cs_resource-Tabelle 
+//Der CalResource-Type lï¿½dt die Daten aus der cs_resource-Tabelle 
 //---------------------------------------------------------------------------------------------------------
 function CalResourceType() {
   CalSourceType.call(this);
@@ -234,16 +234,16 @@ CalResourceType.prototype.jsonCall = function(ids) {
   churchInterface.jsendRead({func:"getResource", resource_id:ids}, function(ok, json) {
    if (ok) {
      // Erst nach Ressource_id
-     $.each(json, function(k,bookings) {
+     each(json, function(k,bookings) {
        var cr= new Array();
        t.data[k].events=bookings;
-       $.each(t.data[k].events, function(i,a) {
+       each(t.data[k].events, function(i,a) {
          a.startdate=a.startdate.toDateEn(true);
          a.enddate=a.enddate.toDateEn(true);
          if (a.repeat_until!=null)
            a.repeat_until=a.repeat_until.toDateEn(false);    
          var diff=a.enddate.getTime()-a.startdate.getTime();
-         $.each(churchcore_getAllDatesWithRepeats(a), function(k,d) {
+         each(churchcore_getAllDatesWithRepeats(a), function(k,d) {
            var o=Object();
            //o.id= a.id,
            var repeat=(a.repeat_id>0?'{R}':"");
@@ -275,7 +275,7 @@ CalResourceType.prototype.getName = function(category_id) {
 
 
 //---------------------------------------------------------------------------------------------------------
-//Der CalResource-Type lŠdt die Daten aus der cs_resource-Tabelle 
+//Der CalResource-Type lï¿½dt die Daten aus der cs_resource-Tabelle 
 //---------------------------------------------------------------------------------------------------------
 function CalMyServicesType() {
 CalSourceType.call(this);
@@ -288,7 +288,7 @@ CalMyServicesType.prototype.jsonCall = function(id) {
      if (ok) {
        var cr= new Array();
        t.data[id].events=json;
-       $.each(t.data[id].events, function(i,a) {
+       each(t.data[id].events, function(i,a) {
          var o=Object();
          if (a.zugesagt_yn==1)
            o.title=a.dienst+" ("+a.servicegroup+")"; 
@@ -317,8 +317,8 @@ CalMyServicesType.prototype.getName = function(category_id) {
 
 
 //---------------------------------------------------------------------------------------------------------
-//Der CalAbsent-Type lŠdt die Daten aus der cs_Absent-Tabelle 
-//Es werden nur die Abwesenheiten geholt, fŸr die auch aktivierte Kalender habe
+//Der CalAbsent-Type lï¿½dt die Daten aus der cs_Absent-Tabelle 
+//Es werden nur die Abwesenheiten geholt, fï¿½r die auch aktivierte Kalender habe
 //---------------------------------------------------------------------------------------------------------
 function CalAbsentsType() {
   CalSourceType.call(this);
@@ -328,7 +328,7 @@ var calAbsentsType = new CalAbsentsType();
 CalAbsentsType.prototype.jsonCall = function(id) {
   var t=this;
   cals=new Array();
-  $.each(filter["filterGruppenKalender"].selected, function(k,a) {
+  each(filter["filterGruppenKalender"].selected, function(k,a) {
     if (a>100) cals.push(a-100);
   });
   if (cals.length>0) {
@@ -336,7 +336,7 @@ CalAbsentsType.prototype.jsonCall = function(id) {
        if (ok) {
          var cr= new Array();
          t.data[id].events=json;
-         $.each(t.data[id].events, function(i,a) {
+         each(t.data[id].events, function(i,a) {
            var o=Object();
            o.id=a.p_id;
            o.title=a.vorname+" "+a.name;
@@ -370,8 +370,8 @@ return "Abwesenheiten ";
 
 
 //---------------------------------------------------------------------------------------------------------
-//Der CalMyAbsent-Type lŠdt die Daten aus der cs_Absent-Tabelle 
-//Es werden nur die Abwesenheiten geholt, fŸr die auch aktivierte Kalender habe
+//Der CalMyAbsent-Type lï¿½dt die Daten aus der cs_Absent-Tabelle 
+//Es werden nur die Abwesenheiten geholt, fï¿½r die auch aktivierte Kalender habe
 //---------------------------------------------------------------------------------------------------------
 function CalMyAbsentsType() {
   CalSourceType.call(this);
@@ -384,7 +384,7 @@ CalMyAbsentsType.prototype.jsonCall = function(id) {
      if (ok) {
        var cr= new Array();
        t.data[id].events=json;
-       $.each(t.data[id].events, function(i,a) {
+       each(t.data[id].events, function(i,a) {
          var o=Object();
          o.id=a.p_id;
          o.title=a.vorname+" "+a.name;

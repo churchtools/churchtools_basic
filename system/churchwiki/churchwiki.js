@@ -342,7 +342,7 @@ WikiView.prototype.renderNavi = function () {
     //navi.addEntry(currentPage.wikicategory_id==0,"alistview0","Standard");
     
     var dabei=false;
-    $.each(churchcore_sortMasterData(masterData.wikicategory), function(k,a) {
+    each(churchcore_sortMasterData(masterData.wikicategory), function(k,a) {
       if (masterData.auth.view[a.id] && a.in_menu_yn==1) {
         if (currentPage.wikicategory_id==a.id) dabei=true;
         navi.addEntry(currentPage.wikicategory_id==a.id,"alistview"+a.id,masterData.wikicategory[a.id].bezeichnung);
@@ -363,7 +363,7 @@ WikiView.prototype.renderNavi = function () {
 /*      if (CKEDITOR.instances.editor!=null)
         CKEDITOR.instances.editor.destroy();*/      
       var id=$(this).attr("id");
-      $.each(masterData.auth.view, function(k,a) {
+      each(masterData.auth.view, function(k,a) {
         if (id=="alistview"+a) {
           t.filter["filterWikicategory_id"]=a;
           t.filter["doc"]="main";
@@ -465,7 +465,7 @@ WikiView.prototype.initView = function() {
     t.printview=true;
   if (t.filter["filterWikicategory_id"]==null) {
     if (masterData.auth.view!=null)  {
-      $.each(churchcore_sortMasterData(masterData.wikicategory), function(k,a) {
+      each(churchcore_sortMasterData(masterData.wikicategory), function(k,a) {
         if (masterData.auth.view[a.id] && t.filter["filterWikicategory_id"]==null)
           t.filter["filterWikicategory_id"]=a.id;
       });

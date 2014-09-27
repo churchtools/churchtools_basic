@@ -35,7 +35,7 @@
   
   <!-- HOME -->
   <entry key="there.are.more.users.with.the.same.email">Es sind mehrere Benutzer mit der gleichen Email-Adresse vorhanden. Diese können im Menü oben rechts gewechselt werden.</entry>
-  <entry key="chose.your.possibilities">Was willst du tun?</entry>
+  <entry key="chose.your.possibilities">was willst du tun?</entry>
   <entry key="open.help">Hilfe aufrufen</entry>
   <entry key="salutation">Anrede</entry>
   <entry key="name">Name</entry>
@@ -88,7 +88,6 @@
   <entry key="email.or.username">Email-Adresse oder Benutzername</entry>
   <entry key="password">Passwort</entry>
   <entry key="remember.me">Zukünftig an mich erinnern</entry>
-  <entry key="remember.me.info">nur auf persönlichen Geräten setzen</entry>
   <entry key="login">Anmelden</entry>
   <entry key="email.or.username.unknown">Email-Adresse oder Benutzername ist nicht bekannt!</entry>
   <entry key="forgot.password">Passwort vergessen?</entry>

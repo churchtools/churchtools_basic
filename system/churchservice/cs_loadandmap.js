@@ -36,7 +36,7 @@ function cs_loadEventData(id, nextFunction, forceReload) {
     else {
       timers["endAllPersons"]=new Date();
       if (json!=null) {
-        jQuery.each(json, function(k,a) {
+        each(json, function(k,a) {
           allEvents[a.id]=a;
         });
       }  
@@ -60,7 +60,7 @@ function cs_loadNewEventData(lastLogId, nextFunction) {
   var newEvents = new Array();
   churchInterface.jsendRead(obj, function(ok, json) {
     if ((ok) && (json!=null)) {
-      jQuery.each(json, function(k,a) {
+      each(json, function(k,a) {
         newEvents.push(a.id);
         allEvents[a.id]=a;
       });
@@ -73,15 +73,15 @@ function cs_loadNewEventData(lastLogId, nextFunction) {
 function cs_loadPersonDataFromCdb(nextFunction) {
   churchInterface.setStatus("Lade Personendaten...");
   var arr = new Object();
-  jQuery.each(masterData.service, function(k,a) {
+  each(masterData.service, function(k,a) {
     if ((a.cdb_gruppen_ids!=null) && (masterData.auth.viewgroup[a.servicegroup_id])) {      
-      jQuery.each(a.cdb_gruppen_ids.split(","), function(i,b) {
+      each(a.cdb_gruppen_ids.split(","), function(i,b) {
         arr[b]=true; 
       });
     }
   });
   var ids="";
-  jQuery.each(arr, function(k,a) {
+  each(arr, function(k,a) {
 	  // Wenn Feld nicht null sondern nur leer war
 	  if (k!="") ids=ids+k+",";
   });
@@ -90,7 +90,7 @@ function cs_loadPersonDataFromCdb(nextFunction) {
   churchInterface.jsendRead({func: "getPersonByGroupIds", ids: ids}, function(ok, json) {
     if (groups==null) 
       groups=new Array();
-    jQuery.each(json, function(k,a) {
+    each(json, function(k,a) {
       groups[k]=a;
     });
         
@@ -104,7 +104,7 @@ function cs_loadAbsent(nextFunction) {
   //Lade Daten!
   churchInterface.jsendRead({func: "getAbsent"}, function(ok, json) {
     if (json!=null) {
-      jQuery.each(json, function(k,a) {
+      each(json, function(k,a) {
         if (allPersons[a.person_id]==null)
           allPersons[a.person_id]=new Object();
         if (allPersons[a.person_id].absent==null)
@@ -128,7 +128,7 @@ function cs_loadSongs(nextFunction) {
     allSongs=new Object();
     if (json!=null) {
       if (json.songs!=null) {
-        jQuery.each(json.songs, function(k,a) {
+        each(json.songs, function(k,a) {
           allSongs[a.id]=a;
         });
       }
@@ -145,8 +145,8 @@ function cs_loadFacts(nextFunction) {
     if (!ok) alert("Fehler beim Laden der Fakten: "+json);
     else {
       if (json!=null) {
-        jQuery.each(json, function(k,a) {
-          jQuery.each(a, function(k,fact) {
+        each(json, function(k,a) {
+          each(a, function(k,fact) {
             if (allEvents[fact.id]!=null) {
               if (allEvents[fact.id].facts==null)
                 allEvents[fact.id].facts=new Object();
@@ -166,10 +166,10 @@ function cs_loadFiles(nextFunction) {
   //Lade Daten!
   churchInterface.jsendRead({func: "getFiles"}, function(ok, json) {
     if (json!=null) {
-      jQuery.each(allEvents, function(k,a) {
+      each(allEvents, function(k,a) {
         a.files=null;
       });
-      jQuery.each(json, function(k,a) {
+      each(json, function(k,a) {
         if (allEvents[a.domain_id]!=null) {
           if (allEvents[a.domain_id].files==null)
             allEvents[a.domain_id].files=new Object();

@@ -22,7 +22,7 @@
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
-  <script src="<?= ASSETS ?>/js/jquery-1.10.2.min.js"></script>
+  <script src="<?= ASSETS ?>/js/jquery-2.1.1.js"></script>
   <script src="<?= ASSETS ?>/js/jquery-migrate-1.2.1.min.js"></script>
   
   <script src="<?= CHURCHCORE ?>/shortcut.js"></script>

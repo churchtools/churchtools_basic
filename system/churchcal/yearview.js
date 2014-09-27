@@ -53,7 +53,7 @@ function YearCalendar(element, options, eventSources) {
     }
   }
   function removeEventSource(s) {
-    $.each(t.eventSources, function(k,a) {
+    each(t.eventSources, function(k,a) {
       if (a==s) delete t.eventSources[k];
     });
     t.render();
@@ -71,14 +71,14 @@ function YearCalendar(element, options, eventSources) {
       d.addDays(1); 
     }
 
-    $.each(churchcore_sortData(names, "name"), function(k,event) {
+    each(churchcore_sortData(names, "name"), function(k,event) {
       rows.push('<tr><td>'+event.name);      
       var d = new Date(year, month, 1);
       while (d.getMonth()==month) {
         var drin=false;
         var title="";
         var color="";
-        $.each(event.events, function(i,e) {
+        each(event.events, function(i,e) {
           if ((e.start<=d) && (e.end>=d)) {
             drin=true;
             title=e.title+' ';
@@ -115,9 +115,9 @@ function YearCalendar(element, options, eventSources) {
         var rows = new Array();  
         
         var names= new Object();
-        $.each(t.eventSources, function(k,s) {
+        each(t.eventSources, function(k,s) {
           if (s!=null) {
-            $.each(s.events, function(i,event) {
+            each(s.events, function(i,event) {
               if (names[event.id]==null) {
                 names[event.id]=new Object();
                 names[event.id].events=new Array();

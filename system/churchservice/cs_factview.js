@@ -72,10 +72,10 @@ FactView.prototype.getCountCols = function() {
 FactView.prototype.groupingFunction = function (event) {
   var tagDatum=event.startdate.toDateEn(false).toStringDe();
   var merker = new Object;
-  $.each(allEvents, function(k,a) {
+  each(allEvents, function(k,a) {
     if (a.startdate.toDateEn(false).toStringDe()==tagDatum) {
       if (a.facts!=null)
-        $.each(a.facts, function(i,b) {
+        each(a.facts, function(i,b) {
           if (merker[i]==null) merker[i]=0;
           merker[i]=Math.round(merker[i]+b.value*1);
         });
@@ -83,7 +83,7 @@ FactView.prototype.groupingFunction = function (event) {
   });
   var txt=event.startdate.toDateEn(false).getDayInText()+", "+event.startdate.toDateEn(false).toStringDe();
 
-  $.each(churchcore_sortData(masterData.fact, "sortkey"), function(k,a) {
+  each(churchcore_sortData(masterData.fact, "sortkey"), function(k,a) {
     txt=txt+'<td class="grouping">';
     if (merker[a.id]!=null)
       txt=txt+merker[a.id];
@@ -174,7 +174,7 @@ FactView.prototype.getListHeader = function () {
     factView.listViewTableHeight=665;
 
   rows.push('<th>Events');
-  $.each(churchcore_sortData(masterData.fact,"sortkey"), function(k,a){
+  each(churchcore_sortData(masterData.fact,"sortkey"), function(k,a){
     rows.push('<th>'+a.bezeichnung);
   });
 
@@ -190,7 +190,7 @@ FactView.prototype.renderListEntry = function (event) {
   }
   var cl="";
   if (masterData.auth.editfacts) cl="editable";
-  $.each(churchcore_sortData(masterData.fact,"sortkey"), function(k,a) {
+  each(churchcore_sortData(masterData.fact,"sortkey"), function(k,a) {
     rows.push('<td width="'+width+'%" class="'+cl+'" event_id="'+event.id+'" fact_id="'+a.id+'">');
     if ((event.facts!=null) && (event.facts[a.id]!=null))
       rows.push(event.facts[a.id].value);

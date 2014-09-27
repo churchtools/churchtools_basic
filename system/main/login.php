@@ -20,7 +20,7 @@ function login_main() {
     $form->addField("email", "", "INPUT_REQUIRED", t("email.or.username"), true);
     $form->addField("password", "", "PASSWORD", t("password"));
     // TODO: when is this false?
-    if (!getConf("show_remember_me") || getConf("show_remember_me") == 1) $form->addField("rememberMe", "", "CHECKBOX", t("remember.me") . ' (' . t('remember.me.info') . '!)');
+    if (!getConf("show_remember_me") || getConf("show_remember_me") == 1) $form->addField("rememberMe", "", "CHECKBOX", t("remember.me"));
     $form->addButton(t("login"), "ok");
     
     if (getVar("newpwd") && $email = getVar("email")) {

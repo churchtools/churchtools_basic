@@ -47,7 +47,7 @@ SettingsView.prototype.renderFilter = function() {
 
   $("#cdb_filter").html(rows.join("")); 
   
-  $.each(this.filter, function(k,a) {
+  each(this.filter, function(k,a) {
     $("#"+k).val(a);
   });
 
@@ -96,7 +96,7 @@ SettingsView.prototype.renderList = function() {
   
   var showFU=false;
   if ((masterData.user_pid!=null) && (allPersons[masterData.user_pid]!=null) && (allPersons[masterData.user_pid].gruppe!=null)) {
-    $.each(allPersons[masterData.user_pid].gruppe, function(k,a) {
+    each(allPersons[masterData.user_pid].gruppe, function(k,a) {
       if ((a.leiter>0) && (masterData.groups[a.id].followup_typ_id!=null) && (masterData.groups[a.id].followup_typ_id!=0))
         showFU=true;
     });    
@@ -129,7 +129,7 @@ SettingsView.prototype.renderList = function() {
     if (masterData.settings.hideStatus==null)
       masterData.settings.hideStatus=-1;
     rows.push('<option value="-1">');    
-    $.each(masterData.status, function (k,a) {
+    each(masterData.status, function (k,a) {
       rows.push('<option value="'+a.id+'" '+(masterData.settings.hideStatus==a.id?"selected":"")+'>'+a.bezeichnung);    
     });
     rows.push('</select>');

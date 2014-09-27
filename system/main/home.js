@@ -161,7 +161,7 @@ function renderNextMeetingRequests() {
     var rows= new Array();
     rows.push("");
     var c=0;
-    $.each(churchcore_sortData(masterData.meetingRequests, "event_date"), function(k,a) {
+    each(churchcore_sortData(masterData.meetingRequests, "event_date"), function(k,a) {
       if (c<3 && a.response_date!=null && (a.zugesagt_yn==null || a.zugesagt_yn==1)) {
         c++;
         rows.push('<div class="meeting-request" data-id="'+k+'">');
@@ -185,7 +185,7 @@ function renderOpenMeetingRequests(refresh) {
     var rows= new Array();
     rows.push("");
     var c=0;
-    $.each(churchcore_sortData(masterData.meetingRequests, "event_date"), function(k,a) {
+    each(churchcore_sortData(masterData.meetingRequests, "event_date"), function(k,a) {
       if (c<3 && a.response_date==null) {
         c++;
         rows.push('<div class="meeting-request" data-id="'+a.id+'">');

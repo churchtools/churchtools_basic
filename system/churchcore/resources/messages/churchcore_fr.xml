@@ -88,7 +88,6 @@
   <entry key="email.or.username">Adresse email ou nom d'utilisateur</entry>
   <entry key="password">Mot de passe</entry>
   <entry key="remember.me">Se souvenir de moi</entry>
-  <entry key="remember.me.info">only check on personal devices</entry>
   <entry key="login">S'inscrire</entry>
   <entry key="email.or.username.unknown">Email ou nom d'utilisateur inconnu!</entry>
   <entry key="forgot.password">Mot de passe oublié?</entry>

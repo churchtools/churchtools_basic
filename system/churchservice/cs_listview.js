@@ -175,10 +175,10 @@ ListView.prototype.showLastChanges = function() {
   var _counter=0;
 
   // Nun alle Gruppen durchgehen und �nderungen nach dem letzten lastVisited anzeigen
-  $.each(this.getData(true), function(k,event) {
+  each(this.getData(true), function(k,event) {
     _first=true;
     if ((event.services!=null) && (event.startdate.toDateEn()>_d)) {
-      $.each(event.services, function(i,service) {
+      each(event.services, function(i,service) {
         if ((service.valid_yn==1) && (service.user_id!=masterData.user_pid)
                && (masterData.auth.leaderservice[service.service_id])) {
           var _history=this_object.renderEntryHistory(event.id, service.service_id, service.counter, _lastVisited, true);
@@ -226,7 +226,7 @@ ListView.prototype.messageReceiver = function(message, args) {
     }
     else if (message=="pollForNews") {
       cs_loadNewEventData(churchInterface.getLastLogId(), function(events) {
-        $.each(events, function(k,a) {
+        each(events, function(k,a) {
           this_object.renderList(allEvents[a]);
         });
       });
@@ -291,7 +291,7 @@ function _getEditEventFromForm() {
 
 function _getTemplateIdFromName(name) {
   var res=null;
-  $.each(masterData.eventtemplate, function(k,a) {
+  each(masterData.eventtemplate, function(k,a) {
     if (a.bezeichnung.toUpperCase()==name.toUpperCase()) {
       res=a.id;
       // exit
@@ -510,7 +510,7 @@ ListView.prototype.renderEditEvent = function(event) {
       churchInterface.jsendRead({func:"getPersonById", id:event.admin}, function(ok, json) {
         var s = "";
         if (json.data!=null) {
-          $.each(json.data, function(k,a) {
+          each(json.data, function(k,a) {
             if (s!="") s=s+"<br/>";
             s=s+a.vorname+" "+a.name;
           });
@@ -542,10 +542,10 @@ ListView.prototype.renderEditEvent = function(event) {
     rows.push('<table>');
 
     if (event.id==null) {
-      $.each(churchcore_sortData(masterData.servicegroup,"sortkey"),function(k,sg) {
+      each(churchcore_sortData(masterData.servicegroup,"sortkey"),function(k,sg) {
         rows.push('<tr><th colspan=2>'+sg.bezeichnung+'<td>');
 
-        $.each(masterData.service_sorted, function(i,s) {
+        each(masterData.service_sorted, function(i,s) {
           if (s.servicegroup_id==sg.id) {
             rows.push('<tr><td><label for="cb_'+s.id+'">'+s.bezeichnung+'&nbsp;</label>');
             if ((s.notiz!=null) && (s.notiz!=""))
@@ -559,7 +559,7 @@ ListView.prototype.renderEditEvent = function(event) {
               // Anonsten schaue, ob es Eintr�ge gibt
               if (event.services!=null) {
                 var entries=0;
-                $.each(event.services, function(j,e) {
+                each(event.services, function(j,e) {
                   if (e.service_id==s.id) entries=entries+1;
                 });
                 if (entries>0) count=entries;
@@ -599,7 +599,7 @@ ListView.prototype.renderEditEvent = function(event) {
   }
 
   $("a.first-event").click(function() {
-    $.each(allEvents, function(k,a) {
+    each(allEvents, function(k,a) {
       if (a.cc_cal_id==event.cc_cal_id && (a.cal_startdate=a.startdate)) {
         elem.dialog("close");
         this_object.renderEditEvent(a);
@@ -693,7 +693,7 @@ ListView.prototype.renderEditEvent = function(event) {
       var service_id=$(this).attr("id").substr(3,99);
       var no=false;
       if (event.services!=null)
-        $.each(event.services, function(i,b) {
+        each(event.services, function(i,b) {
           if ((b.service_id==service_id) && (b.valid_yn==1) && (b.name!=null)) {
             no=true;
             //exit
@@ -758,7 +758,7 @@ ListView.prototype.isLeaderOfServiceGroup = function (sg_id) {
   if (sg_id==null) return false;
 
   isleader=false;
-  $.each(masterData.service, function(k,a) {
+  each(masterData.service, function(k,a) {
     if ((a.servicegroup_id==sg_id) && (masterData.auth.leaderservice[a.id]==true)) {
       isleader=true;
       //exit
@@ -780,9 +780,9 @@ ListView.prototype.getMemberOfOneGroup = function(g_ids, user_pid) {
 
   var g_id=g_ids.split(",");
   var ret=false;
-  $.each(g_id, function(k,a) {
+  each(g_id, function(k,a) {
     if (groups[a]!=null) {
-      $.each(groups[a], function(i,b) {
+      each(groups[a], function(i,b) {
         if ((b.p_id==user_pid) && (b.leiter!=-1)) {
           ret=b;
         }
@@ -803,9 +803,9 @@ ListView.prototype.checkPersonHasOneTagFromService = function (user_pid, service
   if (service.cdb_tag_ids==null) return true;
   var tag_ids=service.cdb_tag_ids.split(",");
   var ok=false;
-  $.each(service.cdb_gruppen_ids.split(","), function(k,g) {
+  each(service.cdb_gruppen_ids.split(","), function(k,g) {
     if (groups!=null && groups[g]!=null) {
-      $.each(groups[g], function(i,b) {
+      each(groups[g], function(i,b) {
         if ((b.p_id==user_pid) && (_checkPersonTag(tag_ids, b.tags))) {
           ok=true;
           return false;
@@ -894,7 +894,7 @@ ListView.prototype.getCountCols = function() {
   var r=0;
   var this_object=this;
   if (this.filter["filterDienstgruppen"]==null) {
-    $.each(masterData.servicegroup, function(k,a) {
+    each(masterData.servicegroup, function(k,a) {
       if ((masterData.auth.viewgroup[a.id]) || (this_object.filter["filterMeine Filter"]==2)) {
         if ((masterData.settings["viewgroup"+a.id]==null) || (masterData.settings["viewgroup"+a.id]==1))
           r++;
@@ -903,7 +903,7 @@ ListView.prototype.getCountCols = function() {
     r++;
   }
   else {
-    $.each(masterData.service, function(k,a) {
+    each(masterData.service, function(k,a) {
       if (a.servicegroup_id==this_object.filter["filterDienstgruppen"]) {
         r++;
       }
@@ -915,7 +915,7 @@ ListView.prototype.getCountCols = function() {
 ListView.prototype.getAdditionalServicesToServicegroup = function (event, sg_id, bin_ich_admin) {
   this_object=this;
   var choseable = new Array();
-  $.each(masterData.service_sorted, function(k,a) {
+  each(masterData.service_sorted, function(k,a) {
     if ((a.servicegroup_id==sg_id) && (
           (masterData.auth.write)
           || ((masterData.auth.editgroup!=null && masterData.auth.editgroup[sg_id]))
@@ -925,7 +925,7 @@ ListView.prototype.getAdditionalServicesToServicegroup = function (event, sg_id,
         var isdrin=0;
         var isfrei=true;
         if (event.services!=null) {
-          $.each(event.services, function(l,b) {
+          each(event.services, function(l,b) {
             if ((b.service_id==a.id) && (b.valid_yn==1)) {
               isdrin++;
               if (b.name!=null) isfrei=false;
@@ -949,7 +949,7 @@ ListView.prototype.getAdditionalServicesToServicegroup = function (event, sg_id,
 function bin_ich_admin(admin) {
   if (admin==null) return false;
   var res=false;
-  $.each(admin.split(","), function(k,a) {
+  each(admin.split(","), function(k,a) {
     if ($.trim(a)==masterData.user_pid) {
       res=true;
       //exit;
@@ -1000,7 +1000,7 @@ ListView.prototype.renderListEntry = function(event) {
     }
     // Check if I am a leader of the group
     if (!_authMerker)
-      $.each(masterData.service, function(k,a) {
+      each(masterData.service, function(k,a) {
         if (masterData.auth.leaderservice[a.id]) {
           _authMerker=true;
           //exit
@@ -1010,7 +1010,7 @@ ListView.prototype.renderListEntry = function(event) {
     if (_authMerker) rows.push("<a href=\"#\" id=\"editNote" + event.id + "\" title=\"Editiere 'Weitere Infos'\">" +this.renderImage("info")+"</a>&nbsp;");
     // Check if I am in one of the services, so I am allowed to uplaod files
     if ((!_authMerker) && (event.services!=null)) {
-      $.each(event.services, function(k,a) {
+      each(event.services, function(k,a) {
         if ((a.valid_yn==1) && (masterData.user_pid==a.cdb_person_id)) {
           _authMerker=true;
           return false;
@@ -1043,18 +1043,18 @@ ListView.prototype.renderListEntry = function(event) {
 
   // When no filterDienstgruppe is selected, it show all Services, sorted by ServiceGroup
   if (this.filter["filterDienstgruppen"]==null) {
-    $.each(this.sortMasterData(masterData.servicegroup, "sortkey"), function(k,sg) {
+    each(this.sortMasterData(masterData.servicegroup, "sortkey"), function(k,sg) {
       var is_leader=false;
       if ((masterData.settings["viewgroup"+sg.id]==null) || (masterData.settings["viewgroup"+sg.id]==1)) {
         if ((masterData.auth.viewgroup[sg.id]) || (this_object.filter["filterMeine Filter"]==2)) {
           rows.push('<td valign="top" class="service hoveractor" data-servicegroup-id="'+sg.id+'" style="position:relative" width="'+width+'%">');
           if (event.valid_yn==1) {
-            $.each(masterData.service_sorted, function(i,s) {
+            each(masterData.service_sorted, function(i,s) {
               if (sg.id==s.servicegroup_id) {
                 if (masterData.auth.leaderservice[s.id]==true) is_leader=true;
                 if (event.services!=null) {
                   var history="";
-                  $.each(churchcore_sortData(event.services,"counter", false, false), function(j,services) {
+                  each(churchcore_sortData(event.services,"counter", false, false), function(j,services) {
                     if ((services.service_id==s.id)) {
                       rows.push(
                         this_object.renderEventServiceEntry(event.id, services, _bin_ich_admin)
@@ -1082,11 +1082,11 @@ ListView.prototype.renderListEntry = function(event) {
   }
   // Wenn eine Dienstgruppe ausgew�hlt ist
   else {
-    $.each(masterData.service_sorted, function(k,s) {
+    each(masterData.service_sorted, function(k,s) {
       if ((event.services!=null) && (s.servicegroup_id==this_object.filter["filterDienstgruppen"])) {
         rows.push("<td>");
         if (event.services!=null) {
-          $.each(event.services, function(i,services) {
+          each(event.services, function(i,services) {
             if ((services.service_id==s.id) && (services.valid_yn==1)) {
               rows.push(
                 this_object.renderEventServiceEntry(event.id, services, _bin_ich_admin)
@@ -1108,7 +1108,7 @@ ListView.prototype.prepareCategoriesForSelect = function(multiselect) {
   var data=new Object();
   if (multiselect==null) multiselect=false;
   var sortkey=1;
-  $.each(churchcore_sortMasterData(masterData.category), function(k,c) {
+  each(churchcore_sortMasterData(masterData.category), function(k,c) {
     if (c.privat_yn==0 && c.oeffentlich_yn==0) {
       form_addEntryToSelectArray(data, c.id, c.bezeichnung, sortkey);
       sortkey++;
@@ -1123,7 +1123,7 @@ ListView.prototype.prepareCategoriesForSelect = function(multiselect) {
     }
     sortkey++;
   }
-  $.each(churchcore_sortMasterData(masterData.category), function(k,c) {
+  each(churchcore_sortMasterData(masterData.category), function(k,c) {
     if (c.privat_yn==0 && c.oeffentlich_yn==1) {
       form_addEntryToSelectArray(data, c.id, c.bezeichnung, sortkey);
       sortkey++;
@@ -1180,7 +1180,7 @@ ListView.prototype.getListHeader = function() {
   tableHeader='<th><a href="#" id="sortdatum">Events</a>';
 
   if (this.filter["filterDienstgruppen"]==null) {
-    $.each(this.sortMasterData(masterData.servicegroup), function(k,a) {
+    each(this.sortMasterData(masterData.servicegroup), function(k,a) {
       if ((masterData.settings["viewgroup"+a.id]==null) || (masterData.settings["viewgroup"+a.id]==1))
         if ((masterData.auth.viewgroup[a.id]) || (this_object.filter["filterMeine Filter"]==2)) {
           tableHeader=tableHeader+'<th class="hoveractor" id="header'+a.id+'">'+a.bezeichnung;
@@ -1191,7 +1191,7 @@ ListView.prototype.getListHeader = function() {
     tableHeader=tableHeader+'<th width="16px"><a href="#" id="addMoreCols">'+this.renderImage("plus",16)+'</a>';
   }
   else {
-    $.each(masterData.service_sorted, function(k,a) {
+    each(masterData.service_sorted, function(k,a) {
       if (a.servicegroup_id==this_object.filter["filterDienstgruppen"]) {
         tableHeader=tableHeader+'<th>'+a.bezeichnung;
         if (a.notiz!="") tableHeader=tableHeader+" ("+a.notiz+")";
@@ -1275,9 +1275,9 @@ ListView.prototype._renderAuslastung = function (event_id, service_id) {
           var p_id=$("#InputNameSelect").val();
 
           rows.push('<table class="table table-condensed"><tr><th>Datum<th>Event<th>Service<th>Zugesagt<th>Notiz');
-          $.each(churchcore_sortData(allEvents,"startdate",true), function(k,a) {
+          each(churchcore_sortData(allEvents,"startdate",true), function(k,a) {
             if (a.services!=null) {
-              $.each(a.services, function(i,service) {
+              each(a.services, function(i,service) {
                 if ((service.user_id==p_id) &&
                       (((service.valid_yn==0) && (service.cdb_person_id==null))
                      || (service.valid_yn==1) && (service.cdb_person_id!=null))) {
@@ -1307,7 +1307,7 @@ function personIsAbsent(p_id, datum) {
   var res=null;
 
   if ((allPersons[p_id]!=null) && (allPersons[p_id].absent!=null)) {
-    $.each(allPersons[p_id].absent, function(k,a) {
+    each(allPersons[p_id].absent, function(k,a) {
       var _enddate=new Date(a.enddate);
       // Wenn es ein ganztagestermin ist, dann mu� ich ein Tag hinzunehmen
       if ((a.startdate.getHours()==0) && (a.enddate.getHours()==0))
@@ -1326,7 +1326,7 @@ function _checkPersonTag(tag_ids, tags) {
   if ((tag_ids==null) || (tag_ids==""))
     tag_dabei=true;
   else {
-    $.each(tag_ids, function(i,c) {
+    each(tag_ids, function(i,c) {
       if ((tags!=null)) {
         if (churchcore_inObject(c,tags)) {
           tag_dabei=true;
@@ -1340,7 +1340,7 @@ function _checkPersonTag(tag_ids, tags) {
 
 function _checkWarSchonMal(p_id, services, service_id, counter) {
   var warschonmal=false;
-  $.each(services, function(j,c) {
+  each(services, function(j,c) {
     if (c.cdb_person_id==p_id) {
       // Wenn er nicht mehr aktuell ist oder wenn er in einem anderen Dienst aktuell angefragt ist
       if ((c.valid_yn==0) || (c.service_id!=service_id) || (c.counter!=counter)) {
@@ -1357,9 +1357,9 @@ ListView.prototype.getAllPersonsForService = function(service_id) {
   var gruppen_ids=masterData.service[service_id].cdb_gruppen_ids;
   var tag_ids=(masterData.service[service_id].cdb_tag_ids==null?null:masterData.service[service_id].cdb_tag_ids.split(","));
   var persons=new Object();
-  $.each(gruppen_ids.split(","), function(k,g) {
+  each(gruppen_ids.split(","), function(k,g) {
     if (groups[g]!=null) {
-      $.each(groups[g], function(i,b) {
+      each(groups[g], function(i,b) {
         if (_checkPersonTag(tag_ids, b.tags)) {
           var o = new Object();
           o.id=b.p_id;
@@ -1383,7 +1383,7 @@ ListView.prototype.selectPossiblePersonForService = function(persons, event_id, 
   var t=this;
   if (persons!=null) {
     var lowestWert=-100000; lowestId=null;
-    $.each(persons, function(k,person) {
+    each(persons, function(k,person) {
       if ((selectedPersons==null) || (selectedPersons[person.id]==null)) {
         var event_date=allEvents[event_id].startdate.toDateEn();
         var sg_id=masterData.service[service_id].servicegroup_id;
@@ -1428,7 +1428,7 @@ ListView.prototype.selectPossiblePersonForService = function(persons, event_id, 
               }
               // Pr�fe auf Beziehung
               if (weight.relation_weight!=0) {
-                 $.each(persons, function(k, rel) {
+                 each(persons, function(k, rel) {
                    if (rel.id==weight.relation_id) {
                      if ((weight.relation_weight==-1) && (rel.bewertet!=null)) {
                        if (rel.wert>-100) {
@@ -1514,11 +1514,11 @@ ListView.prototype._renderInputName = function (manuelInput, eventservice, event
     if (_gruppen_ids==null) _gruppen_ids="-1";
     var _person_vorhanden=false;
     var _leere_liste=true;
-    $.each(_gruppen_ids.split(","), function(k,a) {
+    each(_gruppen_ids.split(","), function(k,a) {
       var title=true;
       if (_gruppen_ids.indexOf(",")>0) title=false;
       if (groups[a]!=null) {
-        $.each(churchcore_sortData(groups[a],"vorname"), function(i,b) {
+        each(churchcore_sortData(groups[a],"vorname"), function(i,b) {
 
           // Pr�fe, ob auch Tags abgefragt werden sollen und ob sie passen
           if (_checkPersonTag(tag_ids, b.tags)) {
@@ -1742,9 +1742,9 @@ ListView.prototype.renderEditEventService = function(event_id, eventservice_id, 
             obj.cdb_person_id=$("#InputNameSelect").val();
             if (masterData.service[service_id].cdb_gruppen_ids!=null) {
               // Mu� nun erst mal den Namen suchen, daf�r mu� ich die m�glichen Gruppen durchgehen.
-              $.each(masterData.service[service_id].cdb_gruppen_ids.split(","), function(k,a) {
+              each(masterData.service[service_id].cdb_gruppen_ids.split(","), function(k,a) {
                 if (groups[a]!=null) {
-                  $.each(groups[a], function(i,b) {
+                  each(groups[a], function(i,b) {
                     if (b.p_id==obj.cdb_person_id) {
                       obj.name=b.vorname+" "+b.name;
                       return false;
@@ -1788,7 +1788,7 @@ ListView.prototype.renderEditEventService = function(event_id, eventservice_id, 
           else {
             // Wenn es nur ein Update war (gleicher Modifiedduser)
             if (json.eventservice.id==obj.id) {
-              $.each(allEvents[event_id].services, function(k,a) {
+              each(allEvents[event_id].services, function(k,a) {
                 if (a.id==obj.id)
                   allEvents[event_id].services[k]=json.eventservice;
               });
@@ -1813,10 +1813,10 @@ ListView.prototype.showAuslastung = function() {
 
   var user = new Object();
   var counter = 0;
-  $.each(allEvents, function(k,a) {
+  each(allEvents, function(k,a) {
     if (a.services!=null) {
       counter=counter+1;
-      $.each(a.services, function(i,b) {
+      each(a.services, function(i,b) {
         if ((b.cdb_person_id!=null) && (b.valid_yn==1)) {
           if (user[b.cdb_person_id]==null) {
             var a = new Array();
@@ -1834,7 +1834,7 @@ ListView.prototype.showAuslastung = function() {
   });
   rows.push("<h2>Dienste pro Event<h2/>");
   rows.push("<table>");
-  $.each(churchcore_sortData(user, "counter", true, false), function(k,a) {
+  each(churchcore_sortData(user, "counter", true, false), function(k,a) {
     rows.push("<tr><td>"+a.name+" ("+a.cdb_person_id+")<td>"+Math.round(a.counter/counter*100)+"%");
   });
   rows.push("</table>");
@@ -1870,7 +1870,7 @@ ListView.prototype.renderEntryHistory = function(event_id, service_id, counter, 
   if (shortVersion==null) shortVersion=false;
   var _reasonAvailable=false;
   var _lastName=null;
-  $.each(churchcore_sortData(allEvents[event_id].services,"datum",false), function(k,a) {
+  each(churchcore_sortData(allEvents[event_id].services,"datum",false), function(k,a) {
     if ((a.service_id==service_id) && (a.counter==counter)) {
       if ((timeBack==null) || (a.datum.toDateEn()>=timeBack)) {
         var row='<tr><td>';
@@ -1915,7 +1915,7 @@ ListView.prototype.renderEntryHistory = function(event_id, service_id, counter, 
  */
 function tryToGetReason(event, service_id, id, person_id) {
   var reason=null;
-  $.each(churchcore_sortArray(event.services, "datum", true), function(b, service) {
+  each(churchcore_sortArray(event.services, "datum", true), function(b, service) {
     if (service.service_id==service_id) {
       if (service.id==id) {
         // exit
@@ -1944,11 +1944,11 @@ ListView.prototype.getPersonAuslastung = function(cdb_user_id, service_id, now_d
   var _event_date=null;
 
   // Bau das Objekt _monate nun auf
-  $.each(this.getData(true), function(a,event){
+  each(this.getData(true), function(a,event){
     if (event.services!=null) {
       _service_besetzt=false;
       _count_person=false;
-      $.each(event.services, function(b,service) {
+      each(event.services, function(b,service) {
         if ((service.valid_yn==1) && (service.cdb_person_id!=null)) {
           _service_besetzt=true;
           // Entweder wurde kein Service mit �bergeben oder nur der ServiceGroup_id soll betrachtet werden z.b. nur Technik
@@ -2024,9 +2024,9 @@ ListView.prototype.renderPersonAuslastung = function (cdb_user_id, event_id, ser
   var txt3="";
   if (withDayView) {
     // Pr�fe ob die Person schon an dem Tag in einem Event eingetragen ist oder war
-    $.each(this.getData(true), function(a, event){
+    each(this.getData(true), function(a, event){
       if ((event.services!=null) && (event.startdate.toDateEn(false).toStringEn(false)==now_date.toStringEn(false))) {
-        $.each(churchcore_sortArray(event.services, "datum", true), function(b, service) {
+        each(churchcore_sortArray(event.services, "datum", true), function(b, service) {
           // Ist es die Person?
           if ((service.cdb_person_id!=null) && (service.cdb_person_id==cdb_user_id)) {
             // Nur andere Events untersuchen oder andere Dienste am gleichen Event
@@ -2086,7 +2086,7 @@ ListView.prototype.renderPersonAuslastung = function (cdb_user_id, event_id, ser
  */
 ListView.prototype.getEventService = function(event_id, eventservice_id) {
   var _eventservice=null;
-  $.each(allEvents[event_id].services, function(k,a) {
+  each(allEvents[event_id].services, function(k,a) {
     if ((a.id==eventservice_id) && (a.valid_yn!=0)) {
       _eventservice=a;
       // break
@@ -2193,7 +2193,7 @@ function getNotification(domain_type, domain_id) {
 ListView.prototype.countActiveServices = function(event, service_id) {
   var count=0;
   if (event.services!=null) {
-    $.each(event.services, function(k,s) {
+    each(event.services, function(k,s) {
       if ((s.service_id==service_id) && (s.valid_yn==1) && (s.name!=null)) {
         count=count+1;
       }
@@ -2313,7 +2313,7 @@ ListView.prototype.renderAddServiceToServicegroup = function(event, sg_id, user_
   rows.push('<div class="checkbox"><label for="cb_enableAll"><input type="checkbox" id="cb_enableAll"/> <b>Service</b></label>');
   var _bin_ich_admin=bin_ich_admin(event.admin);
 
-  $.each(this.getAdditionalServicesToServicegroup(event, sg_id, _bin_ich_admin), function(i,s) {
+  each(this.getAdditionalServicesToServicegroup(event, sg_id, _bin_ich_admin), function(i,s) {
     //rrr    rows.push('<tr><td><input type="checkbox" '+s.checked+' id="on_'+s.id+'"/><td><p>'+masterData.service[s.id].bezeichnung);
     rows.push('</div><div class="checkbox"><label for="on_'+s.id+'"><input type="checkbox" '+s.checked+' id="on_'+s.id+'"/> '+masterData.service[s.id].bezeichnung+'');
     if (masterData.service[s.id].notiz!="")
@@ -2443,7 +2443,7 @@ ListView.prototype.sendEMailToEvent = function(event) {
   var rows = new Array();
 
   var _dienstgruppen = new Array();
-  $.each(event.services, function(k,service) {
+  each(event.services, function(k,service) {
     if ((service.valid_yn==1) && (service.cdb_person_id!=null)) {
       _dienstgruppen[masterData.service[service.service_id].servicegroup_id]=true;
     }
@@ -2454,7 +2454,7 @@ ListView.prototype.sendEMailToEvent = function(event) {
     rows.push('<form class="form-inline">');
     rows.push('<div class="well">E-Mail an folgende Mitarbeiter senden:<br/><p><p>');
     var c=0;
-    $.each(this_object.sortMasterData(masterData.servicegroup), function(k,a) {
+    each(this_object.sortMasterData(masterData.servicegroup), function(k,a) {
       if (_dienstgruppen[a.id]) {
         var checked="";
         if (this_object.isLeaderOfServiceGroup(a.id)) checked="checked";
@@ -2489,7 +2489,7 @@ ListView.prototype.sendEMailToEvent = function(event) {
         "Absenden": function() {
           var obj = new Object();
           var ids="";
-          $.each(event.services, function(k,service) {
+          each(event.services, function(k,service) {
             if ((service.valid_yn==1) && (service.cdb_person_id!=null) && ($("#checkSG"+masterData.service[service.service_id].servicegroup_id).attr("checked"))) {
               ids=ids+service.cdb_person_id+",";
             }
@@ -2562,7 +2562,7 @@ ListView.prototype.attachFile = function(event) {
 
   var eventIds= new Array();
   var day=event.startdate.toDateEn(false).toStringEn(false);
-  $.each(allEvents, function(k,a) {
+  each(allEvents, function(k,a) {
     if ((event.id!=a.id) && (a.startdate.toDateEn(false).toStringEn(false)==day) && (event.category_id==a.category_id)) {
       eventIds.push(a.id);
     }
@@ -2580,7 +2580,7 @@ ListView.prototype.attachFile = function(event) {
 
   var _dienstgruppen = new Array();
   if (event.services!=null) {
-    $.each(event.services, function(k,service) {
+    each(event.services, function(k,service) {
       if ((service.valid_yn==1) && (service.cdb_person_id!=null)) {
         _dienstgruppen[masterData.service[service.service_id].servicegroup_id]=true;
       }
@@ -2588,7 +2588,7 @@ ListView.prototype.attachFile = function(event) {
   }
   if (_dienstgruppen.length>0) {
     rows.push("<p>Folgende Dienstgruppen per E-Mail &uuml;ber die neue Datei informieren:<p>");
-    $.each(this_object.sortMasterData(masterData.servicegroup), function(k,a) {
+    each(this_object.sortMasterData(masterData.servicegroup), function(k,a) {
       if (_dienstgruppen[a.id]) {
         checked=masterData.settings["file_informServiceGroup"+a.id]==1;
         rows.push(form_renderCheckbox({label:a.bezeichnung, controlgroup:false, checked:checked,
@@ -2647,7 +2647,7 @@ ListView.prototype.attachFile = function(event) {
           }
           // Mails schicken, wenn es sein soll
           var mailGroups=new Array();
-          $.each(this_object.sortMasterData(masterData.servicegroup), function(k,a) {
+          each(this_object.sortMasterData(masterData.servicegroup), function(k,a) {
             if (_dienstgruppen[a.id]) {
               if (masterData.settings["file_informServiceGroup"+a.id]==1)
                 mailGroups.push(a.id);
@@ -2656,13 +2656,13 @@ ListView.prototype.attachFile = function(event) {
           if (mailGroups.length>0) {
             // Gehe nun alle Events durch und nat�rlich das angeklickte auch, deshalb PUSH ich das hier mit rien
             eventIds.push(event.id);
-            $.each(eventIds, function(k,i) {
+            each(eventIds, function(k,i) {
               // Entweder an alle, oder nur wo die Id gleich ist
               if ((masterData.settings.file_attachToAllEvents==1) || (i==event.id)) {
                 var ev=allEvents[i];
                 var obj = new Object();
                 var mailPersons=new Array();
-                $.each(ev.services, function(k,service) {
+                each(ev.services, function(k,service) {
                   if ((service.valid_yn==1) && (service.cdb_person_id!=null) && (masterData.service[service.service_id]!=null)
                       && (_dienstgruppen[masterData.service[service.service_id].servicegroup_id])
                       &&  (masterData.settings["file_informServiceGroup"+masterData.service[service.service_id].servicegroup_id]==1)) {
@@ -2880,7 +2880,7 @@ ListView.prototype.editNotification = function(domain_type, domain_id) {
   if (domain_id!=null && value==null) {
     form.addHtml('<legend>Neues Abo f&uuml;r '+masterData[domain_type][domain_id].bezeichnung+'</legend>');
 
-    $.each(masterData.notificationtype, function(k,a) {
+    each(masterData.notificationtype, function(k,a) {
       a.sortkey=a.delay_hours;
     });
 
@@ -2892,7 +2892,7 @@ ListView.prototype.editNotification = function(domain_type, domain_id) {
   if (masterData.notification[domain_type]!=null) {
     form.addHtml('<legend>Vorhandene Abonnements</legend>');
     form.addHtml('<table class="table table-condensed"><tr><th style="min-width:60px">Abo<th style="min-width:60px">Notiz<th>Wie oft?<th width="22px">');
-    $.each(masterData.notification[domain_type], function(k,a) {
+    each(masterData.notification[domain_type], function(k,a) {
       form.addHtml('<tr data-id="'+k+'"><td>'+masterData[domain_type][k].bezeichnung+'<td>');
       if (masterData[domain_type][k].notiz!=null)
         form.addHtml('<small>'+masterData[domain_type][k].notiz+'</small>');
@@ -2963,7 +2963,7 @@ ListView.prototype.addMoreCols = function() {
   var rows = new Array();
   var t=this;
   rows.push("<legend>Auswahl der Servicegruppen</legend>");
-  $.each(churchcore_sortData(masterData.servicegroup,"sortkey"), function(k,a) {
+  each(churchcore_sortData(masterData.servicegroup,"sortkey"), function(k,a) {
     if (masterData.auth.viewgroup[a.id]!=null) {
       rows.push(form_renderCheckbox({
         cssid:"viewgroup"+a.id, label:a.bezeichnung, controlgroup:false,
@@ -3004,7 +3004,7 @@ ListView.prototype.renderFilter = function() {
   form_addEntryToSelectArray(_meineDienste, 1, "Meine Dienste filtern");
   _drin=false;
   if (allEvents!=null)
-    $.each(allEvents, function(k,event) {
+    each(allEvents, function(k,event) {
       if (bin_ich_admin(event.admin)) {
         _drin=true;
         // exit
@@ -3052,7 +3052,7 @@ ListView.prototype.renderFilter = function() {
     this.filter["filterKategorien"].render2Div("filterKategorien", {label:"Kalender"});
   }
 
-  $.each(this.filter, function(k,a) {
+  each(this.filter, function(k,a) {
     $("#"+k).val(a);
   });
 
@@ -3078,11 +3078,11 @@ ListView.prototype.renderCalendar = function() {
                       var angefragt=false;
                       var zugesagt=false;
 
-                      $.each(allEvents, function(k,a) {
+                      each(allEvents, function(k,a) {
                         if (date.sameDay(a.startdate.toDateEn(false))) {
                           checkable=true;
                           if (a.services!=null) {
-                            $.each(a.services, function(i,service) {
+                            each(a.services, function(i,service) {
                               if ((service.valid_yn==1) && (service.cdb_person_id==masterData.user_pid)) {
                                 if (service.zugesagt_yn==1)
                                   zugesagt=true;
@@ -3102,7 +3102,7 @@ ListView.prototype.renderCalendar = function() {
                       // Nun die Abwesenheit
                       var absent=false;
                       if ((allPersons[masterData.user_pid]!=null) && (allPersons[masterData.user_pid].absent!=null)) {
-                        $.each(allPersons[masterData.user_pid].absent, function(k,a) {
+                        each(allPersons[masterData.user_pid].absent, function(k,a) {
                           if ((a!=null) && (a.startdate.withoutTime()<=date) && (a.enddate>=date)) {
                             absent=true;
                             return false;
@@ -3292,7 +3292,7 @@ ListView.prototype.editAbsent = function(pid, name, fullday, currentAbsent) {
     rows.push('<div style="max-height:180px; overflow-y:auto; overflow-x:auto">');
     rows.push('<table class="table table-condensed"><tr><th>'+_("date")+'<th>'+_("reason")+'<th>'+_("comment")+'<th>');
     var sum=new Object();
-    $.each(churchcore_sortData(allPersons[pid].absent, "startdate", true), function(k,a) {
+    each(churchcore_sortData(allPersons[pid].absent, "startdate", true), function(k,a) {
       if (currentAbsent.id!=a.id) {
         if ((a.startdate.getHours()==0) && (a.enddate.getHours()==0))
           rows.push('<tr><td>'+a.startdate.toStringDe(false)+" - "+a.enddate.toStringDe(false));
@@ -3313,9 +3313,9 @@ ListView.prototype.editAbsent = function(pid, name, fullday, currentAbsent) {
     rows.push('</table>');
     if (masterData.auth.manageabsent) {
       rows.push("<p><small><i>Summe:</i><br/>");
-      $.each(sum, function(k,years) {
+      each(sum, function(k,years) {
         rows.push(k+": ");
-        $.each(years, function(i,sum) {
+        each(years, function(i,sum) {
           rows.push(masterData.absent_reason[i].bezeichnung+": "+sum+"  ");
         });
         rows.push("<br/>");
@@ -3391,7 +3391,7 @@ ListView.prototype.editAbsent = function(pid, name, fullday, currentAbsent) {
         elem.html(_('save.data'));
         churchInterface.jsendWrite({func:"delAbsent", id:absent_id}, function(ok, data) {
           if (ok) {
-            $.each(allPersons[pid].absent, function(k,a) {
+            each(allPersons[pid].absent, function(k,a) {
               if ((a!=null) && (a.id==absent_id))
                 delete allPersons[pid].absent[k];
             });
@@ -3435,7 +3435,7 @@ ListView.prototype.amIInvolved = function(a) {
   if (a.services==null)
     return false;
   var _dabei=false;
-  $.each(a.services, function(k,service) {
+  each(a.services, function(k,service) {
     if ((service.valid_yn==1) && (service.cdb_person_id==masterData.user_pid)) {
       _dabei=true;
       // exit
@@ -3480,7 +3480,7 @@ ListView.prototype.checkFilter = function(a) {
 
     var searches=searchEntry.split(" ");
     var res=true;
-    $.each(searches, function(k,search) {
+    each(searches, function(k,search) {
       dabei=false;
       if (search!="") {
 
@@ -3488,7 +3488,7 @@ ListView.prototype.checkFilter = function(a) {
             (a.id==search)) dabei=true;
 
         if (a.services!=null)
-          $.each(a.services, function(k,b) {
+          each(a.services, function(k,b) {
             if ((b.name!=null) && (b.valid_yn==1) && (b.name.toUpperCase().indexOf(search)>=0))
               dabei=true;
           });
@@ -3535,7 +3535,7 @@ ListView.prototype.renderEntryDetail = function (event_id) {
       rows.push('</legend>');
       rows.push('<table class="table table-mini AgendaView">');
       rows.push('<tr>'+agendaView.renderListHeader(true));
-      $.each(agendaView.getData(true), function(k,a) {
+      each(agendaView.getData(true), function(k,a) {
         rows.push('<tr id="'+a.id+'">'+agendaView.renderListEntry(a, true));
       });
 

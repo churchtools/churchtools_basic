@@ -16,7 +16,7 @@ MaintainView.prototype.renderMenu = function() {
   if (masterData.cdb_gruppen==null) {
     var elem = form_showCancelDialog("Masterdaten werden geladen...","Bitte warten..");
     churchInterface.jsendRead({func:"getChurchDBMasterData" }, function(ok, json) {
-      $.each(json, function(k,a) {
+      each(json, function(k,a) {
         masterData[k]=a;
       });
       elem.dialog("close");

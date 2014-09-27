@@ -22,14 +22,14 @@ var wochentag = new Array("So", "Mo", "Di", "Mi", "Do", "Fr", "Sa");
 
 CalView.prototype.getData = function(sorted) {
   var data=new Array;
-  $.each(churchcore_sortData(masterData.servicegroup,"bezeichnung"), function(k1,sg) {
-    // Sammle Personen zusammen pro ServiceGroup (manche Personen kšnnen ja verschiedene Services machen!)
+  each(churchcore_sortData(masterData.servicegroup,"bezeichnung"), function(k1,sg) {
+    // Sammle Personen zusammen pro ServiceGroup (manche Personen kï¿½nnen ja verschiedene Services machen!)
     var servicegroup = new Object();
-    $.each(masterData.service, function(k2,s) {
+    each(masterData.service, function(k2,s) {
       if ((s.servicegroup_id==sg.id) && (s.cdb_gruppen_ids!=null)){
-        $.each(s.cdb_gruppen_ids.split(","), function(k3,p) {
+        each(s.cdb_gruppen_ids.split(","), function(k3,p) {
           if ((groups!=null) && (groups[p]!=null)) {
-            $.each(groups[p], function(k,g) {
+            each(groups[p], function(k,g) {
               if ((servicegroup[g.p_id]==null) && (allPersons[g.p_id]!=null)) {
                 var o = new Object();
                 o.servicegroup_id=sg.id;
@@ -43,7 +43,7 @@ CalView.prototype.getData = function(sorted) {
       }
     });    
     // Nun schiebe die komplette Servicegroup in die Daten rein.
-    $.each(churchcore_sortData(servicegroup,"name"), function(k,a) {
+    each(churchcore_sortData(servicegroup,"name"), function(k,a) {
       data.push(a);
     });
   });
@@ -61,7 +61,7 @@ CalView.prototype.checkFilter = function (a) {
   return false;
 };
 
-//Mit der Function kann man die EintrŠge gruppieren. Einfach den Gruppenwert ausgeben
+//Mit der Function kann man die Eintrï¿½ge gruppieren. Einfach den Gruppenwert ausgeben
 CalView.prototype.groupingFunction = function(a) {
   return masterData.servicegroup[a.servicegroup_id].bezeichnung;
 };
@@ -103,7 +103,7 @@ CalView.prototype.renderListEntry = function (a) {
   
     var p = allPersons[a.group.p_id];
     if (p.absent!=null) {
-      $.each(p.absent,function(k,absent) {
+      each(p.absent,function(k,absent) {
         if ((absent!=null) && (absent.startdate<=d) && (absent.enddate>=d)) {
           rows.push(masterData.absent_reason[absent.absent_reason_id].bezeichnung+" ");
         }

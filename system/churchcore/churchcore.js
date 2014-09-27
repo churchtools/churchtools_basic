@@ -13,7 +13,7 @@ function _(s) {
   }
   if (res==null)
     return "***"+s+"***";
-  $.each(arguments, function(k,a) {
+  each(arguments, function(k,a) {
     if (k>0) res=res.replace("{"+(k-1), a).replace("}","");
   });
   return res;
@@ -46,7 +46,7 @@ function churchcore_touchscreen() {
 function churchcore_getAuthAsArray(auth) {
   var arr=new Array();
   if (auth!=null && auth!="") {
-    $.each(auth.split("||"), function(k,a) {
+    each(auth.split("||"), function(k,a) {
       if (a.trim()!="") arr.push(a.trim());
     });
   }
@@ -60,7 +60,7 @@ function churchcore_getAuthAsArray(auth) {
  */
 function user_access(auth, datafield) {
   var res=false;
-  $.each(churchcore_getAuthAsArray(auth), function(k,a) {
+  each(churchcore_getAuthAsArray(auth), function(k,a) {
     if (masterData.auth!=null && masterData.auth[a.trim()])
       if (datafield==null) res=true;
       else if (masterData.auth[a.trim()][datafield]!=null) res=true;
@@ -98,29 +98,50 @@ function churchcore_sortData(data, sortVariable, reverse, alphanumeric, sortVari
 function churchcore_isObjectEmpty(obj) {
   if (obj==null) return false;
   var ret = true;
-  $.each(obj, function(k,a) {
+  each(obj, function(k,a) {
     ret=false;
     return false;
   });
   return ret;
 }
 
+/**
+ * Iterate through each object or array
+ * @param obj
+ * @param func function with key and value as parameter
+ * @returns
+ */
+function each(obj, func) {
+  if (obj===null || func===null) return null;
+  if (obj instanceof Array) {
+    var i=0;
+    for ( ; i < obj.length; i++ ) {
+      func(i, obj [i]);
+    }
+  }
+  else {
+    for (k in obj) {
+      func(k, obj[k]);
+    }
+  }
+}
+
 function churchcore_countObjectElements(obj) {
   if (obj==null) return 0;
   var ret = 0;
-  $.each(obj, function(k,a) {
+  for (k in obj) {
     ret++;
-  });
+  }
   return ret;
 }
 
 function churchcore_getFirstElement(obj) {
   if (obj==null) return null;
   var elem=null;
-  $.each(obj, function(k,a) {
-    elem=a;
+  for (k in obj) {
+    elem=obj[k];
     return false;
-  });
+  }
   return elem;
 }
 
@@ -172,13 +193,13 @@ function churchcore_sortData_alpha(data, sortVariable, reverse, sortVariable2) {
   var arr = new Array();
   var i=0;
   // Hier muss ich mit i z�hlen und nicht mit k, weil Arrays it Neg. Index Probleme machen.
-  jQuery.each(data,function(k,a){
+  each(data,function(k,a){
     arr[i]=a;
     i=i+1;
   });
   arr.sort(sortfunc);
   obj = new Object();
-  jQuery.each(arr,function(k,a){
+  each(arr,function(k,a){
     if (a!=null)
       obj[k]=a;
   });
@@ -215,12 +236,12 @@ function churchcore_sortData_numeric(data, sortVariable, reverse, sortVariable2)
     else return (-1)*r;
   }
   arr = new Array();
-  jQuery.each(data,function(k,a){
+  each(data,function(k,a){
     arr[k]=a;
   });
   arr.sort(sortfunc);
   obj = new Object();
-  jQuery.each(arr,function(k,a){
+  each(arr,function(k,a){
     if (a!=null)
       obj[k]=a;
   });
@@ -265,7 +286,9 @@ function churchcore_sortArray_numeric(arr, sortVariable, reverse) {
   return arr.sort(sortfunc);
 };
 
-// Sortiert nach Sortkey oder wenn der nicht da ist nach Bezeichnung.
+/**
+ * Sort master data and returns an object
+ */
 churchcore_sortMasterData = function (data) {
   function sortfunc(a,b) {
     if ((a==null) || (b==null)) return 0;
@@ -302,12 +325,12 @@ churchcore_sortMasterData = function (data) {
     }
   }
   arr = new Array();
-  jQuery.each(data,function(k,a){
-    arr.push(a);
-  });
+  for (k in data) {
+    arr.push(data[k]);    
+  }
   arr.sort(sortfunc);
   obj = new Object();
-  jQuery.each(arr,function(k,a){
+  each(arr,function(k,a){
     if (a!=null)
       obj[k]=a;
   });
@@ -322,7 +345,7 @@ function churchcore_sendEmail(modulename, to, subject, body) {
 function churchcore_inObject(obj, objArray) {
   if ((obj==null) || (objArray==null)) return false;
   ret=false;
-  jQuery.each(objArray, function(k,a) {
+  each(objArray, function(k,a) {
     if (a==obj) ret=true;
   });
   return ret;
@@ -330,13 +353,13 @@ function churchcore_inObject(obj, objArray) {
 function churchcore_inArray(obj, arrArray) {
   if ((obj==null) || (arrArray==null)) return false;
   ret=false;
-  jQuery.each(arrArray, function(k,a) {
+  each(arrArray, function(k,a) {
     if (a==obj) ret=true;
   });
   return ret;
 }
 function churchcore_removeFromArray(obj, arrArray) {
-  jQuery.each(arrArray, function(k,a) {
+  each(arrArray, function(k,a) {
     if (a==obj) {
       delete arrArray[k];
       return false;
@@ -854,7 +877,7 @@ function churchcore_getAllDatesWithRepeats(o) {
   additions[0].with_repeat_yn=1;
   // d wird mein Iterator
   var d=null;
-  $.each(additions, function(k,a) {
+  each(additions, function(k,a) {
     d=a.add_date.toDateEn();
     d.setHours(o.startdate.getHours());
     d.setMinutes(o.startdate.getMinutes());
@@ -862,7 +885,7 @@ function churchcore_getAllDatesWithRepeats(o) {
     do {
       var exception=false;
       if ((o.exceptions!=null)) {
-        $.each(o.exceptions, function(k,e) {
+        each(o.exceptions, function(k,e) {
           // wenn der Tag der gleiche ist, Ausnahme!
           if ((e!=null) && (churchcore_datesInConflict(e.except_date_start.toDateEn(), e.except_date_end.toDateEn(),
                     d, (diff!=null?new Date(d.getTime()+diff):d)))) {

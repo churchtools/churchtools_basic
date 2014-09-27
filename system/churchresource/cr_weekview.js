@@ -20,7 +20,7 @@ weekView = new WeekView();
 WeekView.prototype.getData = function(sorted) {
   if (sorted) {
     var arr=new Array();
-    $.each(masterData.resources,function(k,a){
+    each(masterData.resources,function(k,a){
       arr[k]=a;
     });
     arr.sort(function(a,b){
@@ -140,7 +140,7 @@ WeekView.prototype.renderListMenu = function() {
   
   searchEntry=this.getFilter("searchEntry");
   var navi = new CC_Navi();
-  $.each(masterData.resourceTypes, function(k,a) {
+  each(masterData.resourceTypes, function(k,a) {
     navi.addEntry(t.filter["filterRessourcen-Typ"]==a.id,"ressourcentyp_"+a.id,a.bezeichnung);
   });
   navi.addEntry(t.filter["filterRessourcen-Typ"]=="","","<i>"+_("all")+"</i>");
@@ -182,7 +182,7 @@ WeekView.prototype.renderFilter = function () {
  
   $("#cdb_filter").html(rows.join(""));
   
-  $.each(this.filter, function(k,a) {
+  each(this.filter, function(k,a) {
     $("#"+k).val(a);
   });
    
@@ -271,7 +271,7 @@ WeekView.prototype.messageReceiver = function(message, args) {
     else if (message=="pollForNews") {
       var refresh=false;
       if (args!=null)
-        $.each(args, function(k,a) {
+        each(args, function(k,a) {
           if (a.id!=null) {
             refresh=true;
           }
@@ -336,9 +336,9 @@ WeekView.prototype.buildDates = function (allBookings) {
   var t=this;
   t.datesIndex=new Object();
   if (allBookings!=null) {
-    $.each(allBookings, function(k,a) {
+    each(allBookings, function(k,a) {
       if (a!=null) {
-        $.each(churchcore_getAllDatesWithRepeats(a), function(k,ds) {
+        each(churchcore_getAllDatesWithRepeats(a), function(k,ds) {
           
           // while-Schleife, da es ein Termin �ber mehrere Tage sein kann
           var go_through_days=new Date(ds.startdate);
@@ -409,7 +409,7 @@ WeekView.prototype.getBookings = function(res_id, date) {
   
   var searchString=this.getFilter("searchEntry").toUpperCase();
   
-  $.each(t.getIndexedBookings(date), function(k,a) {
+  each(t.getIndexedBookings(date), function(k,a) {
     var arr=$.extend({},allBookings[a.id]);
     if ((arr!=null) && ((!this.printview) || (arr.status_id==2))) {
       if (churchcore_datesInConflict(a.startdate, a.enddate, date, tomorrow)) {
@@ -451,7 +451,7 @@ function orderBookings(bookings) {
  */
 function renderBookings(bookings) {
   txt="";
-  $.each(bookings, function(k,a) {
+  each(bookings, function(k,a) {
     if (a.category_id!=null) {
       txt=txt+'<span title="'+_("calendar")+'" style="display:inline-block; background-color:'+masterData.category[a.category_id].color+'; margin-bottom:-2px; margin-right:4px; width:3px; height:11px"></span>';
     }
@@ -508,7 +508,7 @@ WeekView.prototype.updateBookingStatus = function(id, new_status) {
     else {
       // Get IDs for currently created Exceptions
       if (data.exceptions!=null) {
-        $.each(data.exceptions, function(i,e) {
+        each(data.exceptions, function(i,e) {
           if (i<0) {
             allBookings[id].exceptions[e]=allBookings[id].exceptions[i];
             allBookings[id].exceptions[e].id=e;
@@ -767,8 +767,8 @@ WeekView.prototype.renderTooltip = function(id) {
 WeekView.prototype.calcConflicts = function(new_b, resource_id) {
   var t=this;
   var rows=Array();
-  $.each(churchcore_getAllDatesWithRepeats(new_b), function(k,ds) {
-    $.each(t.getIndexedBookings(ds.startdate, ds.enddate), function(i,conflict) {
+  each(churchcore_getAllDatesWithRepeats(new_b), function(k,ds) {
+    each(t.getIndexedBookings(ds.startdate, ds.enddate), function(i,conflict) {
       var booking=allBookings[conflict.id];
       if ((booking!=null) && (booking.resource_id==resource_id) && (new_b.id!=booking.id)) {
         if ((booking.status_id==1) || (booking.status_id==2)) {
@@ -865,7 +865,7 @@ WeekView.prototype.closeAndSaveBookingDetail = function (elem) {
 
       // Get IDs for currently created Exceptions
       if (json.exceptions!=null) {
-        $.each(json.exceptions, function(i,e) {
+        each(json.exceptions, function(i,e) {
           allBookings[a.id].exceptions[e]=allBookings[a.id].exceptions[i];
           allBookings[a.id].exceptions[e].id=e;
           delete allBookings[a.id].exceptions[i];
@@ -1071,7 +1071,7 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
           logs='<small><font style="line-height:100%;"><a href="#" id="toogleLogs">Historie >></a><br/></small>';
           logs=logs+'<div id="cr_logs_detail" style="display: none; border: 1px solid white; height: 140px; overflow: auto; margin: 2px; padding: 2px;">';
           logs=logs+"<small><table><tr><td>Historie<td>Beschreibung<td>Erfolgt durch";
-          $.each(json, function(k,a){
+          each(json, function(k,a){
             logs=logs+'<tr><td width="100px">'+a.datum.toDateEn().toStringDe(true)+"<td>"+a.txt+'<td width="80px">'+a.person_name+" ["+a.person_id+"]<br/>";
           });
           logs=logs+"</table>";

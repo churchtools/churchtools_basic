@@ -134,7 +134,7 @@ ReportView.prototype.renderView = function() {
     if (t.currentReportId==null || masterData.report[t.currentReportId]==null
            || masterData.report[t.currentReportId].query_id!=t.currentQueryId) {
       t.currentReportId=null;
-      $.each(masterData.report, function(k,a) {
+      each(masterData.report, function(k,a) {
         if (a.query_id==t.currentQueryId) {
           t.currentReportId=a.id;
           return false;

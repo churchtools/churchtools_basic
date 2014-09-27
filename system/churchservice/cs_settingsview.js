@@ -36,7 +36,7 @@ SettingsView.prototype.renderFilter = function() {
   rows.push("<div id=\"cdb_filtercover\"></div>");
   $("#cdb_filter").html(rows.join("")); 
   
-  $.each(this.filter, function(k,a) {
+  each(this.filter, function(k,a) {
     $("#"+k).val(a);
   });
 
@@ -96,7 +96,7 @@ SettingsView.prototype.renderList = function() {
   }));
   
   
-  $.each(churchcore_sortData(masterData.servicegroup,"sortkey"), function(k,a) {
+  each(churchcore_sortData(masterData.servicegroup,"sortkey"), function(k,a) {
     if (masterData.auth.viewgroup[a.id]!=null) {
       rows.push('<tr><td width="50%"><td>');
       rows.push(form_renderCheckbox({
