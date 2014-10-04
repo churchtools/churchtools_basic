@@ -1,0 +1,31 @@
+<h4>Hallo <?= $title ?>,</h4>
+
+  <p>There is a change in <?php if($userIsSupervisor):?>the <?php else:?>your <?php endif;?> group
+     <b><?= $groupName ?></b></p></br>
+     <?= $surname ?> <?= $name ?> has
+
+<?php  if($changeType == 'new'):?>
+     added a <i><?= $memberType ?></i>:
+     
+<?php elseif($changeType == 'edit'):?>
+     changed the membership type of a member:
+     
+<?php elseif($changeType == 'delete'):?>
+     <i>removed</i> a member from the group:
+     
+<?php else:?>
+    changed something (unknown what, don't should occure).
+<?php endif;?>
+
+  <p>Name: <b><?= $member->vorname ?> <?php if($member->spitzname):?>(<?= $member->spitzname ?>)<?php endif;?> <?= $member->name ?></b></br>
+  <?php if ($changeType == 'delete'): ?>previous<?php endif;?>
+     membership type: <b><?= $memberType ?></b></br>
+     date: <?= $member->letzteaenderung ?>
+
+
+<?php if ($additionalText): ?>
+  <p><?= $additionalText ?>
+<?php endif; ?>
+
+  <p>
+  <p><a class="btn btn-royal" href="<?= $gotoMemberUrl ?>">Goto Person &raquo;</a>

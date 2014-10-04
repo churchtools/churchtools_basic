@@ -424,7 +424,7 @@ class CTChurchDBModule extends CTAbstractModule {
 
   // TODO: is $_POST imporant here or is $_REQUEST sufficient?
   public function sendEMailToPersonIds($params) {
-    return churchcore_sendEMailToPersonIds($_POST["ids"], $_POST["betreff"], $_POST["inhalt"], null, true, false);
+    return churchcore_sendEMailToPersonIDs($_POST["ids"], $_POST["betreff"], $_POST["inhalt"], null, true, false);
   }
 
   public function loadAuthData($params) {

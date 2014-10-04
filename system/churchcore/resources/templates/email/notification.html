@@ -1,0 +1,11 @@
+
+<h4>Hallo <?=$nickname?>,</h4>
+
+  <p>Neuigkeiten im Modul <b><?= $notifyName ?></b>:
+  <ul>
+<?php foreach ($messages as $m): ?>
+    <li><?= $m->date ?> - <?= $m->text ?>
+<?php  endforeach; ?>
+  </ul>
+  <p>
+  <p><small>Einstellung für Versand: <b><?= $notifyType ?></b></small>

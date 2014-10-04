@@ -777,10 +777,10 @@ function churchcal__ical() {
       if ($res->ort) $txt .= "LOCATION:" . $res->ort . NL;
       
       foreach (getAllDatesWithRepeats($res, -90, 730) as $d) {
-        $txt.="BEGIN:VEVENT\r\n"; 
-        $txt.="ORGANIZER:MAILTO:".variable_get('site_mail', '')."\r\n";
+        $txt.="BEGIN:VEVENT\r\n";
+        $txt.="ORGANIZER:MAILTO:".getVar('site_mail', '')."\r\n";
         $txt.="SUMMARY:".$res->bezeichnung."\r\n";
-        //$txt.="X-MICROSOFT-CDO-BUSYSTATUS:BUSY\r\n"; 
+        //$txt.="X-MICROSOFT-CDO-BUSYSTATUS:BUSY\r\n";
         if ($res->link!="")
           $txt.="URL:".$res->link."\r\n";
         else
@@ -810,7 +810,7 @@ function churchcal__ical() {
         $txt .= 'DESCRIPTION:Kalender:' . $catNames[$res->category_id]->bezeichnung . ' - Cal[' . $res->id . '] - ' .
              $res->notizen . NL;
         $txt .= "END:VEVENT" . NL;
-      } 
+      }
     }
   }
   

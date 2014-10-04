@@ -9,13 +9,13 @@ include_once('./'. CHURCHSERVICE .'/../churchcore/churchcore_db.php');
  * @return boolean
  */
 function churchservice_isAgendaTemplate($agenda_id) {
-  $agenda = db_query("SELECT * FROM {cs_agenda} 
-                      WHERE id=:id", 
+  $agenda = db_query("SELECT * FROM {cs_agenda}
+                      WHERE id=:id",
                       array (":id" => $agenda_id))
                       ->fetch();
   if (!$agenda) throw new CTException(t('x.not.found', t('agenda'). " ($agenda_id)"));
   
-  return $agenda->template_yn == 1;  
+  return $agenda->template_yn == 1;
 }
 
 /**
@@ -27,12 +27,12 @@ function churchservice_isAgendaTemplate($agenda_id) {
 //   global $user;
 //   $db=db_query("select * from {cs_eventservice} where event_id=:event_id and cdb_person_id=:p_id
 //                and valid_yn=1", array(":event_id"=>$event_id, ":p_id"=>$user->id))->fetch();
-//   return $db!=false; 
+//   return $db!=false;
 // }
 
 /**
  * copy event by cal id
- * 
+ *
  * @param int $orig_cal_id
  * @param int $new_cal_id
  * @param DateTime $new_startdate
@@ -40,22 +40,22 @@ function churchservice_isAgendaTemplate($agenda_id) {
  * @throws CTException
  */
 function churchservice_copyEventByCalId($orig_cal_id, $new_cal_id, $new_startdate, $allservices = true) {
-  $event=db_query('SELECT * FROM {cs_event} 
-                   WHERE cc_cal_id=:cal_id', 
+  $event=db_query('SELECT * FROM {cs_event}
+                   WHERE cc_cal_id=:cal_id',
                    array(":cal_id"=>$orig_cal_id))
                    ->fetch();
   if ($event) {
     $new_id = db_insert("cs_event")
               ->fields(array("
-                  cc_cal_id"=>$new_cal_id, 
-                  "startdate"=>$new_startdate, 
-                  "special"=>$event->special, 
+                  cc_cal_id"=>$new_cal_id,
+                  "startdate"=>$new_startdate,
+                  "special"=>$event->special,
                   "admin"=>$event->admin,
               ))->execute(false);
     
     if ($allservices) {
       
-      $services = db_query("SELECT * FROM {cs_eventservice} 
+      $services = db_query("SELECT * FROM {cs_eventservice}
                             WHERE event_id=$event->id and valid_yn=1");
       
       $fields = array ("event_id" => $new_id);
@@ -78,17 +78,17 @@ function churchservice_copyEventByCalId($orig_cal_id, $new_cal_id, $new_startdat
           ->execute(false);
       }
     }
-  }  
+  }
   else {
     throw new CTException(t('event.could.not.be.copied', $config["churchservice_name"]). BR . t('not.found', t('event')) );
   }
 }
 
 /**
- * convert CT eventdate into object, 
+ * convert CT eventdate into object,
  * converts dates to DateTime object, set diff, repeat_until
  * convert exceptions and additions to object
- * 
+ *
  * @param array $params
  * @return StdClass
  */
@@ -107,11 +107,11 @@ function _convertCTDateTimeToObjects($params) {
      $o->additions[$key] = (object) $exc;
   }
   
-  return $o;  
+  return $o;
 }
 
 /**
- * 
+ *
  * @param array $params
  * @param string $source TODO: not used
  */
@@ -129,18 +129,18 @@ function churchservice_createEventFromChurchCal($params, $source = null) {
     }
     // create new one
     else if (isset($params["eventTemplate"])) churchservice_saveEvent($params, "churchcal");
-  }  
+  }
 }
 
 
 /**
- * called by ChurchCal on changes in calendar events 
+ * called by ChurchCal on changes in calendar events
  * it uses old_startdate to move all events, then checks if there are events to create or delete
  * from changes in repeats, exceptions or additions
- * 
+ *
  * TODO: calculate times in DB rather then in php
- * UPDATE {cs_event} SET startdate=DATE_ADD(startdate,INTERVAL $diff SECOND) WHERE e.cc_cal_id=:cal_id 
- * 
+ * UPDATE {cs_event} SET startdate=DATE_ADD(startdate,INTERVAL $diff SECOND) WHERE e.cc_cal_id=:cal_id
+ *
  * @param array $params
  * @param string $source
  */
@@ -153,8 +153,8 @@ function churchservice_updateEventFromChurchCal($params, $source = null) {
     $old_startdate = new DateTime($params["old_startdate"]);
     $diff = $startdate->format("U") - $old_startdate->format("U");
     
-    $db = db_query("SELECT id, startdate FROM {cs_event} e 
-                    WHERE e.cc_cal_id=:cal_id", 
+    $db = db_query("SELECT id, startdate FROM {cs_event} e
+                    WHERE e.cc_cal_id=:cal_id",
                     array (":cal_id" => $params["cal_id"]));
     
     foreach ($db as $e) {
@@ -174,8 +174,8 @@ function churchservice_updateEventFromChurchCal($params, $source = null) {
     // Collect events into array to collect the info which has to be created/deleted/updated
   $events = array ();
   // Get all mapped events from DB
-  $db = db_query("SELECT id, startdate FROM {cs_event} e 
-                  WHERE e.cc_cal_id=:cal_id", 
+  $db = db_query("SELECT id, startdate FROM {cs_event} e
+                  WHERE e.cc_cal_id=:cal_id",
                   array (":cal_id" => $params["cal_id"]));
   
   foreach ($db as $e) {
@@ -212,7 +212,7 @@ function churchservice_updateEventFromChurchCal($params, $source = null) {
 /**
  * save new or update existing event
  * if eventTemplate is given in $params get data from there, else use services
- * 
+ *
  * @param array $params
  * @param string $source
  * @throws CTException
@@ -228,8 +228,8 @@ function churchservice_saveEvent($params, $source=null) {
   else {
     // get cc_cal_id, if event already exists
     if ($id = getVar("id")) {
-      $cal_id = db_query("SELECT cc_cal_id FROM {cs_event} 
-                          WHERE id=:id", 
+      $cal_id = db_query("SELECT cc_cal_id FROM {cs_event}
+                          WHERE id=:id",
                           array (":id" => $id))
                           ->fetch()->cc_cal_id;
     }
@@ -245,9 +245,9 @@ function churchservice_saveEvent($params, $source=null) {
   }
   
   if (isset($params["eventTemplate"])) {
-    $db = db_query('SELECT special, admin 
-                    FROM {cs_eventtemplate} 
-                    WHERE id=:id', 
+    $db = db_query('SELECT special, admin
+                    FROM {cs_eventtemplate}
+                    WHERE id=:id',
                     array (":id" => $params["eventTemplate"]))
                     ->fetch();
     if ($db) {
@@ -338,8 +338,8 @@ function churchservice_saveEvent($params, $source=null) {
         "modified_date" => $dt->format('Y-m-d H:i:s'),
         "modified_pid"  => $user->id,
     );
-    $db = db_query("SELECT * FROM {cs_eventtemplate_service} 
-                    WHERE eventtemplate_id=:eventtemplate_id", 
+    $db = db_query("SELECT * FROM {cs_eventtemplate_service}
+                    WHERE eventtemplate_id=:eventtemplate_id",
                     array (':eventtemplate_id' => $params["eventTemplate"]));
     foreach ($db as $d) {
       $fields["service_id"] = $d->service_id;
@@ -367,20 +367,20 @@ function churchservice_saveEvent($params, $source=null) {
 
 /**
  * get current services of user $id
- * 
+ *
  * @param int $user_id
  * @return array services
  */
 function churchservice_getUserCurrentServices($user_id) {
   $arr = db_query("
     SELECT cal.bezeichnung AS event, cal.ort, s.bezeichnung AS dienst, es.id AS eventservice_id,
-      sg.bezeichnung AS servicegroup, DATE_FORMAT(es.modified_date, '%Y%m%dT%H%i00') AS modified_date, 
-      p.vorname, p.name, es.modified_pid, zugesagt_yn, e.startdate AS startdate, DATE_FORMAT(e.startdate, '%Y%m%dT%H%i00') 
+      sg.bezeichnung AS servicegroup, DATE_FORMAT(es.modified_date, '%Y%m%dT%H%i00') AS modified_date,
+      p.vorname, p.name, es.modified_pid, zugesagt_yn, e.startdate AS startdate, DATE_FORMAT(e.startdate, '%Y%m%dT%H%i00')
       AS datum_start, ADDDATE(e.startdate, INTERVAL TIMEDIFF(cal.enddate, cal.startdate) HOUR_SECOND) AS enddate,
-      DATE_FORMAT(adddate(e.startdate, interval timediff(cal.enddate, cal.startdate) HOUR_SECOND), '%Y%m%dT%H%i00') AS datum_end                
+      DATE_FORMAT(adddate(e.startdate, interval timediff(cal.enddate, cal.startdate) HOUR_SECOND), '%Y%m%dT%H%i00') AS datum_end
     FROM {cs_event} e, {cc_cal} cal, {cs_eventservice} es, {cs_service} s, {cs_servicegroup} sg, {cdb_person} p
-    WHERE cal.id=e.cc_cal_id AND es.event_id=e.id AND es.service_id=s.id AND sg.id=s.servicegroup_id 
-      AND es.modified_pid=p.id AND es.valid_yn=1 AND e.startdate>current_date - INTERVAL 61 DAY AND es.cdb_person_id=:userid", 
+    WHERE cal.id=e.cc_cal_id AND es.event_id=e.id AND es.service_id=s.id AND sg.id=s.servicegroup_id
+      AND es.modified_pid=p.id AND es.valid_yn=1 AND e.startdate>current_date - INTERVAL 61 DAY AND es.cdb_person_id=:userid",
     array (":userid" => $user_id));
   
   $res = array ();
@@ -392,6 +392,9 @@ function churchservice_getUserCurrentServices($user_id) {
 
 /**
  * send email
+ *
+ * TODO: add param bool prefix to add [sitename] here (and in similar functions) rather then on function calls?
+ *
  * @param string $subject
  * @param string $message
  * @param string $to
@@ -417,9 +420,9 @@ function churchservice_deleteEvent($params, $source = null) {
     ct_log("[ChurchService] ". t('remove.event'), 2, $params["id"], "service");
   }
   
-  $db_event = db_query("SELECT e.*, DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') AS date_de 
-                        FROM {cs_event} e 
-                        WHERE id=:event_id", 
+  $db_event = db_query("SELECT e.*, DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') AS date_de
+                        FROM {cs_event} e
+                        WHERE id=:event_id",
                         array (":event_id" => $params["id"]))
                         ->fetch();
   if (!$db_event) {
@@ -428,43 +431,47 @@ function churchservice_deleteEvent($params, $source = null) {
   }
   
   // Inform people about the deleted event
-  if (getVar("informDeleteEvent", false, $params) == 1) {
-    $db_cal = db_query("SELECT * FROM {cc_cal} 
-                        WHERE id=:cal_id", 
+  if (getVar("informDeleteEvent", false, $params)) {
+    $db_cal = db_query("SELECT * FROM {cc_cal}
+                        WHERE id=:cal_id",
                         array (":cal_id" => $db_event->cc_cal_id))
                         ->fetch();
     if (!$db_cal) throw new CTException(t('x.not.found', t('event')));
-    $db = db_query("SELECT p.* FROM {cs_eventservice} es, {cdb_person} p
-                    WHERE event_id=:event_id AND valid_yn=1 AND p.id=es.cdb_person_id 
-                      AND es.cdb_person_id IS NOT NULL AND p.email!=''", 
+    $db = db_query("SELECT p.vorname, p.name, IF(p.spitzname, p.spitzname, p.vorname) AS nickname, p.email FROM {cs_eventservice} es, {cdb_person} p
+                    WHERE event_id = :event_id AND valid_yn = 1 AND p.id = es.cdb_person_id
+                      AND es.cdb_person_id IS NOT NULL AND p.email != ''",
                     array (":event_id" => $params["id"]));
     foreach ($db as $p) {
       $subject = "[" . getConf('site_name') . "] " . t('cancelation.of.event.date', $db_cal->bezeichnung, $db_event->date_de);
       //TODO: use mail template
-      $txt = '<h3>Hallo ' . $p->vorname . "!</h3>";
-      $txt .= 'Das Event ' . $db_cal->bezeichnung . " am " . $db_event->date_de . ' wurde von <i>' . $user->vorname . ' ' .
-           $user->name . '</i> abgesagt. Deine Dienstanfrage wurde entsprechend entfernt.'; //TODO: meine Anfrage oder der (angefragte) Dienst?
-      churchservice_send_mail($subject, $txt, $p->email);
+      $data = array(
+        'person'     => $p,
+        'eventTitle' => $db_cal->bezeichnung,
+        'eventDate'  => $db_event->date_de
+      );
+      // Deine Dienstanfrage wurde entsprechend entfernt.'; //TODO: meine Anfrage oder der (angefragte) Dienst? (Text im Template)
+      $content = getTemplateContent('email/eventDeleted', 'churchservice', $data);
+      churchservice_send_mail($subject, $content, $p->email);
     }
   }
   
   if (getVar("deleteCalEntry", 1, $params) == 1) {
     
-    db_query("DELETE FROM {cs_eventservice} 
-              WHERE event_id=:event_id", 
+    db_query("DELETE FROM {cs_eventservice}
+              WHERE event_id=:event_id",
               array (":event_id" => $params["id"]), false);
     
-    db_query("DELETE FROM {cs_event} 
-              WHERE id=:event_id", 
+    db_query("DELETE FROM {cs_event}
+              WHERE id=:event_id",
               array (":event_id" => $params["id"]), false);
     
-    db_query("DELETE FROM {cc_cal} 
-              WHERE id=:id and repeat_id=0", 
+    db_query("DELETE FROM {cc_cal}
+              WHERE id=:id and repeat_id=0",
               array (":id" => $db_event->cc_cal_id));
   }
   else {
-    db_query("UPDATE {cs_event} SET valid_yn=0 
-              WHERE id=:id", 
+    db_query("UPDATE {cs_event} SET valid_yn=0
+              WHERE id=:id",
               array (":id" => $params["id"]));
   }
 }

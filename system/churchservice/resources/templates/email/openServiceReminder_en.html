@@ -1,0 +1,29 @@
+<h4>Hello <?= $nickname ?>,</h4>
+
+  <p>On <?= $sitename ?> you was proposed for services
+     <?php if (!empty($inviter)): ?>from <i><?= $inviter->vorname ?> <?= $inviter->name ?></i> <?php endif; ?>. <br/>
+     To approve or cancel please click here:
+  <p><a href='<?= $url ?>' class='btn btn-primary'><?= $sitename ?></a>
+  <p>
+  
+  <p><b>Following service requests are still to answer:</b>
+  <ul>
+<?php foreach ($requestedServices as $s): ?>
+    <li><b><?= $s->datum ?></b>, <?= $s->event ?>: <b><?= $s->service ?></b> (<?= $s->servicegroup ?>) </li>
+<?php endforeach; ?>
+  </ul>
+
+<?php if (count($approvedServices)): ?>
+  <p>
+  <p><b>Bei folgenden Diensten hast Du schon zugesagt:</b>
+  <ul>
+  <?php foreach ($approvedServices as $s): ?>
+    <li><b><?= $s->datum ?></b>, <?= $s->event ?>: <b><?= $s->service ?></b> (<?= $s->servicegroup ?>) <?php if (!$s->mailsenddate): ?><b>NEW!</b><?php endif;?></li>
+    <?php endforeach; ?>
+  </ul>
+<?php endif; ?>
+
+
+<?php if ($user->invite == 1): ?>
+  <p>For you don't yet having access to <?= $sitename ?> you will get a separate email with login information.
+<?php endif; ?>

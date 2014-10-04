@@ -197,10 +197,6 @@ function getExternalGroupData() {
 /**
  * send confirmation email
  *
- * TODO: use email template (customisable!) from file, f.e.:
- * extract($vars);
- * eval ('$content = "$message"');
- *
  * @param string $mail
  * @param string $vorname
  * @param int $g_id
@@ -211,11 +207,12 @@ function sendConfirmationMail($mail, $vorname = "", $g_id) {
                  array (":id" => $g_id))
                  ->fetch();
   if ($g) {
-    // TODO: use mail template
-    $content = "<h3>" . t("hello.name") . "</h3><p>";
-    $content .= "Dein Antrag f&uuml;r die Gruppe <i>$g->bezeichnung</i> ist eingegangen. <p>Vielen Dank!";
-    $res = churchcore_mail(getConf('site_mail'), $mail, "[" . getConf('site_name') . "] Teilnahmeantrag zur Gruppe " .
-         $g->bezeichnung, $content, true, true, 2);
+    $data = array(
+      'surname' => $vorname,
+      'groupName' => $g->bezeichnung,
+    );
+    $content = getTemplateContent('email/groupRequestSent', 'churchdb', $data);
+    $res = churchcore_mail(getConf('site_mail'), $mail, "[". getConf('site_name'). "] ". t('', '<i>'.$g->bezeichnung.'</i>'), $content, true, true, 2);
   }
 }
 
@@ -286,7 +283,7 @@ function externmapview__ajax() {
   $groupId = getVar("g_id");
   $email   = getVar("E-Mail-Adresse");
   $fon     = getVar("Telefon");
-  $coment  = getVar("Kommentar");
+  $comment = getVar("Kommentar");
   
   if ($func == 'loadMasterData') {
     $res["home_lat"] = getConf('churchdb_home_lat', '53.568537');
@@ -327,21 +324,24 @@ function externmapview__ajax() {
     else {
       $res = db_query("SELECT vorname, p.id id, g.bezeichnung
                        FROM {cdb_gemeindeperson_gruppe} gpg, {cdb_gemeindeperson} gp, {cdb_person} p, {cdb_gruppe} g
-                       WHERE gpg.gemeindeperson_id=gp.id AND gp.person_id=p.id AND g.id=:gruppe_id
-                         AND gpg.gruppe_id=g.id AND status_no>=1 AND status_no!=4",
+                       WHERE gpg.gemeindeperson_id = gp.id AND gp.person_id = p.id AND g.id = :gruppe_id
+                         AND gpg.gruppe_id = g.id AND status_no >= 1 AND status_no != 4",
                        array (":gruppe_id" => $groupId));
       $rec = array ();
       foreach ($res as $p) {
-        // TODO: use email template
         $rec[] = $p->vorname;
-        $content = "<h4>" . t('request.to.group', $p->bezeichnung) . "<h4/>";
-        $content .= "<ul><li>" . t('surname') . ": $surname";
-        $content .= "<li>" . t('name') . ": $name";
-        $content .= "<li>" . t('email') . ": $email";
-        $content .= "<li>" . t('phone') . ": $fon";
-        $content .= "<li>" . t('comment') . ": $comment";
-        $content .= "</ul>";
-        $res = churchcore_sendEMailToPersonIds($p->id, "[" . getConf('site_name') . "] " .
+        $data = array(
+          'title' => t('request.to.group', $p->bezeichnung),
+          'request' => array(
+          'surname' => $surname,
+          'name'    => $name,
+          'email'   => $email,
+          'fon'     => $fon,
+          'comment' => $comment,
+          ),
+        );
+        $content = getTemplateContent('email/groupRequest', 'churchdb', $data);
+        $res = churchcore_sendEMailToPersonIDs($p->id, "[" . getConf('site_name') . "] " .
              t('form.request.to.group', $p->bezeichnung), $content, getConf('site_mail'), true, true);
       }
       if (!count($rec)) $txt = t("could.not.find.group.leader.please.try.other.ways");

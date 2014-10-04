@@ -105,7 +105,7 @@ class CTHomeModule extends CTAbstractModule {
     $groups = churchdb_getMyGroups($user->id, true, false);
     if (empty($groups[$params["groupid"]])) throw new CTException("Group is not allowed!");
     $ids = churchdb_getAllPeopleIdsFromGroups(array($params["groupid"]));
-    churchcore_sendEMailToPersonids(implode(",", $ids), "[" . getConf('site_name') . "] " . t('message.from.x', "$user->vorname  $user->name"), $params["message"], null, true);
+    churchcore_sendEMailToPersonIDs(implode(",", $ids), "[" . getConf('site_name') . "] " . t('message.from.x', "$user->vorname  $user->name"), $params["message"], null, true);
   }
 
   /**

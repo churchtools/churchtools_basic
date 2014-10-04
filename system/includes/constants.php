@@ -30,3 +30,12 @@ define('BR',        "<br/>" . NL); //html new line
 
 define('PHP_QPRINT_MAXL', 75);
 define('MAX_MAILS', 10);
+
+// speaking constants
+define('CR_PENDING',  1);
+define('CR_APPROVED', 2);
+define('CR_CANCELED', 3);
+define('CR_DELETED', 99);
+
+define('DAYS_TO_INFORM_LEADER_ABOUT_OPEN_SERVICES', 60);
+

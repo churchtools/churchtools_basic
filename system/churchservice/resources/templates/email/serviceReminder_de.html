@@ -1,0 +1,16 @@
+<h4>Hallo <?= $nickname ?>,</h4>
+
+  <p>Dies ist eine Erinnerung an Deine nächsten Dienste:
+     <?php if (!empty($inviter)): ?>von <i><?= $inviter->vorname ?> <?= $inviter->name ?></i> <?php endif; ?>
+  <p>
+  
+  <table class="table table-condensed">
+<?php foreach ($services as $s): ?>
+    <tr><td><?= $s->datum ?> <?= $s->bezeichnung ?>
+        <td>Dienst: <?= $s->dienst?> (<?= $s->sg ?>)
+        <td style="min-width:79px;"><a href="$serviceUrl<?= $s->event_id ?>" class="btn btn-primary">Event aufrufen &raquo;</a>
+<?php endforeach; ?>
+  </table>
+  <br/>
+  <br/>
+  <a class="btn" href="$settingsUrl">Erinnerungen deaktivieren &raquo;</a>

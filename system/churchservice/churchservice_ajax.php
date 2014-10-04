@@ -288,7 +288,7 @@ function churchservice_getAllEventData($params) {
                concat(p.vorname, ' ',p.name) end as modifieduser,
                es.reason, s.servicegroup_id, cmsuser.cmsuserid
           FROM {cs_service} s, {cs_eventservice} es left join {cdb_person} p on (es.modified_pid=p.id)
-          LEFT JOIN {cdb_person} cmsuser on (es.cdb_person_id=cmsuser.id) 
+          LEFT JOIN {cdb_person} cmsuser on (es.cdb_person_id=cmsuser.id)
           WHERE es.service_id=s.id and event_id=:event_id",
           array (":event_id" => $arr->id));
         
@@ -537,9 +537,7 @@ function churchservice_updateEventService($params) {
   // because the last edit probably was a mistake
   $dt = new datetime();
   if (($arr->modified_pid == $user->id && $arr->mailsenddate == null) || (isset($params["valid_yn"]))) {
-    $valid_yn = 1;
-    if (isset($params["valid_yn"])) $valid_yn = $params["valid_yn"];
-    
+    $valid_yn = getVar("valid_yn", 1, $params);
     db_update("cs_eventservice")
     ->fields(array (
         "name" => $name,
@@ -587,58 +585,66 @@ function churchservice_updateEventService($params) {
   $service = churchcore_getTableData("cs_service", "", "id=" . $arr->service_id);
   
   if ($event && $service) {
-    $service = $service[$arr->service_id];
     $subject = "[". getConf('site_name', "ChurchTools"). "] ";
-    $txt = "";
-    // confirm
-    if ($zugesagt_yn == 1) {
-      $txt .= t("surname.name.has.confirmed.service.x.on.date.event",
-                $user->vorname,
-                $user->name,
-                $service->bezeichnung,
-                $event->datum,   //TODO: remove seconds from date
-                $event->bezeichnung);
+    $txt = 'nothing defined'; // for worst case only ;-)
+    $service = $service[$arr->service_id];
+    $data = array(
+      'leader'  => $leader,
+      'user'    => $user,
+      'service' => $service,
+      'event'   => $event,
+      'reason'  => $reason,
+      'eventUrl'  => $base_url . '?q=churchservice&id=' . $arr->event_id,
+    );
+    if ($zugesagt_yn) {
+      $data['approved'] = true;
       $subject .= t("surname.name.has.confirmed.request", $user->vorname, $user->name);
+      $txt = t("surname.name.has.confirmed.service.x.on.date.event",
+          $user->vorname,
+          $user->name,
+          $service->bezeichnung,
+          $event->datum,   //TODO: remove seconds from date
+          $event->bezeichnung);
     }
     // propose
     else if ($name) {
-      $txt .= t("surname.name.has.proposed.x.for.service.y.on.date.event",
-                $user->vorname,
-                $user->name,
-                $name,
-                $service->bezeichnung,
-                $event->datum,   //TODO: remove seconds from date
-                $event->bezeichnung);
+      $data['approved'] = true;
+      $subject .= t("surname.name.has.proposed.someone", $user->vorname, $user->name);
+      $txt = t("surname.name.has.proposed.x.for.service.y.on.date.event",
+          $user->vorname,
+          $user->name,
+          $name,
+          $service->bezeichnung,
+          $event->datum,   //TODO: remove seconds from date
+          $event->bezeichnung);
       $subject .= t("surname.name.has.proposed.someone", $user->vorname, $user->name);
     }
     // cancel
     else {
-      $txt .= t("surname.name.has.canceled.service.x.on.date.event",
-                $user->vorname,
-                $user->name,
-                $service->bezeichnung,
-                $event->datum,   //TODO: remove seconds from date
-                $event->bezeichnung);
+      $data['approved'] = true;
       $subject .= t("surname.name.has.canceled.request", $user->vorname, $user->name);
+      $txt = t("surname.name.has.canceled.service.x.on.date.event",
+          $user->vorname,
+          $user->name,
+          $service->bezeichnung,
+          $event->datum,   //TODO: remove seconds from date
+          $event->bezeichnung);
     }
-    if ($reason != null) $txt .= "<p>Folgendes wurde als Grund angegeben: " . $reason;
-    
+
     ct_notify("service", $arr->service_id, $txt);
 
-    if ($leader != null) {
-      // send mail, if someone other then the inquirer himself confirmed or canceled
+    // TODO: what does leader really mean? seems not to be a groupleader but the current user? rename?
+    if ($leader) {
+      // send mail, if another then the inquirer himself confirmed or canceled
       //TODO: maybe use asker, better to understand for nonenglish programmers
-      //TODO: use email template
-      if (!empty($leader->email) && $user != null && $leader->id != $user->id) {
+      //TODO: test email template
+      if (!empty($leader->email) && $user && $leader->id != $user->id) {
         $setting = churchcore_getUserSettings("churchservice", $leader->id);
         if (isset($setting["informInquirer"]) && ($setting["informInquirer"] == 1)) {
   
-          $txt = "<h3>Hallo " . $leader->vorname . ",</h3><p>
-                 " . $txt;
-          
-          $txt .= '<p><a href="' . $base_url . '?q=churchservice&id=' . $arr->event_id .
-               '" class="btn btn-primary">Event aufrufen</a>';
-          churchservice_send_mail($subject, $txt, $leader->email);
+          $txt = $base_url . '?q=churchservice&id=' . $arr->event_id;
+          $content = getTemplateContent('email/serviceRequest', 'churchservice', $data);
+          churchservice_send_mail($subject, $content, $leader->email);
         }
       }
       if (!isset($setting["informInquirer"])) {

@@ -322,7 +322,7 @@
   <entry key="could.not.save.file.upload.canceled.or.server.error">Die hochgeladene Datei konnte nicht gespeichert werden (das Hochladen wurde abgebrochen oder es trat ein Serverfehler auf).</entry>
   
   <!-- churchdb -->
-  <entry key="request.to.group">Anfrage zur Gruppe {0}.</entry>
+  <entry key="request.to.group">Anfrage zur Gruppe {0}</entry>
   <entry key="surname">Vorname</entry>
   <entry key="name">Name</entry>
   <entry key="email">Email</entry>
@@ -356,6 +356,8 @@
   <entry key="salutation.woman.1">Frau</entry>
   <entry key="salutation.woman.2">Liebe</entry>
   <entry key="in.group.x">In Gruppe {0}</entry>
+  <entry key="membership.request.to.group.x">Teilnahmeantrag zur Gruppe {0}</entry>
+  <entry key="change.in.group.x">Änderung in Gruppe {0}</entry>
   <entry key="new.persons.in.your.groups">Neue Personen in Deinen Gruppen</entry>
   <entry key="please.look.at.this.persons">Folgende Personen bitte einmal anschauen</entry>
   <entry key="birthdays.of.your.persons.in.next.31.days">Geburtstage Deiner Leute in den nächsten 31 Tagen</entry>
@@ -375,7 +377,8 @@
   <entry key="file.not.found.in.DB">Datei nicht in der Datenbank gefunden!</entry>
   <entry key="file.could.not.be.copied.to.x">Datei konnte nicht nach '{0}' kopiert werden!</entry>
   <entry key="pending.service.requests">Offene Dienstanfragen: </entry>
-  <entry key="there.are.pending.services">Es sind noch Dienste offen</entry>
+  <entry key="there.are.pending.service.requests">Es sind noch Dienste offen</entry>
+  <entry key="open.services">Offene Dienste</entry>
   
   <!-- churchcore auth -->
   <entry key="edit.masterdata">Stammdaten editieren</entry>
@@ -437,9 +440,13 @@
   <entry key="additions">Weitere Termine</entry>
   <entry key="new.booking.request">Neue Buchungsanfrage</entry>
   <entry key="updated.booking.request">Aktualisierung der Buchungsanfrage</entry>
-  <entry key="bookingX.for.resource.on.datetime">'{0}' für {1} ({2}h{3})</entry>
+  <entry key="bookingX.for.resource.on.datetime">'{1}' für {0}, Start: {2}, Notiz:{3}</entry>
   <entry key="booking.in"> in {0}</entry>
   <entry key="user.was.deleted">Der Benutzer wurde gelöscht.</entry>
+  <entry key="booking.request.updated">Buchungsanfrage bearbeitet</entry>
+  <entry key="booking.request.approved">Buchungsanfrage bestätigt</entry>
+  <entry key="booking.request.canceled">Buchungsanfrage abgelehnt</entry>
+  <entry key="booking.request.deleted">Buchungsanfrage gelöscht</entry>
   
   <!-- churchwiki -->
   <entry key="view.wiki.category">Einzelne Wiki-Kategorien sehen</entry>
@@ -534,4 +541,8 @@
   <entry key="category.does.not.exist">Kategorie nicht vorhanden</entry>
   <entry key="deleting.failed.because.of.remaining.services">Es sind noch Dienste mit dem Kalender verbunden. Kann ihn deshalb nicht entfernen!</entry>
   
+  <!-- COMMON -->
+  <entry key="template.x.not.found">Die Vorlage '{0}' wurde nicht gefunden!</entry>
+  <entry key="news.for.abo.x">Neuigkeiten in {0}</entry>
+  <entry key=""></entry>
 </properties>
