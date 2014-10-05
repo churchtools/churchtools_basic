@@ -778,7 +778,7 @@ function churchcal__ical() {
       
       foreach (getAllDatesWithRepeats($res, -90, 730) as $d) {
         $txt.="BEGIN:VEVENT\r\n"; 
-        $txt.="ORGANIZER:MAILTO:".variable_get('site_mail', '')."\r\n";
+        $txt.="ORGANIZER:MAILTO:".getVar('site_mail', '')."\r\n";
         $txt.="SUMMARY:".$res->bezeichnung."\r\n";
         //$txt.="X-MICROSOFT-CDO-BUSYSTATUS:BUSY\r\n"; 
         if ($res->link!="")
@@ -791,11 +791,8 @@ function churchcal__ical() {
         $subid++;
         $txt .= "UID:{$res->id}_$subid" . NL;
         $txt .= "DTSTAMP:" . churchcore_stringToDateICal($res->modified_date) . NL;
-        // $ts = $diff + $d->format("U");
-        // $enddate=new DateTime("@$ts");
         $enddate = clone $d;
         $enddate->modify("+$diff seconds");
-  //       $enddate->modify($diff);
         
         // all day event
         if (($res->startdate->format('His') == "000000") && ($res->enddate->format('His') == "000000")) {
@@ -807,8 +804,8 @@ function churchcal__ical() {
           $txt .= "DTEND:" . $enddate->format('Ymd\THis') . NL;
         }
         
-        $txt .= 'DESCRIPTION:Kalender:' . $catNames[$res->category_id]->bezeichnung . ' - Cal[' . $res->id . '] - ' .
-             $res->notizen . NL;
+        $txt .= 'DESCRIPTION:Kalender:' . $catNames[$res->category_id]->bezeichnung.' - ' .
+             cleanICal($res->notizen) . NL;
         $txt .= "END:VEVENT" . NL;
       } 
     }

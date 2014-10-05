@@ -95,12 +95,20 @@ function rrmdir($dir) {
  *
  * @return string
  */
-function getBaseUrl() {
-  // get path part from requested url and remove index.php
-  $baseUrl = str_replace('index.php', '', parse_url($_SERVER['HTTP_HOST']. $_SERVER['REQUEST_URI'], PHP_URL_PATH));
-  // add http(s):// and assure a single trailing /
-  $baseUrl = (!empty($_SERVER['HTTPS']) ? "https://" : "http://"). trim($baseUrl, '/') . '/';
-  // echo " ::: URL: $baseUrl ::: ";
+function getBaseUrl() { 
+  $baseUrl = $_SERVER['HTTP_HOST'];
+  $b = $_SERVER['REQUEST_URI'];
+  if (strpos($b, "/index.php")!==false)
+    $b=substr($b,0,strpos($b, "/index.php"));
+  if (strpos($b, "?")!==false)
+    $b=substr($b,0,strpos($b, "?"));
+  $baseUrl=$baseUrl.$b;  
+  if ($baseUrl[strlen($baseUrl)-1]!="/")
+    $baseUrl.="/";
+  if ((isset($_SERVER['HTTPS'])) && ($_SERVER['HTTPS']!=false))
+    $baseUrl="https://".$baseUrl;
+  else $baseUrl="http://".$baseUrl;
+  
   return $baseUrl;
 }
 

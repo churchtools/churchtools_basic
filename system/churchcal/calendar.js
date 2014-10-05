@@ -1528,8 +1528,9 @@ function editCategories(privat_yn, oeffentlich_yn, reload) {
                ' der iCal unterst&uuml;tzt.<br><br>');
     var id=$(this).attr("data-id");
 //    rows.push(form_renderInput({label:"iCal-URL", value:masterData.base_url+"?q=churchcal/ical&security="+masterData.category[id].randomurl+"&id="+id, disable:true}));
-    rows.push(form_renderInput({label:"<a href='"+masterData.base_url+"?q=churchcal/ical&security="+masterData.category[id].randomurl+"&id="+id+"'>iCal-URL</a>", value:masterData.base_url+"?q=churchcal/ical&security="+masterData.category[id].randomurl+"&id="+id, disable:true}));
-    form_showOkDialog("Kalender abonnieren", rows.join(""));
+    rows.push(form_renderInput({label:"<a target='_clean' href='"+masterData.base_url+"?q=churchcal/ical&security="+masterData.category[id].randomurl+"&id="+id+"'>iCal-URL</a>", htmlclass:"ical-link", value:masterData.base_url+"?q=churchcal/ical&security="+masterData.category[id].randomurl+"&id="+id, disable:true}));
+    var elem=form_showOkDialog("Kalender abonnieren", rows.join(""));
+    elem.find("input.ical-link").select();
     return false;
   });
   elem.find("a.delete").click(function() {

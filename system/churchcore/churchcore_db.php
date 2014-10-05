@@ -1661,6 +1661,10 @@ function getAllDatesWithRepeats($r, $_from = -1, $_to = 1) {
   return $dates;
 }
 
+function cleanICal($txt) {
+  return str_replace("\n", "\\n", $txt);
+}
+
 function surroundWithVCALENDER($txt) {
   global $config;
   
