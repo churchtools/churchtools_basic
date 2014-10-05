@@ -3352,7 +3352,15 @@ ListView.prototype.editAbsent = function(pid, name, fullday, currentAbsent) {
 
   elem.find("#wholeday").change(function() {
     elem.dialog("close");
-    this_object.editAbsent(pid, name, $(this).attr("checked")=="checked");
+    if ($(this).attr("checked")=="checked") {
+      currentAbsent.startdate=currentAbsent.startdate.toStringDe(false).toDateDe(false);
+      currentAbsent.enddate=currentAbsent.enddate.toStringDe(false).toDateDe(false);
+    }
+    else {
+      currentAbsent.startdate.setHours(10);
+      currentAbsent.enddate.setHours(12);
+    }
+    this_object.editAbsent(pid, name, $(this).attr("checked")=="checked", currentAbsent);
   });
   elem.find("a").click(function() {
     if ($(this).attr("id").indexOf("addabsent")==0) {
