@@ -24,7 +24,7 @@ function mapEvents(allEvents) {
         each(churchcore_getAllDatesWithRepeats(a), function(k,d) {
           var o=Object();
           o.id= a.id;  // Id muss eindeutig sein, sonst macht er daraus einen Serientermin!
-          o.title= a.bezeichnung;
+          o.title= '<span class="event-title">'+a.bezeichnung+'</span>';
           if ((a.notizen!=null) && (a.notizen!="")) o.notizen=a.notizen;
           if ((a.link!=null) && (a.link!="")) o.link=a.link;
           // Now get the service texts out of the events
@@ -38,6 +38,13 @@ function mapEvents(allEvents) {
             });
           }
           if ((a.ort!=null) && (a.ort!='')) o.title=o.title+' <span class="event-location">'+a.ort+'</span>';
+          if (a.bookings!=null) {
+            o.title=o.title+'<span class="event-resources">';
+            each(a.bookings, function(i,e) {
+              o.title=o.title+'<br/>'+masterData.resources[e.resource_id].bezeichnung.trim(20);
+            });
+            o.title=o.title+'</span>';
+          }
           o.start= d.startdate;
             o.end = d.enddate;
           // Tagestermin?
@@ -353,6 +360,22 @@ function currentEvent_addException(date) {
         ={id:currentEvent.exceptionids, except_date_start:date.toStringEn(), except_date_end:date.toStringEn()};
 }
 
+
+function _renderInternVisible(elem, currentEvent) {
+  var txt="";
+  if ((masterData.category[currentEvent.category_id]!=null) && 
+     (masterData.category[currentEvent.category_id].oeffentlich_yn==1)) {
+    txt=txt+form_renderCheckbox({
+      checked:(currentEvent.intern_yn!=null && currentEvent.intern_yn==1?true:false),
+      label:" "+_("only.intern.visible"),
+      controlgroup:true,
+      controlgroup_class:"",
+      cssid:"inputIntern"
+    });
+  }
+  $("#internVisible").html(txt);
+}
+
 function _renderEditEventContent(elem, currentEvent) {
   var rows = new Array();
   if (currentEvent.view=="view-main") {
@@ -371,17 +394,7 @@ function _renderEditEventContent(elem, currentEvent) {
       label:_("location"),
       placeholder:""
     }));
-    if ((masterData.category[currentEvent.category_id]!=null) &&
-           (masterData.category[currentEvent.category_id].oeffentlich_yn==1)) {
-      rows.push(form_renderCheckbox({
-        label:" "+_("only.intern.visible"),
-        controlgroup:true,
-        controlgroup_class:"",
-        cssid:"inputIntern",
-        checked:(currentEvent.intern_yn!=null && currentEvent.intern_yn==1?true:false)
-      }));
-    }
-    
+    rows.push('<div id="internVisible"></div>');
     rows.push('<div id="dates"></div>');
     rows.push('<div id="wiederholungen"></div>');
     
@@ -443,6 +456,7 @@ function _renderEditEventContent(elem, currentEvent) {
 
     elem.find("#cal_content").html(rows.join(""));
 
+    _renderInternVisible(elem, currentEvent);
     form_renderDates({elem:$("#dates"), data:currentEvent,
       deleteException:function(exc) {
         delete currentEvent.exceptions[exc.id];
@@ -470,6 +484,7 @@ function _renderEditEventContent(elem, currentEvent) {
       churchInterface.jsendWrite({func:"saveSetting", sub:"category_id", val:$(this).val()});
       masterData.settings.category_id=$(this).val();
       currentEvent.category_id=$(this).val();
+      _renderInternVisible(elem, currentEvent);
       _renderEditEventNavi(elem, currentEvent);
     });
   }

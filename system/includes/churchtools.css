@@ -547,6 +547,22 @@ span.tag {
 .event-location:before{content:" (";}
 .event-location:after{content:")";}
 
+
+.fc-event-title {
+  line-height:12px;
+}
+
+.event-title {
+  font-weight:bold;
+}
+.event-resources {
+  font-size:90%;
+}
+
+.fc-view-month .event-resources {
+  display:none;
+}
+
 .event-description {
   font-size:90%;
   color:#999;

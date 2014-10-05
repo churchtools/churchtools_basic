@@ -419,8 +419,16 @@ function churchcal_getAllowedCategories($withPrivat = true, $onlyIds = false) {
  * @param string $withintern
  * @return multitype:|Ambigous <multitype:multitype: , NULL, object, boolean, db_accessor>
  */
-function churchcal_getCalPerCategory($params, $withintern = true) {
+function churchcal_getCalPerCategory($params, $withintern = null) {
+  global $user;
+  
+  if ($withintern==null) {
+    if ($user==null || $user->id==-1) $withintern=false;
+    else $withintern=true;
+  }
+  
   $data = array ();
+  
   
   $res = db_query("
       SELECT cal.*, CONCAT(p.vorname, ' ',p.name) AS modified_name, e.id AS event_id, e.startdate AS event_startdate, 
