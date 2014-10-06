@@ -36,7 +36,6 @@ function __autoload($class_name)
 function getVar($var, $default = false, &$array = false) {
   if ($array === false) $array =& $_REQUEST;
   $var = isset($array[$var]) ? $array[$var] : $default;
-//  echo $var.$array[$var]."<br>";
   return $var;
 }
 

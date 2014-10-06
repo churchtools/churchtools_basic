@@ -221,6 +221,8 @@ function _renderViewChurchResource(elem) {
   minutes.push({id:240, bezeichnung:'4 '+_("hours")});
   minutes.push({id:300, bezeichnung:'5 '+_("hours")});
   minutes.push({id:360, bezeichnung:'6 '+_("hours")});
+  minutes.push({id:60*8, bezeichnung:'8 '+_("hours")});
+  minutes.push({id:60*12, bezeichnung:'12 '+_("hours")});
   minutes.push({id:60*24, bezeichnung:'1 '+_("day")});
   
   var form = new CC_Form();

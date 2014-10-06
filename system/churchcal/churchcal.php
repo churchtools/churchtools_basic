@@ -142,7 +142,7 @@ function churchcal_blocks() {
  */
 function churchcal_getAuth() {
   $cc_auth = array ();
-  $cc_auth = addAuth($cc_auth, 401, 'view', 'churchcal', null,  t('view.x', getConf("churchcal_name")), 1);
+  $cc_auth = addAuth($cc_auth, 401, 'view', 'churchcal', null, t('view.x', getConf("churchcal_name")), 1);
   $cc_auth = addAuth($cc_auth, 403, 'view category', 'churchcal', 'cc_calcategory', t('view.single.calendar'), 0);
   $cc_auth = addAuth($cc_auth, 404, 'edit category', 'churchcal', 'cc_calcategory', t('edit.single.calendar'), 0);
   // $cc_auth=addAuth($cc_auth, 407,'create personal category', 'churchcal', null, 'Pers&ouml;nlichen Kalender erstellen', 1);
@@ -803,8 +803,8 @@ function churchcal__ical() {
           $txt .= "DTSTART:" . $d->format('Ymd\THis') . NL;
           $txt .= "DTEND:" . $enddate->format('Ymd\THis') . NL;
         }
-        
-        $txt .= 'DESCRIPTION:Kalender:' . $catNames[$res->category_id]->bezeichnung.' - ' . cleanICal($res->notizen) . NL;
+        $txt .= 'DESCRIPTION:Kalender:' . $catNames[$res->category_id]->bezeichnung.' - ' .
+            - cleanICal($res->notizen) . NL;
         $txt .= "END:VEVENT" . NL;
       }
     }

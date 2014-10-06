@@ -287,7 +287,7 @@
   <entry key="download">Télécharger</entry>
   <entry key="sum">Somme</entry>
   <entry key="id">ID</entry>
-  <entry key="sortorder">Clé de tri</entry>
+  <entry key="sortkey">Clé de tri</entry>
   <entry key="bezeichnung">Titre</entry>
   <entry key="really.delete.dataset.x.be.careful">Vraiment enlever l'ensemble des données {0} ? Assurez-vous qu'aucune donnée soit référencée dans l'ensemble des données, pour ne pas avoir de problème!</entry>
   <entry key="really.delete.file">Etes-vous sûr de vouloir supprimer ce fichier?</entry>
@@ -410,7 +410,7 @@
   <entry key="view.tags">View Tags</entry>
   <entry key="view.history">View History</entry>
   <entry key="view.comments">View Comments</entry>
-  <entry key="view.addressc">View additional address data of visible persons (street)</entry>
+  <entry key="view.address">View additional address data of visible persons (street)</entry>
   <entry key="view.alldetails">View all information of visible persons, including address data, group memberships, ...</entry>
   <entry key="view.archive">View archive of persons</entry>
   <entry key="use.complex.filters">"Complex filters" can be used</entry>

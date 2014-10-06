@@ -143,16 +143,17 @@ function home_getMemberList() {
   if ($status_id == "") $status_id = "-1"; //TODO: delete, should never occure for default value 1?
   $station_id = getConf('churchdb_memberlist_station', '1,2,3');
   if ($station_id == "") $station_id = "-1"; //should never occure for default value 1,2,3?
-  
   $res = db_query('SELECT person_id, name, vorname, strasse, ort, plz, land,
                      YEAR(geburtsdatum) year, MONTH(geburtsdatum) month, DAY(geburtsdatum) day,
                      DATE_FORMAT(geburtsdatum, \'%d.%m.%Y\') geburtsdatum, DATE_FORMAT(geburtsdatum, \'%d.%m.\') geburtsdatum_compact,
                      (CASE WHEN geschlecht_no=1 THEN "' . t("mr.") . '" WHEN geschlecht_no=2 THEN "' . t("mrs.") . '" ELSE "" END) "anrede",
                      telefonprivat, telefongeschaeftlich, telefonhandy, fax, email, imageurl
                    FROM {cdb_person} p, {cdb_gemeindeperson} gp
-                   WHERE gp.person_id=p.id and gp.station_id IN (:station_id) AND gp.status_id in (:status_id) AND archiv_yn=0
-                   ORDER BY name, vorname',
-                   array(':station_id' => $station_id, ':status_id' => $status_id));
+                   WHERE gp.person_id=p.id and gp.station_id IN ('.$station_id.') AND gp.status_id in ('.$status_id.') AND archiv_yn=0
+                   ORDER BY name, vorname');
+  //                 WHERE gp.person_id=p.id and gp.station_id IN ('.$station_id.') AND gp.status_id in ('.$status_id.') AND archiv_yn=0
+  //                 ORDER BY name, vorname'); // TODO: why not with :params?
+  
   $return = array ();
   foreach ($res as $p) $return[] = $p;
   
@@ -302,8 +303,7 @@ function home__memberlist_printview() {
  * @return
  */
 function home__memberlist_saveSettings($form) {
-  
-  if (getVar("btn_1")) {
+  if (getVar("btn_1") !== false) {
     header("Location: ?q=home/memberlist");
     return null;
   }
