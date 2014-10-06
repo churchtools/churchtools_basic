@@ -287,7 +287,7 @@
   <entry key="download">Download</entry>
   <entry key="sum">Sum</entry>
   <entry key="id">ID</entry>
-  <entry key="sortorder">Sort Order</entry>
+  <entry key="sortkey">Sort Order</entry>
   <entry key="bezeichnung">Caption</entry>
   <entry key="really.delete.dataset.x.be.careful">Do you really want to delete dataset {0}? Please assure no other data are referencing it, this could cause problems!</entry>
   <entry key="really.delete.file">Do you really want to delete that file?</entry>
@@ -360,7 +360,8 @@
   <entry key="birthdays.of.your.persons.in.next.31.days">Birthdays of your persons in next 31 days</entry>
   <entry key="new.comments.to.your.persons">New comments to your persons</entry>
   <entry key="personal.information.for.x">Personal information for {0}</entry>
-  <entry key=""></entry>
+  <entry key="station">Station</entry>
+  <entry key="department">Departement</entry>
   
   <!-- churchservice -->
   <entry key="no.rights.to.add.or.remove.service">Not enough rights in addOrRemoveServiceToEvent: </entry> <!-- needed? -->
@@ -404,7 +405,7 @@
   <entry key="view.tags">View Tags</entry>
   <entry key="view.history">View History</entry>
   <entry key="view.comments">View Comments</entry>
-  <entry key="view.addressc">View additional address data of visible persons (street)</entry>
+  <entry key="view.address">View additional address data of visible persons (street)</entry>
   <entry key="view.alldetails">View all information of visible persons, including address data, group memberships, ...</entry>
   <entry key="view.archive">View archive of persons</entry>
   <entry key="use.complex.filters">"Complex filters" can be used</entry>

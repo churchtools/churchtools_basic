@@ -43,7 +43,7 @@ function churchwiki_getCurrentNo($doc_id, $wikicategory_id = 0) {
  */
 function churchwiki_getAuth() {
   $cc_auth = array ();
-  $cc_auth = addAuth($cc_auth, 501, 'view', 'churchwiki', null, t('view.x', 'ChurchWiki'), 1);
+  $cc_auth = addAuth($cc_auth, 501, 'view', 'churchwiki', null, t('view.x', getConf("churchwiki_name")), 1);
   $cc_auth = addAuth($cc_auth, 502, 'view category', 'churchwiki', 'cc_wikicategory', t('view.wiki.category'), 1);
   $cc_auth = addAuth($cc_auth, 503, 'edit category', 'churchwiki', 'cc_wikicategory', t('edit.wiki.category'), 1);
   $cc_auth = addAuth($cc_auth, 599, 'edit masterdata', 'churchwiki', null, t('edit.masterdata'), 1);

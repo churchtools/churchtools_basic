@@ -43,7 +43,7 @@
   <entry key="age">Alter</entry>
   <entry key="birthday">Geburtsdatum</entry>
   <entry key="DOB">Geb.</entry>
-  <entry key="contact.information">Kontaktinformationen</entry>
+  <entry key="contact.information">Kontaktinfos</entry>
   <entry key="mobile">Handy</entry>
   <entry key="page">Seite</entry>
   <entry key="general">Allgemein</entry>
@@ -287,7 +287,7 @@
   <entry key="download">Herunterladen</entry>
   <entry key="sum">Summe</entry>
   <entry key="id">ID</entry>
-  <entry key="sortorder">Sortierung</entry>
+  <entry key="sortkey">Sortierung</entry>
   <entry key="bezeichnung">Bezeichnung</entry> <!-- not used -->
   <entry key="really.delete.dataset.x.be.careful">SOll der Datensatz {0} wirklich gelöscht werden? Bitte sicherstellen, dass keine Daten mehr auf diesen Datensatz verweisen, sonst kann es zu Problemen kommen!</entry>
   <entry key="really.delete.file">Soll die Datei wirklich gelöscht werden?</entry>
@@ -360,7 +360,8 @@
   <entry key="birthdays.of.your.persons.in.next.31.days">Geburtstage Deiner Leute in den nächsten 31 Tagen</entry>
   <entry key="new.comments.to.your.persons">Neue Kommentare zu Deinen Leuten</entry>
   <entry key="personal.information.for.x">Persönliche Infos für {0}</entry>
-  <entry key=""></entry>
+  <entry key="station">Station</entry>
+  <entry key="department">Bereich</entry>
 
   <!-- churchservice -->
   <entry key="no.rights.to.add.or.remove.service">Not enough rights in addOrRemoveServiceToEvent: </entry> <!-- needed? -->
@@ -404,7 +405,7 @@
   <entry key="view.tags">Tags einsehen</entry>
   <entry key="view.history">Historie eines Datensatzes ansehen</entry>
   <entry key="view.comments">Kommentare einsehen</entry>
-  <entry key="view.addressc">Zusätzlich Adressdaten der sichtbaren Personen einsehen (Strasse)</entry>
+  <entry key="view.address">Zusätzlich Adressdaten der sichtbaren Personen einsehen (Strasse)</entry>
   <entry key="view.alldetails">Alle Informationen der sichtbaren Person sehen, inkl. Adressdaten, Gruppenzuordnung, etc.</entry>
   <entry key="view.archive">Personen-Archiv einsehen</entry>
   <entry key="use.complex.filters">'Weitere Filter' darf verwendet werden</entry>

@@ -42,7 +42,7 @@ function churchservice__filedownload() {
 
 function churchservice_getAuth() {
   $cc_auth = array();
-  $cc_auth = addAuth($cc_auth, 301, 'view', 'churchservice', null, t('view.churchservice'), 1);
+  $cc_auth = addAuth($cc_auth, 301, 'view', 'churchservice', null, t('view.x',getConf("churchservice_name")), 1);
   $cc_auth = addAuth($cc_auth, 304, 'view servicegroup', 'churchservice', 'cs_servicegroup', t('view.servicegroup.churchservice.cs_servicegroup'), 1);
   $cc_auth = addAuth($cc_auth, 305, 'edit servicegroup', 'churchservice', 'cs_servicegroup', t('edit.servicegroup.churchservice.cs_servicegroup'), 1);
   $cc_auth = addAuth($cc_auth, 302, 'view history', 'churchservice', null, t('view.history.churchservice'), 1);

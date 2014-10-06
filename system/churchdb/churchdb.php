@@ -487,12 +487,13 @@ function subscribeGroup() {
       
       if (!$grp) churchdb_addPersonGroupRelation($user->id, $res->id, -2, null, null, null, t("request.by.form"));
       else _churchdb_editPersonGroupRelation($user->id, $res->id, -2, null, "null", t("request.quit.membership.by.form"));
-      addInfoMessage(t("membership.requested.by.form.leader.will.be.informed"), "<i>$res->bezeichnung</i>");
+      addInfoMessage(t("membership.requested.by.form.leader.will.be.informed", "<i>$res->bezeichnung</i>"));
     }
   }
+  $sGroup = getVar("unsubscribegroup");
   if ($sGroup > 0) {
     $res = db_query($sql_gruppenteilnahme,
-                    array (":person_id" => $user->id, ":g_id" => sGroup))
+                    array (":person_id" => $user->id, ":g_id" => $sGroup))
                     ->fetch();
     if (!$res) addErrorMessage(t("error.quitting.membership"));
     else {
@@ -525,7 +526,7 @@ function subscribeGroup() {
     }
     // groups user is member of
     else if ($mygroups[$g->id]->status_no <= 0) {
-      $txt_unsubscribe .= "<option value='g->id'>$g->bezeichnung";
+      $txt_unsubscribe .= "<option value='$g->id'>$g->bezeichnung";
       if ($mygroups[$g->id]->status_no == -2) $txt_unsubscribe .= " [beantragt]";
     }
   }
