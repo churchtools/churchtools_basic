@@ -1,7 +1,7 @@
 <h4>Hallo <?= $title ?>,</h4>
 
   <p>In <?php if($userIsSupervisor):?>der <?php else:?>deiner <?php endif;?> Gruppe
-     <b><?= $groupName ?></b> gibt es eine Änderung. </p></br>
+     <b><?= $groupName ?></b> gibt es eine Änderung. </p><br/>
      <?= $surname ?> <?= $name ?> hat
 
 <?php  if($changeType == 'new'):?>
@@ -17,9 +17,9 @@
     irgendetwas geändert (was ist nicht bekannt, sollte nicht vorkommen).
 <?php endif;?>
 
-  <p>Name: <b><?= $member->vorname ?> <?php if($member->spitzname):?>(<?= $member->spitzname ?>)<?php endif;?> <?= $member->name ?></b></br>
+  <p>Name: <b><?= $member->vorname ?> <?php if($member->spitzname):?>(<?= $member->spitzname ?>)<?php endif;?> <?= $member->name ?></b><br/>
   <?php if ($changeType == 'delete'): ?>bisheriger<?php endif;?>
-     Teilnehmerstatus: <b><?= $memberType ?></b></br>
+     Teilnehmerstatus: <b><?= $memberType ?></b><br/>
      Datum: <?= $member->letzteaenderung ?>
 
 

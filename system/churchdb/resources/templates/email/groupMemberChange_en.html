@@ -1,7 +1,7 @@
 <h4>Hallo <?= $title ?>,</h4>
 
   <p>There is a change in <?php if($userIsSupervisor):?>the <?php else:?>your <?php endif;?> group
-     <b><?= $groupName ?></b></p></br>
+     <b><?= $groupName ?></b></p><br/>
      <?= $surname ?> <?= $name ?> has
 
 <?php  if($changeType == 'new'):?>
@@ -17,9 +17,9 @@
     changed something (unknown what, don't should occure).
 <?php endif;?>
 
-  <p>Name: <b><?= $member->vorname ?> <?php if($member->spitzname):?>(<?= $member->spitzname ?>)<?php endif;?> <?= $member->name ?></b></br>
+  <p>Name: <b><?= $member->vorname ?> <?php if($member->spitzname):?>(<?= $member->spitzname ?>)<?php endif;?> <?= $member->name ?></b><br/>
   <?php if ($changeType == 'delete'): ?>previous<?php endif;?>
-     membership type: <b><?= $memberType ?></b></br>
+     membership type: <b><?= $memberType ?></b><br/>
      date: <?= $member->letzteaenderung ?>
 
 

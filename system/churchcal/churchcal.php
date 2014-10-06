@@ -804,7 +804,7 @@ function churchcal__ical() {
           $txt .= "DTEND:" . $enddate->format('Ymd\THis') . NL;
         }
         $txt .= 'DESCRIPTION:Kalender:' . $catNames[$res->category_id]->bezeichnung.' - ' .
-            - cleanICal($res->notizen) . NL;
+            cleanICal($res->notizen) . NL;
         $txt .= "END:VEVENT" . NL;
       }
     }
