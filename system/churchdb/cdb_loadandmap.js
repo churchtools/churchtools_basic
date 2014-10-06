@@ -3,7 +3,7 @@ function cdb_mapJsonDetails(json, person) {
   // Person kann u.U. nicht existieren, z.B. wenn eine neue von anderem User angelegt wurde
   if (person==null) person=new Object();
   
-  $.each(json, function(k,a) {
+  each(json, function(k,a) {
     person[k]=a;
   });
   person.details=true;
@@ -13,7 +13,7 @@ function cdb_mapJsonDetails(json, person) {
 
 function cdb_mapJsonSearchable(json, person) {
   if (person!=null) {
-    $.each(json, function(k,a) {
+    each(json, function(k,a) {
       person[k]=a;
     });
     person.searchable=true;
@@ -68,12 +68,12 @@ function cdb_loadRelations(nextFunction) {
   var renderListNecessary=false;
   churchInterface.setStatus("Lade Relationen...");
   // Erst alle alten Relationen rausnehmen
-  jQuery.each(allPersons, function(k,a) {
+  each(allPersons, function(k,a) {
     a.rels=null;
   });
   churchInterface.jsendRead({func:"getAllRels"}, function(ok, json) {
     if (json!=null) {
-    	jQuery.each(json, function(k,a) {
+    	each(json, function(k,a) {
         cdb_addJsonRels(a, allPersons[a.k_id]);
         cdb_addJsonRels(a, allPersons[a.v_id]);
       });
@@ -90,12 +90,12 @@ function cdb_loadRelations(nextFunction) {
 function cdb_loadSearch(nextFunction) {
   churchInterface.setStatus("Lade Suchdaten...");
   churchInterface.jsendRead({func:"getSearchableData"}, function(ok, json) {
-    jQuery.each(json.searchable, function(k,a) {
+    each(json.searchable, function(k,a) {
       if (allPersons[a.id]!=null)
         allPersons[a.id]=cdb_mapJsonSearchable(a, allPersons[a.id]);          
     });
     if (json.oldGroupRelations!=null)
-    jQuery.each(json.oldGroupRelations, function(k,a) {
+    each(json.oldGroupRelations, function(k,a) {
       if (allPersons[a.id]!=null) {
         if (allPersons[a.id].oldGroups==null)
           allPersons[a.id].oldGroups=new Array();
@@ -103,7 +103,7 @@ function cdb_loadSearch(nextFunction) {
       }
     });
     if (json.tagRelations!=null) 
-      jQuery.each(json.tagRelations, function(k,a) {
+      each(json.tagRelations, function(k,a) {
         if (allPersons[a.id]!=null) {
           if (allPersons[a.id].tags==null)
             allPersons[a.id].tags=new Array();
@@ -136,7 +136,7 @@ function cdb_loadPersonData(nextFunction, limit, p_id) {
     churchInterface.jsendRead({func:"getAllPersonData", limit:limit, p_id:p_id}, function(ok, json) {
       timers["endAllPersons"]=new Date();
       if (json!=null) {
-        jQuery.each(json, function(k,a) {
+        each(json, function(k,a) {
           allPersons[a.p_id]=cdb_mapJsonPerson1(a, allPersons[a.p_id]);
         });
       }  

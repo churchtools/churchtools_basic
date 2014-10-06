@@ -43,7 +43,7 @@ function home_main() {
   // module buttons mobile
   foreach ($modules as $m) {
     if (getConf($m . "_name") && getConf($m . "_startbutton")=="1" && user_access("view", $m)) {
-      $txt .= "<a class='btn btn-large' href='?q=$m'>" . $config[$m . "_name"] . '</a> ';
+      $txt .= "<li><a class='btn btn-large' href='?q=$m'>" . $config[$m . "_name"] . '</a> ';
     }
   }
   $txt .= '</ul>' . NL;

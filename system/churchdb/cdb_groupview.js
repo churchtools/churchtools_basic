@@ -94,7 +94,7 @@ GroupView.prototype.exporter = function() {
   var txt=t.getListHeader().substr(4,9999);
   rows.push(txt.html2csv()+"\r\n");
   
-  $.each(t.getData(true), function(i,a) {
+  each(t.getData(true), function(i,a) {
     if (t.checkFilter(a)) {
       var txt=t.renderListEntry(a).substr(4,9999);
       rows.push(a.id+";"+txt.html2csv()+"\r\n");
@@ -146,7 +146,7 @@ GroupView.prototype.renderDistrict = function() {
     rows.push('<div class="span4">');
     
     var ps=new Array();
-    $.each(allPersons, function(k,a) {
+    each(allPersons, function(k,a) {
       if ((a.districts!=null) && (a.districts[district_id]))
         ps.push(a);
     });
@@ -161,7 +161,7 @@ GroupView.prototype.renderDistrict = function() {
       }
       else {
         rows.push('<table class="table table-condensed"><tr><th>'+_("related.persons")+'<th>');
-        $.each(churchcore_sortData(ps, "name"), function(k,a) {
+        each(churchcore_sortData(ps, "name"), function(k,a) {
           rows.push('<tr><td><a href="#" class="visit-person tooltip-person" data-tooltip-id="'+a.id+'" >'+a.vorname+" "+a.name+'</a>');
           if (masterData.auth.admingroups) {
             rows.push('<td><a href="#" class="del-person" data-id="'+a.id+'">'+this_object.renderImage("trashbox")+'</a>'); 
@@ -281,7 +281,7 @@ GroupView.prototype.renderGrouptype = function() {
     rows.push('<div class="span5">');
     
     var ps=new Array();
-    $.each(allPersons, function(k,a) {
+    each(allPersons, function(k,a) {
       if ((a.gruppentypen!=null) && (a.gruppentypen[gruppentyp_id]))
         ps.push(a);
     });
@@ -292,7 +292,7 @@ GroupView.prototype.renderGrouptype = function() {
     }
     else {
       rows.push('<table class="table table-condensed"><tr><th>'+_("related.persons")+'<th>');
-      $.each(churchcore_sortData(ps, "name"), function(k,a) {
+      each(churchcore_sortData(ps, "name"), function(k,a) {
         rows.push('<tr><td><a href="#" class="visit-person tooltip-person" data-tooltip-id="'+a.id+'" >'+a.vorname+" "+a.name+'</a>');
         if (masterData.auth.admingroups) {
           rows.push('<td><a href="#" class="del-person"data-id="'+a.id+'">'+this_object.renderImage("trashbox")+'</a>'); 
@@ -491,7 +491,7 @@ GroupView.prototype.renderFilter = function() {
             && (allPersons[masterData.user_pid].districts[district.id]!=null))
         return true;
       var drin=false;
-      $.each(ret, function(k,a) {
+      each(ret, function(k,a) {
         if ((masterData.groups[a.id]!=null) && (masterData.groups[a.id].distrikt_id==district.id))
           drin=true;
       });
@@ -521,7 +521,7 @@ GroupView.prototype.renderFilter = function() {
 
   
   // Setze die Werte auf die aktuellen Filter
-  $.each(this.filter, function(k,a) {
+  each(this.filter, function(k,a) {
     $("#"+k).val(a);
   });
 
@@ -541,7 +541,7 @@ GroupView.prototype.checkFilter = function(a) {
     // Split by " ", but not masked with a "
     searches=searchEntry.match(/(?:[^\s"]+|"[^"]*")+/g);
     var res=true;
-    $.each(searches, function(k,search) {
+    each(searches, function(k,search) {
       search=search.replace(/"/g, "");
       // Erst mal die Tags checken
       if (search.indexOf("TAG:")==0) {
@@ -647,14 +647,14 @@ GroupView.prototype.renderListEntry = function(group) {
   if ((this.filter["filterGruppentyp"]!=null) || (this.filter["filterDistrikt"]!=null)) {
     counter=0;
     leader=0;
-    $.each(allPersons,function(k,a) {
+    each(allPersons,function(k,a) {
       if (a.gruppe!=null) {
         if (((this_object.filter["filterStatus"]!=null) && (a.status_id!=this_object.filter["filterStatus"])) 
           || ((this_object.filter["filterStation"]!=null) && (a.status_id!=this_object.filter["filterStation"])) 
           || ((this_object.filter["filterBereich"]!=null) && (a.status_id!=this_object.filter["filterBereich"]))) 
           filter=true;
         else {
-          $.each(a.gruppe, function(i,b) {           
+          each(a.gruppe, function(i,b) {           
             if (b.id==group.id) {
               if (b.leiter==0 || b.leiter==4) counter++;
               else if (b.leiter==-1) todo_1=todo_1+1;
@@ -708,9 +708,9 @@ GroupView.prototype.renderListEntry = function(group) {
         start.addDays(this_object.range_startday);
         var end=new Date();
         end.addDays(this_object.range_endday);
-        $.each(allPersons,function(k,a) {
+        each(allPersons,function(k,a) {
           if (a.gruppe!=null) {
-            $.each(a.gruppe, function(i,b) {
+            each(a.gruppe, function(i,b) {
               if ((b.id==group.id) && (b.d!=null)) {
                 var d = b.d.toDateEn();
                 if ((d>=start) && (d<=end)) {
@@ -730,9 +730,9 @@ GroupView.prototype.renderListEntry = function(group) {
         start.addDays(this_object.range_startday);
         var end=new Date();
         end.addDays(this_object.range_endday);
-        $.each(allPersons,function(k,a) {
+        each(allPersons,function(k,a) {
           if (a.oldGroups!=null) {
-            $.each(a.oldGroups, function(i,b) {
+            each(a.oldGroups, function(i,b) {
               if ((b.gp_id==group.id) && (b.leiter==-99) && (b.d!=null)) {
                 var d = b.d.toDateEn();
                 if ((d>=start) && (d<=end)) {
@@ -749,9 +749,9 @@ GroupView.prototype.renderListEntry = function(group) {
       if (this_object.range_startday==null) {
         var member=0;
         var not_member=0;
-        $.each(allPersons,function(k,a) {
+        each(allPersons,function(k,a) {
           if (a.gruppe!=null) {
-            $.each(a.gruppe, function(i,b) {
+            each(a.gruppe, function(i,b) {
               if (b.id==group.id) {
                 // Member or stuff
                 if (b.leiter==0 || b.leiter==4) {
@@ -769,7 +769,7 @@ GroupView.prototype.renderListEntry = function(group) {
     
     var t="";
     if (group.tags!=null)
-      $.each(group.tags, function(k,a) {
+      each(group.tags, function(k,a) {
         t=t+this_object.renderTag(a,false)+"&nbsp;";
       });
     rows.push("<td>"+t);
@@ -807,7 +807,7 @@ GroupView.prototype.addFurtherListCallbacks = function() {
 GroupView.prototype.isPersonInGroup = function (p_id, g_id) {
   var res = false;
   if ((p_id!=null) && (allPersons[p_id]!=null) && (allPersons[p_id].gruppe!=null)) {
-    $.each(allPersons[p_id].gruppe, function (k,a) {
+    each(allPersons[p_id].gruppe, function (k,a) {
       if ((a.id==g_id) && (a.leiter!=99))
         res=true;
     });
@@ -838,7 +838,7 @@ GroupView.prototype.isPersonLeaderOfGroup = function (p_id, g_id, withstaff) {
   if (withstaff==null) withstaff=false;
   if ((p_id!=null) && (allPersons[p_id]!=null)) {
     if (allPersons[p_id].gruppe!=null) {
-      $.each(allPersons[p_id].gruppe, function (k,a) {
+      each(allPersons[p_id].gruppe, function (k,a) {
         if ((a.id==g_id) && (a.leiter>0) && (a.leiter!=4 || withstaff)) {
           res=true;
           return false;
@@ -870,9 +870,9 @@ GroupView.prototype.isPersonSuperLeaderOfGroup = function (p_id, g_id) {
 
 GroupView.prototype.getMemberOfGroup = function (g_id, status_no) {
   var res = new Object();
-  $.each(allPersons, function(k,p) {
+  each(allPersons, function(k,p) {
     if (p.gruppe!=null) {
-      $.each(p.gruppe, function (i,a) {
+      each(p.gruppe, function (i,a) {
         if ((a.id==g_id) && ((status_no==null) || (a.leiter==status_no))) {
           var o= new Object();
           o.id=p.id;
@@ -887,9 +887,9 @@ GroupView.prototype.getMemberOfGroup = function (g_id, status_no) {
 // Co-leioter, leiter, supervisor
 GroupView.prototype.getLeaderOfGroup = function (g_id) {
   var res = new Object();
-  $.each(allPersons, function(k,p) {
+  each(allPersons, function(k,p) {
     if (p.gruppe!=null) {
-      $.each(p.gruppe, function (i,a) {
+      each(p.gruppe, function (i,a) {
         if ((a.id==g_id) && (a.leiter>0) && (a.leiter!=4)) {
           var o= new Object();
           o.id=p.id;
@@ -991,9 +991,9 @@ GroupView.prototype.getStatsOfGroup = function(g_id) {
   stats.count_age_all=0;
   stats.entries=new Array();
   
-  $.each(allPersons, function(k, a) {
+  each(allPersons, function(k, a) {
     if (a.gruppe!=null) {
-      $.each(a.gruppe, function (i, b) {
+      each(a.gruppe, function (i, b) {
         if ((b.id==g_id) && 
               ((masterData.settings.hideStatus==null) || (a.status_id!=masterData.settings.hideStatus))) {
           if ((b.leiter>=0) && (b.leiter!=3)) {
@@ -1056,13 +1056,13 @@ GroupView.prototype.editMailchimp = function (g_id) {
       rows.push('<legend>Vorhandene Newsletter f&uuml;r Gruppe '+masterData.groups[g_id].bezeichnung+"</legend>");
       var newList=new Array();
       readableList=new Array();
-      $.each(masterData.groups_mailchimp.lists.data, function(k,a) {
+      each(masterData.groups_mailchimp.lists.data, function(k,a) {
         newList.push({id:a.id, bezeichnung:a.name});
         readableList[a.id]={id:a.id, bezeichnung:a.name};
       });
       rows.push('<table class="table table-condensed">');
       rows.push('<tr><th>Listenname<th>Optin notwendig<th>Verabschiedung<th>Admin informieren<th>');
-      $.each(masterData.groups_mailchimp.zuordnung, function(k,a) {
+      each(masterData.groups_mailchimp.zuordnung, function(k,a) {
         if ((a!=null) && (a.gruppe_id==g_id) && (readableList[a.mailchimp_list_id]!=null)) {
           readableList[a.mailchimp_list_id].chosen=true;
           rows.push("<tr><td>"+readableList[a.mailchimp_list_id].bezeichnung);
@@ -1106,7 +1106,7 @@ GroupView.prototype.editMailchimp = function (g_id) {
     });
     elem.find("a.delMailchimp").click(function() {
       var o=$(this);
-      $.each(masterData.groups_mailchimp.zuordnung, function(k,a) {
+      each(masterData.groups_mailchimp.zuordnung, function(k,a) {
         if ((a!=null) && (a.gruppe_id==g_id) && (a.mailchimp_list_id==o.attr("data-id"))) {
           delete masterData.groups_mailchimp.zuordnung[k];
           return false;
@@ -1130,14 +1130,14 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
           info=info+"<br/>";
           var count_dabei=0;
           var count_stattgefunden=0;
-          $.each(churchcore_sortData(masterData.groups[g_id].meetingList,"datumvon"), function(k,a) {
+          each(churchcore_sortData(masterData.groups[g_id].meetingList,"datumvon"), function(k,a) {
             if (a.eintragerfolgt_yn=="0") 
               info=info+'<img title="Eintrag noch nicht erfolgt f�r '+a.datumvon.toDateEn().toStringDe(false)+'" src="'+masterData.modulespath+'/images/box_white.png'+'"/>';
             if (a.ausgefallen_yn=="1") 
               info=info+"x";
             else {  
               var dabei=false;
-              $.each(a.entries, function(i,b) {
+              each(a.entries, function(i,b) {
                 if (b.p_id==p_id) {
                   dabei=true;
                   count_stattgefunden=count_stattgefunden+1;
@@ -1338,7 +1338,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
     if (g.auth!=null) {
       rows.push('<p style="margin-left:22px"><small><i>Aktuelle Berechtigungen:</i><br/>');
       var ar = new Array();
-      $.each(g.auth, function(k,a) {
+      each(g.auth, function(k,a) {
         ar.push(this_object.renderAuth(k));
       }); 
       rows.push(ar.join(", "));
@@ -1365,7 +1365,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
   // Und zeige sie an
   var amILeader=this_object.isPersonLeaderOfGroup(masterData.user_pid, g_id);
   var amISuperLeader=this.isPersonSuperLeaderOfGroup(masterData.user_pid, g_id);
-  $.each(stats.entries, function(i,a) {
+  each(stats.entries, function(i,a) {
     if (count>0) {          
       count--; 
       rows.push("<tr><td><p><small>");
@@ -1405,7 +1405,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
     rows.push(form_renderImage({src:"box_white.png"})+" Offen &nbsp;");
     rows.push("x  ausgefallen</small>");
     
-    $.each(churchcore_sortData(g.meetingList,"datumvon", true), function(k,m) {
+    each(churchcore_sortData(g.meetingList,"datumvon", true), function(k,m) {
       if (comments.length<4 && m.kommentar!=null) {
         comments.push(m);
       }
@@ -1414,7 +1414,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
   if (comments.length>0) {
     rows.push('<div class="detail-view-infobox">');
     rows.push("<table><tr><td><i>Die letzten Gruppentreffen-Kommentare");
-    $.each(comments, function(k,m) {
+    each(comments, function(k,m) {
       rows.push("<tr><td><p><small>"+m.datumvon.toDateEn().toStringDe()+"<br>"+m.kommentar+'</small>');    
     });
     rows.push('</table></div>');
@@ -1425,9 +1425,9 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
     var history=new Array();
     var start=new Date(); start.addDays(this_object.range_startday);
     var end=new Date(); end.addDays(this_object.range_endday);
-    $.each(allPersons, function(k,a) {
+    each(allPersons, function(k,a) {
       if (a.oldGroups!=null) {
-        $.each(a.oldGroups, function(i,b) {
+        each(a.oldGroups, function(i,b) {
           if ((b.gp_id==g_id) && (b.leiter==-99) && (b.d!=null) && (b.d.toDateEn()>=start) && (b.d.toDateEn()<=end))
             history.push('<tr><td>'+a.vorname+" "+a.name+"<td>"+b.d.toDateEn().toStringDe());
         });
@@ -1512,9 +1512,9 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
       } 
       else if ($(this).attr("id")=="deleteGroup") {
         var del = false;
-        $.each(allPersons, function(k,a) {
+        each(allPersons, function(k,a) {
           if (a.gruppe!=null) {
-            $.each(a.gruppe, function(i,b) {
+            each(a.gruppe, function(i,b) {
               if (b.id==p_id) del=true;
             }); 
           }
@@ -1664,9 +1664,9 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
         var separator=(masterData.settings.mailerSeparator==0?";":",");
         if (masterData.settings.mailerType!=0)
           separator=separator+" ";
-        $.each(allPersons, function(k, a) {
+        each(allPersons, function(k, a) {
           if (a.gruppe!=null) {
-            $.each(a.gruppe, function (i, b) {
+            each(a.gruppe, function (i, b) {
               if ((b.id==g_id) && (b.leiter!=-1) &&
                     ((masterData.settings.hideStatus==null) || (a.status_id!=masterData.settings.hideStatus))) {
                 if (a.email=="") noemail=true;

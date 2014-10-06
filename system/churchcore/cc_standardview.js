@@ -31,11 +31,9 @@ function StandardTableView(options) {
   this.rowNumbering=true;
   this.showFoundEntries=true;
 
-  if (options!=null) {
-    $.each(options, function(k,a) {
-      t[k]=a;
-    });
-  }
+  each(options, function(k,a) {
+    t[k]=a;
+  });
 }
 Temp.prototype = AbstractView.prototype;
 StandardTableView.prototype = new Temp();
@@ -47,7 +45,7 @@ StandardTableView.prototype.initView = function () {
 
 StandardTableView.prototype.historyCreateStep = function () {
   var str = "";
-  jQuery.each(this.filter, function(k,a) {
+  each(this.filter, function(k,a) {
     str=str+"/"+k+":"+a;
   });
   churchInterface.historyCreateStep(this.name+str+"/");
@@ -223,7 +221,7 @@ StandardTableView.prototype.getSelectFilter = function(data, name, selected, fun
   if (emptyentry)
     _text=_text+'<option value=""></option>';
 
-  jQuery.each(data, function (i,d) {
+  each(data, function (i,d) {
     if ((typeof func !="function") || (func(d))) {
       _text=_text+"<option value=\""+d.id+"\"";
       if (selected==d.id) _text=_text+" selected ";
@@ -342,7 +340,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
         t.counter = 0;
         var lastGrouping=null;
 
-        $.each(listObject, function(k, entry) {
+        each(listObject, function(k, entry) {
           if ((entry!=null) && (t.checkFilter(entry))) {
             t.counter++;
             if ((t.counter>=t.listOffset) && (t.counter<=masterData.settings["listMaxRows"+t.name]+t.listOffset)) {
@@ -400,7 +398,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
         if (t.showPaging) {
           if (!churchcore_handyformat()) {
             rows.push("&nbsp; &nbsp; &nbsp; &nbsp;"+_("number.of.rows")+": ");
-            $.each(t.availableRowCounts, function(i,k) {
+            each(t.availableRowCounts, function(i,k) {
               rows.push('<a href="#" class="changemaxrow" data-id="'+k+'">'+k+'</a>&nbsp;|&nbsp;');
             });
             rows.push("&nbsp; &nbsp; &nbsp; ");
@@ -410,7 +408,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
           }
           else {
             rows.push(_("show")+"  ");
-            $.each(t.availableRowCounts, function(i,k) {
+            each(t.availableRowCounts, function(i,k) {
               rows.push('<a href="#" class="changemaxrow" data-id="'+k+'">'+k+'</a> | ');
             });
             rows.push('<span class="pull-right"><a href="#" id="hideAll">'+_("close.all")+'</a></span>');
@@ -422,6 +420,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
 
         rows.push(t.addSecondMenu());
       }
+            
       $("#cdb_content").html(rows.join(""));
 
       if (debug) t.endTimer("renderTableView");
@@ -446,7 +445,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
         }
         else if ($(this).attr("id")=="showAll") {
           n=0; j=0;
-          $.each(listObject, function(k, a) {
+          each(listObject, function(k, a) {
             n++;
             if (t.checkFilter(a)) {
               j++;
@@ -457,7 +456,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
           });
         }
         else if ($(this).attr("id")=="hideAll") {
-          $.each(listObject, function(k, entry) {
+          each(listObject, function(k, entry) {
             entry.open=false;
           });
 
@@ -478,7 +477,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
         calcHeaderWidth();
       });
       if (listObject!=null)
-      $.each(listObject, function(k, entry) {
+      each(listObject, function(k, entry) {
         if ((entry!=null) && (t.checkFilter(entry)))
           if ((entry.open) || (t.counter==1)) t.renderEntryDetail(entry.id);
       });
@@ -531,7 +530,7 @@ StandardTableView.prototype.addTableContentCallbacks = function(cssid) {
     if (s=="markAll") {
       if ((t.counter>=masterData.settings["listMaxRows"+t.name]) && (confirm("Es sind mehr Eintraege vorhanden, als momentan angezeigt. Sollen alle Eintraege markiert werden?"))) {
         bol=$(this).is(":checked");
-        $.each(listObject, function(k,a) {
+        each(listObject, function(k,a) {
           if ((a!=null) && (t.checkFilter(a))) {
             a.checked=bol;
           }
@@ -829,7 +828,7 @@ StandardTableView.prototype.renderFilelist = function(header, filecontainer, spe
       if ((files!=null) && (churchcore_countObjectElements(files)>0)) {
         var txt=header;
         if (txt!="") txt=txt+"<br/>";
-        $.each(churchcore_sortData(files, "bezeichnung"), function(k,a) {
+        each(churchcore_sortData(files, "bezeichnung"), function(k,a) {
           txt=txt+t.renderFile(a,filename_length);
         });
         $(this).html(txt);
@@ -887,7 +886,7 @@ StandardTableView.prototype.checkFieldPermission = function (field, authArray) {
   var res=true;
   if (field.auth!=null && field.auth!="") {
     res=false;
-    $.each(churchcore_getAuthAsArray(field.auth), function(k,auth) {
+    each(churchcore_getAuthAsArray(field.auth), function(k,auth) {
       if (auth!=null)
         if ((masterData.auth[auth]!=null) || (authArray!=null && churchcore_inArray(auth, authArray)))
           res=true;
@@ -945,7 +944,7 @@ StandardTableView.prototype.getStandardFieldsAsSelect = function (fieldname, arr
   var t=this;
   var rows = new Array();
   var form = new CC_Form(null, arr, "standardFieldAsSelect");
-  $.each(masterData.fields[fieldname].fields, function(elem, field) {
+  each(masterData.fields[fieldname].fields, function(elem, field) {
     //TODO: Wechsel auf Formular. Problem ist noch die ccsid, denn diese ist hier ohne "Input..."
     //form.addStandardField(f, authArray);
     form.addHtml(t.getStandardFieldAsSelect(field, arr, elem, authArray));
@@ -1063,7 +1062,7 @@ StandardTableView.prototype.renderFields = function(fields, a, write_allowed, au
 
   _text=_text+"</legend><p style='line-height:100%'><small>";
 
-  $.each(fields.fields, function(elem, field) {
+  each(fields.fields, function(elem, field) {
     _text=_text+t.renderField(elem, field, a, write_allowed, authArray);
   });
 
@@ -1135,7 +1134,7 @@ StandardTableView.prototype.renderSelect = function(selected, elem, masterData, 
     _text=_text+"<select id=\"Input"+elem+"\" disabled=\"true\">";
   else
     _text=_text+"<select id=\"Input"+elem+"\">";
-  $.each(this_object.sortMasterData(masterData), function (k,a) {
+  each(this_object.sortMasterData(masterData), function (k,a) {
     if ((typeof func !="function") || (func(a))) {
       if ((selected!=null) && (a.id==selected))
         _text=_text+"<option selected value=\""+a.id+"\">"+a.bezeichnung+"</option>";
@@ -1178,7 +1177,7 @@ StandardTableView.prototype.renderPersonSelect = function(title, searchAll, resu
         var rows = new Array();
         i=0;
         rows.push('<table class="table table-condensed">');
-        $.each(allPersons, function(k, a) {
+        each(allPersons, function(k, a) {
           if (i<20) {
             if ((((masterData.status[a.status_id]==null) || (masterData.status[a.status_id].infreitextauswahl_yn==0))) ||
                 ((_searchString!="") &&
@@ -1234,7 +1233,7 @@ StandardTableView.prototype.autocompletePersonSelect = function (divid, withMyDe
 StandardTableView.prototype.getAuthAsArray = function (auth) {
   var t=this;
   var list=new Array();
-  $.each(auth, function(k,a) {
+  each(auth, function(k,a) {
     list.push(t.renderAuth(k));
   });
   return list;
@@ -1243,8 +1242,8 @@ StandardTableView.prototype.getAuthAsArray = function (auth) {
 StandardTableView.prototype.renderAuth = function(auth_id) {
   var res="";
   // Baumstruktur, mu� erst mal durch die Module scannen!
-  $.each(masterData.auth_table, function(k,module) {
-    $.each(module, function(i,a) {
+  each(masterData.auth_table, function(k,module) {
+    each(module, function(i,a) {
       if (a.id==auth_id) {
         res=k+":"+a.auth;
         return false;

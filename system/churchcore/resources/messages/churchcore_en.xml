@@ -88,7 +88,6 @@
   <entry key="email.or.username">Email or Username</entry>
   <entry key="password">Password</entry>
   <entry key="remember.me">Remember me</entry>
-  <entry key="remember.me.info">only check on personal devices</entry>
   <entry key="login">Login</entry>
   <entry key="email.or.username.unknown">Email or Username unknown.</entry>
   <entry key="forgot.password">Forgot password?</entry>
@@ -544,5 +543,6 @@
   <!-- COMMON -->
   <entry key="template.x.not.found">Template '{0}' was not found!</entry>
   <entry key="news.for.abo.x">News in {0}</entry>
+  <entry key="new">New</entry>
 
 </properties>

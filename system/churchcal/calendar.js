@@ -18,18 +18,18 @@ var printview=false;
 
 function mapEvents(allEvents) {
   var cs_events= new Array();
-  $.each(allEvents, function(k,a) {
+  each(allEvents, function(k,a) {
     if ((filterCategoryIds==null) || (churchcore_inArray(a.category_id, filterCategoryIds))) {
       if ((!embedded) || (a.intern_yn==0)) {
-        $.each(churchcore_getAllDatesWithRepeats(a), function(k,d) {
+        each(churchcore_getAllDatesWithRepeats(a), function(k,d) {
           var o=Object();
           o.id= a.id;  // Id muss eindeutig sein, sonst macht er daraus einen Serientermin!
-          o.title= a.bezeichnung;
+          o.title= '<span class="event-title">'+a.bezeichnung+'</span>';
           if ((a.notizen!=null) && (a.notizen!="")) o.notizen=a.notizen;
           if ((a.link!=null) && (a.link!="")) o.link=a.link;
           // Now get the service texts out of the events
           if (a.events!=null) {
-            $.each(a.events, function(i,e) {
+            each(a.events, function(i,e) {
               if ((e.service_texts!=null) &&
                    (e.startdate.toDateEn(false).toStringDe(false)==d.startdate.toStringDe(false))) {
                 o.title=o.title+' <span class="event-servicetext">'+e.service_texts.join(", ")+'</span>';
@@ -38,6 +38,13 @@ function mapEvents(allEvents) {
             });
           }
           if ((a.ort!=null) && (a.ort!='')) o.title=o.title+' <span class="event-location">'+a.ort+'</span>';
+          if (a.bookings!=null) {
+            o.title=o.title+'<span class="event-resources">';
+            each(a.bookings, function(i,e) {
+              o.title=o.title+'<br/>'+masterData.resources[e.resource_id].bezeichnung.trim(20);
+            });
+            o.title=o.title+'</span>';
+          }
           o.start= d.startdate;
             o.end = d.enddate;
           // Tagestermin?
@@ -169,7 +176,7 @@ function _select(start, end, allDay, a, view) {
 function exceptionExists(exceptions, except_date_start) {
   if (exceptions==null) return false;
   var res=false;
-  $.each(exceptions, function(k,a) {
+  each(exceptions, function(k,a) {
     var s, e;
     if (a.except_date_start instanceof(Date))
       s=a.except_date_start;
@@ -193,9 +200,9 @@ function _renderViewChurchResource(elem) {
   // Baue erst ein schönes Select zusammen
   var arr=new Array();
   var sortkey=0;
-  $.each(churchcore_sortMasterData(masterData.resourceTypes, "sortkey"), function(k,a) {
+  each(churchcore_sortMasterData(masterData.resourceTypes, "sortkey"), function(k,a) {
     arr.push({id:"", bezeichnung:'-- '+a.bezeichnung+' --'});
-    $.each(churchcore_sortMasterData(masterData.resources, "sortkey"), function(i,b) {
+    each(churchcore_sortMasterData(masterData.resources, "sortkey"), function(i,b) {
       if (b.resourcetype_id==a.id) {
         arr.push({id:b.id, bezeichnung:b.bezeichnung});
       }
@@ -248,7 +255,7 @@ function _renderViewChurchResource(elem) {
     
     form.addHtml('<legend>Vorhandene Buchungen</legend>');
     form.addHtml('<div class="w_ell"><table class="table table-condensed"><tr><th>Ressource<th>Vorher<th>Nachher<th>Status<th>');
-    $.each(currentEvent.bookings, function(k,a) {
+    each(currentEvent.bookings, function(k,a) {
       form.addHtml('<tr><td>');
       form.addHtml(masterData.resources[a.resource_id].bezeichnung);
       form.addHtml('<td>');
@@ -270,13 +277,13 @@ function _renderViewChurchResource(elem) {
       if (typeof weekView!='undefined') {
         if (allBookings[a.id]!=null && allBookings[a.id].exceptions!=null) {
           var arr=new Array();
-          $.each(churchcore_sortData(allBookings[a.id].exceptions, "except_date_start"), function(i,b) {
+          each(churchcore_sortData(allBookings[a.id].exceptions, "except_date_start"), function(i,b) {
             if (!exceptionExists(currentEvent.exceptions, b.except_date_start))
               arr.push(b.except_date_start.toDateEn(false).toStringDe(false));
           });
           if (arr.length>0) {
             form.addHtml('<tr><td><td colspan="4">Ausnahmen: &nbsp;');
-            $.each(arr, function(i,b) {
+            each(arr, function(i,b) {
               form.addHtml('<span class="label label-important">'+b+'</span> &nbsp;');
             });
           }
@@ -353,6 +360,22 @@ function currentEvent_addException(date) {
         ={id:currentEvent.exceptionids, except_date_start:date.toStringEn(), except_date_end:date.toStringEn()};
 }
 
+
+function _renderInternVisible(elem, currentEvent) {
+  var txt="";
+  if ((masterData.category[currentEvent.category_id]!=null) && 
+     (masterData.category[currentEvent.category_id].oeffentlich_yn==1)) {
+    txt=txt+form_renderCheckbox({
+      checked:(currentEvent.intern_yn!=null && currentEvent.intern_yn==1?true:false),
+      label:" "+_("only.intern.visible"),
+      controlgroup:true,
+      controlgroup_class:"",
+      cssid:"inputIntern"
+    });
+  }
+  $("#internVisible").html(txt);
+}
+
 function _renderEditEventContent(elem, currentEvent) {
   var rows = new Array();
   if (currentEvent.view=="view-main") {
@@ -371,17 +394,7 @@ function _renderEditEventContent(elem, currentEvent) {
       label:_("location"),
       placeholder:""
     }));
-    if ((masterData.category[currentEvent.category_id]!=null) &&
-           (masterData.category[currentEvent.category_id].oeffentlich_yn==1)) {
-      rows.push(form_renderCheckbox({
-        label:" "+_("only.intern.visible"),
-        controlgroup:true,
-        controlgroup_class:"",
-        cssid:"inputIntern",
-        checked:(currentEvent.intern_yn!=null && currentEvent.intern_yn==1?true:false)
-      }));
-    }
-    
+    rows.push('<div id="internVisible"></div>');
     rows.push('<div id="dates"></div>');
     rows.push('<div id="wiederholungen"></div>');
     
@@ -389,7 +402,7 @@ function _renderEditEventContent(elem, currentEvent) {
     var e=new Array();
     if (currentEvent.events==null) {
       e.push({id:-1, bezeichnung:"-- "+_("personal.calendar")+" --"});
-      $.each(churchcore_sortMasterData(masterData.category), function(k,a) {
+      each(churchcore_sortMasterData(masterData.category), function(k,a) {
         if ((a.privat_yn==1) && (categoryEditable(a.id))) e.push(a);
       });
       if (e.length>1) e_summe=e_summe.concat(e);
@@ -397,14 +410,14 @@ function _renderEditEventContent(elem, currentEvent) {
 
     var e=new Array();
     e.push({id:-1, bezeichnung:"-- "+_("group.calendar")+" --"});
-    $.each(churchcore_sortMasterData(masterData.category), function(k,a) {
+    each(churchcore_sortMasterData(masterData.category), function(k,a) {
       if ((a.oeffentlich_yn==0) && (a.privat_yn==0) && (categoryEditable(a.id))) e.push(a);
     });
     if (e.length>1) e_summe=e_summe.concat(e);
 
     var e=new Array();
     e.push({id:-1, bezeichnung:"-- "+masterData.maincal_name+" --"});
-    $.each(churchcore_sortMasterData(masterData.category), function(k,a) {
+    each(churchcore_sortMasterData(masterData.category), function(k,a) {
       if ((a.oeffentlich_yn==1) && (categoryEditable(a.id))) e.push(a);
     });
     if (e.length>1) e_summe=e_summe.concat(e);
@@ -443,6 +456,7 @@ function _renderEditEventContent(elem, currentEvent) {
 
     elem.find("#cal_content").html(rows.join(""));
 
+    _renderInternVisible(elem, currentEvent);
     form_renderDates({elem:$("#dates"), data:currentEvent,
       deleteException:function(exc) {
         delete currentEvent.exceptions[exc.id];
@@ -470,6 +484,7 @@ function _renderEditEventContent(elem, currentEvent) {
       churchInterface.jsendWrite({func:"saveSetting", sub:"category_id", val:$(this).val()});
       masterData.settings.category_id=$(this).val();
       currentEvent.category_id=$(this).val();
+      _renderInternVisible(elem, currentEvent);
       _renderEditEventNavi(elem, currentEvent);
     });
   }
@@ -518,16 +533,16 @@ function _renderEditEventContent(elem, currentEvent) {
           }
           form.addHtml('</span>');
         }
-        $.each(data, function(k,a) {
+        each(data, function(k,a) {
           if (a.type=="gruppe") {
             form.addHtml('<tr><td colspan=4><h4>'+a.bezeichnung+'</h4>');
-            $.each(a.data, function(i,p) {
+            each(a.data, function(i,p) {
               _addPerson(p);
             });
           }
         });
         form.addHtml('<tr><td colspan=4><h4>Personen</h4>');
-        $.each(data, function(k,a) {
+        each(data, function(k,a) {
           if (a.type=="person") {
             _addPerson(a.data);
           }
@@ -613,7 +628,7 @@ function _renderEditEventContent(elem, currentEvent) {
         rows.push("Der "+masterData.churchcal_name+" Eintrag ist mit folgenden <i>"+masterData.churchservice_name+'</i> - Events verbunden:<br><br>');
         rows.push('<div class="well"><table class="table table-bordered table-condensed">');
         rows.push('<tr><th>Event-Datum<th>');
-        $.each(churchcore_sortData(currentEvent.events, "startdate"), function(k,a) {
+        each(churchcore_sortData(currentEvent.events, "startdate"), function(k,a) {
           rows.push('<tr><td>'+a.startdate.toDateEn(true).toStringDe(true));
           rows.push('<td><a class="btn" href="?q=churchservice&id='+a.id+'">Event aufrufen</a>');
         });
@@ -766,7 +781,7 @@ function editEvent(event, month, currentDate) {
   if (currentEvent.bezeichnung==null) currentEvent.bezeichnung="";
   if (currentEvent.category_id==null) currentEvent.category_id=masterData.settings.category_id;
   if (!categoryEditable(currentEvent.category_id)) {
-    $.each(masterData.category, function(k,a) {
+    each(masterData.category, function(k,a) {
       if (categoryEditable(k)) {
         currentEvent.category_id=k;
         return false;
@@ -845,7 +860,7 @@ function copyEvent(current_event) {
 function delEvent(event, func) {
   calCCType.hideData(event.category_id);
   if (event.bookings!=null) {
-    $.each(event.bookings, function(k,a) {
+    each(event.bookings, function(k,a) {
       a.status_id=99;
     });
   }
@@ -1164,7 +1179,7 @@ function renderTooltip(event) {
     if (myEvent.meetingRequest!=null) {
       rows.push('<h5>Info Besprechungsanfrage</h5>');
       var confirm=0, decline=0, offen=0, perhaps=0;
-      $.each(myEvent.meetingRequest, function(k,a) {
+      each(myEvent.meetingRequest, function(k,a) {
         if (a.zugesagt_yn==1) confirm=confirm+1;
         else if (a.zugesagt_yn==0) decline=decline+1;
         else if (a.response_date!=null) perhaps=perhaps+1;
@@ -1242,7 +1257,7 @@ function createMultiselect(name, data) {
     churchInterface.jsendWrite({func:"saveSetting", sub:name, val:masterData.settings[name]});
     if (id=="allSelected") {
       if (filter[name]!=null) {
-        $.each(filter[name].data, function(k,a) {
+        each(filter[name].data, function(k,a) {
           if (churchcore_inArray(k,filter[name].selected))
             needData(name, k);
           else
@@ -1268,7 +1283,7 @@ function createMultiselect(name, data) {
   if (name=="filterGemeindekalendar") {
     if ($('#filtercategory_select').val()!=null) {
       var arr= new Array();
-      $.each($('#filtercategory_select').val().split(","), function(k,a) {
+      each($('#filtercategory_select').val().split(","), function(k,a) {
         arr.push(a*1+100);
       });
       masterData.settings[name]="["+arr.join(",")+"]";
@@ -1313,7 +1328,7 @@ function _loadAllowedPersons(func) {
     else {
       allPersons=new Object();
       if (data!=null) {
-        $.each(data, function(k,a) {
+        each(data, function(k,a) {
           allPersons[a.p_id]=new Object();
           allPersons[a.p_id].bezeichnung=a.name+", "+a.vorname;
           if (a.spitzname!="") allPersons[a.p_id].bezeichnung=allPersons[a.p_id].bezeichnung+" ("+a.spitzname+")";
@@ -1483,7 +1498,7 @@ function editCategories(privat_yn, oeffentlich_yn, reload) {
   
   rows.push('<th width="25px"><th width="25px">');
   
-  $.each(churchcore_sortData(masterData.category,"privat_yn", true, null, "sortkey"), function(k,cat) {
+  each(churchcore_sortData(masterData.category,"privat_yn", true, null, "sortkey"), function(k,cat) {
     if ((cat.oeffentlich_yn==oeffentlich_yn) && (cat.privat_yn==privat_yn)) {
       rows.push('<tr><td>'+form_renderColor(cat.color));
       rows.push('<td>'+cat.bezeichnung);
@@ -1528,8 +1543,9 @@ function editCategories(privat_yn, oeffentlich_yn, reload) {
                ' der iCal unterst&uuml;tzt.<br><br>');
     var id=$(this).attr("data-id");
 //    rows.push(form_renderInput({label:"iCal-URL", value:masterData.base_url+"?q=churchcal/ical&security="+masterData.category[id].randomurl+"&id="+id, disable:true}));
-    rows.push(form_renderInput({label:"<a href='"+masterData.base_url+"?q=churchcal/ical&security="+masterData.category[id].randomurl+"&id="+id+"'>iCal-URL</a>", value:masterData.base_url+"?q=churchcal/ical&security="+masterData.category[id].randomurl+"&id="+id, disable:true}));
-    form_showOkDialog("Kalender abonnieren", rows.join(""));
+    rows.push(form_renderInput({label:"<a target='_clean' href='"+masterData.base_url+"?q=churchcal/ical&security="+masterData.category[id].randomurl+"&id="+id+"'>iCal-URL</a>", htmlclass:"ical-link", value:masterData.base_url+"?q=churchcal/ical&security="+masterData.category[id].randomurl+"&id="+id, disable:true}));
+    var elem=form_showOkDialog("Kalender abonnieren", rows.join(""));
+    elem.find("input.ical-link").select();
     return false;
   });
   elem.find("a.delete").click(function() {
@@ -1596,7 +1612,7 @@ function renderPersonalCategories() {
   var mycals=new Object();
   // Meine Kalendar
   if (churchcore_countObjectElements(masterData.category)>0) {
-    $.each(churchcore_sortMasterData(masterData.category), function(k,a) {
+    each(churchcore_sortMasterData(masterData.category), function(k,a) {
       if ((a.modified_pid==masterData.user_pid) && (a.privat_yn==1) && (a.oeffentlich_yn==0)) {
         form_addEntryToSelectArray(mycals,a.id*1+100,a.bezeichnung,sortkey);
         sortkey++;
@@ -1612,7 +1628,7 @@ function renderPersonalCategories() {
   if (viewName!="yearView") {
     var divider=false;
     if (churchcore_countObjectElements(masterData.category)>0) {
-      $.each(churchcore_sortMasterData(masterData.category), function(k,a) {
+      each(churchcore_sortMasterData(masterData.category), function(k,a) {
         if ((a.modified_pid!=masterData.user_pid) && (a.oeffentlich_yn==0) && (a.privat_yn==1)) {
           if (!divider) {
             form_addEntryToSelectArray(mycals,3,'-',sortkey); sortkey++;
@@ -1642,7 +1658,7 @@ function renderGroupCategories() {
   }
   
   if ((user_access("admin group category")) || (churchcore_countObjectElements(masterData.category)>0)) {
-    $.each(churchcore_sortMasterData(masterData.category), function(k,a) {
+    each(churchcore_sortMasterData(masterData.category), function(k,a) {
       if ((a.oeffentlich_yn==0) && (a.privat_yn==0)) {
         var title=a.bezeichnung;
         if (!categoryEditable(a.id) && !embedded) title=title+" (nur lesbar)";
@@ -1683,7 +1699,7 @@ function renderChurchCategories() {
     if (churchcore_countObjectElements(masterData.category)>0) {
       if (embedded) {
         var dabei=false;
-        $.each(churchcore_sortMasterData(masterData.category), function(k,a) {
+        each(churchcore_sortMasterData(masterData.category), function(k,a) {
           if ((a.oeffentlich_yn==0) && (a.privat_yn==0) && ((filterCategoryIds==null) || (churchcore_inArray(a.id, filterCategoryIds)))) {
             dabei=true;
             var title=a.bezeichnung;
@@ -1694,7 +1710,7 @@ function renderChurchCategories() {
         if (dabei) form_addEntryToSelectArray(oeff_cals,-2,'-',sortkey);  sortkey++;
       }
 
-      $.each(churchcore_sortMasterData(masterData.category), function(k,a) {
+      each(churchcore_sortMasterData(masterData.category), function(k,a) {
         if ((a.oeffentlich_yn==1) && ((filterCategoryIds==null) || (churchcore_inArray(a.id, filterCategoryIds)))) {
           var title=a.bezeichnung;
           form_addEntryToSelectArray(oeff_cals,(a.id*1+100),title,sortkey);
@@ -1744,7 +1760,7 @@ function renderChurchCategories() {
     if ((filterCategoryIds==null || !embedded) && (masterData.auth["view churchresource"])) {
       createMultiselect("filterRessourcen", masterData.resources);
       form.addHtml('<div id="filterRessourcen"></div>');
-      $.each(masterData.resourceTypes, function(k,a) {
+      each(masterData.resourceTypes, function(k,a) {
         filter["filterRessourcen"].addFunction(a.bezeichnung+" w&auml;hlen", function(b) {
           return b.resourcetype_id==a.id;
         });
@@ -1844,9 +1860,9 @@ $(document).ready(function() {
     });
     
     //Sucht sich die Kalender zusammen die neu geholt werden m�ssen
-    $.each(filter, function(k,a) {
+    each(filter, function(k,a) {
       if (a.data!=null)
-      $.each(a.data, function(i,s) {
+      each(a.data, function(i,s) {
         // Wenn es ausgew�hlt ist
         if (churchcore_inArray(i, a.selected)) {
           needData(k, s.id);

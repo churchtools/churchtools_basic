@@ -25,7 +25,7 @@
       <img src="?q=cron&standby=true"/>
   <? endif; ?>
 <? endif; ?>
-      <small>&copy; <a href="http://www.churchtools.de" target="_blank">www.churchtools.de</a>v<?=$config["version"]?></small>
+      <small>&copy; <a href="http://www.churchtools.de" target="_blank">www.churchtools.de</a> v<?=$config["version"]?></small>
     </p>
 
     </footer>

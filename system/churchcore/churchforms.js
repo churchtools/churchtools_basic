@@ -6,7 +6,7 @@ var monthNames=['january', 'february', 'march', 'april', 'mai', 'june', 'july', 
 // get Month name in current language
 function getMonthNames() {
   var res=new Array();
-  $.each(monthNames, function(k,a){
+  each(monthNames, function(k,a){
     res.push(_(a));
   });
   return res;
@@ -36,7 +36,7 @@ function form_renderYesNo(nr, width) {
 function form_renderLabelList(current, name, data) {
   if (current[name]==null) current[name]=new Array();
   var rows=new Array();
-  $.each(churchcore_sortMasterData(data), function(k,a) {
+  each(churchcore_sortMasterData(data), function(k,a) {
     if (churchcore_inArray(a.id, current[name])) {
       rows.push('<span class="label label-default" title="id:'+a.id+'">');
       rows.push(a.bezeichnung+"&nbsp;");
@@ -56,7 +56,7 @@ function form_renderLabelList(current, name, data) {
         source: function( request, response ) {
           var str=request.term;
           var r=new Array();
-          $.each(data, function(k,a) {
+          each(data, function(k,a) {
             if ((!churchcore_inArray(a.id, current[name]))
                    && (a.bezeichnung.toUpperCase().indexOf(request.term.toUpperCase())>=0))
               r.push({label:a.bezeichnung, value:a.id});
@@ -79,7 +79,7 @@ function form_renderLabelList(current, name, data) {
   });
   tag.find("a."+name+'-del').click(function() {
     var tagId=$(this).attr("data-id");
-    $.each(current[name], function(k,a) {
+    each(current[name], function(k,a) {
       if (a==tagId) {
         current[name].splice(k,1);
         return false;
@@ -163,7 +163,7 @@ function form_renderImage(options) {
   if (options.cssid==null) options.cssid="";
   var data="";
   if (options.data!=null) {
-    $.each(options.data, function(k,a) {
+    each(options.data, function(k,a) {
       data=data+"data-"+a.name+"="+a.value+" ";
     });
   }
@@ -253,7 +253,7 @@ function form_renderSelectable(elem, options) {
   rows.push('<div style="'+height+'"><ul class="ui-menu ui-widget ui-widget-content ui-corner-all" style="'+height+' width:99%; overflow-y:auto; -webkit-overflow-scrolling: touch" id="'+options.cssid+'">');
 
   if (options.data!=null) {
-    $.each(options.data, function(k,a) {
+    each(options.data, function(k,a) {
       var htmlclass="ui-corner-all";
       if (a.htmlclass!=null)
         htmlclass=htmlclass+" "+a.htmlclass;
@@ -331,7 +331,7 @@ function form_renderCheckbox(options) {
 
   data="";
   if (options.data!=null) {
-    $.each(options.data, function(k,a) {
+    each(options.data, function(k,a) {
       data=data+"data-"+a.name+"="+a.value+" ";
     });
   }
@@ -555,7 +555,7 @@ function form_renderSelect (options) {
   var multiple=(options.multiple!=null && options.multiple?" multiple":"");
   var fields="";
   if (options.fields!=null) {
-    $.each(options.fields, function(k,a) {
+    each(options.fields, function(k,a) {
       fields=fields+" "+k+'="'+a+'"';
     });
   }
@@ -592,7 +592,7 @@ function form_renderSelect (options) {
      rows.push('<option value=""/>');
 
     if (options.data!=null) {
-      $.each((options.sort==null || options.sort?churchcore_sortMasterData(options.data):options.data), function (k,a) {
+      each((options.sort==null || options.sort?churchcore_sortMasterData(options.data):options.data), function (k,a) {
         if ((typeof options.func !="function") || (options.func(a))) {
           if ((options.selected!=null) && (a.id==options.selected))
             rows.push("<option selected value=\""+a.id+"\">"+a.bezeichnung+"</option>");
@@ -841,7 +841,7 @@ function _renderDateForms(options) {
     rows.push('<div class="control-group"><label class="control-label">Ausnahmen</label>');
     rows.push('<div class="controls">');
     if (exceptions!=null) {
-      $.each(churchcore_sortData(exceptions, "exception_start_date"), function(k,a) {
+      each(churchcore_sortData(exceptions, "exception_start_date"), function(k,a) {
         rows.push('<span class="label label-default" title="id:'+a.id+'">');
         if (a.except_date_end!=a.except_date_start) {
           rows.push(a.except_date_start.toDateEn().toStringDe()+"-"+a.except_date_end.toDateEn().toStringDe()+"&nbsp;");
@@ -871,7 +871,7 @@ function _renderDateForms(options) {
         rows.push('<div class="control-group"><label class="control-label">Weitere Termine</label>');
         rows.push('<div class="controls">');
         if (additions!=null) {
-          $.each(churchcore_sortData(additions, "add_date"), function(k,a) {
+          each(churchcore_sortData(additions, "add_date"), function(k,a) {
             rows.push('<span class="label label-default" title="id:'+a.id+'">');
             rows.push(a.add_date.toDateEn().toStringDe()+"&nbsp;");
 
@@ -982,7 +982,7 @@ function form_renderDates(options) {
       }, function(chose) {
         var select=false;
         if (!chose.sameDay(options.data.startdate)) {
-          $.each(churchcore_getAllDatesWithRepeats(options.data), function(a,ds) {
+          each(churchcore_getAllDatesWithRepeats(options.data), function(a,ds) {
             if ((ds.startdate.toStringEn(false).toDateEn(false).getTime()==chose.getTime()))
               select=true;
           });
@@ -1020,7 +1020,7 @@ function form_renderDates(options) {
         }
       }, function(chose) {
         var select=chose>options.data.startdate;
-        $.each(churchcore_getAllDatesWithRepeats(options.data), function(a,ds) {
+        each(churchcore_getAllDatesWithRepeats(options.data), function(a,ds) {
           if ((ds.startdate.toStringEn(false).toDateEn(false).getTime()==chose.getTime()))
             select=false;
         });
@@ -1062,7 +1062,7 @@ function checkExceptionCollision(options) {
   var data=options.data;
   var collision=false;
   if (data.exceptions!=null) {
-    $.each(data.exceptions, function(k,e) {
+    each(data.exceptions, function(k,e) {
       if (churchcore_datesInConflict(data.startdate, data.enddate, e.except_date_start.toDateEn(true), e.except_date_end.toDateEn(true))) {
         collision=k;
         return false;
@@ -1155,7 +1155,7 @@ CC_MultiSelect.prototype.render2Div = function(divid, options) {
 
   var count=0;
   if (this.data!=null) {
-    $.each(this.data, function(k,a) {
+    each(this.data, function(k,a) {
       if ((a!=null) && (a.bezeichnung!='-')) count++;
     });
   }
@@ -1187,7 +1187,7 @@ CC_MultiSelect.prototype.render2Div = function(divid, options) {
       rows.push('<input type="checkbox" style="margin-bottom:5px;" /> <i>'+_("select.all")+'</i></label></a>');
     else
       rows.push('<input type="checkbox" style="margin-bottom:5px;" checked/> <i>'+_("deselect.all")+'</i></label></a>');
-    $.each(this.addFunctions, function(a,k) {
+    each(this.addFunctions, function(a,k) {
       rows.push('<li><a style="padding:0" href="#" id="addfunc_'+a+'" class="multicheck">');
       rows.push('<label style="margin:0;padding: 3px 20px 3px 20px;width:100%;height:100%;cursor:pointer;">');
       rows.push('<input type="checkbox" style="margin-bottom:5px;" '+k.checked+'/> <i>'+k.bezeichnung+'</i></label></a>');
@@ -1196,7 +1196,7 @@ CC_MultiSelect.prototype.render2Div = function(divid, options) {
     rows.push('<li class="divider">');
   }
   if (this.data!=null) {
-    $.each(churchcore_sortMasterData(this.data), function(k,a) {
+    each(churchcore_sortMasterData(this.data), function(k,a) {
       if (a.bezeichnung!='-') {
         rows.push('<li style="float:left;width:240px"> ');//+(this_object.isSelected(a.id)?'class="active"':'')+'>');
         rows.push('<a style="padding:0" href="#" id="'+a.id+'" class="multicheck">');
@@ -1229,18 +1229,18 @@ CC_MultiSelect.prototype.render2Div = function(divid, options) {
         this_object.selected=new Array();
         this_object.allSelected=true;
       }
-      $.each(this_object.addFunctions, function(k,a) {
+      each(this_object.addFunctions, function(k,a) {
         a.checked="";
       });
       if (typeof this_object.func == "function")
         this_object.func(id, this_object.isSelected(id));
     }
     else if (id.indexOf("addfunc")==0) {
-      $.each(this_object.addFunctions, function(k,a) {
+      each(this_object.addFunctions, function(k,a) {
         if (id=="addfunc_"+k) {
           if (a.checked=="checked") a.checked=""; else a.checked="checked";
           this_object.allSelected=true;
-          $.each(this_object.data, function(i,b) {
+          each(this_object.data, function(i,b) {
             // Wenn sie nicht markiert sind, will ich sie markieren
             if (a.checked=="checked") {
               if ((a.func(b)) && (!churchcore_inArray(b.id, this_object.selected))) {
@@ -1252,7 +1252,7 @@ CC_MultiSelect.prototype.render2Div = function(divid, options) {
             else {
               // Wenn sie markiert sind, will ich sie de-markieren
               if (a.func(b)) {
-                $.each(this_object.selected, function(i,c) {
+                each(this_object.selected, function(i,c) {
                   if (c==b.id) {
                     this_object.selected.splice(i, 1);
                     return false;
@@ -1272,7 +1272,7 @@ CC_MultiSelect.prototype.render2Div = function(divid, options) {
         this_object.allSelected=false;
       else
         this_object.allSelected=true;
-      $.each(this_object.addFunctions, function(k,a) {
+      each(this_object.addFunctions, function(k,a) {
         a.checked="";
       });
       if (typeof this_object.func == "function")
@@ -1291,7 +1291,7 @@ CC_MultiSelect.prototype.getSelected = function () {
 CC_MultiSelect.prototype.toggleSelected = function (id) {
   if (this.isSelected(id)) {
     var newSelected=new Array();
-    $.each(this.selected, function(k,a) {
+    each(this.selected, function(k,a) {
       if (a!=id) newSelected.push(a);
     });
     this.selected=newSelected;
@@ -1302,7 +1302,7 @@ CC_MultiSelect.prototype.toggleSelected = function (id) {
 CC_MultiSelect.prototype.selectAll = function() {
   var t=this;
   t.selected=new Array();
-  $.each(t.data, function(k,a) {
+  each(t.data, function(k,a) {
     if ((a!=null) && (a.bezeichnung!='-') && (a.notSelectable==null || !a.notSelectable))
       t.selected.push(a.id);
   });
@@ -1318,7 +1318,7 @@ CC_MultiSelect.prototype.setSelectedAsArrayString = function(arrayString) {
   if ((arrayString!=null) && (arrayString!="")) {
     var a = arrayString.substr(1,arrayString.length-2);
     var selected = new Array();
-    $.each(a.split(","), function(k,a) {
+    each(a.split(","), function(k,a) {
       if ((t.data!=null) && (t.data[a]!=null))
         selected.push(a);
     });
@@ -1375,7 +1375,7 @@ CC_Menu.prototype.renderDiv = function(divId, asButton) {
   if ((asButton==null) || (asButton==false)) {
     rows.push('<div class="well sidebar-nav"><ul class="nav nav-list">');
     rows.push('<li class="nav-header">'+this.label);
-    jQuery.each(this.entries, function(k,a) {
+    each(this.entries, function(k,a) {
       rows.push('<li><a href="#" id="'+a.id+'"><i class="icon-'+a.icon+'"></i> '+a.caption+'</a>');
     });
   }
@@ -1383,7 +1383,7 @@ CC_Menu.prototype.renderDiv = function(divId, asButton) {
     rows.push('<div class="btn-group">');
     rows.push('<button class="btn dropdown-toggle" data-toggle="dropdown">'+_("menu")+' <span class="caret"></span></button>');
     rows.push('<ul class="dropdown-menu">');
-    jQuery.each(this.entries, function(k,a) {
+    each(this.entries, function(k,a) {
       rows.push('<li><a href="#" id="'+a.id+'"><i class="icon-'+a.icon+'"></i> '+a.caption+'</a>');
     });
 
@@ -1501,7 +1501,7 @@ CC_Form.prototype.getAllValsAsObject = function(withEmpty) {
   var t = this;
   if (withEmpty==null) withEmpty=true;
   var o = new Object();
-  $.each(this.fields, function(k,field) {
+  each(this.fields, function(k,field) {
     if ((withEmpty) || (field.required) || (t.getVal(field.cssid)!="")) {
       if (field.fieldtype=="input")
         o[field.cssid]=t.getVal(field.cssid).trim();
@@ -1721,8 +1721,8 @@ CC_Navi.prototype.render = function(asButton) {
 
   if (!asButton) {
     rows.push('<ul class="nav nav-tabs '+(churchcore_handyformat()?"nav-stacked":"")+'">');
-      jQuery.each(this.entries, function(k,a) {
-        rows.push('<li class="'+(this.active?"active":"")+'"><a href="#" id="'+this.id+'">'+this.label+'</a></li>');
+      each(this.entries, function(k,a) {
+        rows.push('<li class="'+(a.active?"active":"")+'"><a href="#" id="'+a.id+'">'+a.label+'</a></li>');
       });
       if (this.search!=null) rows.push('<li class="pull-right">'+this.search);
     rows.push('</ul>');
@@ -1730,14 +1730,14 @@ CC_Navi.prototype.render = function(asButton) {
   else {
     if (this.entries.length>1) {
       var activename=this.name;
-      jQuery.each(this.entries, function(k,a) {
+      each(this.entries, function(k,a) {
         if (this.active) activename=this.label;
       });
       rows.push('<span class="btn-group">');
       rows.push('<button class="btn dropdown-toggle" data-toggle="dropdown">'+activename+' <span class="caret"></span></button>');
       rows.push('<ul class="dropdown-menu">');
-      jQuery.each(this.entries, function(k,a) {
-        rows.push('<li class="'+(this.active?"active":"")+'"><a href="#" id="'+this.id+'">'+this.label+'</a></li>');
+      each(this.entries, function(k,a) {
+        rows.push('<li class="'+(a.active?"active":"")+'"><a href="#" id="'+a.id+'">'+a.label+'</a></li>');
       });
       rows.push("</ul></span>");
     }

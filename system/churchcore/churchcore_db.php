@@ -1369,7 +1369,7 @@ function churchcore_getFieldChanges($fields, $oldArr, $newArr, $cutDates = true)
       //TODO: != null probably can be omitted
       if ($oldVal != null && $value != $oldVal) $txt .= $fields[$name]["text"] .
            ": $value  (" . t('previously') . ": $oldVal)\n";
-      else if ($oldVal == null && $value != null) $txt .= $fields[$name]["text"] . ": $value  (Neu)\n";
+      else if ($oldVal == null && $value != null) $txt .= $fields[$name]["text"] . ": $value (" . t('new') . ")\n";
     }
     // For infos which are not in the field-set
     else {
@@ -1666,6 +1666,10 @@ function getAllDatesWithRepeats($r, $_from = -1, $_to = 1) {
          (isset($r->repeat_frequence)) && ($r->repeat_frequence > 0));
   }
   return $dates;
+}
+
+function cleanICal($txt) {
+  return str_replace("\n", "\\n", $txt);
 }
 
 function surroundWithVCALENDER($txt) {
@@ -2086,6 +2090,28 @@ function db_connect() {
   
   return true;
 }
+
+/**
+ * Allow only numbers and commata
+ * 
+ * TODO: rename to reflect function, f.e. cleanIDsForDB. With the UNALLOWED CHARS:[$ids] $ids is still not "clean".
+ * throw a sort of exception instead?
+ * 
+ * @param int|array $ids
+ * @return mixed
+ */
+function db_cleanParam($ids) {
+  return preg_replace("/[^0-9\,-]/iu" , "UNALLOWED CHARS:[$ids]" , $ids);
+}
+
+/**
+ * Implode $arr to comma separated WHERE condition and clean string
+ * @param unknown $arr
+ */
+function db_implode($arr) {
+  return db_cleanParam( implode(",", $arr) );
+}
+
 
 /**
  * ChurchTools primary db access.

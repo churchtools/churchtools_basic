@@ -142,7 +142,7 @@ function churchcal_blocks() {
  */
 function churchcal_getAuth() {
   $cc_auth = array ();
-  $cc_auth = addAuth($cc_auth, 401, 'view', 'churchcal', null, t('view.churchcal'), 1);
+  $cc_auth = addAuth($cc_auth, 401, 'view', 'churchcal', null,  t('view.x', getConf("churchcal_name")), 1);
   $cc_auth = addAuth($cc_auth, 403, 'view category', 'churchcal', 'cc_calcategory', t('view.single.calendar'), 0);
   $cc_auth = addAuth($cc_auth, 404, 'edit category', 'churchcal', 'cc_calcategory', t('edit.single.calendar'), 0);
   // $cc_auth=addAuth($cc_auth, 407,'create personal category', 'churchcal', null, 'Pers&ouml;nlichen Kalender erstellen', 1);
@@ -178,7 +178,7 @@ function churchcal_getAbsents($params) {
     // who has rights for this calendar?
     $res = db_query("SELECT *
                      FROM  {cc_domain_auth} d
-                     WHERE d.auth_id=403 AND d.daten_id IN (" . implode(",", $cal_ids) . ")");
+                     WHERE d.auth_id=403 AND d.daten_id IN (" . db_implode($cal_ids) . ")");
     
     if ($res) foreach ($res as $auth) {
       if ($auth->domain_type == "person") $persons[$auth->domain_id] = $auth->domain_id;
@@ -197,7 +197,7 @@ function churchcal_getAbsents($params) {
     // get absences
     $res = db_query("SELECT p.id AS p_id, a.startdate, a.enddate, p.vorname, p.name, absent_reason_id AS reason_id
                      FROM {cs_absent} a, {cdb_person} p
-                     WHERE p.id IN (" . implode(',', $persons) . ") AND a.person_id=p.id");
+                     WHERE p.id IN (" . db_implode($persons) . ") AND a.person_id=p.id");
     foreach ($res as $a) $arrs[] = $a;
   }
   return $arrs;
@@ -222,7 +222,7 @@ function churchcal_getBirthdays($params) {
     
     $res = db_query("SELECT p.id, gp.geburtsdatum AS birthday, CONCAT(p.vorname, ' ', p.name) AS name
                      FROM {cdb_person} p, {cdb_gemeindeperson_gruppe} gpg, {cdb_gemeindeperson} gp
-                     WHERE gpg.gruppe_id IN (" . implode(',', $gpids) . ") AND gpg.gemeindeperson_id=gp.id AND
+                     WHERE gpg.gruppe_id IN (" . db_implode($gpids) . ") AND gpg.gemeindeperson_id=gp.id AND
                        gp.person_id=p.id AND p.archiv_yn=0 AND gp.geburtsdatum IS NOT NULL");
     $arrs = array ();
     foreach ($res as $a) $arrs[$a->id] = $a;
@@ -437,7 +437,7 @@ function churchcal_getResource($params) {
     SELECT r.id resource_id, r.bezeichnung ort, s.bezeichnung status, b.status_id, b.id, b.startdate, b.enddate,
        b.repeat_id, b.repeat_frequence, b.repeat_until, b.repeat_option_id, b.text bezeichnung
     FROM {cr_resource} r, {cr_booking} b, {cr_status} s
-    WHERE b.status_id!=99 AND s.id=b.status_id AND b.resource_id=r.id AND r.id IN (" . implode(",", $resource_ids) . ")");
+    WHERE b.status_id!=99 AND s.id=b.status_id AND b.resource_id=r.id AND r.id IN (" . db_implode($resource_ids) . ")");
   
   $excs = churchcore_getTableData("cr_exception", "except_date_start");
   $adds = churchcore_getTableData("cr_addition", "add_date");
@@ -791,11 +791,8 @@ function churchcal__ical() {
         $subid++;
         $txt .= "UID:{$res->id}_$subid" . NL;
         $txt .= "DTSTAMP:" . churchcore_stringToDateICal($res->modified_date) . NL;
-        // $ts = $diff + $d->format("U");
-        // $enddate=new DateTime("@$ts");
         $enddate = clone $d;
         $enddate->modify("+$diff seconds");
-  //       $enddate->modify($diff);
         
         // all day event
         if (($res->startdate->format('His') == "000000") && ($res->enddate->format('His') == "000000")) {
@@ -807,8 +804,7 @@ function churchcal__ical() {
           $txt .= "DTEND:" . $enddate->format('Ymd\THis') . NL;
         }
         
-        $txt .= 'DESCRIPTION:Kalender:' . $catNames[$res->category_id]->bezeichnung . ' - Cal[' . $res->id . '] - ' .
-             $res->notizen . NL;
+        $txt .= 'DESCRIPTION:Kalender:' . $catNames[$res->category_id]->bezeichnung.' - ' . cleanICal($res->notizen) . NL;
         $txt .= "END:VEVENT" . NL;
       }
     }

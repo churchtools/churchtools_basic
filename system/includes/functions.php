@@ -96,18 +96,43 @@ function rrmDir($dir) {
  *
  * @return string
  */
+// TODO: please explain where/whats the problem with the urls
+// function getBaseUrl() {
+//   // get path part from requested url and remove index.php
+//   $baseUrl = str_replace('index.php', '', parse_url($_SERVER['HTTP_HOST']. $_SERVER['REQUEST_URI'], PHP_URL_PATH));
+//   // add http(s):// and assure a single trailing /
+//   $baseUrl = (!empty($_SERVER['HTTPS']) ? "https://" : "http://"). trim($baseUrl, '/') . '/';
+//   // echo " ::: URL: $baseUrl ::: ";
+//
+//   return $baseUrl;
+// }
+
+/**
+ * Get the base url in form of http(s)://subdomain.churchtools.de/ or http(s)://server.de/churchtools/
+ *
+ * @return string
+ */
 function getBaseUrl() {
-  // get path part from requested url and remove index.php
-  $baseUrl = str_replace('index.php', '', parse_url($_SERVER['HTTP_HOST']. $_SERVER['REQUEST_URI'], PHP_URL_PATH));
-  // add http(s):// and assure a single trailing /
-  $baseUrl = (!empty($_SERVER['HTTPS']) ? "https://" : "http://"). trim($baseUrl, '/') . '/';
-  // echo " ::: URL: $baseUrl ::: ";
+  $baseUrl = $_SERVER['HTTP_HOST'];
+  $b = $_SERVER['REQUEST_URI'];
+  if (strpos($b, "/index.php") !== false)
+    $b = substr($b, 0, strpos($b, "/index.php"));
+  if (strpos($b, "?") !== false)
+    $b = substr($b, 0, strpos($b, "?"));
+  $baseUrl = $baseUrl . $b;
+  if ($baseUrl[strlen($baseUrl) - 1] != "/")
+    $baseUrl .= "/";
+  if ((isset($_SERVER['HTTPS'])) && ($_SERVER['HTTPS'] != false))
+    $baseUrl = "https://" . $baseUrl;
+  else $baseUrl = "http://" . $baseUrl;
+  
   return $baseUrl;
 }
 
 /**
  * Get html or txt template. If no data is specified, return content (to eval later).
  * Otherwise replace variables with data and return eval'ed content
+ *
  * Always available variables are:
  *  $user from globals and $name, $surename, $nickname of $user
  *  $sitename

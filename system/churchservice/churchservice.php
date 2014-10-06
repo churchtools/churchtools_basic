@@ -42,7 +42,7 @@ function churchservice__filedownload() {
 
 function churchservice_getAuth() {
   $cc_auth = array();
-  $cc_auth = addAuth($cc_auth, 301, 'view', 'churchservice', null, t('view.churchservice'), 1);
+  $cc_auth = addAuth($cc_auth, 301, 'view', 'churchservice', null, t('view.x',getConf("churchservice_name")), 1);
   $cc_auth = addAuth($cc_auth, 304, 'view servicegroup', 'churchservice', 'cs_servicegroup', t('view.servicegroup.churchservice.cs_servicegroup'), 1);
   $cc_auth = addAuth($cc_auth, 305, 'edit servicegroup', 'churchservice', 'cs_servicegroup', t('edit.servicegroup.churchservice.cs_servicegroup'), 1);
   $cc_auth = addAuth($cc_auth, 302, 'view history', 'churchservice', null, t('view.history.churchservice'), 1);
@@ -467,7 +467,7 @@ function churchservice_getAbsents($year = null) {
                 a.bezeichnung, ar.bezeichnung reason
               FROM {cdb_person} p, {cs_absent} a, {cs_absent_reason} ar
               WHERE a.absent_reason_id=ar.id AND p.id=a.person_id
-              AND p.id in (" . implode(",", $allPersonIds) . ") ";
+              AND p.id in (" . db_implode($allPersonIds) . ") ";
       if ($year == null) $sql .= "AND DATEDIFF(a.enddate,NOW())>=-1 AND DATEDIFF(a.enddate,NOW())<=31";
       else $sql .= "AND (DATE_FORMAT(a.startdate, '%Y')=$year OR DATE_FORMAT(a.enddate, '%Y')=$year)";
       $sql .= "
@@ -749,7 +749,7 @@ function churchservice_inform_leader() {
   $res = db_query("SELECT p.id AS person_id, gpg.gruppe_id, p.email, p.vorname, p.cmsuserid
                    FROM {cdb_person} p, {cdb_gemeindeperson_gruppe} gpg, {cdb_gemeindeperson} gp
                    WHERE gpg.gemeindeperson_id = gp.id AND p.id = gp.person_id AND status_no >= 1 AND status_no <= 2
-                     AND gpg.gruppe_id IN (" . implode(",", $arr) . ")");
+                     AND gpg.gruppe_id IN (" . db_implode($arr) . ")");
   // Aggregiere nach Person_Id P1[G1,G2,G3],P2[G3]
   $persons = array ();
   foreach ($res as $p) {
@@ -799,7 +799,7 @@ function churchservice_inform_leader() {
     $res = db_query("SELECT es.id, c.bezeichnung AS event,
                        DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') AS datum, es.name, s.bezeichnung AS service
                      FROM {cs_event} e, {cs_eventservice} es, {cs_service} s, {cc_cal} c
-                     WHERE e.valid_yn = 1 AND c.id = e.cc_cal_id AND es.service_id in (" . implode(",", $person["service"]) . ")
+                     WHERE e.valid_yn=1 AND c.id=e.cc_cal_id AND es.service_id in (" . db_implode($person["service"]) . ")
                        AND es.event_id = e.id AND es.service_id = s.id AND es.valid_yn = 1 AND zugesagt_yn = 0
                        AND e.startdate > current_date AND DATEDIFF(e.startdate,CURRENT_DATE) <= ". DAYS_TO_INFORM_LEADER_ABOUT_OPEN_SERVICES. "
                      ORDER BY e.startdate");

@@ -62,7 +62,7 @@ TestView.prototype.renderMenu = function() {
       else if ($(this).attr("id")=="atest1") {
         var d=t.getData();
         t.startTimer();
-        $.each(d, function(k,a) {
+        each(d, function(k,a) {
           var elem=$('tr[id='+a.id+']');
           if (elem.count>0)
             elem.children("td.feld1").html(a.feld1+"a");

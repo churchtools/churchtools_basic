@@ -15,7 +15,7 @@ function cdb_loadPersonArchiveData(func) {
   churchInterface.setStatus(_("load.data"));
   churchInterface.jsendRead({func:"getAllPersonArchiveData"}, function(ok, json) {
     if (json!=null) {
-      jQuery.each(json, function(k,a) {
+      each(json, function(k,a) {
         allPersons[a.p_id]=cdb_mapJsonPerson1(a, allPersons[a.p_id]);
       });
     }  

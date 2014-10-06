@@ -8,7 +8,7 @@
 
 // Alle Stammdaten werden hier gespeichert
 var masterData = null;
-// MOmentan fŸr Abwesenheit benutzt 
+// MOmentan fï¿½r Abwesenheit benutzt 
 var allPersons = new Object();
 var groups = null;
 var allFacts=null;
@@ -54,7 +54,7 @@ jQuery(document).ready(function() {
           var now = new Date(); now.addDays(-1);
           var first = new Date(); first.addDays(1000);
           var doit = false;        
-          $.each(allEvents, function(k,a) {
+          each(allEvents, function(k,a) {
             var d = a.startdate.toDateEn(false);
             if ((d>=now) && (d<first)) {
               first = d;
@@ -67,7 +67,7 @@ jQuery(document).ready(function() {
       
       cs_loadPersonDataFromCdb(function() {
         // Genug Daten um nun die Anwendung zu zeigen. 
-        // new: 27.1.13: RenderList reicht, denn Filter Šndert sich nix. 
+        // new: 27.1.13: RenderList reicht, denn Filter ï¿½ndert sich nix. 
         churchInterface.getCurrentView().renderList();
         churchInterface.sendMessageToAllViews("allDataLoaded");
         

@@ -37,7 +37,7 @@ MapView.prototype.renderList = function() {
     map=cdb_prepareMap("map_canvas",latlng);
     
     max=500;
-    $.each(allPersons, function(k, a){
+    each(allPersons, function(k, a){
       if ((max>0) && (t.checkFilter(a))) {
         if (a.geolat!="") {
           max=max-1;

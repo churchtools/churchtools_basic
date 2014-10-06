@@ -30,8 +30,7 @@ function churchcal_handleMeetingRequest($cal_id, $params) {
     $db = db_query('SELECT mr.*, c.modified_pid
                   FROM {cc_meetingrequest} mr, {cc_cal} c
                   WHERE c.id=mr.cal_id and mr.person_id=:person_id and mr.cal_id=:cal_id',
-                  array(":person_id" => $param["person_id"],
-                        ":cal_id" => $param["cal_id"]))
+                  array(":person_id" => $param["person_id"], ":cal_id" => $param["cal_id"]))
                   ->fetch();
     
     if (!$db) {
@@ -149,12 +148,18 @@ function churchcal_createEvent($params, $source = null) {
     ->execute(false);
   
   if (isset($params["exceptions"])) foreach ($params["exceptions"] as $exception) {
-    $res = churchcal_addException(array("cal_id" => $newId, "except_date_start" => $exception["except_date_start"],
-            "except_date_end" => $exception["except_date_end"]));
+    $res = churchcal_addException(array(
+            "cal_id" => $newId,
+            "except_date_start" => $exception["except_date_start"],
+            "except_date_end" => $exception["except_date_end"],
+    ));
   }
   if (isset($params["additions"])) foreach ($params["additions"] as $addition) {
-    $res = churchcal_addAddition(array("cal_id" => $newId, "add_date" => $addition["add_date"],
-            "with_repeat_yn" => $addition["with_repeat_yn"]));
+    $res = churchcal_addAddition(array(
+            "cal_id" => $newId,
+            "add_date" => $addition["add_date"],
+            "with_repeat_yn" => $addition["with_repeat_yn"],
+    ));
   }
   // meeting request
   if (isset($params["meetingRequest"])) churchcal_handleMeetingRequest($newId, $params);
@@ -179,7 +184,6 @@ function churchcal_createEvent($params, $source = null) {
 }
 
 /**
- *
  * @param int $categoryId
  * @return boolean
  */
@@ -265,7 +269,8 @@ function churchcal_updateEvent($params, $source = null) {
       else {
         $add_exc = array("cal_id" => $params["id"],
                          "except_date_start" => $exception["except_date_start"],
-                         "except_date_end" => $exception["except_date_end"]);
+                         "except_date_end" => $exception["except_date_end"],
+        );
         churchcal_addException($add_exc);
         $changes["add_exception"][] = $add_exc;
       }
@@ -275,10 +280,11 @@ function churchcal_updateEvent($params, $source = null) {
       foreach ($exc as $e) if (!isset($e->vorhanden)) {
         $del_exc = array("id" => $e->id,
                          "except_date_start" => $e->except_date_start,
-                         "except_date_end" => $e->except_date_end);
-          churchcal_delException($del_exc);
-          $changes["del_exception"][] = $del_exc;
-        }
+                         "except_date_end" => $e->except_date_end,
+        );
+        churchcal_delException($del_exc);
+        $changes["del_exception"][] = $del_exc;
+      }
     }
     
     // get all additions
@@ -289,7 +295,8 @@ function churchcal_updateEvent($params, $source = null) {
       else {
         $add_add = array("cal_id" => $params["id"],
                          "add_date" => $addition["add_date"],
-                         "with_repeat_yn" => $addition["with_repeat_yn"]);
+                         "with_repeat_yn" => $addition["with_repeat_yn"],
+        );
         churchcal_addAddition($add_add);
         $changes["add_addition"][] = $add_add;
       }
@@ -343,16 +350,16 @@ function churchcal_getAuthForAjax() {
     
     // if user has edit right he also get view right
     if (isset($ret["edit category"])) {
-      foreach ($ret["edit category"] as $key => $edit) $ret["view category"][$key] = $edit;
+      foreach ($ret["edit category"] as $key => $edit)      $ret["view category"][$key] = $edit;
     }
   }
-  if (user_access("view", "churchservice")) $ret["view churchservice"] = true;
+  if (user_access("view", "churchservice"))                 $ret["view churchservice"] = true;
   if (user_access("view", "churchdb")) {
     $ret["view churchdb"] = true;
-    if (user_access("view alldata", "churchdb")) $ret["view alldata"] = true;
+    if (user_access("view alldata", "churchdb"))            $ret["view alldata"] = true;
   }
-  if (user_access("view", "churchresource")) $ret["view churchresource"] = true;
-  if (user_access("create bookings", "churchresource")) $ret["create bookings"] = true;
+  if (user_access("view", "churchresource"))                $ret["view churchresource"] = true;
+  if (user_access("create bookings", "churchresource"))     $ret["create bookings"] = true;
   if (user_access("administer bookings", "churchresource")) $ret["administer bookings"] = true;
   
   return $ret;
@@ -405,17 +412,22 @@ function churchcal_getAllowedCategories($withPrivat = true, $onlyIds = false) {
     
     return churchcal_getAllowedCategories($withPrivat, $onlyIds);
   }
-  else
-    return $res;
+  else return $res;
 }
 
 /**
  *
  * @param unknown $params
- * @param string $withintern
+ * @param string $withIntern
  * @return multitype:|Ambigous <multitype:multitype: , NULL, object, boolean, db_accessor>
  */
-function churchcal_getCalPerCategory($params, $withintern = true) {
+function churchcal_getCalPerCategory($params, $withIntern = null) {
+  global $user;
+  
+  if ($withIntern == null) {
+    $withIntern = ($user == null || $user->id == -1) ? false : true;
+  }
+  
   $data = array();
   
   $res = db_query("
@@ -426,8 +438,7 @@ function churchcal_getCalPerCategory($params, $withintern = true) {
       LEFT JOIN {cs_event} e ON (cal.id=e.cc_cal_id)
       LEFT JOIN {cr_booking} b ON (cal.id=b.cc_cal_id)
       LEFT JOIN {cdb_person} p ON (cal.modified_pid=p.id)
-      WHERE cal.category_id IN (" .
-       implode(",", $params["category_ids"]) . ") " . (!$withintern ? " and intern_yn=0" : "") . "
+      WHERE cal.category_id IN (". db_implode($params["category_ids"]).") ".(!$withIntern ? " and intern_yn=0" : "")."
       ORDER by category_id");
   
   $data = null;

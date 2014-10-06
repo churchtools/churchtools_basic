@@ -27,13 +27,13 @@ CDBStandardTableView.prototype.checkFilterTag = function(searchEntry, tags) {
   if (searchEntry.indexOf("TAG:")==0) {
     var tag=searchEntry.substr(4,99);
     var dabei=false;
-    $.each(tag.split(","), function(i,b) {
+    each(tag.split(","), function(i,b) {
       if (b>0) {
         if (_hasTag(b, tags)) dabei=true;
       }
       else {
         var in_tag=-1;
-        $.each(masterData.tags, function(j,c) {
+        each(masterData.tags, function(j,c) {
           if (c.bezeichnung.toUpperCase()==b)
             in_tag=c.id;
         });
@@ -50,7 +50,7 @@ CDBStandardTableView.prototype.addTagCallbacks = function(id, func) {
   if (masterData.tags!=null) {
     var availableTags = new Array;
     
-    $.each(churchcore_sortData(masterData.tags,"bezeichnung"), function(k,b) {
+    each(churchcore_sortData(masterData.tags,"bezeichnung"), function(k,b) {
       availableTags.push(b.bezeichnung);
     });
     
@@ -69,7 +69,7 @@ CDBStandardTableView.prototype.addTagCallbacks = function(id, func) {
       $("#add_tag_field"+id).toggle();
       var tag_id=null;
       if (masterData.tags!=null)
-        $.each(masterData.tags, function(k,b) {
+        each(masterData.tags, function(k,b) {
           if (b.bezeichnung.toUpperCase()==val.toUpperCase()) {
             tag_id=b.id;
             return;
@@ -114,10 +114,10 @@ CDBStandardTableView.prototype.renderTags = function(tags, authEdit, id) {
   rows.push('<div class="tag-list">');
   if (tags!=null) {
     var tag_array=new Array();
-    $.each(tags, function(k,a) {      
+    each(tags, function(k,a) {      
       tag_array.push({id:k, bezeichnung:masterData.tags[a].bezeichnung.toUpperCase()});
     }); 
-    $.each(churchcore_sortArray(tag_array, "bezeichnung"), function(k,a) {
+    each(churchcore_sortArray(tag_array, "bezeichnung"), function(k,a) {
       rows.push(this_object.renderTag(tags[a.id], authEdit)+"&nbsp; ");
     });
   }

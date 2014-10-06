@@ -29,7 +29,7 @@ personView = new PersonView();
 function f(selector) {
   if (masterData.fields==null) return null;
   var res="!!"+selector+"!!";
-  $.each(masterData.fields, function(i,c) {
+  each(masterData.fields, function(i,c) {
     if (c.fields!=null && c.fields[selector]!=null) {
       res=c.fields[selector].text;
       return false;
@@ -184,7 +184,7 @@ PersonView.prototype.renderListMenu = function() {
     _renderMenu: function(ul, items ) {
       var that = this,
         currentCategory = "";
-      $.each(items, function( index, item ) {
+      each(items, function( index, item ) {
         if (item.category != currentCategory ) {
           ul.append( "<li class='ui-autocompldete-category'><small><b> " + item.category + "<b></small></li>" );
           currentCategory = item.category;
@@ -203,20 +203,20 @@ PersonView.prototype.renderListMenu = function() {
       var str=request.term.toUpperCase();
       if (str.length>1) {
         var r=new Array();
-        $.each(allPersons, function(k,a) {
+        each(allPersons, function(k,a) {
           var n=a.vorname+" "+a.name;
           if (n.toUpperCase().indexOf(str)>=0)
             r.push({label:a.vorname+" "+a.name, category:"", value:"#"+a.id});
         });
         if (masterData.groups!=null) {
-          $.each(masterData.groups, function(k,a) {
+          each(masterData.groups, function(k,a) {
             if (groupView.isAllowedToSeeDetails(a.id))
               if ((str=="GRUPPE:") || (a.bezeichnung.toUpperCase().indexOf(str)>=0) || (("GRUPPE:"+a.bezeichnung.toUpperCase()).indexOf(str)>=0))
                 r.push({label:a.bezeichnung, category:_("group"), value:'gruppe:"'+a.bezeichnung+'"'});
           });
         }
         if (masterData.tags!=null) {
-          $.each(masterData.tags, function(k,a) {
+          each(masterData.tags, function(k,a) {
             if ((str=="TAG:") || (a.bezeichnung.toUpperCase().indexOf(str)>=0) || (("TAG:"+a.bezeichnung.toUpperCase()).indexOf(str)>=0))
               r.push({label:a.bezeichnung, category:"Tag", value:'tag:"'+a.bezeichnung+'"'});
           });
@@ -285,8 +285,8 @@ PersonView.prototype.renderAddEntry = function(prefill) {
   form_person.addStandardField(masterData.fields.f_address.fields["name"]);
   form_person.addHtml('<p><a href="#" class="furtherfields">'+_("add.more.fields")+'</a>');
   form_person.addHtml('<div id="furtherfields" style="display:none">');
-  $.each(masterData.fields, function(k,fields) {
-    $.each(fields.fields, function(i,field) {
+  each(masterData.fields, function(k,fields) {
+    each(fields.fields, function(i,field) {
       if (field.inneuerstellen_yn==1) {
         form_person.addStandardField(field);
       }
@@ -316,10 +316,10 @@ PersonView.prototype.renderAddEntry = function(prefill) {
     var diff_date=new Date();
     diff_date.addDays(-1*masterData.groupnotchoosable);
     if (masterData.auth.editgroups) {
-      $.each(masterData.groupTypes, function(k,a) {
+      each(masterData.groupTypes, function(k,a) {
         if (a.in_neue_person_erstellen_yn==1) {
           var data=new Array();
-          $.each(masterData.groups, function(i,b) {
+          each(masterData.groups, function(i,b) {
             if ((b.gruppentyp_id==a.id) && (b.valid_yn==1) && (b.versteckt_yn==0) && ((b.abschlussdatum==null) || (b.abschlussdatum.toDateEn()>diff_date)))
               data.push(form_prepareDataEntry(b.id, b.bezeichnung));
           });
@@ -330,8 +330,8 @@ PersonView.prototype.renderAddEntry = function(prefill) {
     else {
       // Get groups, only where I am a leader. No free option.
       var data=new Array();
-      $.each(masterData.groupTypes, function(k,a) {
-        $.each(masterData.groups, function(i,b) {
+      each(masterData.groupTypes, function(k,a) {
+        each(masterData.groups, function(i,b) {
           if ((b.gruppentyp_id==a.id) && (b.valid_yn==1) && (b.versteckt_yn==0) && ((b.abschlussdatum==null) || (b.abschlussdatum.toDateEn()>diff_date)))
             if (groupView.isPersonLeaderOfGroup(masterData.user_pid, b.id))
             data.push(form_prepareDataEntry(b.id, b.bezeichnung));
@@ -443,7 +443,7 @@ PersonView.prototype.renderAddEntry = function(prefill) {
 PersonView.prototype.isPersonLeaderOfPerson = function (leader_id, p_id) {
   if (allPersons[p_id].gruppe==null) return false;
   var res=false;
-  $.each(allPersons[p_id].gruppe, function(k,gruppe) {
+  each(allPersons[p_id].gruppe, function(k,gruppe) {
     if (groupView.isPersonLeaderOfGroup(leader_id, gruppe.id)) {
       res=true;
       // exit
@@ -455,7 +455,7 @@ PersonView.prototype.isPersonLeaderOfPerson = function (leader_id, p_id) {
 PersonView.prototype.isPersonSuperLeaderOfPerson = function (leader_id, p_id) {
   if (allPersons[p_id].gruppe==null) return false;
   var res=false;
-  $.each(allPersons[p_id].gruppe, function(k,gruppe) {
+  each(allPersons[p_id].gruppe, function(k,gruppe) {
     if (groupView.isPersonSuperLeaderOfGroup(leader_id, gruppe.id)) {
       res=true;
       // exit
@@ -468,7 +468,7 @@ PersonView.prototype.isPersonSuperLeaderOfPerson = function (leader_id, p_id) {
 PersonView.prototype.isPersonLeaderOfOneGroupTypeOfPerson = function (leader_id, grouptype_id, p_id) {
   if (allPersons[p_id].gruppe==null) return false;
   var res=false;
-  $.each(allPersons[p_id].gruppe, function(k,gruppe) {
+  each(allPersons[p_id].gruppe, function(k,gruppe) {
     if (groupView.isGroupOfGroupType(gruppe.id, grouptype_id)) {
       if (groupView.isPersonLeaderOfGroup(leader_id, gruppe.id)) {
         res=true;
@@ -652,7 +652,7 @@ PersonView.prototype.renderGroupmeetingTooltip = function(group_id, groupmeeting
 
 PersonView.prototype.getMeetingFromMeetingList = function (g_id, gruppentreffen_id) {
   var res=null;
-  $.each(masterData.groups[g_id].meetingList, function(k,a) {
+  each(masterData.groups[g_id].meetingList, function(k,a) {
     if (a.id==gruppentreffen_id) {
       res=a;
       return false;
@@ -810,7 +810,7 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
     else if ($(this).attr("id")=="delfromgroup") {
       usernames="";
       ids="-1";
-      $.each(allPersons, function(k,a){
+      each(allPersons, function(k,a){
         if ((t.checkFilter(a)) && (a.checked)) {
           usernames=usernames+a.vorname+" "+a.name+", ";
           ids=ids+","+a.id;
@@ -820,7 +820,7 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
         alert("Bitte entsprechenden Eintrag markieren");
       else
       if (confirm("Wirklich "+usernames+" aus '"+masterData.groups[t.filter["filterMeine Gruppen"]].bezeichnung+"' entfernen?")) {
-        $.each(allPersons, function(k,a){
+        each(allPersons, function(k,a){
           if ((t.checkFilter(a)) && (a.checked)) {
             t.delPersonFromGroup(a.id, t.filter["filterMeine Gruppen"], true);
             a.checked=false;
@@ -863,7 +863,7 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
       var m=t.getMeetingFromMeetingList(t.filter["filterMeine Gruppen"], $(this).attr("data-gruppentreffen-id"));
       var p_id=$(this).attr("data-person-id");
       var entry=null;
-      $.each(m.entries, function(k,a) {
+      each(m.entries, function(k,a) {
         if (a.p_id==p_id) {
           entry=k;
           return false;
@@ -925,7 +925,7 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
 PersonView.prototype.personFunction = function (value, param) {
   var t=this;
   var ids=new Array();
-  $.each(allPersons, function(k,a) {
+  each(allPersons, function(k,a) {
     if (a.checked) ids.push(a.id);
   });
   if (ids.length==0)
@@ -1057,7 +1057,7 @@ PersonView.prototype.personFunction = function (value, param) {
        }
        _progress(ids, 0);
        if (delChecked) {
-         $.each(allPersons, function(k,a) {allPersons[a.id].checked=null; });
+         each(allPersons, function(k,a) {allPersons[a.id].checked=null; });
        }
     });
     elem.find("#inputGruppentyp").change(function(c) {
@@ -1105,12 +1105,12 @@ PersonView.prototype.renderListEntry = function(a) {
     a.open=false;
     if ((masterData.groups[t.filter["filterMeine Gruppen"]].meetingList!=null)
          && (masterData.groups[t.filter["filterMeine Gruppen"]].meetingList!="get data")) {
-      $.each(masterData.groups[t.filter["filterMeine Gruppen"]].meetingList, function(k,m) {
+      each(masterData.groups[t.filter["filterMeine Gruppen"]].meetingList, function(k,m) {
         if (((m.datumvon.toDateEn(false).getFullYear()==t.gruppenteilnehmerdatum.getFullYear())
                && m.datumvon.toDateEn(false).getMonth()==t.gruppenteilnehmerdatum.getMonth())) {
           rows.push('<td><span class="clickyesno" data-person-id="'+a.id+'" data-gruppentreffen-id="'+m.id+'">');
           var dabei=false;
-          $.each(m.entries, function(i,b) {
+          each(m.entries, function(i,b) {
             if (b.p_id==a.id) {
               dabei=true;
               rows.push(t.renderYesNo(b.treffen_yn, 18));
@@ -1132,7 +1132,7 @@ PersonView.prototype.renderListEntry = function(a) {
   else if (masterData.settings.selectedGroupType==-3) {
     if (a.auth!=null) {
       var arr=new Array();
-      $.each(a.auth, function(k,b) {
+      each(a.auth, function(k,b) {
         arr.push(t.renderAuth(k));
       });
       if (arr.length>0)
@@ -1141,16 +1141,16 @@ PersonView.prototype.renderListEntry = function(a) {
 
     if (a.gruppe!=null) {
       var arr=new Object();
-      $.each(a.gruppe, function(k,b) {
+      each(a.gruppe, function(k,b) {
         if ((b.leiter>=0) && (masterData.groups[b.id].auth!=null))
-          $.each(masterData.groups[b.id].auth, function(i,c) {
+          each(masterData.groups[b.id].auth, function(i,c) {
             arr[i]=i;
           });
       });
       if (churchcore_countObjectElements(arr)>0) {
         rows.push('<b>Rechte durch Gruppen: </b>');
         var arr2=new Array();
-        $.each(arr, function(k,a) {
+        each(arr, function(k,a) {
           arr2.push(t.renderAuth(a));
         });
         rows.push(arr2.join(", "),'<br/>');
@@ -1158,7 +1158,7 @@ PersonView.prototype.renderListEntry = function(a) {
     }
     if (masterData.status[a.status_id].auth!=null) {
       var arr=new Array();
-      $.each(masterData.status[a.status_id].auth, function(k,b) {
+      each(masterData.status[a.status_id].auth, function(k,b) {
         arr.push(t.renderAuth(k));
       });
       if (arr.length>0)
@@ -1169,7 +1169,7 @@ PersonView.prototype.renderListEntry = function(a) {
   else {
     if (a.gruppe!=null) {
       var k=0;
-      $.each(a.gruppe, function(j,b) {
+      each(a.gruppe, function(j,b) {
         if ((masterData.groups[b.id]!=null) &&
                (groupView.isGroupOfGroupType(b.id, masterData.settings.selectedGroupType))
                && groupView.isAllowedToSeeName(b.id, a.id)) {
@@ -1245,12 +1245,12 @@ PersonView.prototype.renderListEntry = function(a) {
     var bereich="";
     if (a.access!=null) {
       bereich=bereich+'<font title="';
-      $.each(a.access, function (i, b) {
+      each(a.access, function (i, b) {
         if (masterData.dep[i]!=null)
           bereich=bereich+masterData.dep[i].bezeichnung+" ";
       });
       bereich=bereich+'">';
-      $.each(a.access, function (i, b) {
+      each(a.access, function (i, b) {
         if (masterData.dep[i]!=null)
           bereich=bereich+masterData.dep[i].kuerzel;
       });
@@ -1361,7 +1361,7 @@ PersonView.prototype.getListHeader = function() {
   if (masterData.settings.selectedGroupType==-4) {
     if ((masterData.groups!=null) && (masterData.groups[g_id]!=null) && (masterData.groups[g_id].meetingList!=null)
         && (masterData.groups[g_id].meetingList!="get data")) {
-      $.each(masterData.groups[g_id].meetingList, function(k,m) {
+      each(masterData.groups[g_id].meetingList, function(k,m) {
         if ((m.datumvon!=null) &&
             (m.datumvon.toDateEn(false).getFullYear()==t.gruppenteilnehmerdatum.getFullYear()) &&
              (m.datumvon.toDateEn(false).getMonth()==t.gruppenteilnehmerdatum.getMonth())) {
@@ -1379,7 +1379,7 @@ PersonView.prototype.getListHeader = function() {
           var count=0;
           var count_absent=0;
           if (m.entries!=null) {
-            $.each(m.entries, function(i,b) {
+            each(m.entries, function(i,b) {
               if (b.treffen_yn==1) count++;
               else count_absent++;
             });
@@ -1410,9 +1410,9 @@ PersonView.prototype.getListHeader = function() {
 
 PersonView.prototype.msg_allDataLoaded = function (refreshListNecessary) {
   var _overdue=0;
-  $.each(allPersons, function(k,a) {
+  each(allPersons, function(k,a) {
     if (a.gruppe!=null)
-      $.each(a.gruppe, function(i,b) {
+      each(a.gruppe, function(i,b) {
         if ((_isFollowUpGroup(b)) && (groupView.isPersonLeaderOfGroup(masterData.user_pid, b.id))) {
           var _d = _getPersonGroupFollowupDiffDays(b);
           if (_d<0) _overdue++;
@@ -1446,7 +1446,7 @@ PersonView.prototype.messageReceiver = function(message, args) {
     }
     else if (message=="pollForNews") {
       var refresh=false;
-      $.each(args,function(k,a) {
+      each(args,function(k,a) {
         if ((a.domain_type=="person") && (a.schreiben_yn==1) && (a.domain_id!=-1)) {
           if (masterData.auth.viewalldata)
             if (allPersons[a.domain_id]!=null)
@@ -1493,9 +1493,9 @@ PersonView.prototype.renderTodos = function() {
   var _gruppenloeschung=0;
   var rows = new Array();
 
-  $.each(allPersons, function(k,a) {
+  each(allPersons, function(k,a) {
     if ((a!=null) && (a.gruppe!=null))
-      $.each(a.gruppe, function(i,b) {
+      each(a.gruppe, function(i,b) {
         if ((_isFollowUpGroup(b)) && (groupView.isPersonLeaderOfGroup(masterData.user_pid, b.id))) {
           var _d = _getPersonGroupFollowupDiffDays(b);
           if (_d<0) _overdue++;
@@ -1609,7 +1609,7 @@ PersonView.prototype.renderFilter = function() {
   t.createMultiselect("Bereich", f("bereich_id"), masterData.auth.dep, true);
 
   // Setze die Werte auf die aktuellen Filter
-  $.each(this.filter, function(k,a) {
+  each(this.filter, function(k,a) {
     $("#"+k).val(a);
   });
 
@@ -1698,7 +1698,7 @@ function _checkGroupFilter(a, filter, z) {
     if ((filter["filterGruppe "+z]==null) && (filter["filterTyp "+z]!=null) && (filter["filterTyp "+z]!="")) {
       if (a.gruppe==null) return false;
       dabei=false;
-      $.each(a.gruppe, function (b,k) {
+      each(a.gruppe, function (b,k) {
         if (filter["filterTyp "+z]==masterData.groups[k.id].gruppentyp_id)
           dabei=_checkDate(z,k);
       });
@@ -1707,7 +1707,7 @@ function _checkGroupFilter(a, filter, z) {
     if (filter["filterGruppe "+z]!=null) {
       if (a.gruppe==null) return false;
       dabei=false;
-      $.each(a.gruppe, function (b,k) {
+      each(a.gruppe, function (b,k) {
         if ((filter["filterGruppe "+z]!=null) && (filter["filterGruppe "+z]!="")) {
           if (k.id==filter["filterGruppe "+z]) dabei=_checkDate(z,k);
         }
@@ -1718,7 +1718,7 @@ function _checkGroupFilter(a, filter, z) {
       if (a.gruppe==null) return false;
       else {
         dabei=false;
-        $.each(a.gruppe, function (b,k) {
+        each(a.gruppe, function (b,k) {
           if ((masterData.groups[k.id]!=null) && (masterData.groups[k.id].distrikt_id==filter["filterDistrikt "+z])
               && (((filter["filterTyp "+z]=="") || (filter["filterTyp "+z]==null) || (filter["filterTyp "+z]==masterData.groups[k.id].gruppentyp_id))))
               dabei=_checkDate(z,k);
@@ -1732,7 +1732,7 @@ function _checkGroupFilter(a, filter, z) {
         dabei=false;
         // Hier ist kein Zusammenhang zwischen den anderen, d.h. hier mu� ich auch noch suchen,
         // wer z.B. Leiter bei dem Distrikt ist
-        $.each(a.gruppe, function (b,k) {
+        each(a.gruppe, function (b,k) {
           if (filter["filterTyp "+z]=="" || filter["filterTyp "+z]==null || filter["filterTyp "+z]==masterData.groups[k.id].gruppentyp_id)
             if ((filter["filterGruppe "+z]==null) || (filter["filterGruppe "+z]==k.id))
               if ((filter["filterDistrikt "+z]==null) || (filter["filterDistrikt "+z]==masterData.groups[k.id].distrikt_id))
@@ -1748,7 +1748,7 @@ function _checkGroupFilter(a, filter, z) {
   else if ((filter["filterFilter "+z]!=null) && (filter["filterFilter "+z]==1)) {
     if (a.gruppe!=null) {
       dabei=false;
-      $.each(a.gruppe, function (b,k) {
+      each(a.gruppe, function (b,k) {
         // Erstmal mu� der Typ stimmen
         if (filter["filterTyp "+z]!="" && filter["filterGruppe "+z]==null) {
           if (masterData.groups[k.id].gruppentyp_id==filter["filterTyp "+z]) {
@@ -1796,7 +1796,7 @@ function _checkGroupFilter(a, filter, z) {
     // Erst alte Gruppen (Gruppenarchiv) durchsuchen
     if (a.oldGroups!=null) {
       arr2=new Object();
-      $.each(a.oldGroups, function(k,og) {
+      each(a.oldGroups, function(k,og) {
         if (og.id==a.id) {
           if (((filter["filterGruppe "+z]!=null) && (og.gp_id==filter["filterGruppe "+z]))
               || ((filter["filterDistrikt "+z]!=null) && (filter["filterGruppe "+z]==null)
@@ -1820,11 +1820,11 @@ function _checkGroupFilter(a, filter, z) {
       });
       // Wenn es Datumsfilterung gibt, dann m�ssen wir alle alten Eintr�ge sortieren und interpretieren
       if (filter["filterGruppeWarInBis "+z]!=null) {
-        $.each(arr2, function(k,og) {
+        each(arr2, function(k,og) {
           // Sortiere nach Datum
           var b=churchcore_sortData(og,"d");
           var startdatum="";
-          $.each(b, function(i,c) {
+          each(b, function(i,c) {
             // Entweder wird nicht nach TNStatus gefiltert, dann ist >0 wichtig, oder es mu� eben vergleichen werden.
             if (((filter["filterTeilnehmerstatus "+z]==null) && (c.leiter>=0))
                 || (filter["filterTeilnehmerstatus "+z]==c.leiter))
@@ -1845,7 +1845,7 @@ function _checkGroupFilter(a, filter, z) {
     // Wenn Datumsfilter gesetzt kann es sein, dass die Person ja auch noch in der Gruppe ist
     if ((!dabei) && (filter["filterGruppeWarInBis "+z])) {
       if (a.gruppe!=null) {
-        $.each(a.gruppe, function(b,k) {
+        each(a.gruppe, function(b,k) {
           // Gruppen angegeben
           if (filter["filterGruppe "+z]!=null) {
             if (k.id==filter["filterGruppe "+z]) {
@@ -1871,7 +1871,7 @@ function _checkGroupFilter(a, filter, z) {
 function checkKommentar(gruppen, str) {
   var r=false;
   if (gruppen!=null)
-  $.each(gruppen, function(k,g) {
+  each(gruppen, function(k,g) {
     if ((g.comment!=null) && (g.comment.toUpperCase().indexOf(str)!=-1))
       r=true;
   });
@@ -1898,7 +1898,7 @@ PersonView.prototype.checkFilter = function(a) {
     // Split by " ", but not masked with a "
     searches=searchEntry.match(/(?:[^\s"]+|"[^"]*")+/g);
     var res=true;
-    $.each(searches, function(k,search) {
+    each(searches, function(k,search) {
       search=search.replace(/"/g, "");
       if (search.indexOf("TAG:")==0) {
         if (!t.checkFilterTag(search, a.tags)) {
@@ -1915,7 +1915,7 @@ PersonView.prototype.checkFilter = function(a) {
       else if (search.indexOf("GRUPPE:")==0) {
         if (a.gruppe==null) {res=false; return false;}
         var dabei=false;
-        $.each(a.gruppe, function (b,k) {
+        each(a.gruppe, function (b,k) {
           // Nicht die anzeigen, wo ich SuperVisor bin!
           if (masterData.groups[k.id].bezeichnung.toUpperCase().indexOf(search.substr(7,99).toUpperCase())>=0) {
             dabei=true;
@@ -1947,7 +1947,7 @@ PersonView.prototype.checkFilter = function(a) {
   if ((this.getFilter("followupOverdue")!="") || (filter["followupToday"]!=null)) {
     if (a.gruppe==null) return false;
     var _res=false;
-    $.each(a.gruppe, function(k,b) {
+    each(a.gruppe, function(k,b) {
       if ((_isFollowUpGroup(b)) && (groupView.isPersonLeaderOfGroup(masterData.user_pid, b.id))) {
         var _d = _getPersonGroupFollowupDiffDays(b);
         //if (_d>0) _res=false;
@@ -1967,7 +1967,7 @@ PersonView.prototype.checkFilter = function(a) {
   if ((filter["groupDelete"]!=null) || (filter["groupSubscribe"]!=null)) {
     if (a.gruppe==null) return false;
     var _res=false;
-    $.each(a.gruppe, function(k,b) {
+    each(a.gruppe, function(k,b) {
       if ((((b.leiter==-1) && (filter["groupDelete"]!=null))
          || ((b.leiter==-2) && (filter["groupSubscribe"]!=null)))
           && (groupView.isPersonLeaderOfGroup(masterData.user_pid, b.id))) {
@@ -1982,7 +1982,7 @@ PersonView.prototype.checkFilter = function(a) {
   if ((filter["filterMeine Gruppen"]>0) || (filter["filterMeine Gruppen"]<0)) {
     if (a.gruppe==null) return false;
     dabei=false;
-    $.each(a.gruppe, function (b,k) {
+    each(a.gruppe, function (b,k) {
       // Nicht die anzeigen, wo ich SuperVisor bin!
       if ((k.id==filter["filterMeine Gruppen"]) && (k.leiter!=3)) {
         dabei=true;
@@ -2005,7 +2005,7 @@ PersonView.prototype.checkFilter = function(a) {
   if ((filter["filterBereich"]!=null && filter["filterBereich"].isSomethingSelected())) {
     dabei=false;
     if (a.access!=null)
-    $.each(a.access, function (b,k) {
+    each(a.access, function (b,k) {
       if (!t.filter["filterBereich"].filter(k)) dabei=true;
     });
     if (!dabei) return false;
@@ -2111,7 +2111,7 @@ PersonView.prototype.checkFilter = function(a) {
         if (a.rels==null) return false;
         var dabei=false;
         var bt_id=filter["filterRelations"].substr(2,99);
-        $.each(a.rels, function(b,k) {
+        each(a.rels, function(b,k) {
           if (k.beziehungstyp_id==bt_id) {
             if (masterData.relationType[bt_id].bez_vater==masterData.relationType[bt_id].bez_kind)
               dabei=true;
@@ -2127,7 +2127,7 @@ PersonView.prototype.checkFilter = function(a) {
         if (a.rels!=null) {
           var dabei=true;
           var bt_id=filter["filterRelations"].substr(2,99);
-          $.each(a.rels, function(b,k) {
+          each(a.rels, function(b,k) {
             if (k.beziehungstyp_id==bt_id) {
               if (masterData.relationType[bt_id].bez_vater==masterData.relationType[bt_id].bez_kind)
                 dabei=false;
@@ -2145,7 +2145,7 @@ PersonView.prototype.checkFilter = function(a) {
       var dabei=false;
       if (a.rels!=null) {
         var bt_id=filter["filterRelationExt"].substr(2,99);
-        $.each(a.rels, function(b,k) {
+        each(a.rels, function(b,k) {
           if (k.beziehungstyp_id==bt_id) {
             var rel_pid=null;
             if (masterData.relationType[bt_id].bez_vater==masterData.relationType[bt_id].bez_kind) {
@@ -2157,7 +2157,7 @@ PersonView.prototype.checkFilter = function(a) {
             else if ((filter["filterRelationExt"].substr(0,1)=="v") && (k.kind_id==a.id))
               rel_pid=k.vater_id;
             if ((rel_pid!=null) && (allPersons[rel_pid]!=null) && (allPersons[rel_pid].gruppe!=null)) {
-              $.each(allPersons[rel_pid].gruppe, function(c,i) {
+              each(allPersons[rel_pid].gruppe, function(c,i) {
                 if (filter["filterRelationExtGroup"]!=null) {
                   if (filter["filterRelationExtGroup"]==i.id) dabei=true;
                 }
@@ -2180,7 +2180,7 @@ PersonView.prototype.checkFilter = function(a) {
       if ((a.gruppe==null) && (filter["filterFollowUp"]>0)) return false;
       else if (a.gruppe!=null) {
         if (filter["filterFollowUp"]>0) _res=false; else _res=true;
-        $.each(a.gruppe, function(k,b) {
+        each(a.gruppe, function(k,b) {
           if (_isFollowUpGroup(b)) {
             if (filter["filterFollowUp"]>0) {
               var _d = _getPersonGroupFollowupDiffDays(b);
@@ -2201,7 +2201,7 @@ PersonView.prototype.checkFilter = function(a) {
     while ((filter["filterTags"+z]!=null) && (res)) {
       var res=false;
       if (a.tags==null) return false;
-      $.each(a.tags, function(k,a) {
+      each(a.tags, function(k,a) {
         if (a==filter["filterTags"+z]) {
           res=true;
           return false;
@@ -2219,9 +2219,9 @@ function hasPersonAuth(a, auth_id) {
 
   var res=false;
   if (a.gruppe!=null) {
-    $.each(a.gruppe, function(k,b) {
+    each(a.gruppe, function(k,b) {
       if ((b.leiter>=0) && (!res) && (masterData.groups[b.id].auth!=null)) {
-        $.each(masterData.groups[b.id].auth, function(i,c) {
+        each(masterData.groups[b.id].auth, function(i,c) {
           if (c==auth_id) {
             res=true;
             return false;
@@ -2232,7 +2232,7 @@ function hasPersonAuth(a, auth_id) {
     if (res) return true;
   }
   if (masterData.status[a.status_id].auth!=null) {
-    $.each(masterData.status[a.status_id].auth, function(k,b) {
+    each(masterData.status[a.status_id].auth, function(k,b) {
       if (b==auth_id) res=true;
     });
     if (res) return true;
@@ -2245,8 +2245,8 @@ function _renderRelationList(id,del_link) {
   if (del_link==null) del_link=false;
 
   if (allPersons[id].rels!=null) {
-    $.each(churchcore_sortMasterData(masterData.relationType), function(i,relType) {
-      $.each(allPersons[id].rels, function (k,b) {
+    each(churchcore_sortMasterData(masterData.relationType), function(i,relType) {
+      each(allPersons[id].rels, function (k,b) {
         if (b.beziehungstyp_id==relType.id) {
           if (b.kind_id==id) {
             _text=_text+masterData.relationType[b.beziehungstyp_id].bez_vater;
@@ -2298,7 +2298,7 @@ function _renderOldGroupEntry(og) {
 function _getOldGroupEntries(p_id, gt_id, func) {
   var _text="";
   count=0;
-  $.each(allPersons[p_id].oldGroups, function(k,og) {
+  each(allPersons[p_id].oldGroups, function(k,og) {
     if ((!og.used) && (masterData.groups[og.gp_id]!=null) && (masterData.groups[og.gp_id].gruppentyp_id==gt_id) && (func(og))) {
       _text=_text+_renderOldGroupEntry(og);
     }
@@ -2315,7 +2315,7 @@ PersonView.prototype.getGroupEntries = function (p_id, gt_id, func) {
 
   // Alle korrekten reinholen
   var res = new Array();
-  $.each(allPersons[p_id].gruppe, function(k,b) {
+  each(allPersons[p_id].gruppe, function(k,b) {
     if ((masterData.groups[b.id]!=null) && (masterData.groups[b.id].gruppentyp_id==gt_id)
         && (func(b)) && (groupView.isAllowedToSeeName(b.id, p_id)))
       {
@@ -2353,7 +2353,7 @@ PersonView.prototype.getGroupEntries = function (p_id, gt_id, func) {
     }
   }
 
-  $.each(res, function(k,b) {
+  each(res, function(k,b) {
     if (b.show) {
       _text='<tr style="background:#F4F4F4;"><td><p>';
       var _title="Seit ";
@@ -2399,7 +2399,7 @@ PersonView.prototype.getGroupEntries = function (p_id, gt_id, func) {
       }
 
       if ((t.showGroupDetailsId==gt_id) && (t.showGroupDetailsWithHistory) && (allPersons[p_id].oldGroups!=null)) {
-        $.each(allPersons[p_id].oldGroups, function(i,c) {
+        each(allPersons[p_id].oldGroups, function(i,c) {
           if (c.gp_id==b.id) {
             c.used=true;
             _text=_text+_renderOldGroupEntry(c);
@@ -2431,7 +2431,7 @@ function _isFollowUpGroup(group) {
 
 function _getFollowupDiffDays(followup_typ_id, followup_count_no) {
   var _res;
-  $.each(masterData.followupTypIntervall, function(k,a) {
+  each(masterData.followupTypIntervall, function(k,a) {
     if ((a.followup_typ_id==followup_typ_id) && (a.count_no==followup_count_no))
       _res=a.days_diff*1;  //*1, damit er es als Nummer umrechnet und nicht als String interpretiert
   });
@@ -2441,7 +2441,7 @@ function _getFollowupDiffDays(followup_typ_id, followup_count_no) {
 function _getNextFollowupCountNo(followup_typ_id, followup_count_no) {
   var _res=null;
   followup_count_no++;
-  $.each(masterData.followupTypIntervall, function(k,a) {
+  each(masterData.followupTypIntervall, function(k,a) {
     if ((a.followup_typ_id==followup_typ_id) && (a.count_no==followup_count_no))
       _res=a.count_no;
   });
@@ -2587,9 +2587,9 @@ PersonView.prototype.renderDetails = function (id) {
   personLeader=false;
   personSuperLeader=false;
   if ((allPersons[id].gruppe!=null) && (masterData.user_pid!=null) && (allPersons[masterData.user_pid].gruppe!=null)) {
-    $.each(allPersons[masterData.user_pid].gruppe, function (b,k) {
+    each(allPersons[masterData.user_pid].gruppe, function (b,k) {
       if ((k.leiter>=1) && (k.leiter<=2)) {
-        $.each(allPersons[id].gruppe, function(c,l) {
+        each(allPersons[id].gruppe, function(c,l) {
           if ((l.id==k.id) && (masterData.groups[k.id]!=null)) {
             var d = new Date;
             d.addDays(-masterData.groupnotchoosable);
@@ -2603,7 +2603,7 @@ PersonView.prototype.renderDetails = function (id) {
   }
   // Check if I am SuperLeader (Distrikt- or Gruppentypleiter), for acting as a leader
   if (allPersons[id].gruppe!=null) {
-    $.each(allPersons[id].gruppe, function (b,k) {
+    each(allPersons[id].gruppe, function (b,k) {
       if (groupView.isPersonSuperLeaderOfGroup(masterData.user_pid, k.id)) {
         personLeader=true;
         personSuperLeader=true;
@@ -2625,7 +2625,7 @@ PersonView.prototype.renderDetails = function (id) {
         var _follow="";
         var _current=new Date();
         if (a.gruppe!=null) {
-          $.each(a.gruppe, function(k,b) {
+          each(a.gruppe, function(k,b) {
             if ((masterData.auth.viewalldata) || (groupView.isPersonLeaderOfGroup(masterData.user_pid, b.id))) {
               var _diff_days=_getPersonGroupFollowupDiffDays(b);
               if (_diff_days!=null) {
@@ -2762,14 +2762,14 @@ PersonView.prototype.renderDetails = function (id) {
       if (masterData.auth.adminpersons) {
         if (a.districts!=null) {
           _text=_text+"<p><small><b>Zugeordnet in "+f("distrikt_id")+":</b>";
-          $.each(a.districts, function(k,b) {
+          each(a.districts, function(k,b) {
             _text=_text+"<br/>- "+churchcore_getCaption("districts", b.distrikt_id)+"";
           });
           _text=_text+"</small>";
         }
         if (a.gruppentypen!=null) {
           _text=_text+"<p><small><b>Zugeordnet in "+f("gruppentyp_id")+":</b>";
-          $.each(a.gruppentypen, function(k,b) {
+          each(a.gruppentypen, function(k,b) {
             _text=_text+"<br/>- "+churchcore_getCaption("groupTypes", b.gruppentyp_id)+"";
           });
         }
@@ -2800,7 +2800,7 @@ PersonView.prototype.renderDetails = function (id) {
         var _comments="";
         var _count=0;
         if (a.comments!=null) {
-          $.each(a.comments, function (k,b) {
+          each(a.comments, function (k,b) {
             _count++;
             if ((_count<=3) || (t.showAllCommentDetails)) {
               var _class=(b.relation_name=='person_followup'?'followup_comment':'');
@@ -2839,7 +2839,7 @@ PersonView.prototype.renderDetails = function (id) {
 
       // Gruppen
       if (allPersons[id]!=null) {
-        $.each(churchcore_sortMasterData(masterData.groupTypes), function(k,a) {
+        each(churchcore_sortMasterData(masterData.groupTypes), function(k,a) {
 
           if ((masterData.auth.viewalldetails)
                  || (a.anzeigen_in_meinegruppen_teilnehmer_yn==1)
@@ -2863,7 +2863,7 @@ PersonView.prototype.renderDetails = function (id) {
 
             // Erst mal alle auf Unused setzen, damit ich hinterher wei�, welche Archiv-Gruppe noch nicht gezeigt wurde
             if ((allPersons[id].oldGroups!=null) && (t.showGroupDetailsId==a.id) && (t.showGroupDetailsWithHistory)) {
-              $.each(allPersons[id].oldGroups,function(y,d) {
+              each(allPersons[id].oldGroups,function(y,d) {
                 d.used=false;
               });
             }
@@ -2899,7 +2899,7 @@ PersonView.prototype.renderDetails = function (id) {
       _text=_text+"<div style=\"float:right\">";
 
       _text=_text+"<small><i>"+f("bereich_id")+": </i>";
-        $.each(masterData.auth.dep, function(k,a) {
+        each(masterData.auth.dep, function(k,a) {
           if ((allPersons[id].access!=null) && (allPersons[id].access[a.id]==a.id)) {
             _text=_text+" "+a.bezeichnung+"&nbsp;";
           }
@@ -2934,7 +2934,7 @@ PersonView.prototype.renderDetails = function (id) {
 
         if (masterData.auth.editrelations) {
           _text=_text+"<br/>";
-          $.each(masterData.relationType, function (k,b) {
+          each(masterData.relationType, function (k,b) {
             _text=_text+"<i><a href=\"#\" id=\"f_rels_k_"+b.id+"\">"+b.bez_kind+" hinzuf&uuml;gen</a></i> &nbsp; &nbsp;";
             if (b.bez_kind!=b.bez_vater)
               _text=_text+"<i><a href=\"#\" id=\"f_rels_v_"+b.id+"\">"+b.bez_vater+" hinzuf&uuml;gen</a></i> &nbsp; &nbsp;";
@@ -2986,7 +2986,7 @@ PersonView.prototype.renderDetails = function (id) {
           _text="";
           _text=_text+"<small><table class=\"table\"><tr><td><i>"+_("date")+"</i><td><i>"+_("subject")+"</i><td><i>"+_("user")+"</i><td>";
           if (json!=null)
-            $.each(json, function (k,b) {
+            each(json, function (k,b) {
               if ((b.level<3) || (masterData.auth.admin)) {
                 color="gray";
                 if (b.level==1) color="red";
@@ -3152,7 +3152,7 @@ PersonView.prototype.renderDetails = function (id) {
             rows.push(" &uuml;bernommen werden.<br/>Gruppe: ");
             rows.push('<select id="selectNachfolgegruppe_'+g_id+"_"+id+'"');
             rows.push('<option value="-1">-</option>');
-            $.each(masterData.groups, function(i,c) {
+            each(masterData.groups, function(i,c) {
               if (
                   (((masterData.groups[b.id].fu_nachfolge_typ_id==1) && (c.gruppentyp_id==masterData.groups[b.id].fu_nachfolge_objekt_id))
                 ||  ((masterData.groups[b.id].fu_nachfolge_typ_id==2) && (c.distrikt_id==masterData.groups[b.id].fu_nachfolge_objekt_id)))
@@ -3292,7 +3292,7 @@ PersonView.prototype.renderDetails = function (id) {
 
 function _getFollowupTypIntervall(followup_typ_id, followup_count_no) {
   var res=null;
-  $.each(masterData.followupTypIntervall, function(i,c) {
+  each(masterData.followupTypIntervall, function(i,c) {
     if ((c.followup_typ_id==followup_typ_id) && (c.count_no==followup_count_no)) {
       res=c;
       // exit
@@ -3304,7 +3304,7 @@ function _getFollowupTypIntervall(followup_typ_id, followup_count_no) {
 
 PersonView.prototype.getAvailableAddGroupsForGrouptype = function(gt_id) {
   var arr=null;
-  $.each(masterData.groups, function(k,a) {
+  each(masterData.groups, function(k,a) {
     if (a.gruppentyp_id==gt_id) {
       if (groupView.isPersonLeaderOfGroup(masterData.user_pid, a.id)) {
         if (arr==null) arr=new Array();
@@ -3327,9 +3327,9 @@ PersonView.prototype.delPersonFromGroup = function (id, g_id, withoutConfirmatio
   if ((masterData.groupTypes[masterData.groups[g_id].gruppentyp_id].muss_leiter_enthalten_yn==1)
         && (allPersons[id].gruppe[g_id].leiter==1)) {
     var leiter_check=false;
-    $.each(allPersons,function(k,p) {
+    each(allPersons,function(k,p) {
       if ((p.id!=id) && (p.gruppe!=null))
-        $.each(p.gruppe, function(i,b) {
+        each(p.gruppe, function(i,b) {
           if ((b.id==g_id) && (b.leiter==1))
             leiter_check=true;
         });
@@ -3435,7 +3435,7 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
     rows[rows.length]="Der Kommentar soll zu sehen sein f&uuml;r:<br/> ";
     rows[rows.length]="<select id=\"InputComment\">";
 
-    $.each(masterData.auth.comment_viewer, function(k,a) {
+    each(masterData.auth.comment_viewer, function(k,a) {
       rows[rows.length]="<option value=\""+a+"\" "+(a==0?"selected":"")+">"+masterData.comment_viewer[a].bezeichnung+"</option>";
     });
     rows[rows.length]="</select><br/>";
@@ -3454,7 +3454,7 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
       var diff_date=new Date();
       diff_date.addDays(-1*masterData.groupnotchoosable);
 
-      $.each(churchcore_sortData(masterData.groups, "bezeichnung"), function(k,a) {
+      each(churchcore_sortData(masterData.groups, "bezeichnung"), function(k,a) {
         // Es sollen nur Gruppen ausw�hlbar sein, deren Abschlu�datum zu alt ist
         if ((a.gruppentyp_id==gt_id)
             && (a.valid_yn==1)
@@ -3464,7 +3464,7 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
             // Es sollen nur Gruppen angezeigt werden, in denen die Person noch nicht ist.
             var dabei=false;
             if (allPersons[id].gruppe!=null) {
-              $.each(allPersons[id].gruppe, function(i,b) {
+              each(allPersons[id].gruppe, function(i,b) {
                 if (a.id==i) dabei=true;
               });
             }
@@ -3485,7 +3485,7 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
 
     rows.push("<tr><td>Teilnehmerstatus<td>");
     rows.push("<select id=\"InputGroupLeader\">");
-    $.each(masterData.groupMemberTypes, function(k,a) {
+    each(masterData.groupMemberTypes, function(k,a) {
       rows.push('<option value="'+k+'">' + a.bezeichnung + "</option>");
     });
     rows.push("</select>");
@@ -3512,7 +3512,7 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
   else if (fieldname=="f_bereich") {
     width=350; height=300;
     rows.push("<h3>Anpassung von "+f("bereich_id")+"</h3><p><small>Eine Person muss in mindestens einem zugeordnet sein</small>");
-    $.each(masterData.auth.dep, function(k,a) {
+    each(masterData.auth.dep, function(k,a) {
       if (allPersons[id].access[a.id]==a.id) {
         rows[rows.length]="<p><input type=\"checkbox\" id=\"InputBereich"+a.id+"\"/ checked=\"true\"/>";
       }
@@ -3664,9 +3664,9 @@ PersonView.prototype.renderPersonGroupRelation = function(id, g_id) {
   if ((masterData.groupTypes[masterData.groups[g_id].gruppentyp_id].muss_leiter_enthalten_yn==1)
         && (allPersons[id].gruppe[g_id].leiter==1)) {
     leiter_check=false;
-    $.each(allPersons,function(k,a) {
+    each(allPersons,function(k,a) {
       if ((a.id!=id) && (a.gruppe!=null))
-        $.each(a.gruppe, function(i,b) {
+        each(a.gruppe, function(i,b) {
           if ((b.id==g_id) && (b.leiter==1))
             leiter_check=true;
         });
@@ -3679,7 +3679,7 @@ PersonView.prototype.renderPersonGroupRelation = function(id, g_id) {
   rows.push("<tr><td>Teilnehmerstatus &nbsp; <td>");
 
   rows.push('<select id="InputGroupLeader" '+(!leiter_check?"disabled":"")+'>');
-  $.each(masterData.groupMemberTypes, function(k,a) {
+  each(masterData.groupMemberTypes, function(k,a) {
     rows.push("<option value=\""+k+"\""+ ((k==allPersons[id].gruppe[g_id].leiter)?"selected":"") + ">" + a.bezeichnung + "</option>");
   });
   rows.push("</select>");
@@ -3752,7 +3752,7 @@ PersonView.prototype._saveEditEntryData = function (id, fieldname, renderViewNec
   else if (obj["func"]=='f_bereich') {
     var oneSelected=false;
     var newAccess=new Object();
-    $.each(masterData.auth.dep, function(k,a) {
+    each(masterData.auth.dep, function(k,a) {
       $("input[id=InputBereich"+k+"]").each(function (i) {
         if ($(this).attr("checked")) {
           checked=1;
@@ -3830,9 +3830,9 @@ function getAuthAsDataArray(withDataAuth) {
   var data = new Array();
   if (withDataAuth==null) withDataAuth=true;
 
-  $.each(masterData.auth_table, function(k,a) {
+  each(masterData.auth_table, function(k,a) {
     data.push(form_prepareDataEntry(-1,'== '+k+' =='));
-    $.each(a, function(i,b) {
+    each(a, function(i,b) {
       if ((withDataAuth) || (b.datenfeld==null))
         data.push(form_prepareDataEntry(b.id,b.auth));
     });
@@ -3959,7 +3959,7 @@ PersonView.prototype.renderPersonFilter = function() {
   }));
 
   var _member="";
-  $.each(masterData.status, function(b,k) {
+  each(masterData.status, function(b,k) {
     if (k.mitglied_yn==1)
       _member=_member+k.kuerzel+",";
   });
@@ -3986,7 +3986,7 @@ PersonView.prototype.renderPersonFilter = function() {
 
  rows.push('</table><table cellpadding="5px" class=""><tr>');
   var data = new Array();
-  $.each(masterData.fields.f_church.fields, function (b,k) {
+  each(masterData.fields.f_church.fields, function (b,k) {
     if (k["type"]=="date")
       data.push(form_prepareDataEntry(k["sql"], k["text"]));
   });
@@ -4230,7 +4230,7 @@ PersonView.prototype.renderRelationFilter = function() {
 
 
   var data= new Array();
-  $.each(masterData.relationType, function (k,b) {
+  each(masterData.relationType, function (k,b) {
     data.push(form_prepareDataEntry("k_"+b.id, b.bez_kind));
     if (b.bez_kind!=b.bez_vater) {
       data.push(form_prepareDataEntry("v_"+b.id, b.bez_vater));
@@ -4478,7 +4478,7 @@ PersonView.prototype.loadGroupMeetingList = function (g_id) {
 PersonView.prototype.editExportTemplates = function(selected, func) {
   var data = new Array();
   if (masterData.settings.exportTemplate!=null) {
-    $.each(masterData.settings.exportTemplate, function(k, a) {
+    each(masterData.settings.exportTemplate, function(k, a) {
       a.sortkey=1;
       data.push(a);
     })
@@ -4516,10 +4516,10 @@ PersonView.prototype.editExportTemplates = function(selected, func) {
   fields["f_address"].fields["Anrede1"]={sql:"Anrede1", text:"Herr/Frau"};
   fields["f_address"].fields["Anrede2"]={sql:"Anrede2", text:"Lieber/Liebe"};
   fields["f_address"].fields["id"]={sql:"id", text:"Id"};
-  $.each(fields, function(i,fieldcategory) {
+  each(fields, function(i,fieldcategory) {
     form.addHtml('<div class="span4" style="min-width:170px">');
     form.addHtml('<legend>'+fieldcategory.text+'</legend>');
-    $.each(fieldcategory.fields, function(i,field) {
+    each(fieldcategory.fields, function(i,field) {
       if (field.auth!="admingroups" && field.sql!="treffen_yn" && field.sql!="members_allowedmail_eachother_yn" 
          && t.checkFieldPermission(field))
         form.addCheckbox({label:field.text,  htmlclass:"field",
@@ -4532,7 +4532,7 @@ PersonView.prototype.editExportTemplates = function(selected, func) {
   if (user_access("viewalldata")) {
     form.addHtml('<div class="span4" style="min-width:170px">');
     form.addHtml('<legend>'+_("groups")+'</legend>');
-    $.each(masterData.groupTypes, function(k,a) {
+    each(masterData.groupTypes, function(k,a) {
       form.addCheckbox({label:a.bezeichnung,  htmlclass:"field",
         data:[{name:"sql",value:"grouptype_id_"+a.id}], controlgroup:false});
     });    
@@ -4649,12 +4649,12 @@ PersonView.prototype.exportData = function(selectedTemplate, exportAllData) {
   var rels=new Object();
 
   if (!exportAllData) {
-    $.each(allPersons, function(k, a) {
+    each(allPersons, function(k, a) {
       if ((i>0) && (t.checkFilter(a))) {
         i--;
         exportIds.push(a.id);
         if (a.rels!=null) {
-          $.each(a.rels, function(i,b) {
+          each(a.rels, function(i,b) {
             if (masterData.relationType[b.beziehungstyp_id].export_aggregation_yn==1)
               if (((b.vater_id==a.id) && (t.checkFilter(allPersons[b.kind_id]))) ||
                   ((b.kind_id==a.id) && (t.checkFilter(allPersons[b.vater_id]))))
@@ -4693,13 +4693,13 @@ PersonView.prototype.exportData = function(selectedTemplate, exportAllData) {
 
     if (churchcore_countObjectElements(rels)>0) {
       form.addHtml("<legend>"+_("aggregate.relations")+"</legend>");
-      $.each(rels, function(k,a) {
+      each(rels, function(k,a) {
         form.addCheckbox({label:masterData.relationType[a].bez_vater+"/"+masterData.relationType[a].bez_kind,
              htmlclass:"aggregate-relation", data:[{name:"relation-type", value:a}] });
       });
     }
     var txt="";
-    $.each(rels, function(k,a) {
+    each(rels, function(k,a) {
       txt=txt+"<input type=\"checkbox\" id=\"cb_"+a+"\" class=\"cdb-checkbox\"></input><label for=\"cb_"+a+"\"> &nbsp;"+masterData.relationType[a].bez_vater+"/"+masterData.relationType[a].bez_kind+"</label><br/>";
     });
   }
@@ -4716,7 +4716,7 @@ PersonView.prototype.exportData = function(selectedTemplate, exportAllData) {
     }
 
     var agg="";
-    $.each(rels, function(k,a) {
+    each(rels, function(k,a) {
       if (elem.find("input.aggregate-relation[data-relation-type="+a+"]").attr("checked")) {
         agg=agg+"&agg"+a+"=y";
       }
@@ -4765,7 +4765,7 @@ PersonView.prototype.renderGroupContent = function(g_id) {
     gruppentreffen_id=-1;
     if (json!=null) {
       var now = new Date();
-      $.each(churchcore_sortData(json,"datumvon"), function(k,a) {
+      each(churchcore_sortData(json,"datumvon"), function(k,a) {
         // Only of not checked in and event is in the past
         if (a.eintragerfolgt_yn==0 && a.datumvon.toDateEn(true)<now) {
           rows2.push('<legend>'+form_renderImage({src:"persons.png"})+'&nbsp;'+_("please.maintain.a.group.meeting")+'</legend>');
@@ -4798,7 +4798,7 @@ PersonView.prototype.renderGroupContent = function(g_id) {
   $("#cdb_group input, #cdb_group a").click(function(c) {
     if ($(this).val()=="Auswahl absenden") {
       var arr=new Array();
-      $.each(allPersons, function(a,k) {
+      each(allPersons, function(a,k) {
         if (k.checked) arr.push(k.id);
       });
 
@@ -4822,7 +4822,7 @@ PersonView.prototype.renderGroupContent = function(g_id) {
             } else {
               masterData.groups[g_id].meetingList=null;
               if (obj.demarkPersons) {
-                $.each(allPersons, function(k,a) {
+                each(allPersons, function(k,a) {
                   a.checked=false;
                 });
               }
@@ -4881,7 +4881,7 @@ PersonView.prototype.renderGroupContent = function(g_id) {
 PersonView.prototype.smser = function() {
   var t=this;
   var arr=new Array();
-  $.each(allPersons, function(k, a) {
+  each(allPersons, function(k, a) {
     if (t.checkFilter(a)) {
       arr.push(a.id);
     }
@@ -4910,7 +4910,7 @@ PersonView.prototype.smsPerson = function(arr) {
             if (status.withoutmobilecount>0) {
               alert(status.withoutmobilecount+" Person haben keine Handynummer gespeichert.");
             }
-            $.each(arr, function(k,a) {
+            each(arr, function(k,a) {
               $("tr[id="+a+"]").after('<tr id="detail'+a+'"><td colspan="10">SMS-Versand Ergebnis: '+status[a]);
             });
           }
@@ -4950,7 +4950,7 @@ PersonView.prototype.mailer = function() {
   var separator=(masterData.settings.mailerSeparator==0?";":",");
   if (masterData.settings.mailerType!=0)
     separator=separator+" ";
-  $.each(allPersons, function(k, a) {
+  each(allPersons, function(k, a) {
     if ((counter<=maxMails) && (t.checkFilter(a))) {
       if ((a.email!=null) && (a.email!="")) {
         counter++;
@@ -5035,7 +5035,7 @@ PersonView.prototype.getMyGroupsSelector = function(withIntelligentGroups) {
 
     // Nun Gruppen, wo ich Leiter bin
     if (allPersons[masterData.user_pid].gruppe!=null)
-      $.each(allPersons[masterData.user_pid].gruppe, function (b,k) {
+      each(allPersons[masterData.user_pid].gruppe, function (b,k) {
         if ((masterData.groups[k.id].abschlussdatum==null) || (masterData.groups[k.id].abschlussdatum.toDateEn()>d)) {
           if ((k.leiter>=1) && (k.leiter<=3)) {
             _owngroups_leader.push(masterData.groups[k.id]);
@@ -5046,8 +5046,8 @@ PersonView.prototype.getMyGroupsSelector = function(withIntelligentGroups) {
 
     // Gruppen, wo ich Distriktleiter bin
     if (allPersons[masterData.user_pid].districts!=null)
-      $.each(allPersons[masterData.user_pid].districts, function (c,district) {
-        $.each(masterData.groups, function (b,group) {
+      each(allPersons[masterData.user_pid].districts, function (c,district) {
+        each(masterData.groups, function (b,group) {
           if ((group.distrikt_id==district.distrikt_id) && ((group.abschlussdatum==null) || (group.abschlussdatum.toDateEn()>d))) {
             if (!churchcore_inArray(group, _owngroups_leader)) {
               _owngroups_leader.push(group);
@@ -5058,8 +5058,8 @@ PersonView.prototype.getMyGroupsSelector = function(withIntelligentGroups) {
       });
     // Gruppen, wo ich Gruppentyp bin
     if (allPersons[masterData.user_pid].gruppentypen!=null)
-      $.each(allPersons[masterData.user_pid].gruppentypen, function (c,district) {
-        $.each(masterData.groups, function (b,group) {
+      each(allPersons[masterData.user_pid].gruppentypen, function (c,district) {
+        each(masterData.groups, function (b,group) {
           if ((group.gruppentyp_id==district.gruppentyp_id) && ((group.abschlussdatum==null) || (group.abschlussdatum.toDateEn()>d))) {
             if (!churchcore_inArray(group, _owngroups_leader)) {
               _owngroups_leader.push(group);
@@ -5078,7 +5078,7 @@ PersonView.prototype.getMyGroupsSelector = function(withIntelligentGroups) {
     // Teilnehmer und Mitarbeiter
     var _owngroups_member = new Array();
     if (allPersons[masterData.user_pid].gruppe!=null)
-      $.each(allPersons[masterData.user_pid].gruppe, function (b,k) {
+      each(allPersons[masterData.user_pid].gruppe, function (b,k) {
         if ((masterData.groups[k.id].abschlussdatum==null) || (masterData.groups[k.id].abschlussdatum.toDateEn())>d) {
           if (((k.leiter==0) && (groupView.isGroupViewableForMembers(k.id))) || ((k.leiter==4) && (masterData.groups[k.id].versteckt_yn==0))) {
             _owngroups_member.push(masterData.groups[k.id]);
@@ -5094,7 +5094,7 @@ PersonView.prototype.getMyGroupsSelector = function(withIntelligentGroups) {
     // Intelligente Gruppen (Gespeicherte Filter)
     if ((withIntelligentGroups) && (masterData.settings.myFilter!=null)) {
       var _owngroups_intelligent= new Array();
-      $.each(masterData.settings.myFilter, function(k,a) {
+      each(masterData.settings.myFilter, function(k,a) {
         var entry = new Array();
         entry.id="filter"+k;
         entry.bezeichnung="&nbsp; "+k;

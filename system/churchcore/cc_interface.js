@@ -42,7 +42,7 @@ ChurchInterface.prototype.sendMessageToAllViews = function (message, args) {
       ,1000);
     }
   }
-  jQuery.each(this.getViews(), function(k,a) {
+  each(this.getViews(), function(k,a) {
     a.messageReceiver(message, args);
   });  
 };
@@ -98,7 +98,7 @@ ChurchInterface.prototype.history = function (hash) {
     // Ist momentan in der Testphase, funktioniert nur f�r das Suchfeld, erstmal auskommentiert, 
     // Probleme mit Multiselect, da es bei ToString nicht den Wert, sondern ein Array wiedergibt.
     var doRefresh=false;
-    jQuery.each(arr, function(k,a) {
+    each(arr, function(k,a) {
       if (a.indexOf("searchEntry:")==0) {
         t.currentView.filter["searchEntry"] = a.substr(12,99);
       } 
@@ -109,7 +109,7 @@ ChurchInterface.prototype.history = function (hash) {
         var newdoc = a.substr(a.indexOf(":")+1,99);
         var re=true;
         if (t.currentHistoryArray!=null)
-          $.each(t.currentHistoryArray, function(i,b) {
+          each(t.currentHistoryArray, function(i,b) {
             if (b==newdoc) re=false;
           });
         if (re) {
@@ -191,7 +191,7 @@ ChurchInterface.prototype.jsend = function (name, obj, func, async, get, overwri
   if (!t.fatalErrorOccured) {
     this.setStatus(name);
     var obj2=new Object();
-    $.each(obj, function(k,a) {
+    each(obj, function(k,a) {
       if (a instanceof Date)
         obj2[k]=a.toStringEn(true);
       else 

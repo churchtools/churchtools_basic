@@ -69,9 +69,9 @@ MaintainStandardView.prototype.renderListEntry = function(a) {
   
   var name=a.bezeichnung;
   if (masterData.fields!=null)
-  $.each(masterData.fields, function(k,m) {
+  each(masterData.fields, function(k,m) {
     if (m.fields!=null) {
-      $.each(m.fields, function(i,n) {
+      each(m.fields, function(i,n) {
         if (n.selector==a.shortname) {
           name=n.text;
           return false;
@@ -83,7 +83,7 @@ MaintainStandardView.prototype.renderListEntry = function(a) {
   rows.push("<td>" + name);
   i=0;
   if (masterData[a.shortname]!=null)
-    $.each(masterData[a.shortname], function(k,a) {
+    each(masterData[a.shortname], function(k,a) {
       i++;
     });
   rows.push("<td>" + i);
@@ -105,7 +105,7 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
   
   // Schaue nach sinnvollen Filtern
   var row=new Array();
-  $.each(table.desc, function(i,b) {
+  each(table.desc, function(i,b) {
     if ((i.indexOf("_id")>0) && (i.indexOf("_ids")==-1) && (masterData[table.shortname]!=null)) {
       var t=i.substr(0,i.indexOf("_id"));
       row.push(form_renderSelect({fields: {"data-table-name":t},
@@ -125,7 +125,7 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
   rows[rows.length]="<p style='line-height:100%'><small><table><tr>";
   
   // Tabellenheader
-  $.each(table.desc, function(k,a) {
+  each(table.desc, function(k,a) {
     rows.push('<td><b><i><a href="#" id="'+a.field+'">'+_(a.field));
     if (this_object.sortKey==a.field)
       if (this_object.sortAsc) rows.push(" &and;")
@@ -140,10 +140,10 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
   if (masterData[table.shortname]!=null) {
     var data=masterData[table.shortname];
     // Tabellen-Daten
-    $.each(churchcore_sortData(masterData[table.shortname],this.sortKey,this.sortAsc, (this.sortKey!="id") && (this.sortKey!="sortkey")), function(k,a) {
+    each(churchcore_sortData(masterData[table.shortname],this.sortKey,this.sortAsc, (this.sortKey!="id") && (this.sortKey!="sortkey")), function(k,a) {
       var filter=false;
       var row=new Array();
-      $.each(table.desc, function(i,b) {
+      each(table.desc, function(i,b) {
         row.push("<td>");
         if ((b.type.indexOf("int")==0) && (i.indexOf("_yn")>0)) {
           row.push('<a href="#" id="change_yn_'+a.id+'" val="'+a[i]+'" col="'+i+'">');
@@ -306,7 +306,7 @@ MaintainStandardView.prototype.renderEditEntry = function (id, table_id) {
     entry=masterData[table.shortname][id];
   
   var form = new CC_Form(null, null, "in_edit");
-  $.each(table.desc, function(k,a) {
+  each(table.desc, function(k,a) {
     if (a.field=="id") {
       if (entry[a.field]!=null)
         form.addCaption({text:entry[a.field], label:_("id")});

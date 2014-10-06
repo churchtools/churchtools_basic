@@ -20,7 +20,7 @@ function _cdb_addPersonToMap(map,near_lat,near_lng) {
       new google.maps.Size(12, 12)
       );
 
-  jQuery.each(allPersons, function(k, a){
+  each(allPersons, function(k, a){
     if ((a.geolat!="")) {
       if ((near_lat==null) || 
            (((Math.abs(parseFloat(near_lng)-parseFloat(a.geolng))<0.06)) &&
@@ -266,7 +266,7 @@ function cdb_addGroupsToMap(map,near_lat,near_lng, func) {
       );
   
   if (masterData.groups!=null) {
-    jQuery.each(masterData.groups, function(k, a){
+    each(masterData.groups, function(k, a){
       if ((a.geolat!="") && (a.valid_yn==1) && (a.versteckt_yn==0)) {
         if ((near_lat==null) || 
              (((Math.abs(parseFloat(near_lng)-parseFloat(a.geolng))<0.2)) &&
