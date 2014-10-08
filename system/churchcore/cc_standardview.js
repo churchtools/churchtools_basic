@@ -457,7 +457,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
         }
         else if ($(this).attr("id")=="hideAll") {
           each(listObject, function(k, entry) {
-            entry.open=false;
+            if (entry!=null) entry.open=false;
           });
 
           t.renderList();

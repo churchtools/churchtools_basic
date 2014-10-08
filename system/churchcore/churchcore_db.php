@@ -562,7 +562,7 @@ function churchcore_sendMails_PHPMAIL($maxmails = MAX_MAILS) {
           $header .= 'Content-type: text/plain; charset=utf-8' . "\n"; // 'Content-Transfer-Encoding: quoted-printable'."\n" .
         
         // See churchtools.example.config for more details
-        if (variable_get("mail_with_user_from_address", "0")=="0") {
+        if (getConf("mail_with_user_from_address", "0")=="0") {
           $header.="From: ".getConf('site_mail', 'info@churchtools.de')."\n";
           if ($mail->sender!=getConf('site_mail', 'info@churchtools.de')) {
             $header.="Reply-To: $mail->sender\n";
@@ -1460,8 +1460,8 @@ function isFullDay($start, $end) {
  * @return boolean
  */
 function churchcore_isSameDay($s1, $s2) {
-  $d1 = Datetime($s1);
-  $d2 = Datetime($s2);
+  $d1 = new Datetime($s1);
+  $d2 = new Datetime($s2);
   return $d1->format("Ymd") == $d2->format("Ymd");
 }
 

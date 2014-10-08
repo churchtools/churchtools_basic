@@ -198,7 +198,7 @@ function churchresource_blocks() {
 function churchresource__printview() {
   global $user;
   
-  drupal_add_js(ASSETS . "/js/jquery-1.10.2.min.js");
+  drupal_add_js(ASSETS . "/js/jquery-2.1.1.js");
   drupal_add_js(ASSETS . "/js/jquery-migrate-1.2.1.min.js");
   
   drupal_add_js(CHURCHCORE . '/shortcut.js');
@@ -230,7 +230,7 @@ function churchresource__printview() {
   drupal_add_js(createI18nFile("churchresource"));
   
   $content = "<html><head>" . drupal_get_header();
-  $content .= '<link type="text/css" rel="stylesheet" media="all" href="' . phpLUDES . '/churchtools.css" />';
+  $content .= '<link type="text/css" rel="stylesheet" media="all" href="' . INCLUDES . '/churchtools.css" />';
   $content .= '<link type="text/css" rel="stylesheet" media="all" href="' . CHURCHRESOURCE . '/cr_printview.css" />';
   $content .= "</head><body>";
   

@@ -143,7 +143,7 @@ WeekView.prototype.renderListMenu = function() {
   each(masterData.resourceTypes, function(k,a) {
     navi.addEntry(t.filter["filterRessourcen-Typ"]==a.id,"ressourcentyp_"+a.id,a.bezeichnung);
   });
-  navi.addEntry(t.filter["filterRessourcen-Typ"]=="","","<i>"+_("all")+"</i>");
+  navi.addEntry(t.filter["filterRessourcen-Typ"]=="-1","ressourcentyp_-1","<i>"+_("all")+"</i>");
   navi.addSearch(searchEntry);
   navi.renderDiv("cdb_search", churchcore_handyformat());
   
@@ -153,7 +153,7 @@ WeekView.prototype.renderListMenu = function() {
     t.filter["filterRessourcen-Typ"]=$(this).attr("id").substr(14,99);
     masterData.settings.filterRessourcentyp=t.getFilter("filterRessourcen-Typ");
     churchInterface.jsendWrite({func:"saveSetting", sub:"filterRessourcentyp",
-               val:t.getFilter("filterRessourcen-Typ")});
+               val:(t.getFilter("filterRessourcen-Typ")!=""?t.getFilter("filterRessourcen-Typ"):-1)});
     t.renderView();
   });
 };
@@ -237,7 +237,7 @@ WeekView.prototype.checkFilter = function (a) {
   // eintrag wurde geloescht o.ae.
   if (a==null) return false;
   
-  if ((filter["filterRessourcen-Typ"]!=null) && (filter["filterRessourcen-Typ"]!="") && (a.resourcetype_id!=filter["filterRessourcen-Typ"]))
+  if ((filter["filterRessourcen-Typ"]!=null) && (filter["filterRessourcen-Typ"]!="-1") && (a.resourcetype_id!=filter["filterRessourcen-Typ"]))
     return false;
 
   return true;
@@ -491,7 +491,7 @@ function renderBookings(bookings) {
         txt=txt+"<a href=\"#"+a.viewing_date.toStringEn()+"\" class=\"tooltips\" id=\"edit"+a.id+"\" data-tooltip-id=\""+a.id+"\" style=\"font-weight:normal;"+color+"\">"+starttxt+"-"+endtxt+"h "+text+ort+"</a>";
       else
         txt=txt+"<span style=\"cursor:default;font-weight:normal;"+color+"\" class=\"tooltips\" data-tooltip-id=\""+a.id+"\">"+starttxt+"-"+endtxt+"h "+text+ort+"</span>";
-      if (a.repeat_id>0) txt=txt+" "+weekView.renderImage("recurring",12);
+      if (a.repeat_id>0) txt=txt+"&nbsp;"+weekView.renderImage("recurring",12);
       txt=txt+"<br/>";
     }
   });
@@ -729,7 +729,7 @@ WeekView.prototype.renderTooltip = function(id) {
   txt=txt+"<tr><td>"+_("start.date")+"<td>"+a.startdate.toStringDe(true);
   txt=txt+"<tr><td>"+_("end.date")+"<td>"+a.enddate.toStringDe(true);
   if (a.location!="")
-    txt=txt+"<tr><td>"+_("location")+"<td>"+a.location;
+    txt=txt+"<tr><td>"+_("note")+"<td>"+a.location;
   if (a.repeat_id!=0) {
     txt=txt+"<tr><td>"+_("repeats")+"<td>";
     if (a.repeat_frequence>1)
@@ -940,15 +940,17 @@ WeekView.prototype.addFurtherListCallbacks = function() {
 
   $("#cdb_content a").click(function(c) {
     // id ist bei Create=Resource_id, bei Edit ist es booking_id
-    id=$(this).attr("id").substr(4,99);
-    date=$(this).attr("href").substr(1,99);
-    clearTooltip();
-    
-    if ($(this).attr("id").indexOf("edit")==0)
-      t.showBookingDetails("edit", id, date);
-    else
-      if ($(this).attr("id").indexOf("new_")==0)
-        t.showBookingDetails("new", id, date);
+    if ($(this).attr("id")!=null) {
+      id=$(this).attr("id").substr(4,99);
+      date=$(this).attr("href").substr(1,99);
+      clearTooltip();
+      
+      if ($(this).attr("id").indexOf("edit")==0)
+        t.showBookingDetails("edit", id, date);
+      else
+        if ($(this).attr("id").indexOf("new_")==0)
+          t.showBookingDetails("new", id, date);
+    }
   });
 };
 
