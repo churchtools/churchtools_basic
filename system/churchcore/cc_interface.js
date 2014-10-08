@@ -204,6 +204,9 @@ ChurchInterface.prototype.jsend = function (name, obj, func, async, get, overwri
       async: async,
       type: (get?"GET":"POST"),
       success : function(json) {
+        if (json==null)
+          alert(_("error.occured")+": JSON-Result is null!");
+          
         t.clearStatus();
         // Error = ist was schlimmes passiert!
         if (json.status=="error")  {

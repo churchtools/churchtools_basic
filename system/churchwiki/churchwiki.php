@@ -178,7 +178,7 @@ function churchwiki_getWikiOnStartpage() {
   }
   $txt = "";
   foreach ($arr as $key => $cat) {
-    $txt .= '<li><p>Wiki ' . $key;
+    $txt .= '<li><p>' . getConf("churchwiki_name") . ' ' . $key;
     foreach ($cat as $wiki) {
       $txt .= '<br/><small><a href="?q=churchwiki#WikiView/filterWikicategory_id:' . $wiki->wikicategory_id . '/doc:' .
                $wiki->doc_id . '">' . ($wiki->doc_id == "main" ? "Hauptseite" : $wiki->doc_id) . "</a>";
@@ -210,15 +210,14 @@ function churchwiki_getWikiInfos() {
 
   $txt = "";
   foreach ($arr as $key => $cat) {
-    $txt .= '<li><p>Wiki ' . $key;
+    $txt .= '<li><p>' . getConf("churchwiki_name","Wiki") . ' ' . $key;
     foreach ($cat as $wiki) {
       $txt .= '<br/><small><a href="?q=churchwiki#WikiView/filterWikicategory_id:' . $wiki->wikicategory_id . '/doc:' .
                $wiki->doc_id . '">' . ($wiki->doc_id == "main" ? "Hauptseite" : $wiki->doc_id) . "</a>";
       $txt .= " - $wiki->date $wiki->user</small>";
     }
   }
-  if (!$txt) $txt = "<ul>" . $txt . "</ul>";
-  
+  if ($txt!="") $txt = "<ul>" . $txt . "</ul>";
   return $txt;
 }
 

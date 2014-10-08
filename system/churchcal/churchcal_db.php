@@ -224,7 +224,7 @@ function churchcal_updateEvent($params, $source = null) {
   }
   
   // it is only a move in calendar
-  if (empty($params["repeat_id"])) {
+  if (!isset($params["repeat_id"])) {
     $i = new CTInterface();
     $i->setParam("startdate", false);
     $i->setParam("enddate", false);
