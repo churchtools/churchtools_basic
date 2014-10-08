@@ -442,7 +442,6 @@ function churchdb_getPersonDetails($id, $withComments = true) {
       }
     }
     if (!$allowed) {
-      // TODO: maybe shorten next 2 lines to: if ($allowedDeps=user_access("view alldata", "churchdb")) {
       $allowedDeps = user_access("view alldata", "churchdb");
       if ($allowedDeps != null) {
         $res = db_query('
@@ -487,17 +486,22 @@ function churchdb_getPersonDetails($id, $withComments = true) {
   $person = db_query($sql, array (':pid' => $id))->fetch();
   if ($person!==false) {
     if ($withComments) {
-      $comments = db_query("SELECT id, text, person_id, datum, comment_viewer_id, relation_name 
-                            FROM {cdb_comment}
-                            WHERE relation_id=:relid AND relation_name like 'person%'
-                            ORDER BY datum DESC", 
-                            array (':relid' => $id));
       $auth = user_access("view comments", "churchdb");
-      if (($comments) && ($auth != null)) { // TODO: test for auth before DB query? if ($withComments &&
-                                          // $auth=user_access("view comments","churchdb"))
-        $arrs = null;
-        foreach ($comments as $arr) {
-          if ((isset($auth[$arr->comment_viewer_id])) && ($auth[$arr->comment_viewer_id] == $arr->comment_viewer_id)) $arrs[] = $arr;
+      if ($auth!=null) {
+        $comments = db_query("SELECT id, text, person_id, datum, comment_viewer_id, relation_name 
+                              FROM {cdb_comment}
+                              WHERE relation_id=:relid AND relation_name like 'person%'
+                              ORDER BY datum DESC", 
+                              array (':relid' => $id));
+        if ($comments) { 
+          $arrs = null;
+          foreach ($comments as $arr) {
+            if ((isset($auth[$arr->comment_viewer_id])) 
+                   && ($auth[$arr->comment_viewer_id] == $arr->comment_viewer_id)) { 
+              $arrs[] = $arr;
+            }
+          }
+          $person->comments=$arrs;
         }
       }
     }

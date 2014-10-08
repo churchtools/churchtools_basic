@@ -796,7 +796,7 @@ function _getPersonDataForExport($person_ids = null, $template = null) {
   global $user;
   
   $ids = null;
-  if ($person_ids == null) $ids = explode(",", $person_ids);
+  if ($person_ids != null) $ids = explode(",", $person_ids);
   
   // Check allowed persons
   $ps = churchdb_getAllowedPersonData();
@@ -907,10 +907,11 @@ function churchdb__export() {
   drupal_add_http_header('Content-Disposition', 'attachment; filename="churchdb_export.csv"', true);
   include_once ("churchdb_db.php");
   
-  $ids = (int) getVar("ids", null);
+  $ids = getVar("ids", null);
   $relPart = getVar("rel_part", null);
-  $relId = (int) getVar("rel_id", null);
+  $relId = getVar("rel_id", null);
   $template = _getExportTemplateByName(getVar("template", null));
+  
   $export = _getPersonDataForExport($ids, $template);
   
   $export = _addGroupRelationDataForExport($export, $template);
@@ -1025,7 +1026,7 @@ function churchdb__export() {
       if (isset($row[$col])) echo mb_convert_encoding('"' . $row[$col] . '";', 'ISO-8859-1', 'UTF-8');
       else echo ";";
     }
-    echo NL;
+    echo "\n";
   }
 }
 

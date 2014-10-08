@@ -199,7 +199,7 @@ class CTChurchDBModule extends CTAbstractModule {
                 SET followup_count_no=:followup_count, followup_add_diff_days=:followup_diff 
                 WHERE gemeindeperson_id=:gp_id AND gruppe_id=:followup_gid",
                 array(':followup_count' => $params["followup_count_no"],
-                      ':followup_add_diff_days' => $params["followup_diff"],
+                      ':followup_diff' => $params["followup_diff"],
                       ':gp_id' => $gp_id,
                       ':followup_gid' => $params["followup_gid"]
                 ));

@@ -3513,12 +3513,7 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
     width=350; height=300;
     rows.push("<h3>Anpassung von "+f("bereich_id")+"</h3><p><small>Eine Person muss in mindestens einem zugeordnet sein</small>");
     each(masterData.auth.dep, function(k,a) {
-      if (allPersons[id].access[a.id]==a.id) {
-        rows[rows.length]="<p><input type=\"checkbox\" id=\"InputBereich"+a.id+"\"/ checked=\"true\"/>";
-      }
-      else
-        rows[rows.length]="<p><input type=\"checkbox\" id=\"InputBereich"+a.id+"\"/>"; 
-      rows[rows.length]=' <label for="'+a.id+'">'+a.bezeichnung+'</label>';
+      rows.push(form_renderCheckbox({cssid:"InputBereich"+a.id, htmlclass:"department", data:[{name:"id", value:a.id}], checked:allPersons[id].access[a.id]==a.id, label:a.bezeichnung}));
     });
   }
   else if (fieldname=="f_image") {
