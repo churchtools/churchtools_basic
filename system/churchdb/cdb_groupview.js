@@ -458,7 +458,9 @@ GroupView.prototype.renderAddEntry = function() {
       }        
     });
   });
-  $("#divnewentry").animate({ height: 'toggle'}, "slow");  
+  $("#divnewentry").animate({ height: 'toggle'}, "slow", function() {
+    $("#inputName").focus();    
+  });  
 };
 
 
@@ -1397,7 +1399,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
   
   // Show 4 last comments
   var comments=new Array();
-  if (g.meetingList!=null && g.meetingList!="get data") {
+  if (g.meetingList!=null && g.meetingList!="get data" && g.meetingList.length>0) {
     
     rows.push('<p><small>');
     rows.push(form_renderImage({src:"box_green.png"})+" Anwesend &nbsp;");
@@ -1453,7 +1455,9 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
     }
     rows.push('<p>'+form_renderImage({src:'persons.png', width:18}));
     rows.push('&nbsp;<a href="#" style="width=100%" id="edit_meetinglist">Gruppentreffen pflegen</a>');
-    if ((masterData.groups[g_id].meetingList!=null) && (masterData.groups[g_id].meetingList!="get data")) {
+    if ((masterData.groups[g_id].meetingList!=null) 
+        && (masterData.groups[g_id].meetingList!="get data")
+        && (masterData.groups[g_id].meetingList.length>0)) {
       rows.push('<p>'+form_renderImage({src:'trashbox.png', width:18}));
       rows.push('&nbsp;<a href="#" id="del_last_statistic">Letztes Gruppentreffen zur&uuml;cksetzen</a>');
     }
