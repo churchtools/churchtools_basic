@@ -231,6 +231,7 @@
   <entry key="drop.file.for.uploading.here">Emplacement pour les fichiers à télécharger</entry>
   <entry key="error.occured">Une erreur est survenue</entry>
   <entry key="create">Créer</entry>
+  <entry key="resources">Ressource</entry>
   <entry key="resources">Ressources</entry>
   <entry key="embed">Intégrer</entry>
   <entry key="subscribe.per.ical">Souscrire par iCal</entry>
@@ -436,6 +437,7 @@
   <entry key="end">End</entry>
   <entry key="repeat.type">Repeat Type</entry>
   <entry key="repeat.to">Repeats</entry>
+  <entry key="conflicts">Conflicts</entry>
   <entry key="exceptions">Exceptions</entry>
   <entry key="additions">Additional Dates</entry>
   <entry key="new.booking.request">New Bookings</entry>

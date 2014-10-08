@@ -231,6 +231,7 @@
   <entry key="drop.file.for.uploading.here">Hier Dateien zum Hochladen fallen lassen</entry>
   <entry key="error.occured">Fehler aufgetreten</entry>
   <entry key="create">Erstellen</entry>
+  <entry key="resource">Ressource</entry>
   <entry key="resources">Ressourcen</entry>
   <entry key="embed">{0} einbetten</entry>
   <entry key="subscribe.to.ical">abonnieren iCal</entry>
@@ -433,6 +434,7 @@
   <entry key="end">Ende</entry>
   <entry key="repeat.type">Wiederholungstyp</entry>
   <entry key="repeat.to">Wiederholung</entry>
+  <entry key="conflicts">Konflikte</entry>
   <entry key="exceptions">Ausnahmen</entry>
   <entry key="additions">Weitere Termine</entry>
   <entry key="new.booking.request">Neue Buchungsanfrage</entry>

@@ -82,6 +82,9 @@ function churchresource_getAdminForm() {
   $model = new CTModuleForm("churchresource");
   $model->addField("churchresource_entries_last_days", "", "INPUT_REQUIRED", t('data.from.x.how.many.days.in.the.past.to.load', 'ChurchResource'))
     ->setValue($config["churchresource_entries_last_days"]);
+  if (getConf("churchresource_send_emails", null)==null) $config["churchresource_send_emails"] = true;
+  $model->addField("churchresource_send_emails", "", "CHECKBOX", t('enable.sending.emails'))
+    ->setValue($config["churchresource_send_emails"]);
   return $model;
 }
 

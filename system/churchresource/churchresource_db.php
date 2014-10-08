@@ -57,7 +57,7 @@ function churchresource_createBooking($params) {
   $txt = t('here.are.all.ressources.listed') . ":<p><small>";
   $txt .= '<table class="table table-condensed">';
   $txt .= "<tr><td>" . t('purpose') . "<td>$res->text";
-  $txt .= "<tr><td>" . t('ressource') . "<td>" . $info[$params["resource_id"]]->bezeichnung;
+  $txt .= "<tr><td>" . t('resource') . "<td>" . $info[$params["resource_id"]]->bezeichnung;
   $txt .= "<tr><td>" . t('start') . "<td>" . churchcore_stringToDateDe($res->startdate);
   $txt .= "<tr><td>" . t('end') . "<td>" . churchcore_stringToDateDe($res->enddate);
   
@@ -95,20 +95,22 @@ function churchresource_createBooking($params) {
          $txt;
   }
   $userIsAdmin = false;
-  if ($info[$params["resource_id"]]->admin_person_ids != -1) {
-    foreach (explode(',', $info[$params["resource_id"]]->admin_person_ids) as $adminId) {
-      // dont send mails for own actions to admin
-      if ($user->id != $adminId) {
-        $p = churchcore_getPersonById($adminId);
-        if ($p && $p->email) {
-          churchresource_send_mail("[". getConf('site_name')."] ". t('new.booking.request'). ": ". $params["text"], $txt_admin, $p->email);
+  if (getConf("churchresource_send_emails", true)) {
+    if ($info[$params["resource_id"]]->admin_person_ids != -1) {
+      foreach (explode(',', $info[$params["resource_id"]]->admin_person_ids) as $adminId) {
+        // dont send mails for own actions to admin
+        if ($user->id != $adminId) {
+          $p = churchcore_getPersonById($adminId);
+          if ($p && $p->email) {
+            churchresource_send_mail("[". getConf('site_name')."] ". t('new.booking.request'). ": ". $params["text"], $txt_admin, $p->email);
+          }
         }
+        else $userIsAdmin = true;
       }
-      else $userIsAdmin = true;
     }
-  }
-  if (!$userIsAdmin) {
-    churchresource_send_mail("[". getConf('site_name'). "] ". t('new.booking.request').": " . $params["text"], $txt_user, $user->email);
+    if (!$userIsAdmin) {
+      churchresource_send_mail("[". getConf('site_name'). "] ". t('new.booking.request').": " . $params["text"], $txt_user, $user->email);
+    }
   }
   $txt = churchcore_getFieldChanges(getBookingFields(), null, $res);
   cr_log("CREATE BOOKING\n" . $txt, 3, $res->id);
@@ -247,13 +249,15 @@ function churchresource_updateBooking($params, $changes = null) {
           $days[] = $exc["except_date_start"];
         }
       }
-      if (count($days) && $bUser) {
-        // TODO: use email template
-        // TODO: dont send such emails to users adding exceptions to their event in cal
-        $txt = "<h3>Hallo " . $bUser->vorname . "!</h3><p>Bei Deiner Serien-Buchungsanfrage '" . $params["text"] .
-             "' fuer " . $ressources[$params["resource_id"]]->bezeichnung . " mussten leider von " . $user->vorname . " " .
-             $user->name . " folgende Tage abgelehnt werden: <b>" . implode(", ", $days) . "</b><p>";
-        churchresource_send_mail("[" . getConf('site_name') . "] " . t('updated.booking.request') . ": " . $params["text"], $txt, $bUser->email);
+      if (getConf("churchresource_send_emails", true)) {
+        if (count($days) && $bUser) {
+          // TODO: use email template
+          // TODO: dont send such emails to users adding exceptions to their event in cal
+          $txt = "<h3>Hallo " . $bUser->vorname . "!</h3><p>Bei Deiner Serien-Buchungsanfrage '" . $params["text"] .
+               "' fuer " . $ressources[$params["resource_id"]]->bezeichnung . " mussten leider von " . $user->vorname . " " .
+               $user->name . " folgende Tage abgelehnt werden: <b>" . implode(", ", $days) . "</b><p>";
+          churchresource_send_mail("[" . getConf('site_name') . "] " . t('updated.booking.request') . ": " . $params["text"], $txt, $bUser->email);
+        }
       }
     }
     
@@ -324,9 +328,11 @@ function churchresource_updateBooking($params, $changes = null) {
     if ($params["status_id"] < 3) $txt .= '<p><a class="btn" href="' . $base_url . "?q=churchresource&id=" .
          $params["id"] . '">Zur Buchungsanfrage &raquo;</a>';
     $adminmails = explode(",", $ressources[$params["resource_id"]]->admin_person_ids);
-    // if current user is not admin OR is not the booking creating user
-    if (!in_array($user->id, $adminmails) || $user->id != $bUser->id) {
-      churchresource_send_mail("[". getConf('site_name'). "] Aktualisierung der Buchungsanfrage: ". $params["text"], $txt, $bUser->email);
+    if (getConf("churchresource_send_emails", true)) {
+      // if current user is not admin OR is not the booking creating user
+      if (!in_array($user->id, $adminmails) || $user->id != $bUser->id) {
+        churchresource_send_mail("[". getConf('site_name'). "] Aktualisierung der Buchungsanfrage: ". $params["text"], $txt, $bUser->email);
+      }
     }
   }
   
