@@ -1081,7 +1081,7 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
           logs=logs+"</div>";
           log.html(logs);
           $("#cr_logs a").click(function(c) {
-            if (($(this).attr("id")=="del_complete") && (user_access("edit", id))){
+            if (($(this).attr("id")=="del_complete") && (user_access("edit", t.currentBooking.resource_id))){
               if (confirm("Soll der Termin wirklich entfernt werden? Achtung, man kann es nicht mehr wiederherstellen!")) {
                 churchInterface.jsendWrite({func: "delBooking", id:id}, function(ok, json) {
                   allBookings[id]=null;
@@ -1090,8 +1090,12 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
                   elem.dialog("close");
                 });
               }
-            } else
-              $("#cr_logs_detail").animate({ height: 'toggle'}, "fast");
+            } 
+            else {
+              $("#cr_logs_detail").animate({ height: 'toggle'}, "fast", function() {                
+              });
+              elem.animate({scrollTop:elem.scrollTop()+160}, 500, 'swing');               
+            }
             return false;
           });
         }
