@@ -47,6 +47,6 @@ function simulate_main() {
   $form = new CTForm("SimulateUserForm", "prooveEmail");
   $form->setHeader(t('simulate.user'), t("simulate.information.text") . " " . t("please.enter.valid.email") . ":");
   $form->addField("email", "", "EMAIL", "EMail");
-  $form->addButton(t('simulate'), "ok");
+  $form->addButton(t('simulate.user'), "ok");
   return $form->render();
 }

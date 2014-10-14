@@ -627,6 +627,7 @@ function _churchdb_editPersonGroupRelation($p_id, $g_id, $leader, $date, $follow
       'gruppe_id' => $g_id, 
       'status_no' => $info_rel->status_no, 
       'letzteaenderung' => $info_rel->letzteaenderung, 
+      'comment' => $info_rel->comment,
       'aenderunguser' => $info_rel->aenderunguser
   );
   db_insert('cdb_gemeindeperson_gruppe_archive')->fields($fields)->execute();
@@ -672,7 +673,8 @@ function _churchdb_delPersonGroupRelation($p_id, $g_id) {
         'gruppe_id' => $g_id, 
         'status_no' => $info_rel->status_no, 
         'letzteaenderung' => $info_rel->letzteaenderung, 
-          'aenderunguser' => $info_rel->aenderunguser,
+         'aenderunguser' => $info_rel->aenderunguser,
+         'comment' => $info_rel->comment
         ))
     ->execute();
   
@@ -685,7 +687,8 @@ function _churchdb_delPersonGroupRelation($p_id, $g_id) {
         'status_no' => -99, 
         'letzteaenderung' => $dt->format('Y-m-d H:i:s'), //does new DateTime()->format('Y-m-d H:i:s') work?
           'aenderunguser' => $user->cmsuserid,
-        ))
+         'comment' => $info_rel->comment
+    ))
     ->execute();
   
   $info = getGroupInfo($g_id);
@@ -900,7 +903,8 @@ function getTagRelations() {
 function getOldGroupRelations() {
   if (!user_access("view history", "churchdb")) return null;
   
-  $res = db_query("SELECT gp.person_id id, gpa.gruppe_id gp_id, status_no leiter, gpa.letzteaenderung d, gpa.aenderunguser user 
+  $res = db_query("SELECT gp.person_id id, gpa.gruppe_id gp_id, status_no leiter, gpa.letzteaenderung d, 
+                   gpa.aenderunguser user, gpa.comment 
                    FROM {cdb_gemeindeperson_gruppe_archive} gpa, {cdb_gemeindeperson} gp 
                    WHERE gpa.gemeindeperson_id=gp.id ORDER BY gpa.letzteaenderung DESC");
   $arrs = null;

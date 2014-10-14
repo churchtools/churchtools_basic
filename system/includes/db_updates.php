@@ -1930,6 +1930,7 @@ function run_db_updates($db_version) {
   case '2.50':
     
     db_query("ALTER TABLE {cs_item} CHANGE note note VARCHAR(1024)");
+    db_query("ALTER TABLE {cdb_gemeindeperson_gruppe_archive} ADD comment VARCHAR( 512 ) NULL");
     set_version("2.51");    
     
   } //end switch

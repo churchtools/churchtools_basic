@@ -400,9 +400,9 @@ class CTChurchDBModule extends CTAbstractModule {
 
   public function addPersonGroupRelation($params) {
     return churchdb_addPersonGroupRelation($params["id"], $params["g_id"], $params["leader"], $params["date"],
-        getVar("followup_count_no", null, $param),
-        getVar("followup_erfolglos_zurueck_gruppen_id", null, $param),
-        getVar("comment", null, $param));
+        getVar("followup_count_no", null, $params),
+        getVar("followup_erfolglos_zurueck_gruppen_id", null, $params),
+        getVar("comment", null, $params));
   }
 
   public function getPersonByName($params) {

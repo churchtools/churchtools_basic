@@ -2284,14 +2284,19 @@ function _renderOldGroupEntry(og) {
     _style="color:gray;text-decoration:line-through;";
   else if (og.leiter==-99)
     _style="color:gray;text-decoration:line-through;";
-
+  
   _text=_text+'<i><small> > <a href="#" title="'+_title+'" style="'+_style+'" id="grp_'+og.gp_id+'">'+masterData.groups[og.gp_id].bezeichnung+"</a>";
   if (og.leiter>0)
     _text=_text+" ("+masterData.groupMemberTypes[og.leiter].bezeichnung+")";
   else if (og.leiter==-99)
     _text=_text+" <b>gel&ouml;scht</b>";
 
-  _text=_text+"</small><i><td><i><small>"+og.d.toDateEn().toStringDe()+"</small></i><td><td>";
+  _text=_text+"</small></i>";
+
+  if ((og.comment!=null) && ((masterData.auth.editgroups) || (groupView.isPersonLeaderOfGroup(masterData.user_pid, og.id))))
+    _text=_text+"&nbsp;"+t.renderImage("comment",16,"Kommentar: "+og.comment);
+  
+  _text=_text+"<td><i><small>"+og.d.toDateEn().toStringDe()+"</small></i><td><td>";
   return _text;
 }
 
