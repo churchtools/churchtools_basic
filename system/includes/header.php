@@ -82,7 +82,7 @@
 
   <? if (userLoggedIn()): ?>
           <div class="btn-group pull-right">
-            <? if ($simulate) :?><a class="btn" href="?q=simulate&link=<? $q ?>"><?= t('exit.simulation') ?></a><? endif; ?>
+            <? if ($simulate) :?><a class="btn" href="?q=simulate&link=<?= $q ?>"><?= t('exit.simulation') ?></a><? endif; ?>
             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
               <i class="icon-user"></i>&nbsp;<span class="hidden-phone"><?= $user->vorname?> <?= $user->name ?></span>
               <span class="caret"></span>

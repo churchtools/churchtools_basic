@@ -411,7 +411,7 @@ function churchtools_app() {
   // probably some more logic could be removed from them by setting some more variables here
   // put header/footer into new file layout.php and add a variable $content
   $lang     = getConf("language");
-  $simulate = getVar("simulate");
+  $simulate = getVar("simulate", false, $_SESSION);
   $sitename = getConf("site_name");
   if (getConf("test")) $sitename .= " TEST ";
   $logo = ($logo = getConf("site_logo")) ? "$files_dir/files/logo/$logo" : '';

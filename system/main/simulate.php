@@ -23,6 +23,7 @@ function _simulateUser($res) {
 
 function simulate_main() {
   if (isset($_SESSION["simulate"])) {
+    // End simulation
     $user = churchcore_getPersonById($_SESSION["simulate"]);
     $user->auth = getUserAuthorization($user->id);
     $_SESSION["user"] = $user;
