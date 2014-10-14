@@ -1888,7 +1888,8 @@ function user_access($auth, $modulename) {
  * @return boolean
  */
 function userLoggedIn() {
-  return (isset($_SESSION['user']) && $_SESSION['user']->id > 0);
+  global $user;
+  return (isset($user) && isset($_SESSION['user']) && $_SESSION['user']->id > 0);
 }
 
 /**

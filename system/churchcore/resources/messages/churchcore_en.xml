@@ -254,6 +254,7 @@
   <entry key="change.of.dataset">Changes in Dataset</entry>
   <entry key="personal.calendar">Personal Calendar</entry>
   <entry key="group.calendar">Group Calendar</entry>
+  <entry key="first.day.in.week">First day of week (0=Suday, 1=Monday, 2=Tuesday, ..)</entry>
   
   <entry key="january">January</entry>
   <entry key="february">February</entry>

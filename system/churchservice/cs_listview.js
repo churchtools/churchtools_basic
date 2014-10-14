@@ -363,7 +363,7 @@ ListView.prototype.renderEditEvent = function(event) {
       date_blocked=true;
     }
     else if (event.repeat_id>0) {
-      if (event.cal_startdate!=event.startdate) {
+      if (event.cal_startdate.toDateEn(false).toStringDe()!=event.startdate.toDateEn(false).toStringDe()) {
         rows.push('<div class="alert alert-error">Achtung: Es handelt sich um eine Terminserie. '+
             'Zur Anpassung der gesperrten Felder bitte das <a href="#" class="first-event">Startevent der Serie</a> editieren oder in '
             +masterData.churchcal_name+' bearbeiten.</div>');
@@ -600,7 +600,7 @@ ListView.prototype.renderEditEvent = function(event) {
 
   $("a.first-event").click(function() {
     each(allEvents, function(k,a) {
-      if (a.cc_cal_id==event.cc_cal_id && (a.cal_startdate=a.startdate)) {
+      if (a.cc_cal_id==event.cc_cal_id && (a.cal_startdate.toDateEn(false).toStringDe()==a.startdate.toDateEn(false).toStringDe())) {
         elem.dialog("close");
         this_object.renderEditEvent(a);
         return false;

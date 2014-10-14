@@ -19,6 +19,7 @@ function churchcal_main() {
   drupal_add_css(ASSETS . '/simplecolorpicker/jquery.simplecolorpicker.css');
   drupal_add_js(ASSETS . '/simplecolorpicker/jquery.simplecolorpicker.js');
   
+  drupal_add_js(ASSETS . '/fullcalendar/moment.min.js');
   drupal_add_js(ASSETS . '/fullcalendar/fullcalendar.min.js');
   
   drupal_add_js(CHURCHCORE . '/cc_abstractview.js');
@@ -84,11 +85,15 @@ function churchcal_getAdminForm() {
   global $config;
   
   $model = new CTModuleForm("churchcal");
-  if (empty($config["churchcal_maincalname"])) $config["churchcal_maincalname"] = "Gemeindekalender";
+  if (!isset($config["churchcal_maincalname"])) $config["churchcal_maincalname"] = "Gemeindekalender";
   $model->addField("churchcal_maincalname", "", "INPUT_REQUIRED", t('name.of.main.calendar'))
     ->setValue($config["churchcal_maincalname"]);
   
-  if (empty($config["churchcal_css"])) $config["churchcal_css"] = "";
+  if (!isset($config["churchcal_firstdayinweek"])) $config["churchcal_firstdayinweek"] = "1";
+  $model->addField("churchcal_firstdayinweek", "", "INPUT_REQUIRED", t('first.day.in.week'))
+    ->setValue($config["churchcal_firstdayinweek"]);
+  
+  if (!isset($config["churchcal_css"])) $config["churchcal_css"] = "";
   $model->addField("churchcal_css", "", "TEXTAREA", t('css.for.embedded.cal'))
     ->setValue($config["churchcal_css"]);
   

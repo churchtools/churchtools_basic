@@ -354,24 +354,38 @@ function churchservice_getCurrentEvents() {
                         AND DATEDIFF(e.startdate, NOW())<3
                       ORDER BY e.startdate");
   foreach ($events as $event) {
-    $firstrow = true;
-    $services = db_query("SELECT es.name, s.cdb_gruppen_ids, s.bezeichnung, es.zugesagt_yn
-                          FROM {cs_eventservice} es, {cs_service} s, {cs_servicegroup} sg
-                          WHERE es.valid_yn=1 AND es.service_id=s.id AND s.servicegroup_id=sg.id
-                          AND es.event_id=$event->id $groupWhere
-                          ORDER BY sg.sortkey, s.sortkey");
-    
-    if ($services) $txt .= '<li><a href="?q=churchservice&id=' . $event->id . '">' . "$event->datum - $event->bezeichnung</a><p>";
-    foreach ($services as $s) {
-//       if ($firstrow) { //TODO: should work before foreach :-)
-//         $txt .= '<li><a href="?q=churchservice&id=' . $event->id . '">' . "$event->datum - $event->bezeichnung</a><p>";
-//         $firstrow = false;
-//       }
-      $txt .= "<small>&nbsp; $s->bezeichnung: ";
-      if ($s->zugesagt_yn == 1) $txt .= $s->name;
-      else $txt .= '<font style="color:red">' . ($s->name ? $s->name : "?") . '</font>';
-      $txt .= "</small><br/>";
+    $firstrow=true;
+    $ess=db_query("SELECT es.name, s.cdb_gruppen_ids, s.bezeichnung, es.zugesagt_yn
+                  FROM {cs_eventservice} es, {cs_service} s, {cs_servicegroup} sg 
+                  WHERE es.valid_yn=1 and es.service_id=s.id and s.servicegroup_id=sg.id and  
+                        es.event_id=$event->id 
+                  ORDER BY sg.sortkey, s.sortkey");
+    foreach($ess as $es) {
+      $istdrin = false;
+      $service_groups = explode(',',$es->cdb_gruppen_ids);
+      foreach ($service_groups as $service_group) {
+        if (in_array($service_group, $mygroups))
+          $istdrin = true;
+      }   
+      if ($istdrin) {
+        if ($firstrow) {
+          $txt .= '<li><a href="?q=churchservice&id='.$event->id.'">'."$event->datum - $event->bezeichnung</a><p>";
+          $firstrow = false;
+        }
+        $txt .= "<small>&nbsp; $es->bezeichnung: ";
+        if ($es->zugesagt_yn == 1) {
+          $txt .= $es->name;
+        }
+        else {
+          $txt .= '<font style="color:red">';
+          if ($es->name != null) $txt .= $es->name;
+          $txt .= "?";  
+          $txt .= '</font>';
+        }
+        $txt .= "</small><br/>";
+      }
     }
+    
   }
   if ($txt) $txt = "<ul>$txt</ul>";
   

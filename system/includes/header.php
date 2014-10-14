@@ -97,7 +97,7 @@
               <li class="divider"></li>
     <? endif; ?>
     
-              <li><a href="?q=profile"><?= $user->password ? t("change.password"): t("set.password") ?></a></li>
+              <li><a href="?q=profile"><?= isset($user->password) ? t("change.password"): t("set.password") ?></a></li>
     <? if (user_access("view", "churchdb") && !empty($user->email)): ?>
               <li><a href="?q=churchdb/mailviewer"><?= t('sent.messages')?></a></li>
     <? endif; ?>

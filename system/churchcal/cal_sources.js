@@ -110,6 +110,7 @@ CalCCType.prototype.jsonCall = function(ids) {
           t.data[k].events=events;
           each(t.data[k].events, function(i,a) {
             a.startdate=a.startdate.toDateEn(true);
+            // with moment: a.startdate=moment(a.startdate, "YYYY-MM-DD HH:mm");
             a.enddate=a.enddate.toDateEn(true);
             if (a.repeat_until!=null)
               a.repeat_until=a.repeat_until.toDateEn(false);        

@@ -42,7 +42,7 @@ function cr_mapJsonBookings(a) {
 function cr_loadBookings(nextFunction) {
   churchInterface.setStatus("Lade Buchungen...");
   churchInterface.jsendRead({func:"getBookings" }, function(ok, json) {
-    each(json,function(k,a) {
+    each(json, function(k,a) {
       allBookings[a.id]=cr_mapJsonBookings(a);       
     });
     churchInterface.clearStatus();

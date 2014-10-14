@@ -14,6 +14,7 @@ class CTChurchCalModule extends CTAbstractModule {
     $ret["churchcal_name"]      = getConf("churchcal_name");
     $ret["churchresource_name"] = getConf("churchresource_name");
     $ret["maincal_name"]        = getConf("churchcal_maincalname", "Gemeindekalender");
+    $ret["firstDayInWeek"]      = getConf("churchcal_firstdayinweek", 1);
     $ret["base_url"]            = $base_url;
     $ret["user_pid"]            = $user->id;
     if (user_access("view", "churchdb")) $ret["absent_reason"] = churchcore_getTableData("cs_absent_reason");

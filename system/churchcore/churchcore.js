@@ -1,12 +1,16 @@
 debug=false;
 lang=new Array();
 dayNames= ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+DATETIMEFORMAT_EN= "YYYY-MM-DD HH:mm";
+DATEFORMAT_EN= "YYYY-MM-DD";
+DATETIMEFORMAT_DE= "DD.MM.YYYY HH:mm";
+DATEFORMAT_DE= "DD.MM.YYYY";
 
 // Contains all masterData
 var masterData=new Object();
  
 function _(s) {
-  var modulename="churchcore"
+  var modulename="churchcore";
   res=lang[modulename][s];
   if (res==null && masterData!=null && masterData.modulename!=null) {
     res=lang[masterData.modulename][s];
@@ -112,7 +116,7 @@ function churchcore_isObjectEmpty(obj) {
  * @returns
  */
 function each(obj, func) {
-  if (obj===null || func===null) return null;
+  if (obj===null || func===null || obj==="") return null;
   if (obj instanceof Array) {
     var i=0;
     for ( ; i < obj.length; i++ ) {
@@ -140,7 +144,7 @@ function churchcore_getFirstElement(obj) {
   var elem=null;
   for (k in obj) {
     elem=obj[k];
-    return false;
+    break;
   }
   return elem;
 }

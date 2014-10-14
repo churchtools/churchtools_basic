@@ -254,6 +254,7 @@
   <entry key="change.of.dataset">Changement d'ensembles de données</entry>
   <entry key="personal.calendar">Agenda personnel</entry>
   <entry key="group.calendar">Groupe d'agendas</entry>
+  <entry key="first.day.in.week">First day of week (0=Suday, 1=Monday, 2=Tuesday, ..)</entry>
   
   <entry key="january">Janvier</entry>
   <entry key="february">Février</entry>

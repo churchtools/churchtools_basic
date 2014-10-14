@@ -16,6 +16,7 @@ var minical=false;
 var max_entries=50;
 var printview=false;
 
+
 function mapEvents(allEvents) {
   var cs_events= new Array();
   each(allEvents, function(k,a) {
@@ -27,6 +28,7 @@ function mapEvents(allEvents) {
           o.title= '<span class="event-title">'+a.bezeichnung+'</span>';
           if ((a.notizen!=null) && (a.notizen!="")) o.notizen=a.notizen;
           if ((a.link!=null) && (a.link!="")) o.link=a.link;
+          if ((a.ort!=null) && (a.ort!='')) o.title=o.title+' <span class="event-location">'+a.ort+'</span>';
           // Now get the service texts out of the events
           if (a.events!=null) {
             each(a.events, function(i,e) {
@@ -37,7 +39,6 @@ function mapEvents(allEvents) {
               }
             });
           }
-          if ((a.ort!=null) && (a.ort!='')) o.title=o.title+' <span class="event-location">'+a.ort+'</span>';
           if (a.bookings!=null) {
             o.title=o.title+'<span class="event-resources">';
             each(a.bookings, function(i,e) {
@@ -46,9 +47,13 @@ function mapEvents(allEvents) {
             o.title=o.title+'</span>';
           }
           o.start= d.startdate;
-            o.end = d.enddate;
+          o.end = d.enddate;
           // Tagestermin?
-          o.allDay=churchcore_isAllDayDate(o.start, o.end);
+          if (churchcore_isAllDayDate(o.start, o.end)) {
+            o.allDay=churchcore_isAllDayDate(o.start, o.end);
+            // Add 1 day, because fullCalendar 2.0 works with exclusive end date!
+            o.end.addDays(1);            
+          }
           
           if ((a.category_id!=null) && (masterData.category[a.category_id].color!=null))
             o.color=masterData.category[a.category_id].color;
@@ -64,14 +69,17 @@ function mapEvents(allEvents) {
  * Collect database conform event vom source
  */
 function getEventFromEventSource(event) {
-  if ((event.source.container.data==null) || (event.source.category_id==0)
+  if ((event.source==null) || (event.source.container.data==null) 
+       || (event.source.category_id==0)
              || (event.source.container.data[event.source.category_id]==null))
     return null;
   else
     return event.source.container.data[event.source.category_id].events[event.id];
 }
 
-function _eventDrop(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view ) {
+function _eventDrop(event, delta, revertFunc, jsEvent, ui, view ) {
+  if (debug) console.log("_eventDrop", event, delta, revertFunc, jsEvent, ui, view);
+  
   var myevent=getEventFromEventSource(event);
   if (myevent==null) {
     alert("Fehler oder keine Rechte!");
@@ -88,10 +96,18 @@ function _eventDrop(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, u
     return null;
   }
   
-  myevent.startdate.addDays(dayDelta);
-  myevent.enddate.addDays(dayDelta);
-  myevent.startdate.setMinutes(myevent.startdate.getMinutes()+minuteDelta);
-  myevent.enddate.setMinutes(myevent.enddate.getMinutes()+minuteDelta);
+  var start=moment(myevent.startdate);
+  start.add(delta);
+  myevent.startdate=start.format(DATETIMEFORMAT_EN).toDateEn(true);
+  if (event.end==null) {
+    myevent.enddate=new Date(myevent.startdate);
+    myevent.enddate.setMinutes(myevent.startdate.getMinutes()+120);
+  }
+  else {
+    var end=moment(myevent.enddate);
+    end.add(delta);
+    myevent.enddate=end.format(DATETIMEFORMAT_EN).toDateEn(true); 
+  }
   var o = new Object();
   o.func="updateEvent";
   o.startdate=myevent.startdate;
@@ -100,7 +116,8 @@ function _eventDrop(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, u
   o.bookings=myevent.bookings;
   o.bezeichnung=myevent.bezeichnung;
   o.category_id=myevent.category_id;
-  if (allDay) {
+  // All Day event
+  if (!event.start.hasTime()) {
     o.startdate=o.startdate.toStringDe(false).toDateDe(false);
     // Wenn er nur einen Tag geht, dann ist wohl manchmal enddate==null
     if (o.enddate==null) {
@@ -121,7 +138,7 @@ function _eventDrop(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, u
       revertFunc();
     }
     // Wenn es Wiederholungstermine gibt, kann es bei Verschiebung notwendig sein neu zu rendern wegen Ausnahmetagen!
-    if ((myevent.repeat_id>0 && dayDelta!=0) || (o.bookings!=null)) {
+    if ((myevent.repeat_id>0 && delta.asDays()!=0) || (o.bookings!=null)) {
       calCCType.refreshView(myevent.category_id, o.bookings!=null);
     }
     if (o.bookings!=null) {
@@ -131,7 +148,9 @@ function _eventDrop(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, u
   }, true, false);
 }
 
-function _eventResize(event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, view) {
+function _eventResize(event, delta, revertFunc, jsEvent, ui, view) {
+  if (debug) console.log("_eventResize", event, delta);
+
   var myevent=getEventFromEventSource(event);
   if ((myevent==null) || (masterData.auth["edit category"]==null) || (masterData.auth["edit category"][event.source.category_id]==null)) {
     alert("Fehler oder keine Rechte!");
@@ -146,8 +165,9 @@ function _eventResize(event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, vie
       return null;
     }
     
-    myevent.enddate.addDays(dayDelta);
-    myevent.enddate.setMinutes(myevent.enddate.getMinutes()+minuteDelta);
+    var m=moment(myevent.enddate);
+    m.add(delta);
+    myevent.enddate=m.format(DATETIMEFORMAT_EN).toDateEn(true);
     churchInterface.jsendWrite({func:"updateEvent", id:event.id, startdate:myevent.startdate,
         enddate:myevent.enddate, bezeichnung:myevent.bezeichnung, category_id:myevent.category_id,
          bookings:myevent.bookings}, function(ok, data) {
@@ -165,10 +185,14 @@ function _eventResize(event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, vie
   }
 }
   
-function _select(start, end, allDay, a, view) {
+function _select(start, end, jsEvent, view) {
+  if (debug) console.log("_select", start, end, jsEvent, view);
+
   var event = new Object();
-  event.startdate=start;
-  event.enddate=end;
+  event.startdate=start.format(DATETIMEFORMAT_EN).toDateEn(true);
+  event.enddate=end.format(DATETIMEFORMAT_EN).toDateEn(true);
+  // fullCalendar works with exclusive dates, CT not!
+  if (!start.hasTime()) event.enddate.addDays(-1);
   editEvent(event, view.name=="month");
   calendar.fullCalendar('unselect');
 }
@@ -393,7 +417,7 @@ function _renderEditEventContent(elem, currentEvent) {
     rows.push(form_renderInput({
       value:currentEvent.ort,
       cssid:"inputOrt",
-      label:_("location"),
+      label:_("note"),
       placeholder:""
     }));
     rows.push('<div id="internVisible"></div>');
@@ -754,8 +778,8 @@ function saveEvent(event) {
 
 function cloneEvent(event) {
   var e=jQuery.extend(true, {}, event);
-  e.startdate=new Date(event.startdate.getTime());
-  e.enddate=new Date(event.enddate.getTime());
+  e.startdate=event.startdate;
+  e.enddate=event.enddate;
   if (event.repeat_until!=null)
     e.repeat_until=new Date(event.repeat_until.getTime());
   return e;
@@ -872,7 +896,7 @@ function delEvent(event, func) {
   });
 }
 
-function delEventFormular(event, func) {
+function delEventFormular(event, func, currentDate) {
   if (event.repeat_id>0) {
     var txt="Es handelt sich um einen Termin mit Wiederholungen, welche Termine sollen entfernt werden?";
     if (event.event_id) txt=txt+" <br><b>Achtung, zugeordnete Dienste werden damit abgesagt!</b>";
@@ -899,15 +923,17 @@ function delEventFormular(event, func) {
 }
 
 function _viewChanged(view) {
+  if (debug) console.log("_viewChanged", view);
+    
   if (saveSettingTimer!=null) window.clearTimeout(saveSettingTimer);
   saveSettingTimer=window.setTimeout(function() {
     if ((masterData.settings["viewName"]==null) || (masterData.settings["viewName"]!=view.name)) {
       masterData.settings["viewName"]=view.name;
       churchInterface.jsendWrite({func:"saveSetting", sub:"viewName", val:view.name});
     }
-    if ((masterData.settings["startDate"]==null) || (masterData.settings["startDate"]!=view.start.toStringEn(false))) {
-      masterData.settings["startDate"]=view.start.toStringEn(false);
-      churchInterface.jsendWrite({func:"saveSetting", sub:"startDate", val:view.start.toStringEn(false)});
+    if ((masterData.settings["startDate"]==null) || (masterData.settings["startDate"]!=view.start.format(DATEFORMAT_EN))) {
+      masterData.settings["startDate"]=view.start.format(DATEFORMAT_EN);
+      churchInterface.jsendWrite({func:"saveSetting", sub:"startDate", val:view.start.format(DATEFORMAT_EN)});
     }
     saveSettingTimer=null;
   },700);
@@ -945,16 +971,17 @@ function categoryAdminable(category_id) {
 }
 
 function _eventClick(event, jsEvent, view ) {
+  if (debug) console.log("_eventClick", event, jsEvent, view);
   clearTooltip(true);
   var rows = new Array();
   rows.push('<legend>'+event.title+'</legend>');
-  rows.push('<p>Startdatum: '+event.start.toStringDe(!event.allDay));
+  rows.push('<p>Startdatum: '+event.start.format(event.start.hasTime()?DATETIMEFORMAT_DE:DATEFORMAT_DE));
   if (event.end!=null)
-    rows.push('<p>Enddatum: '+event.end.toStringDe(!event.allDay));
+    rows.push('<p>Enddatum: '+event.end.format(event.end.hasTime()?DATETIMEFORMAT_DE:DATEFORMAT_DE));
   
   var myEvent=getEventFromEventSource(event);
   if ((myEvent!=null) && (categoryEditable(myEvent.category_id))) {
-    editEvent(myEvent, view.name=="month", event.start);
+    editEvent(myEvent, view.name=="month", event.start.format(DATETIMEFORMAT_EN).toDateEn(true));
   }
   else
     form_showOkDialog("Termin: "+event.title, rows.join(""), 400, 400);
@@ -989,7 +1016,7 @@ function initCalendarView() {
         right: 'agendaDay,agendaWeek,month'
       },
       //aspectRatio: 1.7,
-      firstDay:1,
+      firstDay:masterData.firstDayInWeek,
       contentHeight: _calcCalendarHeight(),
       defaultEventMinutes:90,
       editable: true,
@@ -1000,33 +1027,39 @@ function initCalendarView() {
       dayNames: dayNames,
       dayNamesShort: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
       buttonText: {
-        prev:     '&nbsp;&#9668;&nbsp;',  // left triangle
-        next:     '&nbsp;&#9658;&nbsp;',  // right triangle
-        prevYear: '&nbsp;&lt;&lt;&nbsp;', // <<
-        nextYear: '&nbsp;&gt;&gt;&nbsp;', // >>
+        prev:     '<<',  // left triangle
+        next:     '>>',  // right triangle
+        prevYear: '<<', // <<
+        nextYear: '>>', // >>
         today:    _("today"),
         month:    _("month"),
         week:     _("week"),
         day:      _("day")
       },
       timeFormat: {
-    // for agendaWeek and agendaDay
-    agenda: "H:mm{-H:mm}", // 5:00 - 6:30
+        // for agendaWeek and agendaDay
+        agenda: 'H:mm', // 5:00
+
         // for all other views
-        '': "H(:mm)'h'"
-    },
-    // No Text for allDay, not necessary
-    allDayText:'',
-    firstHour:10,
-    defaultView:((masterData.settings!=null)&&(masterData.settings["viewName"]!=null)?masterData.settings["viewName"]:"month"),
-    axisFormat:"H:mm",
-    columnFormat : {
-      month: 'ddd',    // Mon
-      week: 'ddd d.M.', // Mon 9/7
-      day: 'dddd d.M.'  // Monday 9/7
+        month: "H(:mm)[h]"  // 7p
       },
-      eventDragStart:  function() {clearTooltip(true);},
-      eventResizeStart:  function() {clearTooltip(true);},
+      // No Text for allDay, not necessary
+      allDayText:'',
+      firstHour:10,
+      defaultView:((masterData.settings!=null)&&(masterData.settings["viewName"]!=null)?masterData.settings["viewName"]:"month"),
+      axisFormat:"H:mm",
+      columnFormat : {
+        month: 'ddd',    // Mon
+        week: 'ddd D.M.', // Mon 9/7
+        day: 'dddd D.M.'  // Monday 9/7
+      },
+      eventLimit: {
+        'month': 6, // adjust to 6 only for agendaWeek/agendaDay
+        'default': true // give the default value to other views
+      },
+      eventLimitText: _("more"),
+      eventDragStart:  function() {clearTooltip(true); },
+      eventResizeStart:  function() {clearTooltip(true); },
       eventDrop: _eventDrop,
       eventResize: _eventResize,
       viewRender: _viewChanged,
@@ -1036,19 +1069,18 @@ function initCalendarView() {
         clearTooltip(false);
       },
       eventRender: function (event, element) {
-        element.find('div.fc-event-title').html(element.find('div.fc-event-title').text());
-        element.find('span.fc-event-title').html(element.find('span.fc-event-title').text());
+        element.find('.fc-title').html(element.find('.fc-title').text());
       },
       selectable:true,
       selectHelper:true,
       select: _select
     });
     if (!embedded)
-      $("td.fc-header-left").append("&nbsp; "+form_renderImage({src:"cal.png", width:28, htmlclass:"open-cal", link:true})+'<div style="position:absolute;z-index:12001" id="dp_month"></div>');
-    $("td.fc-header-left").append(" "+form_renderImage({src:"printer.png", width:28, htmlclass:"printview", link:true})+'<div style="position:absolute;z-index:12001" id="dp_month"></div>');
-      if (!embedded) {
-      $("td.fc-header-right").append('<span id="yearView" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content">'+_("year")+'</span><span class="fc-button-effect"><span></span></span></span></span>');
-      $("td.fc-header-right").append('<span id="eventView" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content"><i class="icon-list"></i></span><span class="fc-button-effect"><span></span></span></span></span>');
+      $("div.fc-left").append("&nbsp; "+form_renderImage({src:"cal.png", width:28, htmlclass:"open-cal", link:true})+'<div style="position:absolute;z-index:12001" id="dp_month"></div>');
+    $("div.fc-left").append(" "+form_renderImage({src:"printer.png", width:28, htmlclass:"printview", link:true})+'<div style="position:absolute;z-index:12001" id="dp_month"></div>');
+    if (!embedded) {
+      $("div.fc-right>div.fc-button-group").append('<button type="button" id="yearView" class="fc-button fc-state-default fc-corner-right">'+_("year")+'</button>');
+      $("div.fc-right>div.fc-button-group").append('<button type="button" id="eventView" class="fc-button fc-state-default fc-corner-right"><i class="icon-list"></button>');
     }
     if (printview) {
       // Strange, but necessary!!
@@ -1061,14 +1093,13 @@ function initCalendarView() {
     $("#header").html("");
     if ($("#viewdate").val()!=null) {
       var viewdate=$("#viewdate").val().toDateEn();
-      calendar.fullCalendar( 'gotoDate', viewdate.getFullYear(), viewdate.getMonth(), viewdate.getDate());
+      calendar.fullCalendar( 'gotoDate', viewdate);
     }
   }
   else if (viewName=="yearView") {
     calendar.yearCalendar({});
-    $("#header").append('<span id="calView" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content">'+_("calendar")+'</span><span class="fc-button-effect"><span></span></span></span></span>');
-    $("#header").append('<span id="yearView" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content">'+_("year")+'</span><span class="fc-button-effect"><span></span></span></span></span>');
-    $("#header").append('<span id="eventView" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content"><i class="icon-list"></i></span><span class="fc-button-effect"><span></span></span></span></span>');
+    $("#header").append('<button type="button" id="calView" style="overflow:inherit" class="fc-button fc-state-default fc-corner-right">'+_("calendar")+'</button>');
+    $("#header").append('<button type="button" id="eventView" class="fc-button fc-state-default fc-corner-right"><i class="icon-list"></button>');
   }
   else if (viewName=="eventView") {
     var enddate=null;
@@ -1076,17 +1107,14 @@ function initCalendarView() {
       enddate=$("#init_enddate").val().toDateEn(true);
     calendar.eventCalendar({startdate:d, enddate:enddate});
     $("#header").append(form_renderInput({controlgroup:false, cssid:"searchEntry", placeholder:_("search"),htmlclass:"input-medium search-query"}));
-    $("#header").append('<span id="calView" style="overflow:inherit" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content">Kalender</span><span class="fc-button-effect"><span></span></span></span></span>');
-    $("#header").append('<span id="yearView" style="overflow:inherit" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content">Jahr</span><span class="fc-button-effect"><span></span></span></span></span>');
-    $("#header").append('<span id="eventView" style="overflow:inherit" class="fc-button fc-state-default fc-corner-right"><span class="fc-button-inner"><span class="fc-button-content"><i class="icon-list"></i></span><span class="fc-button-effect"><span></span></span></span></span>');
+    $("#header").append('<button type="button" id="calView" style="overflow:inherit" class="fc-button fc-state-default fc-corner-right">'+_("calendar")+'</button>');
   }
   else
     alert("Unkwnown viewname!");
   $("a.open-cal").click(function() {
     form_implantDatePicker('dp_month', masterData.settings["startDate"].toDateEn(), function(dateText) {
-      console.log(dateText);
       var viewdate=dateText.toDateDe();
-      calendar.fullCalendar( 'gotoDate', viewdate.getFullYear(), viewdate.getMonth(), viewdate.getDate());
+      calendar.fullCalendar( 'gotoDate', viewdate);
       calendar.fullCalendar('render');
       
     });
@@ -1135,14 +1163,25 @@ function renderTooltip(event) {
   rows.push('<div id="tooltip_inner" class="CalView">');
   rows.push('<ul><li>');
   
+  var start_txt=event.start.format(event.start.hasTime()?DATETIMEFORMAT_DE:DATEFORMAT_DE);
+  
   if (event.end==null)
-    rows.push(event.start.toStringDe(!event.allDay));
+    rows.push(start_txt);
   else {
-    if (event.end.toStringDe(false)!=event.start.toStringDe(false))
-      rows.push(event.start.toStringDe(!event.allDay)+' - '+event.end.toStringDe(!event.allDay));
+    if (!event.end.isSame(event.start, "day")) {
+      rows.push(start_txt);
+      if (event.end.hasTime())
+        rows.push(' - '+event.end.format(DATETIMEFORMAT_DE));
+      else { 
+        var end=event.end.format(DATEFORMAT_EN).toDateEn(false);
+        end.addDays(-1);
+        if (end.toStringDe(false)!=start_txt)
+        rows.push(' - '+end.toStringDe(false));
+      }
+    }
     else {
-      var min=((""+event.end.getMinutes()).length==1?"0"+event.end.getMinutes():event.end.getMinutes());
-      rows.push(event.start.toStringDe(!event.allDay)+' - '+event.end.getHours()+":"+min);
+      rows.push(start_txt);
+      rows.push(' - '+event.end.format("hh:mm"));  
     }
   }
   
@@ -1198,6 +1237,8 @@ function renderTooltip(event) {
     }
   }
   else {
+    if (event.source==null) return null;
+    
     if (event.bezeichnung!=null)
       title=title+" ("+event.bezeichnung+")";
 
@@ -1212,6 +1253,10 @@ function renderTooltip(event) {
 }
 
 function _eventMouseover(event, jsEvent, view) {
+  if (debug) console.log("_eventMouseover", event, jsEvent, view);
+
+  if (event.source==null) return;
+  
   var placement="bottom";
   if (jsEvent.pageX>$("#calendar").width()+$("#calendar").position().left-100)
     placement="left";
@@ -1244,7 +1289,7 @@ function _eventMouseover(event, jsEvent, view) {
         clearTooltip(true);
         currentDate=data.event.start;
         currentEvent=event;
-        delEventFormular(event);
+        delEventFormular(event, null, data.event.start.format(DATETIMEFORMAT_EN).toDateEn(true));
         return false;
       });
     }

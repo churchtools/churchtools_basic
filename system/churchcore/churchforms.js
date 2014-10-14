@@ -2163,10 +2163,12 @@ $.widget("ct.tooltips", {
   },
 
   _hideTooltip: function() {
-    this._visible=false;
-    this.element.removeClass("tooltips-active");
-    this.element.popover("hide");
-    this.element.data("popover", null);
+    if (this._visible) {
+      this._visible=false;
+      this.element.removeClass("tooltips-active");
+      this.element.popover("hide");
+      this.element.data("popover", null);
+    }
     if (currentTooltip!=null && currentTooltip==this.element)
       currentTooltip=null;
   },
@@ -2174,8 +2176,13 @@ $.widget("ct.tooltips", {
 
   _showTooltip: function() {
     var t=this;
-    t._visible=true;
     var content=t.options.render(this.options.data);
+    if (content==null) {
+      t._hideTooltip();
+      return;
+    }
+    t._visible=true;
+    
     if (content instanceof(Array))
       t.element.popover({
         content:content[0], html:true, title:content[1],

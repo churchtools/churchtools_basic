@@ -286,7 +286,7 @@ class CC_Field extends CC_HTMLElement {
 //   $formData = filter_input_array(INPUT_POST, $args);
 
   public function isValid() {
-    if ($this->isRequired() && empty($this->value)) {
+    if ($this->isRequired() && $this->value=="") {
       $this->error = t("please.complete.this.field");
       return false;
     }
@@ -326,7 +326,7 @@ class CC_Field extends CC_HTMLElement {
         $txt .= '<input class="span3" name="'.$this->form->getName().'['.$this->getName().']" id="'.
                   $this->form->getName(). '_'. $this->getName(). '" ';
         $txt .= ($this->fieldType == "PASSWORD" ? 'type="password" ' : 'type="text" ').
-                  ($this->value ? ' value="'. $this->value. '" ' : ''). ($this->autofocus ? ' autofocus="autofocus"/>' : '/>').NL;
+                  (isset($this->value) ? ' value="'. $this->value. '" ' : ''). ($this->autofocus ? ' autofocus="autofocus"/>' : '/>').NL;
       }
       if ($this->error) $txt .= '<span class="help-inline error">' . $this->error . '</span>';
       $txt .= '</div>'.NL;

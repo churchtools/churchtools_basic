@@ -482,15 +482,15 @@ function renderBookings(bookings) {
       else color="";
     }
     else color="color:black";
-      ort="";
-      text=a.text.substr(0,15);
-      if (text!=a.text) text=text+"..";
+      text=a.text;
+      if (a.location) 
+        text=text+" ("+a.location+")";
     if (color!="") {
       if ((!this.printview) &&
            ((masterData.auth.write) && (a.person_id==masterData.user_pid)) || ((user_access("edit", a.resource_id))))
-        txt=txt+"<a href=\"#"+a.viewing_date.toStringEn()+"\" class=\"tooltips\" id=\"edit"+a.id+"\" data-tooltip-id=\""+a.id+"\" style=\"font-weight:normal;"+color+"\">"+starttxt+"-"+endtxt+"h "+text+ort+"</a>";
+        txt=txt+"<a href=\"#"+a.viewing_date.toStringEn()+"\" class=\"tooltips\" id=\"edit"+a.id+"\" data-tooltip-id=\""+a.id+"\" style=\"font-weight:normal;"+color+"\">"+starttxt+"-"+endtxt+"h "+text.trim(17)+"</a>";
       else
-        txt=txt+"<span style=\"cursor:default;font-weight:normal;"+color+"\" class=\"tooltips\" data-tooltip-id=\""+a.id+"\">"+starttxt+"-"+endtxt+"h "+text+ort+"</span>";
+        txt=txt+"<span style=\"cursor:default;font-weight:normal;"+color+"\" class=\"tooltips\" data-tooltip-id=\""+a.id+"\">"+starttxt+"-"+endtxt+"h "+text.trim(17)+"</span>";
       if (a.repeat_id>0) txt=txt+"&nbsp;"+weekView.renderImage("recurring",12);
       txt=txt+"<br/>";
     }

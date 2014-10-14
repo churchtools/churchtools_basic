@@ -208,7 +208,7 @@ function churchcal_updateEvent($params, $source = null) {
   $changes = array ();
   
   // if source is another module rights are already checked
-  if ($source) {
+  if ($source==null) {
     // can user edit current event category?
     if (!churchcal_isAllowedToEditCategory($params["category_id"])) return CTNoPermission("AllowedToEditCategory[" .
          $params["category_id"] . "]", "churchcal");
@@ -328,7 +328,7 @@ function churchcal_updateEvent($params, $source = null) {
     $cs_params["id"] = null;
     
     // FIXME: without the if there was an error on changing events (endtime). Is there somethin else wrong?  
-    if (isset($old_cal)) $cs_params["old_startdate"] = $old_cal->startdate; 
+    $cs_params["old_startdate"] = $old_cal->startdate; 
     if ($source == null) $source = "churchcal";
     
     churchservice_updateEventFromChurchCal($cs_params, $source);
@@ -465,7 +465,7 @@ function churchcal_getCalPerCategory($params, $withintern = null) {
     }
     if ($arr->event_id) {
       // Get additional Service text infos, like "Preaching with [Vorname]"
-      $service_texts = null; // TODO: why not $service_texts = array() here?
+      $service_texts = array ();
       $es = db_query("
         SELECT es.name, s.id, es.cdb_person_id, s.cal_text_template from {cs_service} s, {cs_eventservice} es 
         WHERE es.event_id=:event_id AND es.service_id=s.id and es.valid_yn=1 and es.zugesagt_yn=1 
@@ -474,7 +474,6 @@ function churchcal_getCalPerCategory($params, $withintern = null) {
       
       foreach ($es as $e) if ($e) {
         if (strpos($e->cal_text_template, "[") === false) {
-          if (!$service_texts) $service_texts = array ();
           $txt = $e->cal_text_template;
         }
         if ($e->cdb_person_id) {
@@ -484,11 +483,10 @@ function churchcal_getCalPerCategory($params, $withintern = null) {
                          array (":id" => $e->cdb_person_id))
                          ->fetch();
           if ($p) {
-            if (!$service_texts) $service_texts = array ();
             $txt = churchcore_personalizeTemplate($e->cal_text_template, $p);
           }
         }
-        if ($service_texts && array_search($txt, $service_texts) === false) { //TODO: maybe use in_array() instead
+        if (!in_array($txt, $service_texts)) { //TODO: maybe use in_array() instead
           $service_texts[] = $txt;
         }
       }
