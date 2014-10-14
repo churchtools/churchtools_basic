@@ -814,7 +814,8 @@ function _getPersonDataForExport($person_ids = null, $template = null) {
         $departments[] = $department[$depId]->bezeichnung;
       }
       $detail->bereich_id = implode('::', $departments);
-      $detail->station_id = $station[$detail->station_id]->bezeichnung;
+      if (isset($detail->station_id))
+        $detail->station_id = $station[$detail->station_id]->bezeichnung;
       if (user_access("view alldetails", "churchdb")) $detail->status_id = $status[$detail->status_id]->bezeichnung;
       else if ($status[$detail->status_id]->mitglied_yn == 1) $detail->status_id = "Mitglied";
       else $detail->status_id = "Kein Mitglied";
@@ -917,19 +918,20 @@ function churchdb__export() {
   $export = _addGroupRelationDataForExport($export, $template);
   
   // if filtered by relations, load and export linked persons too
-  // FIXME: unsanitized get data inserted in sql query! change to use :var syntax with params!
   foreach ($export as $key => $entry) {
     if ($relPart && $relId) {
       $id = null;
       if ($relPart == "k") {
         $rel = db_query("SELECT * FROM {cdb_beziehung}
-                        WHERE beziehungstyp_id=" . $relId . " AND vater_id=" . $key)
+                        WHERE beziehungstyp_id=:relId AND vater_id=:key",
+                        array(":relId"=>$relId, "key"=>$key))
                         ->fetch();
         if ($rel) $id = $rel->kind_id;
       }
-      if (!$id || $relPart == "k") {
+      if (!$id) {
         $rel = db_query("SELECT * FROM {cdb_beziehung}
-                         WHERE beziehungstyp_id=" . $relId . " AND kind_id=" . $key)
+                        WHERE beziehungstyp_id=:relId AND kind_id=:key",
+                        array(":relId"=>$relId, "key"=>$key))
                          ->fetch();
         $id = $rel->vater_id;
       }
@@ -937,8 +939,8 @@ function churchdb__export() {
       if ($id && !isset($export[$id])) {
         $person = _getPersonDataForExport($id, $template);
         if ($person && isset($person[$id])) {
-          foreach ($person[$id] as $key => $value) {
-            $export[$key][$relPart . "_" . $key] = $value;
+          foreach ($person[$id] as $relKey => $relValue) {
+            $export[$key][$relPart . "_" . $relKey] = $relValue;
           }
         }
       }
