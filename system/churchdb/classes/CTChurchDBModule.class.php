@@ -28,7 +28,7 @@ class CTChurchDBModule extends CTAbstractModule {
     );
     $res["groupMemberTypes"] = getGroupMemberTypes();
     $res["groupFilterTypes"] = churchdb_getGroupFilterTypes();
-
+    
     // master data information for maintain masterdata and statistics
     if (user_access("edit masterdata", "churchdb") || user_access("view statistics", "churchdb"))
       $res["masterDataTables"] = churchdb_getMasterDataTablenames();
@@ -39,6 +39,7 @@ class CTChurchDBModule extends CTAbstractModule {
     $res["site_name"] = getConf('site_name');
     $res["modulespath"] = churchdb_getModulesPath();
     $res["files_url"] = $base_url. $files_dir;
+    
     $res["modulename"] = "churchdb";
     $res["max_uploadfile_size_kb"] = getConf('max_uploadfile_size_kb');
     $res["adminemail"] = getConf('site_mail', '');

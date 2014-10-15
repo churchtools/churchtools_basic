@@ -1046,8 +1046,11 @@ function _churchdb_getPersonByName($searchpattern, $withMyDepartment = false) {
 function churchdb_getAuthForAjax() {
   global $config;
   $auth = $_SESSION["user"]->auth["churchdb"];
+  if (isset($auth["view"])) $res["view"] = true;
+  
   $allowedDeps = churchdb_getAllowedDeps();
-  $res["dep"] = churchcore_getTableData("cdb_bereich", "", "id IN (". db_implode($allowedDeps). ")");
+  if (count($allowedDeps) > 0)
+    $res["dep"] = churchcore_getTableData("cdb_bereich", "", "id IN (". db_implode($allowedDeps). ")");
   if (isset($auth["view comments"])) foreach ($auth["view comments"] as $key => $value) {
     $res["comment_viewer"][$key] = $value;
   }

@@ -563,11 +563,18 @@ function churchcore_sendMails_PHPMAIL($maxmails = MAX_MAILS) {
         
         // See churchtools.example.config for more details
         if (getConf("mail_with_user_from_address", "0")=="0") {
-          $header.="From: ".getConf('site_mail', 'info@churchtools.de')."\n";
+          // See if Sender Name is uncluded, so I take Real Sender Name
+          if (strpos($mail->sender, '<') === false)
+            $header .= "From: " . getConf('site_mail', 'info@churchtools.de') . "\n";
+          else {
+            $header .= "From: " . substr($mail->sender, 0,strpos($mail->sender, '<')-1 )
+                       . " <" . getConf('site_mail', 'info@churchtools.de') . ">\n";            
+          }
           if ($mail->sender!=getConf('site_mail', 'info@churchtools.de')) {
             $header.="Reply-To: $mail->sender\n";
             $header.="Return-Path: $mail->sender\n";
           }
+          ct_log($header, 1);
         }
         else {
           $header.="From: ".$mail->sender."\n";

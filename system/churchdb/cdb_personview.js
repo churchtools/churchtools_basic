@@ -276,6 +276,12 @@ PersonView.prototype.renderListMenu = function() {
 
 // Render AddNewPerson
 PersonView.prototype.renderAddEntry = function(prefill) {
+  
+  if (masterData.auth.dep==null || churchcore_countObjectElements(masterData.auth.dep)==0) {
+    alert("Es muß erst die Erlaubnis da sein einen Bereich editieren zu dürfen, sonst kann keine Person erstellt werden.");
+    return;
+  }
+  
   var _text='<div class="well"><div class="row-fluid">';
   var t=this;
 
@@ -1887,6 +1893,8 @@ PersonView.prototype.checkFilter = function(a) {
   if ((t.name=="ArchiveView") && (a.archiv_yn==0)) return false;
   // Es gibt noch keine Daten, soll er aber laden ueber Details
   if (a.name==null) return true;
+  
+  if (a.id==-1 && !masterData.auth.adminpersons) return false;
 
   if ((masterData.settings.hideStatus!=null) && (a.status_id!=null) && (a.status_id==masterData.settings.hideStatus))
     return false;
