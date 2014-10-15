@@ -523,6 +523,11 @@ function _renderEditEventContent(elem, currentEvent) {
       if (data.length==0)
         form.addHtml('<p>Dem Kalender sind keine Personen oder Gruppen zugewiesen.');
       else {
+        var dt = new Date();
+        if (currentEvent.startdate<dt) {
+          form.addHtml('<div class="alert alert-error">Besprechungsanfrage liegt in der Vergangenheit. Es finden so keine Email-Anfragen statt.</div>');      
+        }        
+
         form.addHtml('<div class="person-selector"></div>');
         form.addHtml('<div style="height:360px;overflow-y:auto">');
         form.addHtml('<table class="table table-condensed">');

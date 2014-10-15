@@ -78,6 +78,7 @@ function churchdb_getFields($feldkategorie_id) {
     if ($f->db_stammdatentabelle)  $fields[$f->db_spalte]["selector"] = $f->db_stammdatentabelle;
     if ($f->laenge)                $fields[$f->db_spalte]["length"]   = $f->laenge;
     if ($f->inneuerstellen_yn== 1) $fields[$f->db_spalte]["inneuerstellen_yn"] = 1;
+    if ($f->del_when_move_to_archive_yn== 1) $fields[$f->db_spalte]["del_when_move_to_archive_yn"] = 1;
   }
   return $fields;
 }

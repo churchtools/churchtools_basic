@@ -1927,10 +1927,10 @@ function run_db_updates($db_version) {
     
     set_version("2.50");
 
-  case '2.50':
-    
+  case '2.50':    
     db_query("ALTER TABLE {cs_item} CHANGE note note VARCHAR(1024)");
     db_query("ALTER TABLE {cdb_gemeindeperson_gruppe_archive} ADD comment VARCHAR( 512 ) NULL");
+    db_query("ALTER TABLE {cdb_feld} ADD del_when_move_to_archive_yn INT( 0 ) NOT NULL DEFAULT '0'");
     set_version("2.51");    
     
   } //end switch

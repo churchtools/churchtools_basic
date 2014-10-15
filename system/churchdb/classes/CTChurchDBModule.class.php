@@ -157,7 +157,10 @@ class CTChurchDBModule extends CTAbstractModule {
   public function createAddress($params) {
     $this->checkPerm("create person");
     $res = createAddress($params);
-    if (isset($res["id"])) $this->logPerson($params, 2);
+    if (isset($res["id"])) {
+      $params["id"]=$res["id"];
+      $this->logPerson($params, 2);
+    }
     
     return $res;
   }

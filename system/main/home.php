@@ -321,11 +321,11 @@ function _home__memberlist_getSettingFields() {
   $form->setHeader(t('preferences.for.memberlist'), t('admin.could.change.preferences.here'));
 
   // TODO: use checkboxes with status texts
-  $form->addField("churchdb_memberlist_status", "", "INPUT_REQUIRED", t('status.ids.for.birthdaylist.comma.separated'))
+  $form->addField("churchdb_memberlist_status", "", "INPUT_REQUIRED", t('xxx.ids.for.birthdaylist.comma.separated', t('status')))
     ->setValue(getConf("churchdb_memberlist_status"));
   
   // TODO: use checkboxes with status texts
-  $form->addField("churchdb_memberlist_station", "", "INPUT_REQUIRED", t('station.ids.for.birthdaylist.comma.separated'))
+  $form->addField("churchdb_memberlist_station", "", "INPUT_REQUIRED", t('xxx.ids.for.birthdaylist.comma.separated', t('station')))
     ->setValue(getConf("churchdb_memberlist_station"));
   
   $form->addField("memberlist_telefonprivat", "", "CHECKBOX", t('show.fon.number'))

@@ -482,16 +482,18 @@
   <entry key="center.coordinates.longitude">Longitude des Koordination-Mittelpunkts  (am besten durch Google Maps herauszufinden)</entry>
   <entry key="email.default.separator">Standardtrennzeichen für mehrere Empfänger beim ChurchDB-Emailer</entry>
   <entry key="days.to.show.terminated.groups">Wie viele Tage nach dem Abschlussdatum soll die Gruppe noch unter Meine Gruppen präsent sein?</entry>
-  <entry key="status.ids.for.birthdaylist.comma.separated">Status-Ids für die Geburtstagsliste (kommasepariert)</entry>
-  <entry key="station.ids.for.birthdaylist.comma.separated">Station-Ids für die Geburtstagsliste (kommasepariert)</entry>
-  <entry key="api.key.mailchimp.if.used">API-Key von Mailchimp.com (nur angeben, wenn die Integration von MailChimp.com genutzt werden soll)</entry>
-  <entry key="api.key.smspromote.if.used">API-Key von SMSpromote.de (nur angeben, wenn die Integration von smspromote.de genutzt werden soll)</entry>
+  <entry key="xxx.ids.for.birthdaylist.comma.separated">{0}-Ids für die Geburtstagsliste (kommasepariert)</entry>
+  <entry key="api.key.mailchimp.if.used">API-Key von Mailchimp.com (nur angeben, wenn die Integration von MailChimp.com genutzt werden soll).</entry>
+  <entry key="api.key.smspromote.if.used">API-Key von SMSpromote.de (nur angeben, wenn die Integration von smspromote.de genutzt werden soll).</entry>
   <entry key="send.groupchanges.to.leaders">Sende Änderungen in Gruppen an Leiter, Co-Leiter und Supervisore</entry>
   <entry key="user.is.allowed.to.change.own.address">Jeder Benutzer darf seine eigenen Stammdaten anpassen</entry>
+  <entry key="delete.history.when.moving.to.archive">Lösche die Personen-Historie wenn eine Person in das Archiv verschoben wird</entry>
+
   <!-- Admin preferences churchservice -->
   <entry key="after.how.many.days.service.requests.should.be.repeated">Nach wieviel Tagen soll die Email mit der Dienstanfrage erneute gesendet werdenn, wenn noch nicht zugesagt oder abgelehnt wurde?</entry>
   <entry key="how.many.hours.before.service.send.remember.email">Wieviele Stunden vor einem Dienst soll die Erinnerung daran erfolgen?</entry>
   <entry key="use.category.as.folder.for.beamersoftware.export">Die Songkategorie soll beim Export für Beamersoftware als Verzeichnis benutzt werden.</entry>
+
   <!-- Admin preferences churchresource -->
   
   <!-- home -->

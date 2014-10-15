@@ -82,9 +82,9 @@ function churchdb_getAdminForm() {
   $form->addField("churchdb_groupnotchoosable", "", "INPUT_REQUIRED", t('days.to.show.terminated.groups'))
     ->setValue($config["churchdb_groupnotchoosable"]);
   
-  $form->addField("churchdb_birthdaylist_status", "", "INPUT_REQUIRED", t('status.ids.for.birthdaylist.comma.separated'))
+  $form->addField("churchdb_birthdaylist_status", "", "INPUT_REQUIRED", t('xxx.ids.for.birthdaylist.comma.separated',t('status')))
     ->setValue($config["churchdb_birthdaylist_status"]);
-  $form->addField("churchdb_birthdaylist_station", "", "INPUT_REQUIRED", t('station.ids.for.birthdaylist.comma.separated'))
+  $form->addField("churchdb_birthdaylist_station", "", "INPUT_REQUIRED", t('xxx.ids.for.birthdaylist.comma.separated',t('station')))
     ->setValue($config["churchdb_birthdaylist_station"]);
   
   $form->addField("churchdb_mailchimp_apikey", "", "INPUT_OPTIONAL", t('api.key.mailchimp.if.used') .
@@ -100,6 +100,9 @@ function churchdb_getAdminForm() {
   if (!isset($config["churchdb_changeownaddress"])) $config["churchdb_changeownaddress"] = false;
   $form->addField("churchdb_changeownaddress", "", "CHECKBOX", t('user.is.allowed.to.change.own.address'))
     ->setValue($config["churchdb_changeownaddress"]);
+  
+  $form->addField("churchdb_archivedeletehistory", "", "CHECKBOX", t('delete.history.when.moving.to.archive'))
+    ->setValue(getVar("churchdb_archivedeletehistory", false, $config));
   
   return $form;
 }

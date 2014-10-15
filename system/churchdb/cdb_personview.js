@@ -3539,7 +3539,7 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
   }
   else if (fieldname.indexOf("archivePerson")==0) {
     width=300; height=300;
-    rows[rows.length]="Die Person wird in das Archiv genommen und ist nur noch mit Archiv-Rechten sichtbar. Wirklich ausf&uuml;hren";
+    rows[rows.length]="Die Person wird in das Archiv genommen und ist nur noch mit Archiv-Rechten sichtbar. Je nach Einstellungen werden Daten unwiderruflich gelöscht. Wirklich ausf&uuml;hren?";
   }
   else if (fieldname.indexOf("undoArchivePerson")==0) {
     width=300; height=300;
@@ -3790,6 +3790,7 @@ PersonView.prototype._saveEditEntryData = function (id, fieldname, renderViewNec
   else if (obj["func"].indexOf('archivePerson')==0) {
     obj["func"]="archivePerson";
     allPersons[id].archiv_yn=1;
+    allPersons[id].details=null;
     renderViewNecessary=true;
   }
   else if (obj["func"].indexOf('undoArchivePerson')==0) {

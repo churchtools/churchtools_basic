@@ -223,7 +223,7 @@ function churchdb_getMyGroups($userPid, $onlyIds = false, $onlyIfUserIsLeader = 
         
         // TODO: use speaking constants for status numbers or something like group->isLeader($pId)
         // if user is leader and group termination is not to far in the past
-        if (($g->anzeigen_in_meinegruppen_teilnehmer_yn == 1 && $g->status_no != -1)
+        if (($g->anzeigen_in_meinegruppen_teilnehmer_yn == 1 && $g->status_no != -1 && $g->status_no != -2)
             || ($g->status_no > 0 && ($g->abschlusstage == null || $g->abschlusstage < $config["churchdb_groupnotchoosable"]))
     // => Habe ich erst mal rausgenommen, denn sonst sieht man pl�tzlich  mit alldetails Leute aus Freizeiten oder mit gleichen Merkmalen!        
             // or user has permission to view all details 
@@ -1155,13 +1155,32 @@ function archiveUser($p_id, $undo = false) {
       ->fields(array ("archiv_yn" => 1))
       ->condition("id", $p_id, "=")
       ->execute();
+    // Delete Person archive
+
+    if (getConf("churchdb_archivedeletehistory", false, $config)) {
+      db_query("DELETE FROM {cdb_log} WHERE domain_type='person' AND domain_id=:id",
+                  array(":id"=>$p_id));
+    }
+    
+    // Now check fields if there is something to delete
+    $res = db_query("SELECT db_spalte, db_tabelle, id_name, feldtyp_id from cdb_feld f, cdb_feldkategorie fk
+                      WHERE f.feldkategorie_id=fk.id AND f.del_when_move_to_archive_yn=1");
+    foreach ($res as $field) {
+      if ($field->db_tabelle == 'cdb_person' || $field->db_tabelle == 'cdb_gemeindeperson') {
+        
+        db_query("UPDATE {$field->db_tabelle} 
+                  SET $field->db_spalte=" . ( $field->feldtyp_id != 3 ? "''" : "null" ) . " 
+                  WHERE $field->id_name=:id",
+                  array(":id"=>$p_id));
+      }
+    }      
   }
-  else
+  else {
     db_update("cdb_person")
       ->fields(array ("archiv_yn" => 0))
       ->condition("id", $p_id, "=")
       ->execute();
-  
+  }
   return "ok";
 }
 
