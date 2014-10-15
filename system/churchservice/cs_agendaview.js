@@ -245,10 +245,10 @@ AgendaView.prototype.editAgenda = function(agenda, template) {
         t.currentAgenda=data;
         t.renderView();        
       });
-    },
-    "Abbruch":function() {
-      elem.dialog("close");
     }
+  });
+  elem.dialog("addbutton", _("cancel"), function() {
+    elem.dialog("close");
   });  
 };
 
@@ -388,6 +388,7 @@ AgendaView.prototype.renderField = function(o, dataField, smallVersion) {
     if (t.agendaAllowedToEdit(t.currentAgenda)) {
       rows.push('&nbsp; <span class="hoverreactor">');
       rows.push('<a href="#" class="edit-item" data-id="'+o.id+'">'+form_renderImage({src:"options.png", width:16})+'</a> ');
+      rows.push('<a href="#" class="delete-item" data-id="'+o.id+'">'+form_renderImage({src:"trashbox.png", width:16})+'</a> ');
       rows.push('<span class="dropdown" data-id="'+o.id+'"><a href="#" class="dropdown-toggle" data-toggle="dropdown" data-id="'+o.id+'">'+form_renderImage({src:"plus.png",width:16})+'</a>');
       rows.push('<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">');
       rows.push('<li><a href="#" class="add-item post">Position dahinter einfügen</a></li>');
@@ -397,14 +398,12 @@ AgendaView.prototype.renderField = function(o, dataField, smallVersion) {
       rows.push('<li><a href="#" class="add-item">Position davor einfügen</a></li>');
       rows.push('<li><a href="#" class="add-item song">Song davor einfügen</a></li>');
       rows.push('<li><a href="#" class="add-item header">Überschrift davor einfügen</a></li>');
-      rows.push('<li class="divider"></li>');
-      rows.push('<li><a href="#" class="delete-item">Löschen</a></li>');
       rows.push('</ul></span>');
       rows.push('</span>');
     }
     if (o.note) {
       rows.push('<div class="event_info">');
-      if ($("#printview").val())
+      if ($("#printview").val() || t.currentAgenda.final_yn==1)
         rows.push(o.note.htmlize());
       else        
         rows.push(o.note.trim((!smallVersion?200:40)).htmlize());
@@ -430,7 +429,7 @@ AgendaView.prototype.agendaAllowedToEdit = function (agenda) {
   if (!agenda) return false;
   return (user_access("edit agenda", agenda.calcategory_id) 
        && !$("#printview").val() 
-       && agenda.final_yn==0 
+       && (agenda.final_yn==0 || agenda.template_yn==1) 
        && (agenda.template_yn==0 || user_access("edit agenda templates", agenda.calcategory_id)));  
 };
 
@@ -482,10 +481,35 @@ AgendaView.prototype.saveServiceGroupNote = function (data, servicegroup_id) {
 };
 
 
+AgendaView.prototype.renderAddButtons = function() {
+  var form = new CC_Form();
+  form.addHtml('<p><div class="bottom-field well"> ');
+  form.addButton({label:"Neue Position", htmlclass:"add-item post btn-small"});
+  form.addHtml('&nbsp;');
+  form.addButton({label:"Neuer Song", htmlclass:"add-item post song btn-small"});
+  form.addHtml('&nbsp;');
+  form.addButton({label:"Neue Überschrift", htmlclass:"add-item post header btn-small"});
+  form.addHtml('</div>');
+  $("#cdb_content").append(form.render());
+
+  $("#cdb_content div.bottom-field input.add-item").click(function() {
+    var item=churchcore_getLastElement(t.currentAgenda.items);
+    // When addings songs it will lead to the songView, where I can select a song
+    if ($(this).hasClass("song")) {
+      songView.songselect={post:true, orig_item_id:item.id};
+      churchInterface.setCurrentView(songView);
+    }
+    else {
+      t.addItem(item.id, true, $(this).hasClass("header"));
+    }
+    return false;
+    
+  });    
+}
+
 AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
   var t=this;
-  if (smallVersion==null) smallVersion=false;
-  
+  if (smallVersion==null) smallVersion=false;  
   
   t.renderTimes();
   
@@ -529,6 +553,8 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
     });
     
     if (t.agendaAllowedToEdit(t.currentAgenda)) {
+
+      t.renderAddButtons();
 
       $(cssid+" td.clickable").hover(function() {
           $(this).addClass("active");
@@ -1170,8 +1196,14 @@ AgendaView.prototype.getListHeader = function () {
       form.addButton({label:"Zum Event gehen", htmlclass:"go-to-event"});
       form.addHtml("&nbsp;");
     }
-    if (t.currentAgenda.template_yn==0 && t.currentAgenda.final_yn==0) 
-      form.addButton({label:"Als abgeschlossen markieren", htmlclass:"send-agenda"});
+    if (t.currentAgenda.template_yn==0) {
+      if (t.currentAgenda.final_yn==0) { 
+        form.addButton({label:"Als abgeschlossen markieren", htmlclass:"send-agenda"});
+      }
+      else {
+        form.addButton({label:"Ablaufplan editieren", htmlclass:"reopen-agenda"});
+      }    
+    }
   }
   $("#cdb_group").html(form.render(true));
   $("#cdb_group a.edit-agenda").click(function() {
@@ -1195,6 +1227,21 @@ AgendaView.prototype.getListHeader = function () {
     },10);
     return false;
   });
+  $("#cdb_group .reopen-agenda").click(function() {
+    var form = new CC_Form("Ablaufplan öffnen");
+    form.addHtml("Der Ablaufplan ist schon als Final markiert. Trotzdem Ablaufplan editieren?");
+    var elem = form_showDialog("Ablaufplan", form.render(), 500, 400, {
+      "Ja": function() {
+        t.currentAgenda.final_yn=0;
+        t.saveAgenda(t.currentAgenda);
+        elem.dialog("close");
+        t.renderList();
+      },
+      "Abbrechen": function() {
+        elem.dialog("close");
+      }
+    });    
+  });  
   $("#cdb_group .send-agenda").click(function() {
     var form = new CC_Form("Ablaufplan abschliessen");
     form.addCheckbox({label: "Ablaufplan als abgeschlossen markieren", checked:true, cssid:"final_yn"});
@@ -1408,14 +1455,15 @@ AgendaView.prototype.loadItems = function (agenda_id, func) {
   });          
 };
 
-AgendaView.prototype.renderListEntry = function (event, smallVersion) {
+AgendaView.prototype.renderListEntry = function (event, smallVersion, trimNote) {
   var t=this;
   if (smallVersion==null) smallVersion=false;
+  if (trimNote==null) trimNote=false;
   var rows = new Array();  
 
   if (event.header_yn==1) {
     rows.push('<td id="'+event.id+'" class="hoveractor editable grouping" data-field="bezeichnung" colspan="12">');
-    rows.push(t.renderField(event, "bezeichnung", smallVersion));
+    rows.push(t.renderField(event, "bezeichnung", trimNote));
   }
   else {    
     if (t.currentAgenda.template_yn==1) {
@@ -1429,10 +1477,10 @@ AgendaView.prototype.renderListEntry = function (event, smallVersion) {
     }
     
     rows.push('<td class="editable" data-field="duration">');
-    rows.push(t.renderField(event, "duration"));
+    rows.push(t.renderField(event, "duration", trimNote));
     rows.push('<td class="hoveractor editable" data-field="bezeichnung">');
 
-    rows.push(t.renderField(event, "bezeichnung", smallVersion));
+    rows.push(t.renderField(event, "bezeichnung", trimNote));
   }
 
   if (debug) rows.push("&nbsp;" +event.sortkey);

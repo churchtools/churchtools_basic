@@ -124,8 +124,8 @@ function each(obj, func) {
     }
   }
   else {
-    for (k in obj) {
-      func(k, obj[k]);
+    for (var k in obj) {
+      func(k, obj[ k ]);
     }
   }
 }
@@ -145,6 +145,15 @@ function churchcore_getFirstElement(obj) {
   for (k in obj) {
     elem=obj[k];
     break;
+  }
+  return elem;
+}
+
+function churchcore_getLastElement(obj) {
+  if (obj==null) return null;
+  var elem=null;
+  for (k in obj) {
+    elem=obj[k];
   }
   return elem;
 }

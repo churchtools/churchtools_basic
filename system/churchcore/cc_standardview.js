@@ -16,6 +16,7 @@ function StandardTableView(options) {
   this.availableRowCounts=[10, 25, 50, 200];
   this.overrideMaxRows=false;
   this.showCheckboxes=true;
+  this.openIfOnlyOneIsAvailable=true;
 
   // Number of entries currently visible
   this.counter=0;
@@ -476,10 +477,10 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
       $(window).resize(function() {
         calcHeaderWidth();
       });
-      if (listObject!=null)
-      each(listObject, function(k, entry) {
+      if (listObject!=null) each(listObject, function(k, entry) {
         if ((entry!=null) && (t.checkFilter(entry)))
-          if ((entry.open) || (t.counter==1)) t.renderEntryDetail(entry.id);
+          if ((entry.open) || (t.counter==1 && t.openIfOnlyOneIsAvailable)) 
+            t.renderEntryDetail(entry.id);
       });
 
       if (debug) t.endTimer("renderTablecallback");

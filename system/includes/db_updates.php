@@ -614,6 +614,7 @@ function run_db_updates($db_version) {
       /* fall through to regular update */
     case '2.00':
       db_query("ALTER TABLE {cs_servicegroup} ADD viewall_yn int( 1 ) NOT NULL DEFAULT 0 AFTER bezeichnung");
+      db_query("update {cs_servicegroup} set viewall_yn=1 where id=1");
       set_version("2.01");
     
     case '2.01':

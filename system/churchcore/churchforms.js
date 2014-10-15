@@ -552,11 +552,11 @@ function form_renderSelect (options) {
   if (options.controlgroup_start!=null) controlgroup=false;
   if (options.controlgroup_end!=null) controlgroup=false;
 
-  var multiple=(options.multiple!=null && options.multiple?" multiple":"");
+  var multiple = ( options.multiple != null && options.multiple ? " multiple" : "" );
   var fields="";
-  if (options.fields!=null) {
-    each(options.fields, function(k,a) {
-      fields=fields+" "+k+'="'+a+'"';
+  if (options.fields != null) {
+    each(options.fields, function(k, a) {
+      fields = fields + " " + k + '="' + a + '"';
     });
   }
 

@@ -4108,7 +4108,7 @@ PersonView.prototype.renderGroupFilter = function() {
 
   if (this.filter["filterOn 1"]==null) this.filter["filterOn 1"]=true;
 
-  k=1;
+  var k=1;
   while (this.filter["filterOn "+k]!=null) {
     rows.push("<tr><td>");
     rows.push(form_renderSelect({
@@ -4120,7 +4120,7 @@ PersonView.prototype.renderGroupFilter = function() {
     }));
     rows.push('<td>'+form_renderSelect({
       data:masterData.groupTypes,
-      label:f("gruppentyp_id")+" "+k,
+      label:f("gruppentyp_id"),
       selected:this.filter["filterTyp "+k],
       cssid:"filterTyp "+k,
       controlgroup:true, freeoption:true, type:"medium"
@@ -4129,7 +4129,7 @@ PersonView.prototype.renderGroupFilter = function() {
     rows.push("<td>");
     rows.push(form_renderSelect({
       data:masterData.groups,
-      label:"Gruppe "+k,
+      label:"Gruppe",
       selected:this.filter["filterGruppe "+k],
       cssid:"filterGruppe "+k,
       controlgroup:true, freeoption:true, type:"medium",
@@ -4145,7 +4145,7 @@ PersonView.prototype.renderGroupFilter = function() {
 
     rows.push(form_renderSelect({
       data:masterData.districts,
-      label:f("distrikt_id")+" "+k,
+      label:f("distrikt_id"),
       selected:this.filter["filterDistrikt "+k],
       cssid:"filterDistrikt "+k,
       controlgroup:true, freeoption:true, type:"medium"
@@ -4155,7 +4155,7 @@ PersonView.prototype.renderGroupFilter = function() {
 
     rows.push(form_renderSelect({
       data:masterData.groupMemberTypes,
-      label:"Teilnehmerstatus "+k,
+      label:"Teilnehmerstatus",
       selected:this.filter["filterTeilnehmerstatus "+k],
       cssid:"filterTeilnehmerstatus "+k,
       controlgroup:true, freeoption:true, type:"medium",

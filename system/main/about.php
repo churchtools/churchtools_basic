@@ -72,7 +72,7 @@ function about_main() {
           <p >';
       $res = check_db_constraints();
       if ($res == "") $txt .= "
-          <p>" . t("no.problem.found");
+          <p>" . t("found.no.problem");
       else {
         $txt .= $res. '
           <p><a href="?q=about&consistentcheck=true" class="btn">' . t("detailed.report") . '</a>';

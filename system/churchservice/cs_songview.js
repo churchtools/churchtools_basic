@@ -554,6 +554,7 @@ SongView.prototype.getListHeader = function () {
   var t=this;
 
   if (t.songselect!=null) {
+    t.openIfOnlyOneIsAvailable=false;
     each(allSongs, function(k,a) {
       a.open=false;
     });
@@ -565,6 +566,7 @@ SongView.prototype.getListHeader = function () {
     $("#cdb_group").html(form.render(true));
   }
   else {
+    t.openIfOnlyOneIsAvailable=true;
     $("#cdb_group").html("");
   }
   
