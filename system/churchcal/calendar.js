@@ -1087,11 +1087,6 @@ function initCalendarView() {
       $("div.fc-right>div.fc-button-group").append('<button type="button" id="yearView" class="fc-button fc-state-default fc-corner-right">'+_("year")+'</button>');
       $("div.fc-right>div.fc-button-group").append('<button type="button" id="eventView" class="fc-button fc-state-default fc-corner-right"><i class="icon-list"></button>');
     }
-    if (printview) {
-      // Strange, but necessary!!
-      $("#calendar").css("width", "670px");
-      $("#calendar").fullCalendar("render");
-    }
     $( window ).resize(function() {
       calendar.fullCalendar('option', 'contentHeight', _calcCalendarHeight());
     });
@@ -1186,7 +1181,7 @@ function renderTooltip(event) {
     }
     else {
       rows.push(start_txt);
-      rows.push(' - '+event.end.format("hh:mm"));  
+      rows.push(' - '+event.end.format("HH:mm"));  
     }
   }
   
@@ -1200,17 +1195,34 @@ function renderTooltip(event) {
       title=title+'<span class="pull-right">&nbsp;<nobr>'+form_renderImage({cssid:"copyevent", label:"Kopieren", src:"copy.png", width:20});
       title=title+"&nbsp;"+form_renderImage({cssid:"delevent", label:'Löschen', src:"trashbox.png", width:20})+"</nobr></span>";
     }
-    if (myEvent.service_texts!=null) {
-      title=title+"<br><small>"+myEvent.service_texts.join(", ")+'</small>';
+    
+    // Now get the service texts out of the events
+    if (myEvent.events!=null) {
+      each(myEvent.events, function(i,e) {
+        if ((e.service_texts!=null) &&
+             (e.startdate.toDateEn(false).toStringEn(false)==event.start.format(DATEFORMAT_EN))) {
+          title=title+' <span class="event-servicetext">'+e.service_texts.join(", ")+'</span>';
+          return false;
+        }
+      });
     }
+    
     if ((myEvent.ort!=null) && (myEvent.ort!=""))
-      rows.push('<li>Ort: '+myEvent.ort);
+      rows.push('<li><b>'+myEvent.ort+'</b>');
     if (myEvent.category_id!=null)
-      rows.push("<li>Kategorie: <i>"+masterData.category[myEvent.category_id].bezeichnung+'</i>');
+      rows.push("<li>Kalender: <i>"+masterData.category[myEvent.category_id].bezeichnung+'</i>');
+    if (myEvent.bookings!=null) {
+      rows.push('<li>Angefragte Resourcen<small><ul>');
+      each(myEvent.bookings, function(i,e) {
+        rows.push('<li>'+masterData.resources[e.resource_id].bezeichnung.trim(30));
+      });
+      rows.push('</ul></small>');
+    }
     if ((myEvent.notizen!=null) && (myEvent.notizen!=""))
-      rows.push('<li>Notizen: <small> '+myEvent.notizen.trim(60)+'</small>');
+      rows.push('<li>'+_("comment")+': <small> '+myEvent.notizen.trim(60)+'</small>');
     if ((myEvent.link!=null) && (myEvent.link!=""))
-      rows.push('<li>Link: <small> <a href="'+myEvent.link+'" target="_clean">'+myEvent.link+'</a></small>');
+      rows.push('<li>Link: <small> <a href="'+myEvent.link+'" target="_clean">'+myEvent.link+'</a></small>');    
+    
   }
   if (event.status!=null)
     rows.push('<li>Status: '+event.status);
@@ -1265,7 +1277,7 @@ function _eventMouseover(event, jsEvent, view) {
   var placement="bottom";
   if (jsEvent.pageX>$("#calendar").width()+$("#calendar").position().left-100)
     placement="left";
-  else if (jsEvent.pageY>$("#calendar").height()+$("#calendar").position().top-200)
+  else if (view.name=="month" || jsEvent.pageY>$("#calendar").height()+$("#calendar").position().top-150)
     placement="top";
   else if (jsEvent.pageX<$("#calendar").position().left+130)
     placement="right";

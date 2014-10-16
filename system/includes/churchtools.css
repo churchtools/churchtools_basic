@@ -168,7 +168,11 @@ div.fixed {
 }		
 
 @media print {
-   .grouping {
+	.fc-day-grid-event > .fc-content {
+  	  white-space: normal !important;
+	}
+	
+	.grouping {
 	  border-width: 2px !important;
     }
 	.well {

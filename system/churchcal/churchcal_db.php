@@ -166,7 +166,7 @@ function churchcal_createEvent($params, $source = null) {
   // meeting request
   if (isset($params["meetingRequest"])) churchcal_handleMeetingRequest($newId, $params);
   
-  // inform other m6odules
+  // inform other modules
   $modules = churchcore_getModulesSorted(false, false);
   if (in_array("churchresource", $modules) && ($source == null || $source != "churchresource")) {
     include_once (CHURCHRESOURCE . '/churchresource_db.php');
@@ -175,7 +175,8 @@ function churchcal_createEvent($params, $source = null) {
   }
   if (in_array("churchservice", $modules) && ($source == null || $source != "churchservice")) {
     include_once (CHURCHSERVICE . '/churchservice_db.php');
-    $cs_params = array_merge(array(), $params); // TODO: array_merge???
+    
+    $cs_params = array_merge(array(), $params); //array_merge so params could not be manipulateds 
     $cs_params["cal_id"] = $newId;
     $cs_params["id"] = null;
     

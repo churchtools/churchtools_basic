@@ -117,8 +117,7 @@ function _convertCTDateTimeToObjects($params) {
  */
 function churchservice_createEventFromChurchCal($params, $source = null) {
   $o = _convertCTDateTimeToObjects($params);
-//  foreach (getAllDatesWithRepeats($o, -1000, +1000) as $d) { // TODO: why not with $o? Use constants for 1000
-  foreach (getAllDatesWithRepeats(_convertCTDateTimeToObjects($params), -1000, +1000) as $d) {
+  foreach (getAllDatesWithRepeats($o, -1000, +1000) as $d) {  // TODO: Use constants for 1000
     $params["startdate"] = $d->format('Y-m-d H:i:s');
     $enddate = clone $d;
     $enddate->modify("+$o->diff seconds");
@@ -128,7 +127,9 @@ function churchservice_createEventFromChurchCal($params, $source = null) {
       churchservice_copyEventByCalId($params["orig_id"], $params["cal_id"], $params["startdate"], true);
     }
     // create new one
-    else if (isset($params["eventTemplate"])) churchservice_saveEvent($params, "churchcal");
+    else if (isset($params["eventTemplate"])) {
+      churchservice_saveEvent($params, "churchcal");
+    }
   }  
 }
 
@@ -253,9 +254,6 @@ function churchservice_saveEvent($params, $source=null) {
     if ($db) {
       if (empty($fields["special"])) $fields["special"] = $db->special;
       if (empty($fields["admin"]))   $fields["admin"]   = $db->admin;
-      //FIXME: i hope � is not important :-)
-//       if ((!isset($fields["special"])) || �($fields["special"] == "")) $fields["special"] = $db->special;
-//       if ((!isset($fields["admin"]))   || �($fields["admin"]   == "")) $fields["admin"]   = $db->admin;
     }
   }
   if (isset($params["id"])) {
