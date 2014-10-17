@@ -120,12 +120,12 @@ function each(obj, func) {
   if (obj instanceof Array) {
     var i=0;
     for ( ; i < obj.length; i++ ) {
-      func(i, obj [i]);
+      if (func(i, obj [i])===false) break;
     }
   }
   else {
     for (var k in obj) {
-      func(k, obj[ k ]);
+      if (func(k, obj[ k ])===false) break;
     }
   }
 }

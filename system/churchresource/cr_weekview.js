@@ -134,9 +134,11 @@ WeekView.prototype.showAuslastung = function() {
         t.datesIndex[go.getFullYear()][go.getMonth()+1][go.getDate()]!=null)
       each(t.datesIndex[go.getFullYear()][go.getMonth()+1][go.getDate()], function(k,a) {
         each(masterData.resources[allBookings[a.id].resource_id].workload, function(i,zones) {
-          if (go.getTime()<=zones.until) {
+          if (masterData.resources[allBookings[a.id].resource_id].date!=go.getTime()
+                 && go.getTime()<=zones.until) {
             zones.booked_days++;
           }        
+          masterData.resources[allBookings[a.id].resource_id].date=go.getTime();
         });
       });
     go.addDays(1);
@@ -158,7 +160,7 @@ WeekView.prototype.showAuslastung = function() {
     });
   });
   rows.push('</table>');
-
+  rows.push('<p><p><small>Gezählt werden die Tage mit Buchungen im Vergleich zu allen Tagen innerhalb des angegebenen Zeitbereiches. Es wird dabei nicht berücksichtigt, ob an einem Tag dann mehr Buchungen für eine Ressource vorliegen</small>')
   form_showOkDialog(_("workload"), rows.join(""), 450, 500);
 };
 
