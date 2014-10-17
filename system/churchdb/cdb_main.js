@@ -47,11 +47,9 @@ jQuery(document).ready(function() {
       jQuery("#searchEntry").focus();        
         // Lade nun noch weitere Restdaten, refreshListNecessary legt fest, ob nochmal die Liste zu aktualisieren ist 
         cdb_loadRelations(function(refreshListNecessary) {
-          cdb_loadSearch(function() {
-            cdb_loadGroupMeetingStats(churchInterface.getCurrentView().filter, null, function(refreshListNecessary2) {
-              masterData.allDataLoaded=true;
-              churchInterface.sendMessageToAllViews("allDataLoaded", new Array(refreshListNecessary || refreshListNecessary2));
-            });
+          cdb_loadGroupMeetingStats(churchInterface.getCurrentView().filter, null, function(refreshListNecessary2) {
+            masterData.allDataLoaded=true;
+            churchInterface.sendMessageToAllViews("allDataLoaded", new Array(refreshListNecessary || refreshListNecessary2));
           });
         });
     });

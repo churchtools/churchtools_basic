@@ -72,18 +72,23 @@ function cdb_loadRelations(nextFunction) {
     a.rels=null;
   });
   churchInterface.jsendRead({func:"getAllRels"}, function(ok, json) {
-    if (json!=null) {
-    	each(json, function(k,a) {
+    if (json.tags!=null) { 
+      each(json.tags, function(k,a) {
+        if (allPersons[a.id]!=null) {
+          if (allPersons[a.id].tags==null)
+            allPersons[a.id].tags=new Array();
+          allPersons[a.id].tags.push(a.tag_id);          
+        }
+      });
+    }
+    if (json.rels!=null) {
+    	each(json.rels, function(k,a) {
         cdb_addJsonRels(a, allPersons[a.k_id]);
         cdb_addJsonRels(a, allPersons[a.v_id]);
       });
-      // Wenn nach einzelner Person gesucht wird, soll Liste neu gerendert werden, denn jetzt sind die Beziehungen da
-      if ((churchInterface.getCurrentView()==personView) && (personView.getFilter("searchEntry")!="")) {
-        renderListNecessary=true;
-      }
-    } 
+    }
     churchInterface.clearStatus();
-    if (nextFunction!=null) nextFunction(renderListNecessary);
+    if (nextFunction!=null) nextFunction(true);
   });
 }
 
@@ -102,14 +107,6 @@ function cdb_loadSearch(nextFunction) {
         allPersons[a.id].oldGroups.push(a);          
       }
     });
-    if (json.tagRelations!=null) 
-      each(json.tagRelations, function(k,a) {
-        if (allPersons[a.id]!=null) {
-          if (allPersons[a.id].tags==null)
-            allPersons[a.id].tags=new Array();
-          allPersons[a.id].tags.push(a.tag_id);          
-        }
-      });
       
     churchInterface.clearStatus();
     if (nextFunction!=null) nextFunction();

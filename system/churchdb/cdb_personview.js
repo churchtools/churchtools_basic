@@ -20,6 +20,7 @@ function PersonView() {
   this.currentTodoTimer=null;
   this.gruppenteilnehmerdatum=new Date();
   this.saveCurrentFilter=null;
+  this.searchablesLoaded=false;
 }
 
 Temp.prototype = CDBStandardTableView.prototype;
@@ -118,7 +119,16 @@ PersonView.prototype.renderMenu = function() {
       else if ($(this).attr("id")=="aaddfilter") {
         if (!t.furtherFilterVisible) {
           t.furtherFilterVisible=true;
-        } else {
+          if (!t.searchablesLoaded) {
+            t.searchablesLoaded="load data";
+            cdb_loadSearch(function() {
+              t.searchablesLoaded=true;
+              t.renderFurtherFilter();
+              t.renderList();
+            });
+          }
+        } 
+        else {
           t.furtherFilterVisible=false;
         }
         t.renderFurtherFilter();
@@ -4402,11 +4412,10 @@ PersonView.prototype.renderRelationFilter = function() {
 
 
 PersonView.prototype.renderFurtherFilter = function () {
-//  $("#divaddfilter").html('<div id="addfilter" style="width:100%;"><div style="height:200px"/></div>');
+  var t=this;
   if (this.furtherFilterVisible) {
     $("#divaddfilter").animate({ height: 'show'}, "medium");
-
-    var t=this;
+    
     var rows=new Array();
     rows.push('<ul class="nav nav-pills">');
     if (masterData.auth.viewalldata)
@@ -4414,7 +4423,12 @@ PersonView.prototype.renderFurtherFilter = function () {
     rows.push('<li class="'+(t.currentFurtherFilter=="gruppe"?"active":"")+'"><a href="#" data-filter="gruppe" class="filter">'+_("filter.for.groups")+'</a>');
     if (masterData.auth.viewalldetails)
       rows.push('<li class="'+(t.currentFurtherFilter=="beziehung"?"active":"")+'"><a href="#" data-filter="beziehung" class="filter">'+_("filter.for.relations")+'</a>');
+    if (t.searchablesLoaded!==true) {
+      rows.push('<li>'+form_renderImage({src:"loading.gif"}));      
+    }
+    
     rows.push('<li class="pull-right"><a href="#" class="hide">'+_("close.filter")+'</a>');
+    
     rows.push('</ul>');
     rows.push('<div id="furtherFilterDetail"></div>');
 

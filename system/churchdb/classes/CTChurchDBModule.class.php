@@ -69,7 +69,10 @@ class CTChurchDBModule extends CTAbstractModule {
    * @return array with retalions
    */
   public function getAllRels($params) {
-    return getAllRelations();
+    $arr = array();
+    $arr["rels"] = getAllRelations();
+    $res["tags"] = getTagRelations();
+    return $arr;
   }
 
 
@@ -143,7 +146,6 @@ class CTChurchDBModule extends CTAbstractModule {
   public function getSearchableData($params) {
     $res["searchable"] = getSearchableData();
     $res["oldGroupRelations"] = getOldGroupRelations();
-    $res["tagRelations"] = getTagRelations();
     return $res;
   }
 
