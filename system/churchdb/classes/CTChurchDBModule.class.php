@@ -238,6 +238,47 @@ class CTChurchDBModule extends CTAbstractModule {
     
     return $res;
   }
+  
+  /**
+   * Move all Meeting data from a group to another 
+   * @param unknown $params from_g_id, to_g_id, id
+   */
+  public function moveMeetingDataFromGroupPerson($params) {
+    global $user;
+    $dt = new DateTime();
+    $myGroups = churchdb_getMyGroups($user->id, true, true);
+    if (user_access("administer groups", "churchdb") || isset($myGroups[$params["from_g_id"]])) {
+      // Get all data for person and group 
+      $db = db_query("SELECT gt.*, gp.id gp_id FROM {cdb_gruppentreffen} gt, {cdb_gruppentreffen_gemeindeperson} gtgp, cdb_gemeindeperson gp
+                      WHERE gp.person_id=:p_id AND gtgp.gemeindeperson_id=gp.id AND gtgp.gruppentreffen_id=gt.id",
+                      array(":p_id" => $params[ "id" ] ));
+      foreach ($db as $gt) {        
+        // check if new gruppentreffen exists
+        $to_g=db_query("SELECT * from {cdb_gruppentreffen} WHERE gruppe_id=:gruppe_id AND datumvon=:datumvon",
+                 array(":gruppe_id" => $params["to_g_id"], ":datumvon" => $gt->datumvon))->fetch();
+        if ($to_g==false) {
+          // copy gruppentreffen
+          db_query("INSERT INTO {cdb_gruppentreffen} (gruppe_id, datumvon, datumbis, eintragerfolgt_yn, 
+                           ausgefallen_yn, anzahl_gaeste, kommentar, modified_date, modified_pid) 
+                     SELECT :to_g_id as gruppe_id, datumvon, datumbis, eintragerfolgt_yn, 
+                           ausgefallen_yn, anzahl_gaeste, kommentar, '".$dt->format('Y-m-d H:i:s')."', 
+                           $user->id as modified_pid
+                           FROM {cdb_gruppentreffen} 
+                    WHERE gruppe_id=:gruppe_id and datumvon=:datumvon",
+                    array(":gruppe_id" => $params["from_g_id"], ":datumvon" => $gt->datumvon,
+                          ":to_g_id"=>$params["to_g_id"]));
+          // and get id
+          $to_g=db_query("SELECT * from {cdb_gruppentreffen} WHERE gruppe_id=:gruppe_id AND datumvon=:datumvon",
+                 array(":gruppe_id" => $params["to_g_id"], ":datumvon" => $gt->datumvon))->fetch();
+        }
+        // now move the meeting to the new gruppentreffen_id
+        db_query("UPDATE {cdb_gruppentreffen_gemeindeperson} SET gruppentreffen_id=:gruppentreffenneu_id 
+                  WHERE gruppentreffen_id=:gruppentreffen_id AND gemeindeperson_id=:gp_id",
+                  array(':gruppentreffen_id'=>$gt->id, ':gruppentreffenneu_id'=>$to_g->id, 
+                        ':gp_id'=>$gt->gp_id));        
+      }      
+    }
+  }
 
   public function addEvent($params) {
     return churchdb_addEvent($params);

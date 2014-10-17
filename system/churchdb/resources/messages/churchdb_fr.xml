@@ -53,6 +53,7 @@
   <entry key="load.archive">Charger l'archive</entry>
   <entry key="add.tag">Ajouter un jour</entry>  
   <entry key="add.to.group">Ajouter au groupe</entry>
+  <entry key="delete.from.group">delete from group</entry>
   <entry key="add.to.department">Ajouter au département</entry>
   <entry key="add.one.tag">Ajouter un jour</entry>
   <entry key="add.one.permission">Ajouter une permission</entry>

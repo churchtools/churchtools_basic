@@ -555,6 +555,7 @@ PersonView.prototype.addSecondMenu = function() {
     rows.push("<p>"+_("person.function")+": "+_("selected.persons")+" ... &nbsp;");
     rows.push('<select id="personFunction"><option value="-1">');
     rows.push('<option value="addToGroup">... '+_("add.to.group"));
+    rows.push('<option value="delFromGroup">... '+_("delete.from.group"));
     if (masterData.auth.viewalldetails)
       rows.push('<option value="f_bereich">... '+_("add.to.department"));
     if (masterData.auth.viewtags)
@@ -957,6 +958,25 @@ PersonView.prototype.personFunction = function (value, param) {
                 }
         });
     }
+    else if (value=="delFromGroup") {
+      form.setLabel("Bitte Gruppe ausw&auml;hlen");
+      form.addSelect({
+        freeoption:true,
+        label:f("gruppentyp_id"),
+        data:masterData.groupTypes,
+        cssid:"inputGruppentyp",
+        selected:param
+      });
+      if (param>0)
+        form.addSelect({
+          label:"Gruppe",
+          data:masterData.groups,
+          cssid:"inputId",
+          func: function(d) {
+                  return d.gruppentyp_id==param;
+                }
+        });
+    }
     else if (value=="f_bereich") {
       form.setLabel("Bitte Bereich ausw&auml;hlen");
       form.addSelect({
@@ -1014,6 +1034,9 @@ PersonView.prototype.personFunction = function (value, param) {
            window.setTimeout(function() {
              if (value=="addToGroup") {
                t.addPersonGroupRelation(ids[current_id], id);
+             }
+             else if (value=="delFromGroup") {
+               t.delPersonFromGroup(ids[current_id], id, true);
              }
              else if (value=="addPersonTag") {
                if (allPersons[ids[current_id]].tags==null)
@@ -2403,22 +2426,23 @@ PersonView.prototype.getGroupEntries = function (p_id, gt_id, func) {
         else if (masterData.groups[b.id].followup_typ_id>0)
           _text=_text+' <i>(FollowUp: "'+masterData.followupTypes[masterData.groups[b.id].followup_typ_id].bezeichnung.trim(20)+')</i>';
 
-      _text=_text+"</small><td><p><small>"+(b.d!=null?b.d.toDateEn().toStringDe():"")+"</small>";
+        _text=_text+"</small><td><p><small>"+(b.d!=null?b.d.toDateEn().toStringDe():"")+"</small>";
 
 
       if ((masterData.auth.editgroups) || (groupView.isPersonLeaderOfGroup(masterData.user_pid, b.id))) {
         _text=_text+'<td style="padding:0;width:16px;"><a href="#" id="editPersonGroupRelation'+b.id+'" grouptype="'+a.id+'">'+t.renderImage("options",16)+'</a>';
         _text=_text+'<td style="padding:0;width:16px;"><a href="#" id="delPersonGroupRelation'+b.id+'">'+t.renderImage("trashbox",16)+'</a>';
       }
+      
 
       if ((t.showGroupDetailsId==gt_id) && (t.showGroupDetailsWithHistory) && (allPersons[p_id].oldGroups!=null)) {
         each(allPersons[p_id].oldGroups, function(i,c) {
           if (c.gp_id==b.id) {
             c.used=true;
             _text=_text+_renderOldGroupEntry(c);
-    }
-  });
-  }
+           }
+        });
+      }
       rows.push(_text);
     }
   });
@@ -2645,21 +2669,21 @@ PersonView.prototype.renderDetails = function (id) {
                 var _info="";
                 var _color="";
                 if (_diff_days>0) {
-                  _color="background:lightgreen;border:solid 2px;border-color:white;";
+                  _color="success";
                   _info="Ist f&auml;llig in "+_diff_days+" Tagen";
                 }
                 else if (_diff_days==0) {
-                  _color="background:orange;border:solid 0px;border-color:gray;";
+                  _color="info";
                   _info="<b>Ist heute f&auml;llig!</b>";
                 }
                 else {
-                  _color="background:#FFAAAA;border:solid 2px;border-color:red;color:black;";
+                  _color="error";
                   _info="<b>Ist f&auml;llig seit "+(-_diff_days)+" Tagen!</b>";
                 }
                 var _last_date=new Date();
                 _last_date.addDays(_diff_days);
 
-                _text=_text+'<div style="'+_color+'padding:4px 8px 4px 8px">FollowUp <i>"'
+                _text=_text+'<div class="alert alert-'+_color+'">FollowUp <i>"'
                            +masterData.followupTypes[masterData.groups[b.id].followup_typ_id].bezeichnung
                            +' ('+b.followup_count_no+')"</i> von '+masterData.groups[b.id].bezeichnung+": "
                            + _info;
@@ -2669,6 +2693,24 @@ PersonView.prototype.renderDetails = function (id) {
                   _text=_text+'<br/><div id="cdb_followup_'+b.id+'_'+id+'"><a href="#" id="f_followup_'+b.id+'"><b>jetzt durchf&uuml;hren</b></a></div>';
                 }
                 _text=_text+'</div>';
+              }
+              else {
+                if (masterData.groups[b.id].fu_nachfolge_objekt_id>0 && b.leiter==0
+                       && (masterData.groups[b.id].fu_nachfolge_typ_id!=3 || allPersons[id].gruppe[masterData.groups[b.id].fu_nachfolge_objekt_id]==null)
+                      ) {
+                  _text=_text + '<div class="alert alert-info">Für '
+                      + masterData.groupTypes[masterData.groups[b.id].gruppentyp_id].bezeichnung
+                      + ' <b>' + masterData.groups[b.id].bezeichnung + '</b>'
+                      + ' ist eine Nachfolge angegeben. Die Person ' 
+                      +  t.renderFollowSuccessGroup(b.id, id) 
+                      + '<form class="form-inline">';
+                      
+                  _text=_text+form_renderButton({label:"Gruppe wechseln", cssid:"f_btn_successgroup_"+b.id, htmlclass:"btn", controlgroup:false});
+                  if (masterData.groups[b.id].meetingList==null) {
+                    t.loadGroupMeetingList(b.id);                    
+                  }
+                  _text=_text + '</form></div>';
+                }
               }
             }
           });
@@ -2981,7 +3023,7 @@ PersonView.prototype.renderDetails = function (id) {
     t.renderList(allPersons[id]);
   });
 
-  $("td[id=detailTD"+id+"] a").click(function() {
+  $("td[id=detailTD"+id+"] a, td[id=detailTD"+id+"] input").click(function() {
     // L�sche den Tooltip, falls es ihn gibt
     clearTooltip();
     if (($(this).parents("td").attr("id")!=null) && ($(this).parents("td").attr("id")!=""))
@@ -3117,19 +3159,40 @@ PersonView.prototype.renderDetails = function (id) {
         }
       });
     }
+    else if (fieldname.indexOf("f_btn_successgroup_")==0) {
+      var from_g_id=fieldname.substring(19,99);
+      var to_g_id=$("#selectNachfolgegruppe_"+from_g_id+"_"+id).val();
+
+      var form = new CC_Form();
+      form.addHtml("<h4>Wirklich zur Gruppe "+masterData.groups[to_g_id].bezeichnung+" wechseln?</h4> ");
+      if (masterData.groups[from_g_id].meetingList.length>0) 
+        form.addCheckbox({htmlclass:"copy-meetinglist", cssid:"f_movemeeting_successgroup", label:"Daten der Gruppenteilnahme in neue Gruppe übernehmen", controlgroup:false});
+      
+      var elem=form_showDialog("Wechsel der Gruppe", form.render(null, "vertical"));
+      elem.dialog("addbutton", "Ausführen", function() {
+        t.addPersonGroupRelation(id, to_g_id, masterData.groups[from_g_id].fu_nachfolge_gruppenteilnehmerstatus_id);
+        if (elem.find("input.copy-meetinglist").attr("checked")=="checked") {
+          t.moveMeetingDataFromGroupPerson(from_g_id, to_g_id, id, function() {
+            t.delPersonGroupRelation(from_g_id, id);
+          });
+        }
+        else t.delPersonGroupRelation(from_g_id, id);
+        elem.dialog("close");
+      });
+      elem.dialog("addcancelbutton");
+      
+    }
     else if (fieldname.indexOf("f_followup_")==0) {
       // FollowUp Erg�nzen, falls die aktuelle Person hier ein FollowUp durchf�hren soll
       g_id=fieldname.substring(11,99);
       var rows=new Array();
       b=allPersons[id].gruppe[g_id];
       var _info="";
-//      rows.push('<b>FollowUp durchf&uuml;hren:</b><br/><br/>');
       if (b.comment!=null)
         rows.push('<p>Gruppenkommentar: </i>'+b.comment+'</p>');
 
       rows.push('<div class="row-fluid"><div class="span5">');
         rows.push(form_renderCheckbox({cssid:"followupOk_"+g_id+'_'+id, label:"FollowUp erfolgreich"}));
-//        rows.push('<input type="checkbox" id="followupOk_'+g_id+'_'+id+'"></input> FollowUp erfolgreich<br/>');
         rows.push('<textarea class="input-xlarge" rows="4" id="followupNote_'+g_id+'_'+id+'"/><br/>');
       rows.push('</div> <div class="span5 well">');
 
@@ -3139,8 +3202,7 @@ PersonView.prototype.renderDetails = function (id) {
 
       rows.push('</div></div>');
 
-   //   if (_getPersonGroupFollowupDiffDays(b)*1<=0)
-        rows.push('<div id="cdbfollowupDiff_'+g_id+'_'+id+'">Erinnern in <input type="text" class="input-mini" size="2" maxlength="2" id="followupDiff_'+g_id+'_'+id+'" value="2"></input> Tagen<br/></div>');
+      rows.push('<div id="cdbfollowupDiff_'+g_id+'_'+id+'">Erinnern in <input type="text" class="input-mini" size="2" maxlength="2" id="followupDiff_'+g_id+'_'+id+'" value="2"></input> Tagen<br/></div>');
 
       rows.push('<div id="cdbfollowupNachfolger_'+g_id+'_'+id+'" style="display:none">');
       if (_getFollowupTypIntervall(masterData.groups[b.id].followup_typ_id, b.followup_count_no*1+1)==null) {
@@ -3148,32 +3210,8 @@ PersonView.prototype.renderDetails = function (id) {
         if (masterData.groups[b.id].fu_nachfolge_typ_id==0)
           rows.push("<p><small><i>Hinweis: Dieses FollowUp wird dann beendet.</i></small>");
         else {
-          rows.push("<p>Hinweis: Dieses FollowUp wird dann beendet ");
-          if (masterData.groups[b.id].fu_nachfolge_gruppenteilnehmerstatus_id==null)
-            masterData.groups[b.id].fu_nachfolge_gruppenteilnehmerstatus_id=0;
-          if (masterData.groups[b.id].fu_nachfolge_typ_id==3) { // gruppe
-            if (masterData.groups[b.id].fu_nachfolge_objekt_id!=null) {
-              rows.push("und die Person wird in die Gruppe <i>"+masterData.groups[masterData.groups[b.id].fu_nachfolge_objekt_id].bezeichnung+"</i>");
-              rows.push(' als <i>'+masterData.groupMemberTypes[masterData.groups[b.id].fu_nachfolge_gruppenteilnehmerstatus_id].bezeichnung+'</i>');
-              rows.push(" hinzugef&uuml;gt");
-              rows.push('<input type="hidden" id="selectNachfolgegruppe_'+g_id+"_"+id+'" value="'+masterData.groups[b.id].fu_nachfolge_objekt_id+'"></input>');
-            }
-          }
-          else if (masterData.groups[b.id].fu_nachfolge_typ_id>0) { // 1=gruppentyp oder 2=distrikt
-            rows.push("und die Person kann nun in eine Gruppe ");
-            rows.push(' als <i>'+masterData.groupMemberTypes[masterData.groups[b.id].fu_nachfolge_gruppenteilnehmerstatus_id].bezeichnung+'</i>');
-            rows.push(" &uuml;bernommen werden.<br/>Gruppe: ");
-            rows.push('<select id="selectNachfolgegruppe_'+g_id+"_"+id+'"');
-            rows.push('<option value="-1">-</option>');
-            each(masterData.groups, function(i,c) {
-              if (
-                  (((masterData.groups[b.id].fu_nachfolge_typ_id==1) && (c.gruppentyp_id==masterData.groups[b.id].fu_nachfolge_objekt_id))
-                ||  ((masterData.groups[b.id].fu_nachfolge_typ_id==2) && (c.distrikt_id==masterData.groups[b.id].fu_nachfolge_objekt_id)))
-                   && (c.valid_yn==1) && (c.versteckt_yn==0))
-                rows.push('<option value='+c.id+'>'+c.bezeichnung+'</option>');
-            });
-            rows.push("</select>");
-          }
+          rows.push("<p>Hinweis: Dieses FollowUp wird dann beendet und die Person ");
+          rows.push(t.renderFollowSuccessGroup(b.id, id));
         }
       }
       else
@@ -3225,7 +3263,6 @@ PersonView.prototype.renderDetails = function (id) {
           churchInterface.jsendWrite(obj, null, false);
           allPersons[id].details=null;
           t.renderList();
-          //t.renderDetails(id);
           t.renderTodos();
           return false;
         }
@@ -3302,6 +3339,62 @@ PersonView.prototype.renderDetails = function (id) {
   t.addPersonsTooltip($("#detailTD"+id));
 };
 
+PersonView.prototype.delPersonGroupRelation = function(g_id, p_id, func) {
+  var t=this;
+  churchInterface.jsendWrite({func:"delPersonGroupRelation", id:p_id, g_id:g_id});
+  delete allPersons[p_id].gruppe[g_id];
+  allPersons[p_id].details=null;
+  t.renderList();  
+  if (func!=null) {
+    func();
+  }
+}
+
+PersonView.prototype.moveMeetingDataFromGroupPerson = function(from_g_id, to_g_id, p_id, func) {
+  var obj=new Object(); 
+  obj.func="moveMeetingDataFromGroupPerson";
+  obj.from_g_id=from_g_id;
+  obj.to_g_id=to_g_id;
+  obj.id=p_id;
+  churchInterface.jsendWrite(obj, function(ok, json) {
+    if (!ok) alert(json);
+    else if (func!=null) func();
+  });
+};
+
+/**
+ * Renders the following group information like direkt group, distrikt or grouptype
+ */
+PersonView.prototype.renderFollowSuccessGroup = function(g_id, p_id) {
+  var rows = new Array();
+  if (masterData.groups[g_id].fu_nachfolge_gruppenteilnehmerstatus_id==null)
+    masterData.groups[g_id].fu_nachfolge_gruppenteilnehmerstatus_id=0;
+  
+  if (masterData.groups[g_id].fu_nachfolge_typ_id==3) { // gruppe
+    if (masterData.groups[g_id].fu_nachfolge_objekt_id!=null) {
+      rows.push("soll in die Gruppe <i>"+masterData.groups[masterData.groups[g_id].fu_nachfolge_objekt_id].bezeichnung+"</i>");
+      rows.push(' als <i>'+masterData.groupMemberTypes[masterData.groups[g_id].fu_nachfolge_gruppenteilnehmerstatus_id].bezeichnung+'</i>');
+      rows.push(" hinzugef&uuml;gt werden.");
+      rows.push('<input type="hidden" id="selectNachfolgegruppe_'+g_id+"_"+p_id+'" value="'+masterData.groups[g_id].fu_nachfolge_objekt_id+'"></input>');
+    }
+  }
+  else if (masterData.groups[g_id].fu_nachfolge_typ_id>0) { // 1=gruppentyp oder 2=distrikt
+    rows.push("kann nun in eine Gruppe ");
+    rows.push(' als <i>'+masterData.groupMemberTypes[masterData.groups[g_id].fu_nachfolge_gruppenteilnehmerstatus_id].bezeichnung+'</i>');
+    rows.push(" &uuml;bernommen werden.<br/>Gruppe: ");
+    rows.push('<select id="selectNachfolgegruppe_'+g_id+"_"+p_id+'"');
+    rows.push('<option value="-1">-</option>');
+    each(masterData.groups, function(i,c) {
+      if (
+          (((masterData.groups[g_id].fu_nachfolge_typ_id==1) && (c.gruppentyp_id==masterData.groups[g_id].fu_nachfolge_objekt_id))
+        ||  ((masterData.groups[g_id].fu_nachfolge_typ_id==2) && (c.distrikt_id==masterData.groups[g_id].fu_nachfolge_objekt_id)))
+           && (c.valid_yn==1) && (c.versteckt_yn==0))
+        rows.push('<option value='+c.id+'>'+c.bezeichnung+'</option>');
+    });
+    rows.push("</select>");
+  }
+  return rows.join("");
+}
 
 function _getFollowupTypIntervall(followup_typ_id, followup_count_no) {
   var res=null;
@@ -3336,6 +3429,13 @@ PersonView.prototype.delPersonFromGroup = function (id, g_id, withoutConfirmatio
   var a=allPersons[id];
   if (withoutConfirmation==null) withoutConfirmation=false;
 
+  // If Person is really in the group, otherwise exit.
+  if (allPersons[id].gruppe[g_id]==null) {
+    if (!withoutConfirmation)
+      alert("Person ist nicht in der Gruppe");
+    return;
+  }
+  
   // Muss erst pruefen, ob es sich um einen Leiter handelt und ein Gruppentyp, wo ein Leiter bleiben muss.
   if ((masterData.groupTypes[masterData.groups[g_id].gruppentyp_id].muss_leiter_enthalten_yn==1)
         && (allPersons[id].gruppe[g_id].leiter==1)) {

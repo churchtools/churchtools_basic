@@ -53,6 +53,7 @@
   <entry key="load.archive">Lade Archiv</entry>
   <entry key="add.tag">Tag hinzufügen</entry>  
   <entry key="add.to.group">einer Gruppe hinzufügen</entry>
+  <entry key="delete.from.group">aus einer Gruppe entfernen</entry>
   <entry key="add.to.department">einen Bereich hinzufügen</entry>
   <entry key="add.one.tag">einen Tag hinzufügen</entry>
   <entry key="add.one.permission">ein Zugriffssrecht hinzufügen</entry>

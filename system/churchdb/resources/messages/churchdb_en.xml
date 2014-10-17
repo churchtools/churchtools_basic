@@ -53,6 +53,7 @@
   <entry key="load.archive">Load archive</entry>
   <entry key="add.tag">Add tag</entry>
   <entry key="add.to.group">add to group</entry>
+  <entry key="delete.from.group">delete from group</entry>
   <entry key="add.to.department">add to department</entry>
   <entry key="add.one.tag">add a tag</entry>
   <entry key="add.one.permission">add a permission</entry>
