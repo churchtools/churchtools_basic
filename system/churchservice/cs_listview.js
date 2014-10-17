@@ -3509,9 +3509,7 @@ ListView.prototype.checkFilter = function(a) {
     if (!res) return false;
   }
 
-
   if ((filter["searchChecked"]!=null) && (a.checked!=true)) return false;
-
 
   return true;
 };

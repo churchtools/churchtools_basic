@@ -29,6 +29,7 @@ class CTChurchResourceModule extends CTAbstractModule {
     include_once (CHURCHCAL . '/churchcal_db.php');
     $res = $this->getMasterDataTables();
     $res["masterDataTables"] = $this->getMasterDataTablenames();
+    $res["entriesLastDays"] = getConf("churchresource_entries_last_days", 90);
     $res["auth"] = churchresource_getAuthForAjax();
     $res["status"] = churchcore_getTableData("cr_status");
     $res["minutes"] = churchcore_getTableData("cr_minutes");

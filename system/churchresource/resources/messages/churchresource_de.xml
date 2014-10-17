@@ -2,6 +2,7 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
   <comment>ChurchResource messages</comment>
+  <entry key="workload">Auslastung</entry>
 
   <entry key="by.order.of">Im Auftrag von</entry>  
   <entry key="caution.conflicting.dates">Achtung, Termin-Konflikte</entry>

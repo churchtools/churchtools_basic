@@ -53,8 +53,10 @@ WeekView.prototype.renderMenu = function() {
     menu.addEntry(_("printview"), "adruckansicht", "print");
   }
 
-  if (masterData.auth.admin)
+  if (masterData.auth.admin) {
+    menu.addEntry(_("workload"), "workload", "fire");
     menu.addEntry(_("maintain.masterdata"), "amaintainview", "cog");
+  }
   
   menu.addEntry(_("help"), "ahelp", "question-sign");
 
@@ -65,6 +67,9 @@ WeekView.prototype.renderMenu = function() {
     $("#cdb_menu a").click(function () {
       if ($(this).attr("id")=="anewentry") {
         t.showBookingDetails("new");
+      }
+      else if ($(this).attr("id")=="workload") {
+        t.showAuslastung();
       }
       else if ($(this).attr("id")=="aaddfilter") {
         if (!t.furtherFilterVisible) {
@@ -93,6 +98,68 @@ WeekView.prototype.renderMenu = function() {
       return false;
     });
   }
+};
+
+
+WeekView.prototype.showAuslastung = function() {
+  var rows = new Array();
+   
+  var today = new Date();
+  var quartal = new Date(); quartal.addDays(90);
+  var year = new Date(); year.addDays(365);
+  
+  each(masterData.resources, function(k,a) {
+    a.workload = {   Heute : {until : today, count_days : 0, booked_days : 0}, 
+                   Quartal : {until : quartal, count_days: 0, booked_days : 0},
+                      Jahr : {until : year, count_days : 0, booked_days : 0} };
+  });
+  
+  var go=new Date();
+  go.addDays(-masterData.entriesLastDays);
+  var arr=new Array();
+  var in_zones=false;
+  do {
+    in_zones=false;
+    each(masterData.resources, function(k,a) {
+      each(a.workload, function(i,zones) {
+        if (go.getTime()<=zones.until.getTime()) {
+          zones.count_days++;
+          in_zones=true;
+        }        
+      });
+    });
+    
+    if (t.datesIndex!=null && t.datesIndex[go.getFullYear()]!=null &&
+        t.datesIndex[go.getFullYear()][go.getMonth()+1]!=null &&
+        t.datesIndex[go.getFullYear()][go.getMonth()+1][go.getDate()]!=null)
+      each(t.datesIndex[go.getFullYear()][go.getMonth()+1][go.getDate()], function(k,a) {
+        each(masterData.resources[allBookings[a.id].resource_id].workload, function(i,zones) {
+          if (go.getTime()<=zones.until) {
+            zones.booked_days++;
+          }        
+        });
+      });
+    go.addDays(1);
+  } while (in_zones);
+  rows.push('<legend>Auslastung der letzten '+masterData.entriesLastDays+' Tage bis ...</legend>');
+  rows.push('<table class="table table-condensed"><tr><th>Bezeichnung');
+  each(churchcore_getFirstElement(masterData.resources).workload, function(i,zones) {
+    rows.push('<th>'+i);
+  });
+  each(churchcore_sortMasterData(masterData.resourceTypes), function(k,rt) {
+    rows.push('<tr><td colspan="5"><b>'+rt.bezeichnung+'</b>');
+    each(churchcore_sortMasterData(masterData.resources), function(k,r) {
+      if (r.resourcetype_id==rt.id) {
+        rows.push('<tr><td>'+r.bezeichnung);
+        each(r.workload, function(i,zones) {
+          rows.push('<td>'+Math.round(zones.booked_days*1000/zones.count_days)/10+"%");
+        });
+      }
+    });
+  });
+  rows.push('</table>');
+
+  form_showOkDialog(_("workload"), rows.join(""), 450, 500);
 };
 
 WeekView.prototype.renderCreatePerson = function(value) {
@@ -174,6 +241,7 @@ WeekView.prototype.renderFilter = function () {
                   freeoption:true,
                   type:"medium"
   });
+  form.addCheckbox({cssid:"searchChecked",label:_("selected")});
 
   rows.push(form.render(true));
 
@@ -239,6 +307,8 @@ WeekView.prototype.checkFilter = function (a) {
   
   if ((filter["filterRessourcen-Typ"]!=null) && (filter["filterRessourcen-Typ"]!="-1") && (a.resourcetype_id!=filter["filterRessourcen-Typ"]))
     return false;
+  
+  if ((filter["searchChecked"]!=null) && (a.checked!=true)) return false;  
 
   return true;
 };
@@ -331,7 +401,10 @@ WeekView.prototype.getListHeader = function () {
   return rows.join("");
 };
 
-
+/**
+ * Builds an index <i>this.datesIndex</i> for higher perfomance on accessing bookings
+ * @param allBookings
+ */
 WeekView.prototype.buildDates = function (allBookings) {
   var t=this;
   t.datesIndex=new Object();
