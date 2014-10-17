@@ -52,11 +52,15 @@ function login_main() {
       }
     }
     // access through externale tools through GET and additional direct
-    // TODO: is it important to look in post only?
-    else if ($email = getVar("email", false, $_POST)
-             && $password = getVar("password", false, $_POST)
-             && $directTool = getVar("directtool", false, $_POST)) {
+    // POST so no GET is used , so it is not visible in the URL
+    else if (getVar("email", false, $_POST)
+             && getVar("password", false, $_POST)
+             && getVar("directtool", false, $_POST)) {
       include_once (CHURCHCORE . "/churchcore_db.php");
+      
+      $email = getVar("email", false, $_POST);
+      $password = getVar("password", false, $_POST);
+      $directTool = getVar("directtool", false, $_POST);
       
       $res = db_query("SELECT * FROM {cdb_person}
                        WHERE email=:email AND active_yn=1 AND archiv_yn=0",

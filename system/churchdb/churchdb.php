@@ -414,7 +414,7 @@ function getBirthdaylistContent($desc, $diff_from, $diff_to, $extended = false) 
         if ($see_details) $txt .= " <td> ". $arr->status. "<td>". $arr->bezeichnung. "<td>". $arr->bereich;
       }
       else {
-        if ($arr->imageurl) $arr->imageurl = "nobody.gif";
+        if (!$arr->imageurl) $arr->imageurl = "nobody.gif";
         if ($see_details) $txt .= "<a data-person-id='$arr->person_id' href='$base_url?q=churchdb#PersonView/searchEntry:#" . $arr->person_id . "'>";
         $txt .= "<img class='' width='42px' style='max-width:42px;' src='$base_url$files_dir/fotos/" . $arr->imageurl . "'/>";
         if ($see_details) $txt .= "</a>";

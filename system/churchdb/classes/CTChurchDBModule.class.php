@@ -330,14 +330,14 @@ class CTChurchDBModule extends CTAbstractModule {
     
     db_query("DELETE FROM {cdb_gemeindeperson_tag} 
               WHERE tag_id=:tag_id AND gemeindeperson_id=:gp_id",
-              array(':id' => $params["tag_id"], ':gp_id' => $gp_id));
+              array(':tag_id' => $params["tag_id"], ':gp_id' => $gp_id));
   }
 
   public function delGroupTag($params) {
     
     db_query("DELETE FROM {cdb_gruppe_tag} 
               WHERE tag_id=:tag_id AND gruppe_id=:gp_id",
-              array(':id' => $params["tag_id"], ':gp_id' => $gp_id));
+              array(':tag_id' => $params["tag_id"], ':gp_id' => $gp_id));
   }
 
   public function addNewTag($params) {

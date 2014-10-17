@@ -995,9 +995,6 @@ ListView.prototype.renderListEntry = function(event) {
   }
   else {
     var _authMerker=masterData.auth.write || _bin_ich_admin;
-    if ((event.special!=null) && (event.special!="")) {
-      rows.push('<div class="event_info'+(_authMerker?" editable":"")+'">'+event.special.htmlize()+'</div>');
-    }
     // Check if I am a leader of the group
     if (!_authMerker)
       each(masterData.service, function(k,a) {
@@ -1007,6 +1004,9 @@ ListView.prototype.renderListEntry = function(event) {
           return false;
         }
       });
+    if ((event.special!=null) && (event.special!="")) {
+      rows.push('<div class="event_info'+(_authMerker?" editable":"")+'">'+event.special.htmlize()+'</div>');
+    }
     if (_authMerker) rows.push("<a href=\"#\" id=\"editNote" + event.id + "\" title=\"Editiere 'Weitere Infos'\">" +this.renderImage("info")+"</a>&nbsp;");
     // Check if I am in one of the services, so I am allowed to uplaod files
     if ((!_authMerker) && (event.services!=null)) {

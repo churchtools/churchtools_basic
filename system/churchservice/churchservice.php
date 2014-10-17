@@ -498,7 +498,7 @@ function churchservice_getAbsents($year = null) {
         foreach ($people as $p) {
           $txt .= '<li>' . $p[0]->vorname . " " . $p[0]->name . ": <p>";
           foreach ($p as $abwesend) {
-            $reason = $abwesend->bezeichnung ? $abwesend->bezeichnung . " ($reason)" : $abwesend->reason;
+            $reason = $abwesend->bezeichnung ? $abwesend->bezeichnung . " ($abwesend->reason)" : $abwesend->reason;
             if ($abwesend->startdate == $abwesend->enddate) $txt .= "<small>$abwesend->startdate $reason</small><br/>";
             else $txt .= "<small>$abwesend->startdate_short - $abwesend->enddate $reason</small><br/>";
           }
