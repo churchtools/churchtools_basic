@@ -17,54 +17,6 @@ var max_entries=50;
 var printview=false;
 
 
-function mapEvents(allEvents) {
-  var cs_events= new Array();
-  each(allEvents, function(k,a) {
-    if ((filterCategoryIds==null) || (churchcore_inArray(a.category_id, filterCategoryIds))) {
-      if ((!embedded) || (a.intern_yn==0)) {
-        each(churchcore_getAllDatesWithRepeats(a), function(k,d) {
-          var o=Object();
-          o.id= a.id;  // Id muss eindeutig sein, sonst macht er daraus einen Serientermin!
-          o.title= '<span class="event-title">'+a.bezeichnung+'</span>';
-          if ((a.notizen!=null) && (a.notizen!="")) o.notizen=a.notizen;
-          if ((a.link!=null) && (a.link!="")) o.link=a.link;
-          if ((a.ort!=null) && (a.ort!='')) o.title=o.title+' <span class="event-location">'+a.ort+'</span>';
-          // Now get the service texts out of the events
-          if (a.events!=null) {
-            each(a.events, function(i,e) {
-              if ((e.service_texts!=null) &&
-                   (e.startdate.toDateEn(false).toStringDe(false)==d.startdate.toStringDe(false))) {
-                o.title=o.title+' <span class="event-servicetext">'+e.service_texts.join(", ")+'</span>';
-                return false;
-              }
-            });
-          }
-          if (a.bookings!=null) {
-            o.title=o.title+'<span class="event-resources">';
-            each(a.bookings, function(i,e) {
-              o.title=o.title+'<br/>'+masterData.resources[e.resource_id].bezeichnung.trim(20);
-            });
-            o.title=o.title+'</span>';
-          }
-          o.start= d.startdate;
-          o.end = d.enddate;
-          // Tagestermin?
-          if (churchcore_isAllDayDate(o.start, o.end)) {
-            o.allDay=churchcore_isAllDayDate(o.start, o.end);
-            // Add 1 day, because fullCalendar 2.0 works with exclusive end date!
-            o.end.addDays(1);            
-          }
-          
-          if ((a.category_id!=null) && (masterData.category[a.category_id].color!=null))
-            o.color=masterData.category[a.category_id].color;
-          cs_events.push(o);
-        });
-      }
-    }
-  });
-  return cs_events;
-}
-
 /*
  * Collect database conform event vom source
  */
@@ -108,6 +60,11 @@ function _eventDrop(event, delta, revertFunc, jsEvent, ui, view ) {
     end.add(delta);
     myevent.enddate=end.format(DATETIMEFORMAT_EN).toDateEn(true); 
   }
+
+  if (event.source && event.source.container)
+    event.source.container.refreshView(event.source.category_id, false);
+  
+  
   var o = new Object();
   o.func="updateEvent";
   o.startdate=myevent.startdate;
@@ -168,6 +125,8 @@ function _eventResize(event, delta, revertFunc, jsEvent, ui, view) {
     var m=moment(myevent.enddate);
     m.add(delta);
     myevent.enddate=m.format(DATETIMEFORMAT_EN).toDateEn(true);
+    if (event.source && event.source.container)
+      event.source.container.refreshView(event.source.category_id, false);
     churchInterface.jsendWrite({func:"updateEvent", id:event.id, startdate:myevent.startdate,
         enddate:myevent.enddate, bezeichnung:myevent.bezeichnung, category_id:myevent.category_id,
          bookings:myevent.bookings}, function(ok, data) {
@@ -1733,7 +1692,7 @@ function renderGroupCategories() {
     if (sortkey>=0) {
       if (user_access("view churchservice")) {
         form_addEntryToSelectArray(mycals,3,'-',sortkey);  sortkey++;
-        form_addEntryToSelectArray(mycals,5,'Abwesenheiten pro Kalender',sortkey);  sortkey++;
+        form_addEntryToSelectArray(mycals,5,'Abwesenheiten pro Kalender',sortkey, true);  sortkey++;
       }
       createMultiselect("filterGruppenKalender", mycals);
       form.addHtml('<div id="filterGruppenKalender"></div>');
@@ -1788,7 +1747,7 @@ function renderChurchCategories() {
         form_addEntryToSelectArray(oeff_cals,3,'-',sortkey);  sortkey++;
       }
       if (masterData.auth["view alldata"]) {
-        form_addEntryToSelectArray(oeff_cals,4,_("birthdays")+' (Gruppen)',sortkey);  sortkey++;
+        form_addEntryToSelectArray(oeff_cals,4,_("birthdays")+' (Gruppen)',sortkey, true);  sortkey++;
         form_addEntryToSelectArray(oeff_cals,6,_("birthdays")+' (Alle)',sortkey, true);  sortkey++;
       }
       else {
@@ -1821,6 +1780,7 @@ function renderChurchCategories() {
     else if (!embedded){
       form.addHtml('<div id="filterGemeindekalendar"></div>');
     }
+    /*
     if ((filterCategoryIds==null || !embedded) && (masterData.auth["view churchresource"])) {
       createMultiselect("filterRessourcen", masterData.resources);
       form.addHtml('<div id="filterRessourcen"></div>');
@@ -1830,7 +1790,7 @@ function renderChurchCategories() {
         });
       });
 
-    }
+    }*/
     
     rows.push(form.render(true));
   }

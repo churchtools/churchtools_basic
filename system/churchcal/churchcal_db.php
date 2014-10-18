@@ -429,7 +429,7 @@ function churchcal_getCalPerCategory($params, $withintern = null) {
   }
   
   $data = array ();
-  
+  $from = getConf("churchcal_entries_last_days", 180);
   
   $res = db_query("
       SELECT cal.*, CONCAT(p.vorname, ' ',p.name) AS modified_name, e.id AS event_id, e.startdate AS event_startdate, 
@@ -439,8 +439,10 @@ function churchcal_getCalPerCategory($params, $withintern = null) {
       LEFT JOIN {cs_event} e ON (cal.id=e.cc_cal_id) 
       LEFT JOIN {cr_booking} b ON (cal.id=b.cc_cal_id) 
       LEFT JOIN {cdb_person} p ON (cal.modified_pid=p.id)
-      WHERE cal.category_id IN (". db_implode($params["category_ids"]).") ".(!$withintern ? " and intern_yn=0" : "")." 
-      ORDER by category_id");
+      WHERE cal.category_id IN (". db_implode($params["category_ids"]).") ".(!$withintern ? " and intern_yn=0" : "")
+        ." AND(     ( DATEDIFF  ( cal.enddate , NOW() ) > - $from )
+                 OR ( cal.repeat_id>0 AND DATEDIFF (cal.repeat_until, NOW() ) > - $from) )
+      ");
   
   $data = null;
   

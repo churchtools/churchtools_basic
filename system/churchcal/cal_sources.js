@@ -16,6 +16,7 @@ CalSourceType.prototype.prepareCategory = function(category_id, refresh) {
     if ((t.data[category_id]!=null) && (t.data[category_id].current_CalEvents!=null))
       send2Calendar("removeEventSource", t.data[category_id].current_CalEvents);
     t.data[category_id]=new Object();
+    t.data[category_id].hide=false;
     t.data[category_id].status="new";
     t.data[category_id].events=new Object();
   }
@@ -29,6 +30,10 @@ CalSourceType.prototype.needData = function(category_id, refresh) {
     t.data[category_id].status="needData";
     t.data[category_id].name=t.getName(category_id);
     t.triggerCollectTimer();
+  }
+  else if (t.data[category_id].hide) {
+    t.data[category_id].hide=false;    
+    t.showEventsOnCal(category_id);
   }
 };
 
@@ -49,7 +54,7 @@ CalSourceType.prototype.triggerCollectTimer = function() {
 CalSourceType.prototype.hideData = function(category_id) {
   var t=this;
   t.prepareCategory(category_id);
-  t.data[category_id].status="hide";
+  t.data[category_id].hide=true;
   if (t.data[category_id].current_CalEvents!=null)
     send2Calendar("removeEventSource", t.data[category_id].current_CalEvents);
 };
@@ -90,8 +95,11 @@ CalSourceType.prototype.collectData = function() {
 CalSourceType.prototype.jsonCall = function(ids) {
   throw new Exception("Not implemented!");
 };
+CalSourceType.prototype.showEventsOnCal = function(category_id) {
+};
 
 Temp.prototype = CalSourceType.prototype;
+
 
 // ---------------------------------------------------------------------------------------------------------
 // Der CalCC-Type l�dt die Daten aus der CC_CAL-Tabelle 
@@ -101,6 +109,70 @@ function CalCCType() {
 }
 CalCCType.prototype = new Temp();
 var calCCType = new CalCCType();
+
+
+function mapEvents(allEvents) {
+  var cs_events= new Array();
+  each(allEvents, function(k,a) {
+    if ((filterCategoryIds==null) || (churchcore_inArray(a.category_id, filterCategoryIds))) {
+      if ((!embedded) || (a.intern_yn==0)) {
+        each(churchcore_getAllDatesWithRepeats(a), function(k,d) {
+          var o=Object();
+          o.id= a.id;  // Id muss eindeutig sein, sonst macht er daraus einen Serientermin!
+          o.title= '<span class="event-title">'+a.bezeichnung+'</span>';
+          if ((a.notizen!=null) && (a.notizen!="")) o.notizen=a.notizen;
+          if ((a.link!=null) && (a.link!="")) o.link=a.link;
+          if ((a.ort!=null) && (a.ort!='')) o.title=o.title+' <span class="event-location">'+a.ort+'</span>';
+          // Now get the service texts out of the events
+          if (a.events!=null) {
+            each(a.events, function(i,e) {
+              if ((e.service_texts!=null) &&
+                   (e.startdate.toDateEn(false).toStringDe(false)==d.startdate.toStringDe(false))) {
+                o.title=o.title+' <span class="event-servicetext">'+e.service_texts.join(", ")+'</span>';
+                return false;
+              }
+            });
+          }
+          if (a.bookings!=null) {
+            o.title=o.title+'<span class="event-resources">';
+            each(a.bookings, function(i,e) {
+              o.title=o.title+'<br/>'+masterData.resources[e.resource_id].bezeichnung.trim(20);
+            });
+            o.title=o.title+'</span>';
+          }
+          o.start= d.startdate;
+          o.end = d.enddate;
+          // Tagestermin?
+          if (churchcore_isAllDayDate(o.start, o.end)) {
+            o.allDay=churchcore_isAllDayDate(o.start, o.end);
+            // Add 1 day, because fullCalendar 2.0 works with exclusive end date!
+            o.end.addDays(1);            
+          }
+          
+          if ((a.category_id!=null) && (masterData.category[a.category_id].color!=null))
+            o.color=masterData.category[a.category_id].color;
+
+          
+          var year=cs_events[o.start.getFullYear()];
+          if (year==null) year=new Array();
+          
+          var month=year[o.start.getMonth()+1];
+          if (month==null) month=new Array();
+          
+          var day=month[o.start.getDate()];
+          if (day==null) day=new Array();
+          
+          day.push(o);
+          month[o.start.getDate()]=day;
+          year[o.start.getMonth()+1]=month;
+          cs_events[o.start.getFullYear()]=year;
+        });
+      }
+    }
+  });
+  return cs_events;
+}
+
 CalCCType.prototype.jsonCall = function(ids) {
   var t=this;
   churchInterface.jsendRead({func:"getCalPerCategory", category_ids:ids}, function(ok, cats) {
@@ -110,17 +182,13 @@ CalCCType.prototype.jsonCall = function(ids) {
           t.data[k].events=events;
           each(t.data[k].events, function(i,a) {
             a.startdate=a.startdate.toDateEn(true);
-            // with moment: a.startdate=moment(a.startdate, "YYYY-MM-DD HH:mm");
             a.enddate=a.enddate.toDateEn(true);
             if (a.repeat_until!=null)
               a.repeat_until=a.repeat_until.toDateEn(false);        
           });
+          t.data[k].status="loaded";          
           if (t.data[k].status!="hide") {
-            t.data[k].status="loaded";
-            var cs_events=mapEvents(t.data[k].events, true);
-            
-            t.data[k].current_CalEvents={container:t, category_id:k, events:cs_events, color:"black", editable:categoryEditable(k)};            
-            send2Calendar("addEventSource",t.data[k].current_CalEvents);
+            t.showEventsOnCal(k);
           }
         });
       }
@@ -128,6 +196,28 @@ CalCCType.prototype.jsonCall = function(ids) {
     else alert("Fehler: "+status);
   });      
 };
+
+CalCCType.prototype.showEventsOnCal = function(k) {
+  var t = this;
+  var cs_events = mapEvents(t.data[k].events, true);
+  
+  function _getIndexEvents(start, end, timezone, callback) {
+    var go = start.format(DATEFORMAT_EN).toDateEn(false);
+    var e = end.format(DATEFORMAT_EN).toDateEn(false);
+    var arr = new Array();
+    while (go.getTime()<=e.getTime()) {
+      if (cs_events!=null && cs_events[go.getFullYear()]!=null &&
+          cs_events[go.getFullYear()][go.getMonth()+1]!=null &&
+          cs_events[go.getFullYear()][go.getMonth()+1][go.getDate()]!=null)
+        arr=arr.concat(cs_events[go.getFullYear()][go.getMonth()+1][go.getDate()]);
+      go.addDays(1);
+    }
+    callback(arr);              
+  }
+  t.data[k].current_CalEvents={container:t, category_id:k, events:_getIndexEvents, color:"black", editable:categoryEditable(k)};            
+  send2Calendar("addEventSource",t.data[k].current_CalEvents);  
+};
+
 
 CalCCType.prototype.getName = function(category_id) {
   return masterData.category[category_id].bezeichnung;  

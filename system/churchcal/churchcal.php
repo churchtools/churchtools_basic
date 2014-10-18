@@ -93,6 +93,10 @@ function churchcal_getAdminForm() {
   $model->addField("churchcal_firstdayinweek", "", "INPUT_REQUIRED", t('first.day.in.week'))
     ->setValue($config["churchcal_firstdayinweek"]);
   
+  if (!isset($config["churchcal_entries_last_days"])) $config["churchcal_entries_last_days"] = "180";
+  $model->addField("churchcal_entries_last_days", "", "INPUT_REQUIRED", t('data.from.x.how.many.days.in.the.past.to.load', getConf("churchcal_name")))
+    ->setValue($config["churchcal_entries_last_days"]);
+  
   if (!isset($config["churchcal_css"])) $config["churchcal_css"] = "";
   $model->addField("churchcal_css", "", "TEXTAREA", t('css.for.embedded.cal'))
     ->setValue($config["churchcal_css"]);
@@ -772,48 +776,39 @@ function churchcal__ical() {
 //     $diff = $res->enddate->diff($res->startdate);
     $subid = 0;
     
-    foreach (getAllDatesWithRepeats($res, -90, 400) as $d) {
-      $txt .= "BEGIN:VEVENT" . NL;
-      $txt .= "ORGANIZER:MAILTO:" . getConf('site_mail', '') . NL;
-      $txt .= "SUMMARY:" . $res->bezeichnung . NL;
-      // $txt.="X-MICROSOFT-CDO-BUSYSTATUS:BUSY" . NL;
-      if ($res->link) $txt .= "URL:" . $res->link . NL;
-      else $txt .= "URL:" . $base_url . "?q=churchcal" . NL;
-      if ($res->ort) $txt .= "LOCATION:" . $res->ort . NL;
+    foreach (getAllDatesWithRepeats($res, -90, 730) as $d) {
+      $txt.="BEGIN:VEVENT" . NL; 
+      $txt.="ORGANIZER:MAILTO:".getConf('site_mail', '') . NL;
+      $txt.="SUMMARY:".$res->bezeichnung . NL;
+      //$txt.="X-MICROSOFT-CDO-BUSYSTATUS:BUSY" . NL; 
+      if ($res->link!="")
+        $txt.="URL:".$res->link . NL;
+      else
+        $txt.="URL:".$base_url."?q=churchcal" . NL;
+      if ($res->ort!="")
+        $txt.="LOCATION:".$res->ort . NL;
+        
+      $subid++;
+      $txt .= "UID:{$res->id}_$subid" . NL;
+      $txt .= "DTSTAMP:" . churchcore_stringToDateICal($res->modified_date) . NL;
+      $enddate = clone $d;
+      $enddate->modify("+$diff seconds");
       
-      foreach (getAllDatesWithRepeats($res, -90, 730) as $d) {
-        $txt.="BEGIN:VEVENT\r\n"; 
-        $txt.="ORGANIZER:MAILTO:".getVar('site_mail', '')."\r\n";
-        $txt.="SUMMARY:".$res->bezeichnung."\r\n";
-        //$txt.="X-MICROSOFT-CDO-BUSYSTATUS:BUSY\r\n"; 
-        if ($res->link!="")
-          $txt.="URL:".$res->link."\r\n";
-        else
-          $txt.="URL:".$base_url."?q=churchcal\r\n";
-        if ($res->ort!="")
-          $txt.="LOCATION:".$res->ort."\r\n";
-          
-        $subid++;
-        $txt .= "UID:{$res->id}_$subid" . NL;
-        $txt .= "DTSTAMP:" . churchcore_stringToDateICal($res->modified_date) . NL;
-        $enddate = clone $d;
-        $enddate->modify("+$diff seconds");
-        
-        // all day event
-        if (($res->startdate->format('His') == "000000") && ($res->enddate->format('His') == "000000")) {
-          $txt .= "DTSTART;VALUE=DATE:" . $d->format('Ymd') . NL;
-          $txt .= "DTEND;VALUE=DATE:" . date('Ymd', strtotime('+1 day', $enddate->format("U"))) . NL;
-        }
-        else {
-          $txt .= "DTSTART:" . $d->format('Ymd\THis') . NL;
-          $txt .= "DTEND:" . $enddate->format('Ymd\THis') . NL;
-        }
-        
-        $txt .= 'DESCRIPTION:Kalender:' . $catNames[$res->category_id]->bezeichnung.' - ' .
-             cleanICal($res->notizen) . NL;
-        $txt .= "END:VEVENT" . NL;
-      } 
-    }
+      // all day event
+      if (($res->startdate->format('His') == "000000") && ($res->enddate->format('His') == "000000")) {
+        $txt .= "DTSTART;VALUE=DATE:" . $d->format('Ymd') . NL;
+        $txt .= "DTEND;VALUE=DATE:" . date('Ymd', strtotime('+1 day', $enddate->format("U"))) . NL;
+      }
+      else {
+        $txt .= "DTSTART:" . $d->format('Ymd\THis') . NL;
+        $txt .= "DTEND:" . $enddate->format('Ymd\THis') . NL;
+      }
+      
+      $txt .= 'DESCRIPTION:Kalender:' . $catNames[$res->category_id]->bezeichnung;
+      if (!empty($res->notizen)) $txt .= ' - ' . cleanICal($res->notizen);
+      $txt .= NL;
+      $txt .= "END:VEVENT" . NL;
+    } 
   }
   
   echo surroundWithVCALENDER($txt);

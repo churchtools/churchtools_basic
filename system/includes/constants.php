@@ -25,7 +25,7 @@ define('CLASSES',        '/classes');
 define('RESOURCES',      '/resources');
 define('TEMPLATES',      RESOURCES . '/templates');
 
-define('NL',        "\n\r"); //new line, \n, \r, \r\n or \n\r
+define('NL',        "\r\n"); //new line, \n, \r, \r\n or \n\r
 define('BR',        "<br/>" . NL); //html new line
 
 define('PHP_QPRINT_MAXL', 75);

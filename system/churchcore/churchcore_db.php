@@ -1675,15 +1675,15 @@ function cleanICal($txt) {
 function surroundWithVCALENDER($txt) {
   global $config;
   
-  return "BEGIN:VCALENDAR\r\n" 
-       . "VERSION:2.0\r\n"
-       . "PRODID:-//ChurchTools//DE\r\n" 
-       . "CALSCALE:GREGORIAN\r\n"
-       . "X-WR-CALNAME:".getConf('site_name')." ChurchCal-Kalender\r\n"
-       . "X-WR-TIMEZONE:".$config["timezone"]."\r\n"
-       . "METHOD:PUSH\r\n"
+  return "BEGIN:VCALENDAR" . NL 
+       . "VERSION:2.0" . NL
+       . "PRODID:-//ChurchTools//DE" . NL 
+       . "CALSCALE:GREGORIAN" . NL
+       . "X-WR-CALNAME:".getConf('site_name')." ChurchCal-Kalender" . NL
+       . "X-WR-TIMEZONE:".$config["timezone"] . NL
+       . "METHOD:PUSH" . NL
        . $txt
-       . "END:VCALENDAR\r\n";  }
+       . "END:VCALENDAR" . NL;  }
 
 function createAnonymousUser() {
   $user = new stdClass();
