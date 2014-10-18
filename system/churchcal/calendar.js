@@ -1043,7 +1043,7 @@ function initCalendarView() {
       $("div.fc-left").append("&nbsp; "+form_renderImage({src:"cal.png", width:28, htmlclass:"open-cal", link:true})+'<div style="position:absolute;z-index:12001" id="dp_month"></div>');
     $("div.fc-left").append(" "+form_renderImage({src:"printer.png", width:28, htmlclass:"printview", link:true})+'<div style="position:absolute;z-index:12001" id="dp_month"></div>');
     if (!embedded) {
-      $("div.fc-right>div.fc-button-group").append('<button type="button" id="yearView" class="fc-button fc-state-default fc-corner-right">'+_("year")+'</button>');
+//      $("div.fc-right>div.fc-button-group").append('<button type="button" id="yearView" class="fc-button fc-state-default fc-corner-right">'+_("year")+'</button>');
       $("div.fc-right>div.fc-button-group").append('<button type="button" id="eventView" class="fc-button fc-state-default fc-corner-right"><i class="icon-list"></button>');
     }
     $( window ).resize(function() {
@@ -1366,6 +1366,8 @@ function _loadAllowedPersons(func) {
 
 function editCategory(cat_id, privat_yn, oeffentlich_yn) {
   var current=$.extend({}, masterData.category[cat_id]);
+  if (privat_yn==null) privat_yn==masterData.category[cat_id].privat_yn!=0;
+  if (oeffentlich_yn==null) privat_yn==masterData.category[cat_id].oeffentlich_yn!=0;
   if (current.sortkey==null) current.sortkey=0;
   
   var form = new CC_Form((cat_id==null?"Kalender erstellen":"Kalender editieren"), current);
@@ -1406,13 +1408,11 @@ function editCategory(cat_id, privat_yn, oeffentlich_yn) {
           else obj.modified_pid=masterData.category[data].modified_pid;
           masterData.category[data]=obj;
           elem.dialog("close");
-          editCategories(privat_yn, oeffentlich_yn, true);
         }
       });
     },
     "Abbruch": function() {
       elem.dialog("close");
-      editCategories(privat_yn, oeffentlich_yn);
     }
   });
   form_renderColorPicker({label:"Farbe", value:current.color, elem:elem.find("span.color"), func:function() {
@@ -1559,14 +1559,7 @@ function editCategories(privat_yn, oeffentlich_yn, reload) {
     return false;
   });
   elem.find("a.ical").click(function() {
-    var rows=new Array();
-    rows.push('<legend>Kalender abonnieren</legend>Der Kalender kann abonniert werden. Hierzu kann die Adresse anbei in einen beliebigen Kalender importiert werden,'+
-               ' der iCal unterst&uuml;tzt.<br><br>');
-    var id=$(this).attr("data-id");
-//    rows.push(form_renderInput({label:"iCal-URL", value:masterData.base_url+"?q=churchcal/ical&security="+masterData.category[id].randomurl+"&id="+id, disable:true}));
-    rows.push(form_renderInput({label:"<a target='_clean' href='"+masterData.base_url+"?q=churchcal/ical&security="+masterData.category[id].randomurl+"&id="+id+"'>iCal-URL</a>", htmlclass:"ical-link", value:masterData.base_url+"?q=churchcal/ical&security="+masterData.category[id].randomurl+"&id="+id, disable:true}));
-    var elem=form_showOkDialog("Kalender abonnieren", rows.join(""));
-    elem.find("input.ical-link").select();
+    showICalDialog($(this).attr("data-id"));
     return false;
   });
   elem.find("a.delete").click(function() {
@@ -1583,6 +1576,16 @@ function editCategories(privat_yn, oeffentlich_yn, reload) {
       });
     }
   });
+}
+
+function showICalDialog(id) {
+  var rows=new Array();
+  rows.push('<legend>Kalender abonnieren</legend>Der Kalender kann abonniert werden. Hierzu kann die Adresse anbei in einen beliebigen Kalender importiert werden,'+
+             ' der iCal unterst&uuml;tzt.<br><br>');
+  rows.push(form_renderInput({label:"<a target='_clean' href='"+masterData.base_url+"?q=churchcal/ical&security="+masterData.category[id].randomurl+"&id="+id+"'>iCal-URL</a>", htmlclass:"ical-link", value:masterData.base_url+"?q=churchcal/ical&security="+masterData.category[id].randomurl+"&id="+id, disable:true}));
+  var elem=form_showOkDialog("Kalender abonnieren", rows.join(""));
+  elem.find("input.ical-link").select();
+  
 }
 
 function needData(filtername, id) {
@@ -1726,8 +1729,20 @@ function renderFilterCalender() {
   function _renderCalenderEntry(name, id, color, desc) {
     var rows = new Array ();
     rows.push('<li class="hoveractor">');
-    var checked=churchcore_inArray(id, churchcore_getArrStrAsArray(masterData.settings[name])); 
-/*    if (categoryAdminable(id-100)) {
+    var checked=churchcore_inArray(id, churchcore_getArrStrAsArray(masterData.settings[name]));
+    if (id>6) {
+      rows.push('<span class="pull-right dropdown" data-id="'+id+'"><a href="#" class="dropdown-toggle" data-toggle="dropdown" data-id="'+id+'"><i class="icon-cog icon-white"/></a>');
+      rows.push('<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">');
+      rows.push('<li><a href="#" class="options show-ical">iCal Link anzeigen</a></li>');
+      if (categoryAdminable(id-100)) {
+        rows.push('<li><a href="#" class="options share">Freigabe-Einstellungen</a></li>');
+        rows.push('<li><a href="#" class="options edit">Weitere Optionen</a></li>');
+      }
+      rows.push('</ul></span>');
+      rows.push('</span></span>');
+    }
+      /*
+//          
       //    rows.push('<td>'+form_renderImage({src:"persons.png", width:18, htmlclass:"share", link:true, data:[{name:"id", value:id}]}));
        //   rows.push('<td>'+form_renderImage({src:"options.png", width:18, htmlclass:"options", link:true, data:[{name:"id", value:id}]}));
           rows.push('<span class="pu_ll-right options hoverreactor" style="position:absolute">');
@@ -1740,8 +1755,8 @@ function renderFilterCalender() {
           rows.push('<li><a href="#" class="add-item header post">Optionen</a></li>');
           rows.push('<li><a href="#" class="add-item header post">Löschen</a></li>');
           rows.push('</ul></span>');
-          rows.push('</span></span>');
-        }*/
+          rows.push('</span></span>');*/
+        
     rows.push('<span '+(checked?'checked="checked"':'') + ' '
                 +'data-id="'+(id)+'" '
                 +'data-name="'+name+'" '
@@ -1752,7 +1767,7 @@ function renderFilterCalender() {
   }
   
   rows.push('<h4>'+masterData.maincal_name);
-  if (!embedded) {
+  if (!embedded && user_access("admin church category")) {
     rows.push(form_renderImage({cssid:"edit_church", src:"options.png", top:0, width:24, htmlclass:"pull-right"}));
   }
   rows.push('</h4>');
@@ -1762,47 +1777,75 @@ function renderFilterCalender() {
       rows.push(_renderCalenderEntry("filterGemeindekalendar", cat.id*1+100, cat.color, cat.bezeichnung));
     }
   });
-  rows.push('</ul><ul class="ct-ul-list">');
+  rows.push('</ul>');
 
-  rows.push('<h4>'+_("group.calendar"));
-  if (!embedded) {
-    rows.push(form_renderImage({cssid:"edit_group", src:"options.png", top:0, width:24, htmlclass:"pull-right"}));
-  }
-  rows.push('</h4>');
-  
+  var rows_cal = new Array();
   each(churchcore_sortData(masterData.category,"sortkey"), function(k, cat) {
     if ((cat.oeffentlich_yn==0) && (cat.privat_yn==0)) {
-      rows.push(_renderCalenderEntry("filterGruppenKalender", cat.id*1+100, cat.color, cat.bezeichnung));
+      rows_cal.push(_renderCalenderEntry("filterGruppenKalender", cat.id*1+100, cat.color, cat.bezeichnung));
     }
   });
-  rows.push('</ul><ul class="ct-ul-list">');
+  if (!embedded && (rows_cal.length>0 || user_access("create group category"))) {
+    rows.push('<ul class="ct-ul-list">');
+    rows.push('<h4>'+_("group.calendar"));
+    if (user_access("admin group category") || user_access("create group category"))
+      rows.push(form_renderImage({cssid:"edit_group", src:"options.png", top:0, width:24, htmlclass:"pull-right"}));
+    rows.push('</h4>');    
+    rows.push(rows_cal.join(""));
+    rows.push('</ul><ul class="ct-ul-list">');
+  }
 
-  rows.push('<h4>Sonstige Kalender</h4>');
-  rows.push(_renderCalenderEntry("filterPersonalKalender", 1, "blue", 'Meine Dienste'));
-  rows.push(_renderCalenderEntry("filterPersonalKalender", 2, "red", 'Meine Abwesenheiten'));
-  
+  var rows_cal = new Array();
+  each(churchcore_sortData(masterData.category,"sortkey"), function(k, cat) {
+    if ((cat.oeffentlich_yn==0) && (cat.privat_yn==1)) {
+      rows_cal.push(_renderCalenderEntry("filterPersonalKalender", cat.id*1+100, cat.color, cat.bezeichnung));
+    }
+  });
+  if (user_access("view churchservice")) {
+    rows_cal.push(_renderCalenderEntry("filterPersonalKalender", 1, "blue", 'Meine Dienste'));
+    rows_cal.push(_renderCalenderEntry("filterPersonalKalender", 2, "red", 'Meine Abwesenheiten'));
+  }
   if (masterData.auth["view churchdb"]) {
     if (masterData.auth["view alldata"]) {
-      rows.push(_renderCalenderEntry("filterPersonalKalender", 4, "lightblue", _("birthdays")+' (Gruppen)'));
-      rows.push(_renderCalenderEntry("filterPersonalKalender", 6, "lightblue", _("birthdays")+' (Alle)'));
+      rows_cal.push(_renderCalenderEntry("filterPersonalKalender", 4, "lightblue", _("birthdays")+' (Gruppen)'));
+      rows_cal.push(_renderCalenderEntry("filterPersonalKalender", 6, "lightblue", _("birthdays")+' (Alle)'));
     }
     else {
-      rows.push(_renderCalenderEntry("filterPersonalKalender", 6, "lightblue", _("birthdays")));
+      rows_cal.push(_renderCalenderEntry("filterPersonalKalender", 6, "lightblue", _("birthdays")));
     }
   }
-  
   if (user_access("view churchservice")) {
-    rows.push(_renderCalenderEntry("filterGruppenKalender", 5, "lightgreen", "Abwesenheit in Gruppen"));
+    rows_cal.push(_renderCalenderEntry("filterGruppenKalender", 5, "lightgreen", "Abwesenheit in Gruppen"));
   }
-  rows.push('</ul><ul class="ct-ul-list">');  
-  rows.push('</div></div>');
-  
+  if (!embedded && rows_cal.length>0 || user_access("create personal category") || user_access("admin personal category")) {
+    rows.push('<ul class="ct-ul-list">');
+    rows.push('<h4>'+_("personal.calendar"));
+    if (user_access("admin group category") || user_access("create group category"))
+      rows.push(form_renderImage({cssid:"edit_personal", src:"options.png", top:0, width:24, htmlclass:"pull-right"}));
+    rows.push('</h4>');    
+    rows.push(rows_cal.join(""));
+    rows.push('</ul><ul class="ct-ul-list">');
+  }
   
   $("#filterCalender").html(rows.join(""));
   
   $( window ).resize(function() {
      $("div.filterCalender").css("height",(_calcCalendarHeight()+20)+"px");    
-  })
+  });
+  $("#filterCalender").find("a.options").click(function() {
+    var id=$(this).parents("span").attr("data-id");
+    if (id>100) id=id-100;
+    if ($(this).hasClass("edit")) {
+      editCategory(id);
+    }
+    else if ($(this).hasClass("show-ical")) {
+      showICalDialog(id);
+    }
+    else if ($(this).hasClass("share")) {
+      shareCategory(id);
+    }
+    
+  });
   
   $(".colorcheckbox").each(function() {
     $(this).colorcheckbox({

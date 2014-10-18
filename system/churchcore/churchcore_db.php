@@ -51,7 +51,7 @@ function createI18nFile($modulename) {
     $i18n->load($modulename, $config["language"]);
     $i18n->writeJSFile($filename, $modulename);
   }
-  return $filename."?".$config["version"];  
+  return $filename;  
 }
 
 /**
@@ -852,12 +852,12 @@ function implode_array($array, $glue, $property) {
 //TODO: remove drupal from names?
 function drupal_add_css($str) {
   global $add_header;
-  $add_header .= '<link href="' . $str . '" rel="stylesheet">';
+  $add_header .= '<link href="' . $str . '?' . JS_VERSION . '" rel="stylesheet">';
 }
 
 function drupal_add_js($str) {
   global $add_header, $config;
-  $add_header .= '<script src="' . $str . '?' . $config["version"] . '"></script>';
+  $add_header .= '<script src="' . $str . '?' . JS_VERSION . '"></script>';
 }
 
 function drupal_get_header() {

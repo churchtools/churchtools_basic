@@ -298,12 +298,16 @@ function createAddress($params) {
   }
   else {
     $dt = new DateTime();
+    $txt = "";
     
     // check f_address fields
     $fields = getAllFields();
     $save = array();
     foreach ($fields["f_address"]["fields"] as $field) {
-      if (isset($params[$field["sql"]])) $save[$field["sql"]] = $params[$field["sql"]];
+      if (isset($params[$field["sql"]])) {
+        $save[$field["sql"]] = $params[$field["sql"]];
+        $txt .= $field["text"]. ": " . $params[$field["sql"]] . ", ";
+      }
     }
     if (empty($save["createdate"])) $save["createdate"] = $dt->format('Y-m-d H:i:s');
     if (empty($save["aenderunguser"])) $save["aenderunguser"] = $user->cmsuserid;
@@ -326,6 +330,9 @@ function createAddress($params) {
     
     $arr["result"] = "ok"; // result was not really checked :-(
     $arr["id"] = $id;
+    
+    sendFieldNotifications("f_address", "Neue Person erstellt: " . $txt);
+    
   }
   return $arr;
 }

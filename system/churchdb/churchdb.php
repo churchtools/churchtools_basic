@@ -128,7 +128,6 @@ function churchdb_main() {
   drupal_add_js(ASSETS . '/ckeditor/ckeditor.js');
   drupal_add_js(ASSETS . '/ckeditor/lang/de.js');
   
-  drupal_add_js(createI18nFile("churchcore"));
   drupal_add_js(createI18nFile("churchdb"));
   
   drupal_add_js(CHURCHCORE . '/cc_abstractview.js');

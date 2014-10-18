@@ -79,10 +79,12 @@ $.widget("ct.permissioner", {
                 }
                 if (masterData.auth_table_plain[auth.id].datenfeld=="cc_calcategory") {
                   var type=masterData.publiccalendar_name;
-                  if (masterData.cc_calcategory[datenfeld.id].oeffentlich_yn==0)
+                  if (masterData.cc_calcategory[datenfeld.id].oeffentlich_yn==0 && 
+                      masterData.cc_calcategory[datenfeld.id].privat_yn==0)
                     type=_("group.calendar");
-                  else if (masterData.cc_calcategory[datenfeld.id].oeffentlich_yn!=1)
-                    type=_("more");
+                  else if (masterData.cc_calcategory[datenfeld.id].oeffentlich_yn==0 && 
+                      masterData.cc_calcategory[datenfeld.id].privat_yn==1)
+                    type=_("personal.calendar");
                   if (sub_child_daten[type]==null)
                     sub_child_daten[type]=new Array();
                   sub_child_daten[type].push({title:datenfeld.bezeichnung, select:select, key:auth.id+"_"+datenfeld.id});

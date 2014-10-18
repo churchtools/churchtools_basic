@@ -10,7 +10,7 @@
   <link href="<?= ASSETS ?>/ui/custom-theme/jquery-ui-1.10.3.custom.css" rel="stylesheet">
   <link href="<?= BOOTSTRAP ?>/css/bootstrap.min.css" rel="stylesheet">
   <!--  link href="<?= ASSETS ?>/ui/jquery-ui-1.8.18.custom.css" rel="stylesheet"-->
-  <link href="<?= INCLUDES ?>/churchtools.css" rel="stylesheet">
+  <link href="<?= INCLUDES ?>/churchtools.css?<?= JS_VERSION ?>" rel="stylesheet">
     
 <? if (!$embedded): ?>
   <style> body {padding-top: 60px; padding-bottom: 40px; } </style>
@@ -38,10 +38,10 @@
   <script src="<?= ASSETS ?>/ui/jquery.ui.droppable.min.js"></script>
   <script src="<?= ASSETS ?>/ui/jquery.ui.sortable.min.js"></script>
   <script src="<?= ASSETS ?>/ui/jquery.ui.resizable.min.js"></script>
-  <script src="<?= CHURCHCORE ?>/churchcore.js"></script>
-  <script src="<?= CHURCHCORE ?>/churchforms.js"></script>
-  <script src="<?= CHURCHCORE ?>/cc_interface.js"></script>
-  <script src="<?= createI18nFile("churchcore") ?>"></script>
+  <script src="<?= CHURCHCORE ?>/churchcore.js?<?= JS_VERSION ?>"></script>
+  <script src="<?= CHURCHCORE ?>/churchforms.js?<?= JS_VERSION ?>"></script>
+  <script src="<?= CHURCHCORE ?>/cc_interface.js?<?= JS_VERSION ?>"></script>
+  <script src="<?= createI18nFile("churchcore") . "?" . JS_VERSION ?>"></script>
   <script>
       var settings=new Object();
       settings.files_url="<?= $base_url . $files_dir ?>";

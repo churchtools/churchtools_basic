@@ -59,116 +59,123 @@ function eventCalendar(element, options, eventSources) {
   }
 
   function render() {
-    if (timer!=null) window.clearTimeout(timer);
-    timer=window.setTimeout(function() {
+//    if (timer!=null) window.clearTimeout(timer);
+//    timer=window.setTimeout(function() {
       renderCalendar();
       var d2 = new Date();
       var d = new Date(d2.getFullYear()+"");  
       var year=d.getFullYear();  
-      var rows = new Array();  
-      
       var allData= new Array();
-      
+       checker= new Object(); // To check if all data is loaded
       // Get together events with same name and category
       each(t.eventSources, function(k,s) {
         if (s!=null) {
-          each(s.events, function(i,event) {
-            event.container=s.container;
-            event.category_id=s.category_id;
-            event.compare=s.category_id+"_"+event.start.toStringEn(false)+"_"+event.title;
-            var drin=false;
-            each(allData, function(i,b) {
-              if (b.start!=event.start && b.compare==event.compare) {
-                drin=true;
-                if (b.multi==null) {
-                  b.multi=new Array();
-                  b.multi.push(b.start);
+          checker[s.category_id]=true;
+          var events = s.events(moment(t.startdate), null, null, function(_events) {
+            each(_events, function(i,event) {
+              event.container=s.container;
+              event.category_id=s.category_id;
+              event.compare=s.category_id+"_"+event.start.toStringEn(false)+"_"+event.title;
+              var drin=false;
+              each(allData, function(i,b) {
+                if (b.start!=event.start && b.compare==event.compare) {
+                  drin=true;
+                  if (b.multi==null) {
+                    b.multi=new Array();
+                    b.multi.push(b.start);
+                  }
+                  b.multi.push(event.start);
+                  return false;
                 }
-                b.multi.push(event.start);
-                return false;
-              }
+              });
+              if (!drin) allData.push(event);
             });
-            if (!drin)
-              allData.push(event);
           });
-        }
-      });
-      
-      rows.push('<table class="table table-condensed">');
-      var _filter=filterName.toUpperCase();
-      var count=0;
-      each(churchcore_sortData(allData, "start"), function(k,a) {
-        if (a.start>=t.startdate && (t.enddate==null || a.start<=t.enddate)) {
-          if ((filterName=="") || (a.title.toUpperCase().indexOf(_filter)>=0)
-                || (a.notizen!=null && a.notizen.toUpperCase().indexOf(_filter)>=0)) {
-            rows.push('<tr class="c'+a.category_id+'"><td>');
-            
-            if (!minical) {
-              if ((a.notizen!=null) || (a.link!=null)) 
-                rows.push('<a href="#" class="event event-name" data-id="'+k+'">'+a.title+'</a>');
-              else
-                rows.push('<span class="event-name">'+a.title+'</span>');
-              rows.push('<span class="event-category">'+a.container.getName(a.category_id)+'</span>');
-              rows.push(_renderDate(a));
-            }
-            // MiniCalender
-            else {
-              rows.push('<p>');
-              rows.push('<span class="event-date">');
-              if (a.multi==null) {
-                rows.push(_renderDate(a));
-              }
-              else { 
-                rows.push(a.start.toStringDe()+" - ");
-                each(churchcore_sortData(a.multi, null, true), function(i,b) {
-                  rows.push(b.toStringDeTime()+" | ");
-                });
-              }
-              rows.push('</span><br>');
-              
-              if (a.link!=null) 
-                rows.push('<a href="'+a.link+'" class="event-name" target="_parent">'+a.title+'</a>');
-              else
-                rows.push('<span class="event-name">'+a.title+'</span>');
-              if (a.notizen!=null) rows.push('<br><span class="event-description">'+a.notizen.trim(100)+'</span>');
-              
-            }
-            
-
-            var notizen="";
-            if ((a.notizen!=null) && (a.notizen!="")) {
-              notizen=a.notizen.replace(/(http:\/\/\S*)/g, '<a target="_clean" href="$1">$1<\/a>');
-              notizen=notizen.replace(/(https:\/\/\S*)/g, '<a target="_clean" href="$1">$1<\/a>');
-              notizen=notizen.replace(/\n/g, '<br/>');
-            }
-            
-            if ((a.link!=null) && (a.link!="")) {
-              if (notizen!="") notizen=notizen+'<br><br>';
-              notizen=notizen+'<a class="btn" href="'+a.link+'" '+(embedded?"":'target="_clean"')+'>Weitere Informationen &raquo;</a>'; 
-            }
-            
-            rows.push('<div style="display:none" id="entry'+k+'"><div class="well">'+notizen+'</div></div>');
-            count++;
-            if (count>=max_entries) return false;
+          delete checker[s.category_id];
+          if (churchcore_countObjectElements(checker)==0) {
+            _render();
           }
         }
       });
-      if ((count>max_entries) && (!minical)) rows.push("<tr><td>...");
-      rows.push('</table>');
-      if (count==0) rows.push("Keine Eintr&auml;ge gefunden.");
       
-      $("#calendar").html(rows.join(""));  
+      function _render() {
+        var rows = new Array();          
+        rows.push('<table class="table table-condensed">');
+        var _filter=filterName.toUpperCase();
+        var count=0;
+        each(churchcore_sortData(allData, "start"), function(k,a) {
+          if (a.start>=t.startdate && (t.enddate==null || a.start<=t.enddate)) {
+            if ((filterName=="") || (a.title.toUpperCase().indexOf(_filter)>=0)
+                  || (a.notizen!=null && a.notizen.toUpperCase().indexOf(_filter)>=0)) {
+              rows.push('<tr class="c'+a.category_id+'"><td>');
+              
+              if (!minical) {
+                if ((a.notizen!=null) || (a.link!=null)) 
+                  rows.push('<a href="#" class="event event-name" data-id="'+k+'">'+a.title+'</a>');
+                else
+                  rows.push('<span class="event-name">'+a.title+'</span>');
+                rows.push('<span class="event-category">'+a.container.getName(a.category_id)+'</span>');
+                rows.push(_renderDate(a));
+              }
+              // MiniCalender
+              else {
+                rows.push('<p>');
+                rows.push('<span class="event-date">');
+                if (a.multi==null) {
+                  rows.push(_renderDate(a));
+                }
+                else { 
+                  rows.push(a.start.toStringDe()+" - ");
+                  each(churchcore_sortData(a.multi, null, true), function(i,b) {
+                    rows.push(b.toStringDeTime()+" | ");
+                  });
+                }
+                rows.push('</span><br>');
+                
+                if (a.link!=null) 
+                  rows.push('<a href="'+a.link+'" class="event-name" target="_parent">'+a.title+'</a>');
+                else
+                  rows.push('<span class="event-name">'+a.title+'</span>');
+                if (a.notizen!=null) rows.push('<br><span class="event-description">'+a.notizen.trim(100)+'</span>');
+                
+              }
+              
+  
+              var notizen="";
+              if ((a.notizen!=null) && (a.notizen!="")) {
+                notizen=a.notizen.replace(/(http:\/\/\S*)/g, '<a target="_clean" href="$1">$1<\/a>');
+                notizen=notizen.replace(/(https:\/\/\S*)/g, '<a target="_clean" href="$1">$1<\/a>');
+                notizen=notizen.replace(/\n/g, '<br/>');
+              }
+              
+              if ((a.link!=null) && (a.link!="")) {
+                if (notizen!="") notizen=notizen+'<br><br>';
+                notizen=notizen+'<a class="btn" href="'+a.link+'" '+(embedded?"":'target="_clean"')+'>Weitere Informationen &raquo;</a>'; 
+              }
+              
+              rows.push('<div style="display:none" id="entry'+k+'"><div class="well">'+notizen+'</div></div>');
+              count++;
+              if (count>=max_entries) return false;
+            }
+          }
+        });
+        if ((count>max_entries) && (!minical)) rows.push("<tr><td>...");
+        rows.push('</table>');
+        if (count==0) rows.push(_("no.entry.found"));
+        
+        $("#calendar").html(rows.join(""));  
+        
+        $("#calendar a.event").click(function() {
+          var id=$(this).attr("data-id");
+          var elem=$("#entry"+id);
+          elem.animate({ height: 'toggle'}, "fast");
+          return false;
+        });
+      }
       
-      $("#calendar a.event").click(function() {
-        var id=$(this).attr("data-id");
-        var elem=$("#entry"+id);
-        elem.animate({ height: 'toggle'}, "fast");
-        return false;
-      });
       
-      
-      timer=null;
-    },50);
+  //    timer=null;
+  //  },50);
   }
   
   function _renderDate(a) {

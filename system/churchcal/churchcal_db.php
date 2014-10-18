@@ -373,19 +373,14 @@ function churchcal_getAuthForAjax() {
  */
 function churchcal_getAllowedCategories($withPrivat = true, $onlyIds = false) {
   global $user;
-  $withPrivat = false;
   include_once (CHURCHDB . "/churchdb_db.php");
   
   $db = db_query("SELECT * FROM {cc_calcategory}");
   
   $res = array();
   $auth = churchcal_getAuthForAjax();
-  
-  $privat_vorhanden = false;
-  
+
   foreach ($db as $category) {
-    if ($category->privat_yn == 1 && $category->modified_pid == $user->id) $privat_vorhanden = true;
-    
     if (($category->privat_yn == 0) || ($withPrivat)) {
       // Zugriff, weil ich View-Rechte auf die Kategorie habe
       if ((isset($auth["view category"]) && isset($auth["view category"][$category->id]))
@@ -393,25 +388,8 @@ function churchcal_getAllowedCategories($withPrivat = true, $onlyIds = false) {
         $res[$category->id] = ($onlyIds) ? $category->id : $res[$category->id] = $category;
       }
     }
-  }
-  if (!$privat_vorhanden && $user->id > 0 && user_access("personal category", "churchcal")) {
-    $dt = new datetime();
-    $id = db_insert("cc_calcategory")
-          ->fields(array ("bezeichnung" => $user->vorname . "s Kalender", "sortkey" => 0, 
-                          "oeffentlich_yn" => 0, "privat_yn" => 1, "color" => "black", 
-                          "modified_date" => $dt->format('Y-m-d H:i:s'), 
-                          "modified_pid" => $user->id,
-          ))->execute();
-    // Add permission for author of event
-    db_query("INSERT INTO {cc_domain_auth} (domain_type, domain_id, auth_id, daten_id)
-              VALUES ('person', $user->id, 404, $id)");
-    
-    $_SESSION["user"]->auth = getUserAuthorization($_SESSION["user"]->id);
-    churchcore_saveUserSetting("churchcal", $user->id, "filterMeineKalender", "[" . ($id + 100) . "]");
-    
-    return churchcal_getAllowedCategories($withPrivat, $onlyIds);
-  }
-  else return $res;
+  }  
+  return $res;
 }
 
 /**

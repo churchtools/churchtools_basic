@@ -154,8 +154,8 @@ function churchcal_getAuth() {
   $cc_auth = addAuth($cc_auth, 401, 'view', 'churchcal', null, t('view.x', getConf("churchcal_name")), 1);
   $cc_auth = addAuth($cc_auth, 403, 'view category', 'churchcal', 'cc_calcategory', t('view.single.calendar'), 0);
   $cc_auth = addAuth($cc_auth, 404, 'edit category', 'churchcal', 'cc_calcategory', t('edit.single.calendar'), 0);
-  // $cc_auth=addAuth($cc_auth, 407,'create personal category', 'churchcal', null, 'Pers&ouml;nlichen Kalender erstellen', 1);
-  // $cc_auth=addAuth($cc_auth, 406,'admin personal category', 'churchcal', null, 'Pers&ouml;nliche Kalender administrieren', 1);
+  $cc_auth = addAuth($cc_auth, 407, 'create personal category', 'churchcal', null, 'Pers&ouml;nlichen Kalender erstellen', 1);
+  $cc_auth = addAuth($cc_auth, 406, 'admin personal category', 'churchcal', null, 'Pers&ouml;nliche Kalender administrieren', 1);
   $cc_auth = addAuth($cc_auth, 408, 'create group category', 'churchcal', null, t('create.group.calendar'), 1);
   $cc_auth = addAuth($cc_auth, 405, 'admin group category', 'churchcal', null, t('administer.group.calendar'), 1);
   $cc_auth = addAuth($cc_auth, 402, 'admin church category', 'churchcal', null, t('administer.church.calendar'), 1);
@@ -645,7 +645,7 @@ function churchcal_deleteCategory($params) {
   
   $c = db_query("SELECT COUNT(*) c
                  FROM {cs_event} e, {cc_cal} cal
-                 WHERE cal.id=e.cc_cal_id  cal.category_id=:id",
+                 WHERE cal.id=e.cc_cal_id AND cal.category_id=:id",
                  array (":id" => $id))
                  ->fetch();
   if ($c->c > 0) throw new CTFail(t('deleting.failed.because.of.remaining.services'));

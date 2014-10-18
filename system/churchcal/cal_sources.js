@@ -103,7 +103,11 @@ CalSourceType.prototype.showEventsOnCal = function(category_id) {
 
 function _getEventsFromDate(cs_events, start, end) {
   var go = start.format(DATEFORMAT_EN).toDateEn(false);
-  var e = end.format(DATEFORMAT_EN).toDateEn(false);
+  var e = new Date();
+  if (end==null) { 
+    e=new Date(); e.addDays(1000); 
+  }
+  else e = end.format(DATEFORMAT_EN).toDateEn(false);
   var arr = new Array();
   while (go.getTime()<=e.getTime()) {
     if (cs_events!=null && cs_events[go.getFullYear()]!=null &&
