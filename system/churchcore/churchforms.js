@@ -132,7 +132,13 @@ function form_renderColorPicker(options) {
 }
 
 function form_renderColor(color) {
-  return '<span class="simplecolorpicker icon" title="'+color+'" style="background-color: '+color+'">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+  return '<span class="simplecolorpicker icon" '
+            + 'title="'+color+'"style="background-color: '+color+'">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+}
+function form_renderColorWithImage(color, src) {
+  if (src.indexOf("/")==-1)
+    src="system/churchcore/images/"+src;
+  return '<span class="simplecolorpicker icon" title="'+color+'" style="background-size: 100%; background-repeat: no-repeat; background-color: '+color+'; background-image:url('+src+')">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
 }
 
 /**
@@ -313,9 +319,7 @@ function form_renderSelectable(elem, options) {
  * @return html-code
  */
 function form_renderCheckbox(options) {
-  if (debug) {
-    console.log(options);
-  }
+  if (debug) console.log(options);
   var rows = new Array();
   var label = (options.label!=null?options.label:"");
   var htmlclass=(options.htmlclass!=null?" "+options.htmlclass:"");
@@ -1935,6 +1939,47 @@ function form_renderHelpLink(link, invert) {
   else
     return '<a href="http://intern.churchtools.de?q=help&doc='+link+'" target="_clean"><i class="icon-question-sign icon-white"></i></a>';
 }
+
+$.widget("ct.colorcheckbox", {
+  options: {
+    color: "blue",
+    checked : false,
+    id : null,
+    name : "unnamed",
+    label : null,
+    change: function(newVal) {},
+    rerenderEditor: function(txt, data) {return txt; },
+    afterRender: function(data) {},
+    render: function(txt, data) {return txt; },
+    validate: function(txt, data) {return true; }
+  },
+
+  _create: function() {
+    var t = this;
+    t._renderCheckbox();
+  },
+  
+  _renderCheckbox : function() {
+    var t = this;
+    var rows = new Array();
+    if (t.options.checked) {
+      rows.push(form_renderColorWithImage(t.options.color, "check.png")+"&nbsp; ");      
+    }
+    else {
+      rows.push(form_renderColor(t.options.color)+"&nbsp; ");            
+    }
+    if (t.options.label!=null) {
+      rows.push(t.options.label);
+    }
+    this.element.html('<span class="icon clickable">'+rows.join("")+'</span>');
+    this.element.find(".icon").click(function() {
+      t.options.checked=!t.options.checked;
+      t.options.change(t.options.checked, t.options.id, t.options.name);
+      t._renderCheckbox();
+    });
+  }
+});
+
 
 /**
  * options:

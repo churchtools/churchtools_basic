@@ -19,6 +19,18 @@ span.error {
   color:red;
 }
 
+ul.ct-ul-list {
+  list-style-type: none;
+  margin: 0 0 10px 0px;
+}
+.ct-ul-list > li {
+  padding-top: 2px;
+}
+
+span.clickable {
+  cursor: pointer;	
+}
+
 div.ui-datepicker {
   min-width:15.1em;
 }

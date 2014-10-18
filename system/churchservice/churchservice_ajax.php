@@ -592,7 +592,7 @@ function churchservice_updateEventService($params) {
     $txt = "";
     // confirm
     if ($zugesagt_yn == 1) {
-      $txt .= t("surname.name.has.confirmed.service.x.on.date.event",
+      $txt .= t("surname.name.has.confirmed.service.x.for.date.event",
                 $user->vorname,
                 $user->name,
                 $service->bezeichnung,

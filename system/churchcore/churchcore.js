@@ -158,6 +158,23 @@ function churchcore_getLastElement(obj) {
   return elem;
 }
 
+/**
+ * Sepearte String like [1,5] to array
+ * @param arrayString
+ * @returns {Array} never null
+ */
+function churchcore_getArrStrAsArray(arrayString) {
+  var arr = new Array();
+  if ((arrayString!=null) && (arrayString!="")) {
+    var a = arrayString.substr(1,arrayString.length-2);
+    each(a.split(","), function(k,a) {
+      if (a!="")
+        arr.push(a);
+    });
+  }  
+  return arr;
+}
+
 function churchcore_sortData_alpha(data, sortVariable, reverse, sortVariable2) {
   if (data==null) return null;
   var r=1;

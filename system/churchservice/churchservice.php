@@ -680,7 +680,7 @@ function churchservice_remindme() {
       //TODO: use mail template
       if (churchcore_checkUserMail($p->person_id, "remindService", $es->eventservice_id, getConf('churchservice_reminderhours'))) {
         $txt = "<h3>Hallo " . $es->vorname . "!</h3>";
-        $txt .= '<p>Dies ist eine Erinnerung an Deine n�chsten Dienste:</p><br/>';
+        $txt .= '<p>Dies ist eine Erinnerung an Deine n&auml;chsten Dienste:</p><br/>';
         $txt .= '<table class="table table-condensed">';
         //get eventservices to be reminded in the next 12 hours
         $res2 = db_query($sql,
@@ -726,7 +726,7 @@ function churchcore_checkUserMail($personId, $mailtype, $domainId, $interval) {
   $dt = new DateTime();
   if (!$res) {
     db_insert("cc_usermails")
-      ->fields(array ("person_id" => $p,
+      ->fields(array ("person_id" => $personId,
                       "mailtype"  => $mailtype,
                       "domain_id" => $domainId,
                       "letzte_mail" => $dt->format('Y-m-d H:i:s'),

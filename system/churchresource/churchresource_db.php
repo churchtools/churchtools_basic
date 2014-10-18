@@ -300,7 +300,7 @@ function churchresource_updateBooking($params, $changes = null) {
   
   $txt = "";
   $location = ($params["location"]) ? t('booking.in', $params["location"]) : '';
-  $info = t('bookingX.for.resource.on.date', $params["text"], $ressources[$params["resource_id"]]->bezeichnung, $params["startdate"], $location);
+  $info = t('bookingX.for.resource.on.datetime', $params["text"], $ressources[$params["resource_id"]]->bezeichnung, $params["startdate"], $location);
   
   $arr = getBooking($params["id"]);
   $changes = churchcore_getFieldChanges(getBookingFields(), $oldArr, $arr, false);
