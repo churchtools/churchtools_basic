@@ -294,7 +294,7 @@ function churchtools_main() {
     include_once (INCLUDES."/start.php");
     churchtools_app();
   }
-  catch ( SqlException $e ) {
+  catch ( SQLException $e ) {
     //  TODO: get sql and show it to admin only
     //  if (DEBUG) {
     //  echo "<h3>PDO-Error:</h3>", $db->errorCode(), "<br>", $db->lastQuery(), '<br>';
