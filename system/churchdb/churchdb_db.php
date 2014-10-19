@@ -525,7 +525,7 @@ function churchdb_isPersonSuperLeaderOfPerson($superleader_id, $person_id) {
 }
 
 /**
- * is user leader of person?
+ * is user leader or mitarbeiter of person in one group?
  *
  * @param int $leader_id          
  * @param int $person_id          

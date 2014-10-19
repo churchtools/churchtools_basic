@@ -183,6 +183,7 @@ function churchcal_getAbsents($params) {
   include_once (CHURCHDB . '/churchdb_db.php');
   $persons = array ();
   
+  // Get absents when cal_ids is given
   if($cal_ids = getVar("cal_ids", false, $params)) {
     // who has rights for this calendar?
     $res = db_query("SELECT *
@@ -199,8 +200,16 @@ function churchcal_getAbsents($params) {
       }
     }
   }
-  if ($pid = getVar("person_id", false, $params)) $persons[$pid] = $pid;
   
+  // Get Absents when person_id is given
+  if ($pid = getVar("person_id", false, $params)) {
+    if ($pid==$user->id || user_access("manage absent", "churchservice") 
+          || churchdb_isPersonLeaderOfPerson($user->id, $pid)) {
+      $persons[$pid] = $pid;
+    }
+    else throw new CTNoPermission("manage absent");       
+  }
+    
   $arrs = array();
   if (count($persons)) {
     // get absences
