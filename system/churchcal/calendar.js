@@ -986,7 +986,7 @@ function initCalendarView() {
       editable: true,
       monthNames: getMonthNames(),
       weekNumbers: true,
-      weekNumberTitle : "KW",
+      weekNumberTitle : "",
       monthNamesShort: monthNamesShort,
       dayNames: dayNames,
       dayNamesShort: ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'],
@@ -1237,7 +1237,7 @@ function _eventMouseover(event, jsEvent, view) {
   var placement="bottom";
   if (jsEvent.pageX>$("#calendar").width()+$("#calendar").position().left-100)
     placement="left";
-  else if (view.name=="month" || jsEvent.pageY>$("#calendar").height()+$("#calendar").position().top-150)
+  else if (jsEvent.pageY>$("#calendar").height()+$("#calendar").position().top-150)
     placement="top";
   else if (jsEvent.pageX<$("#calendar").position().left+130)
     placement="right";
@@ -1245,6 +1245,7 @@ function _eventMouseover(event, jsEvent, view) {
   $(this).tooltips({
     data:{id:"1", event:event},
     show:true,
+    container:"#calendar",
     placement:placement,
     auto:false,
     render:function(data) {
@@ -1741,21 +1742,6 @@ function renderFilterCalender() {
       rows.push('</ul></span>');
       rows.push('</span></span>');
     }
-      /*
-//          
-      //    rows.push('<td>'+form_renderImage({src:"persons.png", width:18, htmlclass:"share", link:true, data:[{name:"id", value:id}]}));
-       //   rows.push('<td>'+form_renderImage({src:"options.png", width:18, htmlclass:"options", link:true, data:[{name:"id", value:id}]}));
-          rows.push('<span class="pu_ll-right options hoverreactor" style="position:absolute">');
-//          rows.push('<span class="pull-right">');
-//          rows.push(form_renderImage({src:"options.png", ho_ver:true, width:20, htmlclass:"delete", link:true, data:[{name:"id", value:id}]}));
-          rows.push('<span class="dropdown" data-id="'+id+'"><a href="#" class="dropdown-toggle" data-toggle="dropdown" data-id="'+id+'">'+form_renderImage({src:"info.png",width:20})+'</a>');
-          rows.push('<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">');
-          rows.push('<li><a href="#" class="add-item post">iCal Link</a></li>');
-          rows.push('<li><a href="#" class="add-item song post">Freigabe-Einstellungen</a></li>');
-          rows.push('<li><a href="#" class="add-item header post">Optionen</a></li>');
-          rows.push('<li><a href="#" class="add-item header post">Löschen</a></li>');
-          rows.push('</ul></span>');
-          rows.push('</span></span>');*/
         
     rows.push('<span '+(checked?'checked="checked"':'') + ' '
                 +'data-id="'+(id)+'" '

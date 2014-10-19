@@ -2142,6 +2142,7 @@ $.widget("ct.tooltips", {
     auto:true,
     showontouchscreen:true,
     placement:"bottom",
+    container:null,
     render:function(data) {return ["content","title"];},
     afterRender:function(element, data) {},
     getTitle:function(data) {return null;}
@@ -2228,14 +2229,28 @@ $.widget("ct.tooltips", {
     }
     t._visible=true;
     
-    if (content instanceof(Array))
-      t.element.popover({
-        content:content[0], html:true, title:content[1],
-         placement:t.options.placement, trigger:"manual", animation:true}).popover("show");
+    var o = {
+        html:true,  
+        placement:t.options.placement, trigger:"manual", animation:true};
+    
+    if (content instanceof(Array)) {
+      o.title = content[1];
+      o.content = content[0]; 
+    }
     else
-        t.element.popover({
-          content:content, html:true,
-           placement:t.options.placement, trigger:"manual", animation:true}).popover("show");
+      o.content = content[0];
+    if (t.options.container) o.container=t.options.container;
+    t.element.popover(o).popover("show");
+    
+    // Add additional Hover becaus container ist not t.element.
+    if (t.options.container!=null) {
+      $("div.popover").hover(function() {
+        t._prepareTooltip();
+      },
+      function() {
+        t._removeTooltip();
+      });
+    }
     t.options.afterRender(t.element.next(".popover"), this.options.data);
   },
 
