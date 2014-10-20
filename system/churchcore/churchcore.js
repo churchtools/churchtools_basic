@@ -983,6 +983,12 @@ function churchcore_getAllDatesWithRepeats(o) {
   return dates;
 }
 
+function getNotification(domain_type, domain_id) {
+  if (masterData.notification[domain_type]==null) return false;
+  if (masterData.notification[domain_type][domain_id]==null) return false;
+  return masterData.notification[domain_type][domain_id];
+}
+
 $(document).ready(function() {
   $("#email_admin").click(function() {
     var form = new CC_Form();

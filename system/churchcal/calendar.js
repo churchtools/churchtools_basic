@@ -1768,6 +1768,10 @@ function renderFilterCalender() {
         rows.push('<li><a href="#" class="options share">Freigabe-Einstellungen</a></li>');
         rows.push('<li><a href="#" class="options edit">Weitere Optionen</a></li>');
       }
+      if (getNotification("category", id-100)===false)
+        rows.push('<li><a href="#" class="options notification">Abonnieren</a></li>');
+      else
+        rows.push('<li><a href="#" class="options notification">Abo bearbeiten</a></li>');
       rows.push('</ul></span>');
       rows.push('</span></span>');
     }
@@ -1863,6 +1867,9 @@ function renderFilterCalender() {
     }
     else if ($(this).hasClass("share")) {
       shareCategory(id);
+    }
+    else if ($(this).hasClass("notification")) {
+      form_editNotification("category", id);
     }
     
   });

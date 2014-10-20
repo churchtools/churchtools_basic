@@ -126,6 +126,7 @@ function churchcal_getMyMeetingRequest() {
  * @return int; id of created event
  */
 function churchcal_createEvent($params, $source = null) {
+  global $user;
   // if source is another module rights are already checked
   if (!$source && !churchcal_isAllowedToEditCategory($params["category_id"])) {
     throw new CTNoPermission(t('no.create.right.for.cal.id.x', $params["category_id"]), "churchcal");
@@ -183,6 +184,16 @@ function churchcal_createEvent($params, $source = null) {
     churchservice_createEventFromChurchCal($cs_params, $source);
   }
   
+  $data = db_query("select * from {cc_calcategory} where id=:id", array(":id"=>$params["category_id"]))->fetch();
+  $txt = $user->vorname . " " . $user->name . " hat im Kalender ";
+  if ($data!=false)
+    $txt .= $data->bezeichnung;
+  else 
+    $txt .= $params["category_id"];
+  $txt .= " einen neuen Termin angelegt:<br>";
+  $txt .= churchcore_CCEventData2String($params);
+  ct_notify("category", $params["category_id"], $txt);
+  
   return $newId;
 }
 
@@ -206,6 +217,7 @@ function churchcal_isAllowedToEditCategory($categoryId) {
  * @param string $sourc; controls cooperation between modules if event comes from another modulee
  */
 function churchcal_updateEvent($params, $source = null) {
+  global $user;
   $changes = array ();
   
   // if source is another module rights are already checked
@@ -334,6 +346,17 @@ function churchcal_updateEvent($params, $source = null) {
     
     churchservice_updateEventFromChurchCal($cs_params, $source);
   }
+  
+  // Notification
+  $data = db_query("select * from {cc_calcategory} where id=:id", array(":id"=>$params["category_id"]))->fetch();
+  $txt = $user->vorname . " " . $user->name . " hat einen Termin angepasst im Kalender ";
+  if ($data!=false)
+    $txt .= $data->bezeichnung;
+  else
+    $txt .= $params["category_id"];
+  $txt .= " auf:<br>";
+  $txt .= churchcore_CCEventData2String($params);
+  ct_notify("category", $params["category_id"], $txt);  
 }
 
 /**

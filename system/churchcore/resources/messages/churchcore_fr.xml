@@ -530,6 +530,7 @@
   <entry key="remove.event">Remove event!</entry>
   <entry key="cancelation.of.event.date">Cancelation from {0} on {1}</entry>
   <entry key="thank.you.for.feedback">Thank you for feedback!</entry>
+  <entry key="category">Calendar</entry>
   
   
   <!-- churchcal auth -->

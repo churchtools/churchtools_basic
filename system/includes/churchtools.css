@@ -254,6 +254,10 @@ img.small {
   width:20px;
 }
 
+.popover {
+	max-width:1000px !important;
+}
+
 #tooltip_inner.PersonView {
   width:400px;
 }

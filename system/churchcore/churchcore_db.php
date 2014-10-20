@@ -1241,6 +1241,30 @@ function _churchcore_savePidUserSetting($modulename, $pid, $attrib, $val) {
 }
 
 /**
+ * Convert array or object of typical cc event data to string list with <ul><li>
+ * @param unknown $res
+ * @return string
+ */
+function churchcore_CCEventData2String($res) {
+  $res = (object) $res;
+
+  $txt .= '<ul>';
+  $txt .= "<li>" . t('caption') . ": " . $res->bezeichnung;
+  $txt .= "<li>" . t('start') . ": " . churchcore_stringToDateDe($res->startdate);
+  $txt .= "<li>" . t('end') . ": " . churchcore_stringToDateDe($res->enddate);
+  if ($res->repeat_id>0) {
+    $rep = db_query("select * from {cc_repeat} where id=:id", array(":id" => $res->repeat_id)) -> fetch();
+    $txt .= "<li>" . $rep->bezeichnung . ", " . t('until') .": " . churchcore_stringToDateDe($res->repeat_until);
+  }
+  if (!empty($res->ort)) $txt .= "<li>" . t('note') . ": " . $res->ort;
+  if (!empty($res->intern_yn)) $txt .= "<li>" . t('note') . ": " . $res->ort;
+  if (!empty($res->notizen)) $txt .= "<li>" . t('comment') . ": " . $res->note;
+  if (!empty($res->link)) $txt .= "<li>Link: " . $res->link;
+  $txt .= '</ul>';
+  return $txt;
+}
+
+/**
  * Notifications for mailing on updates
  * Optional parameters are $domain_type, $domain_id and $person_id
  */

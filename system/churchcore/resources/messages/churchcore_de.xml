@@ -527,6 +527,7 @@
   <entry key="remove.event">Entferne Event!</entry>
   <entry key="cancelation.of.event.date">Absage von {0} am {1}</entry>
   <entry key="thank.you.for.feedback">Danke für deine Rückmeldung!</entry>
+  <entry key="category">Kalender</entry>
   
   
   <!-- churchcal auth -->

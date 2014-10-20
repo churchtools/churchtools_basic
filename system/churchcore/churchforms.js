@@ -2345,3 +2345,88 @@ Drafter.prototype.clear = function() {
   churchcore_storeObject(settings.user.id+"/"+this.obj.id, null);
 };
 
+
+
+/**
+ * Abonement model
+ * @param domain_type
+ * @param domain_id
+ */
+function form_editNotification (domain_type, domain_id) {
+  var form = new CC_Form();
+  var value=null;
+  if (domain_id!=null && getNotification(domain_type, domain_id)!==false)
+    value=getNotification(domain_type, domain_id);
+
+  if (domain_id!=null && value==null) {
+    form.addHtml('<legend>Neues Abo f&uuml;r '+masterData[domain_type][domain_id].bezeichnung+'</legend>');
+
+    each(masterData.notificationtype, function(k,a) {
+      a.sortkey=a.delay_hours;
+    });
+
+    form.addSelect({label:"Wann soll bei Neuigkeiten f&uuml;r <b>"+masterData[domain_type][domain_id].bezeichnung+"</b> benachrichtigt werden?",
+           data:masterData.notificationtype, type:"medium", controlgroup:false, htmlclass:"new-notificationtype", selected:value, freeoption:true});
+    form.addHtml('<p><p>');
+  }
+
+  if (masterData.notification[domain_type]!=null) {
+    form.addHtml('<legend>Vorhandene Abonnements</legend>');
+    form.addHtml('<table class="table table-condensed"><tr><th style="min-width:60px">Abo<th style="min-width:60px">Notiz<th>Wie oft?<th width="22px">');
+    each(masterData.notification[domain_type], function(k,a) {
+      form.addHtml('<tr data-id="'+k+'"><td>'+_(domain_type)+": "+masterData[domain_type][k].bezeichnung+'<td>');
+      if (masterData[domain_type][k].notiz!=null)
+        form.addHtml('<small>'+masterData[domain_type][k].notiz+'</small>');
+      form.addHtml('<td>');
+      form.addSelect({data:masterData.notificationtype, type:"medium", htmlclass:"edit-notificationtype",
+        selected:a.notificationtype_id, controlgroup:false});
+      form.addHtml('<td>');
+      form.addImage({src:"trashbox.png", width:20, htmlclass:"delete-notification", link:true});
+    });
+  }
+
+  var elem=form_showDialog("Abonnement bearbeiten",form.render(null, "vertical"), 500,500, {
+    "Schliessen": function() {
+      $(this).dialog("close");
+    }
+  });
+
+  elem.find('select.new-notificationtype').change(function() {
+    if ($(this).val()!="") {
+      var notificationtype_id=$(this).val();
+      if (masterData.notification[domain_type]==null)
+        masterData.notification[domain_type]=new Object();
+      masterData.notification[domain_type][domain_id]={notificationtype_id:notificationtype_id, lastsenddate:null};
+      elem.dialog("close");
+      form_editNotification(domain_type, domain_id);
+      churchInterface.jsendWrite({func:"editNotification", domain_type:domain_type, domain_id:domain_id,
+           notificationtype_id:notificationtype_id}, function(ok, data) {
+        if (!ok) alert("Fehler aufgetreten: "+data);
+      });
+    }
+  });
+  elem.find('select.edit-notificationtype').change(function() {
+    if ($(this).val()!="") {
+      var notificationtype_id=$(this).val();
+      var domain_id=$(this).parents("tr").attr("data-id");
+      masterData.notification[domain_type][domain_id]={notificationtype_id:notificationtype_id, lastsenddate:null};
+      elem.dialog("close");
+      form_editNotification(domain_type);
+      churchInterface.jsendWrite({func:"editNotification", domain_type:domain_type, domain_id:domain_id,
+        notificationtype_id:notificationtype_id}, function(ok, data) {
+        if (!ok) alert("Fehler aufgetreten: "+data);
+      });
+    }
+  });
+  elem.find('a.delete-notification').click(function() {
+    var domain_id=$(this).parents("tr").attr("data-id");
+    delete masterData.notification[domain_type][domain_id];
+    elem.dialog("close");
+    form_editNotification(domain_type);
+    churchInterface.jsendWrite({func:"editNotification", domain_type:domain_type, domain_id:domain_id}, function(ok, data) {
+      if (!ok) alert("Fehler aufgetreten: "+data);
+    });
+    return false;
+  });
+};
+

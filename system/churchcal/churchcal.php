@@ -410,7 +410,9 @@ function churchcal_delAddition($params) {
  * @throws CTNoPermission
  */
 function churchcal_deleteEvent($params, $source = null) {
+  global $user;
   $id = $params["id"];
+  $logger = db_query("SELECT * FROM {cc_cal} WHERE id=:id", array(":id" => $params["id"])) -> fetch();
   
   if (!churchcal_isAllowedToEditEvent($id)) throw new CTNoPermission("AllowToEditEvent", "churchcal");
   
@@ -442,6 +444,16 @@ function churchcal_deleteEvent($params, $source = null) {
   db_query("DELETE FROM {cc_cal_except} WHERE cal_id=:id", array (":id" => $id));
   db_query("DELETE FROM {cc_cal_add}    WHERE cal_id=:id", array (":id" => $id));
   db_query("DELETE FROM {cc_cal}        WHERE id=:id", array (":id" => $id));
+  
+  $data = db_query("select * from {cc_calcategory} where id=:id", array(":id"=>$logger->category_id))->fetch();
+  $txt = $user->vorname . " " . $user->name . " hat in Kalender ";
+  if ($data!=false)
+    $txt .= $data->bezeichnung;
+  else
+    $txt .= $logger->category_id;
+  $txt .= " einen Termin gel&ouml;scht: <br>";
+  $txt .= churchcore_CCEventData2String($logger);
+  ct_notify("category", $logger->category_id, $txt);  
 }
 
 /**
