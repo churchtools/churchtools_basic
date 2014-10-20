@@ -71,7 +71,7 @@ class CTChurchDBModule extends CTAbstractModule {
   public function getAllRels($params) {
     $arr = array();
     $arr["rels"] = getAllRelations();
-    $res["tags"] = getTagRelations();
+    $arr["tags"] = getTagRelations();
     return $arr;
   }
 

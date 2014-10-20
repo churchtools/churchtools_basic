@@ -754,7 +754,34 @@ function cloneEvent(event) {
  * month - Monatsansicht=true
  * currentDate - Das Datum auf das geklickt wurde, nur bei Wiederholungsterminen kann es anders sein
  */
-function editEvent(event, month, currentDate) {
+function editEvent(event, month, currentDate, jsEvent) {
+/*  if (event.repeat_id>0) {
+    $("#mypop").remove();
+
+    var parentOffset = $("#calendar").offset();
+    var rows = new Array();
+    var id=1;
+    rows.push('<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">');
+    rows.push('<li><a href="#" class="options edit-one">Einzelnen Termin öffnen</a></li>');
+      rows.push('<li><a href="#" class="options edit-all">Gesamte Serie öffnen</a></li>');
+    rows.push('</ul>');
+    
+    $('#calendar').append('<div id="mypop" style="z-index:10000;position:absolute;">'+rows.join("")+'</div>');
+    $("#mypop").offset({ top: jsEvent.clientY, left: jsEvent.clientX});
+    $("#mypop ul.dropdown-menu").css("display", "inline");
+    shortcut.add("esc", function() {
+      $("#mypop").remove();
+    });  
+    $("#mypop a.edit-one").click(function() {
+      
+    });
+    $("#mypop a.edit-all").click(function() {
+      
+    });
+    return;
+  }*/
+  
+  
   // Clone object
   currentEvent = cloneEvent(event);
   currentEvent.view="view-main";
@@ -937,18 +964,19 @@ function categoryAdminable(category_id) {
 function _eventClick(event, jsEvent, view ) {
   if (debug) console.log("_eventClick", event, jsEvent, view);
   clearTooltip(true);
-  var rows = new Array();
-  rows.push('<legend>'+event.title+'</legend>');
-  rows.push('<p>Startdatum: '+event.start.format(event.start.hasTime()?DATETIMEFORMAT_DE:DATEFORMAT_DE));
-  if (event.end!=null)
-    rows.push('<p>Enddatum: '+event.end.format(event.end.hasTime()?DATETIMEFORMAT_DE:DATEFORMAT_DE));
   
   var myEvent=getEventFromEventSource(event);
   if ((myEvent!=null) && (categoryEditable(myEvent.category_id))) {
-    editEvent(myEvent, view.name=="month", event.start.format(DATETIMEFORMAT_EN).toDateEn(true));
+    editEvent(myEvent, view.name=="month", event.start.format(DATETIMEFORMAT_EN).toDateEn(true), jsEvent);
   }
-  else
+  else {
+    var rows = new Array();
+    rows.push('<legend>'+event.title+'</legend>');
+    rows.push('<p>'+_("start.date")+': '+event.start.format(event.start.hasTime()?DATETIMEFORMAT_DE:DATEFORMAT_DE));
+    if (event.end!=null)
+      rows.push('<p>'+_("end.date")+': '+event.end.format(event.end.hasTime()?DATETIMEFORMAT_DE:DATEFORMAT_DE));    
     form_showOkDialog("Termin: "+event.title, rows.join(""), 400, 400);
+  }
   
 }
 
@@ -1249,6 +1277,7 @@ function _eventMouseover(event, jsEvent, view) {
     placement:placement,
     auto:false,
     render:function(data) {
+      $("#mypop").remove();
       return renderTooltip(data.event);
     },
     afterRender:function(element, data) {

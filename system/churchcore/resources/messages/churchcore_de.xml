@@ -275,8 +275,8 @@
   <entry key="hours">Stunden</entry>
   <entry key="day">Tag</entry>
   
-  <entry key="start.date">Startdatum</entry>
-  <entry key="end.date">Enddatum</entry>
+  <entry key="start.date">Startzeit</entry>
+  <entry key="end.date">Endzeit</entry>
   <entry key="repeats">Wiederholungen</entry>
   <entry key="all.day">Ganztägig</entry>
   <entry key="from">Von</entry>
