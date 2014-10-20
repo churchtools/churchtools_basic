@@ -1753,13 +1753,13 @@ function renderFilterCalender() {
   //rows.push('<legend>Kalenderauswahl</legend>');
   
   rows.push('<div class="well filterCalender" style="overflow:scroll;height:'+(_calcCalendarHeight()+20)+'px">');
-  rows.push('<div style="heig_ht:200px;overflow:hidden;white-space: nowrap">');
+  rows.push('<div style="white-space: nowrap">');
   rows.push('<ul class="ct-ul-list">');
   
   function _renderCalenderEntry(name, id, color, desc) {
     var rows = new Array ();
     rows.push('<li class="hoveractor">');
-    var checked=churchcore_inArray(id, churchcore_getArrStrAsArray(masterData.settings[name]));
+    // Editable category, not personal calendar like service cal
     if (id>6) {
       rows.push('<span class="pull-right dropdown" data-id="'+id+'"><a href="#" class="dropdown-toggle" data-toggle="dropdown" data-id="'+id+'"><i class="icon-cog icon-white"/></a>');
       rows.push('<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">');
@@ -1772,6 +1772,8 @@ function renderFilterCalender() {
       rows.push('</span></span>');
     }
         
+    var checked=churchcore_inArray(id, churchcore_getArrStrAsArray(masterData.settings[name]));
+    if (filterCategoryIds!=null && churchcore_inArray(id-100, filterCategoryIds)) checked=true;
     rows.push('<span '+(checked?'checked="checked"':'') + ' '
                 +'data-id="'+(id)+'" '
                 +'data-name="'+name+'" '
@@ -1781,6 +1783,7 @@ function renderFilterCalender() {
     return rows.join("");
   }
   
+  // Church Calendar
   rows.push('<h4>'+masterData.maincal_name);
   if (!embedded && user_access("admin church category")) {
     rows.push(form_renderImage({cssid:"edit_church", src:"options.png", top:0, width:24, htmlclass:"pull-right"}));
@@ -1794,6 +1797,7 @@ function renderFilterCalender() {
   });
   rows.push('</ul>');
 
+  // Group calendar
   var rows_cal = new Array();
   each(churchcore_sortData(masterData.category,"sortkey"), function(k, cat) {
     if ((cat.oeffentlich_yn==0) && (cat.privat_yn==0)) {
@@ -1810,6 +1814,7 @@ function renderFilterCalender() {
     rows.push('</ul><ul class="ct-ul-list">');
   }
 
+  // Personal Calendar
   var rows_cal = new Array();
   each(churchcore_sortData(masterData.category,"sortkey"), function(k, cat) {
     if ((cat.oeffentlich_yn==0) && (cat.privat_yn==1)) {

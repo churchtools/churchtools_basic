@@ -168,7 +168,7 @@ function mapEvents(allEvents) {
               }
             });
           }
-          if (a.bookings!=null) {
+          if (a.bookings!=null && masterData.resources!=null) {
             o.title=o.title+'<span class="event-resources">';
             each(a.bookings, function(i,e) {
               o.title=o.title+'<br/>'+masterData.resources[e.resource_id].bezeichnung.trim(20);
