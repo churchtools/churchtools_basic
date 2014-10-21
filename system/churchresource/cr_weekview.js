@@ -686,7 +686,7 @@ WeekView.prototype.renderEditBookingFields = function (a) {
   
   rows.push(form_renderInput({
     cssid:"location",
-    label:_("note"),
+    label:_("location"),
     value:a.location
   }));
   
@@ -804,7 +804,7 @@ WeekView.prototype.renderTooltip = function(id) {
   txt=txt+"<tr><td>"+_("start.date")+"<td>"+a.startdate.toStringDe(true);
   txt=txt+"<tr><td>"+_("end.date")+"<td>"+a.enddate.toStringDe(true);
   if (a.location!="")
-    txt=txt+"<tr><td>"+_("note")+"<td>"+a.location;
+    txt=txt+"<tr><td>"+_("location")+"<td>"+a.location;
   if (a.repeat_id!=0) {
     txt=txt+"<tr><td>"+_("repeats")+"<td>";
     if (a.repeat_frequence>1)
