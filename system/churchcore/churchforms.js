@@ -985,12 +985,10 @@ function form_renderDates(options) {
         }
       }, function(chose) {
         var select=false;
-        if (!chose.sameDay(options.data.startdate)) {
-          each(churchcore_getAllDatesWithRepeats(options.data), function(a,ds) {
-            if ((ds.startdate.toStringEn(false).toDateEn(false).getTime()==chose.getTime()))
-              select=true;
-          });
-        }
+        each(churchcore_getAllDatesWithRepeats(options.data), function(a,ds) {
+          if ((ds.startdate.toStringEn(false).toDateEn(false).getTime()==chose.getTime()))
+            select=true;
+        });
         return [select];
       });
 

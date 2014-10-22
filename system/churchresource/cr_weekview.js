@@ -681,12 +681,14 @@ WeekView.prototype.renderEditBookingFields = function (a) {
     cssid:"text",
     label:_("caption"),
     value:a.text,
+    maxlength:30,
     disabled:a.cc_cal_id!=null
   }));
   
   rows.push(form_renderInput({
     cssid:"location",
     label:_("note"),
+    maxlength:20,
     value:a.location
   }));
   
