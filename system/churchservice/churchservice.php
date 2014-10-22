@@ -625,7 +625,7 @@ function churchservice_openservice_rememberdays() {
     $arr = db_query($sql2, array (":p_id" => $res->p_id, ":zugesagt" => 1));
     $txt2 = "";
     foreach ($arr as $res2) {
-      $txt .= "<li> $res2->datum $res2->event: $res2->service ($res2->servicegroup)";
+      $txt2 .= "<li> $res2->datum $res2->event: $res2->service ($res2->servicegroup)";
       if ($res2->mailsenddate == null) $txt2 .= " NEU!";
       db_update("cs_eventservice")
         ->fields(array ("mailsenddate" => $dt->format('Y-m-d H:i:s')))
