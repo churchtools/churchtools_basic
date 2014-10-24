@@ -41,18 +41,18 @@ function churchdb_getAuth() {
   $cc_auth = addAuth($cc_auth, 109, 'edit relations', 'churchdb', null, t('edit.relations'), 1);
   $cc_auth = addAuth($cc_auth, 110, 'edit groups', 'churchdb', null, t('edit.groups'), 1);
   $cc_auth = addAuth($cc_auth, 119, 'create person', 'churchdb', null, t('create.persons'), 1);
-  $cc_auth = addAuth($cc_auth, 123, 'create person without agreement', 'churchdb', null, t('create.persons.without.agreement'), 1);
+  $cc_auth = addAuth($cc_auth, 123, 'create person without agreement', t('churchdb'), null, t('create.persons.without.agreement'), 1);
   
-  $cc_auth = addAuth($cc_auth, 111, 'write access', 'churchdb', null, 'write.access.persons', 1);
+  $cc_auth = addAuth($cc_auth, 111, 'write access', 'churchdb', null, t('write.access.persons'), 1);
   $cc_auth = addAuth($cc_auth, 102, 'view alldata', 'churchdb', 'cdb_bereich', t('view.alldata'), 1);
   $cc_auth = addAuth($cc_auth, 117, 'send sms', 'churchdb', null, t('send.sms'), 1);
   $cc_auth = addAuth($cc_auth, 112, 'export data', 'churchdb', null, t('export.data'), 1);
   
   $cc_auth = addAuth($cc_auth, 115, 'view group', 'churchdb', 'cdb_gruppe', t('view.group'), 0);
-  $cc_auth = addAuth($cc_auth, 104, 'view group statistics', 'churchdb', null, 'view.group.statistics', 1);
+  $cc_auth = addAuth($cc_auth, 104, 'view group statistics', 'churchdb', null, t('view.group.statistics'), 1);
   $cc_auth = addAuth($cc_auth, 114, 'administer groups', 'churchdb', null, t('administer.groups'), 1);
   
-  $cc_auth = addAuth($cc_auth, 199, 'edit masterdata', 'churchdb', null, 'edit.masterdata', 1);
+  $cc_auth = addAuth($cc_auth, 199, 'edit masterdata', 'churchdb', null, t('edit.masterdata'), 1);
   
   return $cc_auth;
 }

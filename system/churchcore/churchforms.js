@@ -1037,6 +1037,7 @@ function form_renderDates(options) {
   $('#inputRepeat_id').change(function(c) {
     form_getDatesInToObject(options.data);
     form_renderDates(options);
+    $("#cdb_dialog").animate({scrollTop:135}, '500');
   });
   $("#inputRepeatUntil").click(function() {
     form_getDatesInToObject(options.data);
@@ -1088,6 +1089,49 @@ function form_getDatesInToObject(o) {
   o.repeat_frequence=$("#inputRepeatFrequence").val();
   o.repeat_option_id=$("#inputRepeatOptionId").val();
 }
+
+/**
+ * First prove, if event is series. When, then ask if editing whole series or only one single event.
+ * @param event
+ * @param pos with object clientX and clientY
+ * @param func returns isSeries, editSeries, cancel
+ */
+function form_editSeriesOrSingleEvent(event, pos, func) {
+  var isSeries = event.repeat_id > 0;
+  if (isSeries) {
+    console.log(event.startdate);
+
+    var parentOffset = $("#cdb_content").offset();
+    var rows = new Array();
+    var id=1;
+    rows.push('<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">');
+    rows.push('<li><a href="#" class="options edit-one">Nur diesen Termin ändern</a></li>');
+    rows.push('<li><a href="#" class="options edit-all">Diesen und zukünftige ändern</a></li>');
+    rows.push('<li><a href="#" class="options cancel">'+_("cancel")+'</a></li>');
+    rows.push('</ul>');
+    $("#mypop").remove();
+    $('#cdb_content').append('<div id="mypop" style="z-index:10000;position:absolute;">'+rows.join("")+'</div>');
+    $("#mypop").offset({ top: pos.clientY, left: pos.clientX});
+    $("#mypop ul.dropdown-menu").css("display", "inline");
+    shortcut.add("esc", function() {
+      $("#mypop").remove();
+    });  
+    $("#mypop a.edit-one").click(function() {
+      $("#mypop").remove();
+      func(isSeries, false);
+    });
+    $("#mypop a.edit-all").click(function() {
+      $("#mypop").remove();
+      func(isSeries, true);
+    });
+    $("#mypop a.cancel").click(function() {
+      $("#mypop").remove();
+      func(isSeries, null, true);
+    });
+  }
+  else func(false, null);
+}
+
 
 // smallmenu=false / true / null(gar kein menu!)
 function form_implantWysiwygEditor(id, smallmenu, inline) {
@@ -2129,7 +2173,6 @@ var currentTooltip=null;
 function clearTooltip(force) {
   if (currentTooltip!=null) {
     currentTooltip.tooltips("hide", force);
-    currentTooltip=null;
   }
 }
 
@@ -2156,10 +2199,10 @@ $.widget("ct.tooltips", {
     if (t.options.auto && (t.options.showontouchscreen || !churchcore_touchscreen())) {
       this.element.hover(
         function() {
-          t._prepareTooltip();
+          t._startShowTimer();
         },
         function() {
-          t._removeTooltip();
+          t._startRemoveTimer();
         }
       );
     }
@@ -2169,17 +2212,18 @@ $.widget("ct.tooltips", {
    *  public function to immediate or slow hide the tooltip
    */
   hide: function(immediate) {
+    var t=this;
     if (immediate==null || immediate) {
-      if (this._hideTimer!=null) this._clearHideTimer();
-      if (this._showTimer!=null) this._clearShowTimer();
-      this._hideTooltip();
+      t._clearHideTimer();
+      t._clearShowTimer();
+      t._hideTooltip();
     }
     else {
-      this._removeTooltip();
+      t._startRemoveTimer();
     }
   },
   show: function() {
-    this._prepareTooltip();
+    this._startShowTimer();
   },
 
   /*
@@ -2198,12 +2242,16 @@ $.widget("ct.tooltips", {
   },
 
   _clearHideTimer: function() {
-    window.clearTimeout(this._hideTimer);
-    this._hideTimer=null;
+    if (this._hideTimer!=null) {
+      window.clearTimeout(this._hideTimer);
+      this._hideTimer=null;
+    }
   },
   _clearShowTimer: function() {
-    window.clearTimeout(this._showTimer);
-    this._showTimer=null;
+    if (this._showTimer!=null) {
+      window.clearTimeout(this._showTimer); 
+      this._showTimer=null;
+    }
   },
 
   _hideTooltip: function() {
@@ -2233,7 +2281,7 @@ $.widget("ct.tooltips", {
     
     if (content instanceof(Array)) {
       o.title = content[1];
-      o.content = content[0]; 
+      o.content = content[0];
     }
     else
       o.content = content[0];
@@ -2243,20 +2291,23 @@ $.widget("ct.tooltips", {
     // Add additional Hover becaus container ist not t.element.
     if (t.options.container!=null) {
       $("div.popover").hover(function() {
-        t._prepareTooltip();
+        if (t._hideTimer!=null) t._clearHideTimer();
+        return false;
       },
       function() {
-        t._removeTooltip();
+        t._startRemoveTimer();
+        return false;
       });
     }
     t.options.afterRender(t.element.next(".popover"), this.options.data);
   },
 
 
-  _prepareTooltip: function() {
+  _startShowTimer: function() {
+    var d= new Date();
     var t=this;
     currentTooltip=t.element;
-    if (t._hideTimer!=null) t._clearHideTimer();
+    t._clearHideTimer();
     if (t._showTimer==null && !t._visible) {
       t._showTimer=window.setTimeout(function() {
         t._showTooltip();
@@ -2265,14 +2316,14 @@ $.widget("ct.tooltips", {
             if (t._hideTimer!=null) t._clearHideTimer();
           },
           function() {
-            t._removeTooltip();
+            t._startRemoveTimer();
         });
         t._showTimer=null;
       }, 200);
     }
   },
 
-  _removeTooltip: function() {
+  _startRemoveTimer: function() {
     var t=this;
 
     // When showTimer is running, cancel immediate!

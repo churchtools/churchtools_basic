@@ -379,7 +379,7 @@ function _renderViewChurchResource(elem) {
   });
 }
  
-function _addException(currentEvent, date) {
+function currentEvent_addException(date) {
   if (currentEvent.exceptions==null) currentEvent.exceptions=new Object();
   if (currentEvent.exceptionids==null) currentEvent.exceptionids=0;
   currentEvent.exceptionids=currentEvent.exceptionids-1;
@@ -490,7 +490,7 @@ function _renderEditEventContent(elem, currentEvent) {
         delete currentEvent.exceptions[exc.id];
       },
       addException:function(options, date) {
-        _addException(currentEvent, date.toDateDe());
+        currentEvent_addException(date.toDateDe());
         return currentEvent;
       },
       deleteAddition:function(add) {
@@ -749,9 +749,10 @@ function eventDifferentDates(a, b) {
 }
 
 function saveEvent(event) {
-  var o = currentEvent;
-
-  if (currentEvent.view == "view-main") getCalEditFields(o);
+  var o=currentEvent;
+  var oldCat=o.category_id;
+  if (currentEvent.view=="view-main")
+    getCalEditFields(o);
   
   if (currentEvent.events!=null && eventDifferentDates(event, currentEvent))  {
     if (!confirm("Achtung, da der Termin mit "+masterData.churchservice_name+" verknüpft ist, hat jede Änderung auch dort Auswirkungen. Dies kann auch angefragt Dienste betreffen!"))
@@ -760,22 +761,22 @@ function saveEvent(event) {
       currentEvent.eventTemplate=currentEvent.event_template_id;
   }
   
-  if (currentEvent.id != null) {
-    o.func = "updateEvent";
-    o.currentEvent_id = currentEvent.id;
+  if (currentEvent.id!=null) {
+    o.func="updateEvent";
+    o.currentEvent_id=currentEvent.id;
   }
   else
-    o.func = "createEvent";
-  previousBookings = $.extend({}, o.bookings);
+    o.func="createEvent";
+  
+  previousBookings=$.extend({}, o.bookings);
   
   churchInterface.jsendWrite(o, function(ok, data) {
     if (!ok) alert("Fehler beim Anpassen des Events: "+data);
     else {
-      if ((event != null) && (event.category_id) && (event.category_id!=o.category_id)) {
+      if ((event!=null) && (event.category_id) && (event.category_id!=o.category_id))
         calCCType.needData(event.category_id, true);
-      }
       calCCType.needData(o.category_id, true);
-      // if (o.bookings!=null) calResourceType.refreshView();
+      if (o.bookings!=null) calResourceType.refreshView();
     }
   }, false, false);
   return true;
@@ -899,15 +900,15 @@ function editEvent(event, month, currentDate, jsEvent) {
           return false;
         }
       });
-      if (currentEvent.category_id==null) {
-        if (masterData["edit category"]!=null) {
-          alert("Um einen Termin anzulegen, muss erst ein Kalender erstellt werden!");
-          editCategory(null, 0);
-        }
-        return null;
-      }
     }
-    var rows = new Array();
+    if (currentEvent.category_id==null) {
+      if (masterData["edit category"]!=null) {
+        alert("Um einen Termin anzulegen, muss erst ein Kalender erstellt werden!");
+        editCategory(null, 0);
+      }
+      return null;
+    }
+    var rows = new Array();    
     
     rows.push('<div id="cal_menu"><br/></div>');
     rows.push('<div id="cal_content"></div>');
@@ -964,12 +965,21 @@ function editEvent(event, month, currentDate, jsEvent) {
         }
       }
     }
-    elem.dialog('addbutton', 'Abbrechen', function() {
-      $(this).dialog("close");
-    });
-  
+    else {
+      elem.dialog('addbutton', 'Löschen', function() {
+        var txt="Termin '"+event.bezeichnung+"' wirklich entfernen?";
+        if (currentEvent.event_id) txt=txt+" Achtung, zugeordnete Dienste werden damit abgesagt!";
+        if (confirm(txt)) {
+          delEvent(currentEvent, function() {
+            elem.dialog("close");
+          });
+        }
+      });
+    }
+    elem.dialog("addcancelbutton");
+
     _renderEditEventNavi(elem, currentEvent);
-    
+  
   });
 }
 
@@ -1399,9 +1409,7 @@ function _eventMouseover(event, jsEvent, view) {
     placement:placement,
     auto:false,
     render:function(data) {
-      if ($("#mypop").length>0)
-        return null
-      //$("#mypop").remove();
+      $("#mypop").remove();
       return renderTooltip(data.event);
     },
     afterRender:function(element, data) {
@@ -2155,4 +2163,3 @@ $(document).ready(function() {
     });
   });
 });
-
