@@ -31,6 +31,7 @@ function getEventFromEventSource(event) {
 
 function _eventDrop(event, delta, revertFunc, jsEvent, ui, view ) {
   if (debug) console.log("_eventDrop", event, delta, revertFunc, jsEvent, ui, view);
+//  clearTooltip(true);
   
   var myevent=getEventFromEventSource(event);
   if (myevent==null) {
@@ -48,66 +49,94 @@ function _eventDrop(event, delta, revertFunc, jsEvent, ui, view ) {
     return null;
   }
   
-  editSeriesOrSingleEvent(myevent, jsEvent, function(isSeries, editSeries, cancel) {    
+  form_editSeriesOrSingleEvent(myevent, jsEvent, function(isSeries, editSeries, cancel) {
     if (cancel) {
       revertFunc();
-      return;
     }
-  
-    var start=moment(myevent.startdate);
-    start.add(delta);
-    myevent.startdate=start.format(DATETIMEFORMAT_EN).toDateEn(true);
-    if (event.end==null) {  // New events have no ending time!
-      myevent.enddate=new Date(myevent.startdate);
-      myevent.enddate.setMinutes(myevent.startdate.getMinutes()+120);
+    else {      
+      var currentDate = event.start.format(DATETIMEFORMAT_EN).toDateEn(true);
+      currentEvent = cloneEvent(myevent);
+      var diff = currentDate.getTime() - currentEvent.startdate.getTime();
+      currentEvent = getNewEventFromSeries(currentEvent, isSeries, editSeries, currentDate);
+      saveEvent(currentEvent);
+      saveEditedSeries(myevent, isSeries, editSeries, currentDate);
     }
-    else {
-      var end=moment(myevent.enddate);
-      end.add(delta);
-      myevent.enddate=end.format(DATETIMEFORMAT_EN).toDateEn(true); 
-    }
-  
-    if (event.source && event.source.container)
-      event.source.container.refreshView(event.source.category_id, false);
+/*    
     
+    if (isSeries && !editSeries) {
+      // Add new single event without repeats
+      currentEvent = cloneEvent(myevent);
+      currentEvent.id=null;
+      var diff = event.start.format(DATETIMEFORMAT_EN).toDateEn(true).getTime() - currentEvent.startdate.getTime();
+      currentEvent.startdate=new Date(currentEvent.startdate.getTime() + diff);
+      currentEvent.enddate=new Date(currentEvent.enddate.getTime() + diff);
+      currentEvent.repeat_id=0;
+      saveEvent(currentEvent);
+
+      // Add Exception to series
+      currentEvent = cloneEvent(myevent);
+      _addException(myevent, event.start.format(DATETIMEFORMAT_EN).toDateEn(true));
+      currentEvent=myevent;
+      currentEvent.view=null;
+      saveEvent(myevent);      
+    }
+    else { // No Series or edit the whole series
+      var start=moment(myevent.startdate);
+      start.add(delta);
+      myevent.startdate=start.format(DATETIMEFORMAT_EN).toDateEn(true);
+      if (event.end==null) {  // New events have no ending time!
+        myevent.enddate=new Date(myevent.startdate);
+        myevent.enddate.setMinutes(myevent.startdate.getMinutes()+120);
+      }
+      else {
+        var end=moment(myevent.enddate);
+        end.add(delta);
+        myevent.enddate=end.format(DATETIMEFORMAT_EN).toDateEn(true); 
+      }
     
-    var o = cloneEvent(myevent);
-    o.func="updateEvent";
-    // All Day event
-    if (!event.start.hasTime()) {
-      o.startdate=o.startdate.toStringDe(false).toDateDe(false);
-      // Wenn er nur einen Tag geht, dann ist wohl manchmal enddate==null
-      if (o.enddate==null) {
+      if (event.source && event.source.container)
+        event.source.container.refreshView(event.source.category_id, false);
+      
+      
+      var o = cloneEvent(myevent);
+      o.func="updateEvent";
+      // All Day event
+      if (!event.start.hasTime()) {
+        o.startdate=o.startdate.toStringDe(false).toDateDe(false);
+        // Wenn er nur einen Tag geht, dann ist wohl manchmal enddate==null
+        if (o.enddate==null) {
+          o.enddate=new Date(o.startdate);
+        }
+        else
+          o.enddate=o.enddate.toStringDe(false).toDateDe(false);
+      }
+      else if (o.enddate==null) {
         o.enddate=new Date(o.startdate);
+        o.enddate.setMinutes(o.startdate.getMinutes()+90);
+        event.end=o.enddate;
       }
-      else
-        o.enddate=o.enddate.toStringDe(false).toDateDe(false);
-    }
-    else if (o.enddate==null) {
-      o.enddate=new Date(o.startdate);
-      o.enddate.setMinutes(o.startdate.getMinutes()+90);
-      event.end=o.enddate;
-    }
-  
-    churchInterface.jsendWrite(o, function(ok, data) {
-      if (!ok) {
-        alert(data);
-        revertFunc();
-      }
-      // Wenn es Wiederholungstermine gibt, kann es bei Verschiebung notwendig sein neu zu rendern wegen Ausnahmetagen!
-      if ((myevent.repeat_id>0 && delta.asDays()!=0) || (o.bookings!=null)) {
-        calCCType.refreshView(myevent.category_id, o.bookings!=null);
-      }
-      if (o.bookings!=null) {
-        // Refresh completly, because perhaps bookings status changed
-        // calResourceType.refreshView(null, true);
-      }
-    }, true, false);
+    
+      churchInterface.jsendWrite(o, function(ok, data) {
+        if (!ok) {
+          alert(data);
+          revertFunc();
+        }
+        // Wenn es Wiederholungstermine gibt, kann es bei Verschiebung notwendig sein neu zu rendern wegen Ausnahmetagen!
+        if ((myevent.repeat_id>0 && delta.asDays()!=0) || (o.bookings!=null)) {
+          calCCType.refreshView(myevent.category_id, o.bookings!=null);
+        }
+        if (o.bookings!=null) {
+          // Refresh completly, because perhaps bookings status changed
+          // calResourceType.refreshView(null, true);
+        }
+      }, true, false);
+    }*/
   });
 }
 
 function _eventResize(event, delta, revertFunc, jsEvent, ui, view) {
   if (debug) console.log("_eventResize", event, delta);
+  clearTooltip(true);
 
   var myevent=getEventFromEventSource(event);
   if ((myevent==null) || (masterData.auth["edit category"]==null) || (masterData.auth["edit category"][event.source.category_id]==null)) {
@@ -119,29 +148,21 @@ function _eventResize(event, delta, revertFunc, jsEvent, ui, view) {
     revertFunc();
     return null;
   }
-  editSeriesOrSingleEvent(myevent, jsEvent, function(isSeries, editSeries, cancel) {    
+  form_editSeriesOrSingleEvent(myevent, jsEvent, function(isSeries, editSeries, cancel) {
     if (cancel) {
       revertFunc();
-      return;
     }
-    if (isSeries && !editSeries) {  // Special: Series-Date and it must only be edited a single event!
-      // Add new singe event without repeats
+    else {
+      var currentDate = event.start.format(DATETIMEFORMAT_EN).toDateEn(true);
       currentEvent = cloneEvent(myevent);
-      currentEvent.id=null;
-      var diff = event.start.format(DATETIMEFORMAT_EN).toDateEn(true).getTime() - currentEvent.startdate.getTime();
-      currentEvent.startdate=new Date(currentEvent.startdate.getTime() + diff);
-      currentEvent.enddate=new Date(currentEvent.enddate.getTime() + diff + delta.asMilliseconds());
-      currentEvent.repeat_id=0;
+      currentEvent.enddate=new Date(myevent.enddate.getTime() + delta.asMilliseconds());
+      currentEvent = getNewEventFromSeries(currentEvent, isSeries, editSeries, currentDate);
       saveEvent(currentEvent);
-
-      // Add Exception to series
-      currentEvent = cloneEvent(myevent);
-      _addException(myevent, event.start.format(DATETIMEFORMAT_EN).toDateEn(true));
-      currentEvent=myevent;
-      currentEvent.view=null;
-      saveEvent(myevent);
+      saveEditedSeries(myevent, isSeries, editSeries, currentDate);
     }
-    else {     
+
+    
+    /*
       var m=moment(myevent.enddate);
       m.add(delta);
       myevent.enddate=m.format(DATETIMEFORMAT_EN).toDateEn(true);
@@ -161,7 +182,7 @@ function _eventResize(event, delta, revertFunc, jsEvent, ui, view) {
             }
           }
       }, true, false);
-    }
+    }*/
   });
 }
   
@@ -459,6 +480,7 @@ function _renderEditEventContent(elem, currentEvent) {
       if (currentEvent.modified_date!=null) rows.push(" am "+currentEvent.modified_date.toDateEn(true).toStringDe(true)+"&nbsp;");
       rows.push("</small>");
     }
+    rows.push('<br/><br/>');
 
     elem.find("#cal_content").html(rows.join(""));
 
@@ -769,48 +791,78 @@ function cloneEvent(event) {
   return e;
 }
 
-/**
- * First prove, if event is series. When, then ask if editing whole series or only one single event.
- * @param event
- * @param jsEvent
- * @param func returns isSeries, editSeries, cancel
- */
-function editSeriesOrSingleEvent(event, jsEvent, func) {
-  var isSeries = event.repeat_id > 0;
-  
-  if (isSeries) {
-    $("#mypop").remove();
-
-    var parentOffset = $("#calendar").offset();
-    var rows = new Array();
-    var id=1;
-    rows.push('<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">');
-    rows.push('<li><a href="#" class="options edit-one">Einzelner Termin ändern</a></li>');
-    rows.push('<li><a href="#" class="options edit-all">Gesamte Serie ändern</a></li>');
-    rows.push('<li><a href="#" class="options cancel">'+_("cancel")+'</a></li>');
-    rows.push('</ul>');
-    
-    $('#calendar').append('<div id="mypop" style="z-index:10000;position:absolute;">'+rows.join("")+'</div>');
-    $("#mypop").offset({ top: jsEvent.clientY, left: jsEvent.clientX});
-    $("#mypop ul.dropdown-menu").css("display", "inline");
-    shortcut.add("esc", function() {
-      $("#mypop").remove();
-    });  
-    $("#mypop a.edit-one").click(function() {
-      $("#mypop").remove();
-      func(isSeries, false);
-    });
-    $("#mypop a.edit-all").click(function() {
-      $("#mypop").remove();
-      func(isSeries, true);
-    });
-    $("#mypop a.cancel").click(function() {
-      $("#mypop").remove();
-      func(isSeries, null, true);
-    });
-  }
-  else func(false, null);
+function deleteNewerExceptionsAndAdditions(event, date) {
+  each(event.exceptions, function(k,a) {
+    if (a.except_date_start.toDateEn(false).getTime() > date.getTime())
+      delete(event.exceptions[k]);
+  });
+  each(event.additions, function(k,a) {
+    if (a.add_date.toDateEn(false).getTime() > date.getTime())
+      delete(event.additions[k]);
+  });
 }
+function deleteOlderExceptionsAndAdditions(event, date) {
+  each(event.exceptions, function(k,a) {
+    if (a.except_date_start.toDateEn(false).getTime() < date.getTime())
+      delete(event.exceptions[k]);
+  });
+  each(event.additions, function(k,a) {
+    if (a.add_date.toDateEn(false).getTime() < date.getTime())
+      delete(event.additions[k]);
+  });
+}
+
+/**
+ * Prepare the editing of an event
+ * @param currentEvent
+ * @param isSeries 
+ * @param editSeries edit serie from currentDate till future or only one single event
+ * @param currentDate
+ */
+function getNewEventFromSeries(myevent, isSeries, editSeries, currentDate) {
+  console.log("getNewEvent", myevent.startdate, "serie", isSeries, "editSerie", editSeries, currentDate);
+  var _myevent=myevent;
+  if (isSeries) {
+    _myevent=cloneEvent(myevent);
+    // if not first element edited, then this is always a new event!
+    if (!editSeries || myevent.startdate.getTime()!=currentDate.getTime()) _myevent.id=null;
+    var diff=currentDate.getTime() - _myevent.startdate.getTime();
+    _myevent.startdate=new Date(_myevent.startdate.getTime() + diff);
+    _myevent.enddate=new Date(_myevent.enddate.getTime() + diff);
+    if (!editSeries) {
+      _myevent.repeat_id=0;
+      _myevent.additions=null;
+      _myevent.exceptions=null;
+    } 
+    else {
+      deleteOlderExceptionsAndAdditions(_myevent, currentDate);
+    }
+  }
+  return _myevent;
+}
+
+function saveEditedSeries(myevent, isSeries, editSeries, currentDate) {
+  console.log("saveEditedSeries", myevent.startdate, isSeries, editSeries, currentDate);
+  if (isSeries && 
+      // Not editing series or not the first event!
+      (!editSeries || myevent.startdate.getTime()!=currentDate.getTime())) {
+    currentEvent=cloneEvent(myevent);
+    if (editSeries) {
+      // Change repeat until date
+      var d = new Date(currentDate.getTime()); 
+      d.addDays(-1); 
+      currentEvent.repeat_until = d;
+      deleteNewerExceptionsAndAdditions(currentEvent, currentDate);
+    }
+    else {
+      // Add Exception
+      _addException(currentEvent, currentDate);
+    }
+    currentEvent.view = null; // Don't get infos out of the form.
+    saveEvent(currentEvent);
+  }
+}
+
 
 /**
  * event - Event wie in der DB
@@ -821,20 +873,11 @@ function editSeriesOrSingleEvent(event, jsEvent, func) {
  */
 function editEvent(event, month, currentDate, jsEvent) {
 
-  editSeriesOrSingleEvent(event, jsEvent, function(isSeries, editSeries, cancel) {
+  form_editSeriesOrSingleEvent(event, jsEvent, function(isSeries, editSeries, cancel) {
     if (cancel) return;
     
     // Clone object
-    currentEvent = cloneEvent(event);
-    var seriesEvent = cloneEvent(event);
-    
-    if (isSeries>0 && !editSeries) {
-      var diff=currentDate.getTime() - currentEvent.startdate.getTime();
-      currentEvent.startdate=new Date(currentEvent.startdate.getTime() + diff);
-      currentEvent.enddate=new Date(currentEvent.enddate.getTime() + diff);
-      currentEvent.repeat_id=0;
-      currentEvent.editingSingleEventOutOfSeries=true;
-    }
+    currentEvent = getNewEventFromSeries(event, isSeries, editSeries, currentDate);
     
     currentEvent.view="view-main";
     if (previousBookings==null && currentEvent.bookings!=null) previousBookings=$.extend({}, currentEvent.bookings);
@@ -871,24 +914,13 @@ function editEvent(event, month, currentDate, jsEvent) {
       
     var desc = "Termin";
     if (isSeries) {
-      if (editSeries) desc = "Gesamte Serie"; else desc = "Einzeltermin";
+      if (editSeries) desc = "Serie"; else desc = "Einzeltermin";
     }
     var elem=form_showDialog((currentEvent.id==null?"Neuen "+desc+" erstellen":desc+" editieren"), rows.join(""), 560, 600, {
       "Speichern": function() {
-        if (currentEvent.editingSingleEventOutOfSeries) {
-          // Create new event
-          currentEvent.id=null;
-          saveEvent(currentEvent);        
-          
-          // Add Exception
-          currentEvent=seriesEvent;
-          _addException(currentEvent, currentDate);
-          currentEvent.view=null; // Don't get infos out of the form.
-          if (saveEvent(currentEvent))
-            $(this).dialog("close");
-        }
-        else if (saveEvent(currentEvent))
-          $(this).dialog("close");
+        saveEvent(currentEvent);
+        saveEditedSeries(event, isSeries, editSeries, currentDate);
+        $(this).dialog("close");
       }
     });
     
@@ -899,7 +931,6 @@ function editEvent(event, month, currentDate, jsEvent) {
         elem.dialog('addbutton', 'Einzeltermin entfernen', function() {
           if (currentEvent.events!=null && !confirm("Achtung, da der Termin mit "+masterData.churchservice_name+" verknüpft ist, hat jede Änderung auch dort Auswirkungen. Dies kann auch angefragt Dienste betreffen!"))
             return null;
-          currentEvent=seriesEvent;
           _addException(currentEvent, currentDate);
           currentEvent.view=null;  // Don't get infos out of the form. 
           saveEvent(currentEvent);
@@ -908,17 +939,8 @@ function editEvent(event, month, currentDate, jsEvent) {
         
       }
       else {
-        elem.dialog('addbutton', desc + ' löschen', function() {
-          var txt=desc + " '"+event.bezeichnung+"' wirklich entfernen?";
-          if (currentEvent.event_id) txt=txt+" Achtung, zugeordnete Dienste werden damit abgesagt!";
-          if (confirm(txt)) {
-            delEvent(currentEvent, function() {
-              elem.dialog("close");
-            });
-          }
-        });
         if (isSeries) {
-          elem.dialog('addbutton', 'Zukünftige Termine löschen', function() {
+          elem.dialog('addbutton', 'Diesen und nachfolgende löschen', function() {
             var txt="Wirklich zukünftige Termine löschen?";
             if (currentEvent.event_id) txt=txt+" Achtung, zugeordnete Dienste werden damit abgesagt!";
             if (confirm(txt)) {
@@ -926,6 +948,17 @@ function editEvent(event, month, currentDate, jsEvent) {
               $("#inputRepeatUntil").val(d.toStringDe(false));
               saveEvent(currentEvent);
               elem.dialog("close");          
+            }
+          });
+        }
+        else {
+          elem.dialog('addbutton', desc + ' löschen', function() {
+            var txt=desc + " '"+event.bezeichnung+"' wirklich entfernen?";
+            if (currentEvent.event_id) txt=txt+" Achtung, zugeordnete Dienste werden damit abgesagt!";
+            if (confirm(txt)) {
+              delEvent(currentEvent, function() {
+                elem.dialog("close");
+              });
             }
           });
         }
@@ -968,18 +1001,30 @@ function delEventFormular(event, func, currentDate) {
   if (event.repeat_id>0) {
     var txt="Es handelt sich um einen Termin mit Wiederholungen, welche Termine sollen entfernt werden?";
     if (event.event_id) txt=txt+" <br><b>Achtung, zugeordnete Dienste werden damit abgesagt!</b>";
-    var elem=form_showDialog("Was soll gelöscht werden?", txt, 350, 300, {
-      "Alle": function() {
-                delEvent(event, func);
-                elem.dialog("close");
-              },
-      "Nur aktueller": function() {
-                         _addException(currentEvent, currentDate);
-                         saveEvent(event);
-                         elem.dialog("close");
-                       },
-      "Abbrechen": function() { elem.dialog("close"); }
+    var elem=form_showDialog("Was soll gelöscht werden?", txt, 370, 300);
+    
+    if (currentDate.getTime() == event.startdate.getTime()) {
+      elem.dialog('addbutton', 'Gesamte Serie löschen', function() {
+        delEvent(event, func);        
+        $(this).dialog("close");
+      });
+    }
+    else {
+      elem.dialog('addbutton', 'Diesen und zukünftige', function() {
+        var d=new Date(currentDate.getTime()); 
+        d.addDays(-1);
+        currentEvent.repeat_until=d;
+        deleteNewerExceptionsAndAdditions(currentEvent, currentDate);
+        saveEvent(event);
+        elem.dialog("close");
+      });
+    }
+    elem.dialog('addbutton', 'Nur aktueller', function() {
+       _addException(currentEvent, currentDate);
+       saveEvent(event);
+       elem.dialog("close");
     });
+    elem.dialog("addcancelbutton");
   }
   else {
     var txt="Termin '"+event.bezeichnung+"' wirklich entfernen?";
@@ -1276,7 +1321,7 @@ function renderTooltip(event) {
       rows.push('<li><b>'+myEvent.ort+'</b>');
     if (myEvent.category_id!=null)
       rows.push("<li>Kalender: <i>"+masterData.category[myEvent.category_id].bezeichnung+'</i>');
-    if (myEvent.bookings!=null) {
+    if (myEvent.bookings!=null && masterData.resource!=null) {
       rows.push('<li>Angefragte Resourcen<small><ul>');
       each(myEvent.bookings, function(i,e) {
         rows.push('<li>'+masterData.resources[e.resource_id].bezeichnung.trim(30));
@@ -1346,7 +1391,7 @@ function _eventMouseover(event, jsEvent, view) {
     placement="top";
   else if (jsEvent.pageX<$("#calendar").position().left+130)
     placement="right";
-
+  
   $(this).tooltips({
     data:{id:"1", event:event},
     show:true,
@@ -1475,8 +1520,8 @@ function _loadAllowedPersons(func) {
 
 function editCategory(cat_id, privat_yn, oeffentlich_yn) {
   var current=$.extend({}, masterData.category[cat_id]);
-  if (privat_yn==null) privat_yn==masterData.category[cat_id].privat_yn!=0;
-  if (oeffentlich_yn==null) privat_yn==masterData.category[cat_id].oeffentlich_yn!=0;
+  if (privat_yn==null) privat_yn=masterData.category[cat_id].privat_yn!=0;
+  if (oeffentlich_yn==null) oeffentlich_yn=masterData.category[cat_id].oeffentlich_yn!=0;
   if (current.sortkey==null) current.sortkey=0;
   
   var form = new CC_Form((cat_id==null?"Kalender erstellen":"Kalender editieren"), current);
@@ -1516,6 +1561,7 @@ function editCategory(cat_id, privat_yn, oeffentlich_yn) {
           if (cat_id==null) obj.modified_pid=masterData.user_pid;
           else obj.modified_pid=masterData.category[data].modified_pid;
           masterData.category[data]=obj;
+          window.location.reload();
           elem.dialog("close");
         }
       });
@@ -1837,6 +1883,7 @@ function renderFilterCalender() {
   
   function _renderCalenderEntry(name, id, color, desc) {
     var rows = new Array ();
+    if (color==null) color="#000000";
     rows.push('<li class="hoveractor">');
     // Editable category, not personal calendar like service cal
     if (id>6) {
@@ -1856,6 +1903,7 @@ function renderFilterCalender() {
     }
         
     var checked=churchcore_inArray(id, churchcore_getArrStrAsArray(masterData.settings[name]));
+    if (masterData.settings[name]==null && id>100) checked=true;
     if (filterCategoryIds!=null && churchcore_inArray(id-100, filterCategoryIds)) checked=true;
     rows.push('<span '+(checked?'checked="checked"':'') + ' '
                 +'data-id="'+(id)+'" '

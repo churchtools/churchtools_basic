@@ -52,7 +52,7 @@ function churchcal_main() {
         <div class="row-fluid">
           <div id="cdb_filter"></div>
         </div>
-        <div id="calendar"></div>
+        <div id="cdb_content"><div id="calendar"></div></div>
         <input type="hidden" id="isembedded"/>
     ';
     if ($t = getVar("title"))     $txt .= '<input type="hidden" id="embeddedtitle" value="' . $t . '"/>';
@@ -65,7 +65,7 @@ function churchcal_main() {
     $txt .= '
       <div class="row-fluid">
     <div class="span3"><div id="cdb_filter"></div></div>
-    <div class="span9"><div id="header" class="pull-right"></div><div id="calendar"></div></div>
+    <div class="span9"><div id="header" class="pull-right"></div><div id="cdb_content"><div id="calendar"></div></div></div>
         <p align=right><small>
           <a target="_blank" href="' . $base_url .'?q=churchcal&embedded=true&category_id=null"> ' . t("embed", getConf("churchcal_name")) . '</a>
           <a target="_clean" href="http://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc:ChurchCal%C2%A0einbetten/"><i class="icon-question-sign"></i></a>

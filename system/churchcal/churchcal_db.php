@@ -336,12 +336,15 @@ function churchcal_updateEvent($params, $source = null) {
   }
   if ((in_array("churchservice", $modules) && ($source == null || $source != "churchservice"))) {
     include_once (CHURCHSERVICE . '/churchservice_db.php');
-    $cs_params = array_merge(array (), $params); //TODO: why array_merge?
+    $cs_params = array_merge(array (), $params); // array_merge for not changeable through CS
     $cs_params["cal_id"] = $params["id"];
     $cs_params["id"] = null;
-    
-    // FIXME: without the if there was an error on changing events (endtime). Is there somethin else wrong?  
-    $cs_params["old_startdate"] = $old_cal->startdate; 
+
+    $d1 = new Datetime($old_cal->startdate);
+    $d2 = new Datetime($params["startdate"]);
+    if ($d1->format("Y-m-d H:i") != $d2->format("Y-m-d H:i")) {
+      $cs_params["old_startdate"] = $old_cal->startdate; 
+    }
     if ($source == null) $source = "churchcal";
     
     churchservice_updateEventFromChurchCal($cs_params, $source);

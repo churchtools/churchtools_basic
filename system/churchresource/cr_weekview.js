@@ -11,6 +11,7 @@ function WeekView() {
   this.renderTimer=null;
   this.datesIndex=null;
   this.currentBooking=null;
+  this.mousePosition={};
 }
 
 Temp.prototype = StandardTableView.prototype;
@@ -913,11 +914,7 @@ WeekView.prototype.closeAndSaveBookingDetail = function (elem) {
   if ($("#show_conflicts").html()!=null)
     a.conflicts=$("#show_conflicts").html();
 
-  a.startdate=a.startdate.toStringEn(true);
-  a.enddate=a.enddate.toStringEn(true);
-  if (a.repeat_until!=null) a.repeat_until=a.repeat_until.toStringEn(false);
-  a.neu=false;
-  
+  a.neu=false;  
   if (a.text=="") {
     alert("Bitte eine Bezeichnung angeben!");
     return null;
@@ -925,13 +922,14 @@ WeekView.prototype.closeAndSaveBookingDetail = function (elem) {
   
   $("#cr_fields").html("<br/>Daten werden gespeichert..<br/><br/>");
   
-  churchInterface.jsendWrite(a, function(ok, json) {
-    a.startdate=a.startdate.toDateEn();
-    a.enddate=a.enddate.toDateEn();
-    if (a.repeat_until!=null)
-      a.repeat_until=a.repeat_until.toDateEn();
-    elem.empty().remove();
-    
+  t.saveBooking(a);
+  elem.empty().remove();  
+};
+
+WeekView.prototype.saveBooking = function(a) {
+  console.log(a);
+  if (a.cc_cal_id==null) delete(a.cc_cal_id);
+  churchInterface.jsendWrite(a, function(ok, json) {    
     if (ok) {
       if (json.id!=null) {
         a.id=json.id;
@@ -952,9 +950,8 @@ WeekView.prototype.closeAndSaveBookingDetail = function (elem) {
       t.renderList();
     }
     else alert("Fehler beim Speichern: "+json);
-  }, false, false);
+  }, false, false);  
 };
-
 
 WeekView.prototype.addFurtherListCallbacks = function() {
   var t=this;
@@ -967,6 +964,7 @@ WeekView.prototype.addFurtherListCallbacks = function() {
       data:{id:$(this).attr("data-tooltip-id")},
       minwidth:250,
       render:function(data) {
+        $("#mypop").remove();
         return t.renderTooltip(data.id);
       },
       
@@ -1023,11 +1021,14 @@ WeekView.prototype.addFurtherListCallbacks = function() {
       clearTooltip();
       
       if ($(this).attr("id").indexOf("edit")==0)
-        t.showBookingDetails("edit", id, date);
+        t.showBookingDetails("edit", id, date, $(this));
       else
         if ($(this).attr("id").indexOf("new_")==0)
           t.showBookingDetails("new", id, date);
     }
+  });
+  $( "#cdb_content" ).mousemove(function( event ) {
+    t.mousePosition={ clientX : event.pageX, clientY : event.pageY };
   });
 };
 
@@ -1036,7 +1037,6 @@ WeekView.prototype.cloneBooking = function(booking) {
   currentBooking.startdate=new Date(booking.startdate);
   currentBooking.enddate=new Date(booking.enddate);
   currentBooking.repeat_until=new Date(booking.repeat_until);
-  currentBooking.id=null;
   return currentBooking;
 };
 
@@ -1054,7 +1054,7 @@ WeekView.prototype.addException = function(booking, date) {
  * id=bei new=> res_id, bei edit: booking_id
  * date=bei new=>date, sonst egal
  */
-WeekView.prototype.showBookingDetails = function(func, id, date) {
+WeekView.prototype.showBookingDetails = function(func, id, date, element) {
   var t=this;
   var title="";
   var txt="";
@@ -1069,8 +1069,6 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
       txt=txt+"<i><div class=\"alert alert-error\"><b>Achtung: Die Anfrage wurde schon vom Administrator bearbeitet!</b><br/>Wenn nun 'Speichern' gew&auml;hlt, muss erneut der Administrator best&auml;tigen.</i></div>";
       t.currentBooking.status_id=1;
     }
-    txt=txt+t.renderEditBookingFields(t.currentBooking);
-    txt=txt+'<div id="cr_logs" style=""></div>';
     if (((masterData.auth.write) && (t.currentBooking.person_id==masterData.user_pid)) || ((user_access("edit", t.currentBooking.resource_id))))
       title="Editiere Buchungsanfrage";
     else
@@ -1080,14 +1078,13 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
   }
   else if (func=="new") {
     t.currentBooking=createNewBooking(id, date);
-    txt=t.renderEditBookingFields(t.currentBooking);
     title="Buchungsanfrage erstellen";
     t.currentBooking["func"]="createBooking";
     t.currentBooking.exceptionids=0;
   }
   else if (func=="copy") {
     t.currentBooking=t.cloneBooking(allBookings[id]);
-    txt=t.renderEditBookingFields(allBookings[id]);
+    t.id=null;
     title="Buchungsanfrage kopieren";
     t.currentBooking["func"]="createBooking";
     t.currentBooking.exceptionids=0;
@@ -1095,127 +1092,150 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
   else alert("unkown function in showBookingDetails");
 
   // D.h. entweder Erstelle oder Editiere
-  if (title!="") {
-    var elem = this.showDialog(title, txt, 600, 600, {});
-   if (user_access("edit", t.currentBooking.resource_id)) {
-     form_renderDates({elem:$("#dates"), data:t.currentBooking, disabled:t.currentBooking.cc_cal_id!=null,
-       authexceptions:user_access("edit", t.currentBooking.resource_id),
-       authadditions:user_access("edit", t.currentBooking.resource_id),
-       deleteException:function(exc) {
-         delete t.currentBooking.exceptions[exc.id];
-       },
-       addException:function(options, date) {
-         t.addException(t.currentBooking, date.toDateDe());
-         return t.currentBooking;
-       },
-       deleteAddition:function(add) {
-         delete t.currentBooking.additions[add.id];
-       },
-       addAddition:function(options, date, with_repeat_yn) {
-         if (t.currentBooking.additions==null) t.currentBooking.additions=new Object();
-         t.currentBooking.exceptionids=t.currentBooking.exceptionids-1;
-         t.currentBooking.additions[t.currentBooking.exceptionids]
-               ={id:t.currentBooking.exceptionids, add_date:date.toDateDe().toStringEn(), with_repeat_yn:with_repeat_yn};
-         return t.currentBooking;
-       },
-       callback:function(){
-         t.implantEditBookingCallbacks("cr_fields", allBookings[id]);
-       }
-     });
-   }
-   else
-     form_renderDates({
-       elem:$("#dates"),
-       data:t.currentBooking,
-       callback:function() {
-         t.implantEditBookingCallbacks("cr_fields", allBookings[id]);
-       }
-     });
-   
-   form_autocompletePersonSelect("#assistance_user", false, function(divid, ui) {
-     $("#assistance_user").val(ui.item.label);
-     $("#assistance_user").attr("disabled",true);
-     t.currentBooking.person_id=ui.item.value;
-     t.currentBooking.person_name=ui.item.label;
-     return false;
-   });
-    
-   this.checkConflicts();
-    
-    var log=$("#cr_logs");
-    if (log!=null && id!=null) {
-      // Hole die Log-Daten
-      churchInterface.jsendRead({ func: "getLogs", id:id }, function(ok, json) {
-        if (json!=null) {
-          logs='<small><font style="line-height:100%;"><a href="#" id="toogleLogs">Historie >></a><br/></small>';
-          logs=logs+'<div id="cr_logs_detail" style="display: none; border: 1px solid white; height: 140px; overflow: auto; margin: 2px; padding: 2px;">';
-          logs=logs+"<small><table><tr><td>Historie<td>Beschreibung<td>Erfolgt durch";
-          each(json, function(k,a){
-            logs=logs+'<tr><td width="100px">'+a.datum.toDateEn().toStringDe(true)+"<td>"+a.txt+'<td width="80px">'+a.person_name+" ["+a.person_id+"]<br/>";
-          });
-          logs=logs+"</table>";
-          logs=logs+"</small>";
-          if (user_access("edit", t.currentBooking.resource_id))
-            logs=logs+"<small><p align=\"right\"><a href=\"#\" id=\"del_complete\"><i>(Admin: Gesamten Termin l&ouml;schen)</a></small>";
-          logs=logs+"</div>";
-          log.html(logs);
-          $("#cr_logs a").click(function(c) {
-            if (($(this).attr("id")=="del_complete") && (user_access("edit", t.currentBooking.resource_id))){
-              if (confirm("Soll der Termin wirklich entfernt werden? Achtung, man kann es nicht mehr wiederherstellen!")) {
-                churchInterface.jsendWrite({func: "delBooking", id:id}, function(ok, json) {
-                  allBookings[id]=null;
-                  $("#cr_cover").html("");
-                  t.renderList();
-                  elem.dialog("close");
-                });
-              }
-            } 
-            else {
-              $("#cr_logs_detail").animate({ height: 'toggle'}, "fast", function() {                
-              });
-              elem.animate({scrollTop:elem.scrollTop()+160}, 500, 'swing');               
-            }
-            return false;
-          });
-        }
-      });
-    }
-    
-    if (func=="delete") {
-      t.closeAndSaveBookingDetail(elem);
-      return;
-    }
+  form_editSeriesOrSingleEvent(t.currentBooking, t.mousePosition, function(isSeries, editSeries, cancel) {
+    if (title!="" && !cancel) {
+      var seriesEvent = t.cloneBooking(t.currentBooking);
+      if (isSeries && !editSeries) {
+        var diff=date.toDateEn().getTime() - t.currentBooking.startdate.withoutTime().getTime();
+        t.currentBooking.startdate=new Date(t.currentBooking.startdate.getTime() + diff);
+        t.currentBooking.enddate=new Date(t.currentBooking.enddate.getTime() + diff);
+        t.currentBooking.repeat_id=0;
+        t.currentBooking.editingSingleEventOutOfSeries=true;
+      }      
       
-    // Keine Edit-Funktion, wenn sie vom churchCal kommt
-    //if (t.currentBooking.cc_cal_id==null)
-    {
+      txt=txt+t.renderEditBookingFields(t.currentBooking);
+      if (func=="edit") txt=txt+'<div id="cr_logs" style=""></div>';
+      var elem = t.showDialog(title, txt, 600, 600, {});
+      if (user_access("edit", t.currentBooking.resource_id)) {
+        form_renderDates({elem:$("#dates"), data:t.currentBooking, disabled:t.currentBooking.cc_cal_id!=null,
+           authexceptions:user_access("edit", t.currentBooking.resource_id),
+           authadditions:user_access("edit", t.currentBooking.resource_id),
+           deleteException:function(exc) {
+             delete t.currentBooking.exceptions[exc.id];
+           },
+           addException:function(options, date) {
+             t.addException(t.currentBooking, date.toDateDe());
+             return t.currentBooking;
+           },
+           deleteAddition:function(add) {
+             delete t.currentBooking.additions[add.id];
+           },
+           addAddition:function(options, date, with_repeat_yn) {
+             if (t.currentBooking.additions==null) t.currentBooking.additions=new Object();
+             t.currentBooking.exceptionids=t.currentBooking.exceptionids-1;
+             t.currentBooking.additions[t.currentBooking.exceptionids]
+                   ={id:t.currentBooking.exceptionids, add_date:date.toDateDe().toStringEn(), with_repeat_yn:with_repeat_yn};
+             return t.currentBooking;
+           },
+           callback:function(){
+             t.implantEditBookingCallbacks("cr_fields", allBookings[id]);
+           }
+       });
+     }
+     else
+       form_renderDates({
+         elem:$("#dates"),
+         data:t.currentBooking,
+         callback:function() {
+           t.implantEditBookingCallbacks("cr_fields", allBookings[id]);
+         }
+       });
+     
+     form_autocompletePersonSelect("#assistance_user", false, function(divid, ui) {
+       $("#assistance_user").val(ui.item.label);
+       $("#assistance_user").attr("disabled",true);
+       t.currentBooking.person_id=ui.item.value;
+       t.currentBooking.person_name=ui.item.label;
+       return false;
+     });
+      
+     t.checkConflicts();
+      
+      var log=$("#cr_logs");
+      if (log!=null && id!=null) {
+        // Hole die Log-Daten
+        churchInterface.jsendRead({ func: "getLogs", id:id }, function(ok, json) {
+          if (json!=null) {
+            logs='<small><font style="line-height:100%;"><a href="#" id="toogleLogs">Historie >></a><br/></small>';
+            logs=logs+'<div id="cr_logs_detail" style="display: none; border: 1px solid white; height: 140px; overflow: auto; margin: 2px; padding: 2px;">';
+            logs=logs+"<small><table><tr><td>Historie<td>Beschreibung<td>Erfolgt durch";
+            each(json, function(k,a){
+              logs=logs+'<tr><td width="100px">'+a.datum.toDateEn().toStringDe(true)+"<td>"+a.txt+'<td width="80px">'+a.person_name+" ["+a.person_id+"]<br/>";
+            });
+            logs=logs+"</table>";
+            logs=logs+"</small>";
+            if (user_access("edit", t.currentBooking.resource_id))
+              logs=logs+"<small><p align=\"right\"><a href=\"#\" id=\"del_complete\"><i>(Admin: Gesamten Termin l&ouml;schen)</a></small>";
+            logs=logs+"</div>";
+            log.html(logs);
+            $("#cr_logs a").click(function(c) {
+              if (($(this).attr("id")=="del_complete") && (user_access("edit", t.currentBooking.resource_id))){
+                if (confirm("Soll der Termin wirklich entfernt werden? Achtung, man kann es nicht mehr wiederherstellen!")) {
+                  churchInterface.jsendWrite({func: "delBooking", id:id}, function(ok, json) {
+                    allBookings[id]=null;
+                    $("#cr_cover").html("");
+                    t.renderList();
+                    elem.dialog("close");
+                  });
+                }
+              } 
+              else {
+                $("#cr_logs_detail").animate({ height: 'toggle'}, "fast", function() {                
+                });
+                elem.animate({scrollTop:elem.scrollTop()+160}, 500, 'swing');               
+              }
+              return false;
+            });
+          }
+        });
+      }
+      
+      if (func=="delete") {
+        t.closeAndSaveBookingDetail(elem);
+        return;
+      }
+        
+      // Keine Edit-Funktion, wenn sie vom churchCal kommt
       if (((masterData.auth.write) && (t.currentBooking.person_id==masterData.user_pid)) || (user_access("edit", t.currentBooking.resource_id)) || (t.currentBooking.neu)) {
         elem.dialog('addbutton', _("save"), function() {
-          t.closeAndSaveBookingDetail(elem);
+          if (t.currentBooking.editingSingleEventOutOfSeries) {
+            // Create new event
+            t.currentBooking["func"]="createBooking";
+            t.currentBooking.id=null;
+            t.closeAndSaveBookingDetail(elem);        
+            
+            // Add Exception
+            t.currentBooking=seriesEvent;
+            t.currentBooking["func"]="updateBooking";            
+            t.addException(t.currentBooking, date.toDateEn());
+            t.saveBooking(t.currentBooking);
+          }
+          else
+            t.closeAndSaveBookingDetail(elem);
         });
         
-        if ((t.currentBooking.status_id!=99) && (!t.currentBooking.neu)) {
-          // Bei Wiederholungsterminen UND einem Eintrag, bei dem es sich um einer Wiederholung handelt: date>startdate
-          if ((t.currentBooking.repeat_id>0) && (date!=null) && (date.toDateEn()>t.currentBooking.startdate)) {
-            if (t.currentBooking.repeat_id!=999)
-              elem.dialog('addbutton', 'Nur aktuellen Termin löschen', function() {
-                if (t.currentBooking.exceptions==null) t.currentBooking.exceptions=new Object();
-                t.currentBooking.exceptionids=t.currentBooking.exceptionids-1;
-                t.currentBooking.exceptions[t.currentBooking.exceptionids]
-                      ={id:t.currentBooking.exceptionids, except_date_start:date, except_date_end:date};
-                t.closeAndSaveBookingDetail(elem);
-              });
-            if (t.currentBooking.repeat_id!=999 && t.currentBooking.cc_cal_id==null)
-              elem.dialog('addbutton', 'Diesen und nachfolgende löschen', function() {
-                d=date.toDateEn();
-                d.addDays(-1);
-                $("#cr_fields input[id=inputRepeatUntil]").val(d.toStringDe());
-                t.closeAndSaveBookingDetail(elem);
-              });
+        if ((t.currentBooking.status_id!=99) && (!t.currentBooking.neu) && (date!=null)) {
+          if (isSeries && !editSeries) {
+            elem.dialog('addbutton', 'Einzeltermin entfernen', function() {
+              if (t.currentBooking.exceptions==null) t.currentBooking.exceptions=new Object();
+              t.currentBooking.exceptionids=t.currentBooking.exceptionids-1;
+              t.currentBooking.exceptions[t.currentBooking.exceptionids]
+                    ={id:t.currentBooking.exceptionids, except_date_start:date, except_date_end:date};
+              t.closeAndSaveBookingDetail(elem);
+            });
           }
           else {
+            if (isSeries) { 
+              if (t.currentBooking.repeat_id!=999 && t.currentBooking.cc_cal_id==null)
+                elem.dialog('addbutton', 'Diesen und nachfolgende löschen', function() {
+                  d=date.toDateEn();
+                  d.addDays(-1);
+                  $("#cr_fields input[id=inputRepeatUntil]").val(d.toStringDe());
+                  t.closeAndSaveBookingDetail(elem);
+                });
+            }
             title="Löschen";
-            if (t.currentBooking.repeat_id>0) title="Gesamte Serie löschen";
+            if (isSeries) title="Gesamte Serie löschen";
             elem.dialog('addbutton', title, function() {
               $("select[id=InputStatus]").val(99);
               t.closeAndSaveBookingDetail(elem);
@@ -1223,9 +1243,9 @@ WeekView.prototype.showBookingDetails = function(func, id, date) {
           }
         }
       }
+      elem.dialog('addbutton', _("cancel"), function() {elem.dialog("close");});
     }
-    elem.dialog('addbutton', _("cancel"), function() {elem.dialog("close");});
-  }
+  });
 };
 
 WeekView.prototype.renderEntryDetail = function() {

@@ -153,7 +153,8 @@ function churchservice_updateEventFromChurchCal($params, $source = null) {
     $startdate     = new DateTime($params["startdate"]);
     $old_startdate = new DateTime($params["old_startdate"]);
     $diff = $startdate->format("U") - $old_startdate->format("U");
-    
+
+//    echo "DIFF:".$diff;
     $db = db_query("SELECT id, startdate FROM {cs_event} e 
                     WHERE e.cc_cal_id=:cal_id", 
                     array (":cal_id" => $params["cal_id"]));
