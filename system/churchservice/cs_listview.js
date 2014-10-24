@@ -1770,8 +1770,9 @@ ListView.prototype.renderEditEventService = function(event_id, eventservice_id, 
         }
         else if ($(this).val() == "Absagen"){
           if (($("#InputNameSelect").val()==masterData.user_pid) || (eventservice.mailsenddate!=null)) {
-            var res=prompt("Wirklich absagen? Hier kannst Du noch einen Grund angeben.","");
-            if (res==null) return null;
+            var res=prompt("Wirklich absagen? Hier kannst Du noch einen Grund angeben.", " "); // " " cause of safari bug
+            if (!res) return null; // Firefox null, Safari false...
+            if (res==" ") res="";
             obj.reason=res;
           }
           delete obj.name;
