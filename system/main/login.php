@@ -6,12 +6,12 @@
  */
 function login_main() {
   global $q, $config, $user;
-  
+
   $txt = "";
- 
+
   if ($t = getConf("admin_message")) addErrorMessage($t);
   if ($t = getVar("message")) addInfoMessage($t);
-  
+
   // Sicherstellen, dass keiner eingelogt ist!
   if (!userLoggedIn()) {
     if ($t = getVar("login_message")) addInfoMessage($t, true);
@@ -20,9 +20,9 @@ function login_main() {
     $form->addField("email", "", "INPUT_REQUIRED", t("email.or.username"), true);
     $form->addField("password", "", "PASSWORD", t("password"));
     // TODO: when is this false?
-    if (!getConf("show_remember_me") || getConf("show_remember_me") == 1) $form->addField("rememberMe", "", "CHECKBOX", t("remember.me"));
+    if (getConf("show_remember_me", 1 ) == 1) $form->addField("rememberMe", "", "CHECKBOX", t("remember.me"));
     $form->addButton(t("login"), "ok");
-    
+
     if (getVar("newpwd") && $email = getVar("email")) {
       $res = db_query("SELECT COUNT(*) c FROM {cdb_person}
                        WHERE email=':email' AND archiv_yn=0",
@@ -42,7 +42,7 @@ function login_main() {
                   SET password='" . $scrambled_password . "'
                   WHERE email=:email",
                   array(':email' => $email));
-        
+
         $content = "<h3>" . t('hello') . "!</h3>
           <p>" . t('new.password.requested.for.x.is.y', "<i>$email</i>", $newpwd) . "</p>";
         churchcore_systemmail($email, "[" . getConf('site_name') . "] Neues Passwort", $content, true, 1);
@@ -57,11 +57,11 @@ function login_main() {
              && getVar("password", false, $_POST)
              && getVar("directtool", false, $_POST)) {
       include_once (CHURCHCORE . "/churchcore_db.php");
-      
+
       $email = getVar("email", false, $_POST);
       $password = getVar("password", false, $_POST);
       $directTool = getVar("directtool", false, $_POST);
-      
+
       $res = db_query("SELECT * FROM {cdb_person}
                        WHERE email=:email AND active_yn=1 AND archiv_yn=0",
                        array (":email" => $email))
@@ -84,7 +84,7 @@ function login_main() {
       // delete login strings older then 14 days
       db_query("DELETE FROM {cc_loginstr}
                 WHERE DATEDIFF( current_date, create_date ) > 13");
-      
+
       $res = db_query("SELECT * FROM {cc_loginstr}
                        WHERE loginstr=:loginstr AND person_id=:id",
                        array (":loginstr" => $loginstr,
@@ -105,7 +105,7 @@ function login_main() {
         login_user($res);
       }
     }
-    
+
     $txt .= $form->render();
     $txt .= '<script>jQuery("#newpwd").click(function(k,a) {
          if (confirm("' . t('want.to.receive.new.password') . '")) {
@@ -145,11 +145,11 @@ function login_main() {
  * @return bool or null?
  */
 function validateLogin($form) {
-  
+
   $res = db_query("SELECT * FROM {cdb_person}
                    WHERE (email=:email OR cmsuserid=:email OR id=:email) AND archiv_yn=0",
                    array (":email" => $form->fields["email"]->getValue()));
-  
+
   $accountInactive = false;
   $tooMuchLogins = false;
   $wrongEmail = true;
@@ -172,7 +172,7 @@ function validateLogin($form) {
       }
     }
   }
-  
+
   if ($wrongEmail) {
     $form->fields["email"]->setError(t('email.or.username.unknown'));
     ct_log("Login failed: wrong email " . $form->fields["email"]->getValue(), 2, "-1", "login");
@@ -204,16 +204,16 @@ function validateLogin($form) {
  */
 function login_user($u, $rember_me = false) {
   global $q, $q_orig;
-  
+
   if (empty($u->id)) {
     addErrorMessage(t("login.error.no.id.specified"));
     return null;
   }
   $_SESSION["email"] = $u->email;
-  
+
   if (!$u->cmsuserid) {
     $u->cmsuserid = "$u->vorname $u->name [" . $u->id . "]";
-    
+
     db_query("UPDATE {cdb_person}
               SET cmsuserid=:cmsuserid
               WHERE id=:id",
@@ -227,19 +227,19 @@ function login_user($u, $rember_me = false) {
               WHERE id=:id",
               array(':id' => $u->id));
   }
-  
+
   $u->auth = getUserAuthorization($u->id);
   $_SESSION["user"] = $u;
-  
+
   // TODO: make time configurable
   // login is valid for 6 days
    $cookieExpireTime = time() + 60 * 60 * 24 * 6;
-  
+
   setcookie("RememberMe", $rember_me,  $cookieExpireTime);
   $_SESSION["sessionid"] = random_string();
   setcookie("CC_SessionId", $_SESSION["sessionid"],  $cookieExpireTime);
   $dt = new DateTime();
-  
+
   db_query("UPDATE {cdb_person} SET lastlogin=NOW(), loginerrorcount=0 WHERE id=:id", array(':id' => $u->id));
   // db_query("DELETE FROM {cc_session} WHERE person_id=".$u->id." AND hostname='".$_SERVER["HTTP_HOST"]."'");
   db_query("DELETE FROM {cc_session} WHERE datediff(NOW(), datum)>7");
@@ -250,7 +250,7 @@ function login_user($u, $rember_me = false) {
                    ':host' => $_SERVER["HTTP_HOST"],
                    ':date' => $dt->format('Y-m-d H:i:s'),
             ));
-  
+
   if ($u->email) {
     // look for family users with the same email
     $res = db_query("SELECT * FROM {cdb_person}
@@ -265,9 +265,9 @@ function login_user($u, $rember_me = false) {
     }
     if (count($family)) $_SESSION["family"] = $family;
   }
-  
+
   ct_log("Login succeed: $u->email with " . getVar('HTTP_USER_AGENT', "Unkown Browser", $_SERVER), 2, -1, "login");
-  
+
   // on switching family login dont forward to login again
   if ($q != $q_orig) header("Location: ?q=$q_orig");
   else if ($q == "login") header("Location: ?q=" . getConf("site_startpage", "home"));

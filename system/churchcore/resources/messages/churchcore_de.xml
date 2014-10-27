@@ -11,7 +11,7 @@
   <entry key="please.complete.this.field">Bitte das Feld ausfüllen!</entry>
   <entry key="please.enter.valid.email">Bitte eine gültige Email-Adresse angeben!</entry>
   <entry key="getting.help">Hilfe aufrufen</entry>
-  
+
   <!-- HEADER -->
   <entry key="exit.simulation">Simulation beenden</entry>
   <entry key="change.password">Passwort ändern</entry>
@@ -32,7 +32,7 @@
   <entry key="simulate.information.text">Hiermith kann ein Administrator die Berechtigungen eines anderen Benutzer testen, in dem dieser simuliert wird.</entry>
   <entry key="name.of.person">Personenname eingeben</entry>
   <entry key="write.email.to.admin">Email an den Administrator schreiben</entry>
-  
+
   <!-- HOME -->
   <entry key="there.are.more.users.with.the.same.email">Es sind mehrere Benutzer mit der gleichen Email-Adresse vorhanden. Diese können im Menü oben rechts gewechselt werden.</entry>
   <entry key="chose.your.possibilities">was willst du tun?</entry>
@@ -48,12 +48,12 @@
   <entry key="page">Seite</entry>
   <entry key="general">Allgemein</entry>
   <entry key="note">Bemerkung</entry>
-  
-  
+
+
   <!-- AUTH -->
   <entry key="not.existent">Nicht vorhanden!</entry>
   <entry key="no.sufficient.permission">Keine ausreichende Berechtigung. Das Recht '{0}' ist notwendig.</entry>
-  
+
   <!-- ABOUT -->
   <entry key="permissions">Berechtigungen</entry>
   <entry key="current.permissions">Aktuelle Berechtigungen</entry>
@@ -66,7 +66,7 @@
   <entry key="found.no.problem">Kein Problem gefunden</entry>
   <entry key="found.problem.with.tables">Es gibt Problem(e) betreffend Tabelle(n) {0}.</entry>
   <entry key="detailed.report">Ausführlicher Bericht</entry>
-  
+
   <!-- PROFILE -->
   <entry key="to.change.password.complete.following.fields">Zum Ändern des Passwortes bitte die folgenden Felder ausfüllen</entry>
   <entry key="old.password">Altes Passwort</entry>
@@ -79,7 +79,7 @@
   <entry key="password.is.incorrect">Das Passwort stimmt nicht.</entry>
   <entry key="password.changes.successfully">Das Passwort wurde erfolgreich geändert.</entry>
   <entry key="set.password">Passwort festlegen</entry>
-  
+
   <!-- LOGIN -->
   <entry key="login.headline">Anmeldung</entry>
   <entry key="please.fill.following.fields">Bitte folgende Felder ausfüllen:</entry>
@@ -95,7 +95,7 @@
   <entry key="wrong.password">Das Passwort ist nicht korrekt.</entry>
   <entry key="account.was.locked">Der Zugang wurde gesperrt!</entry>
   <entry key="account.was.locked.cause.of.to.many.trials">Der Zugang ist kurzzeitig gesperrt, da es zu viele fehlerhafte Anmeldeversuche gab! Bitte später noch einmal versuchen.</entry>
-  
+
   <!-- MAIL -->
   <entry key="archive.of.sent.messages">Archiv der gesendeten Emails/SMS</entry>
   <entry key="filter">Filtern</entry>
@@ -113,7 +113,7 @@
   <entry key="email.was.sent">Email wurde erfolgreich gesendet</entry>
   <entry key="email.not.found">Email-Adresse nicht vorhanden</entry>
   <entry key="following.persons.have.no.email.address">An folgende Personen konnte wegen fehlender Email-Adresse keine Email gesendet werden: </entry>
-  
+
   <!--  GENERAL MENU ENTRIES -->
   <entry key="menu">Menü</entry>
   <entry key="back.to.main.menu">Zurück zum Hauptmenü</entry>
@@ -125,7 +125,7 @@
   <entry key="more.information">Weitere Infos</entry>
   <entry key="show.all">Alle anzeigen</entry>
   <entry key="search">Suche</entry>
-  
+
   <!-- ADMIN -->
   <entry key="settings.for">Einstellungen für {0}</entry>
   <entry key="site.name">Name der Website</entry>
@@ -146,7 +146,7 @@
   <entry key="enable.sending.emails">Senden von Emails aktivieren</entry>
   <entry key="disable.site">Seite offline schalten</entry>
   <entry key="admin.settings.info.text">Hier kannst du Systemeinstellungen vornehmen. Diese gelten für alle Benutzer, bitte vorsichtig anpassen!</entry>
-  
+
   <!-- MODULES -->
   <entry key="service">Dienst</entry>
   <entry key="birthdays">Geburtstage</entry>
@@ -189,7 +189,7 @@
   <entry key="your.next.meetings">Deine nächsten Termine</entry>
   <entry key="pending.booking.requests">Offene Buchungsanfragen</entry>
   <entry key="current.bookings">Aktuelle Buchungen</entry>
-  
+
   <!-- 17.7.2014 -->
   <entry key="reload">Neu laden</entry>
   <entry key="session.expired.please.login">Session ist abgelaufen, bitte neu anmelden!</entry>
@@ -255,8 +255,8 @@
   <entry key="personal.calendar">Persönlicher Kalender</entry>
   <entry key="group.calendar">Gruppenkalender</entry>
   <entry key="first.day.in.week">Erster Tag der Woche (0=Sonntag, 1=Montag, 2=Dienstag, ..)</entry>
-  
-  
+
+
   <entry key="january">Januar</entry>
   <entry key="february">Februar</entry>
   <entry key="march">März</entry>
@@ -269,12 +269,12 @@
   <entry key="october">Oktober</entry>
   <entry key="november">November</entry>
   <entry key="december">Dezember</entry>
-  
+
   <entry key="minutes">Minuten</entry>
   <entry key="hour">Stunde</entry>
   <entry key="hours">Stunden</entry>
   <entry key="day">Tag</entry>
-  
+
   <entry key="start.date">Startzeit</entry>
   <entry key="end.date">Endzeit</entry>
   <entry key="repeats">Wiederholungen</entry>
@@ -307,14 +307,14 @@
   <entry key="show.more.rows">Mehr Zeilen anzeigen</entry>
   <entry key="count.accesses">Anzahl Zugriffe</entry>
   <entry key="cronjob.succeed">Cron-Job ausgeführt!</entry>
-  
+
   <!-- 2014-07-23 -->
   <entry key="query">Abfrage</entry>
   <entry key="report">Bericht</entry>
   <entry key="select.language">Sprache auswählen</entry>
   <entry key="please.select.your.language">Bitte wähle Deine Sprache</entry>
   <entry key="close">Schliessen</entry>
-  
+
   <!-- file upload -->
   <entry key="uploaddircetdory.not.writable">Serverfehler: Das upload Verzeichnis ist nicht beschreibbar.</entry>
   <entry key="no.uploaded.files">Es wurden keine Dateien hochgeladen.</entry>
@@ -322,7 +322,7 @@
   <entry key="file.is.to.large">Die Datei ist zu groß.</entry>
   <entry key="invalid.fileextension.should.be.one.of.this">Die Datei hat eine ungültige Erweiterung. Erlaubt sind folgende: {0}'</entry>
   <entry key="could.not.save.file.upload.canceled.or.server.error">Die hochgeladene Datei konnte nicht gespeichert werden (das Hochladen wurde abgebrochen oder es trat ein Serverfehler auf).</entry>
-  
+
   <!-- churchdb -->
   <entry key="request.to.group">Anfrage zur Gruppe {0}.</entry>
   <entry key="surname">Vorname</entry>
@@ -370,7 +370,7 @@
   <entry key="no.rights.to.add.or.remove.service">Not enough rights in addOrRemoveServiceToEvent: </entry> <!-- needed? -->
   <entry key="surname.name.has.confirmed.service.x.for.date.event">{0} {1} hat den Dienst {2} für die Veranstaltung {4} am {3} zugesagt.</entry>
   <entry key="surname.name.has.confirmed.request">{0} {1} hat eine Anfrage zugesagt</entry>
-  <entry key="surname.name.has.proposed.x.for.service.y.on.date.event">{0} {1} hat für den Dienst {2} für die Veranstaltung {4} am {3} {5} vorgeschlagen.</entry>
+  <entry key="surname.name.has.proposed.x.for.service.y.on.date.event">{0} {1} hat für den Dienst {3} für die Veranstaltung {5} am {4} {2} vorgeschlagen.</entry>
   <entry key="surname.name.has.proposed.someone">{0} {1} hat jemanden vorgeschlagen</entry>
   <entry key="surname.name.has.canceled.service.x.on.date.event">{0} {1} hat den Dienst {2} für die Veranstaltung {4} am {3} abgesagt.</entry>
   <entry key="surname.name.has.canceled.request">{0} {1} hat eine Anfrage abgesagt</entry>
@@ -379,10 +379,10 @@
   <entry key="file.could.not.be.copied.to.x">Datei konnte nicht nach '{0}' kopiert werden!</entry>
   <entry key="pending.service.requests">Offene Dienstanfragen: </entry>
   <entry key="there.are.pending.services">Es sind noch Dienste offen</entry>
-  
+
   <!-- churchcore auth -->
   <entry key="edit.masterdata">Stammdaten editieren</entry>
-  
+
   <!-- churchservice auth -->
   <entry key="view.servicegroup.churchservice.cs_servicegroup">Dienste einzelner Service-Gruppe einsehen</entry>
   <entry key="edit.servicegroup.churchservice.cs_servicegroup">Dienste einzelner Service-Gruppe editieren</entry>
@@ -400,7 +400,7 @@
   <entry key="view.song.churchservice">Songs anschauen und Dateien herunterladen</entry>
   <entry key="edit.song.churchservice">Songs editieren und Dateien hochladen</entry>
   <entry key="no.permisson.to.export.facts">Keine Berechtigung zum Exportieren von Faktendaten (edit facts)</entry>
-  
+
   <!-- churchdb auth -->
   <entry key="view.birthdaylist">Geburtagsliste einsehen</entry>
   <entry key="view.memberliste">Mitgliederliste einsehen</entry>
@@ -424,7 +424,7 @@
   <entry key="view.group">Einzelne Gruppen einsehen - inklusive versteckte Gruppen</entry>
   <entry key="view.group.statistics">Gruppenstatistik aller Gruppen einsehen</entry>
   <entry key="administer.groups">Gruppen administrieren, d.h. erstellen, löschen, etc.</entry>
-  
+
   <!-- churchresource -->
   <entry key="view.x">{0} sehen</entry> <!-- TODO: use it for all similar texts -->
   <entry key="create.own.bookings">Eigene Buchugsanfragen erstellen</entry>
@@ -444,13 +444,13 @@
   <entry key="bookingX.for.resource.on.datetime">'{0}' für {1} ({2}h{3})</entry>
   <entry key="booking.in"> in {0}</entry>
   <entry key="user.was.deleted">Der Benutzer wurde gelöscht.</entry>
-  
+
   <!-- churchwiki -->
   <entry key="view.wiki.category">Einzelne Wiki-Kategorien sehen</entry>
   <entry key="edit.wiki.category">Einzelne Wiki-Kategorien editieren</entry>
   <entry key="edit.help.entry">Editieren eines Hilfeeintrages</entry>
   <entry key="edit.help.entry.subtitle">Hier kann die Hilfe editiert werden.</entry>
-  
+
   <!-- login -->
   <entry key="new.password.requested.for.x.is.y">Für die Email-Adresse {0} wurde ein neues Passwort angefordert: {1}</entry>
   <entry key="email.unknown">Die Email-Adresse ist nicht bekannt!</entry>
@@ -461,10 +461,10 @@
   <entry key="user.succesfully.changed.now.you.work.with.permissions.of.x">Der Benutzer wurde erfolgreich gewechselt! Du arbeitest nun mit der Berechtigung von {0}.</entry>
   <entry key="user.change.to.familyX.failed.session.is.empty">Das Wechseln zu Id {0} hat nicht funktioniert, Session ist leer!</entry>
   <entry key="you.are.logged.in.as.x.click.y.to.continue">Du bist angemeldet als {0}, hier geht es weiter: {1}</entry>
-  
+
   <!-- forms -->
   <entry key="again.please">Nochmal bitte...</entry> <!-- unnötig? -->
-  
+
   <!-- Admin preferences TODO: needed for js -->
   <entry key="add.to.menu">{0} im Menu aufführen</entry>
   <entry key="show.as.button.on.home">{0} auf der Startseite als Button anzeigen</entry>
@@ -495,7 +495,7 @@
   <entry key="use.category.as.folder.for.beamersoftware.export">Die Songkategorie soll beim Export für Beamersoftware als Verzeichnis benutzt werden.</entry>
 
   <!-- Admin preferences churchresource -->
-  
+
   <!-- home -->
   <entry key="home">Startseite</entry>
   <entry key="directory.x.has.to.be.writable">Das Verzeichnis '{0}' muss beschreibbar sein. Bitte passe die Dateiberechtigungen an!</entry>
@@ -508,7 +508,7 @@
   <entry key="show.fax.number">Anzeige der Faxnummer</entry>
   <entry key="show.email">Anzeige der Email-Adresse</entry>
   <entry key="show.complete.birthday.including.year">Anzeige des Geburtsdatums inkl. Geburtsjahr</entry>
-  
+
   <!-- core db -->
   <entry key="previously">vorher</entry>
   <entry key="logout.successful">Logout erfolgreich</entry>
@@ -528,8 +528,8 @@
   <entry key="cancelation.of.event.date">Absage von {0} am {1}</entry>
   <entry key="thank.you.for.feedback">Danke für deine Rückmeldung!</entry>
   <entry key="category">Kalender</entry>
-  
-  
+
+
   <!-- churchcal auth -->
   <entry key="view.single.calendar">Einzelnen Kalender sehen</entry>
   <entry key="edit.single.calendar">In einzelnen Kalendern Termine erstellen, editieren etc.</entry>
@@ -540,5 +540,5 @@
   <entry key="event.not.found">Termin '{0}' nicht gefunden!</entry>
   <entry key="category.does.not.exist">Kategorie nicht vorhanden</entry>
   <entry key="deleting.failed.because.of.remaining.services">Es sind noch Dienste mit dem Kalender verbunden. Kann ihn deshalb nicht entfernen!</entry>
-  
+
 </properties>
