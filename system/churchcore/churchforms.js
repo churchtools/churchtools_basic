@@ -653,18 +653,23 @@ function _renderDateForms(options) {
   var authadditions=(options.authadditions==null?true:options.authadditions);
   var disabled=(options.disabled!=null) && (options.disabled==true);
 
+  var allDayAllowed = (options.allDayAllowed == null || options.allDayAllowed );
+  var repeatsAllowed = (options.repeatsAllowed == null || options.repeatsAllowed );
+
   var minutes = _getMinutesArray();
   var hours = _getHoursArray();
 
   var allDay=churchcore_isAllDayDate(startdate, enddate);
   var rows=new Array();
-  rows.push(form_renderCheckbox({
-    label:" "+_("all.day"),
-    controlgroup:true,
-    cssid:"inputAllDay",
-    checked:allDay,
-    disabled:disabled
-  }));
+  if (allDayAllowed) {
+    rows.push(form_renderCheckbox({
+      label:" "+_("all.day"),
+      controlgroup:true,
+      cssid:"inputAllDay",
+      checked:allDay,
+      disabled:disabled
+    }));
+  }
 
   if (allDay) {
     rows.push(form_renderInput({
@@ -754,153 +759,158 @@ function _renderDateForms(options) {
 
 
   // REPEATS
+  if (!repeatsAllowed)
+    rows.push(form_renderHidden({cssid:"inputRepeat_id", value:"0"}));
+  else {
 
-  rows.push(form_renderSelect({
-    data:masterData.repeat,
-    cssid:"inputRepeat_id",
-    selected:repeat_id,
-    disabled:disabled,
-    type:"big",
-    label:_("repeats")
-  }));
+    rows.push(form_renderSelect({
+      data:masterData.repeat,
+      cssid:"inputRepeat_id",
+      selected:repeat_id,
+      disabled:disabled,
+      type:"big",
+      label:_("repeats")
+    }));
 
-  rows.push('<div id="repeats_select">');
+    rows.push('<div id="repeats_select">');
 
-  if ((repeat_id!=null) && (repeat_id>0)) {
-    if ((repeat_frequence==null) || (repeat_frequence==0))
-      repeat_frequence=1;
+    if ((repeat_id!=null) && (repeat_id>0)) {
+      if ((repeat_frequence==null) || (repeat_frequence==0))
+        repeat_frequence=1;
 
-    if (repeat_id==32) {
-      var r = new Array();
-      var d = dayNames[startdate.getDay()]+" im Monat";
-      r.push(form_prepareDataEntry(1,"Erster "+d,1));
-      r.push(form_prepareDataEntry(2,"Zweiter "+d,2));
-      r.push(form_prepareDataEntry(3,"Dritter "+d,3));
-      r.push(form_prepareDataEntry(4,"Vierter "+d,4));
-      r.push(form_prepareDataEntry(5,"F&uuml;nter "+d+" (falls vorhanden)",5));
-      r.push(form_prepareDataEntry(6,"Letzter "+d,6));
-      if (repeat_option_id==null) {
-        var tester=new Date(startdate);
-        tester.setDate(0);
-        var counter=0;
-        while (tester<startdate) {
-          tester.addDays(1);
-          if (tester.getDay()==startdate.getDay()) counter=counter+1;
+      if (repeat_id==32) {
+        var r = new Array();
+        var d = dayNames[startdate.getDay()]+" im Monat";
+        r.push(form_prepareDataEntry(1,"Erster "+d,1));
+        r.push(form_prepareDataEntry(2,"Zweiter "+d,2));
+        r.push(form_prepareDataEntry(3,"Dritter "+d,3));
+        r.push(form_prepareDataEntry(4,"Vierter "+d,4));
+        r.push(form_prepareDataEntry(5,"F&uuml;nter "+d+" (falls vorhanden)",5));
+        r.push(form_prepareDataEntry(6,"Letzter "+d,6));
+        if (repeat_option_id==null) {
+          var tester=new Date(startdate);
+          tester.setDate(0);
+          var counter=0;
+          while (tester<startdate) {
+            tester.addDays(1);
+            if (tester.getDay()==startdate.getDay()) counter=counter+1;
+          }
+          repeat_option_id=counter;
         }
-        repeat_option_id=counter;
+        rows.push(form_renderSelect({
+          data:r,
+          cssid:"inputRepeatOptionId",
+          disabled:disabled,
+          selected:repeat_option_id,
+          type:"medium",
+          label:""
+        }));
       }
-      rows.push(form_renderSelect({
-        data:r,
-        cssid:"inputRepeatOptionId",
-        disabled:disabled,
-        selected:repeat_option_id,
-        type:"medium",
-        label:""
-      }));
-    }
 
-    if (repeat_id!=999) {
-      rows.push('<div class="control-group"><label class="control-label"></label>');
-      rows.push('<div class="controls">');
-      rows.push('alle&nbsp;');
-      rows.push(form_renderInput({
-        value:repeat_frequence,
-        disabled:disabled,
-        controlgroup:false,
-        cssid:"inputRepeatFrequence",
-        type:"xxmini"}));
-      if (repeat_until==null) {
-        repeat_until=new Date(startdate);
-        repeat_until.addDays(repeat_id*1);
-      }
-    }
-    if (repeat_id==1)
-      rows.push("&nbsp;Tag(e) bis&nbsp;");
-    else if (repeat_id==7)
-      rows.push("&nbsp;Woche(n) bis&nbsp;");
-    else if (repeat_id==31)
-      rows.push("&nbsp;Monat(e) bis&nbsp;");
-    else if (repeat_id==32)
-      rows.push("&nbsp;Monat(e) bis&nbsp;");
-    else if (repeat_id==365)
-      rows.push("&nbsp;Jahr(e) bis&nbsp;");
-    if (repeat_id!=999) {
-      if ((repeat_until==null) || (repeat_until.getFullYear()==1899)) {
-        repeat_until=new Date(startdate);
-        repeat_until.addDays(repeat_id*1);
-      }
-      rows.push(form_renderInput({
-        value:repeat_until.toStringDe(),
-        controlgroup:false,
-        disabled:disabled,
-        cssid:"inputRepeatUntil",
-        type:"small"}));
-      rows.push("<div id=\"dp_repeatuntil\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/></div></div>");
-    }
-
-  // AUSNAHMEN
-
-  if ((repeat_id>0) && (repeat_id!=999)) {
-    rows.push('<div id="repeats_exceptions">');
-    rows.push('<div class="control-group"><label class="control-label">Ausnahmen</label>');
-    rows.push('<div class="controls">');
-    if (exceptions!=null) {
-      each(churchcore_sortData(exceptions, "exception_start_date"), function(k,a) {
-        rows.push('<span class="label label-default" title="id:'+a.id+'">');
-        if (a.except_date_end!=a.except_date_start) {
-          rows.push(a.except_date_start.toDateEn().toStringDe()+"-"+a.except_date_end.toDateEn().toStringDe()+"&nbsp;");
-        }
-        else
-          rows.push(a.except_date_start.toDateEn().toStringDe()+"&nbsp;");
-
-        if ((options.deleteException!=null) && (authexceptions))
-          rows.push(form_renderImage({src:"trashbox.png",width:16, cssid:"delException"+a.id}));
-
-        rows.push('</span>&nbsp; ');
-      });
-    }
-    if ((authexceptions) && (!disabled)) {
-      rows.push(form_renderImage({src:"plus.png", width:20, cssid:"addException"}));
-      rows.push("<div id=\"dp_addexception\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/></div></div>");
-    }
-    rows.push('</div></div>');
-    rows.push('</div>');
-  }
-
-
-    // MANUELLE TERMINE
-
-    if (((repeat_id>0) && (repeat_id!=1)) || (additions!=null)) {
-      rows.push('<div id="repeats_addition">');
-        rows.push('<div class="control-group"><label class="control-label">Weitere Termine</label>');
+      if (repeat_id!=999) {
+        rows.push('<div class="control-group"><label class="control-label"></label>');
         rows.push('<div class="controls">');
-        if (additions!=null) {
-          each(churchcore_sortData(additions, "add_date"), function(k,a) {
-            rows.push('<span class="label label-default" title="id:'+a.id+'">');
-            rows.push(a.add_date.toDateEn().toStringDe()+"&nbsp;");
-
-            var image="recurring_bw.png";
-            if (a.with_repeat_yn==1) image="recurring.png";
-
-            if ((options.addAddition!=null) && (authadditions))
-              rows.push(form_renderImage({src:image,width:16, label:"Soll der manuelle Termin auch wiederholt werden", cssid:"changeAdditionRepeat"+(1-a.with_repeat_yn)+a.id}));
-            else
-              rows.push(form_renderImage({src:image,width:16}));
-
-            if ((options.addAddition!=null) && (authadditions))
-              rows.push(form_renderImage({src:"trashbox.png",width:16, label:"Entferne den manuellen Termin", cssid:"delAddition"+a.id}));
-
-            rows.push('</span>&nbsp; ');
-          });
+        rows.push('alle&nbsp;');
+        rows.push(form_renderInput({
+          value:repeat_frequence,
+          disabled:disabled,
+          controlgroup:false,
+          cssid:"inputRepeatFrequence",
+          type:"xxmini"}));
+        if (repeat_until==null) {
+          repeat_until=new Date(startdate);
+          repeat_until.addDays(repeat_id*1);
         }
-        if ((authadditions) && (!disabled)) {
-          rows.push(form_renderImage({src:"plus.png", width:20, cssid:"addAddition"}));
-          rows.push("<div id=\"dp_addaddition\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/></div></div>");
+      }
+      if (repeat_id==1)
+        rows.push("&nbsp;Tag(e) bis&nbsp;");
+      else if (repeat_id==7)
+        rows.push("&nbsp;Woche(n) bis&nbsp;");
+      else if (repeat_id==31)
+        rows.push("&nbsp;Monat(e) bis&nbsp;");
+      else if (repeat_id==32)
+        rows.push("&nbsp;Monat(e) bis&nbsp;");
+      else if (repeat_id==365)
+        rows.push("&nbsp;Jahr(e) bis&nbsp;");
+      if (repeat_id!=999) {
+        if ((repeat_until==null) || (repeat_until.getFullYear()==1899)) {
+          repeat_until=new Date(startdate);
+          repeat_until.addDays(repeat_id*1);
         }
-        rows.push('</div></div>');
-      rows.push("</div>");
+        rows.push(form_renderInput({
+          value:repeat_until.toStringDe(),
+          controlgroup:false,
+          disabled:disabled,
+          cssid:"inputRepeatUntil",
+          type:"small"}));
+        rows.push("<div id=\"dp_repeatuntil\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/></div></div>");
+      }
+
+    // AUSNAHMEN
+
+    if ((repeat_id>0) && (repeat_id!=999)) {
+      rows.push('<div id="repeats_exceptions">');
+      rows.push('<div class="control-group"><label class="control-label">Ausnahmen</label>');
+      rows.push('<div class="controls">');
+      if (exceptions!=null) {
+        each(churchcore_sortData(exceptions, "exception_start_date"), function(k,a) {
+          rows.push('<span class="label label-default" title="id:'+a.id+'">');
+          if (a.except_date_end!=a.except_date_start) {
+            rows.push(a.except_date_start.toDateEn().toStringDe()+"-"+a.except_date_end.toDateEn().toStringDe()+"&nbsp;");
+          }
+          else
+            rows.push(a.except_date_start.toDateEn().toStringDe()+"&nbsp;");
+
+          if ((options.deleteException!=null) && (authexceptions))
+            rows.push(form_renderImage({src:"trashbox.png",width:16, cssid:"delException"+a.id}));
+
+          rows.push('</span>&nbsp; ');
+        });
+      }
+      if ((authexceptions) && (!disabled)) {
+        rows.push(form_renderImage({src:"plus.png", width:20, cssid:"addException"}));
+        rows.push("<div id=\"dp_addexception\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/></div></div>");
+      }
+      rows.push('</div></div>');
+      rows.push('</div>');
+    }
+
+
+      // MANUELLE TERMINE
+
+      if (((repeat_id>0) && (repeat_id!=1)) || (additions!=null)) {
+        rows.push('<div id="repeats_addition">');
+          rows.push('<div class="control-group"><label class="control-label">Weitere Termine</label>');
+          rows.push('<div class="controls">');
+          if (additions!=null) {
+            each(churchcore_sortData(additions, "add_date"), function(k,a) {
+              rows.push('<span class="label label-default" title="id:'+a.id+'">');
+              rows.push(a.add_date.toDateEn().toStringDe()+"&nbsp;");
+
+              var image="recurring_bw.png";
+              if (a.with_repeat_yn==1) image="recurring.png";
+
+              if ((options.addAddition!=null) && (authadditions))
+                rows.push(form_renderImage({src:image,width:16, label:"Soll der manuelle Termin auch wiederholt werden", cssid:"changeAdditionRepeat"+(1-a.with_repeat_yn)+a.id}));
+              else
+                rows.push(form_renderImage({src:image,width:16}));
+
+              if ((options.addAddition!=null) && (authadditions))
+                rows.push(form_renderImage({src:"trashbox.png",width:16, label:"Entferne den manuellen Termin", cssid:"delAddition"+a.id}));
+
+              rows.push('</span>&nbsp; ');
+            });
+          }
+          if ((authadditions) && (!disabled)) {
+            rows.push(form_renderImage({src:"plus.png", width:20, cssid:"addAddition"}));
+            rows.push("<div id=\"dp_addaddition\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/></div></div>");
+          }
+          rows.push('</div></div>');
+        rows.push("</div>");
+      }
     }
   }
+
   rows.push("</div>");
   return rows.join("");
 }
@@ -1089,49 +1099,6 @@ function form_getDatesInToObject(o) {
   o.repeat_frequence=$("#inputRepeatFrequence").val();
   o.repeat_option_id=$("#inputRepeatOptionId").val();
 }
-
-/**
- * First prove, if event is series. When, then ask if editing whole series or only one single event.
- * @param event
- * @param pos with object clientX and clientY
- * @param func returns isSeries, editSeries, cancel
- */
-function form_editSeriesOrSingleEvent(event, pos, func) {
-  var isSeries = event.repeat_id > 0;
-  if (isSeries) {
-    console.log(event.startdate);
-
-    var parentOffset = $("#cdb_content").offset();
-    var rows = new Array();
-    var id=1;
-    rows.push('<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">');
-    rows.push('<li><a href="#" class="options edit-one">Nur diesen Termin ändern</a></li>');
-    rows.push('<li><a href="#" class="options edit-all">Diesen und zukünftige ändern</a></li>');
-    rows.push('<li><a href="#" class="options cancel">'+_("cancel")+'</a></li>');
-    rows.push('</ul>');
-    $("#mypop").remove();
-    $('#cdb_content').append('<div id="mypop" style="z-index:10000;position:absolute;">'+rows.join("")+'</div>');
-    $("#mypop").offset({ top: pos.clientY, left: pos.clientX});
-    $("#mypop ul.dropdown-menu").css("display", "inline");
-    shortcut.add("esc", function() {
-      $("#mypop").remove();
-    });  
-    $("#mypop a.edit-one").click(function() {
-      $("#mypop").remove();
-      func(isSeries, false);
-    });
-    $("#mypop a.edit-all").click(function() {
-      $("#mypop").remove();
-      func(isSeries, true);
-    });
-    $("#mypop a.cancel").click(function() {
-      $("#mypop").remove();
-      func(isSeries, null, true);
-    });
-  }
-  else func(false, null);
-}
-
 
 // smallmenu=false / true / null(gar kein menu!)
 function form_implantWysiwygEditor(id, smallmenu, inline) {
@@ -1982,6 +1949,48 @@ function form_renderHelpLink(link, invert) {
     return '<a href="http://intern.churchtools.de?q=help&doc='+link+'" target="_clean"><i class="icon-question-sign icon-white"></i></a>';
 }
 
+
+$.widget("ct.popupmenu", {
+  options: {
+    entries: ["Abbruch"],
+    pos: {clientX: 10, clientY: 10 },
+    click: function(id) {},
+    remove: function(id) {}
+  },
+
+  _create: function() {
+  },
+
+  show: function() {
+    var t = this;
+    var rows = new Array();
+    rows.push('<ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">');
+    each(t.options.entries, function(k,a) {
+      rows.push('<li><a href="#" class="options" data-id="'+k+'">' + a + '</a></li>');
+    });
+    rows.push('</ul>');
+    this.element.html('<div id="mypop" style="z-index:10000;position:absolute;">'+rows.join("")+'</div>');
+    this.element.data("popupmenu", true);
+    this.element.offset({ top: t.options.pos.clientY, left: t.options.pos.clientX});
+    this.element.find("ul.dropdown-menu").css("display", "inline");
+    shortcut.add("esc", function() {
+      t.hide();
+    });
+    this.element.find("a.options").click(function() {
+      t.options.click($(this).attr("data-id"));
+      t.hide();
+    });
+  },
+
+  hide: function() {
+    this.options.remove();
+    this.element.html("");
+    this.element.data("popupmenu", null);
+  }
+});
+
+
+
 $.widget("ct.colorcheckbox", {
   options: {
     color: "blue",
@@ -2000,15 +2009,15 @@ $.widget("ct.colorcheckbox", {
     var t = this;
     t._renderCheckbox();
   },
-  
+
   _renderCheckbox : function() {
     var t = this;
     var rows = new Array();
     if (t.options.checked) {
-      rows.push(form_renderColorWithImage(t.options.color, "check.png")+"&nbsp; ");      
+      rows.push(form_renderColorWithImage(t.options.color, "check.png")+"&nbsp; ");
     }
     else {
-      rows.push(form_renderColor(t.options.color)+"&nbsp; ");            
+      rows.push(form_renderColor(t.options.color)+"&nbsp; ");
     }
     if (t.options.label!=null) {
       rows.push(t.options.label);
@@ -2119,7 +2128,7 @@ $.widget("ct.editable", {
         rows.push('</span>');
         rows.push('</div>');
         var elem=editable.html(rows.join("")).find(t.options.type);
-        
+
         // Limit max character to given maxlength
         elem.keyup(function(){
           var max = parseInt($(this).attr('maxlength'));
@@ -2155,7 +2164,7 @@ $.widget("ct.editable", {
 
         // Enter
         if (e.keyCode == 13) {
-          if (t.options.type!="textarea") 
+          if (t.options.type!="textarea")
             t.success();
         }
         // Escape
@@ -2249,7 +2258,7 @@ $.widget("ct.tooltips", {
   },
   _clearShowTimer: function() {
     if (this._showTimer!=null) {
-      window.clearTimeout(this._showTimer); 
+      window.clearTimeout(this._showTimer);
       this._showTimer=null;
     }
   },
@@ -2274,11 +2283,11 @@ $.widget("ct.tooltips", {
       return;
     }
     t._visible=true;
-    
+
     var o = {
-        html:true,  
+        html:true,
         placement:t.options.placement, trigger:"manual", animation:true};
-    
+
     if (content instanceof(Array)) {
       o.title = content[1];
       o.content = content[0];
@@ -2287,7 +2296,7 @@ $.widget("ct.tooltips", {
       o.content = content[0];
     if (t.options.container) o.container=t.options.container;
     t.element.popover(o).popover("show");
-    
+
     // Add additional Hover becaus container ist not t.element.
     if (t.options.container!=null) {
       $("div.popover").hover(function() {
@@ -2478,4 +2487,3 @@ function form_editNotification (domain_type, domain_id) {
     return false;
   });
 };
-

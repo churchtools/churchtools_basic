@@ -1,5 +1,5 @@
 
-// CalSourceType ist das Grund-Object. Es ist pro Quell-System einmal zu vererben. 
+// CalSourceType ist das Grund-Object. Es ist pro Quell-System einmal zu vererben.
 // Innerhalb des Objektes werden dann die Events gehalten separiert nach Kategorie
 function CalSourceType() {
   var t=this;
@@ -38,29 +38,29 @@ CalSourceType.prototype.needData = function(category_id, refresh) {
 };
 
 CalSourceType.prototype.getName = function(category_id) {
-  return "Unknown["+category_id+"]";  
+  return "Unknown["+category_id+"]";
 };
 
 CalSourceType.prototype.triggerCollectTimer = function() {
   var t=this;
   if (t.timer!=null)
     window.clearTimeout(t.timer);
-  t.timer=window.setTimeout(function() {    
+  t.timer=window.setTimeout(function() {
     t.collectData();
     t.timer=null;
-  }, 100);  
+  }, 100);
 };
 
 CalSourceType.prototype.hideData = function(category_id) {
   var t=this;
   t.prepareCategory(category_id);
   t.data[category_id].hide=true;
-  if (t.data[category_id].current_CalEvents!=null) 
+  if (t.data[category_id].current_CalEvents!=null)
     send2Calendar("removeEventSource", t.data[category_id].current_CalEvents);
 };
 
 /**
- * 
+ *
  * @param category_id entweder eine konkrete oder null, dann werden all refreshed
  * @param needRefresh default=false;
  */
@@ -92,7 +92,7 @@ CalSourceType.prototype.collectData = function() {
   });
   if (ids.length>0) {
     t.jsonCall(ids);
-  }      
+  }
 };
 
 CalSourceType.prototype.jsonCall = function(ids) {
@@ -104,8 +104,8 @@ CalSourceType.prototype.showEventsOnCal = function(category_id) {
 function _getEventsFromDate(cs_events, start, end) {
   var go = start.format(DATEFORMAT_EN).toDateEn(false);
   var e = new Date();
-  if (end==null) { 
-    e=new Date(); e.addDays(1000); 
+  if (end==null) {
+    e=new Date(); e.addDays(1000);
   }
   else e = end.format(DATEFORMAT_EN).toDateEn(false);
   var arr = new Array();
@@ -122,13 +122,13 @@ function _getEventsFromDate(cs_events, start, end) {
 function _addEventsToDateIndex(cs_events, o) {
   var year=cs_events[o.start.getFullYear()];
   if (year==null) year=new Array();
-  
+
   var month=year[o.start.getMonth()+1];
   if (month==null) month=new Array();
-  
+
   var day=month[o.start.getDate()];
   if (day==null) day=new Array();
-  
+
   day.push(o);
   month[o.start.getDate()]=day;
   year[o.start.getMonth()+1]=month;
@@ -136,7 +136,7 @@ function _addEventsToDateIndex(cs_events, o) {
 }
 
 // ---------------------------------------------------------------------------------------------------------
-// Der CalCC-Type l�dt die Daten aus der CC_CAL-Tabelle 
+// Der CalCC-Type l�dt die Daten aus der CC_CAL-Tabelle
 //---------------------------------------------------------------------------------------------------------
 function CalCCType() {
   CalSourceType.call(this);
@@ -159,12 +159,12 @@ function mapEvents(allEvents) {
           if ((a.link!=null) && (a.link!="")) o.link=a.link;
           if ((a.ort!=null) && (a.ort!='')) o.title=o.title+' <span class="event-location">'+a.ort+'</span>';
           // Now get the service texts out of the events
-          if (a.events!=null) {
-            each(a.events, function(i,e) {
+          if (a.csevents!=null) {
+            each(a.csevents, function(i,e) {
+              if (typeof(e.startdate)=="string") e.startdate = e.startdate.toDateEn(true);
               if ((e.service_texts!=null) &&
-                   (e.startdate.toDateEn(false).toStringDe(false)==d.startdate.toStringDe(false))) {
+                   (e.startdate.withoutTime().getTime()==d.startdate.withoutTime().getTime())) {
                 o.title=o.title+' <span class="event-servicetext">'+e.service_texts.join(", ")+'</span>';
-                return false;
               }
             });
           }
@@ -181,9 +181,9 @@ function mapEvents(allEvents) {
           if (churchcore_isAllDayDate(o.start, o.end)) {
             o.allDay=churchcore_isAllDayDate(o.start, o.end);
             // Add 1 day, because fullCalendar 2.0 works with exclusive end date!
-            o.end.addDays(1);            
+            o.end.addDays(1);
           }
-          
+
           if ((a.category_id!=null) && (masterData.category[a.category_id].color!=null))
             o.color=masterData.category[a.category_id].color;
 
@@ -195,23 +195,23 @@ function mapEvents(allEvents) {
   return cs_events;
 }
 
-
 CalCCType.prototype.jsonCall = function(ids) {
   var t=this;
   churchInterface.jsendRead({func:"getCalPerCategory", category_ids:ids}, function(ok, cats) {
     if (ok) {
       if (cats!=null) {
         each(cats, function(k,events) {
+          // Sometimes JSON makes an array when no item is in there.
+          if (events instanceof Array && events.length==0) events = new Object();
           t.data[k].events=events;
           // Important conversations
           each(t.data[k].events, function(i,a) {
             a.startdate=a.startdate.toDateEn(true);
             a.enddate=a.enddate.toDateEn(true);
             if (a.repeat_until!=null)
-              a.repeat_until=a.repeat_until.toDateEn(false);        
+              a.repeat_until=a.repeat_until.toDateEn(false);
           });
-          
-          t.data[k].status="loaded";          
+          t.data[k].status="loaded";
           if (!t.data[k].hide) {
             t.showEventsOnCal(k);
           }
@@ -219,29 +219,28 @@ CalCCType.prototype.jsonCall = function(ids) {
       }
     }
     else alert("Fehler: "+status);
-  });      
+  });
 };
 
 CalCCType.prototype.showEventsOnCal = function(k) {
   var t = this;
   var cs_events = mapEvents(t.data[k].events, true);
-  
-  t.data[k].current_CalEvents={container:t, category_id:k, color:"black", editable:categoryEditable(k), 
+  t.data[k].current_CalEvents={container:t, category_id:k, color:"black", editable:categoryEditable(k),
       events:function (start, end, timezone, callback) {
         callback(_getEventsFromDate(cs_events, start, end));
       }
-  };            
-  send2Calendar("addEventSource",t.data[k].current_CalEvents);  
+  };
+  send2Calendar("addEventSource",t.data[k].current_CalEvents);
 };
 
 
 CalCCType.prototype.getName = function(category_id) {
-  return masterData.category[category_id].bezeichnung;  
+  return masterData.category[category_id].bezeichnung;
 };
 
 
 //---------------------------------------------------------------------------------------------------------
-//Der CalBirthday-Type l�dt die Daten aus der CS_EVENT-Tabelle 
+//Der CalBirthday-Type l�dt die Daten aus der CS_EVENT-Tabelle
 //---------------------------------------------------------------------------------------------------------
 function CalBirthdayType() {
 CalSourceType.call(this);
@@ -261,10 +260,10 @@ CalBirthdayType.prototype.jsonCall = function(ids) {
       }
     }
     else alert("Fehler: "+status);
-  });      
+  });
 };
 CalBirthdayType.prototype.getName = function(category_id) {
-  return "Geburtstage (Gruppe)";  
+  return "Geburtstage (Gruppe)";
 };
 CalBirthdayType.prototype.showEventsOnCal = function(id) {
   var t=this;
@@ -276,7 +275,7 @@ CalBirthdayType.prototype.showEventsOnCal = function(id) {
         var o=Object();
         o.title= a.name;
         o.allDay= true;
-        var b = a.birthday.toDateEn();          
+        var b = a.birthday.toDateEn();
         b.setYear(d.getFullYear()+i);
         o.start= b;
         _addEventsToDateIndex(cs_events, o);
@@ -287,8 +286,8 @@ CalBirthdayType.prototype.showEventsOnCal = function(id) {
       events:function (start, end, timezone, callback) {
         callback(_getEventsFromDate(cs_events, start, end));
       }
-  };            
-  send2Calendar("addEventSource",t.data[id].current_CalEvents);  
+  };
+  send2Calendar("addEventSource",t.data[id].current_CalEvents);
 };
 
 //---------------------------------------------------------------------------------------------------------
@@ -313,16 +312,16 @@ CalAllBirthdayType.prototype.jsonCall = function(ids) {
       }
     }
     else alert("Fehler: "+status);
-  });      
+  });
 };
 CalAllBirthdayType.prototype.getName = function(category_id) {
-  return "Geburtstage (Alle)";  
+  return "Geburtstage (Alle)";
 };
 
 
 
 //---------------------------------------------------------------------------------------------------------
-//Der CalResource-Type l�dt die Daten aus der cs_resource-Tabelle 
+//Der CalResource-Type l�dt die Daten aus der cs_resource-Tabelle
 //---------------------------------------------------------------------------------------------------------
 function CalMyServicesType() {
   CalSourceType.call(this);
@@ -340,10 +339,10 @@ CalMyServicesType.prototype.jsonCall = function(id) {
        t.data[id].status="loaded";
        if (t.data[id].status!="hide") {
          t.showEventsOnCal(id);
-       }       
+       }
      }
      else alert("Fehler: "+status);
-  });      
+  });
 };
 
 
@@ -353,14 +352,14 @@ CalMyServicesType.prototype.showEventsOnCal = function(id) {
   each(t.data[id].events, function(i,a) {
     var o=Object();
     if (a.zugesagt_yn==1)
-      o.title=a.dienst+" ("+a.servicegroup+")"; 
-    else       
-      o.title="Anfrage: "+a.dienst+" ("+a.servicegroup+")"; 
+      o.title=a.dienst+" ("+a.servicegroup+")";
+    else
+      o.title="Anfrage: "+a.dienst+" ("+a.servicegroup+")";
     o.title=o.title+" "+a.event;
     o.start=a.startdate.toDateEn(true);
     o.end=a.enddate.toDateEn(true);
     o.allDay= false;
-    _addEventsToDateIndex(cr, o);         
+    _addEventsToDateIndex(cr, o);
   });
   if (t.data[id].status!="hide") {
     t.data[id].status="loaded";
@@ -368,19 +367,19 @@ CalMyServicesType.prototype.showEventsOnCal = function(id) {
         events:function (start, end, timezone, callback) {
           callback(_getEventsFromDate(cr, start, end));
         }
-    };            
+    };
     send2Calendar("addEventSource",t.data[id].current_CalEvents);
   }
 };
 
 CalMyServicesType.prototype.getName = function(category_id) {
-  return "Meine Dienste";  
+  return "Meine Dienste";
 };
 
 
 
 //---------------------------------------------------------------------------------------------------------
-//Der CalAbsent-Type l�dt die Daten aus der cs_Absent-Tabelle 
+//Der CalAbsent-Type l�dt die Daten aus der cs_Absent-Tabelle
 //Es werden nur die Abwesenheiten geholt, f�r die auch aktivierte Kalender habe
 //---------------------------------------------------------------------------------------------------------
 function CalAbsentsType() {
@@ -399,7 +398,7 @@ CalAbsentsType.prototype.jsonCall = function(id) {
          t.data[id].status="loaded";
          if (t.data[id].status!="hide") {
            t.showEventsOnCal(id);
-         }         
+         }
        }
        else alert("Fehler: "+status);
     });
@@ -419,7 +418,7 @@ CalAbsentsType.prototype.showEventsOnCal = function(id) {
         o.color=masterData.absent_reason[a.reason_id].color;
       o.bezeichnung=masterData.absent_reason[a.reason_id].bezeichnung;
     }
-    if ((o.start.getHours()==0) && (o.end.getHours()==0)) 
+    if ((o.start.getHours()==0) && (o.end.getHours()==0))
       o.allDay=true;
     else
       o.allDay= false;
@@ -427,23 +426,23 @@ CalAbsentsType.prototype.showEventsOnCal = function(id) {
   });
   if (t.data[id].status!="hide") {
     t.data[id].status="loaded";
-    t.data[id].current_CalEvents={container:t, category_id:id, color:"lightgreen", editable:false, 
+    t.data[id].current_CalEvents={container:t, category_id:id, color:"lightgreen", editable:false,
         events:function (start, end, timezone, callback) {
           callback(_getEventsFromDate(cr, start, end));
         }
-    };            
+    };
     send2Calendar("addEventSource",t.data[id].current_CalEvents);
   }
 };
 
-  
+
 CalAbsentsType.prototype.getName = function(category_id) {
-return "Abwesenheiten ";  
+return "Abwesenheiten ";
 };
 
 
 //---------------------------------------------------------------------------------------------------------
-//Der CalMyAbsent-Type l�dt die Daten aus der cs_Absent-Tabelle 
+//Der CalMyAbsent-Type l�dt die Daten aus der cs_Absent-Tabelle
 //Es werden nur die Abwesenheiten geholt, f�r die auch aktivierte Kalender habe
 //---------------------------------------------------------------------------------------------------------
 function CalMyAbsentsType() {
@@ -461,21 +460,21 @@ CalMyAbsentsType.prototype.jsonCall = function(id) {
       t.data[id].status="loaded";
       if (t.data[id].status!="hide") {
         t.showEventsOnCal(id);
-      }         
+      }
     }
     else alert("Fehler: "+status);
  });
 };
 
 CalMyAbsentsType.prototype.getName = function(category_id) {
-  return "Meine Abwesenheiten ";  
+  return "Meine Abwesenheiten ";
 };
 
 
 // NEXT IS CURRENTY NOT IN USE BUT PRESERVE FOR LATER PERHAPS
 
 //---------------------------------------------------------------------------------------------------------
-//Der CalResource-Type l�dt die Daten aus der cs_resource-Tabelle 
+//Der CalResource-Type l�dt die Daten aus der cs_resource-Tabelle
 //---------------------------------------------------------------------------------------------------------
 /*function CalResourceType() {
 CalSourceType.call(this);
@@ -497,7 +496,7 @@ churchInterface.jsendRead({func:"getResource", resource_id:ids}, function(ok, js
        a.startdate=a.startdate.toDateEn(true);
        a.enddate=a.enddate.toDateEn(true);
        if (a.repeat_until!=null)
-         a.repeat_until=a.repeat_until.toDateEn(false);    
+         a.repeat_until=a.repeat_until.toDateEn(false);
        var diff=a.enddate.getTime()-a.startdate.getTime();
        each(churchcore_getAllDatesWithRepeats(a), function(k,d) {
          var o=Object();
@@ -510,22 +509,22 @@ churchInterface.jsendRead({func:"getResource", resource_id:ids}, function(ok, js
          o.start= d.startdate;
          o.end = d.enddate;
          o.allDay= false;
-         cr.push(o);     
+         cr.push(o);
        });
-     });      
+     });
      if (t.data[k].status!="hide") {
        t.data[k].status="loaded";
-       t.data[k].current_CalEvents={container:t, category_id:k, events:cr, color:"green", editable:false};            
+       t.data[k].current_CalEvents={container:t, category_id:k, events:cr, color:"green", editable:false};
        send2Calendar("addEventSource",t.data[k].current_CalEvents);
      }
    });
  }
  else alert("Fehler: "+status);
-});      
+});
 };
 
 CalResourceType.prototype.getName = function(category_id) {
-return masterData.resources[category_id].bezeichnung;  
+return masterData.resources[category_id].bezeichnung;
 };
 
 */

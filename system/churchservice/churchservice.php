@@ -26,10 +26,10 @@ function ical_main() {
 function churchservice__ajax() {
   if (!user_access("view","churchservice")) {
     addInfoMessage(t("no.permission.for", $config["churchservice_name"]));
-    return " "; // which meaning has this?
+    return " "; // Otherwise it will not be displayed
   }
   include_once(CHURCHSERVICE.'/churchservice_ajax.php');
-  call_user_func("churchservice_ajax"); // why user_func?
+  churchservice_ajax();
 }
 
 /**
@@ -48,23 +48,23 @@ function churchservice_getAuth() {
   $cc_auth = addAuth($cc_auth, 302, 'view history', 'churchservice', null, t('view.history.churchservice'), 1);
   $cc_auth = addAuth($cc_auth, 303, 'edit events', 'churchservice', null, t('edit.events.churchservice'), 1);
   $cc_auth = addAuth($cc_auth, 309, 'edit template', 'churchservice', null, t('edit.template.churchservice'), 1);
-  
+
   $cc_auth = addAuth($cc_auth, 307, 'manage absent', 'churchservice', null, t('manage.absent.churchservice'), 1);
-  
+
   $cc_auth = addAuth($cc_auth, 321, 'view facts', 'churchservice', null, t('view.facts.churchservice'), 1);
   $cc_auth = addAuth($cc_auth, 308, 'edit facts', 'churchservice', null, t('edit.facts.churchservice'), 1);
   $cc_auth = addAuth($cc_auth, 322, 'export facts', 'churchservice', null, t('export.facts.churchservice'), 1);
-  
+
   $cc_auth = addAuth($cc_auth, 331, 'view agenda', 'churchservice', 'cc_calcategory', t('view.agenda.churchservice.cc_calcategory'), 1);
   $cc_auth = addAuth($cc_auth, 332, 'edit agenda', 'churchservice', 'cc_calcategory', t('edit.agenda.churchservice.cc_calcategory'), 1);
   $cc_auth = addAuth($cc_auth, 333, 'edit agenda templates', 'churchservice', 'cc_calcategory', t('edit.agenda.templates.churchservice.cc_calcategory'), 1);
-  
+
   $cc_auth = addAuth($cc_auth, 313, 'view songcategory', 'churchservice', 'cs_songcategory', t('view.songcategory.churchservice.cs_songcategory'), 1);
   $cc_auth = addAuth($cc_auth, 311, 'view song', 'churchservice', null, t('view.song.churchservice'), 1);
   $cc_auth = addAuth($cc_auth, 312, 'edit song', 'churchservice', null,t('edit.song.churchservice') , 1);
-  
+
   $cc_auth = addAuth($cc_auth, 399, 'edit masterdata', 'churchservice', null, t('edit.masterdata'), 1);
-  
+
   return $cc_auth;
 }
 
@@ -74,7 +74,7 @@ function churchservice_getAuth() {
  */
 function churchservice_getAdminForm() {
   global $config;
-  
+
   $model = new CTModuleForm("churchservice");
   $model->addField("churchservice_entries_last_days", "", "INPUT_REQUIRED", t('data.from.x.how.many.days.in.the.past.to.load', 'ChurchService'))
     ->setValue($config["churchservice_entries_last_days"]);
@@ -82,10 +82,10 @@ function churchservice_getAdminForm() {
     ->setValue($config["churchservice_openservice_rememberdays"]);
   $model->addField("churchservice_reminderhours", "", "INPUT_REQUIRED", t('how.many.hours.before.service.send.remember.email'))
     ->setValue($config["churchservice_reminderhours"]);
-  
+
   $model->addField("churchservice_songwithcategoryasdir", "", "CHECKBOX", t('use.category.as.folder.for.beamersoftware.export'))
     ->setValue(getConf("churchservice_songwithcategoryasdir", "0"));
-  
+
   return $model;
 }
 
@@ -100,10 +100,10 @@ function churchservice__exportfacts() {
   }
   drupal_add_http_header('Content-type', 'application/csv; charset=ISO-8859-1; encoding=ISO-8859-1', true);
   drupal_add_http_header('Content-Disposition', 'attachment; filename="churchservice_fact_export.csv"', true);
-  
+
   $events = churchcore_getTableData("cs_event", "startdate");
   $cond = ($d = getVar("date")) ? " AND e.startdate>='$d'" : '';
-  
+
   $db = db_query("SELECT e.*, c.bezeichnung, c.category_id
                   FROM {cs_event} e, {cc_cal} c
                   WHERE e.cc_cal_id=c.id $cond
@@ -112,16 +112,16 @@ function churchservice__exportfacts() {
   foreach ($db as $e) {
     $events[$e->id] = $e;
   }
-  
+
   $category = churchcore_getTableData("cc_calcategory");
   $facts = churchcore_getTableData("cs_fact", "sortkey");
   $res = db_query("SELECT * FROM {cs_event_fact}");
-  
+
   $result = array ();
   foreach ($res as $d) {
     $result[$d->event_id]->facts[$d->fact_id] = $d->value;
   }
-  
+
   echo '"Datum";"Bezeichnung";"Notizen";"Kategorie";';
   foreach ($facts as $fact) {
     echo mb_convert_encoding('"' . $fact->bezeichnung . '";', 'ISO-8859-1', 'UTF-8');
@@ -182,18 +182,18 @@ function churchservice__printview() {
 
   drupal_add_js(createI18nFile("churchcore"));
   drupal_add_js(createI18nFile("churchservice"));
-  
+
   $content = "";
   // ids for direct links
   if ($id = getVar("id")) $content .= "<input type='hidden' id='externevent_id' value='$id'/>";
   if ($sId = getVar("service_id")) $content .= "<input type='hidden' id='service_id' value='$sId'/>";
   if ($date = getVar("date")) $content .= "<input type='hidden' id='currentdate' value='$date'/>";
   if ($filter = getVar("meineFilter")) $content .= "<input type='hidden' id='externmeineFilter' value='$filter'/>";
-  
+
   $embedded = true;
-  
+
   $content .= "<input type='hidden' id='printview' value='true'/>
-      
+
 <div class='row-fluid'>
   <div class='span12'>
     <div id='cdb_group'></div>
@@ -201,7 +201,7 @@ function churchservice__printview() {
   </div>
 </div>
 ";
-  
+
   return $content;
 }
 
@@ -211,23 +211,24 @@ function churchservice__printview() {
  */
 function churchservice_main() {
   global $version, $files_dir, $config;
-  
+
   drupal_add_css(ASSETS.'/fileuploader/fileuploader.css');
-  
+
   drupal_add_js(BOOTSTRAP.'/js/bootstrap-multiselect.js');
   drupal_add_js(ASSETS.'/fileuploader/fileuploader.js');
   drupal_add_js(ASSETS.'/js/jquery.history.js');
-  
+
   drupal_add_js(ASSETS.'/mediaelements/mediaelement-and-player.min.js');
   drupal_add_css(ASSETS.'/mediaelements/mediaelementplayer.css');
-    
+
   drupal_add_js(ASSETS.'/ckeditor/ckeditor.js');
   drupal_add_js(ASSETS.'/ckeditor/lang/de.js');
-    
+
+  drupal_add_js(CHURCHCORE . '/cc_events.js');
   drupal_add_js(CHURCHCORE .'/cc_abstractview.js');
   drupal_add_js(CHURCHCORE .'/cc_standardview.js');
   drupal_add_js(CHURCHCORE .'/cc_maintainstandardview.js');
-  
+
   drupal_add_js(CHURCHSERVICE .'/cs_loadandmap.js');
   drupal_add_js(CHURCHSERVICE .'/cs_settingsview.js');
   drupal_add_js(CHURCHSERVICE .'/cs_maintainview.js');
@@ -238,15 +239,15 @@ function churchservice_main() {
   drupal_add_js(CHURCHSERVICE .'/cs_agendaview.js');
   drupal_add_js(CHURCHSERVICE .'/cs_songview.js');
   drupal_add_js(CHURCHSERVICE .'/cs_main.js');
-    
+
   drupal_add_js(createI18nFile("churchcore"));
   drupal_add_js(createI18nFile("churchservice"));
-  
+
   $content="";
   // ids for direct links
   if ($id = getVar("id")) $content .= "<input type='hidden' id='externevent_id' value='$id'/>";
   if ($sId = getVar("service_id")) $content .= "<input type='hidden' id='service_id' value='$sId'/>";
-    
+
   $content .= "
 <div class='row-fluid'>
   <div class='span3'>
@@ -271,7 +272,7 @@ function churchservice_main() {
  */
 function churchservice_getUserOpenServices() {
   global $user;
-  
+
   if ($id = getVar("eventservice_id")) {
     include_once('./'. CHURCHSERVICE .'/churchservice_ajax.php');
     $reason = getVar("reason", null);
@@ -282,9 +283,9 @@ function churchservice_getUserOpenServices() {
     }
     addInfoMessage(t('"thank.you.for.feedback"'));
   }
-  
+
   include_once('./'. CHURCHDB .'/churchdb_db.php');
-  
+
   $txt =  $txt1 = $txt2 = "";
 //  $pid = $user->id; //not used
   $res = db_query("
@@ -297,23 +298,23 @@ function churchservice_getUserOpenServices() {
       AND es.service_id=s.id AND sg.id=s.servicegroup_id
     ORDER BY datum",
     array(':user_id' => $user->id));
-  
+
   $nr = 0; //TODO: not needed?
-  
+
   foreach ($res as $arr) {
     $nr++;
     $txt2 .= "<div class='service-request' style='display:none;' data-id='$arr->eventservice_id'
                 data-modified-user='$arr->modifieduser'";
-    
+
     if ($arr->allowtonotebyconfirmation_yn == 1) {
       $txt2 .= " data-comment-confirm='$arr->allowtonotebyconfirmation_yn'";
     }
     if (user_access('view', 'churchdb')) $txt2 .= " data-modified-pid='$arr->modified_pid'";
     $txt2 .= ">";
-    
+
     $txt2 .= "<a href='?q=churchservice&id=$arr->event_id'>$arr->datum - $arr->event</a>:
               <a href='?q=churchservice&id=$arr->event_id'><b>$arr->service</b></a> ($arr->servicegroup)" . NL;
-    
+
     $files = churchcore_getFilesAsDomainIdArr("service", $arr->event_id);
     $txt .= '<span class="pull-right">';
     if (isset($files) && isset($files[$arr->event_id])) {
@@ -332,7 +333,7 @@ function churchservice_getUserOpenServices() {
   }
   if ($txt2) $txt .= $txt1 . $txt2 . '
       <p align="right"><a href="#" style="display:none" class="service-request-show-all">' . t("show.all") . '</a>';
-  
+
   return $txt;
 }
 
@@ -347,7 +348,7 @@ function churchservice_getCurrentEvents() {
 // add this selection to sql to simplify php
   $groupWhere = ' AND ('. implode(' IN (cdb_gruppen_ids) OR ', $mygroups). ' IN (cdb_gruppen_ids))';
   $txt = "";
-  
+
   $events = db_query("SELECT e.id, DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') datum, bezeichnung
                       FROM {cs_event} e, {cc_cal} cal
                       WHERE e.valid_yn=1 AND cal.id=e.cc_cal_id AND DATE_ADD(e.startdate, INTERVAL 3 hour) > NOW()
@@ -356,9 +357,9 @@ function churchservice_getCurrentEvents() {
   foreach ($events as $event) {
     $firstrow=true;
     $ess=db_query("SELECT es.name, s.cdb_gruppen_ids, s.bezeichnung, es.zugesagt_yn
-                  FROM {cs_eventservice} es, {cs_service} s, {cs_servicegroup} sg 
-                  WHERE es.valid_yn=1 and es.service_id=s.id and s.servicegroup_id=sg.id and  
-                        es.event_id=$event->id 
+                  FROM {cs_eventservice} es, {cs_service} s, {cs_servicegroup} sg
+                  WHERE es.valid_yn=1 and es.service_id=s.id and s.servicegroup_id=sg.id and
+                        es.event_id=$event->id
                   ORDER BY sg.sortkey, s.sortkey");
     foreach($ess as $es) {
       $istdrin = false;
@@ -366,7 +367,7 @@ function churchservice_getCurrentEvents() {
       foreach ($service_groups as $service_group) {
         if (in_array($service_group, $mygroups))
           $istdrin = true;
-      }   
+      }
       if ($istdrin) {
         if ($firstrow) {
           $txt .= '<li><a href="?q=churchservice&id='.$event->id.'">'."$event->datum - $event->bezeichnung</a><p>";
@@ -379,16 +380,16 @@ function churchservice_getCurrentEvents() {
         else {
           $txt .= '<font style="color:red">';
           if ($es->name != null) $txt .= $es->name;
-          $txt .= "?";  
+          $txt .= "?";
           $txt .= '</font>';
         }
         $txt .= "</small><br/>";
       }
     }
-    
+
   }
   if ($txt) $txt = "<ul>$txt</ul>";
-  
+
   return $txt;
 }
 
@@ -399,9 +400,9 @@ function churchservice_getCurrentEvents() {
  */
 function churchservice_getUserNextServices($short = true) {
   global $user;
-  
+
   include_once ('./' . CHURCHDB . '/churchdb_db.php');
-  
+
   $pid = $user->id;
   $res = db_query("
     SELECT e.id event_id, cal.bezeichnung AS event, DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') AS datum,
@@ -411,7 +412,7 @@ function churchservice_getUserNextServices($short = true) {
     WHERE cal.id=e.cc_Cal_id AND e.valid_yn=1 AND cdb_person_id=:pid AND e.startdate>=current_date AND zugesagt_yn=1
       AND es.valid_yn=1 AND es.event_id=e.id AND es.service_id=s.id AND sg.id=s.servicegroup_id order by e.startdate",
     array(':pid' => $pid));
-  
+
   $nr = 0;
   $txt = "";
   foreach ($res as $arr) {
@@ -468,13 +469,13 @@ function churchservice_getFactsOfLastDays() {
  */
 function churchservice_getAbsents($year = null) {
   $txt = '';
-  
+
   if (user_access("view", "churchdb")) {
     $user = $_SESSION["user"];
     include_once (CHURCHDB . '/churchdb_db.php');
     $groups = churchdb_getMyGroups($user->id, true, true);
     $allPersonIds = churchdb_getAllPeopleIdsFromGroups($groups);
-    
+
     if (count($groups) > 0 && count($allPersonIds) > 0) {
       $sql = "SELECT p.id p_id, p.name, p.vorname, DATE_FORMAT(a.startdate, '%d.%m.') AS startdate_short,
                 DATE_FORMAT(a.startdate, '%d.%m.%Y') AS startdate, DATE_FORMAT(a.enddate, '%d.%m.%Y') AS enddate,
@@ -486,7 +487,7 @@ function churchservice_getAbsents($year = null) {
       else $sql .= "AND (DATE_FORMAT(a.startdate, '%Y')=$year OR DATE_FORMAT(a.enddate, '%Y')=$year)";
       $sql .= "
               ORDER BY a.startdate";
-      
+
       $db = db_query($sql);
       $people = array ();
       foreach ($db as $a) {
@@ -571,10 +572,10 @@ function churchservice_blocks() {
 function churchservice_openservice_rememberdays() {
   global $base_url;
   include_once ("churchservice_db.php");
-  
+
   $delay = (int) getConf('churchservice_openservice_rememberdays');
   $dt = new datetime();
-  
+
   // get ONE eventService needed to send (not yet send or still pending).
   // from persons having ?email ??und auch gemappt wurde??.
   $sql = "SELECT es.id, p.id p_id, p.vorname, p.email, es.modified_pid,
@@ -586,7 +587,7 @@ function churchservice_openservice_rememberdays() {
             AND ((es.mailsenddate IS NULL) OR (DATEDIFF(current_date,es.mailsenddate)>=$delay))
             AND p.email!='' AND p.id=es.cdb_person_id LIMIT 1";
   $res = db_query($sql)->fetch();
-  
+
   $sql2 = "SELECT es.id id, cal.bezeichnung AS event, DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') AS datum,
              e.id event_id, s.bezeichnung service, sg.bezeichnung servicegroup, es.mailsenddate
            FROM {cs_eventservice} es, {cs_event} e, {cc_cal} cal, {cs_service} s, {cs_servicegroup} sg
@@ -598,19 +599,19 @@ function churchservice_openservice_rememberdays() {
   // process only 15 services to prevent too many mails at once
   while (($res) && ($i < 15)) {
     $txt = "<h3>Hallo " . $res->vorname . ",</h3><p>";
-    
+
     // TODO: use mail template
     $inviter = churchcore_getPersonById($res->modified_pid);
     $txt .= "Du wurdest im Dienstplan auf " . getConf('site_name');
     if ($inviter) $txt .= ' von <i>' . $inviter->vorname . " " . $inviter->name . "</i>";
     $txt .= " zu Diensten vorgeschlagen. <br/>Zum Zu- oder Absagen bitte hier klicken:";
-    
+
     $loginstr = churchcore_createOnTimeLoginKey($res->p_id);
-    
+
     $txt .= "<p><a href='$base_url?q=home&id=$res->p_id&loginstr=$loginstr' class='btn btn-primary'>%sitename</a>";
-    
+
     $txt .= "<p><p><b>Folgende Dienst-Termine sind von Dir noch nicht bearbeitet:</b><ul>";
-    
+
     $arr = db_query($sql2, array (":p_id" => $res->p_id, ":zugesagt" => 0));
     //TODO: get all services of person at once and select in foreach if it goes to $txt or $txt2?
     foreach ($arr as $res2) {
@@ -621,7 +622,7 @@ function churchservice_openservice_rememberdays() {
         ->execute();
     }
     $txt .= '</ul>';
-    
+
     $arr = db_query($sql2, array (":p_id" => $res->p_id, ":zugesagt" => 1));
     $txt2 = "";
     foreach ($arr as $res2) {
@@ -635,14 +636,14 @@ function churchservice_openservice_rememberdays() {
     if ($txt2) {
       $txt .= "<p><p><b>Bei folgenden Diensten hast Du schon zugesagt:</b><ul>" . $txt2 . "</ul>";
     }
-    
+
     // Person was not yet invited -> send invitation.
     if ($res->invite == 1) {
       include_once (CHURCHDB . '/churchdb_ajax.php');
       churchdb_invitePersonToSystem($res->p_id);
       $txt .= "<p><b>Da Du noch nicht kein Zugriff auf das System hast, bekommst Du noch eine separate E-Mail, mit der Du Dich dann anmelden kannst!.</b>";
     }
-    
+
     churchservice_send_mail("[" . getConf('site_name') . "] " . t('there.are.pending.services'), $txt, $res->email);
     $i = $i + 1;
     $res = db_query($sql)->fetch();
@@ -655,7 +656,7 @@ function churchservice_openservice_rememberdays() {
 function churchservice_remindme() {
   global $base_url;
   include_once ("churchservice_db.php");
-  
+
   $sql = "SELECT p.vorname, p.name, p.email, cal.bezeichnung, s.bezeichnung AS dienst, sg.bezeichnung AS sg, e.id AS event_id,
            DATE_FORMAT(e.Startdate, '%d.%m.%Y %H:%i') AS datum, es.id AS eventservice_id
           FROM {cs_eventservice} es, {cs_service} s, {cs_event} e, {cc_cal} cal, {cs_servicegroup} sg, {cdb_person} p
@@ -665,11 +666,11 @@ function churchservice_remindme() {
             AND UNIX_TIMESTAMP(e.startdate)-UNIX_TIMESTAMP(now())<60*60*(:hours) AND UNIX_TIMESTAMP(e.startdate)-UNIX_TIMESTAMP(now())>0
             AND s.sendremindermails_yn=1 AND s.servicegroup_id=sg.id
           ORDER BY datum"; //is UNIX_TIMESTAMP outdated here?
-  
+
 //  $usersToRemind = db_query("SELECT * FROM {cc_usersettings}
   $usersToRemind = db_query("SELECT person_id FROM {cc_usersettings}
                              WHERE modulename='churchservice' AND attrib='remindMe' AND value=1", array());
-  
+
   foreach ($usersToRemind as $p) {
     //get eventservices to be reminded now
     $res = db_query($sql,
@@ -697,7 +698,7 @@ function churchservice_remindme() {
                  '" class="btn btn-primary">Event aufrufen</a>';
           }
         }
-        
+
         $txt .= '</table><br/><br/><a class="btn" href="' . $base_url . '?q=churchservice#SettingsView">Erinnerungen deaktivieren</a>';
         churchservice_send_mail("[" . getConf('site_name') . "] Erinnerung an Deinen Dienst", $txt, $es->email);
         break;
@@ -731,7 +732,7 @@ function churchcore_checkUserMail($personId, $mailtype, $domainId, $interval) {
                       "domain_id" => $domainId,
                       "letzte_mail" => $dt->format('Y-m-d H:i:s'),
       ))->execute();
-      
+
     return true; //TODO: use on duplicate update or replace
   }
   else {
@@ -760,16 +761,16 @@ function churchcore_checkUserMail($personId, $mailtype, $domainId, $interval) {
 function churchservice_inform_leader() {
   global $base_url;
   include_once ("churchservice_db.php");
-  
+
   // get all group ids from services
   $res = db_query("SELECT cdb_gruppen_ids FROM {cs_service}
                    WHERE cdb_gruppen_ids!='' AND cdb_gruppen_ids IS NOT NULL");
 //                   WHERE cdb_gruppen_ids>''); // TODO: works too
-  
+
   $arr = array ();
   foreach ($res as $g)$arr[] = $g->cdb_gruppen_ids;
   if (!count($arr)) return false;
-  
+
   // get persons being (co)leader of one of this service groups
   $res = db_query("SELECT p.id person_id, gpg.gruppe_id, p.email, p.vorname, p.cmsuserid
                    FROM {cdb_person} p, {cdb_gemeindeperson_gruppe} gpg, {cdb_gemeindeperson} gp
@@ -782,7 +783,7 @@ function churchservice_inform_leader() {
     // if person has rights and has not deselected info emails
     $auth = getUserAuthorization($p->person_id);
     if (isset($auth["churchservice"]["view"]) && (!isset($data["informLeader"]) || $data["informLeader"])) {
-      
+
       if (!isset($data["informLeader"])) {
         $data["informLeader"] = 1;
         churchcore_saveUserSetting("churchservice", $p->person_id, "informLeader", "1");
@@ -797,14 +798,14 @@ function churchservice_inform_leader() {
       $persons[$p->person_id]["group"][] = $p->gruppe_id;
     }
   }
-  
+
   // who should get an email?
   foreach ($persons as $person_id => $p) {
     if (!churchcore_checkUserMail($person_id, "informLeaderService", -1, 6 * 24)) {
       $persons[$person_id] = null; // unset($persons[$person_id])?
     }
   }
-  
+
   // get matching services
   // TODO: nearly the same request as above (additonal bezeichnung, id service_id)
   $res = db_query("SELECT cdb_gruppen_ids, bezeichnung, id AS service_id
@@ -820,7 +821,7 @@ function churchservice_inform_leader() {
       }
     }
   }
-  
+
   // Gehe nun die Personen durch und suche nach Events
   // get events for each person
   foreach ($persons as $person_id => $person) if ($person) {
@@ -851,9 +852,9 @@ function churchservice_inform_leader() {
  */
 function churchservice_cron() {
   global $base_url;
-  
+
   include_once ('./' . CHURCHSERVICE . '/churchservice_ajax.php');
-  
+
   churchservice_openservice_rememberdays();
   churchservice_remindme();
   churchservice_inform_leader();

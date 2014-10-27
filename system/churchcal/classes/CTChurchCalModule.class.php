@@ -37,14 +37,14 @@ class CTChurchCalModule extends CTAbstractModule {
   }
 
   /**
-   * 
+   *
    * @param array $params
    * @return array with persons
    */
   public function getAllowedPeopleForCalender($params) {
     include_once ('./' . CHURCHDB . '/churchdb_db.php');
-    $db = db_query("SELECT * FROM {cc_domain_auth} 
-                    WHERE daten_id=:daten_id AND auth_id=403", 
+    $db = db_query("SELECT * FROM {cc_domain_auth}
+                    WHERE daten_id=:daten_id AND auth_id=403",
                     array (":daten_id" => $params["category_id"]));
     $res = array ();
     foreach ($db as $d) {
@@ -57,8 +57,8 @@ class CTChurchCalModule extends CTAbstractModule {
         }
         if (count($g)) {
           $gr = churchcore_getTableData("cdb_gruppe", null, "id=" . $d->domain_id);
-          if ($gr) $res[] = array ("type" => "gruppe", 
-                                   "data" => $g, 
+          if ($gr) $res[] = array ("type" => "gruppe",
+                                   "data" => $g,
                                    "bezeichnung" => $gr[$d->domain_id]->bezeichnung,
                                   );
         }
@@ -69,6 +69,32 @@ class CTChurchCalModule extends CTAbstractModule {
       }
     }
     return $res;
+  }
+
+
+/**
+ * Checking the depending changes in other modules
+ * For single events splitDate is the origin startdate
+ * @param [type] $params with newEvent, originEvent, splitDate, untilEnd_yn
+ */
+  public function getEventChangeImpact($params) {
+    return churchcal_getEventChangeImpact($params);
+  }
+
+  public function saveSplittedEvent($params) {
+    return churchcal_saveSplittedEvent($params);
+  }
+
+  public function createEvent($params) {
+    return churchcal_createEvent($params);
+  }
+
+  public function updateEvent($params) {
+    return churchcal_updateEvent($params);
+  }
+
+  public function deleteEvent($params) {
+    return churchcal_deleteEvent($params);
   }
 
 }
