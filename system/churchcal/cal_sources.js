@@ -171,7 +171,8 @@ function mapEvents(allEvents) {
           if (a.bookings!=null && masterData.resources!=null) {
             o.title=o.title+'<span class="event-resources">';
             each(a.bookings, function(i,e) {
-              o.title=o.title+'<br/>'+masterData.resources[e.resource_id].bezeichnung.trim(20);
+              if (masterData.resources[e.resource_id]!=null)
+                o.title=o.title+'<br/>'+masterData.resources[e.resource_id].bezeichnung.trim(20);
             });
             o.title=o.title+'</span>';
           }

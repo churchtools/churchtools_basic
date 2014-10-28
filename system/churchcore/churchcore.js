@@ -113,7 +113,6 @@ function churchcore_isObjectEmpty(obj) {
  * Iterate through each object or array
  * @param obj
  * @param func function with key and value as parameter
- * @returns
  */
 function each(obj, func) {
   if (obj===null || func===null || obj==="") return null;
