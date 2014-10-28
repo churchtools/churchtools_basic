@@ -55,7 +55,7 @@ function loadConfig() {
   global $files_dir;
   // Unix default. Should have ".conf" extension as per standards.
   $config = null;
-  
+
   // read config, based on subdomain.
   // WARNING: This code dont works for per IP address access and supports only last subdomain.
   if (strpos($_SERVER["SERVER_NAME"], ".") > 0) {
@@ -66,19 +66,19 @@ function loadConfig() {
       $files_dir = SITES . "/$subdomain";
     }
   }
-  
+
   // if no config, read default config
   $cnf_location = DEFAULT_SITE . "/churchtools.config";
   if ($config == null && file_exists($cnf_location)) {
     $config = parse_ini_file($cnf_location);
   }
-  
+
   // if still no config, look in default linux etc location
   $cnf_location = "/etc/churchtools/default.conf";
   if ($config == null && @file_exists($cnf_location)) {
     $config = parse_ini_file($cnf_location);
   }
-  
+
   // still no config? Look fo r host specific config in etc
   // Package installed, per domain.
   // All possible virt-hosts in HTTP server has to be symlinked to it.
@@ -86,7 +86,7 @@ function loadConfig() {
   if ($config == null && @file_exists($cnf_location)) {
     $config = parse_ini_file($cnf_location);
   }
-  
+
   //
   if ($config == null) { // TODO: maybe use template
     $error_message = "<h3>" . t('error.config.file.not.found') . "</h3>
@@ -103,11 +103,11 @@ function loadConfig() {
         <div class=\"alert alert-info\">You can also use <strong>example</strong> file in
           <code><i>INSTALLATION</i>/" . DEFAULT_SITE . "/churchtools.example.config</code>
           by renaming it to either location that suits your setup and edit it to meet your needs.</div>";
-    
+
     addErrorMessage($error_message);
   }
   else $config["_current_config_file"] = $cnf_location;
-  
+
   return $config;
 }
 
@@ -133,7 +133,7 @@ function loadDBConfig() {
  */
 function loadMapping() {
   $map = parse_ini_file(SYSTEM . "/churchtools.mapping");
-  
+
   foreach (churchcore_getModulesSorted(true) as $module) {
     if (file_exists(SYSTEM . "/$module/$module.mapping")) {
       $modMap = parse_ini_file(SYSTEM . "/$module/$module.mapping");
@@ -157,7 +157,7 @@ function loadUserObjectInSession() {
     // Wenn nicht ausgeloggt wird und RememberMe bei der letzten Anmeldung aktiviert wurde
     if ($q != "logout" && isset($_COOKIE['RememberMe']) && $_COOKIE['RememberMe'] == 1) {
       if (isset($_COOKIE['CC_SessionId'])) {
-        
+
         $res = db_query("SELECT * FROM {cc_session}
                          WHERE session=:session AND hostname=:hostname",
                          array(":session" => $_COOKIE['CC_SessionId'],
@@ -167,7 +167,7 @@ function loadUserObjectInSession() {
         if ($res) {
           $res = $res->fetch();
           if (isset($res->person_id)) {
-            
+
             $res = db_query("SELECT * FROM {cdb_person}
                              WHERE id=:id",
                              array (":id" => $res->person_id))
@@ -185,7 +185,7 @@ function loadUserObjectInSession() {
     $_SESSION["user"]->auth = getUserAuthorization($_SESSION["user"]->id);
     if (isset($_COOKIE['CC_SessionId'])) {
       $dt = new DateTime();
-      
+
       db_query("UPDATE {cc_session} SET datum=:datum
                 WHERE person_id=:p_id AND session=:session AND hostname=:hostname",
                 array (":datum" => $dt->format('Y-m-d H:i:s'),
@@ -209,19 +209,19 @@ function pleaseAcceptDatasecurity() {
               WHERE id=$user->id");
     $user->acceptedsecurity = new DateTime();
     addInfoMessage(t("datasecurity.accept.thanks"));
-    
+
     return churchtools_processRequest($q);
   }
-  
+
   $data = churchwiki_load("Sicherheitsbestimmungen", 0);
   $text = str_replace("[Vorname]", $user->vorname, $data->text);
   $text = str_replace("[Nachname]", $user->name, $text);
   $text = str_replace("[Spitzname]", ($user->spitzname == "" ? $user->vorname : $spitzname), $text);
-  
+
   $text = '<div class="container-fluid"><div class="well">' . $text;
   $text .= '<a href="?q=' . $q . '&acceptsecurity=true" class="btn btn-important">' . t("datasecurity.accept") . '</a>';
   $text .= '</div></div>';
-  
+
   return $text;
 }
 
@@ -234,31 +234,31 @@ function pleaseAcceptDatasecurity() {
  */
 function churchtools_processRequest($_q) {
   global $mapping, $config, $q;
-  
+
   $content = "";
-  
+
   // include mapped file
   if (isset($mapping[$_q])) {
     include_once (SYSTEM . "/" . $mapping[$_q]);
-    
+
     $param = "main";
     if (strpos($_q, "/") > 0) {
       $param = "_" . substr($_q, strpos($_q, "/") + 1, 99);
       $_q = substr($_q, 0, strpos($_q, "/"));
     }
-    
+
     if ((!user_access("view", $_q)) && (!in_array($_q, $mapping["page_with_noauth"])) && ($_q != "login")
          && (!in_array($_q, (isset($config["page_with_noauth"]) ? $config["page_with_noauth"] : array ())))) {
       if (!userLoggedIn()) {
       // only show login
         if (strrpos($q, "ajax") === false) {
           $q = "login";
-          
+
           return churchtools_processRequest("login");
         }
         else {
           drupal_json_output(jsend()->error("Session expired!"));
-          
+
           die();
         }
       }
@@ -266,7 +266,7 @@ function churchtools_processRequest($_q) {
         $name = $_q;
         if (isset($config[$_q . "_name"])) $name = $config[$_q . "_name"];
         addInfoMessage(t("no.permission.for", $name));
-        
+
         return "";
       }
     }
@@ -302,7 +302,7 @@ function churchtools_main() {
     //  else {
     //  echo "<h3>Database-Error:</h3>", "There is an error";
     //  }
-  
+
     CTException::reportError ( $e );
   }
   catch ( CTException $e ) {
@@ -330,15 +330,15 @@ function churchtools_main() {
 function churchtools_app() {
   global $q, $q_orig, $currentModule, $add_header, $config, $mapping, $content, $base_url, $files_dir, $user, $embedded, $i18n;
   include_once (CHURCHCORE . "/churchcore_db.php");
-  
+
   $files_dir = DEFAULT_SITE;
-  
+
   // which module is requested?
   $q = $q_orig = getVar("q", userLoggedIn() ? "home" : getConf("site_startpage", "home"));
   // $currentModule is needed for class autoloading and maybe other include paths
   list ($currentModule) = explode('/', getVar("q")); // get first part of $q or churchcore
   $embedded = getVar("embedded", false);
-  
+
   $base_url = getBaseUrl();
   $config = loadConfig();
   if ($config) {
@@ -346,11 +346,11 @@ function churchtools_app() {
       // DBConfig overwrites the config files
       loadDBConfig();
       if (empty($config['site_name'])) $config['site_name'] = 'ChurchTools'; //dont allow site_name to be empty
-      
+
       date_default_timezone_set(getConf("timezone", "Europe/Berlin"));
-      
+
       if (isset($_COOKIE["language"])) $config["language"] = $_COOKIE["language"];
-      
+
       // Load i18n churchcore-bundle
       if (!isset($config["language"])) {
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) $config["language"] = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
@@ -358,7 +358,7 @@ function churchtools_app() {
       }
       $i18n = new TextBundle(CHURCHCORE . "/resources/messages");
       $i18n->load("churchcore", ($config["language"] != null ? $config["language"] : null));
-      
+
       // Session Init
       if (!file_exists($files_dir . "/tmp")) @mkdir($files_dir . "/tmp", 0775, true);
       if (!file_exists($files_dir . "/tmp")) {
@@ -369,10 +369,10 @@ function churchtools_app() {
       session_name("ChurchTools_" . $config["db_name"]);
       session_start();
       register_shutdown_function('handleShutdown');
-      
+
       // Check for offline mode. If it's activated display message and return false;
       if (getConf("site_offline") == 1) {
-        if (!isset($_SESSION["user"]) || !in_array($_SESSION["user"]->id, readconf("admin_ids"))) {
+        if (!isset($_SESSION["user"]) || !in_array($_SESSION["user"]->id, getConf("admin_ids"))) {
           echo t("site.is.down");
           return false;
         }
@@ -384,7 +384,7 @@ function churchtools_app() {
       if (strrpos($q, "ajax") === false) {
         $success = checkForDBUpdates();
       }
-      
+
       if ($success) {
         // Is there a loginstr which does not fit to the current logged in user?
         if (getVar("loginstr") && getVar("id") && userLoggedIn() && $_SESSION["user"]->id != getVar("id")) {
@@ -394,10 +394,10 @@ function churchtools_app() {
         else
           loadUserObjectInSession();
       }
-      
+
       if ($success) {
         if (isset($_SESSION['user'])) $user = $_SESSION['user'];
-        
+
         // Accept data security?
         if ((userLoggedIn()) && (!isset($_SESSION["simulate"])) && ($q != "logout") &&
              (isset($config["accept_datasecurity"])) && ($config["accept_datasecurity"] == 1) &&
@@ -406,7 +406,7 @@ function churchtools_app() {
       }
     }
   }
-  
+
   // TODO: i changed header/footer to a sort of template
   // probably some more logic could be removed from them by setting some more variables here
   // put header/footer into new file layout.php and add a variable $content

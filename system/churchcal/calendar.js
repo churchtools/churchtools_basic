@@ -242,7 +242,10 @@ function _renderViewChurchResource(elem) {
     form.addHtml('<div class="w_ell"><table class="table table-condensed"><tr><th>Ressource<th>Vorher<th>Nachher<th>Status<th>');
     each(currentEvent.bookings, function(k,a) {
       form.addHtml('<tr><td>');
-      form.addHtml(masterData.resources[a.resource_id].bezeichnung);
+      if (masterData.resources[a.resource_id]!=null)
+        form.addHtml(masterData.resources[a.resource_id].bezeichnung);
+      else
+        form.addHtml("-- Resource existiert nicht mehr --");
       form.addHtml('<td>');
       form.addSelect({type:"small", cssid:"min-pre-"+a.resource_id, controlgroup:false, sort:false, selected:a.minpre, data:minutes});
       form.addHtml('<td>');
@@ -251,7 +254,7 @@ function _renderViewChurchResource(elem) {
       form.addSelect({type:"medium", data:masterData.bookingStatus, cssid:"status-"+a.resource_id, controlgroup:false, selected:a.status_id,
           func:function(s) {
             return s.id==1
-                   || (s.id==2 && masterData.resources[a.resource_id].autoaccept_yn==1)
+                   || (s.id==2 && masterData.resources[a.resource_id]!=null && masterData.resources[a.resource_id].autoaccept_yn==1)
                    || masterData.auth["administer bookings"]
                    || s.id==a.status_id;
           }
@@ -733,7 +736,7 @@ function saveEvent(event) {
       if ((event!=null) && (event.category_id) && (event.category_id!=o.category_id))
         calCCType.needData(event.category_id, true);
       calCCType.needData(o.category_id, true);
-      if (o.bookings!=null) calResourceType.refreshView();
+      //if (o.bookings!=null) calResourceType.refreshView();
     }
   }, false, false);
   return true;
@@ -1202,7 +1205,8 @@ function renderTooltip(event) {
     if (myEvent.bookings!=null) {
       rows.push('<li>Angefragte Resourcen<small><ul>');
       each(myEvent.bookings, function(i,e) {
-        rows.push('<li>'+masterData.resources[e.resource_id].bezeichnung.trim(30));
+        if (masterData.resources[e.resource_id]!=null)
+          rows.push('<li>'+masterData.resources[e.resource_id].bezeichnung.trim(30));
       });
       rows.push('</ul></small>');
     }
