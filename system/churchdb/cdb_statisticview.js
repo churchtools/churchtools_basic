@@ -12,7 +12,7 @@ statisticView = new StatisticView();
 
 
 StatisticView.prototype.renderMasterDataStatistic = function(divid, masterDatafield, id_name) {
-  var t=this; 
+  var t=this;
   rows = new Array();
   desc=masterData.masterDataTables[masterDatafield];
   res=new Object();
@@ -23,10 +23,10 @@ StatisticView.prototype.renderMasterDataStatistic = function(divid, masterDatafi
         res[a[id_name]]=0;
       res[a[id_name]]=res[a[id_name]]+1;
       summe++;
-    }  
+    }
   });
-  var data = [];  
-  
+  var data = [];
+
   rows.push("<small><table cellpadding=\"2\"");
   var count=churchcore_countObjectElements(masterData[desc.shortname]);
   each(masterData[desc.shortname], function(k,a) {
@@ -44,7 +44,7 @@ StatisticView.prototype.renderMasterDataStatistic = function(divid, masterDatafi
   rows.push("</table></small>");
 
   if (this.filter["showTables"]==null) rows= new Array();
-  
+
   var name=desc.bezeichnung;
   if (masterData.fields!=null)
   each(masterData.fields, function(k,m) {
@@ -57,14 +57,14 @@ StatisticView.prototype.renderMasterDataStatistic = function(divid, masterDatafi
       });
     }
   });
-  
-  rows.unshift("<b>"+name+"</b>");  
-    
-  if (this.filter["showCharts"]==1) {  
+
+  rows.unshift("<b>"+name+"</b>");
+
+  if (this.filter["showCharts"]==1) {
     rows.push('<div style="width:250px;height:250px;" id="'+divid+'_graph"/><div align="center" id="'+divid+'_hover"/>');
-  }  
+  }
   $("#"+divid).html(rows.join(""));
-  
+
   $("#"+divid+" a").click(function (a) {
     if ($(this).attr("id")==divid) {
       churchInterface.setCurrentView(personView);
@@ -77,11 +77,11 @@ StatisticView.prototype.renderMasterDataStatistic = function(divid, masterDatafi
     return false;
   });
 
-  if (this.filter["showCharts"]==1) {  
+  if (this.filter["showCharts"]==1) {
     $.plot($("#"+divid+"_graph"), data,
         {
       series: {
-          pie: { 
+          pie: {
               show: true,
               label:{
                 show:true,
@@ -103,7 +103,7 @@ StatisticView.prototype.renderMasterDataStatistic = function(divid, masterDatafi
         $("#"+divid+"_hover").html('<small><span style="align:center;font-weight: bold; color: '+obj.series.color+'">'+obj.series.label+' ('+percent+'%)</span></small>');
     });
   }
-  
+
 };
 
 function sortObj(theObj, idx){
@@ -131,7 +131,7 @@ StatisticView.prototype.renderYearStatistic = function(datefield, name) {
       if (obj[d]==null)
         obj[d]=0;
       obj[d]=obj[d]+1;
-    }      
+    }
   });
   if (dataAvailable) {
     rows.push("<b>"+name+"</b>");
@@ -141,14 +141,14 @@ StatisticView.prototype.renderYearStatistic = function(datefield, name) {
       if (a!=null) {
         if (k==currentDate-6)
           k="<="+k;
-        rows.push("<tr><td width=60%>"+k+"<td><a href=\"#\" id=\"datefilter"+datefield+"\" val=\""+k+"\">"+a+"</a>"); 
-        
+        rows.push("<tr><td width=60%>"+k+"<td><a href=\"#\" id=\"datefilter"+datefield+"\" val=\""+k+"\">"+a+"</a>");
+
         summe=summe+a;
-      }  
+      }
     });
     rows.push("<tr bgcolor=\"#e7eef4\"><td><i>"+_("sum")+"</i><td><i>"+summe+"</i>");
     rows.push("</table></small>");
-  }  
+  }
   return rows.join("");
 };
 
@@ -167,14 +167,14 @@ StatisticView.prototype.renderAgeGroups = function() {
         if (res[y]==null) res[y]=0;
         res[y]=res[y]+1;
         summe=summe+1;
-      }  
+      }
     }
   });
   rows.push("<b>Altersgruppen</b>");
   rows.push("<small><table cellpadding=\"2\"");
   each(res,function(k,a) {
     if (a!=null)
-      rows.push("<tr><td width=50%>"+k+"0-"+k+"9"+"<td>"+a+"<td>"+Math.round(a/summe*1000)/10+"%"); 
+      rows.push("<tr><td width=50%>"+k+"0-"+k+"9"+"<td>"+a+"<td>"+Math.round(a/summe*1000)/10+"%");
   });
   rows.push("<tr><td><i>"+_("sum")+"/Mittel</i><td><i>"+summe+"</i><td><i>"+Math.round(10*summealter/summe)/10+"J.</i>");
   rows.push("</table></small>");
@@ -194,27 +194,38 @@ StatisticView.prototype.messageReceiver = function(message, args) {
 StatisticView.prototype.renderList = function() {
   var t=this;
 
+  if (!personView.searchablesLoaded) {
+    personView.searchablesLoaded="load data";
+    cdb_loadSearch(function() {
+      personView.searchablesLoaded=true;
+      t.renderList();
+    });
+    $("#cdb_content").html(form_renderImage({src:"loading.gif"}));
+    return;
+  }
+
+
   t.createMultiselect("Status", f("status_id"), masterData.status);
-  if (masterData.fields.f_category.fields.station_id!=null) 
+  if (masterData.fields.f_category.fields.station_id!=null)
     t.createMultiselect("Station", f("station_id"), masterData.station);
   t.createMultiselect("Bereich", f("bereich_id"), masterData.auth.dep);
 
   this.filter["showTables"]=1;
   this.filter["showCharts"]=1;
-  
+
   var rows = new Array();
- 
+
   // Es soll mindestes Tabelle oder Charts gezeigt werden!
   if ((this.filter["showTables"]==null) && (this.filter["showCharts"]==null)) {
     this.filter["showTables"]=true;
     this.renderFilter();
   }
-  
-  
+
+
   // Kategorienstatistiken, hier werden nur DIVs erzeugt, die dann unten gefuellt werden.
   rows.push("<table cellpadding=\"5\"><tr><td style=\"vertical-align:top;\" valign=\"top\" width=\"30%\">");
   rows.push('<div id="statsfilterStatus" name="status_id" arr="'+1+'"/>');
-  if (masterData.fields.f_category.fields.station_id!=null) 
+  if (masterData.fields.f_category.fields.station_id!=null)
     rows.push('<div id="statsfilterStation" name="station_id" arr="'+2+'"/>');
   rows.push('<div id="statsfilterGeschlecht" name="geschlecht_no" arr="'+4+'"/>');
   rows.push('<div id="statsfilterFamilienstatus" name="familienstand_no" arr="'+6+'"/>');
@@ -231,9 +242,9 @@ StatisticView.prototype.renderList = function() {
     rows.push(this.renderYearStatistic("taufdatum", "Getauft"));
     rows.push(this.renderYearStatistic("hochzeitsdatum", "Hochzeit"));
   }
-  
- 
-  
+
+
+
   // Gruppenstatistiken
   rows.push("<td valign=\"top\" style=\"vertical-align:top;\" width=\"70%\">");
 
@@ -249,16 +260,16 @@ StatisticView.prototype.renderList = function() {
         if ((masterData.groups[b.id].instatistik_yn==1) && ((b.leiter>=0) && (b.leiter<=2) || (b.leiter==4))) {
           dataAvailable=true;
           if (grps[b.id]==null) grps[b.id]=new Array();
-          if (b.d==null) 
+          if (b.d==null)
             y=current_year-how_many_years;
           else {
             y=b.d.toDateEn().getFullYear();
             if (y<current_year-how_many_years) y=current_year-how_many_years;
-          }  
-          if (grps[b.id][y]==null) grps[b.id][y]=0; 
+          }
+          if (grps[b.id][y]==null) grps[b.id][y]=0;
           grps[b.id][y]=grps[b.id][y]+1;
-        }  
-      }); 
+        }
+      });
     }
   });
   if (dataAvailable) {
@@ -280,17 +291,17 @@ StatisticView.prototype.renderList = function() {
             summe=summe+grps[a.id][i];
           }
           rows.push("<td>");
-        }  
+        }
         rows.push(summe);
       }
     });
     rows.push("</table></small>");
   }
-  
+
   // Alle Distrikte kummuliert
   grps=new Object();
   sumGruppentyp=new Object();
-  
+
   each(allPersons, function(k,a) {
     if ((a.gruppe!=null) && (t.checkFilter(a)))  {
       var gruppentyp = new Object();
@@ -300,21 +311,21 @@ StatisticView.prototype.renderList = function() {
 
           // Hole Daten in grps-Array f�r Details
           if (grps[b.id]==null) grps[b.id]=new Array();
-          if (b.d==null) 
+          if (b.d==null)
             y=current_year-how_many_years;
           else {
             y=b.d.toDateEn().getFullYear();
             if (y<current_year-how_many_years) y=current_year-how_many_years;
-          }  
+          }
           if (grps[b.id][y]==null) grps[b.id][y]=0;
           grps[b.id][y]=grps[b.id][y]+1;
-          
+
           // Merke mir nun, in welchen Gruppentypen die Person ist.
           var gruppentyp_id = masterData.groups[b.id].gruppentyp_id;
           if (gruppentyp[y]==null) gruppentyp[y]=new Object();
           if (gruppentyp[y][gruppentyp_id]==null)
-            gruppentyp[y][gruppentyp_id]=true;  
-        }  
+            gruppentyp[y][gruppentyp_id]=true;
+        }
       });
       each(gruppentyp, function(k,a) {
         if (sumGruppentyp[k]==null)
@@ -333,13 +344,13 @@ StatisticView.prototype.renderList = function() {
     if (masterData.groups!=null) {
       each(masterData.groups, function(k,a) {
         if ((a.gruppentyp_id==b.id) && (a.distrikt_id!=null)) {
-          for (i=current_year-how_many_years;i<=current_year;i++) {        
+          for (i=current_year-how_many_years;i<=current_year;i++) {
             if ((grps[a.id]!=null) && (grps[a.id][i]!=null)) {
               if (res==null) res=new Object();
               if (res[a.distrikt_id]==null) res[a.distrikt_id]=new Array();
               if (res[a.distrikt_id][i]==null)
                 res[a.distrikt_id][i]=0;
-              
+
               res[a.distrikt_id][i]=res[a.distrikt_id][i]+grps[a.id][i];
             }
           }
@@ -358,16 +369,16 @@ StatisticView.prototype.renderList = function() {
         rows.push("<tr><td>"+(masterData.districts[k]!=null
                                   ?masterData.districts[k].bezeichnung
                                   :'<font color="red">DistriktId:'+k+'</font>')+"<td>");
-        for (i=current_year-how_many_years;i<=current_year;i++) {   
+        for (i=current_year-how_many_years;i<=current_year;i++) {
           if (a[i]!=null) {
             rows.push(a[i]);
             summe=summe+a[i];
-          }  
+          }
           rows.push("<td>");
         }
         rows.push(summe);
       });
-      
+
       rows.push("<tr bgcolor=\"#e7eef4\"><td><i>"+_("sum")+"</i><td>");
       summe=0;
       for (k=current_year-how_many_years;k<=current_year;k++) {
@@ -375,26 +386,26 @@ StatisticView.prototype.renderList = function() {
           rows.push(sumGruppentyp[k][b.id]);
           summe=summe+sumGruppentyp[k][b.id];
         }
-        rows.push("<td>"); 
+        rows.push("<td>");
       }
       rows.push(summe);
       rows.push("</table></small>");
-    }  
+    }
   });
-  
-  
+
+
   rows.push("</table>");
   rows.push('<div id="yearStats" style="width:800px;height:500px;"/><div id="yearStats_hover"/><div id="yearStats_choices"/>');
-  
-  
+
+
   $("#cdb_content").html(rows.join(""));
-  
+
   $("#cdb_content div").each(function(k,a) {
     if ($(this).attr("id").indexOf("statsfilter")==0) {
       t.renderMasterDataStatistic($(this).attr("id"), $(this).attr("arr"), $(this).attr("name"));
     }
   });
-  
+
   // Callback f�r renderYearStatistics
   $("#cdb_content a").click(function (a) {
     if ($(this).attr("id").indexOf("datefilter")==0) {
@@ -410,8 +421,8 @@ StatisticView.prototype.renderList = function() {
     }
     return false;
   });
-  
-  
+
+
   if (this.getFilter("showCharts")==1) {
     var res=new Object();
     each(allPersons, function(k,a) {
@@ -431,18 +442,18 @@ StatisticView.prototype.renderList = function() {
         });
       }
     });
-        
+
     datasets=new Array();
     each(res, function(i,b) {
       data_=new Array();
       each(b, function(k,a) {
-        if ((a!=null)&& (a>0)) {          
+        if ((a!=null)&& (a>0)) {
           data_.push([k,a]);
         }
       });
       datasets.push({label:i, data:data_});
-    });    
-    
+    });
+
     var choiceContainer = $("#yearStats_choices");
     each(datasets, function(key, val) {
         choiceContainer.append('<br/><input type="checkbox" name="' + key +
@@ -474,14 +485,14 @@ StatisticView.prototype.renderList = function() {
           });
     }
 
-    
+
     choiceContainer.find("input").click(plotAccordingToChoices);
-    
+
     $("#yearStats").bind("plothover", function(event, pos, obj) {
       if (!obj) return;
       $("#yearStats_hover").html('<span style="font-weight: bold; color: '+obj.series.color+'">'+obj.series.label+'</span>');
     });
-   
+
     plotAccordingToChoices();
   }
 };
