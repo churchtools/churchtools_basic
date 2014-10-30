@@ -845,7 +845,8 @@ WeekView.prototype.calcConflicts = function(new_b, resource_id) {
   var t=this;
   var rows=Array();
   each(churchcore_getAllDatesWithRepeats(new_b), function(k,ds) {
-    each(t.getIndexedBookings(ds.startdate, ds.enddate), function(i,conflict) {
+    var e = new Date(ds.enddate.getTime()); e.addDays(1); // Add 1 day of full day dates
+    each(t.getIndexedBookings(ds.startdate, e), function(i,conflict) {
       var booking=allBookings[conflict.id];
       if ((booking!=null) && (booking.resource_id==resource_id) && (new_b.id!=booking.id)) {
         if ((booking.status_id==1) || (booking.status_id==2)) {
