@@ -1,3 +1,8 @@
+
+// TODO
+// previousBookings=$.extend({}, o.bookings);
+// Copy!
+
 calendar=null;
 currentEvent=null;
 allEvents=null;
@@ -15,7 +20,16 @@ var embedded=false;
 var minical=false;
 var max_entries=50;
 var printview=false;
+var newbookingid=0;
 
+
+function getCALEvent(a) {
+  var event = new CCEvent(a);
+  event.saveSuccess = saveCalSuccess;
+  event.saveSplitSuccess = saveSplitCalSuccess;
+  event.name = "Event";
+  return event;
+}
 
 /*
  * Collect database conform event vom source
@@ -29,120 +43,44 @@ function getEventFromEventSource(event) {
     return event.source.container.data[event.source.category_id].events[event.id];
 }
 
-/**
- * Checks the impact of the event changes on the the server and display a dialog when there is
- * something to confirm.
- * @param newEvent - Changed Event
- * @param originEvent - Origin Event
- * @param splitDate - Where the Event should be devided
- * @param func Function callback with func(true) or func(false)
- */
-function prooveEventChangeImpact(newEvent, originEvent, splitDate, untilEnd, func) {
-  // If it is an existing event, otherwise there nothing to prove
-  if (originEvent.id == null) {
-    func(true);
-    return;
-  }
-  var o = new Object();
-  o.func = "getEventChangeImpact";
-  o.newEvent = newEvent;
-  o.originEvent = originEvent;
-  o.splitDate = splitDate;
-  o.untilEnd_yn = (untilEnd ? 1 : 0);
-
-  churchInterface.jsendWrite(o, function(ok, data) {
-    if (!ok) {
-      alert(_("error.occured") + data);
-      if (func!=null) func(false);
-    }
-    else {
-      confirmImpactOfEventChange(data, function(ok) { func(ok); });
-    }
-  });
+function saveSplitCalSuccess(newEvent, pastEvent, originEvent) {
+  delete calCCType.data[originEvent.category_id].events[originEvent.id];
+  calCCType.data[newEvent.category_id].events[newEvent.id] = newEvent;
+  calCCType.data[pastEvent.category_id].events[pastEvent.id] = pastEvent;
+  calCCType.refreshView(newEvent.category_id, false);
 }
 
-/**
- * Saves the splitted events to the server and refresh FullCalender
- * @param {Object} newEvent
- * @param {Object} pastEvent
- * @param {Object} originEvent
- * @param {Function} func func(flase) or func(true)
- */
-function saveSplittedEvent(newEvent, pastEvent, originEvent, splitDate, untilEnd, func) {
-  // If special case, pastEvent is not necessary (see splitEvent() for more informations)
-  // Second possiblite: No series, so no pastEvent
-  // Third one: If I only click on delete, then newEvent is pastEvent to prevent creating new event
-  if (pastEvent == null || pastEvent.id == newEvent.id) saveEvent(newEvent, originEvent, func);
-  else {
-    var o = new Object();
-    o.func = "saveSplittedEvent";
-    o.newEvent = newEvent;
-    o.pastEvent = pastEvent;
-    o.splitDate = splitDate;
-    o.untilEnd_yn = ( untilEnd ? 1 : 0 );
-    churchInterface.jsendWrite(o, function(ok, data) {
-      if (!ok) {
-        alert(_("error.occured") + data);
-        if (func!=null) func(false);
-      }
-      else {
-        if (newEvent.id == null) newEvent.id = data.id;
-        delete calCCType.data[originEvent.category_id].events[originEvent.id];
-        calCCType.data[newEvent.category_id].events[newEvent.id] = newEvent;
-        calCCType.data[pastEvent.category_id].events[pastEvent.id] = pastEvent;
-        calCCType.refreshView(newEvent.category_id, false);
-        if (func!=null) func(true);
-      }
+function saveCalSuccess(newEvent, originEvent, data) {
+  // New CSEvent Id Mapping from -1, -2 ... to 1, 2 ...
+  if (data!=null) {
+    each(data.cseventIds, function(k,a) {
+      newEvent.csevents[a] = newEvent.csevents[k]
+      newEvent.csevents[a].id=a;
+      delete newEvent.csevents[k];
     });
   }
-}
-
-/**
-* check the necessary updates between newEvent and originEvent
-* @func: func(false) if something is wrong, func(true) if is everything fine!
-*/
-function saveEvent(newEvent, originEvent, func) {
-  var o = cloneEvent(newEvent);
-
-  if (newEvent.id!=null) {
-    o.func="updateEvent";
-    o.currentEvent_id = newEvent.id;
+  // New Booking-Ids Mapping from -1, -2 ... to 1, 2 ...
+  if (data!=null) {
+    each(data.bookingIds, function(k,a) {
+      newEvent.bookings[a] = newEvent.bookings[k]
+      newEvent.bookings[a].id=a;
+      delete newEvent.bookings[k];
+    });
   }
-  else
-    o.func="createEvent";
 
-  previousBookings=$.extend({}, o.bookings);
-
-  churchInterface.jsendWrite(o, function(ok, data) {
-    if (!ok) {
-      alert(_("error.occured") + data);
-      if (func!=null) func(false);
-    }
-    else {
-      // New CSEvent Id Mapping from -1, -2 ... to 1, 2 ...
-      if (data!=null) {
-        each(data.cseventIds, function(k,a) {
-          newEvent.csevents[a] = newEvent.csevents[k]
-          newEvent.csevents[a].id=a;
-          delete newEvent.csevents[k];
-        });
-      }
-      // Clean deleted csevents
-      each(newEvent.csevents, function(k,a) {
-        if (a.action=="delete") delete newEvent.csevents[k];
-      });
-      if (newEvent.id == null) newEvent.id = data.id;
-      // Perhaps a change in the category?
-      else if ( originEvent != null && originEvent.category_id != null
-                 && originEvent.category_id != newEvent.category_id ) {
-        delete calCCType.data[originEvent.category_id].events[originEvent.id];
-        calCCType.refreshView(originEvent.category_id, false);
-      }
-      calCCType.data[newEvent.category_id].events[newEvent.id] = newEvent;
-      calCCType.refreshView(newEvent.category_id, false);
-      if (func!=null) func(true);
-    }
+  // Clean deleted csevents
+  each(newEvent.csevents, function(k,a) {
+    if (a.action=="delete") delete newEvent.csevents[k];
   });
+  if (newEvent.id == null) newEvent.id = data.id;
+  // Perhaps a change in the category?
+  else if ( originEvent != null && originEvent.category_id != null
+             && originEvent.category_id != newEvent.category_id ) {
+    delete calCCType.data[originEvent.category_id].events[originEvent.id];
+    calCCType.refreshView(originEvent.category_id, false);
+  }
+  calCCType.data[newEvent.category_id].events[newEvent.id] = newEvent;
+  calCCType.refreshView(newEvent.category_id, false);
 }
 
 /**
@@ -160,17 +98,17 @@ function doEventChanges(event, delta, jsEvent, func) {
   else {
     var splitDate = new Date( event.start.format(DATETIMEFORMAT_EN).toDateEn(true).getTime() - delta.asMilliseconds());
     var currentDatetime = event.start.format(DATETIMEFORMAT_EN).toDateEn(true);
-    askSplitEvent(originEvent, jsEvent, function(untilEnd) {
+    originEvent.askForSplit(jsEvent, function(untilEnd) {
       if (untilEnd==null) func(false);  // Cancel
       else {
-        splitEvent(originEvent, splitDate, untilEnd, function(newEvent, pastEvent) {
+        originEvent.doSplit(splitDate, untilEnd, function(newEvent, pastEvent) {
           // Change new event
           newEvent = func(true, newEvent);
-          prooveEventChangeImpact(newEvent, originEvent, splitDate, untilEnd, function(ok) {
+          originEvent.prooveEventChangeImpact(newEvent, splitDate, untilEnd, function(ok) {
 
             if (!ok) func(false);
             else {
-              saveSplittedEvent(newEvent, pastEvent, originEvent, splitDate, untilEnd, function(ok) { if (!ok) func(false); });
+              originEvent.saveSplitted(newEvent, pastEvent, splitDate, untilEnd, function(ok) { if (!ok) func(false); });
             }
           });
         });
@@ -189,14 +127,14 @@ function doEventChanges(event, delta, jsEvent, func) {
 function editEvent(myEvent, month, currentDate, jsEvent) {
   if (debug) console.log("editEvent", myEvent, month, currentDate);
 
-  askSplitEvent(myEvent, jsEvent, function(untilEnd) {
+  myEvent.askForSplit(jsEvent, function(untilEnd) {
     if (untilEnd!=null) {
-      splitEvent(myEvent, currentDate, untilEnd, function(newEvent, pastEvent) {
-        renderEditEvent(newEvent, myEvent, isSeries(myEvent), untilEnd, function(newEvent, func) {
-          prooveEventChangeImpact(newEvent, myEvent, currentDate, null, function(ok) {
+      myEvent.doSplit(currentDate, untilEnd, function(newEvent, pastEvent) {
+        renderEditEvent(newEvent, myEvent, newEvent.isSeries(), untilEnd, function(newEvent, func) {
+          myEvent.prooveEventChangeImpact(newEvent, currentDate, null, function(ok) {
             if (!ok) func(false);
             else {
-              saveSplittedEvent(newEvent, pastEvent, myEvent, currentDate, untilEnd);
+              myEvent.saveSplitted(newEvent, pastEvent, currentDate, untilEnd);
               func(true);
             }
           })
@@ -248,12 +186,12 @@ function _eventDrop(event, delta, revertFunc, jsEvent, ui, view ) {
 function _select(start, end, jsEvent, view) {
   if (debug) console.log("_select", start, end, jsEvent, view);
 
-  var event = new Object();
-  event.startdate=start.format(DATETIMEFORMAT_EN).toDateEn(true);
-  event.enddate=end.format(DATETIMEFORMAT_EN).toDateEn(true);
+  var myEvent = getCALEvent();
+  myEvent.startdate = start.format(DATETIMEFORMAT_EN).toDateEn(true);
+  myEvent.enddate = end.format(DATETIMEFORMAT_EN).toDateEn(true);
   // fullCalendar works with exclusive dates, CT not!
-  if (!start.hasTime()) event.enddate.addDays(-1);
-  editEvent(event, view.name=="month");
+  if (!start.hasTime()) myEvent.enddate.addDays(-1);
+  editEvent(myEvent, view.name=="month");
   calendar.fullCalendar('unselect');
 }
 
@@ -317,7 +255,9 @@ function _renderViewChurchResource(elem) {
   form.addSelect({label:"Nachher buchen", cssid:"min_post_new", sort:false, selected:currentEvent.minpost, data:minutes});
   form.addSelect({cssid:"ressource_new",  htmlclass:"resource", freeoption:true,
           label:"Ressource ausw&auml;hlen", data:arr, sort:false, func:function(a) {
-            return a.id=="" || currentEvent.bookings==null || currentEvent.bookings[a.id]==null;
+            var drin=false;
+            each(currentEvent.bookings, function(k,b) { if (b.resource_id==a.id) drin=true; })
+            return !drin;
           }});
   if (currentEvent.bookings==null && previousBookings!=null && previousBookings!=currentEvent.bookings)
     form.addButton({controlgroup:true, label:"Vorherige Buchungen hinzufügen", htmlclass:"use-previous-bookings"});
@@ -348,11 +288,11 @@ function _renderViewChurchResource(elem) {
       else
         form.addHtml("-- Resource existiert nicht mehr --");
       form.addHtml('<td>');
-      form.addSelect({type:"small", cssid:"min-pre-"+a.resource_id, controlgroup:false, sort:false, selected:a.minpre, data:minutes});
+      form.addSelect({type:"small", cssid:"min-pre-"+a.id, controlgroup:false, sort:false, selected:a.minpre, data:minutes});
       form.addHtml('<td>');
-      form.addSelect({type:"small", cssid:"min-post-"+a.resource_id, controlgroup:false, sort:false, selected:a.minpost, data:minutes});
+      form.addSelect({type:"small", cssid:"min-post-"+a.id, controlgroup:false, sort:false, selected:a.minpost, data:minutes});
       form.addHtml('<td>');
-      form.addSelect({type:"medium", data:masterData.bookingStatus, cssid:"status-"+a.resource_id, controlgroup:false, selected:a.status_id,
+      form.addSelect({type:"medium", data:masterData.bookingStatus, cssid:"status-"+a.id, controlgroup:false, selected:a.status_id,
           func:function(s) {
             return s.id==1
                    || (s.id==2 && masterData.resources[a.resource_id]!=null && masterData.resources[a.resource_id].autoaccept_yn==1)
@@ -362,7 +302,7 @@ function _renderViewChurchResource(elem) {
       });
       form.addHtml('<td>');
       if (a.status_id!=99)
-        form.addImage({src:"trashbox.png", htmlclass:"delete-booking", link:true, width:20, data:[{name:"id", value:a.resource_id}]});
+        form.addImage({src:"trashbox.png", htmlclass:"delete-booking", link:true, width:20, data:[{name:"id", value:a.id}]});
       if (typeof weekView!='undefined') {
         if (allBookings[a.id]!=null && allBookings[a.id].exceptions!=null) {
           var arr=new Array();
@@ -404,39 +344,40 @@ function _renderViewChurchResource(elem) {
       currentEvent.minpost=elem.find("#min_post_new").val();
       var resource_id=elem.find("select.resource").val();
       var status_id=(masterData.resources[resource_id].autoaccept_yn==1?2:1);
-      currentEvent.bookings[elem.find("select.resource").val()]={resource_id:resource_id,
+      newbookingid = newbookingid - 1;
+      currentEvent.bookings[newbookingid]={id:newbookingid, resource_id:resource_id,
                 minpre:currentEvent.minpre, minpost:currentEvent.minpost,
-                status_id:status_id, fresh:true};
-      _renderEditEventContent(elem, currentEvent);
+                status_id:status_id};
+      _renderEditEventContent(elem);
     }
   });
   elem.find("select").change(function() {
     if ($(this).attr("id").indexOf("min-pre-")==0) {
       currentEvent.bookings[$(this).attr("id").substr(8,99)].minpre=$(this).val();
-      _renderEditEventContent(elem, currentEvent);
+      _renderEditEventContent(elem);
     }
     else if ($(this).attr("id").indexOf("min-post-")==0) {
       currentEvent.bookings[$(this).attr("id").substr(9,99)].minpost=$(this).val();
-      _renderEditEventContent(elem, currentEvent);
+      _renderEditEventContent(elem);
     }
     else if ($(this).attr("id").indexOf("status-")==0) {
       currentEvent.bookings[$(this).attr("id").substr(7,99)].status_id=$(this).val();
-      _renderEditEventContent(elem, currentEvent);
+      _renderEditEventContent(elem);
     }
   });
   elem.find("input.use-previous-bookings").click(function() {
     currentEvent.bookings=previousBookings;
-    _renderEditEventContent(elem, currentEvent);
+    _renderEditEventContent(elem);
   });
   elem.find("a.delete-booking").click(function() {
     // Is booking created but not saved (fresh), then I can delete it.
-    if (currentEvent.bookings[$(this).attr("data-id")].fresh) {
+    if ($(this).attr("data-id")<0) {
       delete currentEvent.bookings[$(this).attr("data-id")];
     }
     else {
       currentEvent.bookings[$(this).attr("data-id")].status_id=99;
     }
-    _renderEditEventContent(elem, currentEvent);
+    _renderEditEventContent(elem);
     return false;
   });
 }
@@ -456,7 +397,7 @@ function _renderInternVisible(elem, currentEvent) {
   $("#internVisible").html(txt);
 }
 
-function _renderEditEventContent(elem, currentEvent) {
+function _renderEditEventContent(elem) {
   var rows = new Array();
   if (currentEvent.view=="view-main") {
 
@@ -538,26 +479,7 @@ function _renderEditEventContent(elem, currentEvent) {
     elem.find("#cal_content").html(rows.join(""));
 
     _renderInternVisible(elem, currentEvent);
-    form_renderDates({elem:$("#dates"), data:currentEvent,
-      deleteException:function(exc) {
-        delete currentEvent.exceptions[exc.id];
-      },
-      addException:function(options, date) {
-        _addException(currentEvent, date.toDateDe());
-        return currentEvent;
-      },
-      deleteAddition:function(add) {
-        delete currentEvent.additions[add.id];
-      },
-      addAddition:function(options, date, with_repeat_yn) {
-        if (currentEvent.additions==null) currentEvent.additions=new Object();
-        if (currentEvent.exceptionids==null) currentEvent.exceptionids=0;
-        currentEvent.exceptionids=currentEvent.exceptionids-1;
-        currentEvent.additions[currentEvent.exceptionids]
-              ={id:currentEvent.exceptionids, add_date:date.toDateDe().toStringEn(), with_repeat_yn:with_repeat_yn};
-        return currentEvent;
-      }
-    });
+    $("#dates").renderCCEvent({event: currentEvent});
 
     $("#inputBezeichnung").focus();
 
@@ -566,119 +488,11 @@ function _renderEditEventContent(elem, currentEvent) {
       masterData.settings.category_id=$(this).val();
       currentEvent.category_id=$(this).val();
       _renderInternVisible(elem, currentEvent);
-      _renderEditEventNavi(elem, currentEvent);
+      _renderEditEventNavi(elem);
     });
   }
   else if (currentEvent.view=="view-invite") {
-    rows.push('<div id="meeting-request">'+form_renderImage({src:"loading.gif"})+'</div>');
-    elem.find("#cal_content").html(rows.join(""));
-    churchInterface.jsendRead({func:"getAllowedPeopleForCalender", category_id:currentEvent.category_id}, function(ok, data) {
-      var form = new CC_Form();
-      var invitable=false;
-      if (data.length==0)
-        form.addHtml('<p>Dem Kalender sind keine Personen oder Gruppen zugewiesen.');
-      else {
-        var dt = new Date();
-        if (currentEvent.startdate<dt) {
-          form.addHtml('<div class="alert alert-error">Besprechungsanfrage liegt in der Vergangenheit. Es finden so keine Email-Anfragen statt.</div>');
-        }
-
-        form.addHtml('<div class="person-selector"></div>');
-        form.addHtml('<div style="height:360px;overflow-y:auto">');
-        form.addHtml('<table class="table table-condensed">');
-        function _addPerson(p) {
-          var mr=null;
-          if (currentEvent.meetingRequest!=null)
-            mr=currentEvent.meetingRequest[p.id];
-          form.addHtml('<tr data-id="'+p.id+'"><td>');
-          if (p.email!="" && (mr==null || mr.invite))
-            form.addCheckbox({htmlclass:"cb-person", checked:(mr!=null&&mr.invite), controlgroup:false,
-                data:[{name:"id", value:p.id}]});
-          form.addHtml('<td>'+form_renderPersonImage(p.imageurl, 40));
-          form.addHtml('<td>'+p.vorname+" "+p.name);
-          form.addHtml('<td><span class="status">');
-          if (p.email=="")
-            form.addHtml('<i>Keine E-Mail-Adresse!');
-          else {
-            if (mr!=null) {
-              if (mr.invite)
-                form.addHtml('wird eingeladen');
-              else if (mr.response_date==null)
-                form.addImage({src:"question.png",width:24, label:"Noch keine Antwort!"});
-              else if (mr.zugesagt_yn==null)
-                form.addImage({src:"check-64_sw.png",width:24, label:"Vorbehaltlich zugesagt"});
-              else if (mr.zugesagt_yn==1)
-                form.addImage({src:"check-64.png",width:24, label:"Zugesagt"});
-              else if (mr.zugesagt_yn==0)
-                form.addImage({src:"delete_2.png",width:24, label:"Abgesagt"});
-            }
-            else {
-              form.addHtml('nicht eingeladen');
-              invitable=true;
-            }
-          }
-          form.addHtml('</span>');
-        }
-        each(data, function(k,a) {
-          if (a.type=="gruppe") {
-            form.addHtml('<tr><td colspan=4><h4>'+a.bezeichnung+'</h4>');
-            each(a.data, function(i,p) {
-              _addPerson(p);
-            });
-          }
-        });
-        form.addHtml('<tr><td colspan=4><h4>Personen</h4>');
-        each(data, function(k,a) {
-          if (a.type=="person") {
-            _addPerson(a.data);
-          }
-        });
-        form.addHtml('</table></div>');
-      }
-
-      elem.find("#meeting-request").html(form.render());
-      if (invitable) {
-        form = new CC_Form();
-        form.addHtml('<p><span class="pull-right">');
-        form.addButton({label:"Alle auswählen", htmlclass:"select-all"});
-        form.addHtml("&nbsp; ")
-        form.addButton({label:"Alle abwählen", htmlclass:"deselect-all"});
-        form.addHtml('</span><i>Für eine Anfrage bitte Personen auswählen</i><br>');
-        if (currentEvent.repeat_id!=0)
-          form.addHtml('<small>Bei Wiederholungsterminen wird nur der erste Termin angefragt!</small>');
-        form.addHtml('&nbsp;</p>');
-        $('div.person-selector').html(form.render());
-      }
-      myelem=elem;
-      elem.find("input.select-all").click(function() {
-        elem.find("input.checkbox").each(function() {
-          $(this).attr("checked","checked");
-          $(this).trigger("change");
-        });
-      });
-      elem.find("input.deselect-all").click(function() {
-        elem.find("input.checkbox").each(function() {
-          $(this).removeAttr("checked");
-          $(this).trigger("change");
-        });
-      });
-      elem.find("input.cb-person").change(function() {
-        var id=$(this).attr("data-id");
-        var checked=$(this).attr("checked")=="checked";
-        if (checked) {
-          elem.find("tr[data-id="+id+"]").find("span.status").html("wird eingeladen");
-          if (currentEvent.meetingRequest==null) currentEvent.meetingRequest=new Object();
-          if (currentEvent.meetingRequest[id]==null)
-            currentEvent.meetingRequest[id]=new Object();
-          currentEvent.meetingRequest[id].invite=true;
-        }
-        else {
-          elem.find("tr[data-id="+id+"]").find("span.status").html("nicht eingeladen");
-          if (currentEvent.meetingRequest[id]!=null)
-            delete currentEvent.meetingRequest[id];
-        }
-      });
-    });
+    _renderViewInvite(elem);
   }
   else if (currentEvent.view=="view-churchresource") {
     _renderViewChurchResource(elem);
@@ -686,6 +500,119 @@ function _renderEditEventContent(elem, currentEvent) {
   else if (currentEvent.view=="view-churchservice") {
     _renderViewChurchService(elem);
   }
+}
+
+function _renderViewInvite(elem) {
+  var rows = new Array();
+  rows.push('<div id="meeting-request">'+form_renderImage({src:"loading.gif"})+'</div>');
+  elem.find("#cal_content").html(rows.join(""));
+  churchInterface.jsendRead({func:"getAllowedPeopleForCalender", category_id:currentEvent.category_id}, function(ok, data) {
+    var form = new CC_Form();
+    var invitable=false;
+    if (data.length==0)
+      form.addHtml('<p>Dem Kalender sind keine Personen oder Gruppen zugewiesen.');
+    else {
+      var dt = new Date();
+      if (currentEvent.startdate<dt) {
+        form.addHtml('<div class="alert alert-error">Besprechungsanfrage liegt in der Vergangenheit. Es finden so keine Email-Anfragen statt.</div>');
+      }
+
+      form.addHtml('<div class="person-selector"></div>');
+      form.addHtml('<div style="height:360px;overflow-y:auto">');
+      form.addHtml('<table class="table table-condensed">');
+      function _addPerson(p) {
+        var mr=null;
+        if (currentEvent.meetingRequest!=null)
+          mr=currentEvent.meetingRequest[p.id];
+        form.addHtml('<tr data-id="'+p.id+'"><td>');
+        if (p.email!="" && (mr==null || mr.invite))
+          form.addCheckbox({htmlclass:"cb-person", checked:(mr!=null&&mr.invite), controlgroup:false,
+              data:[{name:"id", value:p.id}]});
+        form.addHtml('<td>'+form_renderPersonImage(p.imageurl, 40));
+        form.addHtml('<td>'+p.vorname+" "+p.name);
+        form.addHtml('<td><span class="status">');
+        if (p.email=="")
+          form.addHtml('<i>Keine E-Mail-Adresse!');
+        else {
+          if (mr!=null) {
+            if (mr.invite)
+              form.addHtml('wird eingeladen');
+            else if (mr.response_date==null)
+              form.addImage({src:"question.png",width:24, label:"Noch keine Antwort!"});
+            else if (mr.zugesagt_yn==null)
+              form.addImage({src:"check-64_sw.png",width:24, label:"Vorbehaltlich zugesagt"});
+            else if (mr.zugesagt_yn==1)
+              form.addImage({src:"check-64.png",width:24, label:"Zugesagt"});
+            else if (mr.zugesagt_yn==0)
+              form.addImage({src:"delete_2.png",width:24, label:"Abgesagt"});
+          }
+          else {
+            form.addHtml('nicht eingeladen');
+            invitable=true;
+          }
+        }
+        form.addHtml('</span>');
+      }
+      each(data, function(k,a) {
+        if (a.type=="gruppe") {
+          form.addHtml('<tr><td colspan=4><h4>'+a.bezeichnung+'</h4>');
+          each(a.data, function(i,p) {
+            _addPerson(p);
+          });
+        }
+      });
+      form.addHtml('<tr><td colspan=4><h4>Personen</h4>');
+      each(data, function(k,a) {
+        if (a.type=="person") {
+          _addPerson(a.data);
+        }
+      });
+      form.addHtml('</table></div>');
+    }
+
+    elem.find("#meeting-request").html(form.render());
+    if (invitable) {
+      form = new CC_Form();
+      form.addHtml('<p><span class="pull-right">');
+      form.addButton({label:"Alle auswählen", htmlclass:"select-all"});
+      form.addHtml("&nbsp; ")
+      form.addButton({label:"Alle abwählen", htmlclass:"deselect-all"});
+      form.addHtml('</span><i>Für eine Anfrage bitte Personen auswählen</i><br>');
+      if (currentEvent.repeat_id!=0)
+        form.addHtml('<small>Bei Wiederholungsterminen wird nur der erste Termin angefragt!</small>');
+      form.addHtml('&nbsp;</p>');
+      $('div.person-selector').html(form.render());
+    }
+    myelem=elem;
+    elem.find("input.select-all").click(function() {
+      elem.find("input.checkbox").each(function() {
+        $(this).attr("checked","checked");
+        $(this).trigger("change");
+      });
+    });
+    elem.find("input.deselect-all").click(function() {
+      elem.find("input.checkbox").each(function() {
+        $(this).removeAttr("checked");
+        $(this).trigger("change");
+      });
+    });
+    elem.find("input.cb-person").change(function() {
+      var id=$(this).attr("data-id");
+      var checked=$(this).attr("checked")=="checked";
+      if (checked) {
+        elem.find("tr[data-id="+id+"]").find("span.status").html("wird eingeladen");
+        if (currentEvent.meetingRequest==null) currentEvent.meetingRequest=new Object();
+        if (currentEvent.meetingRequest[id]==null)
+          currentEvent.meetingRequest[id]=new Object();
+        currentEvent.meetingRequest[id].invite=true;
+      }
+      else {
+        elem.find("tr[data-id="+id+"]").find("span.status").html("nicht eingeladen");
+        if (currentEvent.meetingRequest[id]!=null)
+          delete currentEvent.meetingRequest[id];
+      }
+    });
+  });
 }
 
 
@@ -700,7 +627,7 @@ function _renderViewChurchService(elem) {
       else {
         masterData.eventTemplate=data;
         if (masterData.eventTemplate==null) masterData.eventTemplate=new Object();
-        _renderEditEventContent(elem, currentEvent);
+        _renderEditEventContent(elem);
       }
     }, null, null, "churchservice");
   }
@@ -787,7 +714,7 @@ function _renderViewChurchService(elem) {
   }
 }
 
-function _renderEditEventNavi(elem, currentEvent) {
+function _renderEditEventNavi(elem) {
   var navi = new CC_Navi();
   navi.addEntry(currentEvent.view=="view-main","view-main","Kalender");
   if ((masterData.category[currentEvent.category_id].oeffentlich_yn==0)
@@ -800,10 +727,13 @@ function _renderEditEventNavi(elem, currentEvent) {
   navi.renderDiv("cal_menu", churchcore_handyformat());
 
   elem.find("ul.nav a").click(function() {
-    if (currentEvent.view=="view-main") getCalEditFields(currentEvent);
+    if (currentEvent.view=="view-main") {
+      currentEvent = $("#dates").renderCCEvent("getCCEvent");
+      getCalEditFields(currentEvent);
+    }
     currentEvent.view=$(this).attr("id");
-    _renderEditEventNavi(elem, currentEvent);
-    _renderEditEventContent(elem, currentEvent);
+    _renderEditEventNavi(elem);
+    _renderEditEventContent(elem);
   });
 }
 
@@ -819,9 +749,9 @@ function getCalEditFields(o) {
 
 
 function renderEditEvent(myEvent, origEvent, isSeries, editSeries, func) {
-    currentEvent = cloneEvent(myEvent);
+    currentEvent = myEvent;
     currentEvent.view="view-main";
-    if (previousBookings==null && currentEvent.bookings!=null) previousBookings=$.extend({}, currentEvent.bookings);
+    if (currentEvent.bookings!=null) previousBookings=$.extend({}, currentEvent.bookings);
     if (currentEvent.enddate==null) {
       currentEvent.enddate=new Date(currentEvent.startdate);
       // Wenn es kein Ganztagstermin ist, dann setze Ende 1h rauf
@@ -857,7 +787,11 @@ function renderEditEvent(myEvent, origEvent, isSeries, editSeries, func) {
     }
     var elem=form_showDialog((currentEvent.id==null?"Neuen "+desc+" erstellen":desc+" editieren"), rows.join(""), 560, 600, {
       "Speichern": function() {
-        if (currentEvent.view=="view-main") getCalEditFields(currentEvent);
+        if (currentEvent.bookings!=null) previousBookings=$.extend({}, currentEvent.bookings);
+        if (currentEvent.view=="view-main") {
+          currentEvent = $("#dates").renderCCEvent("getCCEvent");
+          getCalEditFields(currentEvent);
+        }
         // Check if there are CSEvents to delete
         each(currentEvent.csevents, function(k, a) { a.mark=false; });
         each(churchcore_getAllDatesWithRepeats(currentEvent), function(a, ds) {
@@ -872,12 +806,12 @@ function renderEditEvent(myEvent, origEvent, isSeries, editSeries, func) {
       }
     });
 
-    _renderEditEventContent(elem, currentEvent);
+    _renderEditEventContent(elem);
 
     if (isSeries && !editSeries) {
       elem.dialog('addbutton', 'Einzeltermin entfernen', function() {
         if (!confirm("Wirklich den Termin löschen?")) return null;
-        _addException(currentEvent, currentEvent.startdate);
+        currentEvent.addException(currentEvent.startdate);
         func(currentEvent, function(ok) {if (ok) elem.dialog("close");});
       });
 
@@ -889,13 +823,13 @@ function renderEditEvent(myEvent, origEvent, isSeries, editSeries, func) {
           if (confirm(txt)) {
 
             var d = new Date(currentEvent.startdate.withoutTime().getTime()); d.addDays(-1);
-            newEvent = cloneEvent(origEvent);
+            newEvent = origEvent.clone();
             newEvent.repeat_until=d;
             deleteNewerExceptionsAndAdditions(newEvent, d, false);
-            prooveEventChangeImpact(newEvent, origEvent, null, null, function(ok) {
+            origEvent.prooveEventChangeImpact(newEvent, null, null, function(ok) {
               if (ok) {
                 elem.dialog("close");
-                saveEvent(newEvent);
+                newEvent.saveEvent(newEvent);
               }
             });
           }
@@ -905,7 +839,7 @@ function renderEditEvent(myEvent, origEvent, isSeries, editSeries, func) {
         elem.dialog('addbutton', desc + ' löschen', function() {
           var txt=desc + " '"+currentEvent.bezeichnung+"' wirklich löschen? Alle Dienste und Buchungen werden mit gelöscht!";
           if (confirm(txt)) {
-            currentEvent = cloneEvent(origEvent);
+            currentEvent = origEvent.clone();
             delEvent(currentEvent, function() {
               elem.dialog("close");
             });
@@ -919,7 +853,7 @@ function renderEditEvent(myEvent, origEvent, isSeries, editSeries, func) {
 }
 
 function copyEvent(current_event) {
-  var event=cloneEvent(current_event);
+  var event=current_event.clone();
   event.orig_id=event.id;
   event.id=null;
   event.csevents=null;
@@ -943,7 +877,7 @@ function delEvent(event, func) {
 }
 
 function delEventFormular(event, func, currentDate) {
-  var newEvent = cloneEvent(event);
+  var newEvent = event.clone();
   if (newEvent.repeat_id>0) {
     var txt="Es handelt sich um einen Termin mit Wiederholungen, welche Termine sollen entfernt werden?";
     var elem=form_showDialog("Was soll gelöscht werden?", txt, 380, 300);
@@ -963,16 +897,16 @@ function delEventFormular(event, func, currentDate) {
         newEvent.repeat_until=d;
         deleteNewerExceptionsAndAdditions(newEvent, d, false);
         elem.dialog("close");
-        prooveEventChangeImpact(newEvent, event, null, null, function(ok) {
-          if (ok) saveEvent(newEvent);
+        event.prooveEventChangeImpact(newEvent, null, null, function(ok) {
+          if (ok) event.saveEvent(newEvent);
         });
       });
     }
     elem.dialog('addbutton', 'Nur aktueller', function() {
-       _addException(newEvent, currentDate);
+       newEvent.addException(newEvent, currentDate);
        elem.dialog("close");
-       prooveEventChangeImpact(newEvent, event, null, null, function(ok) {
-         if (ok) saveEvent(newEvent);
+       event.prooveEventChangeImpact(newEvent, null, null, function(ok) {
+         if (ok) event.saveEvent(newEvent);
        });
     });
     elem.dialog("addcancelbutton");
@@ -1850,9 +1784,9 @@ function renderFilterCalender() {
         rows.push('<li><a href="#" class="options edit">Weitere Optionen</a></li>');
       }
       if (getNotification("category", id-100)===false)
-        rows.push('<li><a href="#" class="options notification">Abonnieren</a></li>');
+        rows.push('<li><a href="#" class="options notification">Email-Abo einrichten</a></li>');
       else
-        rows.push('<li><a href="#" class="options notification">Abo bearbeiten</a></li>');
+        rows.push('<li><a href="#" class="options notification">Email-Abo bearbeiten</a></li>');
       rows.push('</ul></span>');
       rows.push('</span></span>');
     }

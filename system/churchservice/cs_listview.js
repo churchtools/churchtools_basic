@@ -33,6 +33,13 @@ ListView.prototype.getData = function(sorted) {
     return allEvents;
 };
 
+function getCSEvent(a) {
+  var res = new CCEvent(a);
+  if (res.cal_startdate!=null) res.cal_startdate = new Date(res.cal_startdate);
+  if (res.cal_enddate!=null) res.cal_enddate = new Date(res.cal_enddate);
+  return res;
+}
+
 
 ListView.prototype.renderMenu = function() {
   this_object=this;
@@ -335,7 +342,7 @@ ListView.prototype.saveEditEvent = function (elem) {
     obj.id = allEvents[csevent.id].cc_cal_id;
 
     var check = new Object();
-    check.originEvent = cloneEvent(allEvents[csevent.id]);
+    check.originEvent = allEvents[csevent.id].clone();
     check.originEvent.startdate = allEvents[csevent.id].cal_startdate;
     check.originEvent.enddate = allEvents[csevent.id].cal_enddate;
     delete check.originEvent.bookings;
@@ -353,12 +360,12 @@ ListView.prototype.saveEditEvent = function (elem) {
     churchInterface.jsendWrite(check, function(ok, data) {
       if (!ok) alert(data);
       else {
-        if (isSeries(allEvents[csevent.id])) {
+        if (allEvents[csevent.id].isSeries()) {
           data.hint="Mit dem Ausführen wird das Event aus der Kalenderserie herausgenommen und die gewünschten Änderungen übernommen. <br/>"+
                     "Wenn alle Events geändert werden sollen, bitte "+masterData.churchcal_name+" verwenden!";
         }
         confirmImpactOfEventChange(data, function() {
-          if (isSeries(check.originEvent)) {
+          if (check.originEvent.isSeries()) {
             splitEvent(check.originEvent, allEvents[csevent.id].startdate, false, function(newEvent, pastEvent) {
               obj.func = "saveSplittedEvent";
               obj.newEvent = newEvent;
@@ -555,8 +562,7 @@ ListView.prototype.renderEditEvent = function(event) {
 
   var elem = this.showDialog(_("change.of.dataset"), rows.join(""), (event.id==null?730:460), (event.id==null?600:500));
 
-  form_renderDates({data: event, allDayAllowed:false, repeatsAllowed: event.id==null, elem: elem.find("#datefields")});
-
+  $("#datefields").renderCCEvent({event: event, allDayAllowed:false, repeatsAllowed: event.id==null});
 
   if (event.valid_yn==null || event.valid_yn==1) {
     elem.dialog("addbutton", _("save"), function() {
@@ -685,7 +691,7 @@ ListView.prototype.renderEditEvent = function(event) {
 
 ListView.prototype.renderAddEntry = function() {
 
-  var event = new Object();
+  var event = getCSEvent();
   var d = new Date(this.currentDate);
   d.setHours(12);
   event.startdate=d;

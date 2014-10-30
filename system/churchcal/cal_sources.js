@@ -207,10 +207,7 @@ CalCCType.prototype.jsonCall = function(ids) {
           t.data[k].events=events;
           // Important conversations
           each(t.data[k].events, function(i,a) {
-            a.startdate=a.startdate.toDateEn(true);
-            a.enddate=a.enddate.toDateEn(true);
-            if (a.repeat_until!=null)
-              a.repeat_until=a.repeat_until.toDateEn(false);
+            t.data[k].events[i] = getCALEvent(a);
           });
           t.data[k].status="loaded";
           if (!t.data[k].hide) {

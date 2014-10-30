@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ *
  */
 class CTChurchResourceModule extends CTAbstractModule {
 
@@ -38,7 +38,7 @@ class CTChurchResourceModule extends CTAbstractModule {
     $res["cdb_bereich"] = churchcore_getTableData("cdb_bereich");
     $res["cdb_status"] = churchcore_getTableData("cdb_status");
     $res["cdb_station"] = churchcore_getTableData("cdb_station");
-    
+
     $res["modulename"] = $this->getModuleName();
     $res["modulespath"] = $this->getModulePath();
     $res["userid"] = $user->cmsuserid; // CMS Username#
@@ -51,21 +51,46 @@ class CTChurchResourceModule extends CTAbstractModule {
     return $res;
   }
 
+  public function saveSplittedBooking($params) {
+    include_once ('./' . CHURCHCAL . '/churchcal_db.php');
+    return churchcal_saveSplittedEvent($params);
+  }
+
+  public function saveSplittedEvent($params) {
+    include_once ('./' . CHURCHCAL . '/churchcal_db.php');
+    return churchcal_saveSplittedEvent($params);
+  }
+
+  public function createEvent($params) {
+    include_once ('./' . CHURCHCAL . '/churchcal_db.php');
+    return churchcal_createEvent($params);
+  }
+
+  public function updateEvent($params) {
+    include_once ('./' . CHURCHCAL . '/churchcal_db.php');
+    return churchcal_updateEvent($params);
+  }
+
+  public function deleteEvent($params) {
+    include_once ('./' . CHURCHCAL . '/churchcal_db.php');
+    return churchcal_deleteEvent($params);
+  }
+
   /**
    * poll for news
-   * 
-   * @param array $params          
+   *
+   * @param array $params
    * @return array
    */
   function pollForNews($params) {
     global $user;
     $last_id = $params["last_id"];
-    $res = db_query("SELECT * FROM {cr_log} 
+    $res = db_query("SELECT * FROM {cr_log}
                      WHERE id > :last_id AND person_id!=:user_id",
                      array(':last_id' => $last_id,
                            ':user_id' => $user->id,
                    ));
-            
+
     $arrs = array ();
     foreach ($res as $arr) {
       $arrs[$arr->id] = $arr;
@@ -73,7 +98,7 @@ class CTChurchResourceModule extends CTAbstractModule {
     $arr = array ();
     $arr["lastLogId"] = churchresource_getLastLogId();
     $arr["logs"] = $arrs;
-    
+
     return $arr;
   }
 
@@ -84,9 +109,9 @@ class CTChurchResourceModule extends CTAbstractModule {
    */
   function getLogs($params) {
     $id = $params["id"];
-    $res = db_query("SELECT l.*, CONCAT(p.vorname,' ',p.name) AS person_name 
+    $res = db_query("SELECT l.*, CONCAT(p.vorname,' ',p.name) AS person_name
                      FROM {cr_log} l, {cdb_person} p
-                     WHERE l.person_id=p.id AND booking_id=:id 
+                     WHERE l.person_id=p.id AND booking_id=:id
                      ORDER BY datum DESC",
                      array(':id' => $id));
     $logs = null;

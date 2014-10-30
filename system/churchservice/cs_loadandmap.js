@@ -37,12 +37,7 @@ function cs_loadEventData(id, nextFunction, forceReload) {
       timers["endAllPersons"]=new Date();
       if (json!=null) {
         each(json, function(k,a) {
-          a.startdate = new Date(a.startdate);
-          a.enddate = new Date(a.enddate);
-          a.repeat_until = new Date(a.repeat_until);
-          a.cal_startdate = new Date(a.cal_startdate);
-          a.cal_enddate = new Date(a.cal_enddate);
-          allEvents[a.id]=a;
+          allEvents[a.id] = getCSEvent(a);
         });
       }
   //    localStorage.setObject("allEvents",allEvents);

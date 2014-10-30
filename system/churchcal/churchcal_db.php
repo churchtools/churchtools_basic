@@ -124,7 +124,7 @@ function churchcal_getMyMeetingRequest() {
  * @throws CTNoPermission
  * @return int; id of created event
  */
-function churchcal_createEvent($params, $callOtherModules=true) {
+function churchcal_createEvent($params, $callCS=true) {
   global $user;
   // if source is another module rights are already checked
   if (!churchcal_isAllowedToEditCategory($params["category_id"])) {
@@ -171,18 +171,15 @@ function churchcal_createEvent($params, $callOtherModules=true) {
   if (isset($params["meetingRequest"])) churchcal_handleMeetingRequest($params["id"], $params);
 
   // Call other modules
-  $newCSIds=null;
-  if ($callOtherModules) {
-    if (churchcore_isModuleActivated("churchresource")) {
-      include_once (CHURCHRESOURCE . '/churchresource_db.php');
-      churchresource_updateResourcesFromChurchCal($params, "churchcal");
-    }
+  $newBookingIds = null;
+  if (churchcore_isModuleActivated("churchresource")) {
+    include_once (CHURCHRESOURCE . '/churchresource_db.php');
+    $newBookingIds = churchresource_operateResourcesFromChurchCal($params);
+  }
+  $newCSIds = null;
+  if ($callCS) {
     if (churchcore_isModuleActivated("churchservice")) {
       include_once (CHURCHSERVICE . '/churchservice_db.php');
-
-  //    $cs_params = array_merge(array(), $params); //array_merge so params could not be manipulateds
-  //    $cs_params["cal_id"] = $newId;
-  //    $cs_params["id"] = null;
       $newCSIds=churchservice_operateEventFromChurchCal($params);
     }
   }
@@ -198,7 +195,7 @@ function churchcal_createEvent($params, $callOtherModules=true) {
   $txt .= churchcore_CCEventData2String($params);
   ct_notify("category", $params["category_id"], $txt);
 
-  return array("id"=>$params["id"], "cseventIds"=>$newCSIds);
+  return array("id"=>$params["id"], "cseventIds"=>$newCSIds, "bookingIds"=>$newBookingIds);
 }
 
 /**
@@ -220,7 +217,7 @@ function churchcal_isAllowedToEditCategory($categoryId) {
  * @param array $params
  * @param string $sourc; controls cooperation between modules if event comes from another modulee
  */
-function churchcal_updateEvent($params, $callOtherModules = true) {
+function churchcal_updateEvent($params, $callCS = true) {
   global $user;
   $changes = array ();
 
@@ -237,90 +234,77 @@ function churchcal_updateEvent($params, $callOtherModules = true) {
     throw new CTNoPermission("AllowedToEditCategory[" . $old_cal->category_id . "] (oldCat)", "churchcal");
   }
 
-  // it is only a move in calendar
-  if (!isset($params["repeat_id"])) {
-    $i = new CTInterface();
-    $i->setParam("startdate", false);
-    $i->setParam("enddate", false);
-    $i->setParam("bezeichnung", false);
-    $i->setParam("category_id", false);
-    $f = $i->getDBInsertArrayFromParams($params);
-    if (count($f)) db_update("cc_cal")
+  if (isset($params["notizen"])) $params["notizen"] = str_replace('\"', '"', $params["notizen"]);
+
+  $i = new CTInterface();
+  $i->setParam("startdate", false);
+  $i->setParam("enddate", false);
+  $i->setParam("bezeichnung", false);
+  $i->setParam("category_id", false);
+  $i->setParam("ort", false);
+  $i->setParam("notizen", false);
+  $i->setParam("intern_yn", false);
+  $i->setParam("link", false);
+  $i->setParam("repeat_id", false);
+  $i->setParam("repeat_until", false);
+  $i->setParam("repeat_frequence", false);
+  $i->setParam("repeat_option_id", false);
+
+  $f = $i->getDBInsertArrayFromParams($params);
+  if (count($f)) db_update("cc_cal")
                     ->fields($f)
                     ->condition("id", $params["id"], "=")
                     ->execute();
+
+
+  // get all exceptions
+  $exc = churchcore_getTableData("cc_cal_except", null, "cal_id=" . $params["id"]);
+  // look which are already in DB
+  if (isset($params["exceptions"])) foreach ($params["exceptions"] as $exception) {
+    if ($exception["id"] > 0) {
+      $exc[$exception["id"]]->vorhanden = true;
+    }
+    else {
+      $add_exc = array ("cal_id" => $params["id"],
+                        "except_date_start" => $exception["except_date_start"],
+                        "except_date_end" => $exception["except_date_end"],
+      );
+      churchcal_addException($add_exc);
+      $changes["add_exception"][] = $add_exc;
+    }
   }
-  else {
-    db_query("
-      UPDATE {cc_cal} SET startdate=:startdate, enddate=:enddate, bezeichnung=:bezeichnung, ort=:ort,
-        notizen=:notizen, link=:link, category_id=:category_id, intern_yn=:intern_yn, category_id=:category_id,
-        repeat_id=:repeat_id, repeat_until=:repeat_until, repeat_frequence=:repeat_frequence,
-        repeat_option_id=:repeat_option_id
-      WHERE id=:event_id", array(
-        ":event_id"        => $params["id"],
-        ":startdate"       => $params["startdate"],
-        ":enddate"         => $params["enddate"],
-        ":bezeichnung"     => $params["bezeichnung"],
-        ":ort"             => $params["ort"],
-        ":intern_yn"       => $params["intern_yn"],
-        ":notizen"         => str_replace('\"', '"', $params["notizen"]),
-        ":link"            => $params["link"],
-        ":category_id"     => $params["category_id"],
-        ":repeat_id"       => getVar("repeat_id", null, $params),
-        ":repeat_until"    => getVar("repeat_until", null, $params),
-        ":repeat_frequence"=> getVar("repeat_frequence", null, $params),
-        ":repeat_option_id"=> getVar("repeat_option_id", null, $params),
-      ));
+  // delete removed exceptions from DB
+  if ($exc) {
+    foreach ($exc as $e) if (!isset($e->vorhanden)) {
+      $del_exc = array ("id" => $e->id,
+                        "except_date_start" => $e->except_date_start,
+                        "except_date_end" => $e->except_date_end,
+      );
+      churchcal_delException($del_exc);
+      $changes["del_exception"][] = $del_exc;
+    }
+  }
 
-    // get all exceptions
-    $exc = churchcore_getTableData("cc_cal_except", null, "cal_id=" . $params["id"]);
-    // look which are already in DB
-    if (isset($params["exceptions"])) foreach ($params["exceptions"] as $exception) {
-      if ($exception["id"] > 0) {
-        $exc[$exception["id"]]->vorhanden = true;
-      }
-      else {
-        $add_exc = array ("cal_id" => $params["id"],
-                          "except_date_start" => $exception["except_date_start"],
-                          "except_date_end" => $exception["except_date_end"],
-        );
-        churchcal_addException($add_exc);
-        $changes["add_exception"][] = $add_exc;
-      }
+  // get all additions
+  $add = churchcore_getTableData("cc_cal_add", null, "cal_id=" . $params["id"]);
+  // look which are already in DB.
+  if (isset($params["additions"])) foreach ($params["additions"] as $addition) {
+    if ($addition["id"] > 0) $add[$addition["id"]]->vorhanden = true;
+    else {
+      $add_add = array ("cal_id" => $params["id"],
+                        "add_date" => $addition["add_date"],
+                        "with_repeat_yn" => $addition["with_repeat_yn"],
+      );
+      churchcal_addAddition($add_add);
+      $changes["add_addition"][] = $add_add;
     }
-    // delete removed exceptions from DB
-    if ($exc) {
-      foreach ($exc as $e) if (!isset($e->vorhanden)) {
-        $del_exc = array ("id" => $e->id,
-                          "except_date_start" => $e->except_date_start,
-                          "except_date_end" => $e->except_date_end,
-        );
-        churchcal_delException($del_exc);
-        $changes["del_exception"][] = $del_exc;
-      }
-    }
-
-    // get all additions
-    $add = churchcore_getTableData("cc_cal_add", null, "cal_id=" . $params["id"]);
-    // look which are already in DB.
-    if (isset($params["additions"])) foreach ($params["additions"] as $addition) {
-      if ($addition["id"] > 0) $add[$addition["id"]]->vorhanden = true;
-      else {
-        $add_add = array ("cal_id" => $params["id"],
-                          "add_date" => $addition["add_date"],
-                          "with_repeat_yn" => $addition["with_repeat_yn"],
-        );
-        churchcal_addAddition($add_add);
-        $changes["add_addition"][] = $add_add;
-      }
-    }
-    // delete from DB which are deleted.
-    if ($add) foreach ($add as $a) {
-      if (!isset($a->vorhanden)) {
-        $del_add = array ("id" => $a->id, "add_date" => $a->add_date);
-        churchcal_delAddition($del_add);
-        $changes["del_addition"][] = $del_add;
-      }
+  }
+  // delete from DB which are deleted.
+  if ($add) foreach ($add as $a) {
+    if (!isset($a->vorhanden)) {
+      $del_add = array ("id" => $a->id, "add_date" => $a->add_date);
+      churchcal_delAddition($del_add);
+      $changes["del_addition"][] = $del_add;
     }
   }
 
@@ -328,16 +312,18 @@ function churchcal_updateEvent($params, $callOtherModules = true) {
   if (isset($params["meetingRequest"])) churchcal_handleMeetingRequest($params["id"], $params);
 
   // Call other modules
+  $newBookingIds = null;
   if (churchcore_isModuleActivated("churchresource")) {
-//    include_once (CHURCHRESOURCE . '/churchresource_db.php');
-//    $params["cal_id"] = $params["id"];
-//    churchresource_updateResourcesFromChurchCal($params, $source, $changes);
+    include_once (CHURCHRESOURCE . '/churchresource_db.php');
+    $newBookingIds = churchresource_operateResourcesFromChurchCal($params);
   }
-  if (churchcore_isModuleActivated("churchservice") && $callOtherModules) {
-    include_once (CHURCHSERVICE . '/churchservice_db.php');
-    $newCSIds=churchservice_operateEventFromChurchCal($params);
+  $newCSIds = null;
+  if ($callCS) {
+    if (churchcore_isModuleActivated("churchservice")) {
+      include_once (CHURCHSERVICE . '/churchservice_db.php');
+      $newCSIds=churchservice_operateEventFromChurchCal($params);
+    }
   }
-  else $newCSIds=null;
 
   // Notification
   $data = db_query("select * from {cc_calcategory} where id=:id", array(":id"=>$params["category_id"]))->fetch();
@@ -349,7 +335,8 @@ function churchcal_updateEvent($params, $callOtherModules = true) {
   $txt .= " auf:<br>";
   $txt .= churchcore_CCEventData2String($params);
   ct_notify("category", $params["category_id"], $txt);
-  return array("cseventIds"=>$newCSIds);
+
+  return array("cseventIds" => $newCSIds, "bookingIds" => $newBookingIds);
 }
 
 function churchcal_saveSplittedEvent($params) {
@@ -360,16 +347,19 @@ function churchcal_saveSplittedEvent($params) {
   $untilEnd_yn = $params["untilEnd_yn"];
   $pastEventId = $params["pastEvent"]["id"];
 
-  // Save new Event and bind related bookings and services to the new event
+  // Copy all entries from past to new event, cause CR und CS does not have all infos and doesn't need it :)
+  $pastEventDB = db_query("SELECT bezeichnung, ort, notizen, link, intern_yn, category_id  "
+                         ."FROM {cc_cal} WHERE id = :id ", array (":id" => $pastEventId)) -> fetch();
+  if ($pastEventDB!=false) foreach ($pastEventDB as $key => $entry) {
+    if (empty($params["pastEvent"][$key])) $params["pastEvent"][$key] = $entry;
+    if (empty($params["newEvent"][$key])) $params["newEvent"][$key] = $entry;
+  }
+  // Save new Event without impact on CS and CR ...
   $res = churchcal_createEvent($params["newEvent"], false);
+
+  // ... and now bind related bookings and services to the new event
   $newEventId = $res["id"];
   $params["newEvent"]["id"] = $newEventId;
-
-  if (churchcore_isModuleActivated("churchresource")) {
-    include_once ('./' . CHURCHRESOURCE . '/churchresource_db.php');
-  //      churchresource_rebindResourcesToNewEvent($oldEventId, $newEventId, $splitDate, $untilEnd_yn);
-  //      churchresource_updateResourcesFromEvent($newEventId, $params["newEvent"]);
-  }
 
   if (churchcore_isModuleActivated("churchservice")) {
     include_once ('./' . CHURCHSERVICE . '/churchservice_db.php');
@@ -385,7 +375,7 @@ function churchcal_saveSplittedEvent($params) {
   // Save old Event
   churchcal_updateEvent($params["pastEvent"], false);
 
-  return array("id"=>$newEventId);
+  return array("id" => $newEventId, "bookingIds" => $res["bookingIds"]);
 }
 
 /**
@@ -394,26 +384,6 @@ function churchcal_saveSplittedEvent($params) {
  */
 function churchcal_getEventChangeImpact($params) {
   $res = new stdClass();
-/*  // if no originEvent is given it is a new event without impact
-  if (!isset($params["originEvent"])) return $res;
-  // If no split date is given, then get the date of the originEvent
-  if (empty($params["splitDate"])) $params["splitDate"] = $params["originEvent"]["startdate"];
-  $splitDate = new DateTime($params["splitDate"]);
-
-  // check if date and duration is the same. If it is, there is no impact!
-  $newStartDate    = new DateTime($params["newEvent"]["startdate"]);
-  $newEndDate      = new DateTime($params["newEvent"]["enddate"]);
-  $newDiff         = $newEndDate->getTimestamp() - $newStartDate->getTimestamp();
-  $originStartDate = new DateTime($params["originEvent"]["startdate"]);
-  $originEndDate   = new DateTime($params["originEvent"]["enddate"]);
-  $originDiff      = $originEndDate->getTimestamp() - $originStartDate->getTimestamp();
-
-  // Was ist mit Exception und mit reduzierter Repeat Until?
-
-  if ($splitDate->format("Y-m-d H:i") == $newStartDate->format("Y-m-d H:i") && $newDiff == $originDiff) {
-    $res->message = "No differences in date and duration";
-  }
-  else {*/
 
   // Get ChurchService impact
   if (churchcore_isModuleActivated("churchservice")) {
@@ -540,7 +510,7 @@ function churchcal_getCalPerCategory($params, $withintern = null) {
       }
     }
     if ($arr->booking_id) {
-      $elem->bookings[$arr->booking_resource_id] = array (
+      $elem->bookings[$arr->booking_id] = array (
           "id" => $arr->booking_id,
           "minpre" => (strtotime($arr->startdate) - strtotime($arr->booking_startdate)) / 60,
           "minpost" => (strtotime($arr->booking_enddate) - strtotime($arr->enddate)) / 60,

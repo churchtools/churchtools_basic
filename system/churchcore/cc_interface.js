@@ -48,7 +48,7 @@ ChurchInterface.prototype.sendMessageToAllViews = function (message, args) {
 };
 
 ChurchInterface.prototype._pollForNews = function () {
-  var t=this;
+/*  var t=this;
   this.pollForNews=window.setTimeout(function() {
     t.jsendRead({func:"pollForNews", last_id:t.lastLogId}, function(ok, json) {
       if (ok) {
@@ -59,7 +59,7 @@ ChurchInterface.prototype._pollForNews = function () {
         t._pollForNews();
       }
     });
-  },10000);
+  },10000);*/
 };
 
 ChurchInterface.prototype.setAllDataLoaded = function (val) {

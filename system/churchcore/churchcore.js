@@ -592,9 +592,9 @@ Date.prototype.toStringDe = function (withTime) {
   var str="";
 
   if (this.getFullYear()<7000) {
-    day=this.getDate();
+    var day=this.getDate();
     if (day<10) day="0"+day;
-    month=this.getMonth()+1;
+    var month=this.getMonth()+1;
     if (month<10) month="0"+month;
     str=day+"."+month+".";
   }
@@ -627,11 +627,11 @@ function churchcore_getTimeDiff(lastTime) {
 
 Date.prototype.toStringEn = function (withTime) {
   if (this==null) return null;
-  d=this;
+  var d=this;
   if (d==0) return "Kein Datum";
-  day=d.getDate();
+  var day=d.getDate();
   if (day<10) day="0"+day;
-  month=d.getMonth()+1;
+  var month=d.getMonth()+1;
   if (month<10) month="0"+month;
   if (!withTime)
     return d.getFullYear()+"-"+month+"-"+day;

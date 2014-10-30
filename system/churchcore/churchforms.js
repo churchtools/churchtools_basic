@@ -636,458 +636,457 @@ function _getHoursArray() {
   return hours;
 }
 
+$.widget("ct.renderCCEvent", {
+  options: {
+    name : "renderCCEvent",
+    event : null
+  },
 
-function _renderDateForms(options) {
-  var rows= new Array();
+  _create: function() {
+    var t = this;
+    t.render();
+  },
 
-  var startdate=options.data.startdate;
-  var enddate=options.data.enddate;
-  var startdate=options.data.startdate;
-  var repeat_id=options.data.repeat_id;
-  var repeat_frequence=options.data.repeat_frequence;
-  var repeat_until=options.data.repeat_until;
-  var repeat_option_id=options.data.repeat_option_id;
-  var exceptions=options.data.exceptions;
-  var additions=options.data.additions;
-  var authexceptions=(options.authexceptions==null?true:options.authexceptions);
-  var authadditions=(options.authadditions==null?true:options.authadditions);
-  var disabled=(options.disabled!=null) && (options.disabled==true);
-
-  var allDayAllowed = (options.allDayAllowed == null || options.allDayAllowed );
-  var repeatsAllowed = (options.repeatsAllowed == null || options.repeatsAllowed );
-
-  var minutes = _getMinutesArray();
-  var hours = _getHoursArray();
-
-  var allDay=churchcore_isAllDayDate(startdate, enddate);
-  var rows=new Array();
-  if (allDayAllowed) {
-    rows.push(form_renderCheckbox({
-      label:" "+_("all.day"),
-      controlgroup:true,
-      cssid:"inputAllDay",
-      checked:allDay,
-      disabled:disabled
-    }));
-  }
-
-  if (allDay) {
-    rows.push(form_renderInput({
-      cssid:"inputStartdate",
-      label:_("start.date"),
-      controlgroup:true,
-      value:startdate.toStringDe(),
-      disabled:disabled,
-      type:"small"
-    }));
-    rows.push("<div id=\"dp_startdate\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/>");
-  }
-  else {
-    rows.push(form_renderInput({
-      cssid:"inputStartdate",
-      label:_("start.date"),
-      controlgroup_start:true,
-      separator:"<nobr>",
-      value:startdate.toStringDe(),
-      disabled:disabled,
-      type:"small"
-    })+"&nbsp;");
-    rows.push("<div id=\"dp_startdate\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/>");
-
-    rows.push(form_renderSelect({
-      data:hours,
-      cssid:"inputStarthour",
-      selected:startdate.getHours(),
-      htmlclass:"input-mini",
-      disabled:disabled,
-      controlgroup:false
-    })+" : ");
-
-    rows.push(form_renderSelect({
-      data:minutes,
-      cssid:"inputStartminutes",
-      selected:startdate.getMinutes(),
-      type:"mini",
-      disabled:disabled,
-      controlgroup_end:true
-    }));
-  }
-  rows.push("</nobr>");
-
-  if (allDay) {
-    rows.push(form_renderInput({
-      cssid:"inputEnddate",
-      label:_("end.date"),
-      controlgroup:true,
-      value:enddate.toStringDe(),
-      disabled:disabled,
-      type:"small"
-    }));
-    rows.push("<div id=\"dp_enddate\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/>");
-  }
-  else {
-    rows.push(form_renderInput({
-      cssid:"inputEnddate",
-      label:_("end.date"),
-      controlgroup_start:true,
-      separator:"<nobr>",
-      value:enddate.toStringDe(),
-      disabled:disabled,
-      type:"small"
-    })+"&nbsp;");
-    rows.push("<div id=\"dp_enddate\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/>");
-
-    rows.push(form_renderSelect({
-      data:hours,
-      cssid:"inputEndhour",
-      selected:((month) && (enddate.getHours()==0)?11:enddate.getHours()),
-      htmlclass:"input-mini",
-      disabled:disabled,
-      controlgroup:false
-    })+" : ");
-
-    rows.push(form_renderSelect({
-      data:minutes,
-      cssid:"inputEndminutes",
-      selected:enddate.getMinutes(),
-      type:"mini",
-      disabled:disabled,
-      controlgroup_end:true
-    }));
-  }
-  rows.push("</nobr>");
-
-
-  // REPEATS
-  if (!repeatsAllowed)
-    rows.push(form_renderHidden({cssid:"inputRepeat_id", value:"0"}));
-  else {
-
-    rows.push(form_renderSelect({
-      data:masterData.repeat,
-      cssid:"inputRepeat_id",
-      selected:repeat_id,
-      disabled:disabled,
-      type:"big",
-      label:_("repeats")
-    }));
-
-    rows.push('<div id="repeats_select">');
-
-    if ((repeat_id!=null) && (repeat_id>0)) {
-      if ((repeat_frequence==null) || (repeat_frequence==0))
-        repeat_frequence=1;
-
-      if (repeat_id==32) {
-        var r = new Array();
-        var d = dayNames[startdate.getDay()]+" im Monat";
-        r.push(form_prepareDataEntry(1,"Erster "+d,1));
-        r.push(form_prepareDataEntry(2,"Zweiter "+d,2));
-        r.push(form_prepareDataEntry(3,"Dritter "+d,3));
-        r.push(form_prepareDataEntry(4,"Vierter "+d,4));
-        r.push(form_prepareDataEntry(5,"F&uuml;nter "+d+" (falls vorhanden)",5));
-        r.push(form_prepareDataEntry(6,"Letzter "+d,6));
-        if (repeat_option_id==null) {
-          var tester=new Date(startdate);
-          tester.setDate(0);
-          var counter=0;
-          while (tester<startdate) {
-            tester.addDays(1);
-            if (tester.getDay()==startdate.getDay()) counter=counter+1;
-          }
-          repeat_option_id=counter;
+  _checkExceptionCollision: function() {
+    var t = this;
+    var data = t.options.event;
+    var collision=false;
+    if (data.exceptions!=null) {
+      each(data.exceptions, function(k,e) {
+        if (churchcore_datesInConflict(data.startdate, data.enddate, e.except_date_start.toDateEn(true), e.except_date_end.toDateEn(true))) {
+          collision=k;
+          return false;
         }
-        rows.push(form_renderSelect({
-          data:r,
-          cssid:"inputRepeatOptionId",
-          disabled:disabled,
-          selected:repeat_option_id,
-          type:"medium",
-          label:""
-        }));
-      }
+      });
+    }
+    if (collision!==false && confirm("Es gibt eine Ausnahme an dem Datum, soll die entfernt werden?")) {
+      delete data.exceptions[collision];
+      t.render();
+    }
+  },
 
-      if (repeat_id!=999) {
-        rows.push('<div class="control-group"><label class="control-label"></label>');
-        rows.push('<div class="controls">');
-        rows.push('alle&nbsp;');
-        rows.push(form_renderInput({
-          value:repeat_frequence,
-          disabled:disabled,
-          controlgroup:false,
-          cssid:"inputRepeatFrequence",
-          type:"xxmini"}));
-        if (repeat_until==null) {
-          repeat_until=new Date(startdate);
-          repeat_until.addDays(repeat_id*1);
-        }
-      }
-      if (repeat_id==1)
-        rows.push("&nbsp;Tag(e) bis&nbsp;");
-      else if (repeat_id==7)
-        rows.push("&nbsp;Woche(n) bis&nbsp;");
-      else if (repeat_id==31)
-        rows.push("&nbsp;Monat(e) bis&nbsp;");
-      else if (repeat_id==32)
-        rows.push("&nbsp;Monat(e) bis&nbsp;");
-      else if (repeat_id==365)
-        rows.push("&nbsp;Jahr(e) bis&nbsp;");
-      if (repeat_id!=999) {
-        if ((repeat_until==null) || (repeat_until.getFullYear()==1899)) {
-          repeat_until=new Date(startdate);
-          repeat_until.addDays(repeat_id*1);
-        }
-        rows.push(form_renderInput({
-          value:repeat_until.toStringDe(),
-          controlgroup:false,
-          disabled:disabled,
-          cssid:"inputRepeatUntil",
-          type:"small"}));
-        rows.push("<div id=\"dp_repeatuntil\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/></div></div>");
-      }
+  _render: function() {
+    var t = this;
+    var rows= new Array();
 
-    // AUSNAHMEN
+    var event = t.options.event;
 
-    if ((repeat_id>0) && (repeat_id!=999)) {
-      rows.push('<div id="repeats_exceptions">');
-      rows.push('<div class="control-group"><label class="control-label">Ausnahmen</label>');
-      rows.push('<div class="controls">');
-      if (exceptions!=null) {
-        each(churchcore_sortData(exceptions, "exception_start_date"), function(k,a) {
-          rows.push('<span class="label label-default" title="id:'+a.id+'">');
-          if (a.except_date_end!=a.except_date_start) {
-            rows.push(a.except_date_start.toDateEn().toStringDe()+"-"+a.except_date_end.toDateEn().toStringDe()+"&nbsp;");
-          }
-          else
-            rows.push(a.except_date_start.toDateEn().toStringDe()+"&nbsp;");
+    var authexceptions=(t.options.authexceptions==null?true:t.options.authexceptions);
+    var authadditions=(t.options.authadditions==null?true:t.options.authadditions);
+    var disabled=(t.options.disabled!=null) && (t.options.disabled==true);
 
-          if ((options.deleteException!=null) && (authexceptions))
-            rows.push(form_renderImage({src:"trashbox.png",width:16, cssid:"delException"+a.id}));
+    var allDayAllowed = (t.options.allDayAllowed == null || t.options.allDayAllowed );
+    var repeatsAllowed = (t.options.repeatsAllowed == null || t.options.repeatsAllowed );
 
-          rows.push('</span>&nbsp; ');
-        });
-      }
-      if ((authexceptions) && (!disabled)) {
-        rows.push(form_renderImage({src:"plus.png", width:20, cssid:"addException"}));
-        rows.push("<div id=\"dp_addexception\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/></div></div>");
-      }
-      rows.push('</div></div>');
-      rows.push('</div>');
+    var minutes = _getMinutesArray();
+    var hours = _getHoursArray();
+
+    var allDay=churchcore_isAllDayDate(event.startdate, event.enddate);
+    var rows=new Array();
+    if (allDayAllowed) {
+      rows.push(form_renderCheckbox({
+        label:" "+_("all.day"),
+        controlgroup:true,
+        cssid:"inputAllDay",
+        checked:allDay,
+        disabled:disabled
+      }));
     }
 
-
-      // MANUELLE TERMINE
-
-      if (((repeat_id>0) && (repeat_id!=1)) || (additions!=null)) {
-        rows.push('<div id="repeats_addition">');
-          rows.push('<div class="control-group"><label class="control-label">Weitere Termine</label>');
-          rows.push('<div class="controls">');
-          if (additions!=null) {
-            each(churchcore_sortData(additions, "add_date"), function(k,a) {
-              rows.push('<span class="label label-default" title="id:'+a.id+'">');
-              rows.push(a.add_date.toDateEn().toStringDe()+"&nbsp;");
-
-              var image="recurring_bw.png";
-              if (a.with_repeat_yn==1) image="recurring.png";
-
-              if ((options.addAddition!=null) && (authadditions))
-                rows.push(form_renderImage({src:image,width:16, label:"Soll der manuelle Termin auch wiederholt werden", cssid:"changeAdditionRepeat"+(1-a.with_repeat_yn)+a.id}));
-              else
-                rows.push(form_renderImage({src:image,width:16}));
-
-              if ((options.addAddition!=null) && (authadditions))
-                rows.push(form_renderImage({src:"trashbox.png",width:16, label:"Entferne den manuellen Termin", cssid:"delAddition"+a.id}));
-
-              rows.push('</span>&nbsp; ');
-            });
-          }
-          if ((authadditions) && (!disabled)) {
-            rows.push(form_renderImage({src:"plus.png", width:20, cssid:"addAddition"}));
-            rows.push("<div id=\"dp_addaddition\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/></div></div>");
-          }
-          rows.push('</div></div>');
-        rows.push("</div>");
-      }
-    }
-  }
-
-  rows.push("</div>");
-  return rows.join("");
-}
-
-
-// options.cssid und options.data
-
-function form_renderDates(options) {
-  if (debug) console.log(options);
-
-  if (options.data.exceptions!=null)
-    options.data.exceptions=jQuery.extend({}, options.data.exceptions);
-  if (options.data.additions!=null)
-    options.data.additions=jQuery.extend({}, options.data.additions);
-
-  options.elem.html(_renderDateForms(options));
-
-
-  // CALLBACKS
-  $('#inputAllDay').change(function(c) {
-    if ($(this).attr("checked")=="checked") {
-      options.data.startdate.setHours(0);
-      options.data.startdate.setMinutes(0);
-      options.data.enddate.setHours(0);
-      options.data.enddate.setMinutes(0);
+    if (allDay) {
+      rows.push(form_renderInput({
+        cssid:"inputStartdate",
+        label:_("start.date"),
+        controlgroup:true,
+        value:event.startdate.toStringDe(),
+        disabled:disabled,
+        type:"small"
+      }));
+      rows.push("<div id=\"dp_startdate\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/>");
     }
     else {
-      options.data.startdate.setHours(10);
-      options.data.enddate.setHours(11);
-    }
-    form_renderDates(options);
-  });
+      rows.push(form_renderInput({
+        cssid:"inputStartdate",
+        label:_("start.date"),
+        controlgroup_start:true,
+        separator:"<nobr>",
+        value:event.startdate.toStringDe(),
+        disabled:disabled,
+        type:"small"
+      })+"&nbsp;");
+      rows.push("<div id=\"dp_startdate\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/>");
 
-  $("#inputStartdate").click(function() {
-    form_implantDatePicker('dp_startdate', options.data.startdate, function(dateText) {
-      $("#inputStartdate").val(dateText);
-      $("#inputStartdate").keyup();
-    });
-  });
-  $("#inputEnddate").click(function() {
-    form_implantDatePicker('dp_enddate', options.data.enddate, function(dateText) {
-      $("#inputEnddate").val(dateText);
-      $("#inputEnddate").keyup();
-    });
-  });
-  $("#inputStartdate").keyup(function() {
-    if ($("#inputStartdate").val().isGermanDateFormat()) {
-      $("#inputEnddate").val($("#inputStartdate").val());
-      form_getDatesInToObject(options.data);
-      options.data.repeat_option_id=null;
-      form_renderDates(options);
-      checkExceptionCollision(options);
-    }
-  });
-  $("#inputStarthour").change(function() {
-    options.data.startdate.setHours($("#inputStarthour").val());
-    if (form_getDateFromForm("inputStart")>=form_getDateFromForm("inputEnd")) {
-      options.data.enddate.setHours($("#inputStarthour").val()*1+1);
-      form_renderDates(options);
-    }
-  });
-  $("#inputEndhour").change(function() {
-    if (form_getDateFromForm("inputStart")>=form_getDateFromForm("inputEnd"))
-      $("#inputStarthour").val($("#inputEndhour").val()*1-1);
-  });
+      rows.push(form_renderSelect({
+        data:hours,
+        cssid:"inputStarthour",
+        selected:event.startdate.getHours(),
+        htmlclass:"input-mini",
+        disabled:disabled,
+        controlgroup:false
+      })+" : ");
 
-  $('#repeats_exceptions a').click(function() {
-    if ($(this).attr("id").indexOf("delException")==0) {
-      if (options.deleteException!=null) {
-        var exc=options.data.exceptions[$(this).attr("id").substr(12,99)];
-        options.deleteException(exc);
-        form_renderDates(options);
-      }
-      return false;
+      rows.push(form_renderSelect({
+        data:minutes,
+        cssid:"inputStartminutes",
+        selected:event.startdate.getMinutes(),
+        type:"mini",
+        disabled:disabled,
+        controlgroup_end:true
+      }));
     }
-    else if ($(this).attr("id")=="addException") {
-      form_getDatesInToObject(options.data);
-      form_implantDatePicker('dp_addexception', null, function(dateText) {
-        if (options.addException!=null) {
-          options.data=options.addException(options.data, dateText);
-          form_renderDates(options);
+    rows.push("</nobr>");
+
+    if (allDay) {
+      rows.push(form_renderInput({
+        cssid:"inputEnddate",
+        label:_("end.date"),
+        controlgroup:true,
+        value:event.enddate.toStringDe(),
+        disabled:disabled,
+        type:"small"
+      }));
+      rows.push("<div id=\"dp_enddate\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/>");
+    }
+    else {
+      rows.push(form_renderInput({
+        cssid:"inputEnddate",
+        label:_("end.date"),
+        controlgroup_start:true,
+        separator:"<nobr>",
+        value:event.enddate.toStringDe(),
+        disabled:disabled,
+        type:"small"
+      })+"&nbsp;");
+      rows.push("<div id=\"dp_enddate\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/>");
+
+      rows.push(form_renderSelect({
+        data:hours,
+        cssid:"inputEndhour",
+        selected:((event.enddate.getHours()==0)?11:event.enddate.getHours()),
+        htmlclass:"input-mini",
+        disabled:disabled,
+        controlgroup:false
+      })+" : ");
+
+      rows.push(form_renderSelect({
+        data:minutes,
+        cssid:"inputEndminutes",
+        selected:event.enddate.getMinutes(),
+        type:"mini",
+        disabled:disabled,
+        controlgroup_end:true
+      }));
+    }
+    rows.push("</nobr>");
+
+
+    // REPEATS
+    if (!repeatsAllowed)
+      rows.push(form_renderHidden({cssid:"inputRepeat_id", value:"0"}));
+    else {
+
+      rows.push(form_renderSelect({
+        data:masterData.repeat,
+        cssid:"inputRepeat_id",
+        selected:event.repeat_id,
+        disabled:disabled,
+        type:"big",
+        label:_("repeats")
+      }));
+
+      rows.push('<div id="repeats_select">');
+
+      if ((event.repeat_id!=null) && (event.repeat_id>0)) {
+        if ((event.repeat_frequence==null) || (event.repeat_frequence==0))
+          event.repeat_frequence=1;
+
+        if (event.repeat_id==32) {
+          var r = new Array();
+          var d = dayNames[event.startdate.getDay()]+" im Monat";
+          r.push(form_prepareDataEntry(1,"Erster "+d,1));
+          r.push(form_prepareDataEntry(2,"Zweiter "+d,2));
+          r.push(form_prepareDataEntry(3,"Dritter "+d,3));
+          r.push(form_prepareDataEntry(4,"Vierter "+d,4));
+          r.push(form_prepareDataEntry(5,"F&uuml;nter "+d+" (falls vorhanden)",5));
+          r.push(form_prepareDataEntry(6,"Letzter "+d,6));
+          if (repeat_option_id==null) {
+            var tester=new Date(event.startdate);
+            tester.setDate(0);
+            var counter=0;
+            while (tester<event.startdate) {
+              tester.addDays(1);
+              if (tester.getDay()==event.startdate.getDay()) counter=counter+1;
+            }
+            repeat_option_id=counter;
+          }
+          rows.push(form_renderSelect({
+            data:r,
+            cssid:"inputRepeatOptionId",
+            disabled:disabled,
+            selected:repeat_option_id,
+            type:"medium",
+            label:""
+          }));
         }
-      }, function(chose) {
-        var select=false;
-        each(churchcore_getAllDatesWithRepeats(options.data), function(a,ds) {
-          if ((ds.startdate.toStringEn(false).toDateEn(false).getTime()==chose.getTime()))
-            select=true;
-        });
-        return [select];
-      });
 
-      return false;
-    }
-  });
-  $('#repeats_addition a').click(function() {
-    if ($(this).attr("id").indexOf("delAddition")==0) {
-      if (options.deleteAddition!=null) {
-        var add=options.data.additions[$(this).attr("id").substr(11,99)];
-        options.deleteAddition(add);
-        form_renderDates(options);
-      }
-      return false;
-    }
-    else if ($(this).attr("id").indexOf("changeAdditionRepeat")==0) {
-      if ((options.deleteAddition!=null) && (options.addAddition!=null)) {
-        var add=options.data.additions[$(this).attr("id").substr(21,99)];
-        options.deleteAddition(add);
-        options.data=options.addAddition(add.data, add.add_date.toDateEn().toStringDe(), $(this).attr("id").substr(20,1));
-        form_renderDates(options);
-      }
-      return false;
-    }
-    else if ($(this).attr("id")=="addAddition") {
-      form_getDatesInToObject(options.data);
-      form_implantDatePicker('dp_addaddition', null, function(dateText) {
-        if (options.addAddition!=null) {
-          options.data=options.addAddition(options.data, dateText, 1);
-          form_renderDates(options);
+        if (event.repeat_id!=999) {
+          rows.push('<div class="control-group"><label class="control-label"></label>');
+          rows.push('<div class="controls">');
+          rows.push('alle&nbsp;');
+          rows.push(form_renderInput({
+            value:event.repeat_frequence,
+            disabled:disabled,
+            controlgroup:false,
+            cssid:"inputRepeatFrequence",
+            type:"xxmini"}));
+          if (event.repeat_until==null) {
+            event.repeat_until=new Date(event.startdate);
+            event.repeat_until.addDays(event.repeat_id*1);
+          }
         }
-      }, function(chose) {
-        var select=chose>options.data.startdate;
-        each(churchcore_getAllDatesWithRepeats(options.data), function(a,ds) {
-          if ((ds.startdate.toStringEn(false).toDateEn(false).getTime()==chose.getTime()))
-            select=false;
-        });
-        return [select];
-      });
+        if (event.repeat_id==1)
+          rows.push("&nbsp;Tag(e) bis&nbsp;");
+        else if (event.repeat_id==7)
+          rows.push("&nbsp;Woche(n) bis&nbsp;");
+        else if (event.repeat_id==31)
+          rows.push("&nbsp;Monat(e) bis&nbsp;");
+        else if (event.repeat_id==32)
+          rows.push("&nbsp;Monat(e) bis&nbsp;");
+        else if (event.repeat_id==365)
+          rows.push("&nbsp;Jahr(e) bis&nbsp;");
+        if (event.repeat_id!=999) {
+          if ((event.repeat_until==null) || (event.repeat_until.getFullYear()==1899)) {
+            event.repeat_until=new Date(event.startdate);
+            event.repeat_until.addDays(event.repeat_id*1);
+          }
+          rows.push(form_renderInput({
+            value: event.repeat_until.toStringDe(),
+            controlgroup: false,
+            disabled: disabled,
+            cssid: "inputRepeatUntil",
+            type: "small"}));
+          rows.push("<div id=\"dp_repeatuntil\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/></div></div>");
+        }
 
-      return false;
+      // AUSNAHMEN
+
+      if ((event.repeat_id>0) && (event.repeat_id!=999)) {
+        rows.push('<div id="repeats_exceptions">');
+        rows.push('<div class="control-group"><label class="control-label">Ausnahmen</label>');
+        rows.push('<div class="controls">');
+        if (event.exceptions!=null) {
+          each(churchcore_sortData(event.exceptions, "exception_start_date"), function(k,a) {
+            rows.push('<span class="label label-default" title="id:'+a.id+'">');
+            if (a.except_date_end!=a.except_date_start) {
+              rows.push(a.except_date_start.toDateEn().toStringDe()+"-"+a.except_date_end.toDateEn().toStringDe()+"&nbsp;");
+            }
+            else
+              rows.push(a.except_date_start.toDateEn().toStringDe()+"&nbsp;");
+
+            if (authexceptions)
+              rows.push(form_renderImage({src:"trashbox.png",width:16, cssid:"delException"+a.id}));
+
+            rows.push('</span>&nbsp; ');
+          });
+        }
+        if ((authexceptions) && (!disabled)) {
+          rows.push(form_renderImage({src:"plus.png", width:20, cssid:"addException"}));
+          rows.push("<div id=\"dp_addexception\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/></div></div>");
+        }
+        rows.push('</div></div>');
+        rows.push('</div>');
+      }
+
+
+        // MANUELLE TERMINE
+
+        if (((event.repeat_id>0) && (event.repeat_id!=1)) || (event.additions!=null)) {
+          rows.push('<div id="repeats_addition">');
+            rows.push('<div class="control-group"><label class="control-label">Weitere Termine</label>');
+            rows.push('<div class="controls">');
+            if (event.additions!=null) {
+              each(churchcore_sortData(event.additions, "add_date"), function(k,a) {
+                rows.push('<span class="label label-default" title="id:'+a.id+'">');
+                rows.push(a.add_date.toDateEn().toStringDe()+"&nbsp;");
+
+                var image="recurring_bw.png";
+                if (a.with_repeat_yn==1) image="recurring.png";
+
+                if (authadditions)
+                  rows.push(form_renderImage({src:image,width:16, label:"Soll der manuelle Termin auch wiederholt werden", cssid:"changeAdditionRepeat"+(1-a.with_repeat_yn)+a.id}));
+                else
+                  rows.push(form_renderImage({src:image,width:16}));
+
+                if (authadditions)
+                  rows.push(form_renderImage({src:"trashbox.png",width:16, label:"Entferne den manuellen Termin", cssid:"delAddition"+a.id}));
+
+                rows.push('</span>&nbsp; ');
+              });
+            }
+            if ((authadditions) && (!disabled)) {
+              rows.push(form_renderImage({src:"plus.png", width:20, cssid:"addAddition"}));
+              rows.push("<div id=\"dp_addaddition\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/></div></div>");
+            }
+            rows.push('</div></div>');
+          rows.push("</div>");
+        }
+      }
     }
-  });
+
+    rows.push("</div>");
+    this.element.html(rows.join(""));
+  },
 
 
-  $('#inputRepeat_id').change(function(c) {
-    form_getDatesInToObject(options.data);
-    form_renderDates(options);
-    $("#cdb_dialog").animate({scrollTop:135}, '500');
-  });
-  $("#inputRepeatUntil").click(function() {
-    form_getDatesInToObject(options.data);
-    form_implantDatePicker('dp_repeatuntil', options.data.repeat_until, function(dateText) {
-      $("#inputRepeatUntil").val(dateText);
+
+  render: function() {
+    var t = this;
+    if (debug) console.log(t.options);
+
+    t._render();
+
+    // CALLBACKS
+    var event = t.options.event;
+    $('#inputAllDay').change(function(c) {
+      if ($(this).attr("checked")=="checked") {
+        event.startdate.setHours(0);
+        event.startdate.setMinutes(0);
+        event.enddate.setHours(0);
+        event.enddate.setMinutes(0);
+      }
+      else {
+        event.startdate.setHours(10);
+        event.enddate.setHours(11);
+      }
+      t.render();
     });
-  });
-  $("#inputRepeatUntil").change(function() {
-    form_getDatesInToObject(options.data);
-    if (options.data.repeat_until.getFullYear()>3000) {
-      options.data.repeat_until=new Date();
-      $("#inputRepeatUntil").val(options.data.repeat_until.toStringDe());
-    }
-  });
-  $("#inputRepeatFrequence").change(function() {
-    if (($("#inputRepeatFrequence").val()=="0") || ($("#inputRepeatFrequence").val()==""))
-      $("#inputRepeatFrequence").val("1");
-  });
 
-  if (options.callback!=null)
-    options.callback();
-}
+    $("#inputStartdate").click(function() {
+      form_implantDatePicker('dp_startdate', event.startdate, function(dateText) {
+        $("#inputStartdate").val(dateText);
+        $("#inputStartdate").keyup();
+      });
+    });
+    $("#inputEnddate").click(function() {
+      form_implantDatePicker('dp_enddate', t.options.event.enddate, function(dateText) {
+        $("#inputEnddate").val(dateText);
+        $("#inputEnddate").keyup();
+      });
+    });
+    $("#inputStartdate").keyup(function() {
+      if ($("#inputStartdate").val().isGermanDateFormat()) {
+        $("#inputEnddate").val($("#inputStartdate").val());
+        form_getDatesInToObject(t.options.event);
+        t.options.event.repeat_option_id=null;
+        t.render();
+        t._checkExceptionCollision();
+      }
+    });
+    $("#inputStarthour").change(function() {
+      event.startdate.setHours($("#inputStarthour").val());
+      if (form_getDateFromForm("inputStart")>=form_getDateFromForm("inputEnd")) {
+        event.enddate.setHours($("#inputStarthour").val()*1+1);
+        t.render();
+      }
+    });
+    $("#inputEndhour").change(function() {
+      if (form_getDateFromForm("inputStart")>=form_getDateFromForm("inputEnd"))
+        $("#inputStarthour").val($("#inputEndhour").val()*1-1);
+    });
 
-function checkExceptionCollision(options) {
-  var data=options.data;
-  var collision=false;
-  if (data.exceptions!=null) {
-    each(data.exceptions, function(k,e) {
-      if (churchcore_datesInConflict(data.startdate, data.enddate, e.except_date_start.toDateEn(true), e.except_date_end.toDateEn(true))) {
-        collision=k;
+    $('#repeats_exceptions a').click(function() {
+      if ($(this).attr("id").indexOf("delException")==0) {
+        var exc=event.exceptions[$(this).attr("id").substr(12,99)];
+        delete event.exceptions[exc.id];
+        t.render();
+        return false;
+      }
+      else if ($(this).attr("id")=="addException") {
+        form_getDatesInToObject(event);
+        form_implantDatePicker('dp_addexception', null, function(dateText) {
+          event.addException(dateText.toDateDe());
+          t.render();
+        }, function(chose) {
+          var select=false;
+          each(churchcore_getAllDatesWithRepeats(event), function(a,ds) {
+            if ((ds.startdate.toStringEn(false).toDateEn(false).getTime()==chose.getTime()))
+              select=true;
+          });
+          return [select];
+        });
+
         return false;
       }
     });
-  }
-  if (collision!==false && confirm("Es gibt eine Ausnahme an dem Datum, soll die entfernt werden?")) {
-    delete data.exceptions[collision];
-    form_renderDates(options);
-  }
-}
+    $('#repeats_addition a').click(function() {
+      if ($(this).attr("id").indexOf("delAddition")==0) {
+        var add=t.options.event.additions[$(this).attr("id").substr(11,99)];
+        delete t.options.event.additions[add.id];
+        t.render();
+        return false;
+      }
+      else if ($(this).attr("id").indexOf("changeAdditionRepeat")==0) {
+        var add=t.options.event.additions[$(this).attr("id").substr(21,99)];
+        t.options.event.additions[add.id].with_repeat_yn = $(this).attr("id").substr(20,1);
+        t.render();
+        return false;
+      }
+      else if ($(this).attr("id")=="addAddition") {
+        form_getDatesInToObject(t.options.event);
+        form_implantDatePicker('dp_addaddition', null, function(dateText) {
+          if (t.options.event.additions==null) t.options.event.additions=new Object();
+          if (t.options.event.exceptionids==null) t.options.event.exceptionids=0;
+          t.options.event.exceptionids=t.options.event.exceptionids-1;
+          t.options.event.additions[t.options.event.exceptionids]
+                ={id:t.options.event.exceptionids, add_date:dateText.toDateDe().toStringEn(), with_repeat_yn:1};
+          t.render();
+        }, function(chose) {
+          var select=chose>event.startdate;
+          each(churchcore_getAllDatesWithRepeats(t.options.event), function(a,ds) {
+            if ((ds.startdate.toStringEn(false).toDateEn(false).getTime()==chose.getTime()))
+              select=false;
+          });
+          return [select];
+        });
 
+        return false;
+      }
+    });
+
+
+    $('#inputRepeat_id').change(function(c) {
+      form_getDatesInToObject(t.options.event);
+      t.render();
+      $("#cdb_dialog").animate({scrollTop:135}, '500');
+    });
+    $("#inputRepeatUntil").click(function() {
+      form_getDatesInToObject(t.options.event);
+      form_implantDatePicker('dp_repeatuntil', t.options.event.repeat_until, function(dateText) {
+        $("#inputRepeatUntil").val(dateText);
+      });
+    });
+    $("#inputRepeatUntil").change(function() {
+      form_getDatesInToObject(t.options.event);
+      if (t.options.event.repeat_until.getFullYear()>3000) {
+        t.options.event.repeat_until=new Date();
+        $("#inputRepeatUntil").val(t.options.event.repeat_until.toStringDe());
+      }
+    });
+    $("#inputRepeatFrequence").change(function() {
+      if (($("#inputRepeatFrequence").val()=="0") || ($("#inputRepeatFrequence").val()==""))
+        $("#inputRepeatFrequence").val("1");
+    });
+
+    if (t.options.callback!=null)
+      t.options.callback();
+
+  },
+
+  getCCEvent : function() {
+    form_getDatesInToObject(this.options.event);
+    return this.options.event;
+  }
+});
 
 function form_getDatesInToObject(o) {
   o.startdate=form_getDateFromForm("inputStart");
@@ -2417,7 +2416,7 @@ function form_editNotification (domain_type, domain_id) {
     value=getNotification(domain_type, domain_id);
 
   if (domain_id!=null && value==null) {
-    form.addHtml('<legend>Neues Abo f&uuml;r '+masterData[domain_type][domain_id].bezeichnung+'</legend>');
+    form.addHtml('<legend>Neues Email-Abo f&uuml;r '+masterData[domain_type][domain_id].bezeichnung+'</legend>');
 
     each(masterData.notificationtype, function(k,a) {
       a.sortkey=a.delay_hours;
@@ -2429,7 +2428,7 @@ function form_editNotification (domain_type, domain_id) {
   }
 
   if (masterData.notification[domain_type]!=null) {
-    form.addHtml('<legend>Vorhandene Abonnements</legend>');
+    form.addHtml('<legend>Vorhandene Email-Abos</legend>');
     form.addHtml('<table class="table table-condensed"><tr><th style="min-width:60px">Abo<th style="min-width:60px">Notiz<th>Wie oft?<th width="22px">');
     each(masterData.notification[domain_type], function(k,a) {
       form.addHtml('<tr data-id="'+k+'"><td>'+_(domain_type)+": "+masterData[domain_type][k].bezeichnung+'<td>');

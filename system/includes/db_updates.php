@@ -7,9 +7,9 @@ function set_version($db_version) {
 
 /**
  * update DB for new versions of CT
- * 
+ *
  * TODO: do you notice if there are sql errors?
- *  
+ *
  * @param $db_version
  * @return boolean
  */
@@ -616,7 +616,7 @@ function run_db_updates($db_version) {
       db_query("ALTER TABLE {cs_servicegroup} ADD viewall_yn int( 1 ) NOT NULL DEFAULT 0 AFTER bezeichnung");
       db_query("update {cs_servicegroup} set viewall_yn=1 where id=1");
       set_version("2.01");
-    
+
     case '2.01':
       db_query("CREATE TABLE {cc_help} (doc_id varchar(255) NOT NULL,
         text blob NOT NULL,
@@ -628,14 +628,14 @@ function run_db_updates($db_version) {
       db_query("update {cc_domain_auth} set auth_id=121 where auth_id=103");
       db_query("update {cc_auth} set id=122 where id=105");
       db_query("update {cc_domain_auth} set auth_id=122 where auth_id=105");
-      db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld ,bezeichnung) VALUES ( 
+      db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld ,bezeichnung) VALUES (
                 103,  'view alldetails',  'churchdb', NULL ,  'Alle Informationen der Person sehen')");
       set_version("2.02");
-    
+
     case '2.02':
-      db_query("ALTER TABLE {cs_eventtemplate_service} ADD UNIQUE (eventtemplate_id , service_id)"); 
+      db_query("ALTER TABLE {cs_eventtemplate_service} ADD UNIQUE (eventtemplate_id , service_id)");
       set_version("2.03");
-    
+
     case '2.03':
       db_query("CREATE TABLE {cc_file} (
       id int(11) NOT NULL AUTO_INCREMENT,
@@ -644,24 +644,24 @@ function run_db_updates($db_version) {
       filename varchar(255) NOT NULL,
       UNIQUE KEY domain_type (domain_type,domain_id,filename),
       PRIMARY KEY (id)) CHARSET=utf8");
-      
+
       db_query("INSERT INTO {cc_auth} (id ,auth ,modulename ,datenfeld ,bezeichnung)
          VALUES ('307',  'manage absent',  'churchservice', NULL ,  'Abwesenheiten einsehen und pflegen');");
-      
+
       db_query("INSERT INTO {cc_auth} (id ,auth ,modulename ,datenfeld ,bezeichnung)
          VALUES ('308',  'edit facts',  'churchservice', NULL ,  'Fakten pflegen');");
-      
+
       db_query("CREATE TABLE {cs_absent_reason} (
         id int(11) NOT NULL AUTO_INCREMENT,
         bezeichnung varchar(255) NOT NULL,
         sortkey int(11) NOT NULL,
         PRIMARY KEY (id)
       ) CHARSET=utf8");
-      
+
       db_query("INSERT INTO {cs_absent_reason} VALUES(1, 'Abwesend', 2)");
       db_query("INSERT INTO {cs_absent_reason} VALUES(2, 'Urlaub', 1)");
       db_query("INSERT INTO {cs_absent_reason} VALUES(3, 'Krank', 0)");
-      
+
       db_query("CREATE TABLE {cs_absent} (
         id int(11) NOT NULL AUTO_INCREMENT,
         person_id int(11) NOT NULL,
@@ -673,7 +673,7 @@ function run_db_updates($db_version) {
         modifieduser int(11) NOT NULL,
       PRIMARY KEY (id)
       ) CHARSET=utf8");
-      
+
       db_query("CREATE TABLE {cs_event_fact} (
         event_id int(11) NOT NULL,
         fact_id int(11) NOT NULL,
@@ -682,7 +682,7 @@ function run_db_updates($db_version) {
         modifieduser int(11) DEFAULT NULL,
         PRIMARY KEY (event_id,fact_id)
       ) CHARSET=utf8");
-      
+
       db_query("
         CREATE TABLE {cs_fact} (
           id int(11) NOT NULL AUTO_INCREMENT,
@@ -690,16 +690,16 @@ function run_db_updates($db_version) {
           sortkey int(11) NOT NULL DEFAULT '0',
           PRIMARY KEY (id)
       ) CHARSET=utf8");
-      
+
       db_query("INSERT INTO {cs_fact} VALUES(1, 'Besucher', 0)");
       db_query("INSERT INTO {cs_fact} VALUES(2, 'Kollekte', 0)");
       set_version("2.04");
-    
+
     case '2.04':
       db_query("INSERT INTO {cc_auth} (id ,auth ,modulename ,datenfeld ,bezeichnung)
-         VALUES ('401',  'view',  'churchcal', NULL ,  'ChurchCal sehen');");  
+         VALUES ('401',  'view',  'churchcal', NULL ,  'ChurchCal sehen');");
       db_query("INSERT INTO {cc_auth} (id ,auth ,modulename ,datenfeld ,bezeichnung)
-         VALUES ('402',  'edit events',  'churchcal', NULL ,  'Termine pflegen');");  
+         VALUES ('402',  'edit events',  'churchcal', NULL ,  'Termine pflegen');");
       db_query("CREATE TABLE {cc_cal} (
         id int(11) NOT NULL AUTO_INCREMENT,
         bezeichnung varchar(255) NOT NULL,
@@ -713,7 +713,7 @@ function run_db_updates($db_version) {
         PRIMARY KEY (id)
       ) CHARSET=utf8");
       set_version("2.05");
-    
+
     case '2.05':
     case '2.06':
     case '2.07':
@@ -734,9 +734,9 @@ function run_db_updates($db_version) {
       db_query("ALTER TABLE {cdb_station} ADD sortkey INT( 11 ) NOT NULL DEFAULT '0'");
       db_query("ALTER TABLE {cs_eventservice} ADD counter INT( 11 ) NULL AFTER service_id");
       db_query("ALTER TABLE {cr_booking} CHANGE userid userid VARCHAR( 50 )");
-      db_query("insert into {cc_config} (name, value) values ('cronjob_delay','0')");  
+      db_query("insert into {cc_config} (name, value) values ('cronjob_delay','0')");
       set_version("2.08");
-    
+
     case '2.08':
       db_query("ALTER TABLE {cdb_person} ADD active_yn INT( 1 ) NOT NULL DEFAULT  '1' AFTER vorname");
       db_query("ALTER TABLE {cdb_person} ADD optigem_nr VARCHAR( 30 ) NOT NULL AFTER cmsuserid");
@@ -744,65 +744,65 @@ function run_db_updates($db_version) {
       db_query("ALTER TABLE {cc_cal} ADD notizen VARCHAR( 255 ) NOT NULL DEFAULT '' AFTER ort");
       db_query("ALTER TABLE {cc_cal} ADD intern_yn int(1) not NULL default '0' AFTER notizen");
       set_version("2.09");
-    
+
     case '2.09':
     case '2.10':
       db_query("ALTER TABLE {cs_category} ADD show_in_churchcal_yn INT(1) NOT NULL DEFAULT '1' AFTER color");
       db_query("ALTER TABLE {cr_booking} ADD show_in_churchcal_yn INT(1) NOT NULL DEFAULT '0'");
       set_version("2.11");
-    
+
     case '2.11':
       db_query("INSERT INTO  {cc_auth} (id, auth, modulename, bezeichnung) values (105, 'view address', 'churchdb', 'Darf die Adressdaten einsehen')");
       db_query("UPDATE {cc_auth} set bezeichnung='Alle Informationen der Person sehen, inkl. Adressdaten, Gruppenzuordnung, etc.' where auth='view alldetails'");
-      
+
       db_query("ALTER TABLE {cc_cal} CHANGE modifieddate modified_date DATETIME NOT NULL");
       db_query("ALTER TABLE {cc_cal} CHANGE modifieduser modified_pid int(11) not null");
       db_query("ALTER TABLE {cc_cal_except} CHANGE modifieddate modified_date DATETIME NOT NULL");
       db_query("ALTER TABLE {cc_cal_except} CHANGE modifieduser modified_pid int(11) not null");
       db_query("ALTER TABLE {cc_help} CHANGE modifieddate modified_date DATETIME NOT NULL");
       db_query("ALTER TABLE {cc_help} CHANGE modifieduser modified_pid int(11) not null");
-      
+
       // change structure...
-      db_query("ALTER TABLE {cdb_log} ADD person_id int(11) not null default -1 after userid");  
+      db_query("ALTER TABLE {cdb_log} ADD person_id int(11) not null default -1 after userid");
       db_query("ALTER TABLE {cdb_comment} ADD person_id int(11) not null default -1 after userid");
       db_query("ALTER TABLE {cs_eventservice} CHANGE modifieddate modified_date DATETIME NOT NULL");
-      db_query("ALTER TABLE {cs_eventservice} ADD modified_pid int(11) not null default -1 after modifieduser");  
+      db_query("ALTER TABLE {cs_eventservice} ADD modified_pid int(11) not null default -1 after modifieduser");
       db_query("ALTER TABLE {cs_event_fact} CHANGE modifieddate modified_date DATETIME NOT NULL");
       db_query("ALTER TABLE {cs_event_fact} CHANGE modifieduser modified_pid int(11) not null");
       db_query("ALTER TABLE {cs_absent} CHANGE modifieddate modified_date DATETIME NOT NULL");
       db_query("ALTER TABLE {cs_absent} CHANGE modifieduser modified_pid int(11) not null");
-    
+
       // ...and update data to matchh
       db_query("UPDATE {cdb_log} log JOIN {cdb_person} p ON p.cmsuserid=log.userid SET log.person_id=p.id");
       db_query("UPDATE {cdb_comment} c JOIN {cdb_person} p ON p.cmsuserid=c.userid SET c.person_id=p.id");
       db_query("UPDATE {cs_eventservice} es JOIN {cdb_person} p ON p.cmsuserid=es.modifieduser SET es.modified_pid=p.id");
       set_version("2.12");
-    
+
     case '2.12':
-      db_query("ALTER TABLE {cr_booking} ADD person_id int(11) not null default -1 after userid");  
-      db_query("ALTER TABLE {cr_exception} ADD person_id int(11) not null default -1 after userid");  
-      db_query("ALTER TABLE {cr_log} ADD person_id int(11) not null default -1 after userid");  
-      db_query("ALTER TABLE {cr_resource} ADD admin_person_ids int(11) not null default -1 after adminmails");  
-      db_query("ALTER TABLE {cr_resource} CHANGE adminmails adminmails_old varchar(30) null");  
-      
+      db_query("ALTER TABLE {cr_booking} ADD person_id int(11) not null default -1 after userid");
+      db_query("ALTER TABLE {cr_exception} ADD person_id int(11) not null default -1 after userid");
+      db_query("ALTER TABLE {cr_log} ADD person_id int(11) not null default -1 after userid");
+      db_query("ALTER TABLE {cr_resource} ADD admin_person_ids int(11) not null default -1 after adminmails");
+      db_query("ALTER TABLE {cr_resource} CHANGE adminmails adminmails_old varchar(30) null");
+
       db_query("UPDATE {cr_booking} a JOIN {cdb_person} p ON p.cmsuserid=a.userid SET a.person_id=p.id");
       db_query("UPDATE {cr_exception} a JOIN {cdb_person} p ON p.cmsuserid=a.userid SET a.person_id=p.id");
-      db_query("UPDATE {cr_log} a JOIN {cdb_person} p ON p.cmsuserid=a.userid SET a.person_id=p.id");      
-      db_query("UPDATE {cr_resource} a JOIN {cdb_person} p ON p.email=a.adminmails_old SET a.admin_person_ids=p.id");      
+      db_query("UPDATE {cr_log} a JOIN {cdb_person} p ON p.cmsuserid=a.userid SET a.person_id=p.id");
+      db_query("UPDATE {cr_resource} a JOIN {cdb_person} p ON p.email=a.adminmails_old SET a.admin_person_ids=p.id");
       set_version("2.13");
-    
+
     case '2.13':
       db_query("INSERT INTO  {cc_auth} (id, auth, modulename, bezeichnung) values (4, 'view whoisonline', 'churchcore', 'Sieht auf der Startseite, wer aktuell online ist')");
-      db_query("CREATE TABLE {cc_loginstr} 
+      db_query("CREATE TABLE {cc_loginstr}
           (person_id int(11) NOT NULL, loginstr varchar(255) NOT NULL, create_date date NOT NULL) CHARSET=utf8");
-      db_query("insert into {cc_loginstr} (person_id, loginstr, create_date) 
-                   select id person_id, loginstr, now() from {cdb_person} where loginstr is not null");   
+      db_query("insert into {cc_loginstr} (person_id, loginstr, create_date)
+                   select id person_id, loginstr, now() from {cdb_person} where loginstr is not null");
       set_version("2.14");
-    
+
     case '2.14':
       db_query("ALTER TABLE {cs_service} ADD allowtonotebyconfirmation_yn INT( 1 ) NOT NULL DEFAULT 0 AFTER sendremindermails_yn");
       set_version("2.15");
-    
+
     case '2.15':
       db_query("INSERT INTO  {cc_auth} (id, auth, modulename, bezeichnung) values (311, 'view song', 'churchservice', 'Darf die Songs anschauen und Dateien herunterladen')");
       db_query("INSERT INTO  {cc_auth} (id, auth, modulename, bezeichnung) values (312, 'edit song', 'churchservice', 'Darf die Songs editieren und Dateien hochladen')");
@@ -843,18 +843,18 @@ function run_db_updates($db_version) {
         modified_pid int(11) NOT NULL,
         PRIMARY KEY (person_id,servicegroup_id)) CHARSET=utf8"
       );
-      
+
       $files=churchcore_getTableData("cc_file");
       if ($files!=null) {
         foreach($files as $file) {
           if (!file_exists("$files_dir/files/$file->domain_type"))
             mkdir("$files_dir/files/$file->domain_type",0777,true);
           if (file_exists("$files_dir/files/$file->domain_id"))
-            rename("$files_dir/files/$file->domain_id", "$files_dir/files/$file->domain_type/$file->domain_id");  
+            rename("$files_dir/files/$file->domain_id", "$files_dir/files/$file->domain_type/$file->domain_id");
         }
-      }  
+      }
       set_version("2.16");
-    
+
     case '2.16':
       db_query("insert into {cc_config} values ('max_uploadfile_size_kb', 10000)");
       db_query("insert into {cc_config} values ('cronjob_dbdump', 0)");
@@ -863,7 +863,7 @@ function run_db_updates($db_version) {
         bezeichnung VARCHAR( 100 ) NOT NULL ,
         sortkey int(11) not null default 0,
         PRIMARY KEY (  id )) CHARSET=utf8");
-      db_query("insert into {cs_songcategory} values (0,'Unbekannt',0)"); 
+      db_query("insert into {cs_songcategory} values (0,'Unbekannt',0)");
       db_query("ALTER TABLE {cs_song} ADD songcategory_id INT( 11 ) NOT NULL AFTER bezeichnung");
       db_query("INSERT INTO  {cc_auth} (
         id, auth , modulename , datenfeld ,bezeichnung )
@@ -873,14 +873,14 @@ function run_db_updates($db_version) {
       db_query("ALTER TABLE {cc_file} ADD modified_date DATETIME NOT NULL");
       db_query("ALTER TABLE {cc_file} ADD modified_pid INT( 11 ) NOT NULL");
       set_version("2.17");
-    
+
     case '2.17':
       db_query("RENAME TABLE {cc_help} TO {cc_wiki}");
       db_query("CREATE TABLE {cc_wikicategory} (id INT( 11 ) NOT NULL, bezeichnung VARCHAR( 50 ) NOT NULL , sortkey INT( 11 ) NOT NULL)");
       db_query("ALTER TABLE {cc_wikicategory} ADD PRIMARY KEY ( id )");
       db_query("insert into {cc_wikicategory} values (0, 'Standard', 1)");
       db_query("ALTER TABLE {cc_wiki} ADD version_no INT( 11 ) NOT NULL default 1 AFTER doc_id");
-      db_query("ALTER TABLE {cc_wiki} ADD wikicategory_id INT( 11 ) NOT NULL default 0 AFTER version_no");  
+      db_query("ALTER TABLE {cc_wiki} ADD wikicategory_id INT( 11 ) NOT NULL default 0 AFTER version_no");
       db_query("ALTER TABLE {cc_wiki} DROP PRIMARY KEY, ADD PRIMARY KEY (doc_id, version_no, wikicategory_id)");
       db_query("INSERT INTO  {cc_auth} (id, auth, modulename, bezeichnung) values (501, 'view', 'churchwiki', 'Darf das Wiki sehen')");
       db_query("INSERT INTO  {cc_auth} (id, auth, modulename, datenfeld, bezeichnung) values (502, 'view category', 'churchwiki', 'cc_wikicategory', 'Darf bestimmte Wiki-Kategorien einsehen')");
@@ -900,20 +900,20 @@ function run_db_updates($db_version) {
       db_query("INSERT INTO {cdb_feldkategorie} VALUES (2, 'Informationen', 'f_church', 'cdb_gemeindeperson', 'person_id')");
       db_query("INSERT INTO {cdb_feldkategorie} VALUES (3, 'Kategorien', 'f_category', 'cdb_gemeindeperson', 'id')");
       db_query("INSERT INTO {cdb_feldkategorie} VALUES (4, 'Gruppe', 'f_group', 'cdb_gruppe', 'id')");
-      
+
       db_query("CREATE TABLE {cdb_feldtyp} (
       id int(11) NOT NULL,
       bezeichnung varchar(30) NOT NULL,
       intern_code varchar(10) NOT NULL,
       PRIMARY KEY (id)
     ) CHARSET=utf8");
-    
+
     db_query("INSERT INTO {cdb_feldtyp} VALUES (1, 'Textfeld', 'text')");
     db_query("INSERT INTO {cdb_feldtyp} VALUES (2, 'Auswahlfeld', 'select')");
     db_query("INSERT INTO {cdb_feldtyp} VALUES (3, 'Datumsfeld', 'date');");
     db_query("INSERT INTO {cdb_feldtyp} VALUES (4, 'Ja-Nein-Feld', 'checkbox')");
     db_query("INSERT INTO {cdb_feldtyp} VALUES (5, 'Kommentarfeld', 'textarea')");
-     
+
       db_query("CREATE TABLE {cdb_feld} (
       id int(11) NOT NULL,
       feldkategorie_id int(11) NOT NULL,
@@ -929,7 +929,7 @@ function run_db_updates($db_version) {
       sortkey int(11) NOT NULL,
       PRIMARY KEY (id)
     ) CHARSET=utf8");
-    
+
     db_query("INSERT INTO {cdb_feld} VALUES(1, 1, 1, 'titel', NULL, 1, 'Titel', '', '', NULL, 12, 1)");
     db_query("INSERT INTO {cdb_feld} VALUES(2, 1, 1, 'vorname', NULL, 1, 'Vorname', '', '&nbsp;', NULL, 30, 2)");
     db_query("INSERT INTO {cdb_feld} VALUES(3, 1, 1, 'name', NULL, 1, 'Name', '', '<br/>', NULL, 30, 3)");
@@ -980,24 +980,24 @@ function run_db_updates($db_version) {
     db_query("INSERT INTO {cdb_feld} VALUES(48, 4, 4, 'instatistik_yn', NULL, 1, '<p>Zeige in Statistik<br/><small>In der Statistik explizit aufgef&uuml;hrt</small>', 'In Statistik', '<br/>', 'admingroups', 1, 15)");
     db_query("INSERT INTO {cdb_feld} VALUES(49, 4, 4, 'treffen_yn', NULL, 1, '<p>W&ouml;chentliche Teilnahme pflegen<br/><small>Erm&ouml;glicht die Pflege der Teilnahme an dieser Gruppe</small>', 'Teilnahme', '<br/>', 'admingroups', 1, 16)");
     db_query("INSERT INTO {cdb_feld} VALUES(50, 1, 1, 'optigem_nr', NULL, 1, 'Optigem-Nr', 'Optigem-Nr.', '<br/>', 'admin', NULL, 16)");
-      
+
     db_query("CREATE TABLE {cdb_nationalitaet} (
       id int(11) NOT NULL,
       bezeichnung varchar(50) not null,
       PRIMARY KEY (id)
     )");
-      
+
       db_query("INSERT INTO {cdb_nationalitaet} VALUES(0, 'unbekannt')");
-      
+
       // Add existing nationality values to new table
      db_query("ALTER TABLE {cdb_nationalitaet} CHANGE  id id INT( 11 ) NOT NULL AUTO_INCREMENT");
-     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) { 
-               SELECT nationalitaet 
-               FROM {cdb_gemeindeperson} gp LEFT JOIN {cdb_nationalitaet} n ON (gp.nationalitaet=n.bezeichnung) 
-               WHERE n.bezeichnung IS NULL AND gp.nationalitaet!='' 
+     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) {
+               SELECT nationalitaet
+               FROM {cdb_gemeindeperson} gp LEFT JOIN {cdb_nationalitaet} n ON (gp.nationalitaet=n.bezeichnung)
+               WHERE n.bezeichnung IS NULL AND gp.nationalitaet!=''
                GROUP BY nationalitaet"
               );
-      
+
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('&Auml;gypten')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('&Auml;quatorialguinea')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('&Auml;thiopien')");
@@ -1196,14 +1196,14 @@ function run_db_updates($db_version) {
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Wei&szlig;russland')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Zentralafrikanische Republik')");
     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) VALUES('Zypern')");
-    
-     
+
+
      db_query("ALTER TABLE {cdb_gemeindeperson} ADD nationalitaet_id INT( 11 ) NOT NULL AFTER nationalitaet");
      // Mappe nun die schon gesetzen
       db_query("update {cdb_gemeindeperson} gp join {cdb_nationalitaet} n on gp.nationalitaet=n.bezeichnung set gp.nationalitaet_id=n.id");
-    
+
       db_query("insert into {cc_config} values ('show_remember_me', '1')");
-    
+
       db_query("ALTER TABLE {cdb_gruppe} ADD max_teilnehmer INT( 11 ) NULL AFTER zielgruppe");
       db_query("ALTER TABLE {cdb_gruppe} ADD oeffentlich_yn INT( 1 ) NOT NULL DEFAULT 0 AFTER notiz");
       db_query("ALTER TABLE {cdb_gruppe} ADD offen_yn INT( 1 ) NOT NULL DEFAULT 0 AFTER notiz");
@@ -1224,16 +1224,16 @@ function run_db_updates($db_version) {
       UNIQUE KEY gruppe_id (gruppe_id,status_no)) CHARSET=utf8");
       db_query("ALTER TABLE  {cr_resource} CHANGE admin_person_ids admin_person_ids VARCHAR( 50 ) NOT NULL DEFAULT  '-1'");
       set_version("2.18");
-      
+
     case '2.18':
     case '2.19':
     case '2.20':
       db_query("update {cdb_feld} set feldtyp_id=2, aktiv_yn=1 where db_spalte='nationalitaet_id'");
-      
+
       db_query("ALTER TABLE {cc_wikicategory} CONVERT TO CHARACTER SET utf8");
       db_query("ALTER TABLE {cc_wiki} CONVERT TO CHARACTER SET utf8");
       db_query("ALTER TABLE {cdb_nationalitaet} CONVERT TO CHARACTER SET utf8");
-      
+
       db_query("update {cdb_nationalitaet} set bezeichnung='&Auml;gypten' where bezeichnung='?gypten'");
       db_query("update {cdb_nationalitaet} set bezeichnung='&Auml;quatorialguinea' where bezeichnung='?quatorialguinea'");
       db_query("update {cdb_nationalitaet} set bezeichnung='&Auml;thiopien' where bezeichnung='?thiopien'");
@@ -1242,11 +1242,11 @@ function run_db_updates($db_version) {
       db_query("update {cdb_nationalitaet} set bezeichnung='S&uuml;dafrika' where bezeichnung='S?dafrika'");
       db_query("update {cdb_nationalitaet} set bezeichnung='S&uuml;dkorea' where bezeichnung='S?dkorea'");
       db_query("update {cdb_nationalitaet} set bezeichnung='D&auml;nemark' where bezeichnung='D?nemark'");
-      
+
       // Fix error von 220
       db_query("ALTER TABLE {cdb_nationalitaet} CHANGE  id id INT( 11 ) NOT NULL");
       db_query("ALTER TABLE {cdb_gemeindeperson} CHANGE nationalitaet_id  nationalitaet_id INT( 11 ) NOT NULL DEFAULT '0'");
-    
+
       // Suche nun nach unbekannt mit id 1, und setze es auf 0
       $res=db_query("select count(*) c from {cdb_nationalitaet} where id=1 and upper(bezeichnung) like 'UNBEKANNT'")->fetch();
       if ($res->c>0) {
@@ -1259,13 +1259,13 @@ function run_db_updates($db_version) {
       }
       db_query("ALTER TABLE {cdb_nationalitaet} ADD UNIQUE (bezeichnung)");
       set_version("2.21");
-    
+
     case '2.21':
     case '2.22':
       db_query("ALTER TABLE {cc_session} CHANGE session session VARCHAR( 100 ) NOT NULL");
       db_query("ALTER TABLE {cc_session} CHANGE hostname hostname VARCHAR( 100 ) NOT NULL");
       db_query("ALTER TABLE {cc_session} ADD PRIMARY KEY (person_id , session , hostname)") ;
-      
+
       db_query("CREATE TABLE {cdb_gruppenteilnehmerstatus} (
       id int(11) NOT NULL,
       intern_code int(1) NOT NULL,
@@ -1273,7 +1273,7 @@ function run_db_updates($db_version) {
       kuerzel varchar(10) NOT NULL,
       PRIMARY KEY (id),
         UNIQUE KEY intern_code (intern_code)) DEFAULT CHARSET=utf8");
-    
+
       db_query("INSERT INTO {cdb_gruppenteilnehmerstatus} VALUES(1, 0, 'Teilnehmer', '')");
       db_query("INSERT INTO {cdb_gruppenteilnehmerstatus} VALUES(2, 1, 'Leiter', 'L')");
       db_query("INSERT INTO {cdb_gruppenteilnehmerstatus} VALUES(3, 2, 'Co-Leiter', 'CoL')");
@@ -1282,12 +1282,12 @@ function run_db_updates($db_version) {
       db_query("INSERT INTO {cdb_gruppenteilnehmerstatus} VALUES(6, -2, 'Teilnahme beantragt', '')");
       db_query("INSERT INTO {cdb_gruppenteilnehmerstatus} VALUES(7, -1, 'zu l&ouml;schen', '');");
       set_version("2.23");
-    
+
     case '2.23':
       db_query("insert into {cc_config} (name, value) values ('site_offline','0')");
       db_query("update {cdb_feld} set db_spalte='ueberwiesenvon' where db_spalte='ueberweisen von'");
       db_query("update {cdb_feld} set db_spalte='ueberwiesennach' where db_spalte='ueberwiesen nach'");
-    
+
       db_query("CREATE TABLE {cdb_person_gruppentyp} (
         person_id int(11) NOT NULL,
         gruppentyp_id int(11) NOT NULL,
@@ -1299,26 +1299,26 @@ function run_db_updates($db_version) {
         distrikt_id int(11) NOT NULL,
         modified_date datetime NOT NULL,
         modified_pid int(11) NOT NULL,
-        PRIMARY KEY (person_id,distrikt_id)) DEFAULT CHARSET=utf8;");  
+        PRIMARY KEY (person_id,distrikt_id)) DEFAULT CHARSET=utf8;");
       set_version("2.24");
-    
+
     case '2.24':
       db_query("ALTER TABLE {cc_file} CHANGE domain_id domain_id VARCHAR( 30 ) NOT NULL");
-      db_query("ALTER TABLE {cc_file} ADD bezeichnung VARCHAR( 50 ) NOT NULL AFTER domain_id");  
+      db_query("ALTER TABLE {cc_file} ADD bezeichnung VARCHAR( 50 ) NOT NULL AFTER domain_id");
       db_query("update {cc_file} set bezeichnung=filename");
-      db_query("ALTER TABLE {cdb_gemeindeperson} CHANGE imageurl imageurl VARCHAR( 50 )"); 
+      db_query("ALTER TABLE {cdb_gemeindeperson} CHANGE imageurl imageurl VARCHAR( 50 )");
       set_version("2.25");
-    
+
     case '2.25':
       db_query("ALTER TABLE {cdb_gruppe} ADD fu_nachfolge_gruppenteilnehmerstatus_id INT( 11 ) NULL AFTER fu_nachfolge_objekt_id");
       db_query("ALTER TABLE {cdb_gemeindeperson_gruppe} ADD  followup_erfolglos_zurueck_gruppen_id INT( 11 ) NULL AFTER followup_add_diff_days");
       db_query("UPDATE {cdb_feld} set sortkey=2 where db_spalte='max_teilnehmer' and feldkategorie_id=4");
       db_query("INSERT INTO {cdb_feld} VALUES(-1, 4, 2, 'fu_nachfolge_gruppenteilnehmerstatus_id', 'groupMemberTypes', 1, 'Followup-Nachfolger-Teilnehmerstatus', 'Followup-Nachfolger-Teilnehmerstatus', '<br/>', 'admingroups', 11, 5)");
-      
-      db_query("update {cdb_feld} set langtext='<p>Versteckte Gruppe<br/><small>Gruppe ist nur f&uuml;r Gruppenadmins & Leiter sichtbar</small>' 
+
+      db_query("update {cdb_feld} set langtext='<p>Versteckte Gruppe<br/><small>Gruppe ist nur f&uuml;r Gruppenadmins & Leiter sichtbar</small>'
                   where langtext='<p>Versteckte Gruppe<br/><small>Gruppe ist nur f&uuml;r Gruppenadmins & Leiter sichbar</small>'");
       set_version("2.26");
-    
+
     case '2.26':
       db_query("CREATE TABLE {cc_cal_add} (
         id int(11) NOT NULL AUTO_INCREMENT,
@@ -1328,12 +1328,12 @@ function run_db_updates($db_version) {
         modified_pid int(11) NOT NULL,
         PRIMARY KEY (id)
       ) DEFAULT CHARSET=utf8");
-      
+
       db_query("ALTER TABLE {cc_cal_except} CHANGE except_date except_date_start DATETIME NOT NULL");
       db_query("ALTER TABLE  {cc_cal_except} ADD except_date_end DATETIME NOT NULL AFTER except_date_start");
       db_query("update {cc_cal_except} set except_date_end=except_date_start");
-      db_query("ALTER TABLE {cc_cal} ADD repeat_option_id INT( 11 ) NULL AFTER repeat_until");  
-    
+      db_query("ALTER TABLE {cc_cal} ADD repeat_option_id INT( 11 ) NULL AFTER repeat_until");
+
       db_query("CREATE TABLE {cr_addition} (
         id int(11) NOT NULL AUTO_INCREMENT,
         booking_id int(11) NOT NULL,
@@ -1347,8 +1347,8 @@ function run_db_updates($db_version) {
       db_query("ALTER TABLE  {cr_exception} ADD modified_date DATETIME NOT NULL AFTER userid");
       db_query("ALTER TABLE {cr_exception} CHANGE person_id  modified_pid INT( 11 ) NOT NULL DEFAULT '-1'");
       db_query("update {cr_exception} set except_date_end=except_date_start");
-      db_query("ALTER TABLE {cr_booking} ADD repeat_option_id INT( 11 ) NULL AFTER repeat_until");  
-      
+      db_query("ALTER TABLE {cr_booking} ADD repeat_option_id INT( 11 ) NULL AFTER repeat_until");
+
       db_query("CREATE TABLE {cc_repeat} (
       id int(11) NOT NULL, bezeichnung varchar(30) NOT NULL, sortkey int(11) NOT NULL, PRIMARY KEY (id)
       ) DEFAULT CHARSET=utf8");
@@ -1360,12 +1360,12 @@ function run_db_updates($db_version) {
       db_query("INSERT INTO {cc_repeat} VALUES(365, 'J&auml;hrlich', 5)");
       db_query("INSERT INTO {cc_repeat} VALUES(999, 'Manuell', 6)");
       db_query("DROP TABLE  {cr_repeat}");
-      
+
       db_query("ALTER TABLE {cs_eventservice} ADD INDEX ( event_id )");
-      
+
       db_query("ALTER TABLE {cc_wiki} CHANGE text text MEDIUMBLOB NOT NULL");
       set_version("2.27");
-    
+
     case '2.27':
       db_query("ALTER TABLE {cc_wiki} ADD auf_startseite_yn INT( 1 ) NOT NULL DEFAULT '0' AFTER text");
       db_query("ALTER TABLE {cc_cal_add} ADD with_repeat_yn INT( 1 ) NOT NULL DEFAULT '1' AFTER add_date");
@@ -1379,39 +1379,39 @@ function run_db_updates($db_version) {
       db_query("INSERT INTO {cc_wiki} VALUES ('main',1,0,'<h2>​<strong>Was ist das Wiki?</strong></h2>\n\n<p><span style=\\\"font-size:14px\\\">D</span><img alt=\\\"\\\" src=\\\"http://intern.churchtools.de/system/assets/img/wiki_logo.png\\\" style=\\\"float:right; height:270px; width:300px\\\" /><span style=\\\"font-size:14px\\\">as Wiki soll als Dokumentation, Informations- und Arbeitsgrundlage f&uuml;r die verschiedenen Dienstbereiche der Gemeinde dienen. Jeder Mitarbeiter eines Dienstbereiches kann auf Wunsch Zugriff auf die entsprechenden Wiki-Kategorien erhalten. Diese Seiten k&ouml;nnen dann&nbsp;von allen aus demselben Dienstbereich gelesen und bearbeitet werden. So k&ouml;nnen aktuelle Information, Abl&auml;ufe, Einstellungen, etc. zeitnah gespeichert werden und sind sofort f&uuml;r alle einsehbar. Damit ist jeder zu jederzeit auf dem neusten Wissenstand.</span></p>\n\n<div><span style=\\\"font-size:14px\\\">Durch das Wiki haben neue Mitarbeiter alle n&ouml;tigen Informationen, Anleitungen und Hintergrundinformationen f&uuml;r ihren Dienst. Erfahrene Mitarbeiter k&ouml;nnen ihr Wissen und gesammelte Informationen dokumentieren und auf sie zur&uuml;ckgreifen.</span></div>\n\n<h2>Weitere Infos</h2>\n\n<div><span style=\\\"font-size:14px\\\">Mehr Infos zum Wiki gibt es <a href=\\\"http://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc:ChurchWiki/\\\" target=\\\"_blank\\\">hier</a>.</span></div>\n',0,'2013-08-30 15:59:42',1)");
       db_query("INSERT INTO {cc_wiki} VALUES ('Sicherheitsbestimmungen',1,0,'<p><strong>Verpflichtung auf das Datengeheimnis gem&auml;&szlig; &sect; 5 Bundesdatenschutzgesetz (BDSG), auf das Fernmeldegeheimnis gem&auml;&szlig; &sect; 88 Telekommunikationsgesetz (TKG) und auf Wahrung von Gesch&auml;ftsgeheimnissen</strong><br />\n<br />\nHallo&nbsp;[Vorname]!<br />\nDie pers&ouml;nlichen Daten unserer Mitarbeiter und Mitglieder wollen wir sch&uuml;tzen. Darum bitten wir Dich, Dich auf das Datengeheimnis wie folgt zu verpflichten:<br />\n<br />\n<strong>1. Verpflichtung auf das Datengeheimnis nach &sect; 5 BDSG</strong><br />\nAufgrund von &sect; 5 BDSG ist mir untersagt, personenbezogene Daten, die mir dienstlich bekannt werden, unbefugt zu erheben, zu verarbeiten oder zu nutzen. Dies gilt sowohl f&uuml;r die dienstliche T&auml;tigkeit innerhalb wie auch au&szlig;erhalb (z.B. bei Kunden und Interessenten) des Unternehmens/der Beh&ouml;rde.<br />\nDie Pflicht zur Wahrung des Datengeheimnisses bleibt auch im Falle einer Versetzung oder nach Beendigung des Arbeits-/Dienstverh&auml;ltnisses bestehen.<br />\n<br />\n<strong>2. Verpflichtung auf das Fernmeldegeheimnis</strong><br />\nAufgrund von &sect; 88 TKG bin ich zur Wahrung des Fernmeldegeheimnisses verpflichtet, so- weit ich im Rahmen meiner T&auml;tigkeit bei der Erbringung gesch&auml;ftsm&auml;&szlig;iger Telekommunikationsdienste mitwirke.<br />\n<br />\n<strong>3. Verpflichtung auf Wahrung von Gesch&auml;ftsgeheimnissen</strong><br />\n&Uuml;ber Angelegenheiten des Unternehmens, die beispielsweise Einzelheiten ihrer Organisation und ihre Einrichtung betreffen, sowie &uuml;ber Gesch&auml;ftsvorg&auml;nge und Zahlen des internen Rechnungswesens, ist auch nach Beendigung des Arbeitsverh&auml;ltnisses von mir Verschwiegenheit zu wahren, sofern sie nicht allgemein &ouml;ffentlich bekannt geworden sind. Hierunter fallen&nbsp;auch Vorg&auml;nge von Drittunternehmen, mit denen ich dienstlich befasst bin. Auf die gesetzli- chen Bestimmungen &uuml;ber unlauteren Wettbewerb wurde ich besonders hingewiesen.<br />\nAlle dienstliche T&auml;tigkeiten betreffenden Aufzeichnungen, Abschriften, Gesch&auml;ftsunterlagen, Ablichtungen dienstlicher oder gesch&auml;ftlicher Vorg&auml;nge, die mir &uuml;berlassen oder von mir angefertigt werden, sind vor Einsichtnahme Unbefugter zu sch&uuml;tzen.<br />\n<br />\nVon diesen Verpflichtungen habe ich Kenntnis genommen. Ich bin mir bewusst, dass ich mich bei Verletzungen des Datengeheimnisses, des Fernmeldegeheimnisses oder von Gesch&auml;ftsgeheimnissen strafbar machen kann, insbesondere nach &sect;&sect; 44, 43 Abs. 2 BDSG, &sect; 206 Strafgesetzbuch (StGB) und nach &sect; 17 Gesetz gegen den unlauteren Wettbewerb (UWG).</p>',0,'0000-00-00 00:00:00',0)");
       db_query("insert into {cc_config} (name, value) values ('accept_datasecurity','0')");
-      db_query("ALTER TABLE {cdb_person} ADD acceptedsecurity DATETIME NULL AFTER loginerrorcount");  
+      db_query("ALTER TABLE {cdb_person} ADD acceptedsecurity DATETIME NULL AFTER loginerrorcount");
       set_version("2.28");
-    
+
     case '2.28':
     case '2.29':
       db_query("INSERT INTO {cc_auth} (id ,auth ,modulename ,datenfeld,bezeichnung)
         VALUES ( '601',  'view',  'churchcheckin', NULL ,  'Darf die Checkin-Anwendung nutzen')");
-    
-      db_query("ALTER TABLE  {cdb_gruppentreffen_gemeindeperson} 
+
+      db_query("ALTER TABLE  {cdb_gruppentreffen_gemeindeperson}
                        ADD modified_date DATETIME NOT NULL AFTER treffen_yn");
-      db_query("ALTER TABLE  {cdb_gruppentreffen_gemeindeperson} 
+      db_query("ALTER TABLE  {cdb_gruppentreffen_gemeindeperson}
                        ADD modified_pid int(11) NOT NULL AFTER modified_date");
-    
+
       db_query("ALTER TABLE  {cdb_gruppentreffen_gemeindeperson} ADD zufallscode VARCHAR( 10 ) NOT NULL AFTER treffen_yn");
-      
-      db_query("ALTER TABLE  {cdb_gruppentreffen} 
+
+      db_query("ALTER TABLE  {cdb_gruppentreffen}
                        ADD modified_date DATETIME NOT NULL AFTER ausgefallen_yn");
-      db_query("ALTER TABLE  {cdb_gruppentreffen} 
+      db_query("ALTER TABLE  {cdb_gruppentreffen}
                        ADD modified_pid int(11) NOT NULL AFTER modified_date");
-      
+
       db_query("insert into {cc_config} values ('churchcheckin_name', 'Checkin')");
-      
+
       db_query("CREATE TABLE {cc_printer} (
       id int(11) NOT NULL AUTO_INCREMENT,
       bezeichnung varchar(50) NOT NULL,
       ort varchar(50) NOT NULL,
       active_yn int(1) not null default '0',
       modified_date datetime NOT NULL,
-      modified_pid int(11) NOT NULL,  
+      modified_pid int(11) NOT NULL,
       PRIMARY KEY (id),
         UNIQUE KEY bezeichnung (bezeichnung,ort)
       ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 ");
-      
+
       db_query("CREATE TABLE {cc_printer_queue} (
        id int(11) NOT NULL AUTO_INCREMENT,
         printer_id int(11) NOT NULL,
@@ -1420,15 +1420,15 @@ function run_db_updates($db_version) {
         modified_pid int(11) NOT NULL,
         PRIMARY KEY (id)
       ) ENGINE=InnoDB  DEFAULT CHARSET=utf8");
-        
-      
+
+
       db_query("ALTER TABLE {cdb_gruppe} ADD mail_an_leiter_yn INT( 1 ) NOT NULL DEFAULT  '1' AFTER instatistik_yn");
       db_query("INSERT INTO {cdb_feld} VALUES (null, 4, 4, 'mail_an_leiter_yn', NULL, 1, '<p>Leiter informieren<br/><small>(Co-)Leiter und Supverisor bekommen E-Mails bei &Auml;nderungen in der Gruppe', '&Leiter informieren', '<br/>', 'admingroups', 1, 19)");
-      
-      
+
+
       db_query("INSERT INTO  {cc_auth} (id ,auth ,modulename ,datenfeld ,bezeichnung)
       VALUES ('115',  'view group',  'churchdb',  'cdb_gruppe',  'View-Rechte auf andere Gruppen')");
-    
+
       db_query("CREATE TABLE {cdb_gruppe_mailchimp} (
       gruppe_id int(11) NOT NULL,
       modified_pid int(11) NOT NULL,
@@ -1439,8 +1439,8 @@ function run_db_updates($db_version) {
       notifyunsubscribe_yn int(1) NOT NULL DEFAULT '0',
         PRIMARY KEY (gruppe_id,mailchimp_list_id)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
-    
-    
+
+
       db_query("CREATE TABLE {cdb_gruppe_mailchimp_person} (
       gruppe_id int(11) NOT NULL,
       mailchimp_list_id varchar(20) NOT NULL,
@@ -1448,75 +1448,75 @@ function run_db_updates($db_version) {
       email varchar(50) NOT NULL,
         PRIMARY KEY (gruppe_id,mailchimp_list_id,person_id)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
-    
+
       db_query("insert into {cc_config} values ('churchdb_mailchimp_apikey', '')");
       db_query("ALTER TABLE {cdb_gruppentreffen} ADD anzahl_gaeste INT( 11 ) NULL AFTER ausgefallen_yn");
       db_query("ALTER TABLE {cdb_gruppentreffen} ADD kommentar TEXT NULL AFTER anzahl_gaeste");
-      
-      
+
+
       db_query("ALTER TABLE {cdb_person} ADD archiv_yn INT( 0 ) NOT NULL DEFAULT  '0' AFTER cmsuserid");
       db_query("INSERT INTO  {cc_auth} (id ,auth ,modulename ,datenfeld ,bezeichnung)
-      VALUES ('116',  'view archive',  'churchdb',  null,  'View-Rechte auf das Personen-Archiv')");  
+      VALUES ('116',  'view archive',  'churchdb',  null,  'View-Rechte auf das Personen-Archiv')");
       set_version("2.30");
-    
+
     case '2.30':
       db_query("insert into {cc_config} values ('churchcheckin_inmenu', '1')");
       db_query("insert into {cc_config} values ('churchcheckin_sortcode', '1')");
       db_query("insert into {cc_config} values ('churchcheckin_startbutton', '1')");
-    
+
       db_query("insert into {cc_config} values ('churchdb_inmenu', '1')");
       db_query("insert into {cc_config} values ('churchdb_sortcode', '2')");
       db_query("insert into {cc_config} values ('churchdb_startbutton', '1')");
-    
+
       db_query("insert into {cc_config} values ('churchresource_inmenu', '1')");
       db_query("insert into {cc_config} values ('churchresource_sortcode', '3')");
       db_query("insert into {cc_config} values ('churchresource_startbutton', '1')");
-      
+
       db_query("insert into {cc_config} values ('churchservice_inmenu', '1')");
       db_query("insert into {cc_config} values ('churchservice_sortcode', '4')");
       db_query("insert into {cc_config} values ('churchservice_startbutton', '1')");
-    
+
       db_query("insert into {cc_config} values ('churchwiki_inmenu', '1')");
       db_query("insert into {cc_config} values ('churchwiki_sortcode', '5')");
       db_query("insert into {cc_config} values ('churchwiki_startbutton', '1')");
-    
+
       db_query("insert into {cc_config} values ('churchcal_inmenu', '1')");
       db_query("insert into {cc_config} values ('churchcal_sortcode', '6')");
       db_query("insert into {cc_config} values ('churchcal_startbutton', '1')");
-      
+
       db_query("insert into {cc_config} values ('churchdb_smspromote_apikey', '')");
       db_query("INSERT INTO  {cc_auth} (id ,auth ,modulename ,datenfeld ,bezeichnung)
-      VALUES ('117',  'send sms',  'churchdb',  null,  'Darf die SMS-Schnittstelle verwenden')");  
+      VALUES ('117',  'send sms',  'churchdb',  null,  'Darf die SMS-Schnittstelle verwenden')");
       set_version("2.31");
-    
+
     case '2.31':
       db_query("ALTER TABLE {cs_service} ADD notiz VARCHAR( 50 ) NOT NULL AFTER bezeichnung");
       db_query("ALTER TABLE {cs_service} CHANGE bezeichnung  bezeichnung VARCHAR( 50 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
       db_query("ALTER TABLE {cc_cal} ADD domain_type VARCHAR( 30 ) NULL AFTER id");
-      db_query("ALTER TABLE {cc_cal} ADD domain_id INT( 11 ) NULL AFTER domain_type");  
+      db_query("ALTER TABLE {cc_cal} ADD domain_id INT( 11 ) NULL AFTER domain_type");
       db_query("insert into {cc_config} values ('churchservice_reminderhours', '24')");
       db_query("INSERT INTO {cdb_feld} VALUES(null, 4, 2, 'gruppentyp_id', 'groupTypes', 1, 'Gruppentyp', 'Gruppentyp', '<br/>', 'admingroups', 11, 2)");
       set_version("2.32");
-    
+
     case '2.32':
     case '2.33':
       db_query("ALTER TABLE {cc_cal} DROP domain_type");
       db_query("ALTER TABLE {cc_cal} DROP domain_id");
-        
+
       db_query("ALTER TABLE {cs_event} ADD cc_cal_id INT( 11 ) NOT NULL AFTER id");
-      
+
       // create parent cc_cal entries
       db_query("insert into {cc_cal} (select null, bezeichnung, '', '', 0, datum, DATE_ADD(datum, INTERVAL 1 HOUR), category_id, 0, null, null, null, current_date(), -1 from {cs_event})");
       // link to parent cc_cal
-      db_query("update {cs_event} e 
+      db_query("update {cs_event} e
         inner join (select * from {cc_cal}) as cal
         on cal.category_id=e.category_id and cal.bezeichnung=e.bezeichnung and cal.startdate=e.datum and e.cc_cal_id=0
         set e.cc_cal_id=cal.id");
-    
+
       db_query("ALTER TABLE {cs_event} CHANGE category_id old_category_id INT( 11 ) NOT NULL DEFAULT  '0'");
       db_query("ALTER TABLE {cs_event} CHANGE bezeichnung old_bezeichnung VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
       db_query("ALTER TABLE {cs_event} CHANGE datum startdate DATETIME NOT NULL ");
-      
+
       // CALENDAR
       // first, import descriptions
       db_query("CREATE TABLE {cc_calcategory} (
@@ -1534,22 +1534,22 @@ function run_db_updates($db_version) {
       db_query("insert into {cc_calcategory} (select null, bezeichnung, sortkey, color, 1, 0, current_date(), -1 from {cs_category})");
       db_query("ALTER TABLE {cc_cal} CHANGE category_id  old_category_id INT( 11 ) NOT NULL DEFAULT 0");
       db_query("ALTER TABLE {cc_cal} ADD category_id INT( 11 ) NOT NULL AFTER old_category_id");
-      
+
       $db=db_query("select cal.id cal_id, cs.id cs_id from {cc_calcategory} cal, {cs_category} cs where cal.bezeichnung=cs.bezeichnung");
       // adapt IDs since auto_increment is used now
       if ($db!=null)
         foreach ($db as $ids) {
-          db_query("update {cc_cal} set category_id=:cal_id where old_category_id=:cs_id", 
-            array(":cal_id"=>$ids->cal_id, ":cs_id"=>$ids->cs_id));      
-        } 
+          db_query("update {cc_cal} set category_id=:cal_id where old_category_id=:cs_id",
+            array(":cal_id"=>$ids->cal_id, ":cs_id"=>$ids->cs_id));
+        }
 
       // admin may not see everything, eg. personal calendars
       db_query("ALTER TABLE {cc_auth} ADD admindarfsehen_yn INT( 1 ) NOT NULL DEFAULT 1");
       db_query("UPDATE {cc_auth} SET admindarfsehen_yn =  0  WHERE id=115");
-      
+
       db_query("INSERT INTO  {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (403, 'view category', 'churchcal', 'cc_calcategory', 'Darf bestimmte Kalender einsehen',1)");
       db_query("INSERT INTO  {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (404, 'edit category', 'churchcal', 'cc_calcategory', 'Darf bestimmte Kalender anpassen',1)");
-      
+
       // COMMENTS
       db_query("CREATE TABLE {cc_comment} (
         id int(11) NOT NULL AUTO_INCREMENT,
@@ -1562,7 +1562,7 @@ function run_db_updates($db_version) {
         UNIQUE KEY domain_type (domain_type,domain_id)
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ");
       set_version("2.34");
-    
+
     case '2.34':
       db_query("CREATE TABLE {cc_mail_queue} (
       id int(11) NOT NULL AUTO_INCREMENT,
@@ -1579,26 +1579,26 @@ function run_db_updates($db_version) {
       reading_count int(11) NOT NULL DEFAULT '0',
       PRIMARY KEY (id)
     ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=0 ");
-      
-      db_query("ALTER TABLE {cdb_gruppe} CHANGE bezeichnung bezeichnung VARCHAR( 100 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");  
+
+      db_query("ALTER TABLE {cdb_gruppe} CHANGE bezeichnung bezeichnung VARCHAR( 100 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
       db_query("ALTER TABLE {cdb_log} CHANGE txt txt VARCHAR( 2048 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
-    
+
       // public user may see the calendar function and church service calendars
       db_query("INSERT INTO {cc_domain_auth} (
         domain_type, domain_id, auth_id, daten_id)
-        VALUES ('person',  '-1',  '401', NULL);");  
+        VALUES ('person',  '-1',  '401', NULL);");
       db_query("INSERT INTO {cc_domain_auth} VALUES('person', -1, 403, 2)");
       db_query("INSERT INTO {cc_domain_auth} VALUES('person', -1, 403, 3)");
-      
+
       db_query("update {cc_auth} set bezeichnung='Admin-Einstellungen anpassen' where id=1");
-    
+
       // authorize viewing the calendar by status
       db_query("insert into {cc_domain_auth} SELECT 'status', s.id, 403, cat.id FROM {cc_calcategory} cat, {cdb_status} s where cat.oeffentlich_yn=1");
       set_version("2.35");
-    
+
     case '2.35':
     case '2.36':
-      db_query("update {cc_calcategory} set bezeichnung = replace(bezeichnung, '', '') 
+      db_query("update {cc_calcategory} set bezeichnung = replace(bezeichnung, '', '')
         WHERE  bezeichnung LIKE  '%s Kalender'");
       db_query("ALTER TABLE {cc_cal} ADD link VARCHAR( 255 ) NOT NULL AFTER notizen");
       db_query("ALTER TABLE {cc_calcategory} ADD randomurl VARCHAR( 100 ) NOT NULL AFTER privat_yn");
@@ -1607,14 +1607,14 @@ function run_db_updates($db_version) {
       db_query("ALTER TABLE {cs_eventtemplate_service} ADD PRIMARY KEY ( eventtemplate_id ,  service_id )");
       db_query("ALTER TABLE {cr_booking} ADD cc_cal_id INT( 11 ) NULL");
       db_query("ALTER TABLE {cs_absent_reason} ADD color VARCHAR( 20 ) NOT NULL AFTER bezeichnung");
-      db_query("ALTER TABLE {cs_eventtemplate_service} ADD count INT( 2 ) NOT NULL DEFAULT 1");  
+      db_query("ALTER TABLE {cs_eventtemplate_service} ADD count INT( 2 ) NOT NULL DEFAULT 1");
       set_version("2.37");
-    
+
     case '2.37':
       db_query("ALTER TABLE {cs_eventtemplate} ADD dauer_sec INT( 11 ) NOT NULL DEFAULT  '5400' AFTER minute");
       db_query("ALTER TABLE {cdb_feld} ADD inneuerstellen_yn INT( 1 ) NOT NULL DEFAULT '0' AFTER aktiv_yn");
       db_query("update {cdb_feld} set inneuerstellen_yn=1 where db_spalte in ('strasse', 'plz', 'ort', 'email')");
-    
+
       db_query("UPDATE {cc_auth} SET auth = 'church category',
             bezeichnung = 'Kategorien von Gemeindekalendern anpassen' WHERE id =402");
       db_query("INSERT {cc_auth} (id, auth, modulename, bezeichnung) values(405, 'group category', 'churchcal',
@@ -1624,11 +1624,11 @@ function run_db_updates($db_version) {
       db_query("ALTER TABLE {cc_auth} ADD UNIQUE (auth, modulename)");
       db_query("UPDATE {cc_auth} SET admindarfsehen_yn = 0 WHERE  id =403");
       db_query("UPDATE {cc_auth} SET admindarfsehen_yn = 0 WHERE  id =404");
-      
+
       db_query("insert into {cc_domain_auth} select 'person', modified_pid, 404, id from {cc_calcategory} where id>0 and modified_pid>0");
       db_query("ALTER TABLE {cr_booking} ADD INDEX (cc_cal_id)");
       set_version("2.38");
-    
+
     case '2.38':
     case '2.39':
     case '2.40':
@@ -1636,19 +1636,19 @@ function run_db_updates($db_version) {
       db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (309, 'edit template', 'churchservice', null, 'Darf Event-Templates editieren',1)");
       db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (321, 'view facts', 'churchservice', null, 'Darf Fakten sehen',1)");
       db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (322, 'export facts', 'churchservice', null, 'Darf Fakten exportieren',1)");
-      
-      // Give permission to push/pull people from/to archive in CDB 
+
+      // Give permission to push/pull people from/to archive in CDB
       db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (118, 'push/pull archive', 'churchdb', null, 'Darf Personen ins Archiv verschieben und zurueckholen',1)");
-    
+
       // Resolves problem with some wiki pages with long page names
       db_query("ALTER TABLE {cc_file} CHANGE filename filename VARCHAR( 100 ) NOT NULL");
       db_query("ALTER TABLE {cc_file} CHANGE domain_id domain_id VARCHAR( 100 ) NOT NULL");
-    
+
       // Add authorization for agenda in CS module
       db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (331, 'view agenda', 'churchservice', 'cc_calcategory', 'Darf Ablaufplaene sehen',1)");
       db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (332, 'edit agenda', 'churchservice', 'cc_calcategory', 'Darf Ablaufplaene editieren',1)");
       db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (333, 'edit agenda templates', 'churchservice', 'cc_calcategory', 'Darf Ablaufplan-Vorlagen editieren',1)");
-    
+
       // Add tables for agenda in CS module
       db_query("CREATE TABLE {cs_agenda} (
       id int(11) NOT NULL AUTO_INCREMENT,
@@ -1660,7 +1660,7 @@ function run_db_updates($db_version) {
       modified_pid int(11) NOT NULL,
       PRIMARY KEY (id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1");
-      
+
       db_query("CREATE TABLE {cs_item} (
       id int(11) NOT NULL AUTO_INCREMENT,
       agenda_id int(11) NOT NULL,
@@ -1676,13 +1676,13 @@ function run_db_updates($db_version) {
       modified_pid int(11) NOT NULL,
       PRIMARY KEY (id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1");
-      
+
       db_query("CREATE TABLE {cs_event_item} (
       event_id int(11) NOT NULL,
       item_id int(11) NOT NULL,
       PRIMARY KEY (event_id,item_id)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8");
-    
+
       db_query("CREATE TABLE {cs_item_servicegroup} (
       item_id int(11) NOT NULL,
       servicegroup_id int(11) NOT NULL,
@@ -1700,12 +1700,12 @@ function run_db_updates($db_version) {
           bezeichnung = 'Gruppenkalender administrieren' WHERE id =405");
       db_query("UPDATE {cc_auth} SET auth = 'admin personal category',
           bezeichnung = 'Persoenliche Kalender administrieren' WHERE id =406");
-      
+
       // Drop old userid-col
       db_query("ALTER TABLE {cdb_log} DROP userid");
       db_query("INSERT INTO  {cc_config} (name, value) VALUES ('timezone', 'Europe/Berlin')");
 
-      // Gives the admin the permission to edit categories. Cause 404 has admindarfsehen_yn=0 
+      // Gives the admin the permission to edit categories. Cause 404 has admindarfsehen_yn=0
       db_query("INSERT INTO {cc_domain_auth} VALUES('person', 1, 404, 1)");
       db_query("INSERT INTO {cc_domain_auth} VALUES('person', 1, 404, 2)");
       db_query("INSERT INTO {cc_domain_auth} VALUES('person', 1, 404, 3)");
@@ -1721,30 +1721,30 @@ function run_db_updates($db_version) {
       db_query("update {cc_config} set value=1 where name='cronjob_dbdump' and value=0");
       db_query("update {cc_config} set value=3600 where name='cronjob_delay' and value=0");
       set_version("2.43");
-      
+
     case '2.43':
       db_query("ALTER TABLE {cs_event} ADD created_by_template_id INT( 11 ) NULL");
       set_version("2.44");
-      
+
     case '2.44':
       set_version("2.45");
-      
+
     case '2.45':
       // Throuh an error in the update in 2.42, the value is 60, that doesnt make sense...
       db_query("update {cc_config} set value=3600 where name='cronjob_delay' and value=60");
       db_query("INSERT INTO {cdb_feldkategorie} (id , bezeichnung , intern_code , db_tabelle , id_name)
-      VALUES ( '5',  'Bereich',  'f_dep',  'cdb_bereich',  'id');");      
-      db_query("INSERT INTO  {cdb_feld} (id, feldkategorie_id , feldtyp_id , db_spalte , 
-         db_stammdatentabelle , aktiv_yn , inneuerstellen_yn , langtext , kurztext , zeilenende , 
+      VALUES ( '5',  'Bereich',  'f_dep',  'cdb_bereich',  'id');");
+      db_query("INSERT INTO  {cdb_feld} (id, feldkategorie_id , feldtyp_id , db_spalte ,
+         db_stammdatentabelle , aktiv_yn , inneuerstellen_yn , langtext , kurztext , zeilenende ,
          autorisierung , laenge , sortkey )
         VALUES (NULL ,  '5',  '2',  'bereich_id',  'dep',  '1',  '0',  'Bereich',  'Bereich',  '<br/>', NULL , NULL , 1
-      )");    
+      )");
       set_version("2.46");
-      
+
     case '2.46':
       db_query("ALTER TABLE {cc_wikicategory} ADD in_menu_yn INT( 1 ) NOT NULL DEFAULT '1'");
-      db_query("UPDATE {cdb_feld} set autorisierung='viewalldetails || leader' where autorisierung='ViewAllDetailsOrPersonLeader'");      
-      
+      db_query("UPDATE {cdb_feld} set autorisierung='viewalldetails || leader' where autorisierung='ViewAllDetailsOrPersonLeader'");
+
       db_query("CREATE TABLE {cc_notification} (
           id int(11) NOT NULL AUTO_INCREMENT,
           domain_type varchar(20) NOT NULL,
@@ -1755,21 +1755,21 @@ function run_db_updates($db_version) {
           PRIMARY KEY (id),
           UNIQUE KEY domain_type (domain_type,domain_id,person_id)
         ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ");
-      
+
       db_query("CREATE TABLE {cc_notificationtype} (
           id int(11) NOT NULL AUTO_INCREMENT,
           bezeichnung varchar(40) NOT NULL,
           delay_hours int(11) NOT NULL,
           PRIMARY KEY (id)
         ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1");
-      
+
       db_query("INSERT INTO {cc_notificationtype} (bezeichnung, delay_hours) VALUES
         ('sofort', 0),
         ('alle 3 Stunden', 3),
         ('jeden Tag', 24),
         ('alle 3 Tage', 72)
         ");
-      
+
       db_query("CREATE TABLE {cc_meetingrequest} (
           id int(11) NOT NULL AUTO_INCREMENT,
           cal_id int(11) NOT NULL,
@@ -1781,7 +1781,7 @@ function run_db_updates($db_version) {
           PRIMARY KEY (id),
           UNIQUE KEY cal_id (cal_id,person_id,event_date)
         ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1");
-      
+
       // Fix bug when person_id differs from id
       db_query("UPDATE {cdb_feldkategorie} SET id_name = 'person_id' WHERE intern_code='f_category'");
 
@@ -1789,11 +1789,11 @@ function run_db_updates($db_version) {
       db_query("insert into {cc_domain_auth} (
         select domain_type, domain_id, 120, null from {cc_domain_auth} where auth_id=102
         group by domain_id, domain_type)");
-      
+
       db_query("ALTER TABLE {cs_agenda} ADD final_yn INT( 1 ) NOT NULL DEFAULT '0' AFTER series");
-      
+
       set_version("2.47");
-    case '2.47': 
+    case '2.47':
       db_query("ALTER TABLE {cs_service} ADD cal_text_template VARCHAR( 255 ) NULL AFTER allowtonotebyconfirmation_yn");
       // Fix bug when events was created with repeat function in ChurchService
       db_query("update {cc_cal} set enddate=date_add(startdate, interval 1 hour) where datediff(startdate, enddate)>0");
@@ -1806,7 +1806,7 @@ function run_db_updates($db_version) {
         count int(11) NOT NULL,
         PRIMARY KEY (date,status_id,station_id)
       ) ENGINE=MyISAM DEFAULT CHARSET=utf8");
-      
+
       db_query("CREATE TABLE {crp_group} (
         date date NOT NULL,
         gruppe_id int(11) NOT NULL,
@@ -1817,22 +1817,22 @@ function run_db_updates($db_version) {
         count int(11) NOT NULL,
         PRIMARY KEY (date,gruppe_id,status_id,station_id,gruppenteilnehmerstatus_id)
       ) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
-      
+
       set_version("2.48");
-      
-    case "2.48": 
+
+    case "2.48":
       db_query("ALTER TABLE {cs_event_fact} CHANGE value value VARCHAR( 11 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
       db_query("ALTER TABLE {cs_song_arrangement} CHANGE  note  note text");
       // Set permission to all resource_ids
-      db_query("UPDATE {cc_domain_auth} SET daten_id=-1 WHERE auth_id=202");    
+      db_query("UPDATE {cc_domain_auth} SET daten_id=-1 WHERE auth_id=202");
       db_query("ALTER TABLE {cdb_gruppe} ADD members_allowedmail_eachother_yn INT( 1 ) NOT NULL DEFAULT  '0' AFTER mail_an_leiter_yn");
       db_query("INSERT INTO {cdb_feld} VALUES (null, 4, 4, 'members_allowedmail_eachother_yn', NULL, 1, 0, '<p>Kommunikation untereinander<br/><small>Teilnehmer der Gruppe d&uuml;rfen sich gegenseitig E-Mails zusenden', 'Untereinander kommunizieren', '<br/>', null, 1, 19)");
       db_query("ALTER TABLE {cdb_feld} CHANGE autorisierung  autorisierung VARCHAR( 100 )");
       db_query("UPDATE {cdb_feld} SET autorisierung = 'viewaddress||viewalldetails||leader||changeownaddress' WHERE db_spalte='strasse'");
       db_query("UPDATE {cdb_feld} SET autorisierung = 'viewaddress||viewalldetails||leader||changeownaddress' WHERE db_spalte='zusatz'");
-      db_query("UPDATE {cdb_feld} set autorisierung = 'viewalldetails' where feldkategorie_id=2 and autorisierung is null and db_spalte!='geburtsdatum'");      
+      db_query("UPDATE {cdb_feld} set autorisierung = 'viewalldetails' where feldkategorie_id=2 and autorisierung is null and db_spalte!='geburtsdatum'");
       set_version("2.49");
-  	 
+
   	case "2.49":
 	    db_query("insert into {cc_config} values('invite_email_text', 'Du wurdest zur Nutzung von %sitename eingeladen.\n\n".
                              "Klicke auf die folgende Schaltfläche, um Dich direkt dort anzumelden und um Dein Passwort zu wählen:')");
@@ -1852,13 +1852,13 @@ function run_db_updates($db_version) {
   aggregatorName varchar(255) DEFAULT NULL,
   PRIMARY KEY (id)
       ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5");
-	    
+
   db_query("INSERT INTO {crp_report} (id, query_id, bezeichnung, sortkey, rows, cols, aggregatorName) VALUES
     (1, 1, 'Anzahl Personen Gesamt', 10, 'Monat', 'Station,Mitglied', 'Anzahl Personen'),
     (2, 1, 'Anzahl neuer Personen', 20, 'Monat', 'Station', 'Anzahl neuer Personen'),
     (3, 2, 'Gruppentypen', 10, 'Datum', 'Gruppentyp', 'Anzahl Personen'),
     (4, 3, 'Gruppen per Distrikt', 10, 'Datum', 'Distrikt,Mitglied', '');");
-	    
+
   db_query("CREATE TABLE {crp_query} (
     id int(11) NOT NULL AUTO_INCREMENT,
     bezeichnung varchar(50) CHARACTER SET latin1 NOT NULL,
@@ -1866,12 +1866,12 @@ function run_db_updates($db_version) {
     sortkey int(11) NOT NULL DEFAULT '0',
     PRIMARY KEY (id)
     ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=6");
-	    
+
   db_query("INSERT INTO {crp_query} (id, bezeichnung, query_sql, sortkey) VALUES
     (1, 'Personen', 0x73656c65637420702e6461746520446174756d2c207965617228702e6461746529204a6168722c20646174655f666f726d617428702e646174652c202725592d256d2729204d6f6e61742c0a2020202020202020732e62657a656963686e756e67205374617475732c200a202020202020202073742e62657a656963686e756e672053746174696f6e2c0a20202020202020202863617365207768656e20732e6d6974676c6965645f796e3d30207468656e20274b65696e204d6974676c6965642720656c736520274d6974676c6965642720656e6429206173204d6974676c6965642c200a2020202020202020702e6e6577706572736f6e5f636f756e742c20702e636f756e742061732027636f756e74272066726f6d206372705f706572736f6e2070200a2020202020202020202020202020206c656674206a6f696e206364625f7374617475732073206f6e2028732e69643d702e7374617475735f6964290a2020202020202020202020202020206c656674206a6f696e206364625f73746174696f6e207374206f6e202873742e69643d702e73746174696f6e5f696429, 10),
     (2, 'Gruppen per Monat', 0x73656c65637420646174655f666f726d617428702e646174652c202725592d256d27292061732027446174756d272c0a20202020202020207965617228702e6461746529204a6168722c0a2020202020202020732e62657a656963686e756e67205374617475732c0a202020202020202073742e62657a656963686e756e672053746174696f6e2c0a2020202020202020672e62657a656963686e756e67204772757070652c0a2020202020202020642e62657a656963686e756e67204469737472696b742c0a202020202020202067742e62657a656963686e756e67204772757070656e7479702c0a20202020202020206774732e62657a656963686e756e67204772757070656e7465696c6e65686d65727374617475732c0a20202020202020202863617365207768656e20732e6d6974676c6965645f796e3d30207468656e20274b65696e204d6974676c6965642720656c736520274d6974676c6965642720656e642920617320204d6974676c6965642c0a202020202020202073756d28702e6e6577706572736f6e5f636f756e7429206e6577706572736f6e5f636f756e742c200a2020202020202020726f756e642873756d28702e636f756e74292f636f756e7428702e636f756e74292c302920617320636f756e740a202020202020202066726f6d206372705f67726f757020700a2020202020202020202020202020206c656674206a6f696e206364625f7374617475732073206f6e2028732e69643d702e7374617475735f6964290a2020202020202020202020202020206c656674206a6f696e206364625f6772757070652067206f6e2028672e69643d702e6772757070655f6964290a2020202020202020202020202020202020202020206c656674206a6f696e206364625f6772757070656e747970206774206f6e202867742e69643d672e6772757070656e7479705f69642920202020202020200a2020202020202020202020202020202020202020206c656674206a6f696e206364625f6469737472696b742064206f6e2028642e69643d672e6469737472696b745f69642920202020202020200a2020202020202020202020202020206c656674206a6f696e206364625f6772757070656e7465696c6e65686d657273746174757320677473206f6e20286774732e69643d702e6772757070656e7465696c6e65686d65727374617475735f6964290a2020202020202020202020202020206c656674206a6f696e206364625f73746174696f6e207374206f6e202873742e69643d702e73746174696f6e5f6964290a20202020202020202067726f757020627920446174756d2c205374617475732c2053746174696f6e2c204772757070652c204469737472696b742c204772757070656e7479702c204d6974676c6965642c204772757070656e7465696c6e65686d657273746174757309, 20),
-    (3, 'Aktuelle Gruppen pro Woche', 0x73656c65637420636f6e63617428274b5720272c7965617228702e64617465292c272d272c20646174655f666f726d617428702e646174652c2027257527292b31292061732027446174756d272c0a20202020202020207965617228702e6461746529204a6168722c0a2020202020202020732e62657a656963686e756e67205374617475732c0a202020202020202073742e62657a656963686e756e672053746174696f6e2c0a2020202020202020672e62657a656963686e756e67204772757070652c0a2020202020202020642e62657a656963686e756e67204469737472696b742c0a202020202020202067742e62657a656963686e756e67204772757070656e7479702c0a20202020202020206774732e62657a656963686e756e67204772757070656e7465696c6e65686d65727374617475732c0a20202020202020202863617365207768656e20732e6d6974676c6965645f796e3d30207468656e20274b65696e204d6974676c6965642720656c736520274d6974676c6965642720656e642920617320204d6974676c6965642c0a202020202020202073756d28702e6e6577706572736f6e5f636f756e7429206e6577706572736f6e5f636f756e742c200a2020202020202020726f756e642873756d28702e636f756e74292f636f756e7428702e636f756e74292c302920617320636f756e740a202020202020202066726f6d206372705f67726f757020700a2020202020202020202020202020206c656674206a6f696e206364625f7374617475732073206f6e2028732e69643d702e7374617475735f6964290a2020202020202020202020202020206c656674206a6f696e206364625f6772757070652067206f6e2028672e69643d702e6772757070655f6964290a2020202020202020202020202020202020202020206c656674206a6f696e206364625f6772757070656e747970206774206f6e202867742e69643d672e6772757070656e7479705f69642920202020202020200a2020202020202020202020202020202020202020206c656674206a6f696e206364625f6469737472696b742064206f6e2028642e69643d672e6469737472696b745f69642920202020202020200a2020202020202020202020202020206c656674206a6f696e206364625f6772757070656e7465696c6e65686d657273746174757320677473206f6e20286774732e69643d702e6772757070656e7465696c6e65686d65727374617475735f6964290a2020202020202020202020202020206c656674206a6f696e206364625f73746174696f6e207374206f6e202873742e69643d702e73746174696f6e5f6964290a2020202020202020207768657265206461746564696666286e6f7728292c20702e64617465293c372a380a20202020202020202067726f757020627920446174756d2c205374617475732c2053746174696f6e2c204772757070652c204469737472696b742c204772757070656e7479702c204d6974676c6965642c204772757070656e7465696c6e65686d6572737461747573090a202020202020202020, 30)");	    
-    
+    (3, 'Aktuelle Gruppen pro Woche', 0x73656c65637420636f6e63617428274b5720272c7965617228702e64617465292c272d272c20646174655f666f726d617428702e646174652c2027257527292b31292061732027446174756d272c0a20202020202020207965617228702e6461746529204a6168722c0a2020202020202020732e62657a656963686e756e67205374617475732c0a202020202020202073742e62657a656963686e756e672053746174696f6e2c0a2020202020202020672e62657a656963686e756e67204772757070652c0a2020202020202020642e62657a656963686e756e67204469737472696b742c0a202020202020202067742e62657a656963686e756e67204772757070656e7479702c0a20202020202020206774732e62657a656963686e756e67204772757070656e7465696c6e65686d65727374617475732c0a20202020202020202863617365207768656e20732e6d6974676c6965645f796e3d30207468656e20274b65696e204d6974676c6965642720656c736520274d6974676c6965642720656e642920617320204d6974676c6965642c0a202020202020202073756d28702e6e6577706572736f6e5f636f756e7429206e6577706572736f6e5f636f756e742c200a2020202020202020726f756e642873756d28702e636f756e74292f636f756e7428702e636f756e74292c302920617320636f756e740a202020202020202066726f6d206372705f67726f757020700a2020202020202020202020202020206c656674206a6f696e206364625f7374617475732073206f6e2028732e69643d702e7374617475735f6964290a2020202020202020202020202020206c656674206a6f696e206364625f6772757070652067206f6e2028672e69643d702e6772757070655f6964290a2020202020202020202020202020202020202020206c656674206a6f696e206364625f6772757070656e747970206774206f6e202867742e69643d672e6772757070656e7479705f69642920202020202020200a2020202020202020202020202020202020202020206c656674206a6f696e206364625f6469737472696b742064206f6e2028642e69643d672e6469737472696b745f69642920202020202020200a2020202020202020202020202020206c656674206a6f696e206364625f6772757070656e7465696c6e65686d657273746174757320677473206f6e20286774732e69643d702e6772757070656e7465696c6e65686d65727374617475735f6964290a2020202020202020202020202020206c656674206a6f696e206364625f73746174696f6e207374206f6e202873742e69643d702e73746174696f6e5f6964290a2020202020202020207768657265206461746564696666286e6f7728292c20702e64617465293c372a380a20202020202020202067726f757020627920446174756d2c205374617475732c2053746174696f6e2c204772757070652c204469737472696b742c204772757070656e7479702c204d6974676c6965642c204772757070656e7465696c6e65686d6572737461747573090a202020202020202020, 30)");
+
     db_query("ALTER TABLE {cdb_gruppe} ENGINE = INNODB");
     db_query("ALTER TABLE {cdb_gruppentyp} ENGINE = INNODB");
     db_query("ALTER TABLE {cdb_distrikt} ENGINE = INNODB");
@@ -1882,7 +1882,7 @@ function run_db_updates($db_version) {
     db_query("ALTER TABLE {cdb_bereich} ENGINE = INNODB");
     db_query("ALTER TABLE {cdb_gemeindeperson_gruppe} ENGINE = INNODB");
     db_query("ALTER TABLE {cdb_bereich_person} ENGINE = INNODB");
-    
+
     db_query("ALTER TABLE {cdb_gruppe} ADD FOREIGN KEY ( gruppentyp_id ) REFERENCES {cdb_gruppentyp}( id )");
     db_query("ALTER TABLE {cdb_gruppe} ADD FOREIGN KEY ( distrikt_id) REFERENCES {cdb_distrikt}( id )");
     db_query("ALTER TABLE {cdb_gemeindeperson} ADD FOREIGN KEY (person_id) REFERENCES {cdb_person}( id )");
@@ -1890,13 +1890,13 @@ function run_db_updates($db_version) {
     db_query("ALTER TABLE {cdb_gemeindeperson} ADD FOREIGN KEY (station_id) REFERENCES {cdb_station}( id )");
     db_query("ALTER TABLE {cdb_bereich_person} ADD FOREIGN KEY (person_id) REFERENCES {cdb_person}( id )");
     db_query("ALTER TABLE {cdb_bereich_person} ADD FOREIGN KEY (bereich_id) REFERENCES {cdb_bereich}( id )");
-    
+
     db_query("ALTER TABLE {cs_service} ADD FOREIGN KEY (servicegroup_id) REFERENCES {cs_servicegroup}( id )");
     db_query("ALTER TABLE {cs_song} ADD FOREIGN KEY (songcategory_id) REFERENCES {cs_songcategory}( id )");
     db_query("ALTER TABLE {cs_song_arrangement} ADD FOREIGN KEY (song_id) REFERENCES {cs_song}( id )");
-    
+
     db_query("ALTER TABLE {cc_usersettings} ADD serialized_yn INT( 1 ) NOT NULL DEFAULT '0'");
-    
+
     // Change the save method for intelligente groups to separte usersettings for each group
     $db=db_query("select * from {cc_usersettings} where modulename='churchdb' and attrib='filter'");
     foreach ($db as $filter) {
@@ -1904,10 +1904,10 @@ function run_db_updates($db_version) {
       if ($arr!=null)
         foreach ($arr as $key=>$val) {
           churchcore_saveUserSetting("churchdb", $filter->person_id, "myFilter[".$key."]", $val);
-        }      
-    } 
-    db_query("delete from {cc_usersettings} where modulename='churchdb' and attrib='filter'");    
-    
+        }
+    }
+    db_query("delete from {cc_usersettings} where modulename='churchdb' and attrib='filter'");
+
     // Repair group ids in cs_service
     $db=db_query('select * from {cs_service} s');
     foreach ($db as $s) {
@@ -1920,36 +1920,37 @@ function run_db_updates($db_version) {
         if (count($res)>0)
           db_query("update {cs_service} set cdb_gruppen_ids=:ids where id=:id",
             array(":ids"=>implode(",",$res), ":id"=>$s->id));
-        else 
+        else
           db_query("update {cs_service} set cdb_gruppen_ids=null where id=:id",
             array(":id"=>$s->id));
       }
     }
-    
+
     set_version("2.50");
 
-  case '2.50':    
+  case '2.50':
     db_query("ALTER TABLE {cs_item} CHANGE note note VARCHAR(1024)");
     db_query("ALTER TABLE {cdb_gemeindeperson_gruppe_archive} ADD comment VARCHAR( 512 ) NULL");
     db_query("ALTER TABLE {cdb_feld} ADD del_when_move_to_archive_yn INT( 0 ) NOT NULL DEFAULT '0'");
-    set_version("2.51");    
-    
+    db_query("UPDATE {cc_calcategory} SET color='black' WHERE color IS NULL");
+    set_version("2.51");
+
   } //end switch
-	  
+
   $a=db_query("select * from {cc_config} where name='version'",null,false);
   $software_version=$a->fetch()->value;
-  
+
   $link=' <a href="https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc:changelog/" target="_clean">Neuigkeiten anschauen</a>';
-  
+
   if ($db_version == "nodb")
     addInfoMessage("Datenbankupdates ausgef&uuml;hrt auf v$software_version.");
   else
     addInfoMessage("Datenbankupdates ausgef&uuml;hrt von <I>".getConf("site_name")."</i>. Versionswechsel von $db_version auf $software_version. $link");
-  
+
   cleandir("$files_dir/files/messages/"); //delete temporal i18n files
-  
+
   $sitename=$config["site_name"];
-  churchcore_systemmail($config["site_mail"], "Neue Version auf ".$config["site_name"], 
+  churchcore_systemmail($config["site_mail"], "Neue Version auf ".$config["site_name"],
       "Datenbankupdates ausgef&uuml;hrt von ".getConf("site_name")."' v$db_version auf v$software_version. $link<br/><br/>".
          "<a href=\"$base_url\" class=\"btn\">$sitename aufrufen</a>", true);
   if (userLoggedIn()) {
