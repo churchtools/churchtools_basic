@@ -17,28 +17,29 @@
  */
 function churchresource_main() {
   drupal_add_js(ASSETS . '/js/jquery.history.js');
-  
+
+  drupal_add_js(CHURCHCORE . '/cc_events.js');
   drupal_add_js(CHURCHCORE . '/cc_abstractview.js');
   drupal_add_js(CHURCHCORE . '/cc_standardview.js');
   drupal_add_js(CHURCHCORE . '/cc_maintainstandardview.js');
   drupal_add_js(CHURCHCORE . '/cc_interface.js');
-  
+
   drupal_add_js(CHURCHRESOURCE . '/cr_loadandmap.js');
   drupal_add_js(CHURCHRESOURCE . '/cr_maintainview.js');
   drupal_add_js(CHURCHRESOURCE . '/cr_weekview.js');
   drupal_add_js(CHURCHRESOURCE . '/cr_main.js');
-  
+
   drupal_add_js(createI18nFile("churchcore"));
   drupal_add_js(createI18nFile("churchresource"));
-  
+
   $content = '';
-  
+
   // id for calling a distinct entry
   if ($id = getVar("id")) $content .= "<input type='hidden' id='filter_id' value='$id'>";
-  
+
   // $content=$content."<div id='cdb_menu'></div> <div id='cdb_filter'></div> <div id='cdb_content'>Fehler: Ist
   // JavaScript deaktiviert?</div>";
-  
+
   $content .= '
 <div class="row-fluid">
   <div class="span3">
@@ -51,7 +52,7 @@ function churchresource_main() {
     <div id="cdb_content"></div>
   </div>
 </div>';
-      
+
   return $content;
 }
 
@@ -60,15 +61,15 @@ function churchresource_main() {
  */
 function churchresource__ajax() {
   include_once ("churchresource_db.php");
-  
+
   $module = new CTChurchResourceModule("churchresource");
-  
+
   $ajax = new CTAjaxHandler($module);
   $ajax->addFunction("delException", "administer bookings");
   $ajax->addFunction("delBooking", "edit masterdata");
   $ajax->addFunction("createBooking", "view");
   $ajax->addFunction("updateBooking", "view");
-  
+
   drupal_json_output($ajax->call());
 }
 
@@ -78,7 +79,7 @@ function churchresource__ajax() {
  */
 function churchresource_getAdminForm() {
   global $config;
-  
+
   $model = new CTModuleForm("churchresource");
   $model->addField("churchresource_entries_last_days", "", "INPUT_REQUIRED", t('data.from.x.how.many.days.in.the.past.to.load', 'ChurchResource'))
     ->setValue($config["churchresource_entries_last_days"]);
@@ -115,7 +116,7 @@ function churchresource_getCurrentBookings() {
   $txt = "";
   if (user_access("view", "churchresource")) {
     include_once ("churchresource_db.php");
-    
+
     // all bookings from now up tomorrow with status 2
     $res = getBookings(0, 1, "2");
     if ($res != null) {
@@ -138,7 +139,7 @@ function churchresource_getCurrentBookings() {
                    );
         }
       }
-      
+
       if (count($arr)) {
         $resources = churchcore_getTableData("cr_resource");
 
@@ -149,7 +150,7 @@ function churchresource_getCurrentBookings() {
           else -1;
         }
         usort($arr, "cmp");
-        
+
         foreach ($arr as $val) {
           $txt .= "<li><p><a href='?q=churchresource&id=$val[id]'>$val[text]</a> ";
           if ($val["repeat_id"] > 0) {
@@ -197,13 +198,13 @@ function churchresource_blocks() {
  */
 function churchresource__printview() {
   global $user;
-  
+
   drupal_add_js(ASSETS . "/js/jquery-2.1.1.js");
   drupal_add_js(ASSETS . "/js/jquery-migrate-1.2.1.min.js");
-  
+
   drupal_add_js(CHURCHCORE . '/shortcut.js');
   drupal_add_js(ASSETS . '/js/jquery.history.js');
-  
+
   drupal_add_js(ASSETS . '/ui/jquery.ui.core.min.js');
   drupal_add_js(ASSETS . '/ui/jquery.ui.datepicker.min.js');
   drupal_add_js(ASSETS . '/ui/jquery.ui.position.min.js');
@@ -213,34 +214,34 @@ function churchresource__printview() {
   drupal_add_js(ASSETS . '/ui/jquery.ui.mouse.min.js');
   drupal_add_js(ASSETS . '/ui/jquery.ui.draggable.min.js');
   drupal_add_js(ASSETS . '/ui/jquery.ui.resizable.min.js');
-  
+
   drupal_add_js(CHURCHCORE . '/churchcore.js');
   drupal_add_js(CHURCHCORE . '/churchforms.js');
   drupal_add_js(CHURCHCORE . '/cc_abstractview.js');
   drupal_add_js(CHURCHCORE . '/cc_standardview.js');
   drupal_add_js(CHURCHCORE . '/cc_maintainstandardview.js');
   drupal_add_js(CHURCHCORE . '/cc_interface.js');
-  
+
   drupal_add_js(CHURCHRESOURCE . '/cr_loadandmap.js');
   drupal_add_js(CHURCHRESOURCE . '/cr_maintainview.js');
   drupal_add_js(CHURCHRESOURCE . '/cr_weekview.js');
   drupal_add_js(CHURCHRESOURCE . '/cr_main.js');
-  
+
   drupal_add_js(createI18nFile("churchcore"));
   drupal_add_js(createI18nFile("churchresource"));
-  
+
   $content = "<html><head>" . drupal_get_header();
   $content .= '<link type="text/css" rel="stylesheet" media="all" href="' . INCLUDES . '/churchtools.css" />';
   $content .= '<link type="text/css" rel="stylesheet" media="all" href="' . CHURCHRESOURCE . '/cr_printview.css" />';
   $content .= "</head><body>";
-  
+
   $content .= "<input type='hidden' id='printview' value='true'/>";
-  
+
   if ($curdate = getVar("curdate")) $content .= "<input type='hidden' id='curdate' value='$curdate'/>";
-  
+
   $content .= "<div id='cdb_f_ilter'></div></div> <div id='cdb_content'>Seite wird aufgebaut...</div>";
   $content .= "</body></html>";
-  
+
   echo $content;
 }
 
@@ -265,7 +266,7 @@ function churchresource_getAuth() {
 function churchresource_getAuthForAjax() {
   $res = null;
   $auth = $_SESSION["user"]->auth["churchresource"];
-  
+
   if (isset($auth["view"])) $res["view"] = true;
   if (isset($auth["create bookings"])) {
     $res["write"] = true;
@@ -278,12 +279,12 @@ function churchresource_getAuthForAjax() {
   if (isset($auth["assistance mode"])) {
     $res["assistance mode"] = true;
   }
-  
+
   // For assistance mode
   if (user_access("create person", "churchdb")) {
     $res["create person"] = true;
   }
-  
+
   if (isset($auth["edit masterdata"])) {
     $res["admin"] = true;
   }

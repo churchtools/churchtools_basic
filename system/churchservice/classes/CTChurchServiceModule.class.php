@@ -12,7 +12,7 @@ class CTChurchServiceModule extends CTAbstractModule {
     $res[5] = churchcore_getMasterDataEntry(5, "Abwesenheitsgrund", "absent_reason", "cs_absent_reason", "sortkey");
     $res[6] = churchcore_getMasterDataEntry(6, "Fakten", "fact", "cs_fact", "sortkey");
     $res[7] = churchcore_getMasterDataEntry(7, "Song-Kategorien", "songcategory", "cs_songcategory", "sortkey");
-    
+
     return $res;
   }
 
@@ -42,13 +42,47 @@ class CTChurchServiceModule extends CTAbstractModule {
     $res["lastLogId"] = churchservice_getLastLogId();
     $res["eventtemplate"] = churchcore_getTableData("cs_eventtemplate", "sortkey");
     $res["category"] = churchcal_getAllowedCategories(false);
-    
+    $res["repeat"] = churchcore_getTableData("cc_repeat");
+
     $res["eventtemplate_services"] = churchservice_getEventtemplateServices($auth);
     $res["churchcal_name"] = $config["churchcal_name"];
     $res["songwithcategoryasdir"] = getConf("churchservice_songwithcategoryasdir", "0");
     $res["songcategory"] = churchcore_getTableData("cs_songcategory", "sortkey");
     return $res;
   }
+
+  // EVENTS ARE CREATED, UPDATED AND DELETED OVER CHURCHCAL!!!
+  // ChurchCal then call churchservice_operateEventFromChurchCal()
+  // So everything with dates will be processed over ChurchCal
+
+  public function updateEvent($params) {
+    $this->checkPerm("edit events");
+    include_once ('./' . CHURCHCAL . '/churchcal_db.php');
+    churchcal_updateEvent($params);
+  }
+
+  public function createEvent($params) {
+    $this->checkPerm("edit events");
+    include_once ('./' . CHURCHCAL . '/churchcal_db.php');
+    return churchcal_createEvent($params);
+  }
+
+  public function deleteEvent($params) {
+    $this->checkPerm("edit events");
+    include_once ('./' . CHURCHCAL . '/churchcal_db.php');
+    return churchcal_deleteEvent($params);
+  }
+
+  public function getEventChangeImpact($params) {
+    include_once ('./' . CHURCHCAL . '/churchcal_db.php');
+    return churchcal_getEventChangeImpact($params);
+  }
+
+  public function saveSplittedEvent($params) {
+    include_once ('./' . CHURCHCAL . '/churchcal_db.php');
+    return churchcal_saveSplittedEvent($params);
+  }
+
 
   public function getEventTemplates() {
     return churchcore_getTableData("cs_eventtemplate", "sortkey");
@@ -69,7 +103,7 @@ class CTChurchServiceModule extends CTAbstractModule {
     if (user_access("view alldata", "churchdb")) $a["groups"] = getAllGroups();
     else $a["groups"] = churchdb_getMyGroups($user->id, false, true);
     $a["tags"] = getAllTags();
-    
+
     return $a;
   }
 
@@ -79,12 +113,12 @@ class CTChurchServiceModule extends CTAbstractModule {
 
   public function sendEMailToPersonIds($params) {
     global $base_url;
-    
+
     $content = $params["inhalt"];
 //     $usetemplate = (isset($params["usetemplate"]) && ($params["usetemplate"] == true));
     $usetemplate = (getVar('usetemplate', false, $params) == true);
     if ($params["domain_id"] != "null") {
-      $content .= '<p><a class="btn btn-royal" href="' 
+      $content .= '<p><a class="btn btn-royal" href="'
           . $base_url . '?q=churchservice&id=' . $params["domain_id"] . '">Event aufrufen</a>';
     }
     return churchcore_sendEMailToPersonIds($params["ids"], $params["betreff"], $content, null, true, $usetemplate);
@@ -97,12 +131,12 @@ class CTChurchServiceModule extends CTAbstractModule {
 
   public function deleteTemplate($params) {
     $this->checkPerm("edit template");
-    
-    db_query("DELETE FROM {cs_eventtemplate_service} 
+
+    db_query("DELETE FROM {cs_eventtemplate_service}
               WHERE eventtemplate_id=:id",
               array(':id' => $params["id"]));
-    
-    db_query("DELETE FROM {cs_eventtemplate} 
+
+    db_query("DELETE FROM {cs_eventtemplate}
               WHERE id=:id",
               array(':id' => $params["id"]));
     }
@@ -178,7 +212,7 @@ class CTChurchServiceModule extends CTAbstractModule {
     $i->addModifiedParams();
     if (isset($params["id"])) {
       $id = $params["id"];
-      
+
       db_update("cs_absent")
         ->fields($i->getDBInsertArrayFromParams($params))
         ->condition("id", $params["id"], "=")
@@ -215,20 +249,20 @@ class CTChurchServiceModule extends CTAbstractModule {
     $res["cdb_tag"] = churchcore_getTableData("cdb_tag");
     return $res;
   }
-  
+
   /*
    * NOW ALL FUNCTIONS FOR AGENDA VIEW
    */
-  
+
   /**
    * Load agenda templates, if allowed.
-   * 
+   *
    * @throws CTNoPermission
    */
   public function loadAllAgendaTemplates($params) {
     $auth = churchservice_getAuthorization();
     $allowedAgendas = $auth["view agenda"];
-    
+
     $where = "calcategory_id IN (" . db_implode($allowedAgendas) . ") AND template_yn=1";
     $data = churchcore_getTableData("cs_agenda", null, $where);
     return $data;
@@ -268,48 +302,48 @@ class CTChurchServiceModule extends CTAbstractModule {
 
   /**
    * Gets the agenda belonging to the event $params["event_id"]
-   * 
-   * @param unknown $params          
+   *
+   * @param unknown $params
    * @throws CTFail
    * @throws CTNoPermission
    * @return Agenda with all items
    */
   public function loadAgendaForEvent($params) {
     // Get agenda_id
-    $db = db_query('SELECT agenda_id FROM {cs_event_item} ei, {cs_item} i 
-                    WHERE ei.item_id=i.id and event_id=:event_id limit 1', 
+    $db = db_query('SELECT agenda_id FROM {cs_event_item} ei, {cs_item} i
+                    WHERE ei.item_id=i.id and event_id=:event_id limit 1',
                     array (":event_id" => $params["event_id"]))
                     ->fetch();
     if (!$db) throw new CTFail(t('no.agenda.found.for.event.x', $params["event_id"]));
-    
+
     // load agenda data
     $agendas = $this->loadAgendas(array ("ids" => array ($db->agenda_id)));
     if (isset($agendas[$db->agenda_id])) return $agendas[$db->agenda_id];
     else throw new CTNoPermission("view agenda", "churchservice");
   }
-  
+
   /**
    * get Event linked with agenda
    * TODO: rename? relatedEvents?
-   * 
+   *
    * @param int $agenda_id
    * @return array ids
    */
   private function getBelongingEventIdsToAgenda($agenda_id) {
-    $db = db_query("SELECT distinct ei.event_id id 
+    $db = db_query("SELECT distinct ei.event_id id
                     FROM {cs_event_item} ei, {cs_item} i
-                    WHERE ei.item_id=i.id and i.agenda_id=:agenda_id", 
+                    WHERE ei.item_id=i.id and i.agenda_id=:agenda_id",
                     array (":agenda_id" => $agenda_id));
     $event_ids = array();
     foreach ($db as $event) if ($event_ids[] = $event->id); // TODO: why if?
-    
+
     return $event_ids;
   }
 
   /**
    * Load Agenda items
    *
-   * @param array $params["agenda_id"]          
+   * @param array $params["agenda_id"]
    * @throws CTException
    * @throws CTNoPermission
    *
@@ -317,19 +351,19 @@ class CTChurchServiceModule extends CTAbstractModule {
    */
   public function loadAgendaItems($params) {
     $auth = churchservice_getAuthorization();
-    
+
     //get agenda properties
     $db = churchcore_getTableData("cs_agenda", null, "id = " . $params["agenda_id"]);
     if (!$db) throw new CTException(t('no.agenda.found'));
-    
+
     $agenda = $db[$params["agenda_id"]];
-    
+
     //get items of agenda
     $items = churchcore_getTableData("cs_item", null, "agenda_id=" . $params["agenda_id"]);
     if ($items) {
       $event_ids = array();
       // TODO: add some comments
-      
+
       // TODO: use something like this to get the event ids
 //       $ids = (implode(',', array_keys($items)));
 //       SELECT item_id, GROUP_CONCAT(event_id) AS event_ids
@@ -337,7 +371,7 @@ class CTChurchServiceModule extends CTAbstractModule {
 //       GROUP BY item_id
 //       HAVING `item_id` IN ($ids)
 //       $item->event_ids[] = explode(',', $e->event_ids)
-      
+
       foreach ($items as $item) {
         if ($ei = churchcore_getTableData("cs_event_item", null, "item_id=" . $item->id, "event_id")) {
           $item->events = array();
@@ -361,35 +395,35 @@ class CTChurchServiceModule extends CTAbstractModule {
     }
     return $items;
   }
-  
+
   /**
    * Check, if I have a service in this event
    * @param unknown $event_id
    */
   function isUserInvolved($event_id) {
     global $user;
-    $db=db_query("SELECT * FROM {cs_eventservice} 
-                  WHERE event_id=:event_id AND cdb_person_id=:p_id AND valid_yn=1", 
+    $db=db_query("SELECT * FROM {cs_eventservice}
+                  WHERE event_id=:event_id AND cdb_person_id=:p_id AND valid_yn=1",
                   array(":event_id"=>$event_id, ":p_id"=>$user->id))
                   ->fetch();
     return $db != false;
-  }  
+  }
 
   /**
    * Saves item of agenda agenda_id
    *
-   * @param array $params[...]          
+   * @param array $params[...]
    * @return new item id
    */
   public function saveItem($params) {
     $agenda = $this->loadAgendas(array ("ids" => array ($params["agenda_id"])));
     if ($agenda == null) throw new CTFail("Agenda nicht gefunden");
-    
+
     $this->checkPerm("edit agenda", null, $agenda[$params["agenda_id"]]->calcategory_id);
     if ($agenda[$params["agenda_id"]]->template_yn == 1) {
       $this->checkPerm("edit agenda templates", null, $agenda[$params["agenda_id"]]->calcategory_id);
     }
-    
+
     $i = new CTInterface();
     $i->setParam("agenda_id");
     $i->setParam("bezeichnung");
@@ -401,7 +435,7 @@ class CTChurchServiceModule extends CTAbstractModule {
     $i->setParam("duration");
     $i->setParam("preservice_yn");
     $i->addModifiedParams();
-    
+
     if (empty($params["id"])) {
       $params["id"] = db_insert("cs_item")
         ->fields($i->getDBInsertArrayFromParams($params))
@@ -417,9 +451,9 @@ class CTChurchServiceModule extends CTAbstractModule {
       foreach ($params["servicegroup"] as $key => $isg) {
         db_query("INSERT INTO {cs_item_servicegroup} (item_id, servicegroup_id, note)
   	              VALUES(:item_id, :servicegroup_id, :note)
-  	              ON DUPLICATE KEY UPDATE note=:note", 
-  	              array (":item_id" => $params["id"], 
-                         ":servicegroup_id" => $key, 
+  	              ON DUPLICATE KEY UPDATE note=:note",
+  	              array (":item_id" => $params["id"],
+                         ":servicegroup_id" => $key,
                          ":note" => $isg,
   	              ));
       }
@@ -428,7 +462,7 @@ class CTChurchServiceModule extends CTAbstractModule {
     if (isset($params["event_ids"])) foreach ($params["event_ids"] as $event_id) {
       // IGNORE avoids errors on items already mapped to event
       db_query("INSERT IGNORE INTO {cs_event_item} (event_id, item_id)
-                VALUES (:event_id, :item_id)", 
+                VALUES (:event_id, :item_id)",
                 array (":event_id" => $event_id, ":item_id" => $params["id"]));
     }
     return $params["id"];
@@ -437,7 +471,7 @@ class CTChurchServiceModule extends CTAbstractModule {
   /**
    * Save agenda and return saved one with all new Ids
    *
-   * @param array $params          
+   * @param array $params
    * @return array
    */
   public function saveAgenda($params) {
@@ -451,7 +485,7 @@ class CTChurchServiceModule extends CTAbstractModule {
     $i->setParam("template_yn");
     $i->setParam("series");
     $i->setParam("final_yn", false);
-    
+
     if (!isset($params["id"])) {
       $params["id"] = db_insert("cs_agenda")
         ->fields($i->getDBInsertArrayFromParams($params))
@@ -473,31 +507,31 @@ class CTChurchServiceModule extends CTAbstractModule {
       $params["items"] = $newitems;
     }
     $params["event_ids"] = $this->getBelongingEventIdsToAgenda($params["id"]);
-    
+
     return $params;
   }
 
   /**
    * Load item $params["id"] with calcategory_id and template_yn from agenda
    *
-   * @param array $params          
+   * @param array $params
    * @throws CTException - When item not found
    * @throws CTNoPermission - When not allowed to edit or view
    * @return item
    */
   public function loadItem($params) {
-    $db = db_query("SELECT i.*, a.calcategory_id, a.template_yn 
-                    FROM {cs_item} i, {cs_agenda} a 
-                    WHERE i.agenda_id=a.id AND i.id=:id", 
+    $db = db_query("SELECT i.*, a.calcategory_id, a.template_yn
+                    FROM {cs_item} i, {cs_agenda} a
+                    WHERE i.agenda_id=a.id AND i.id=:id",
                     array (":id" => $params["id"]))
                     ->fetch();
     if (!$db) throw new CTException(t('x.not.found', t('item')));
-    
+
     $auth = churchservice_getAuthorization();
     if (empty($auth["view agenda"][$db->calcategory_id]) && empty($auth["edit agenda"][$db->calcategory_id])) {
       throw new CTNoPermission("view agenda", "churchservice");
     }
-    
+
     return $db;
   }
 
@@ -509,19 +543,19 @@ class CTChurchServiceModule extends CTAbstractModule {
     $item = $this->loadItem(array ("id" => $params["item_id"]));
     $this->checkPerm("edit agenda", null, $item->calcategory_id);
     if ($item->template_yn == 1) $this->checkPerm("edit agenda templates", null, $item->calcategory_id);
-    
+
     $i = new CTInterface();
     $i->setParam("item_id");
     $i->setParam("servicegroup_id");
     $i->setParam("note");
-    
+
     //TODO: rather then delete and insert use insert, on duplicte key update?
     db_delete("cs_item_servicegroup")
       ->fields($i->getDBInsertArrayFromParams($params))
       ->condition("item_id", $params["item_id"], "=")
       ->condition("servicegroup_id", $params["servicegroup_id"], "=")
       ->execute(false);
-      
+
     db_insert("cs_item_servicegroup")
       ->fields($i->getDBInsertArrayFromParams($params))
       ->execute(false);
@@ -533,11 +567,11 @@ class CTChurchServiceModule extends CTAbstractModule {
   public function deleteItemEventRelation($params) {
     $item = $this->loadItem(array ("id" => $params["item_id"]));
     $this->checkPerm("edit agenda", null, $item->calcategory_id);
-    
+
     $i = new CTInterface();
     $i->setParam("item_id");
     $i->setParam("event_id");
-    
+
     db_delete("cs_event_item")
       ->fields($i->getDBInsertArrayFromParams($params))
       ->condition("item_id", $params["item_id"], "=")
@@ -546,38 +580,38 @@ class CTChurchServiceModule extends CTAbstractModule {
   }
 
   /**
-   * 
+   *
    * @param array $params
    */
   public function addItemEventRelation($params) {
     $item = $this->loadItem(array ("id" => $params["item_id"]));
     $this->checkPerm("edit agenda", null, $item->calcategory_id);
-    
+
     $i = new CTInterface();
     $i->setParam("item_id");
     $i->setParam("event_id");
-    
+
     db_insert("cs_event_item")
       ->fields($i->getDBInsertArrayFromParams($params))
       ->execute(false);
   }
 
   /**
-   * 
+   *
    * @param array $params
    */
   public function deleteItem($params) {
     $item = $this->loadItem(array ("id" => $params["id"]));
     $this->checkPerm("edit agenda", null, $item->calcategory_id);
-    
+
     $i = new CTInterface();
     $i->setParam("id");
-    
+
     db_delete("cs_event_item")
       ->fields($i->getDBInsertArrayFromParams($params))
       ->condition("item_id", $params["id"], "=")
       ->execute(false);
-    
+
     db_delete("cs_item")
       ->fields($i->getDBInsertArrayFromParams($params))
       ->condition("id", $params["id"], "=")
@@ -585,7 +619,7 @@ class CTChurchServiceModule extends CTAbstractModule {
   }
 
   /**
-   * 
+   *
    * @param a $params
    * @throws CTException
    */
@@ -598,13 +632,13 @@ class CTChurchServiceModule extends CTAbstractModule {
     }
     $i = new CTInterface();
     $i->setParam("id");
-    
-    $db = db_query("SELECT * FROM {cs_item} 
-                    WHERE agenda_id=:agenda_id", 
+
+    $db = db_query("SELECT * FROM {cs_item}
+                    WHERE agenda_id=:agenda_id",
                     array (":agenda_id" => $params["id"]), false);
-    
+
     foreach ($db as $item) $this->deleteItem(array ("id" => $item->id));
-    
+
     db_delete("cs_agenda")
       ->fields($i->getDBInsertArrayFromParams($params))
       ->condition("id", $params["id"], "=")

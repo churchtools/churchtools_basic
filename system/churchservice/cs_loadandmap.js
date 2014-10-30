@@ -9,22 +9,22 @@ function cdb_loadMasterData(nextFunction) {
     masterData.service_sorted=churchcore_sortData_numeric(masterData.service,"sortkey");
 
     churchInterface.clearStatus();
-    
+
     if (nextFunction!=null) nextFunction();
   });
   //}
 }
 
 /**
- * 
+ *
  * @param nextFunction
  * @param forceReload (default = true)
  */
 function cs_loadEventData(id, nextFunction, forceReload) {
   timers["startAllPersons"]=new Date();
-  
+
   if (forceReload==null) forceReload=true;
-  
+
   churchInterface.setStatus("Lade Eventdaten...");
   var obj = new Object();
   obj.func="getAllEventData";
@@ -32,14 +32,14 @@ function cs_loadEventData(id, nextFunction, forceReload) {
   churchInterface.jsendRead(obj, function(ok, json) {
     if (!ok) {
       alert("Fehler beim Laden der Eventdaten: "+json);
-    } 
+    }
     else {
       timers["endAllPersons"]=new Date();
       if (json!=null) {
         each(json, function(k,a) {
-          allEvents[a.id]=a;
+          allEvents[a.id] = getCSEvent(a);
         });
-      }  
+      }
   //    localStorage.setObject("allEvents",allEvents);
       churchInterface.clearStatus();
       if (nextFunction!=null) nextFunction();
@@ -64,7 +64,7 @@ function cs_loadNewEventData(lastLogId, nextFunction) {
         newEvents.push(a.id);
         allEvents[a.id]=a;
       });
-    }  
+    }
     churchInterface.clearStatus();
     if (nextFunction!=null) nextFunction(newEvents);
   });
@@ -74,9 +74,9 @@ function cs_loadPersonDataFromCdb(nextFunction) {
   churchInterface.setStatus("Lade Personendaten...");
   var arr = new Object();
   each(masterData.service, function(k,a) {
-    if ((a.cdb_gruppen_ids!=null) && (masterData.auth.viewgroup[a.servicegroup_id])) {      
+    if ((a.cdb_gruppen_ids!=null) && (masterData.auth.viewgroup[a.servicegroup_id])) {
       each(a.cdb_gruppen_ids.split(","), function(i,b) {
-        arr[b]=true; 
+        arr[b]=true;
       });
     }
   });
@@ -88,12 +88,12 @@ function cs_loadPersonDataFromCdb(nextFunction) {
   ids=ids+"-1";
   //Lade Daten!
   churchInterface.jsendRead({func: "getPersonByGroupIds", ids: ids}, function(ok, json) {
-    if (groups==null) 
+    if (groups==null)
       groups=new Array();
     each(json, function(k,a) {
       groups[k]=a;
     });
-        
+
     churchInterface.clearStatus();
     if (nextFunction!=null) nextFunction();
   });
@@ -115,7 +115,7 @@ function cs_loadAbsent(nextFunction) {
       });
     }
     listView.renderCalendar();
-        
+
     churchInterface.clearStatus();
     if (nextFunction!=null) nextFunction();
   });
@@ -132,7 +132,7 @@ function cs_loadSongs(nextFunction) {
           allSongs[a.id]=a;
         });
       }
-    }        
+    }
     churchInterface.clearStatus();
     if (nextFunction!=null) nextFunction();
   });
@@ -178,10 +178,8 @@ function cs_loadFiles(nextFunction) {
       });
     }
     listView.renderFiles();
-        
+
     churchInterface.clearStatus();
     if (nextFunction!=null) nextFunction();
   });
 }
-
-

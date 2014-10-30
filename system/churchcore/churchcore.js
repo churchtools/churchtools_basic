@@ -8,7 +8,7 @@ DATEFORMAT_DE= "DD.MM.YYYY";
 
 // Contains all masterData
 var masterData=new Object();
- 
+
 function _(s) {
   var modulename="churchcore";
   res=lang[modulename][s];
@@ -170,7 +170,7 @@ function churchcore_getArrStrAsArray(arrayString) {
       if (a!="")
         arr.push(a);
     });
-  }  
+  }
   return arr;
 }
 
@@ -181,10 +181,10 @@ function churchcore_sortData_alpha(data, sortVariable, reverse, sortVariable2) {
 
   function sortfunc(a,b) {
     if ((a==null) || (b==null)) return 0;
-        
+
     var a1=a[sortVariable];
     var b1=b[sortVariable];
-    
+
     if (a[sortVariable]==null) {
       if ((a[sortVariable2!=null] && (b[sortVariable2]!=null))) {
         a1=a[sortVariable2];
@@ -199,21 +199,21 @@ function churchcore_sortData_alpha(data, sortVariable, reverse, sortVariable2) {
       }
       else return (-1)*r;
     }
-    
+
     if (((typeof a1)=="string") && ((typeof b1)=="string")) {
       a1 = a1.toLowerCase();
       a1 = a1.replace(/\u00e4/g,"azz");
       a1 = a1.replace(/\u00f6/g,"ozz");
       a1 = a1.replace(/\u00fc/g,"uzz");
       a1 = a1.replace(/\u00df/g,"szz");
-    
+
       b1 = b1.toLowerCase();
       b1 = b1.replace(/\u00e4/g,"azz");
       b1 = b1.replace(/\u00f6/g,"ozz");
       b1 = b1.replace(/\u00fc/g,"uzz");
       b1 = b1.replace(/\u00df/g,"szz");
     }
-    
+
     if (a1==b1)
       return 0;
     else if (a1>b1) return 1*r;
@@ -242,10 +242,10 @@ function churchcore_sortData_numeric(data, sortVariable, reverse, sortVariable2)
 
   function sortfunc(a,b) {
     if ((a==null) || (b==null)) return 0;
-    
+
     var a1=a[sortVariable];
     var b1=b[sortVariable];
-    
+
     if (a[sortVariable]==null) {
       if ((a[sortVariable2!=null] && (b[sortVariable2]!=null))) {
         a1=a[sortVariable2];
@@ -283,7 +283,7 @@ function churchcore_sortArray(data, sortVariable, reverse, alphanumeric) {
   else
     return churchcore_sortArray_numeric(data, sortVariable, reverse);
 }
-  
+
 
 function churchcore_sortArray_alpha(arr, sortVariable, reverse) {
   var r=1;
@@ -293,7 +293,7 @@ function churchcore_sortArray_alpha(arr, sortVariable, reverse) {
     if ((a==null) || (b==null)) return 0;
     else if (a[sortVariable]==null) return 1*r ;
     else if (b[sortVariable]==null) return (-1)*r;
-    
+
     if (a[sortVariable].toLowerCase()>b[sortVariable].toLowerCase()) return 1*r;
     else return (-1)*r;
   }
@@ -308,7 +308,7 @@ function churchcore_sortArray_numeric(arr, sortVariable, reverse) {
     if ((a==null) || (b==null)) return 0;
     else if (a[sortVariable]==null) return 1*r ;
     else if (b[sortVariable]==null) return (-1)*r;
-    
+
     if (a[sortVariable]*1>b[sortVariable]*1) return 1*r;
     else return (-1)*r;
   }
@@ -337,13 +337,13 @@ churchcore_sortMasterData = function (data) {
 
       if (a.bezeichnung==null) return 1;
       if (b.bezeichnung==null) return -1;
-      
+
       var a1 = a.bezeichnung.toLowerCase();
       a1 = a1.replace(/\u00e4/g,"azz");
       a1 = a1.replace(/\u00f6/g,"ozz");
       a1 = a1.replace(/\u00fc/g,"uzz");
       a1 = a1.replace(/\u00df/g,"szz");
-    
+
       var b1 = b.bezeichnung.toLowerCase();
       b1 = b1.replace(/\u00e4/g,"azz");
       b1 = b1.replace(/\u00f6/g,"ozz");
@@ -355,7 +355,7 @@ churchcore_sortMasterData = function (data) {
   }
   arr = new Array();
   for (k in data) {
-    arr.push(data[k]);    
+    arr.push(data[k]);
   }
   arr.sort(sortfunc);
   obj = new Object();
@@ -454,7 +454,7 @@ String.prototype.html2csv = function() {
 */
 String.prototype.toDateEn = function (withTime) {
   if (this==null) return null;
-  
+
   var datetime=this.split(" ");
   var dates=datetime[0].split("-");
   if (((withTime!=null) && (!withTime)) || (datetime[1]==null))
@@ -477,7 +477,7 @@ String.prototype.toDateDe = function (withTime) {
   var str=this;
   var i=str.indexOf(".");
   var day=0;
-  
+
   if (i>0)
     day=str.substr(0,i);
   else {
@@ -508,11 +508,11 @@ String.prototype.toDateDe = function (withTime) {
     }
     else
       d=null;
-    
+
     return d;
   }
   str=str.substr(i+1,99);
-  
+
   i=str.indexOf(".");
   if (i>0)
     month=str.substr(0,i);
@@ -522,23 +522,23 @@ String.prototype.toDateDe = function (withTime) {
     i=0;
   }
   else return null;
-  
+
   str=str.substr(i+1,99);
   if (str.indexOf(" ")>0)
     year=str.substr(0,str.indexOf(" "));
   else year=str;
   if (year=="") year=1004;
-  
+
   if (!withTime)
     return new Date(year, month-1, day);
-  
+
   i=str.indexOf(" ");
   if (i<=0)
     return new Date(year, month-1, day, 0, 0);
-     
+
   str=str.substring(i+1, 99);
   i=str.indexOf(":");
-  
+
   var hour=str.substr(0,i);
   str=str.substr(i+1,99);
 
@@ -549,7 +549,7 @@ String.prototype.toDateDe = function (withTime) {
     minute=str.substr(0,i);
   else
     minute=str.substr(0,99);
-  
+
   return new Date(year, month-1, day, hour, minute);
 };
 
@@ -565,6 +565,15 @@ String.prototype.isGermanDateFormat = function() {
   return this.search(/([1-9]|0[1-9]|[12][0-9]|3[01])\.([1-9]|0[1-9]|1[012])\.(19|20)\d\d/)!=-1;
 };
 
+function transformAllDatesToString(obj) {
+  var res = new Object();
+  each(obj, function(k,o) {
+    if (o instanceof Date) res[k]=o.toStringEn(true);
+    else if (o instanceof Object) res[k]=transformAllDatesToString(o);
+    else res[k]=o;
+  });
+  return res;
+}
 
 /**
 * Formatiert Date in den String "22.02.2008"
@@ -583,9 +592,9 @@ Date.prototype.toStringDe = function (withTime) {
   var str="";
 
   if (this.getFullYear()<7000) {
-    day=this.getDate();
+    var day=this.getDate();
     if (day<10) day="0"+day;
-    month=this.getMonth()+1;
+    var month=this.getMonth()+1;
     if (month<10) month="0"+month;
     str=day+"."+month+".";
   }
@@ -594,7 +603,7 @@ Date.prototype.toStringDe = function (withTime) {
   else if (this.getFullYear()>1004)
     str=str+this.getFullYear();
   str=str+withTime;
-  
+
   return str;
 };
 
@@ -618,11 +627,11 @@ function churchcore_getTimeDiff(lastTime) {
 
 Date.prototype.toStringEn = function (withTime) {
   if (this==null) return null;
-  d=this;
+  var d=this;
   if (d==0) return "Kein Datum";
-  day=d.getDate();
+  var day=d.getDate();
   if (day<10) day="0"+day;
-  month=d.getMonth()+1;
+  var month=d.getMonth()+1;
   if (month<10) month="0"+month;
   if (!withTime)
     return d.getFullYear()+"-"+month+"-"+day;
@@ -743,7 +752,7 @@ function churchcore_datesInConflict(startdate, enddate, startdate2, enddate2) {
   return false;
 }
 
-  
+
 function cc_copyArray(source) {
   for (i in source) {
     if (typeof source[i] == 'source') {
@@ -768,7 +777,7 @@ jQuery.extend({
       script.src = url+"?"+version;
     else
       script.src = url+"&"+version;
-  
+
     // Handle Script loading
     var done = false;
 
@@ -872,7 +881,7 @@ function churchcore_retrieveObject(key) {
 Storage.prototype.setObject = function(key, value) {
   churchcore_storeObject(key, value);
 };
- 
+
 Storage.prototype.getObject = function(key) {
   return churchcore_retrieveObject(key);
 };
@@ -973,11 +982,11 @@ function churchcore_getAllDatesWithRepeats(o) {
       else if (o.repeat_id==365) {
         d.setFullYear(d.getFullYear()+1*o.repeat_frequence);
       }
-      
+
       max=max-1;
     } while ((d<_repeat_until) && (max>0) && (a.with_repeat_yn==1) && (o.repeat_id>0) && (o.repeat_frequence>0));
   });
-  
+
   if (max==0) log("Maximale Wiederholung erreicht! ["+o.id+"]");
   return dates;
 }

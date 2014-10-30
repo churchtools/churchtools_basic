@@ -1,5 +1,4 @@
-(function($) {
-    
+
 // Constructor
 function WeekView() {
   StandardTableView.call(this);
@@ -11,11 +10,50 @@ function WeekView() {
   this.renderTimer=null;
   this.datesIndex=null;
   this.currentBooking=null;
+  this.mousePosition={};
 }
 
 Temp.prototype = StandardTableView.prototype;
 WeekView.prototype = new Temp();
 weekView = new WeekView();
+
+function getCRBooking(a) {
+  var event = new CCEvent(a);
+  event.saveSuccess = saveCRSuccess;
+  event.saveSplitSuccess = saveSplitCRSuccess;
+  event.name = "Booking";
+  return event;
+}
+
+function saveCRSuccess(a, b, json) {
+  if (a.name=="Event") a = CAL2CRType(a); // When it saved over cal resource
+  var t=weekView;
+  if (json.id!=null) {
+    a.id=json.id;
+    allBookings[json.id]=a;
+  }
+  else if (a.id!=null)
+    allBookings[a.id]=a;
+
+  // Get IDs for currently created Exceptions
+  if (json.exceptions!=null) {
+    each(json.exceptions, function(i,e) {
+      allBookings[a.id].exceptions[e]=allBookings[a.id].exceptions[i];
+      allBookings[a.id].exceptions[e].id=e;
+      delete allBookings[a.id].exceptions[i];
+    });
+  }
+  t.buildDates(allBookings);
+  t.renderList();
+}
+
+function saveSplitCRSuccess(newEvent, pastEvent, originEvent) {
+  if (pastEvent == null) delete allBookings[originEvent.booking_id];
+  else allBookings[pastEvent.booking_id] = CAL2CRType(pastEvent);
+  allBookings[newEvent.booking_id] = CAL2CRType(newEvent);
+  t.buildDates(allBookings);
+  t.renderList();
+}
 
 WeekView.prototype.getData = function(sorted) {
   if (sorted) {
@@ -49,7 +87,7 @@ WeekView.prototype.renderMenu = function() {
   if (!this.printview) {
     if (masterData.auth.write)
       menu.addEntry(_("add.new.request"), "anewentry", "star");
-      
+
     menu.addEntry(_("printview"), "adruckansicht", "print");
   }
 
@@ -57,7 +95,7 @@ WeekView.prototype.renderMenu = function() {
     menu.addEntry(_("workload"), "workload", "fire");
     menu.addEntry(_("maintain.masterdata"), "amaintainview", "cog");
   }
-  
+
   menu.addEntry(_("help"), "ahelp", "question-sign");
 
 
@@ -98,22 +136,23 @@ WeekView.prototype.renderMenu = function() {
       return false;
     });
   }
+  $("#cdb_menu").append('<div id="popupmenu"></div>');
 };
 
 
 WeekView.prototype.showAuslastung = function() {
   var rows = new Array();
-   
+
   var today = new Date();
   var quartal = new Date(); quartal.addDays(90);
   var year = new Date(); year.addDays(365);
-  
+
   each(masterData.resources, function(k,a) {
-    a.workload = {   Heute : {until : today, count_days : 0, booked_days : 0}, 
+    a.workload = {   Heute : {until : today, count_days : 0, booked_days : 0},
                    Quartal : {until : quartal, count_days: 0, booked_days : 0},
                       Jahr : {until : year, count_days : 0, booked_days : 0} };
   });
-  
+
   var go=new Date();
   go.addDays(-masterData.entriesLastDays);
   var arr=new Array();
@@ -125,10 +164,10 @@ WeekView.prototype.showAuslastung = function() {
         if (go.getTime()<=zones.until.getTime()) {
           zones.count_days++;
           in_zones=true;
-        }        
+        }
       });
     });
-    
+
     if (t.datesIndex!=null && t.datesIndex[go.getFullYear()]!=null &&
         t.datesIndex[go.getFullYear()][go.getMonth()+1]!=null &&
         t.datesIndex[go.getFullYear()][go.getMonth()+1][go.getDate()]!=null)
@@ -137,7 +176,7 @@ WeekView.prototype.showAuslastung = function() {
           if (masterData.resources[allBookings[a.id].resource_id].date!=go.getTime()
                  && go.getTime()<=zones.until) {
             zones.booked_days++;
-          }        
+          }
           masterData.resources[allBookings[a.id].resource_id].date=go.getTime();
         });
       });
@@ -173,7 +212,7 @@ WeekView.prototype.renderCreatePerson = function(value) {
   form.addSelect({label:"Bereich", cssid:"Inputf_dep", htmlclass:"setting", data:churchcore_sortMasterData(masterData.cdb_bereich), selected:masterData.settings.bereich_id});
   form.addSelect({label:"Status", cssid:"Inputf_status", htmlclass:"setting", data:churchcore_sortMasterData(masterData.cdb_status), selected:masterData.settings.status_id});
   form.addSelect({label:"Station", cssid:"Inputf_station", htmlclass:"setting", data:churchcore_sortMasterData(masterData.cdb_station), selected:masterData.settings.station_id});
-  
+
   var elem=form_showDialog(_("add.new.person"), form.render(null, "horizontal"), 500, 400);
   elem.dialog("addbutton", _("add"), function() {
     var obj=form.getAllValsAsObject();
@@ -188,7 +227,7 @@ WeekView.prototype.renderCreatePerson = function(value) {
           t.currentBooking.person_name=obj.vorname+" "+obj.name;
           $("#assistance_user").val(t.currentBooking.person_name);
           $("#assistance_user").attr("disabled", true);
-          
+
           elem.dialog("close");
         }
         else {
@@ -206,7 +245,7 @@ WeekView.prototype.renderCreatePerson = function(value) {
 
 WeekView.prototype.renderListMenu = function() {
   var t=this;
-  
+
   searchEntry=this.getFilter("searchEntry");
   var navi = new CC_Navi();
   each(masterData.resourceTypes, function(k,a) {
@@ -215,9 +254,9 @@ WeekView.prototype.renderListMenu = function() {
   navi.addEntry(t.filter["filterRessourcen-Typ"]=="-1","ressourcentyp_-1","<i>"+_("all")+"</i>");
   navi.addSearch(searchEntry);
   navi.renderDiv("cdb_search", churchcore_handyformat());
-  
+
   this.implantStandardFilterCallbacks(this, "cdb_search");
-  
+
   $("#cdb_search a").click(function () {
     t.filter["filterRessourcen-Typ"]=$(this).attr("id").substr(14,99);
     masterData.settings.filterRessourcentyp=t.getFilter("filterRessourcen-Typ");
@@ -233,7 +272,7 @@ WeekView.prototype.renderFilter = function () {
 
   var form = new CC_Form();
   form.setHelp("ChurchResource-Filter");
-  
+
   form.addHtml("<div id=\"dp_currentdate\"></div>");
   rows.push("<div id=\"dp_currentdate\" style=\"\"></div><br/>");
   form.addSelect({data:masterData.status,
@@ -247,17 +286,17 @@ WeekView.prototype.renderFilter = function () {
 
   rows.push(form.render(true));
 
-         
+
   rows.push("<div id=\"cdb_filtercover\"></div>");
- 
+
   $("#cdb_filter").html(rows.join(""));
-  
+
   each(this.filter, function(k,a) {
     $("#"+k).val(a);
   });
-   
+
   this.renderCalender();
-  
+
   // Callbacks
   filter=this.filter;
   this.implantStandardFilterCallbacks(this, "cdb_filter");
@@ -300,17 +339,17 @@ WeekView.prototype.renderCalender = function() {
   $("#dp_currentdate").datepicker($.datepicker.regional['de']);
   t.addWeekButtons();
 };
-  
+
 WeekView.prototype.checkFilter = function (a) {
   var filter=this.filter;
   var t=this;
   // eintrag wurde geloescht o.ae.
   if (a==null) return false;
-  
+
   if ((filter["filterRessourcen-Typ"]!=null) && (filter["filterRessourcen-Typ"]!="-1") && (a.resourcetype_id!=filter["filterRessourcen-Typ"]))
     return false;
-  
-  if ((filter["searchChecked"]!=null) && (a.checked!=true)) return false;  
+
+  if ((filter["searchChecked"]!=null) && (a.checked!=true)) return false;
 
   return true;
 };
@@ -350,7 +389,7 @@ WeekView.prototype.messageReceiver = function(message, args) {
         });
       if (refresh) {
         var elem = form_showCancelDialog(_("load.data"), '<p>'+form_renderImage({src:"loading.gif"}));
-        
+
         cr_loadBookings(function() {
           elem.dialog("close");
           t.renderList();
@@ -373,13 +412,13 @@ WeekView.prototype.initView = function () {
 WeekView.prototype.getListHeader = function () {
   var rows = new Array();
   var t=this;
-  
+
   if (t.printview) {
     masterData.settings["listMaxRows"+t.name]=100;
     t.showCheckboxes=false;
     t.showPaging=false;
   }
-  
+
   var currentDate=new Date(this.currentDate);
   var d=-currentDate.getDay()+1;
   if (d==1) d=-6;
@@ -390,7 +429,7 @@ WeekView.prototype.getListHeader = function () {
   currentDate.addDays(1);
   rows.push("KW"+currentDate.getKW());
   currentDate.addDays(-1);
-  
+
   d = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
   for (i=0;i<7;i++) {
     d.addDays(1);
@@ -414,19 +453,19 @@ WeekView.prototype.buildDates = function (allBookings) {
     each(allBookings, function(k,a) {
       if (a!=null) {
         each(churchcore_getAllDatesWithRepeats(a), function(k,ds) {
-          
+
           // while-Schleife, da es ein Termin �ber mehrere Tage sein kann
           var go_through_days=new Date(ds.startdate);
           while (go_through_days.toStringEn(false)<=ds.enddate.toStringEn(false)) {
             var year=t.datesIndex[go_through_days.getFullYear()];
             if (year==null) year=new Array();
-            
+
             var month=year[go_through_days.getMonth()+1];
             if (month==null) month=new Array();
-            
+
             var day=month[go_through_days.getDate()];
             if (day==null) day=new Array();
-            
+
             ds.id=a.id;
             day.push(ds);
             month[go_through_days.getDate()]=day;
@@ -434,7 +473,7 @@ WeekView.prototype.buildDates = function (allBookings) {
             t.datesIndex[go_through_days.getFullYear()]=year;
             go_through_days.addDays(1);
           }
-        
+
         });
       }
     });
@@ -481,20 +520,20 @@ WeekView.prototype.getBookings = function(res_id, date) {
   var bookings = new Array();
   var d = new Date(date.getFullYear(), date.getMonth(), date.getDate()+1);
   var tomorrow = new Date(d.getTime()-1);
-  
+
   var searchString=this.getFilter("searchEntry").toUpperCase();
-  
+
   each(t.getIndexedBookings(date), function(k,a) {
     var arr=$.extend({},allBookings[a.id]);
     if ((arr!=null) && ((!this.printview) || (arr.status_id==2))) {
       if (churchcore_datesInConflict(a.startdate, a.enddate, date, tomorrow)) {
         filterOk=true;
-        
+
         if ((searchString!="") && (arr.text.toUpperCase().indexOf(searchString)!=0) &&
             (arr.person_name.toUpperCase().indexOf(searchString)!=0) &&
             (arr.id!=searchString)) filterOk=false;
         if ((t.filter["filterStatus"]!=null) && (arr.status_id!=t.filter["filterStatus"])) filterOk=false;
-        
+
         if ((arr.resource_id==res_id) && (filterOk)) {
           arr.startdate=new Date(a.startdate);
           arr.enddate=new Date(arr.enddate);
@@ -530,7 +569,7 @@ function renderBookings(bookings) {
     if (a.category_id!=null) {
       txt=txt+'<span title="'+_("calendar")+'" style="display:inline-block; background-color:'+masterData.category[a.category_id].color+'; margin-bottom:-2px; margin-right:4px; width:3px; height:11px"></span>';
     }
-    
+
     starttxt="";
     if (a.startdate<a.viewing_date){
       starttxt="0";
@@ -548,7 +587,7 @@ function renderBookings(bookings) {
       endtxt=a.enddate.getHours();
       if (a.enddate.getMinutes()>0) endtxt=endtxt+":"+a.enddate.getMinutes();
     }
-  
+
     if (a.status_id==1) color="color:red";
     else if (a.status_id==3) color="color:gray;text-decoration:line-through;";
     else if (a.status_id==99) {
@@ -558,7 +597,7 @@ function renderBookings(bookings) {
     }
     else color="color:black";
       text=a.text;
-      if (a.location) 
+      if (a.location)
         text=text+" ("+a.location+")";
     if (color!="") {
       if ((!this.printview) &&
@@ -601,7 +640,7 @@ WeekView.prototype.updateBookingStatus = function(id, new_status) {
 WeekView.prototype.groupingFunction = function (event) {
   return masterData.resourceTypes[event.resourcetype_id].bezeichnung;
 };
-  
+
 WeekView.prototype.getCountCols = function() {
   return 9;
 };
@@ -611,14 +650,14 @@ WeekView.prototype.renderListEntry = function (a) {
   rows.push("<td><p><b>"+a.bezeichnung+"</b>");
   if (a.location!=null)
     rows.push("<br/><small><font color=\"grey\">"+a.location+"</color></small>");
-  
+
   var d=new Date(this.currentDate);
   var diff=-d.getDay()+1;
   if (diff==1) diff=-6;
 
   d.addDays(diff);
   d = new Date(d.getFullYear(), d.getMonth(), d.getDate()-1);
-  
+
   for (var i=0;i<7;i++) {
     d.addDays(1);
     var _class="";
@@ -628,7 +667,7 @@ WeekView.prototype.renderListEntry = function (a) {
     bookings=this.getBookings(a.id, d);
     bookings=orderBookings(bookings);
     rows.push(renderBookings(bookings));
-    
+
     rows.push("</small>");
     if ((masterData.auth.write) && (!this.printview))
       rows.push("<a href=\"#"+d.toStringEn()+"\" id=\"new_"+a.id+"\">"+form_renderImage({src:"plus.png", width:16, hover:true})+"</a>");
@@ -637,16 +676,12 @@ WeekView.prototype.renderListEntry = function (a) {
 };
 
 function createNewBooking(res_id, date) {
-  var a = new Object();
+  var a = getCRBooking();
   a.resource_id=res_id;
-  
-  if (date==null)
-    d=new Date();
-  else
-    d=date.toDateEn();
-  d.setHours(12);
-  a.startdate=new Date(d);
-  a.enddate=new Date(d);
+  if (date==null) a.startdate = new Date();
+  else a.startdate = new Date(date.getTime());
+  a.startdate.setHours(12);
+  a.enddate=new Date(a.startdate.getTime());
   a.enddate.setHours(13);
   a.enddate.setMinutes(0);
   a.person_id=masterData.user_pid;
@@ -676,7 +711,7 @@ WeekView.prototype.renderEditBookingFields = function (a) {
 
   rows.push('<div id="cr_fields" data-id="'+a.id+'">');
   rows.push('<br/><form class="form-horizontal" >');
-  
+
   rows.push(form_renderInput({
     cssid:"text",
     label:_("caption"),
@@ -684,23 +719,22 @@ WeekView.prototype.renderEditBookingFields = function (a) {
     maxlength:30,
     disabled:a.cc_cal_id!=null
   }));
-  
+
   rows.push(form_renderInput({
     cssid:"location",
     label:_("note"),
     maxlength:20,
     value:a.location
   }));
-  
+
   rows.push(form_renderSelect({
     data:masterData.resources,
     cssid:"InputRessource",
     label:_("resources"),
     htmlclass:"input-medium",
-    selected:a.resource_id,
-    disabled:a.cc_cal_id!=null
+    selected:a.resource_id
   }));
-  
+
   rows.push('<div id="dates"></div>');
   rows.push('<div id="wiederholungen"></div>');
   rows.push('<div id="conflicts"></div>');
@@ -712,7 +746,7 @@ WeekView.prototype.renderEditBookingFields = function (a) {
     selected:a.status_id,
     disabled:!user_access("edit", a.resource_id)
   }));
-  
+
   rows.push(form_renderTextarea({
     data:a.note,
     label:_("more.information"),
@@ -727,20 +761,20 @@ WeekView.prototype.renderEditBookingFields = function (a) {
       label:_("by.order.of")
     }));
   }
-  
+
 
   rows.push("</form>");
-  
+
   if (a.id!=null)
     rows.push("<i>"+_("booking.request.x.was.created.by.y", a.id, a.person_name)+"</a></i><br/>");
-  
+
   rows.push("</div>");
   return rows.join("");
 };
 
 WeekView.prototype.implantEditBookingCallbacks = function(divid, a) {
   var t=this;
-  
+
   function _setStatus() {
     var id=$("#InputRessource").val();
     if ((id!=null) && (masterData.resources[id]!=null)) {
@@ -751,7 +785,7 @@ WeekView.prototype.implantEditBookingCallbacks = function(divid, a) {
       $("#"+divid+" select[id=InputStatus]").prop('disabled', !user_access("edit", id));
     }
   }
- 
+
   _setStatus();
   $("#"+divid+" select").change(function (c) {
     if ($(this).attr("id")=="InputRessource") {
@@ -769,21 +803,19 @@ WeekView.prototype.implantEditBookingCallbacks = function(divid, a) {
   });
 };
 
-WeekView.prototype.checkConflicts = function() {
+WeekView.prototype.checkConflicts = function(withoutEvent) {
   var t=this;
   var id=$("#cr_fields").attr("data-id");
-  var new_b=new Object();
-  if ((id!=null) && (allBookings[id]!=null))
-    var new_b=$.extend({}, allBookings[id]);
+  var new_b=getCRBooking(allBookings[id]);
   form_getDatesInToObject(new_b);
   var resource_id=$("#InputRessource").val();
-  
+
   // Erst mal baue ich alle Dat�mer auf mit der neuen Anfrage
   var new_booking_dates=new Array();
   var diff=new_b.enddate.getTime()-new_b.startdate.getTime();
 
-  var txt=t.calcConflicts(new_b, resource_id);
-  
+  var txt=t.calcConflicts(new_b, resource_id, withoutEvent);
+
   if (txt!="") {
     $("#conflicts").html('<p class="text-error">'+_("caution.conflicting.dates")+': <p class="text-error"><div id="show_conflicts"><ul>'+txt+'</div>');
     $("#conflicts").addClass("well");
@@ -841,14 +873,14 @@ WeekView.prototype.renderTooltip = function(id) {
   return [txt, title];
 };
 
-WeekView.prototype.calcConflicts = function(new_b, resource_id) {
+WeekView.prototype.calcConflicts = function(new_b, resource_id, withoutEvent) {
   var t=this;
   var rows=Array();
   each(churchcore_getAllDatesWithRepeats(new_b), function(k,ds) {
     var e = new Date(ds.enddate.getTime()); e.addDays(1); // Add 1 day of full day dates
     each(t.getIndexedBookings(ds.startdate, e), function(i,conflict) {
       var booking=allBookings[conflict.id];
-      if ((booking!=null) && (booking.resource_id==resource_id) && (new_b.id!=booking.id)) {
+      if ((booking!=null) && (booking.resource_id==resource_id) && (new_b.id!=booking.id) && (!booking.isEqual(withoutEvent))) {
         if ((booking.status_id==1) || (booking.status_id==2)) {
           if (churchcore_datesInConflict(ds.startdate, ds.enddate, conflict.startdate, conflict.enddate)) {
             if (conflict.startdate.sameDay(conflict.enddate))
@@ -914,25 +946,27 @@ WeekView.prototype.closeAndSaveBookingDetail = function (elem) {
   if ($("#show_conflicts").html()!=null)
     a.conflicts=$("#show_conflicts").html();
 
-  a.startdate=a.startdate.toStringEn(true);
-  a.enddate=a.enddate.toStringEn(true);
-  if (a.repeat_until!=null) a.repeat_until=a.repeat_until.toStringEn(false);
   a.neu=false;
-  
   if (a.text=="") {
     alert("Bitte eine Bezeichnung angeben!");
     return null;
   }
-  
+
   $("#cr_fields").html("<br/>Daten werden gespeichert..<br/><br/>");
-  
+
+  //t.saveBooking(a);
+  //elem.empty().remove();
+};
+
+WeekView.prototype.saveBooking = function(a) {
+  if (a.cc_cal_id==null) {
+    delete(a.cc_cal_id);
+    a.type="CR";
+  }
+  else {
+    a.type="CAL";
+  }
   churchInterface.jsendWrite(a, function(ok, json) {
-    a.startdate=a.startdate.toDateEn();
-    a.enddate=a.enddate.toDateEn();
-    if (a.repeat_until!=null)
-      a.repeat_until=a.repeat_until.toDateEn();
-    elem.empty().remove();
-    
     if (ok) {
       if (json.id!=null) {
         a.id=json.id;
@@ -956,10 +990,9 @@ WeekView.prototype.closeAndSaveBookingDetail = function (elem) {
   }, false, false);
 };
 
-
 WeekView.prototype.addFurtherListCallbacks = function() {
   var t=this;
-  
+
   t.addWeekButtons();
 
   $("#cdb_content .tooltips").each(function() {
@@ -968,9 +1001,10 @@ WeekView.prototype.addFurtherListCallbacks = function() {
       data:{id:$(this).attr("data-tooltip-id")},
       minwidth:250,
       render:function(data) {
+        $("#mypop").remove();
         return t.renderTooltip(data.id);
       },
-      
+
       afterRender: function(element, data) {
         currentTooltip=$(tooltip);
         element.find("#copy").click(function() {
@@ -1011,7 +1045,7 @@ WeekView.prototype.addFurtherListCallbacks = function() {
           t.updateBookingStatus(data.id, 3);
           return false;
         });
-        
+
       }
     });
   });
@@ -1022,23 +1056,17 @@ WeekView.prototype.addFurtherListCallbacks = function() {
       id=$(this).attr("id").substr(4,99);
       date=$(this).attr("href").substr(1,99);
       clearTooltip();
-      
+
       if ($(this).attr("id").indexOf("edit")==0)
-        t.showBookingDetails("edit", id, date);
+        t.showBookingDetails("edit", id, date.toDateEn(false), $(this));
       else
         if ($(this).attr("id").indexOf("new_")==0)
-          t.showBookingDetails("new", id, date);
+          t.showBookingDetails("new", id, date.toDateEn(false));
     }
   });
-};
-
-WeekView.prototype.cloneBooking = function(booking) {
-  var currentBooking=$.extend({}, booking);
-  currentBooking.startdate=new Date(booking.startdate);
-  currentBooking.enddate=new Date(booking.enddate);
-  currentBooking.repeat_until=new Date(booking.repeat_until);
-  currentBooking.id=null;
-  return currentBooking;
+  $( "#cdb_content" ).mousemove(function( event ) {
+    t.mousePosition={ clientX : event.pageX, clientY : event.pageY };
+  });
 };
 
 WeekView.prototype.addException = function(booking, date) {
@@ -1053,184 +1081,245 @@ WeekView.prototype.addException = function(booking, date) {
 /**
  * func=new oder edit or copy
  * id=bei new=> res_id, bei edit: booking_id
- * date=bei new=>date, sonst egal
+ * @param Date date bei new=>date, sonst egal
  */
-WeekView.prototype.showBookingDetails = function(func, id, date) {
-  var t=this;
+WeekView.prototype.showBookingDetails = function(func, id, date, element) {
+  var t = this;
+  var myEvent = null;
+
+  if (func == "new") myEvent = createNewBooking(id, date);
+  else myEvent = allBookings[id].clone();
+  if (myEvent.cc_cal_id!=null) myEvent = CR2CALType(myEvent);
+
+  // D.h. entweder Erstelle oder Editiere
+  myEvent.askForSplit(t.mousePosition, function(untilEnd) {
+    if (untilEnd!=null) {
+      myEvent.doSplit(date, untilEnd, function(newEvent, pastEvent) {
+        t.renderEditEvent(func, newEvent, myEvent, myEvent.isSeries(), untilEnd, function(newEvent, func) {
+          if (myEvent.cc_cal_id==null) {
+            newEvent.save();
+            if (pastEvent!=null) pastEvent.save(); // Only for real splits
+            func(true);
+          }
+          else {
+            if (newEvent.id==null) newEvent.booking_id = -1;
+            else newEvent.id = newEvent.cc_cal_id;
+            var b = churchcore_getFirstElement(newEvent.bookings);
+            var minpre = b.minpre;
+            var minpost = b.minpost;
+            newEvent.bookings[newEvent.booking_id] =  {
+              id: newEvent.booking_id,
+              status_id : newEvent.status_id,
+              resource_id : newEvent.resource_id,
+              location: newEvent.location,
+              note: newEvent.note,
+              minpre : minpre,
+              minpost : minpost
+            };
+            // Now it is time to undo the pre and post
+            newEvent.startdate = new Date(newEvent.startdate.getTime() + minpre * 60000);
+            newEvent.enddate = new Date(newEvent.enddate.getTime() - minpost * 60000);
+            if (pastEvent != null && newEvent.id == null) {
+              pastEvent.startdate = new Date(pastEvent.startdate.getTime() + minpre * 60000);
+              pastEvent.enddate = new Date(pastEvent.enddate.getTime() - minpost * 60000);
+              pastEvent.id = pastEvent.cc_cal_id;
+              delete newEvent.bookings[pastEvent.booking_id];
+            }
+            myEvent.saveSplitted(newEvent, pastEvent, date, untilEnd);
+            func(true);
+          }
+        });
+      });
+    }
+  });
+};
+
+function CAL2CRType(event) {
+  if (event == null) return null;
+  var cr = getCRBooking(event);
+  var b = churchcore_getFirstElement(event.bookings);
+  each(b, function(k,a) { cr[k] = a; });
+  cr.startdate = new Date(event.startdate.getTime() - cr.minpre * 60000);
+  cr.enddate = new Date(event.enddate.getTime() + cr.minpost * 60000);
+  cr.text = event.bezeichnung;
+  cr.cc_cal_id = event.id;
+  delete cr.bookings;
+
+  return cr;
+}
+
+function CR2CALType(event) {
+  if (event == null) return null;
+  var cal = getCRBooking(event);
+  cal.name = "Event";
+  cal.booking_id = event.id;
+  cal.bookings = new Object();
+  var minpre =  (event.cal_startdate.getTime() - event.startdate.getTime()) / 60000;
+  var minpost = (event.enddate.getTime() - event.cal_enddate.getTime()) / 60000;
+  // Add pre and post cause of the display in edit view
+  cal.startdate = event.startdate;
+  cal.enddate = event.enddate;
+  cal.bezeichnung = event.text;
+  cal.category_id = event.category_id;
+  cal.bookings[event.id] = {
+    status_id : event.status_id,
+    location: event.location,
+    note: event.note,
+    resource_id : event.resource_id,
+    minpre : minpre,
+    minpost : minpost
+  }
+  return cal;
+}
+
+WeekView.prototype.renderEditEvent = function(func, newEvent, myEvent, _isSeries, untilEnd, resFunc) {
+  t.currentBooking = newEvent;
   var title="";
   var txt="";
   if (func=="edit") {
-    t.currentBooking=$.extend({}, allBookings[id]);
-    if (t.currentBooking.cc_cal_id!=null) {
-      txt=txt+'<div class="alert alert-error">Achtung: Die Buchung wurde in <a href="?q=churchcal&date='+t.currentBooking.startdate.toStringEn(false)+'">'+masterData.churchcal_name+'</a> erstellt. Datum und Bezeichnung bitte im Kalendereintrag bearbeiten. Die Raumbuchung passt sich dementsprechend an.</div>';
+    if (myEvent.cc_cal_id!=null) {
+      txt=txt+'<div class="alert alert-error">Achtung: Die Buchung wurde in <a href="?q=churchcal&date='+myEvent.startdate.toStringEn(false)+'">'+masterData.churchcal_name+'</a> erstellt. Datum und Bezeichnung bitte im Kalendereintrag bearbeiten. Die Raumbuchung passt sich dementsprechend an.<br>Die Buchung kann aber hier vom Status angepasst werden und eine Resource getauscht werden.</div>';
     }
     // Pruefen, ob der Eintrag schon von einem Admin bestaetigt wurde, dann muss er auf 1 (unbestaetigt) zurueckgesetzt werden
-    if (((!user_access("edit", t.currentBooking.resource_id)) && (masterData.auth.write) && (t.currentBooking.person_id==masterData.user_pid) &&
-        (t.currentBooking.status_id!=1) && (masterData.resources[t.currentBooking.resource_id].autoaccept_yn==0))) {
+    if (((!user_access("edit", myEvent.resource_id)) && (masterData.auth.write) && (myEvent.person_id==masterData.user_pid) &&
+        (myEvent.status_id!=1) && (masterData.resources[myEvent.resource_id].autoaccept_yn==0))) {
       txt=txt+"<i><div class=\"alert alert-error\"><b>Achtung: Die Anfrage wurde schon vom Administrator bearbeitet!</b><br/>Wenn nun 'Speichern' gew&auml;hlt, muss erneut der Administrator best&auml;tigen.</i></div>";
-      t.currentBooking.status_id=1;
+      myEvent.status_id=1;
     }
-    txt=txt+t.renderEditBookingFields(t.currentBooking);
-    txt=txt+'<div id="cr_logs" style=""></div>';
-    if (((masterData.auth.write) && (t.currentBooking.person_id==masterData.user_pid)) || ((user_access("edit", t.currentBooking.resource_id))))
+    if (((masterData.auth.write) && (myEvent.person_id==masterData.user_pid)) || ((user_access("edit", myEvent.resource_id))))
       title="Editiere Buchungsanfrage";
     else
       title="Anzeige der Buchungsanfrage";
-    t.currentBooking["func"]="updateBooking";
-    if (t.currentBooking.exceptionids==null) t.currentBooking.exceptionids=0;
+    myEvent["func"]="updateBooking";
+    if (myEvent.exceptionids==null) myEvent.exceptionids=0;
   }
   else if (func=="new") {
-    t.currentBooking=createNewBooking(id, date);
-    txt=t.renderEditBookingFields(t.currentBooking);
     title="Buchungsanfrage erstellen";
-    t.currentBooking["func"]="createBooking";
-    t.currentBooking.exceptionids=0;
+    myEvent["func"]="createBooking";
+    myEvent.exceptionids=0;
   }
   else if (func=="copy") {
-    t.currentBooking=t.cloneBooking(allBookings[id]);
-    txt=t.renderEditBookingFields(allBookings[id]);
+    t.id=null;
     title="Buchungsanfrage kopieren";
-    t.currentBooking["func"]="createBooking";
-    t.currentBooking.exceptionids=0;
+    myEvent["func"]="createBooking";
+    myEvent.exceptionids=0;
   }
   else alert("unkown function in showBookingDetails");
+  txt=txt+t.renderEditBookingFields(newEvent);
+  if (func=="edit") txt=txt+'<div id="cr_logs" style=""></div>';
+  var elem = t.showDialog(title, txt, 600, 600, {});
 
-  // D.h. entweder Erstelle oder Editiere
-  if (title!="") {
-    var elem = this.showDialog(title, txt, 600, 600, {});
-   if (user_access("edit", t.currentBooking.resource_id)) {
-     form_renderDates({elem:$("#dates"), data:t.currentBooking, disabled:t.currentBooking.cc_cal_id!=null,
-       authexceptions:user_access("edit", t.currentBooking.resource_id),
-       authadditions:user_access("edit", t.currentBooking.resource_id),
-       deleteException:function(exc) {
-         delete t.currentBooking.exceptions[exc.id];
-       },
-       addException:function(options, date) {
-         t.addException(t.currentBooking, date.toDateDe());
-         return t.currentBooking;
-       },
-       deleteAddition:function(add) {
-         delete t.currentBooking.additions[add.id];
-       },
-       addAddition:function(options, date, with_repeat_yn) {
-         if (t.currentBooking.additions==null) t.currentBooking.additions=new Object();
-         t.currentBooking.exceptionids=t.currentBooking.exceptionids-1;
-         t.currentBooking.additions[t.currentBooking.exceptionids]
-               ={id:t.currentBooking.exceptionids, add_date:date.toDateDe().toStringEn(), with_repeat_yn:with_repeat_yn};
-         return t.currentBooking;
-       },
-       callback:function(){
+  if (user_access("edit", newEvent.resource_id)) {
+    $("#dates").renderCCEvent({event: newEvent, disabled: myEvent.cc_cal_id!=null,
+       authexceptions: user_access("edit", myEvent.resource_id),
+       authadditions: user_access("edit", myEvent.resource_id),
+       callback: function(){
          t.implantEditBookingCallbacks("cr_fields", allBookings[id]);
        }
-     });
-   }
-   else
-     form_renderDates({
-       elem:$("#dates"),
-       data:t.currentBooking,
-       callback:function() {
-         t.implantEditBookingCallbacks("cr_fields", allBookings[id]);
-       }
-     });
-   
-   form_autocompletePersonSelect("#assistance_user", false, function(divid, ui) {
-     $("#assistance_user").val(ui.item.label);
-     $("#assistance_user").attr("disabled",true);
-     t.currentBooking.person_id=ui.item.value;
-     t.currentBooking.person_name=ui.item.label;
-     return false;
+    });
+  }
+  else
+   $("#dates").renderCCEvent({
+     event: myEvent,
+     callback: function() {
+       t.implantEditBookingCallbacks("cr_fields", allBookings[id]);
+     }
    });
-    
-   this.checkConflicts();
-    
-    var log=$("#cr_logs");
-    if (log!=null && id!=null) {
-      // Hole die Log-Daten
-      churchInterface.jsendRead({ func: "getLogs", id:id }, function(ok, json) {
-        if (json!=null) {
-          logs='<small><font style="line-height:100%;"><a href="#" id="toogleLogs">Historie >></a><br/></small>';
-          logs=logs+'<div id="cr_logs_detail" style="display: none; border: 1px solid white; height: 140px; overflow: auto; margin: 2px; padding: 2px;">';
-          logs=logs+"<small><table><tr><td>Historie<td>Beschreibung<td>Erfolgt durch";
-          each(json, function(k,a){
-            logs=logs+'<tr><td width="100px">'+a.datum.toDateEn().toStringDe(true)+"<td>"+a.txt+'<td width="80px">'+a.person_name+" ["+a.person_id+"]<br/>";
-          });
-          logs=logs+"</table>";
-          logs=logs+"</small>";
-          if (user_access("edit", t.currentBooking.resource_id))
-            logs=logs+"<small><p align=\"right\"><a href=\"#\" id=\"del_complete\"><i>(Admin: Gesamten Termin l&ouml;schen)</a></small>";
-          logs=logs+"</div>";
-          log.html(logs);
-          $("#cr_logs a").click(function(c) {
-            if (($(this).attr("id")=="del_complete") && (user_access("edit", t.currentBooking.resource_id))){
-              if (confirm("Soll der Termin wirklich entfernt werden? Achtung, man kann es nicht mehr wiederherstellen!")) {
-                churchInterface.jsendWrite({func: "delBooking", id:id}, function(ok, json) {
-                  allBookings[id]=null;
-                  $("#cr_cover").html("");
-                  t.renderList();
-                  elem.dialog("close");
-                });
-              }
-            } 
-            else {
-              $("#cr_logs_detail").animate({ height: 'toggle'}, "fast", function() {                
-              });
-              elem.animate({scrollTop:elem.scrollTop()+160}, 500, 'swing');               
-            }
-            return false;
-          });
-        }
-      });
-    }
-    
-    if (func=="delete") {
-      t.closeAndSaveBookingDetail(elem);
-      return;
-    }
-      
-    // Keine Edit-Funktion, wenn sie vom churchCal kommt
-    //if (t.currentBooking.cc_cal_id==null)
-    {
-      if (((masterData.auth.write) && (t.currentBooking.person_id==masterData.user_pid)) || (user_access("edit", t.currentBooking.resource_id)) || (t.currentBooking.neu)) {
-        elem.dialog('addbutton', _("save"), function() {
-          t.closeAndSaveBookingDetail(elem);
+
+  form_autocompletePersonSelect("#assistance_user", false, function(divid, ui) {
+   $("#assistance_user").val(ui.item.label);
+   $("#assistance_user").attr("disabled",true);
+   myEvent.person_id=ui.item.value;
+   myEvent.person_name=ui.item.label;
+   return false;
+  });
+
+  t.checkConflicts(myEvent);
+
+  var log=$("#cr_logs");
+  if (log!=null && id!=null) {
+    // Hole die Log-Daten
+    churchInterface.jsendRead({ func: "getLogs", id:id }, function(ok, json) {
+      if (json!=null) {
+        logs='<small><font style="line-height:100%;"><a href="#" id="toogleLogs">Historie >></a><br/></small>';
+        logs=logs+'<div id="cr_logs_detail" style="display: none; border: 1px solid white; height: 140px; overflow: auto; margin: 2px; padding: 2px;">';
+        logs=logs+"<small><table><tr><td>Historie<td>Beschreibung<td>Erfolgt durch";
+        each(json, function(k,a){
+          logs=logs+'<tr><td width="100px">'+a.datum.toDateEn().toStringDe(true)+"<td>"+a.txt+'<td width="80px">'+a.person_name+" ["+a.person_id+"]<br/>";
         });
-        
-        if ((t.currentBooking.status_id!=99) && (!t.currentBooking.neu)) {
-          // Bei Wiederholungsterminen UND einem Eintrag, bei dem es sich um einer Wiederholung handelt: date>startdate
-          if ((t.currentBooking.repeat_id>0) && (date!=null) && (date.toDateEn()>t.currentBooking.startdate)) {
-            if (t.currentBooking.repeat_id!=999)
-              elem.dialog('addbutton', 'Nur aktuellen Termin löschen', function() {
-                if (t.currentBooking.exceptions==null) t.currentBooking.exceptions=new Object();
-                t.currentBooking.exceptionids=t.currentBooking.exceptionids-1;
-                t.currentBooking.exceptions[t.currentBooking.exceptionids]
-                      ={id:t.currentBooking.exceptionids, except_date_start:date, except_date_end:date};
-                t.closeAndSaveBookingDetail(elem);
+        logs=logs+"</table>";
+        logs=logs+"</small>";
+        if (user_access("edit", myEvent.resource_id))
+          logs=logs+"<small><p align=\"right\"><a href=\"#\" id=\"del_complete\"><i>(Admin: Gesamten Termin l&ouml;schen)</a></small>";
+        logs=logs+"</div>";
+        log.html(logs);
+        $("#cr_logs a").click(function(c) {
+          if (($(this).attr("id")=="del_complete") && (user_access("edit", myEvent.resource_id))){
+            if (confirm("Soll der Termin wirklich entfernt werden? Achtung, man kann es nicht mehr wiederherstellen!")) {
+              churchInterface.jsendWrite({func: "delBooking", id:id}, function(ok, json) {
+                allBookings[id]=null;
+                $("#cr_cover").html("");
+                t.renderList();
+                elem.dialog("close");
               });
-            if (t.currentBooking.repeat_id!=999 && t.currentBooking.cc_cal_id==null)
-              elem.dialog('addbutton', 'Diesen und nachfolgende löschen', function() {
-                d=date.toDateEn();
-                d.addDays(-1);
-                $("#cr_fields input[id=inputRepeatUntil]").val(d.toStringDe());
-                t.closeAndSaveBookingDetail(elem);
-              });
+            }
           }
           else {
-            title="Löschen";
-            if (t.currentBooking.repeat_id>0) title="Gesamte Serie löschen";
-            elem.dialog('addbutton', title, function() {
-              $("select[id=InputStatus]").val(99);
+            $("#cr_logs_detail").animate({ height: 'toggle'}, "fast", function() {
+            });
+            elem.animate({scrollTop:elem.scrollTop()+160}, 500, 'swing');
+          }
+          return false;
+        });
+      }
+    });
+  }
+
+  if (func=="delete") {
+    t.closeAndSaveBookingDetail(elem);
+    return;
+  }
+
+  // Keine Edit-Funktion, wenn sie vom churchCal kommt
+  if (((masterData.auth.write) && (myEvent.person_id==masterData.user_pid)) || (user_access("edit", myEvent.resource_id)) || (myEvent.neu)) {
+    elem.dialog('addbutton', _("save"), function() {
+      t.currentBooking = $("#dates").renderCCEvent("getCCEvent");
+      t.closeAndSaveBookingDetail(elem);
+      resFunc(t.currentBooking, function(ok) {if (ok) elem.dialog("close");});
+
+    });
+
+    if ((myEvent.status_id!=99) && (!myEvent.neu) && (date!=null)) {
+      if (_isSeries && !untilEnd) {
+        elem.dialog('addbutton', 'Einzeltermin entfernen', function() {
+          if (myEvent.exceptions==null) myEvent.exceptions=new Object();
+          myEvent.exceptionids=myEvent.exceptionids-1;
+          myEvent.exceptions[myEvent.exceptionids]
+                ={id:myEvent.exceptionids, except_date_start:date, except_date_end:date};
+          t.closeAndSaveBookingDetail(elem);
+        });
+      }
+      else {
+        if (_isSeries) {
+          if (myEvent.repeat_id!=999 && myEvent.cc_cal_id==null)
+            elem.dialog('addbutton', 'Diesen und nachfolgende löschen', function() {
+              d=date.toDateEn();
+              d.addDays(-1);
+              $("#cr_fields input[id=inputRepeatUntil]").val(d.toStringDe());
               t.closeAndSaveBookingDetail(elem);
             });
-          }
         }
+        title="Löschen";
+        if (_isSeries) title="Gesamte Serie löschen";
+        elem.dialog('addbutton', title, function() {
+          $("select[id=InputStatus]").val(99);
+          t.closeAndSaveBookingDetail(elem);
+        });
       }
     }
-    elem.dialog('addbutton', _("cancel"), function() {elem.dialog("close");});
   }
+  elem.dialog('addbutton', _("cancel"), function() {elem.dialog("close");});
 };
 
 WeekView.prototype.renderEntryDetail = function() {
 };
-
-
-})(jQuery);

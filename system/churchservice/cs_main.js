@@ -1,14 +1,14 @@
-/** 
+/**
 }
  * cdb_main.js
- * 
+ *
  * @Author Jens Martin Rauen
  * @Version 20110101
  */
 
 // Alle Stammdaten werden hier gespeichert
 var masterData = null;
-// MOmentan f�r Abwesenheit benutzt 
+// MOmentan f�r Abwesenheit benutzt
 var allPersons = new Object();
 var groups = null;
 var allFacts=null;
@@ -33,19 +33,19 @@ jQuery(document).ready(function() {
   cdb_loadMasterData(function() {
     var currentDate_externGesetzt=false;
     if (jQuery("#currentdate").val()!=null) {
-      listView.currentDate=jQuery("#currentdate").val().toDateEn(); 
+      listView.currentDate=jQuery("#currentdate").val().toDateEn();
       currentDate_externGesetzt=true;
     }
     churchInterface.setLastLogId(masterData.lastLogId);
-    
+
     // Initialisiere Browser-History, ruft damit schon RenderView() auf, falles Parameter uebergeben worden sind
     churchInterface.activateHistory("ListView");
 
     // Lade nun Event-Data
     cs_loadEventData(null, function() {
       if (!currentDate_externGesetzt) {
-        if ($("#externevent_id").val()!=null) {          
-          churchInterface.getCurrentView().currentDate=allEvents[$("#externevent_id").val()].startdate.toDateEn(false);
+        if ($("#externevent_id").val()!=null) {
+          churchInterface.getCurrentView().currentDate=allEvents[$("#externevent_id").val()].startdate.withoutTime();
           churchInterface.getCurrentView().filter["searchEntry"]="#"+$("#externevent_id").val();
           churchInterface.getCurrentView().renderFilter();
           churchInterface.getCurrentView().renderCalendar();
@@ -53,24 +53,23 @@ jQuery(document).ready(function() {
         else {
           var now = new Date(); now.addDays(-1);
           var first = new Date(); first.addDays(1000);
-          var doit = false;        
+          var doit = false;
           each(allEvents, function(k,a) {
-            var d = a.startdate.toDateEn(false);
-            if ((d>=now) && (d<first)) {
-              first = d;
+            if ((a.startdate>=now) && (a.startdate<first)) {
+              first = new Date(a.startdate.getTime());
               doit = true;
             }
           });
           if (doit) listView.currentDate=first;
         }
       }
-      
+
       cs_loadPersonDataFromCdb(function() {
-        // Genug Daten um nun die Anwendung zu zeigen. 
-        // new: 27.1.13: RenderList reicht, denn Filter �ndert sich nix. 
+        // Genug Daten um nun die Anwendung zu zeigen.
+        // new: 27.1.13: RenderList reicht, denn Filter �ndert sich nix.
         churchInterface.getCurrentView().renderList();
         churchInterface.sendMessageToAllViews("allDataLoaded");
-        
+
         // Lade nun alle Personendaten im Hintergrund weiter
         window.setTimeout(function() {
           cs_loadAbsent(function() {
@@ -79,6 +78,6 @@ jQuery(document).ready(function() {
           });
         },10);
       });
-    }, false);    
+    }, false);
   }, false);
-}); 
+});

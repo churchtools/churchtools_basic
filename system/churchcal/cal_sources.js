@@ -159,12 +159,12 @@ function mapEvents(allEvents) {
           if ((a.link!=null) && (a.link!="")) o.link=a.link;
           if ((a.ort!=null) && (a.ort!='')) o.title=o.title+' <span class="event-location">'+a.ort+'</span>';
           // Now get the service texts out of the events
-          if (a.events!=null) {
-            each(a.events, function(i,e) {
+          if (a.csevents!=null) {
+            each(a.csevents, function(i,e) {
+              if (typeof(e.startdate)=="string") e.startdate = e.startdate.toDateEn(true);
               if ((e.service_texts!=null) &&
-                   (e.startdate.toDateEn(false).toStringDe(false)==d.startdate.toStringDe(false))) {
+                   (e.startdate.withoutTime().getTime()==d.startdate.withoutTime().getTime())) {
                 o.title=o.title+' <span class="event-servicetext">'+e.service_texts.join(", ")+'</span>';
-                return false;
               }
             });
           }
@@ -196,22 +196,19 @@ function mapEvents(allEvents) {
   return cs_events;
 }
 
-
 CalCCType.prototype.jsonCall = function(ids) {
   var t=this;
   churchInterface.jsendRead({func:"getCalPerCategory", category_ids:ids}, function(ok, cats) {
     if (ok) {
       if (cats!=null) {
         each(cats, function(k,events) {
+          // Sometimes JSON makes an array when no item is in there.
+          if (events instanceof Array && events.length==0) events = new Object();
           t.data[k].events=events;
           // Important conversations
           each(t.data[k].events, function(i,a) {
-            a.startdate=a.startdate.toDateEn(true);
-            a.enddate=a.enddate.toDateEn(true);
-            if (a.repeat_until!=null)
-              a.repeat_until=a.repeat_until.toDateEn(false);
+            t.data[k].events[i] = getCALEvent(a);
           });
-
           t.data[k].status="loaded";
           if (!t.data[k].hide) {
             t.showEventsOnCal(k);
@@ -226,7 +223,6 @@ CalCCType.prototype.jsonCall = function(ids) {
 CalCCType.prototype.showEventsOnCal = function(k) {
   var t = this;
   var cs_events = mapEvents(t.data[k].events, true);
-
   t.data[k].current_CalEvents={container:t, category_id:k, color:"black", editable:categoryEditable(k),
       events:function (start, end, timezone, callback) {
         callback(_getEventsFromDate(cs_events, start, end));

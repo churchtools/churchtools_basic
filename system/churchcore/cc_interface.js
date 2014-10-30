@@ -1,5 +1,5 @@
 /**
- * Offers a interface between JavaScript and PHP 
+ * Offers a interface between JavaScript and PHP
  */
 
 function ChurchInterface() {
@@ -28,8 +28,8 @@ ChurchInterface.prototype.getLastLogId= function () {
 };
 
 /**
- * 
- * @param message: e.g. "allDataLoaded", "filterChanged" 
+ *
+ * @param message: e.g. "allDataLoaded", "filterChanged"
  * @param args
  */
 ChurchInterface.prototype.sendMessageToAllViews = function (message, args) {
@@ -44,11 +44,11 @@ ChurchInterface.prototype.sendMessageToAllViews = function (message, args) {
   }
   each(this.getViews(), function(k,a) {
     a.messageReceiver(message, args);
-  });  
+  });
 };
 
 ChurchInterface.prototype._pollForNews = function () {
-  var t=this;
+/*  var t=this;
   this.pollForNews=window.setTimeout(function() {
     t.jsendRead({func:"pollForNews", last_id:t.lastLogId}, function(ok, json) {
       if (ok) {
@@ -59,14 +59,14 @@ ChurchInterface.prototype._pollForNews = function () {
         t._pollForNews();
       }
     });
-  },10000);
+  },10000);*/
 };
 
 ChurchInterface.prototype.setAllDataLoaded = function (val) {
   var t=this;
   t.allDataLoaded=val;
-  if (val) { 
-    if (t.lastLogId!=null) t._pollForNews();    
+  if (val) {
+    if (t.lastLogId!=null) t._pollForNews();
     t.implantCallbacks();
   }
 };
@@ -92,19 +92,19 @@ ChurchInterface.prototype.history = function (hash) {
     arr[0]=this.standardviewname+"/";
     jQuery.history.load(arr.join("/"));
   }
-  else {  
+  else {
     this.currentView=this.views[arr[0]];
     // filter-Wiederherstellung �ber die Url, f�r History(back), damit die Filter damit funktionieren.
-    // Ist momentan in der Testphase, funktioniert nur f�r das Suchfeld, erstmal auskommentiert, 
+    // Ist momentan in der Testphase, funktioniert nur f�r das Suchfeld, erstmal auskommentiert,
     // Probleme mit Multiselect, da es bei ToString nicht den Wert, sondern ein Array wiedergibt.
     var doRefresh=false;
     each(arr, function(k,a) {
       if (a.indexOf("searchEntry:")==0) {
         t.currentView.filter["searchEntry"] = a.substr(12,99);
-      } 
+      }
       else if ((a.indexOf("filter")==0) && (a.indexOf(":")>1)) {
         t.currentView.filter[a.substr(0,a.indexOf(":"))] = a.substr(a.indexOf(":")+1,99);
-      } 
+      }
       else if ((a.indexOf("doc")==0) && (a.indexOf(":")>1)) {
         var newdoc = a.substr(a.indexOf(":")+1,99);
         var re=true;
@@ -116,14 +116,14 @@ ChurchInterface.prototype.history = function (hash) {
           t.currentView.filter[a.substr(0,a.indexOf(":"))]=newdoc;
           doRefresh=true;
         }
-      } 
+      }
     });
    if ((this.currentHistoryArray==null) || (this.currentHistoryArray[0]!=arr[0]) || (doRefresh)) {
      this.currentView.renderView();
    }
-    
+
    this.currentHistoryArray=arr;
-  }  
+  }
 };
 
 function history(hash) {
@@ -147,12 +147,12 @@ ChurchInterface.prototype.getViews = function () {
  * Wirft einen fatalen Fehler per Modal-Window und f�hrt dann einen Reload aus.
  */
 ChurchInterface.prototype.throwFatalError=function(errorText){
-  if (this.errorWindow==null) 
+  if (this.errorWindow==null)
     var modal=jQuery(document.createElement('div')).append(jQuery("#content"));
   else modal=this.errorWindow;
   modal.html(errorText);
-  modal.dialog({  
-    autoOpen:true, 
+  modal.dialog({
+    autoOpen:true,
     modal:true,
     height:500,
     width:600,
@@ -174,7 +174,7 @@ ChurchInterface.prototype.throwFatalError=function(errorText){
  * @param obj - Enth�lt alle Objecte, vor allem die func
  * @param func - function erh�lt den status und die daten
  * @param async - asyncron (default=true)
- * @param Get - getmethod (default=true)
+ * @param Get - getmethod (default=false)
  */
 ChurchInterface.prototype.jsendWrite = function (obj, func, async, get, overwriteModulename) {
   return this.jsend(_("save.data"), obj, func, async, get, overwriteModulename);
@@ -187,26 +187,19 @@ ChurchInterface.prototype.jsend = function (name, obj, func, async, get, overwri
   var modulename=this.modulename;
   if (overwriteModulename!=null) modulename=overwriteModulename;
   if (async==null) async=true;
-  if (get==null) get=true; 
+  if (get==null) get=false;
   if (!t.fatalErrorOccured) {
     this.setStatus(name);
-    var obj2=new Object();
-    each(obj, function(k,a) {
-      if (a instanceof Date)
-        obj2[k]=a.toStringEn(true);
-      else 
-        obj2[k]=a;
-    });
     jQuery.ajax({
       url: "index.php?q="+modulename+"/ajax",
       dataType: 'json',
-      data: obj2,
+      data: transformAllDatesToString(obj),
       async: async,
       type: (get?"GET":"POST"),
       success : function(json) {
         if (json==null)
           alert(_("error.occured")+": JSON-Result is null!");
-          
+
         t.clearStatus();
         // Error = ist was schlimmes passiert!
         if (json.status=="error")  {
@@ -232,15 +225,15 @@ ChurchInterface.prototype.jsend = function (name, obj, func, async, get, overwri
 };
 
 ChurchInterface.prototype.saveSetting = function(settingname, val, func) {
-  this.jsendWrite({func:"saveSetting", sub:settingname, val:val}, func);  
+  this.jsendWrite({func:"saveSetting", sub:settingname, val:val}, func);
 };
 
 ChurchInterface.prototype.setCookie = function(settingname, val, func) {
-  this.jsendWrite({func:"setCookie", sub:settingname, val:val}, func);  
+  this.jsendWrite({func:"setCookie", sub:settingname, val:val}, func);
 };
 
 ChurchInterface.prototype.deleteSetting = function(settingname) {
-  this.jsendWrite({func:"saveSetting", sub:settingname, remove:true});  
+  this.jsendWrite({func:"saveSetting", sub:settingname, remove:true});
 };
 
 ChurchInterface.prototype.sendEmail = function (to, subject, body) {
@@ -257,7 +250,7 @@ ChurchInterface.prototype.setStatus = function (status, hideAutomatically) {
     window.clearTimeout(this.hideStatusTimer);
     this.hideStatusTimer=null;
   }
-  
+
   jQuery("#cdb_status").html(status);
   if (hideAutomatically) {
     this.hideStatusTimer=window.setTimeout(function() {
@@ -268,7 +261,7 @@ ChurchInterface.prototype.setStatus = function (status, hideAutomatically) {
 };
 
 /**
- * Loescht den Status in der Statuszeile 
+ * Loescht den Status in der Statuszeile
  */
 ChurchInterface.prototype.clearStatus = function () {
   var t=this;
@@ -299,6 +292,3 @@ ChurchInterface.prototype.isCurrentView = function (name) {
 
 ChurchInterface.prototype.implantCallbacks = function() {
 };
-
-
-
