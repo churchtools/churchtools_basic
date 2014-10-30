@@ -978,7 +978,7 @@ function _eventClick(event, jsEvent, view ) {
     rows.push('<p>'+_("start.date")+': '+event.start.format(event.start.hasTime()?DATETIMEFORMAT_DE:DATEFORMAT_DE));
     if (event.end!=null)
       rows.push('<p>'+_("end.date")+': '+event.end.format(event.end.hasTime()?DATETIMEFORMAT_DE:DATEFORMAT_DE));
-    form_showOkDialog("Termin: "+event.title, rows.join(""), 400, 400);
+    form_showOkDialog("Termin: "+event.title.html2csv(), rows.join(""), 400, 400);
   }
 
 }
@@ -1783,6 +1783,7 @@ function renderFilterCalender() {
 
     var checked=churchcore_inArray(id, churchcore_getArrStrAsArray(masterData.settings[name]));
     if (filterCategoryIds!=null && churchcore_inArray(id-100, filterCategoryIds)) checked=true;
+    if (filterCategoryIds==null && masterData.settings[name]==null && name=="filterGemeindekalendar") checked=true;
     rows.push('<span '+(checked?'checked="checked"':'') + ' '
                 +'data-id="'+(id)+'" '
                 +'data-name="'+name+'" '
