@@ -334,6 +334,7 @@
   <entry key="could.not.find.group.leader.please.try.other.ways">Leider konnte kein Gruppenleiter gefunden werden. Bitte versuchen Sie es auf einem anderen Weg!</entry>
   <entry key="email.send.to">Es wurde eine Email an {0} gesendet!</entry>
   <entry key="unknown.call">Unbekannter Aufruf: {0}</entry>
+  <entry key="hello">Hallo!</entry>
   <entry key="hello.name">Hallo {0}!</entry>
   <entry key="request.by.external.mapview">Anfrage über externe MapView</entry>
   <entry key="request.changed.by.external.mapview">Anfrage über externe MapView</entry>

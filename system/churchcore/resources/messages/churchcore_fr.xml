@@ -11,7 +11,7 @@
   <entry key="please.complete.this.field">Merci de compléter ce fichier!</entry>
   <entry key="please.enter.valid.email">Merci d'entrer une adresse email valide!</entry>
   <entry key="getting.help">Aide</entry>
-  
+
   <!-- HEADER -->
   <entry key="exit.simulation">Arrêter la simulation</entry>
   <entry key="change.password">Changer le mot de passe</entry>
@@ -32,7 +32,7 @@
   <entry key="simulate.information.text">Un administrateur peut vérifier les droits d'un utilisateur en faisant une simulation de ses droits.</entry>
   <entry key="name.of.person">Nom de la personne</entry>
   <entry key="write.email.to.admin">Écrire un email à l'Admin</entry>
-  
+
   <!-- HOME -->
   <entry key="there.are.more.users.with.the.same.email">Plusieurs utilisateurs avec la même adresse email. Elles peuvent être changées dans le menu en haut à droite.</entry>
   <entry key="chose.your.possibilities">Choisis tes possibilités</entry>
@@ -48,12 +48,12 @@
   <entry key="page">Page</entry>
   <entry key="general">Général</entry>
   <entry key="note">Remarque</entry>
-  
-  
+
+
   <!-- AUTH -->
   <entry key="not.existent">Inexistant!</entry>
   <entry key="no.sufficient.permission">No sufficient permission! You need the right {0}.</entry>
-  
+
   <!-- ABOUT -->
   <entry key="permissions">Autorisations</entry>
   <entry key="current.permissions">Autorisations courantes</entry>
@@ -66,7 +66,7 @@
   <entry key="found.no.problem">Aucun problème trouvé</entry>
   <entry key="found.problem.with.tables">Problème trouvé avec les colonnes {0}.</entry>
   <entry key="detailed.report">Rapport détaillé</entry>
-  
+
   <!-- PROFILE -->
   <entry key="to.change.password.complete.following.fields">Pour changer le mot de passe, compléter les champs suivants</entry>
   <entry key="old.password">Ancien mot de passe</entry>
@@ -79,7 +79,7 @@
   <entry key="password.is.incorrect">Mot de passe incorrect.</entry>
   <entry key="password.changes.successfully">Mot de passe modifié avec succès</entry>
   <entry key="set.password">Confirmer le mot de passe</entry>
-  
+
   <!-- LOGIN -->
   <entry key="login.headline">Inscription</entry>
   <entry key="please.fill.following.fields">Merci de compléter les champs suivants:</entry>
@@ -95,7 +95,7 @@
   <entry key="wrong.password">Mot de passe incorrect.</entry>
   <entry key="account.was.locked">Compte bloqué!</entry>
   <entry key="account.was.locked.cause.of.to.many.trials">Compte bloqué temporaire suite à trop d'essais d'inscription erronés! Merci de réessayer ultérieurement.</entry>
-  
+
   <!-- MAIL -->
   <entry key="archive.of.sent.messages">Archives des email/SMS envoyés</entry>
   <entry key="filter">Filtrer</entry>
@@ -113,7 +113,7 @@
   <entry key="email.was.sent">Email envoyé avec succès</entry>
   <entry key="email.not.found">Adresse email inexistante</entry>
   <entry key="following.persons.have.no.email.address">No email was send to following persons for missing email address:</entry>
-    
+
   <!--  GENERAL MENU ENTRIES -->
   <entry key="menu">Menu</entry>
   <entry key="back.to.main.menu">Retour au menu principal</entry>
@@ -125,7 +125,7 @@
   <entry key="more.information">Plus d'infos</entry>
   <entry key="show.all">Montrer tout</entry>
   <entry key="search">Recherche</entry>
-  
+
   <!-- ADMIN -->
   <entry key="settings.for">Réglages pour {0}</entry>
   <entry key="site.name">Nom du site web</entry>
@@ -146,7 +146,7 @@
   <entry key="enable.sending.emails">Enable sending emails</entry>
   <entry key="disable.site">Switch site offline</entry>
   <entry key="admin.settings.info.text">Here you can configure system settings. They effect all users, please be careful!</entry>
-  
+
   <!--  MODULES -->
   <entry key="service">Service</entry>
   <entry key="birthdays">Anniversaires</entry>
@@ -189,7 +189,7 @@
   <entry key="your.next.meetings">Tes prochains rdv</entry>
   <entry key="pending.booking.requests">Enregistrements en attente</entry>
   <entry key="current.bookings">Enregistrements actuels</entry>
-  
+
 <!-- 17.7.2014 -->
   <entry key="reload">Recharger</entry>
   <entry key="session.expired.please.login">Session expirée, merci de vous reconnecter!</entry>
@@ -255,7 +255,7 @@
   <entry key="personal.calendar">Agenda personnel</entry>
   <entry key="group.calendar">Groupe d'agendas</entry>
   <entry key="first.day.in.week">First day of week (0=Suday, 1=Monday, 2=Tuesday, ..)</entry>
-  
+
   <entry key="january">Janvier</entry>
   <entry key="february">Février</entry>
   <entry key="march">Mars</entry>
@@ -268,12 +268,12 @@
   <entry key="october">Octobre</entry>
   <entry key="november">Novembre</entry>
   <entry key="december">Décembre</entry>
-  
+
   <entry key="minutes">minutes</entry>
   <entry key="hour">heure</entry>
   <entry key="hours">heures</entry>
   <entry key="day">Jour</entry>
-  
+
   <entry key="start.date">Date de début</entry>
   <entry key="end.date">Date de fin</entry>
   <entry key="repeats">Répétitions</entry>
@@ -306,14 +306,14 @@
   <entry key="show.more.rows">Voir plus de lignes</entry>
   <entry key="count.accesses">Nombre d'accès</entry>
   <entry key="cronjob.succeed">Cron-Job accompli!</entry>
-  
+
   <!-- 2014-07-23 -->
   <entry key="query">Interrogation</entry>
   <entry key="report">Report</entry>
   <entry key="select.language">Sélect langue</entry>
   <entry key="please.select.your.language">Sélectionnez votre langue</entry>
   <entry key="close">Fermer</entry>
-  
+
   <!-- file upload -->
   <entry key="uploaddircetdory.not.writable">Server error. Upload directory isn't writable.</entry>
   <entry key="no.uploaded.files">No files were uploaded.</entry>
@@ -333,6 +333,7 @@
   <entry key="could.not.find.group.leader.please.try.other.ways">Sorry, no group leader was found. Please try using other ways!</entry>
   <entry key="email.send.to">Email was sent to{0}!</entry>
   <entry key="unknown.call">Unknown call: {0}</entry>
+  <entry key="hello">Hello!</entry>
   <entry key="hello.name">Hello {0}!</entry>
   <entry key="request.by.external.mapview">Request by external MapView</entry>
   <entry key="request.changed.by.external.mapview">Request changed by external MapView</entry>
@@ -365,7 +366,7 @@
   <entry key="personal.information.for.x">Personal information for {0}</entry>
   <entry key="station">Station</entry>
   <entry key="department">Département</entry>
-  
+
   <!-- churchservice -->
   <entry key="no.rights.to.add.or.remove.service">Not enough rights in addOrRemoveServiceToEvent: </entry> <!-- needed? -->
   <entry key="surname.name.has.confirmed.service.x.for.date.event">{0} {1} has confirmed service {2} for event {4} on {3}.</entry>
@@ -379,10 +380,10 @@
   <entry key="file.could.not.be.copied.to.x">File could not be copied to {0}!</entry>
   <entry key="pending.service.requests">Pending service requests: </entry>
   <entry key="there.are.pending.services">There are pending service requests</entry>
-  
+
   <!-- churchcore auth -->
   <entry key="edit.masterdata">Edit masterdata</entry>
-  
+
   <!-- churchservice auth -->
   <entry key="view.servicegroup.churchservice.cs_servicegroup">View services of single service Groups</entry>
   <entry key="edit.servicegroup.churchservice.cs_servicegroup">Edit services of single service Groups</entry>
@@ -400,7 +401,7 @@
   <entry key="view.song.churchservice">View songs and download files</entry>
   <entry key="edit.song.churchservice">Edit songs and upload files</entry>
   <entry key="edit.masterdata.churchservice">Edit masterdata</entry>
-  
+
   <entry key="no.permisson.to.export.facts">No permission to export fact data (edit facts)</entry>
 
   <!-- churchdb auth -->
@@ -426,7 +427,7 @@
   <entry key="view.group">View single groups - including hidden groups</entry>
   <entry key="view.group.statistics">View group statistics of all groups</entry>
   <entry key="administer.groups">Administer Groups (create, edit, delete, ...)</entry>
-  
+
   <!-- churchresource -->
   <entry key="view.x">View {0}</entry> <!-- TODO: use it for all similar texts -->
   <entry key="create.own.bookings">Create own booking requests</entry>
@@ -446,13 +447,13 @@
   <entry key="bookingX.for.resource.on.datetime">'{0}' for {1} ({2}h{3})</entry>
   <entry key="booking.in"> in {0}</entry>
   <entry key="user.was.deleted">User was deleted.</entry>
-  
+
   <!-- churchwiki -->
   <entry key="view.wiki.category">View single wiki category</entry>
   <entry key="edit.wiki.category">Edit single wiki category</entry>
   <entry key="edit.help.entry">Edit Help Entry</entry>
   <entry key="edit.help.entry.subtitle">Here you can edit the help.</entry>
-  
+
   <!-- login -->
   <entry key="new.password.requested.for.x.is.y">A new password was requested for email address {0}: {1}</entry>
   <entry key="email.unknown">This email address is unknown!</entry>
@@ -463,10 +464,10 @@
   <entry key="user.succesfully.changed.now.you.work.with.permissions.of.x">User succesfully changed! Now you work with permissions of {0}.</entry>
   <entry key="user.change.to.familyX.failed.session.is.empty">User changing to Id {0} failed, session ist empty!</entry>
   <entry key="you.are.logged.in.as.x.click.y.to.continue">You are logged in as {0}, click {1} to continue.</entry>
-  
+
   <!-- forms -->
   <entry key="again.please">Again please ...</entry>
-  
+
   <!-- Admin preferences TODO: needed for js -->
   <entry key="add.to.menu">Add {0} to menu</entry>
   <entry key="show.as.button.on.home">Show {0} as button on start page</entry>
@@ -498,7 +499,7 @@
   <entry key="use.category.as.folder.for.beamersoftware.export">Use song category as folder for beamer software export</entry>
 
   <!-- Admin preferences churchresource -->
-  
+
   <!-- home -->
   <entry key="home">Startseite</entry>
   <entry key="directory.x.has.to.be.writable">The directory '{0}' has to be writeable. Please adjust permissions!</entry>
@@ -511,7 +512,7 @@
   <entry key="show.fax.number">Show fax number</entry>
   <entry key="show.email">Show email address</entry>
   <entry key="show.complete.birthday.including.year">Show complete birthday date including year of birth</entry>
-  
+
   <!-- core db -->
   <entry key="previously">previously</entry>
   <entry key="logout.successful">Logout successful</entry>
@@ -531,8 +532,8 @@
   <entry key="cancelation.of.event.date">Cancelation from {0} on {1}</entry>
   <entry key="thank.you.for.feedback">Thank you for feedback!</entry>
   <entry key="category">Calendar</entry>
-  
-  
+
+
   <!-- churchcal auth -->
   <entry key="view.single.calendar">View single calendar </entry>
   <entry key="edit.single.calendar">Create / edit events in single calendars</entry>
@@ -543,5 +544,5 @@
   <entry key="event.not.found">Event '{0}' not found!</entry>
   <entry key="category.does.not.exist">Category don't exist</entry>
   <entry key="deleting.failed.because.of.remaining.services">Calendar could not be deleted. Thera are still services bound to this calendar!</entry>
-  
+
 </properties>

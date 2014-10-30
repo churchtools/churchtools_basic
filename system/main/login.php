@@ -25,11 +25,11 @@ function login_main() {
 
     if (getVar("newpwd") && $email = getVar("email")) {
       $res = db_query("SELECT COUNT(*) c FROM {cdb_person}
-                       WHERE email=':email' AND archiv_yn=0",
+                       WHERE email=:email AND archiv_yn=0",
                        array(':email' => $email))
              ->fetch();
       if ($res->c == 0) {
-        $txt .= '
+        $txt .= $res->c.$email.'
         <div class="alert alert-error">
             <p>' . t('login.error.longtext', '<a href="' . getConf("site_mail") . '">' . getConf("site_mail") . '</a>') . '
         </div>';
@@ -43,7 +43,7 @@ function login_main() {
                   WHERE email=:email",
                   array(':email' => $email));
 
-        $content = "<h3>" . t('hello') . "!</h3>
+        $content = "<h3>" . t('hello') . "</h3>
           <p>" . t('new.password.requested.for.x.is.y', "<i>$email</i>", $newpwd) . "</p>";
         churchcore_systemmail($email, "[" . getConf('site_name') . "] Neues Passwort", $content, true, 1);
         churchcore_sendMails(1);
