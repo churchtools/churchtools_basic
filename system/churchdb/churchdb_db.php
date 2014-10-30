@@ -550,6 +550,7 @@ function churchdb_getAllPeopleIdsFromGroups($myGroups) {
     $res = db_query("SELECT p.id AS p_id
                      FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg 
                      WHERE p.id=gp.person_id AND gpg.gemeindeperson_id=gp.id 
+                     AND p.archiv_yn = 0
                      AND gpg.gruppe_id IN (" . db_implode($myGroups) . ") ");
     foreach ($res as $p) {
       // FIXME: add "GROUP BY p_id" to sql to prevent double ids - also applicable for other queries here
