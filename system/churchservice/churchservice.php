@@ -346,7 +346,7 @@ function churchservice_getCurrentEvents() {
 
   $mygroups = churchdb_getMyGroups($user->id, true, true);
 // add this selection to sql to simplify php
-  $groupWhere = ' AND ('. implode(' IN (cdb_gruppen_ids) OR ', $mygroups). ' IN (cdb_gruppen_ids))';
+  $groupWhere = $mygroups ? ' AND ('. implode(' IN (cdb_gruppen_ids) OR ', $mygroups). ' IN (cdb_gruppen_ids))' : '';
   $txt = "";
 
   $events = db_query("SELECT e.id, DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') datum, bezeichnung
@@ -566,7 +566,7 @@ function churchservice_blocks() {
 
 /**
  * info for pending requests
- * TODO: rename churchservice_openservice_rememberdays
+ * TODO: rename churchservice_openservice_rememberdays, f.e. to sendOpenServiceRememberMail
  * TODO: could sql queries be reduced?
  */
 function churchservice_openservice_rememberdays() {
@@ -577,76 +577,66 @@ function churchservice_openservice_rememberdays() {
   $dt = new datetime();
 
   // get ONE eventService needed to send (not yet send or still pending).
-  // from persons having ?email ??und auch gemappt wurde??.
-  $sql = "SELECT es.id, p.id p_id, p.vorname, p.email, es.modified_pid,
+  // from persons having an email ??und auch gemappt wurde??.
+//   $sql = "SELECT es.id, p.id p_id, p.vorname, p.email, es.modified_pid,
+//             IF (password IS NULL AND loginstr IS NULL AND lastlogin IS NULL,1,0) AS invite
+//           FROM {cs_eventservice} es, {cs_event} e, {cc_cal} cal, {cs_service} s, {cdb_person} p
+//           WHERE e.valid_yn=1 AND e.cc_cal_id=cal.id AND es.valid_yn=1 AND es.zugesagt_yn=0
+//             AND es.cdb_person_id IS NOT NULL AND es.service_id=s.id AND s.sendremindermails_yn=1
+//             AND es.event_id=e.id AND e.Startdate>=current_date
+//             AND ((es.mailsenddate IS NULL) OR (DATEDIFF(current_date,es.mailsenddate)>=$delay))
+//             AND p.email!='' AND p.id=es.cdb_person_id LIMIT 1";
+  
+  $sql = "SELECT es.id, p.id p_id, p.vorname, p.spitzname, p.name, p.email, es.modified_pid,
             IF (password IS NULL AND loginstr IS NULL AND lastlogin IS NULL,1,0) AS invite
           FROM {cs_eventservice} es, {cs_event} e, {cc_cal} cal, {cs_service} s, {cdb_person} p
           WHERE e.valid_yn=1 AND e.cc_cal_id=cal.id AND es.valid_yn=1 AND es.zugesagt_yn=0
             AND es.cdb_person_id IS NOT NULL AND es.service_id=s.id AND s.sendremindermails_yn=1
             AND es.event_id=e.id AND e.Startdate>=current_date
             AND ((es.mailsenddate IS NULL) OR (DATEDIFF(current_date,es.mailsenddate)>=$delay))
-            AND p.email!='' AND p.id=es.cdb_person_id LIMIT 1";
-  $res = db_query($sql)->fetch();
-
-  $sql2 = "SELECT es.id id, cal.bezeichnung AS event, DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') AS datum,
-             e.id event_id, s.bezeichnung service, sg.bezeichnung servicegroup, es.mailsenddate
-           FROM {cs_eventservice} es, {cs_event} e, {cc_cal} cal, {cs_service} s, {cs_servicegroup} sg
-           WHERE e.valid_yn=1 AND cal.id=e.cc_cal_id AND es.valid_yn=1 AND es.zugesagt_yn=:zugesagt
-             AND es.cdb_person_id=:p_id AND s.sendremindermails_yn=1 AND es.event_id=e.id
-             AND es.service_id=s.id AND sg.id=s.servicegroup_id AND e.startdate>=current_date
-           ORDER BY e.startdate";
+            AND p.email!='' AND p.id=es.cdb_person_id
+          GROUP BY p_id"; //group to get each person only once, so querying all together dont interfere with the other services of the same person
+  // FIXME: test it with more then one or two services for only one person at once!
+  $usersToMail = db_query($sql);
   $i = 0;
   // process only 15 services to prevent too many mails at once
-  while (($res) && ($i < 15)) {
-    $txt = "<h3>Hallo " . $res->vorname . ",</h3><p>";
-
-    // TODO: use mail template
-    $inviter = churchcore_getPersonById($res->modified_pid);
-    $txt .= "Du wurdest im Dienstplan auf " . getConf('site_name');
-    if ($inviter) $txt .= ' von <i>' . $inviter->vorname . " " . $inviter->name . "</i>";
-    $txt .= " zu Diensten vorgeschlagen. <br/>Zum Zu- oder Absagen bitte hier klicken:";
-
-    $loginstr = churchcore_createOnTimeLoginKey($res->p_id);
-
-    $txt .= "<p><a href='$base_url?q=home&id=$res->p_id&loginstr=$loginstr' class='btn btn-primary'>%sitename</a>";
-
-    $txt .= "<p><p><b>Folgende Dienst-Termine sind von Dir noch nicht bearbeitet:</b><ul>";
-
-    $arr = db_query($sql2, array (":p_id" => $res->p_id, ":zugesagt" => 0));
-    //TODO: get all services of person at once and select in foreach if it goes to $txt or $txt2?
-    foreach ($arr as $res2) {
-      $txt .= "<li> $res2->datum $res2->event: $res2->service ($res2->servicegroup)";
-      db_update("cs_eventservice")
-        ->fields(array ("mailsenddate" => $dt->format('Y-m-d H:i:s')))
-        ->condition('id', $res2->id, "=")
-        ->execute();
-    }
-    $txt .= '</ul>';
-
-    $arr = db_query($sql2, array (":p_id" => $res->p_id, ":zugesagt" => 1));
-    $txt2 = "";
-    foreach ($arr as $res2) {
-      $txt2 .= "<li> $res2->datum $res2->event: $res2->service ($res2->servicegroup)";
-      if ($res2->mailsenddate == null) $txt2 .= " NEU!";
-      db_update("cs_eventservice")
-        ->fields(array ("mailsenddate" => $dt->format('Y-m-d H:i:s')))
-        ->condition('id', $res2->id, "=")
-        ->execute();
-    }
-    if ($txt2) {
-      $txt .= "<p><p><b>Bei folgenden Diensten hast Du schon zugesagt:</b><ul>" . $txt2 . "</ul>";
-    }
-
+//  while ($i++ < 15 && $data = db_query($sql)->fetch() ) {
+  while ($i++ < 15 && ($u = $usersToMail->fetch()) ) {
+    $data = array(
+      'inviter' => churchcore_getPersonById($u->modified_pid),
+      'url'     => "$base_url?q=home&id=$u->p_id&loginstr=" . churchcore_createOnTimeLoginKey($u->p_id),
+      'requestedServices' => array(),
+      'approvedServices' => array(),
+      'user'    => $u,
+      'nickname'=> $u->spitzname ? $u->spitzname : $u->vorname,
+    );
     // Person was not yet invited -> send invitation.
-    if ($res->invite == 1) {
+    if ($u->invite == 1) {
       include_once (CHURCHDB . '/churchdb_ajax.php');
-      churchdb_invitePersonToSystem($res->p_id);
-      $txt .= "<p><b>Da Du noch nicht kein Zugriff auf das System hast, bekommst Du noch eine separate E-Mail, mit der Du Dich dann anmelden kannst!.</b>";
+      churchdb_invitePersonToSystem($u->p_id);
+    }
+    $servicesOfPerson = db_query("
+       SELECT es.id AS id, es.zugesagt_yn AS approved, cal.bezeichnung AS event, DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') AS datum,
+         e.id AS event_id, s.bezeichnung AS service, sg.bezeichnung AS servicegroup, es.mailsenddate
+       FROM {cs_eventservice} es, {cs_event} e, {cc_cal} cal, {cs_service} s, {cs_servicegroup} sg
+       WHERE e.valid_yn=1 AND cal.id=e.cc_cal_id AND es.valid_yn=1 AND es.cdb_person_id=:p_id
+        AND s.sendremindermails_yn=1 AND es.event_id=e.id AND es.service_id=s.id AND sg.id=s.servicegroup_id
+        AND e.startdate>=current_date
+       ORDER BY e.startdate",
+       array (":p_id" => $u->p_id));
+    
+    foreach ($servicesOfPerson as $s) {
+      if ($s->approved == 1)  $data['approvedServices'][] = $s;
+      else $data['requestedServices'][] = $s;
+      db_update("cs_eventservice")
+        ->fields(array ("mailsenddate" => $dt->format('Y-m-d H:i:s')))
+        ->condition('id', $s->id, "=")
+        ->execute();
     }
 
-    churchservice_send_mail("[" . getConf('site_name') . "] " . t('there.are.pending.services'), $txt, $res->email);
-    $i = $i + 1;
-    $res = db_query($sql)->fetch();
+    $content = getTemplateContent('email/openServiceReminder', 'churchservice', $data);
+    churchservice_send_mail("[" . getConf('site_name') . "] " . t('there.are.pending.services'), $content, $u->email);
+    $usersToMail->next();
   }
 }
 
@@ -657,50 +647,50 @@ function churchservice_remindme() {
   global $base_url;
   include_once ("churchservice_db.php");
 
-  $sql = "SELECT p.vorname, p.name, p.email, cal.bezeichnung, s.bezeichnung AS dienst, sg.bezeichnung AS sg, e.id AS event_id,
+  $sql = "SELECT p.vorname, p.name, p.spitzname, p.email, cal.bezeichnung, s.bezeichnung AS dienst, sg.bezeichnung AS sg, e.id AS event_id,
            DATE_FORMAT(e.Startdate, '%d.%m.%Y %H:%i') AS datum, es.id AS eventservice_id
           FROM {cs_eventservice} es, {cs_service} s, {cs_event} e, {cc_cal} cal, {cs_servicegroup} sg, {cdb_person} p
-          WHERE cal.id=e.cc_cal_id AND e.id=es.event_id AND s.id=es.service_id
-            AND es.cdb_person_id=:person_id AND p.id=:person_id AND p.email!=''
-            AND e.valid_yn=1 AND es.valid_yn=1 AND es.zugesagt_yn=1
-            AND UNIX_TIMESTAMP(e.startdate)-UNIX_TIMESTAMP(now())<60*60*(:hours) AND UNIX_TIMESTAMP(e.startdate)-UNIX_TIMESTAMP(now())>0
-            AND s.sendremindermails_yn=1 AND s.servicegroup_id=sg.id
-          ORDER BY datum"; //is UNIX_TIMESTAMP outdated here?
-
+          WHERE cal.id = e.cc_cal_id AND e.id = es.event_id AND s.id = es.service_id
+            AND es.cdb_person_id = :person_id AND p.id = :person_id AND p.email != ''
+            AND e.valid_yn = 1 AND es.valid_yn = 1 AND es.zugesagt_yn = 1
+            AND UNIX_TIMESTAMP(e.startdate) - UNIX_TIMESTAMP(now()) < 60*60*(:hours)
+            AND UNIX_TIMESTAMP(e.startdate) - UNIX_TIMESTAMP(now()) > 0
+            AND s.sendremindermails_yn = 1 AND s.servicegroup_id = sg.id
+          ORDER BY datum"; //TODO: is UNIX_TIMESTAMP outdated here?
+  
 //  $usersToRemind = db_query("SELECT * FROM {cc_usersettings}
-  $usersToRemind = db_query("SELECT person_id FROM {cc_usersettings}
-                             WHERE modulename='churchservice' AND attrib='remindMe' AND value=1", array());
-
-  foreach ($usersToRemind as $p) {
+  $usersToMailTo = db_query("SELECT person_id FROM {cc_usersettings}
+                           WHERE modulename = 'churchservice' AND attrib = 'remindMe' AND value = 1", array());
+  
+  foreach ($usersToMailTo as $u) {
     //get eventservices to be reminded now
-    $res = db_query($sql,
-        array (":person_id" => $p->person_id,
-               ":hours" => getConf('churchservice_reminderhours'),
-        ));
-    foreach ($res as $es) {
-      //TODO: use mail template
-      if (churchcore_checkUserMail($p->person_id, "remindService", $es->eventservice_id, getConf('churchservice_reminderhours'))) {
-        $txt = "<h3>Hallo " . $es->vorname . "!</h3>";
-        $txt .= '<p>Dies ist eine Erinnerung an Deine n&auml;chsten Dienste:</p><br/>';
-        $txt .= '<table class="table table-condensed">';
-        //get eventservices to be reminded in the next 12 hours
-        $res2 = db_query($sql,
-                         array (":person_id" => $p->person_id,
-                                ":hours" => getConf('churchservice_reminderhours') + 12,
-                         ));
-        foreach ($res2 as $es2) {
-          if ($es2->eventservice_id == $es->eventservice_id || (churchcore_checkUserMail($p->person_id,
-                                                                                         "remindService",
-                                                                                         $es2->eventservice_id,
-                                                                                         getConf('churchservice_reminderhours')))) {
-            $txt .= '<tr><td>' . $es2->datum . ' ' . $es2->bezeichnung . '<td>Dienst: ' . $es2->dienst . " (" . $es2->sg . ")";
-            $txt .= '<td style="min-width:79px;"><a href="' . $base_url . '?q=churchservice&id=' . $es2->event_id .
-                 '" class="btn btn-primary">Event aufrufen</a>';
+    $currentServices = db_query($sql,
+                                array (":person_id" => $u->person_id,
+                                       ":hours" => getConf('churchservice_reminderhours'),
+                                )); // TODO: add LIMIT 1 to sql? add fetch and remove foreach?
+    
+    foreach ($currentServices as $s) { // only executed for first service
+      if (churchcore_checkUserMail($u->person_id, "remindService", $s->eventservice_id, getConf('churchservice_reminderhours'))) {
+        $data = array(
+            'nickname'    => $s->spitzname ? $s->spitzname : $s->vorname,
+            'serviceUrl'  => "$base_url?q=churchservice&id=",
+            'settingsUrl' => "$base_url?q=churchservice#SettingsView",
+            'services'    => array(),
+        );
+
+        //get all eventservices to be reminded to in the next 12 hours
+        $nextServices = db_query($sql,
+                                 array (":person_id" => $u->person_id,
+                                        ":hours" => getConf('churchservice_reminderhours') + 12,
+                                 ));
+        foreach ($nextServices as $s2) {
+          if ($s2->eventservice_id == $s->eventservice_id ||
+                (churchcore_checkUserMail($u->person_id, "remindService", $s2->eventservice_id, getConf('churchservice_reminderhours')))) {
+            $data['services'][] = $s2;
           }
         }
-
-        $txt .= '</table><br/><br/><a class="btn" href="' . $base_url . '?q=churchservice#SettingsView">Erinnerungen deaktivieren</a>';
-        churchservice_send_mail("[" . getConf('site_name') . "] Erinnerung an Deinen Dienst", $txt, $es->email);
+        $content = getTemplateContent('email/serviceReminder', 'churchservice', $data);
+        churchservice_send_mail("[" . getConf('site_name') . "] Erinnerung an Deinen Dienst", $content, $s->email);
         break;
       }
     }
@@ -708,12 +698,12 @@ function churchservice_remindme() {
 }
 
 /**
- * something about send mails in DB
- * TODO: explain, maybe rename churchcore_checkUserMail
+ * check if a new email should be send, write something into DB
+ * TODO: explain, rename churchcore_checkUserMail
  *
  * @param int $personId
- * @param unknown $mailtype
- * @param unknown $domainId
+ * @param string $mailtype, f.e. remindService
+ * @param int $domainId
  * @param int $interval
  * @return boolean
  */
@@ -764,7 +754,7 @@ function churchservice_inform_leader() {
 
   // get all group ids from services
   $res = db_query("SELECT cdb_gruppen_ids FROM {cs_service}
-                   WHERE cdb_gruppen_ids!='' AND cdb_gruppen_ids IS NOT NULL");
+                   WHERE cdb_gruppen_ids!='' AND cdb_gruppen_ids IS NOT NULL"); // TODO: use WHERE cdb_gruppen_ids > '' ?
 //                   WHERE cdb_gruppen_ids>''); // TODO: works too
 
   $arr = array ();
@@ -772,10 +762,10 @@ function churchservice_inform_leader() {
   if (!count($arr)) return false;
 
   // get persons being (co)leader of one of this service groups
-  $res = db_query("SELECT p.id person_id, gpg.gruppe_id, p.email, p.vorname, p.cmsuserid
+  $res = db_query("SELECT p.id AS person_id, gpg.gruppe_id, p.email, p.vorname, p.cmsuserid
                    FROM {cdb_person} p, {cdb_gemeindeperson_gruppe} gpg, {cdb_gemeindeperson} gp
-                   WHERE gpg.gemeindeperson_id=gp.id and p.id=gp.person_id and status_no>=1 and status_no<=2
-                     AND gpg.gruppe_id in (" . db_implode($arr) . ")");
+                   WHERE gpg.gemeindeperson_id = gp.id AND p.id = gp.person_id AND status_no >= 1 AND status_no <= 2
+                     AND gpg.gruppe_id IN (" . db_implode($arr) . ")");
   // Aggregiere nach Person_Id P1[G1,G2,G3],P2[G3]
   $persons = array ();
   foreach ($res as $p) {
@@ -788,7 +778,7 @@ function churchservice_inform_leader() {
         $data["informLeader"] = 1;
         churchcore_saveUserSetting("churchservice", $p->person_id, "informLeader", "1");
       }
-      if (!isset($persons[$p->person_id])) {
+      if (empty($persons[$p->person_id])) {
         $persons[$p->person_id] = array(
           "group" => array (),
           "service" => array (),
@@ -813,36 +803,37 @@ function churchservice_inform_leader() {
                    WHERE cdb_gruppen_ids is not null");
   foreach ($res as $d) {
     $group_ids = explode(",", $d->cdb_gruppen_ids);
-    foreach ($persons as $key => $person) {
-      if ($person != null) {
-        foreach ($person["group"] as $person_group) {
-          if (in_array($person_group, $group_ids)) $persons[$key]["service"][] = $d->service_id;
-        }
+    foreach ($persons as $key => $person) if ($person) {
+      foreach ($person["group"] as $person_group) {
+        if (in_array($person_group, $group_ids)) $persons[$key]["service"][] = $d->service_id;
       }
     }
   }
-
-  // Gehe nun die Personen durch und suche nach Events
   // get events for each person
+  // TODO: add DAYS_TO_INFORM_LEADER_ABOUT_OPEN_SERVICES to $conf?
   foreach ($persons as $person_id => $person) if ($person) {
     $res = db_query("SELECT es.id, c.bezeichnung AS event,
                        DATE_FORMAT(e.startdate, '%d.%m.%Y %H:%i') AS datum, es.name, s.bezeichnung AS service
                      FROM {cs_event} e, {cs_eventservice} es, {cs_service} s, {cc_cal} c
                      WHERE e.valid_yn=1 AND c.id=e.cc_cal_id AND es.service_id in (" . db_implode($person["service"]) . ")
-                       AND es.event_id=e.id AND es.service_id=s.id AND es.valid_yn=1 AND zugesagt_yn=0
-                       AND e.startdate>current_date AND DATEDIFF(e.startdate,CURRENT_DATE)<=60
+                       AND es.event_id = e.id AND es.service_id = s.id AND es.valid_yn = 1 AND zugesagt_yn = 0
+                       AND e.startdate > current_date AND DATEDIFF(e.startdate,CURRENT_DATE) <= ". DAYS_TO_INFORM_LEADER_ABOUT_OPEN_SERVICES. "
                      ORDER BY e.startdate");
-    $txt = '';
-    foreach ($res as $es) {
-      $txt .= "<li>" . $es->datum . " " . $es->event . " - Dienst " . $es->service . ": ";
-      $txt .= '<font style="color:red">' . ($es->name ? $es->name : "?") . '</font>';
-    }
-    if ($txt != '') {
-      $txt = "<h3>Hallo " . $person["person"]->vorname .
-           "!</h3><p>Es sind in den nächsten 60 Tagen noch folgende Dienste offen:<ul>" . $txt . "</ul>";
-      $txt .= '<p><a href="' . $base_url . '/?q=churchservice" class="btn">' . t("more.information") . '</a>&nbsp';
-      $txt .= '<p><a href="' . $base_url . '/?q=churchservice#SettingsView" class="btn">Benachrichtigung deaktivieren</a>';
-      churchservice_send_mail("[" . getConf('site_name') . "] Offene Dienste", $txt, $person["person"]->email);
+    $openServices = array();
+    foreach ($res as $s) $openServices[] = $s;
+    
+    if (count($openServices)) {
+      $data = array(
+          'moreInfoUrl'  => "$base_url?q=churchservice",
+          'settingsUrl'  => "$base_url?q=churchservice#SettingsView",
+          'openServices' => $openServices,
+          'surname'      => $person["person"]->vorname,
+          'nickname'     => $person["person"]->spitzname ? $person["person"]->spitzname : $person["person"]->vorname,
+          'name'         => $person["person"]->name,
+      );
+      
+      $content = getTemplateContent('email/openServicesLeaderInfo', 'churchservice', $data);
+      churchservice_send_mail("[" . getConf('site_name') . "] " . t('open.services'), $content, $person["person"]->email);
     }
   }
 }

@@ -1,0 +1,31 @@
+<h4>Hallo <?= $title ?>,</h4>
+
+  <p>In <?php if($userIsSupervisor):?>der <?php else:?>deiner <?php endif;?> Gruppe
+     <b><?= $groupName ?></b> gibt es eine Änderung. </p><br/>
+     <?= $surname ?> <?= $name ?> hat
+
+<?php  if($changeType == 'new'):?>
+     einen <i><?= $memberType ?></i> hinzugefügt:
+     
+<?php elseif($changeType == 'edit'):?>
+     den Teilnehmerstatus eines Mitglieds angepasst:
+     
+<?php elseif($changeType == 'delete'):?>
+     einen Teilnehmer aus der Gruppe <i>entfernt</i>:
+     
+<?php else:?>
+    irgendetwas geändert (was ist nicht bekannt, sollte nicht vorkommen).
+<?php endif;?>
+
+  <p>Name: <b><?= $member->vorname ?> <?php if($member->spitzname):?>(<?= $member->spitzname ?>)<?php endif;?> <?= $member->name ?></b><br/>
+  <?php if ($changeType == 'delete'): ?>bisheriger<?php endif;?>
+     Teilnehmerstatus: <b><?= $memberType ?></b><br/>
+     Datum: <?= $member->letzteaenderung ?>
+
+
+<?php if ($additionalText): ?>
+  <p><?= $additionalText ?>
+<?php endif; ?>
+
+  <p>
+  <p><a class="btn btn-royal" href="<?= $gotoMemberUrl ?>">Person ansehen &raquo;</a>

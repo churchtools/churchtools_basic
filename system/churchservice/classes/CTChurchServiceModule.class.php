@@ -121,7 +121,7 @@ class CTChurchServiceModule extends CTAbstractModule {
       $content .= '<p><a class="btn btn-royal" href="'
           . $base_url . '?q=churchservice&id=' . $params["domain_id"] . '">Event aufrufen</a>';
     }
-    return churchcore_sendEMailToPersonIds($params["ids"], $params["betreff"], $content, null, true, $usetemplate);
+    return churchcore_sendEMailToPersonIDs($params["ids"], $params["betreff"], $content, null, true, $usetemplate);
   }
 
   public function saveTemplate($params) {

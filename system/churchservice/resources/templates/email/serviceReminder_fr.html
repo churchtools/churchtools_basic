@@ -1,0 +1,15 @@
+<h4>Hello <?= $nickname ?>,</h4>
+
+  <p>Here is the reminder of your next services:
+  <p>
+
+  <table class="table table-condensed">
+<?php foreach ($services as $s): ?>
+    <tr><td><?= $s->datum ?> <?= $s->bezeichnung ?>
+        <td>Service: <?= $s->dienst?> (<?= $s->sg ?>)
+        <td style="min-width:79px;"><a href="$serviceUrl<?= $s->event_id ?>" class="btn btn-primary">Goto Event &raquo;</a>
+<?php endforeach; ?>
+  </table>
+  <br/>
+  <br/>
+  <a class="btn" href="$settingsUrl">Deaktivate Rememberings &raquo;</a>

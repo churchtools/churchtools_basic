@@ -151,6 +151,9 @@ function home_getMemberList() {
                    FROM {cdb_person} p, {cdb_gemeindeperson} gp
                    WHERE gp.person_id=p.id and gp.station_id IN ('.$station_id.') AND gp.status_id in ('.$status_id.') AND archiv_yn=0
                    ORDER BY name, vorname');
+  //                 WHERE gp.person_id=p.id and gp.station_id IN ('.$station_id.') AND gp.status_id in ('.$status_id.') AND archiv_yn=0
+  //                 ORDER BY name, vorname'); // TODO: why not with :params?
+  
   $return = array ();
   foreach ($res as $p) $return[] = $p;
   
@@ -300,7 +303,7 @@ function home__memberlist_printview() {
  * @return
  */
 function home__memberlist_saveSettings($form) {
-  if (getVar("btn_1")!==false) {
+  if (getVar("btn_1") !== false) {
     header("Location: ?q=home/memberlist");
     return null;
   }

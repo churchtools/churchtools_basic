@@ -57,6 +57,7 @@ function churchresource_send_mail($subject, $message, $to) {
 }
 
 /**
+ * TODO: DB column ort should be renamed to subtitle, note or similar
  *
  * @param array $params
  * @return unknown
@@ -72,94 +73,84 @@ function churchresource_createBooking($params) {
   $i->setParam("location");
   $i->setParam("note");
   $i->setParam("cc_cal_id", false);
-
-  $id = db_insert("cr_booking")
+  
+  $bookingId = db_insert("cr_booking")
     ->fields($i->getDBInsertArrayFromParams($params))
     ->execute(false);
-
-  $res = db_query("SELECT * FROM {cr_booking}
-                   WHERE id=$id")
+  
+  $booking = db_query("SELECT * FROM {cr_booking}
+                   WHERE id = $bookingId")
                    ->fetch();
-  $res->ok = true;
-
-  $exceptions_txt = "";
+  $booking->ok = true;
+  
+  $exceptions = "";
   if (isset($params["exceptions"])) foreach ($params["exceptions"] as $exception) {
-    addException($res->id, $exception["except_date_start"], $exception["except_date_end"], $user->id);
-    $exceptions_txt .= churchcore_stringToDateDe($exception["except_date_start"], false) + " &nbsp;";
+    addException($booking->id, $exception["except_date_start"], $exception["except_date_end"], $user->id);
+    $exceptions .= churchcore_stringToDateDe($exception["except_date_start"], false) + " &nbsp;";
   }
-  $additions_txt = "";
+  $additions = "";
   if (isset($params["additions"])) {
     $days = array(); // not used here?
     foreach ($params["additions"] as $addition) {
-      addAddition($res->id, $addition["add_date"], $addition["with_repeat_yn"], $user->id);
-      $additions_txt .= churchcore_stringToDateDe($addition["add_date"], false) + " "
-        . ($addition["with_repeat_yn"] == 1) ? $additions_txt .= "{R} &nbsp;" : '&nbsp;';
+      addAddition($booking->id, $addition["add_date"], $addition["with_repeat_yn"], $user->id);
+      $additions .= churchcore_stringToDateDe($addition["add_date"], false) + " "
+        . ($addition["with_repeat_yn"] == 1) ? $additions .= "{R} &nbsp;" : '&nbsp;';
     }
   }
-
-  $info = churchcore_getTableData("cr_resource");
-  $txt = t('here.are.all.ressources.listed') . ":<p><small>";
-  $txt .= '<table class="table table-condensed">';
-  $txt .= "<tr><td>" . t('purpose') . "<td>$res->text";
-  $txt .= "<tr><td>" . t('resource') . "<td>" . $info[$params["resource_id"]]->bezeichnung;
-  $txt .= "<tr><td>" . t('start') . "<td>" . churchcore_stringToDateDe($res->startdate);
-  $txt .= "<tr><td>" . t('end') . "<td>" . churchcore_stringToDateDe($res->enddate);
-
-  $status = churchcore_getTableData("cr_status");
-  $txt .= "<tr><td>" . t('status') . "<td>" . $status[$res->status_id]->bezeichnung;
-
-  if ($res->location) $txt .= "<tr><td>" . t('location') . "<td>$res->location";
-  if ($res->repeat_id != "0") {
-    $repeats = churchcore_getTableData("cc_repeat");
-    $txt .= "<tr><td>" . t('repeat.type') . "<td>" . $repeats[$res->repeat_id]->bezeichnung;
-    if ($res->repeat_id != 999) $txt .= "<tr><td>" . t('repeat.to') . "<td>" . churchcore_stringToDateDe($res->repeat_until, false);
-    if ($exceptions_txt) $txt .= "<tr><td>" . t('exceptions') . "<td>$exceptions_txt";
-  }
-  if ($additions_txt) $txt .= "<tr><td>" . t('additions') . "<td>$additions_txt";
-  if ($res->note) $txt .= "<tr><td>" . t('note') . "<td>$res->note";
-  if (getVar("conflicts", false, $params)) $txt .= "<tr><td>" . t('conflicts') . "<td>" . $params["conflicts"];
-
-  $txt .= "</table>" . NL;
-
-  $txt .= '</small><p><a class="btn" href="' . $base_url . "?q=churchresource&id=" . $res->id .
-       '">Zur Buchungsanfrage &raquo;</a>';
-
-  // TODO: use template
-  if ($params["status_id"] == 1) {
-    $txt_user = "<h3>Hallo " . $user->vorname . "!</h3><p>Deine Buchungsanfrage '" . $params["text"] .
-         "' ist bei uns eingegangen und wird bearbeitet. Sobald es einen neuen Status gibt, wirst Du informiert.<p>" .
-         $txt;
-    $txt_admin = "<h3>Hallo Admin!</h3><p>Eine neue Buchungsanfrage von <i>$user->vorname $user->name</i> wartet auf Genehmigung.<p>" .
-         $txt;
-  }
-  else {
-    $txt_user = "<h3>Hallo " . $user->vorname . "!</h3><p>Deine Buchung  '" . $params["text"] . "' war erfolgreich.<p>" .
-         $txt;
-    $txt_admin = "<h3>Hallo Admin!</h3><p>Eine neue Buchung von <i>$user->vorname $user->name</i> wurde erstellt und automatisch genehmigt.<p>" .
-         $txt;
-  }
-  $userIsAdmin = false;
-  if (getConf("churchresource_send_emails", true)) {
-    if ($info[$params["resource_id"]]->admin_person_ids != -1) {
-      foreach (explode(',', $info[$params["resource_id"]]->admin_person_ids) as $adminId) {
-        // dont send mails for own actions to admin
-        if ($user->id != $adminId) {
-          $p = churchcore_getPersonById($adminId);
-          if ($p && $p->email) {
-            churchresource_send_mail("[". getConf('site_name')."] ". t('new.booking.request'). ": ". $params["text"], $txt_admin, $p->email);
-          }
+  
+  $resources = churchcore_getTableData("cr_resource"); //TODO: only get needed resource_id
+  $status = churchcore_getTableData("cr_status"); //TODO: only get needed status_id
+  $data = array(
+    'booking'     => $booking,
+    'resource'    => $resources[$params["resource_id"]]->bezeichnung,
+    'conflicts'   => getVar("conflicts", false, $params),
+    'startdate'   => churchcore_stringToDateDe($booking->startdate),
+    'enddate'     => churchcore_stringToDateDe($booking->enddate),
+    'status'      => $status[$booking->status_id]->bezeichnung,
+    'repeatType'  => false,
+    'exceptions'  => $exceptions,
+    'additions'   => $additions,
+    'conflicts'   => getVar("conflicts", false, $params),
+    'bookingUrl'  => $base_url . "?q=churchresource&id=" . $booking->id,
+    'pending'     => getVar("status_id", false, $params) == CR_PENDING,
+    'succesful'   => getVar("status_id", false, $params) == CR_APPROVED, //TODO: was != CR_PENDING, but CR_APPROVED seems more logical
+    'canceled'    => false,
+    'userIsResourceAdmin' => false,
+    'person'      => false,
+  );
+  if ($resources[$params["resource_id"]]->admin_person_ids > 0) {
+    foreach (explode(',', $resources[$params["resource_id"]]->admin_person_ids) as $id) {
+      // dont send mails for own actions to resource admins
+      if ($user->id != $id) {
+        $p = churchcore_getPersonById($id);
+        if ($p && $p->email) {
+          $data['surname']  = $p->vorname;
+          $data['nickname'] = $p->spitzname ? $p->spitzname : $p->vorname;
+          $data['name']     = $p->name;
+          
+          $content = getTemplateContent('email/bookingRequest', 'churchresource', $data);
+          churchresource_send_mail("[". getConf('site_name')."] ". t('new.booking.request'). ": ". $params["text"], $content, $p->email);
         }
         else $userIsAdmin = true;
       }
-    }
-    if (!$userIsAdmin) {
-      churchresource_send_mail("[". getConf('site_name'). "] ". t('new.booking.request').": " . $params["text"], $txt_user, $user->email);
+      else $data['userIsResourceAdmin'] = true;
     }
   }
-  $txt = churchcore_getFieldChanges(getBookingFields(), null, $res);
-  cr_log("CREATE BOOKING\n" . $txt, 3, $res->id);
-
-  return array ("id" => $id );
+  // TODO: dont send mails for own actions to main admin users?
+  if (!$data['userIsResourceAdmin']) {
+    $content = getTemplateContent('email/bookingRequest', 'churchresource', $data);
+    churchresource_send_mail("[". getConf('site_name'). "] ". t('new.booking.request').": " . $params["text"], $content, $user->email);
+  }
+  // TODO: maybe use $loginfo?
+  $logInfo = t('bookingX.for.resource.on.date',
+                $params["text"],
+                $resources[$params["resource_id"]]->bezeichnung,
+                $params["startdate"], $params["location"]
+  );
+  $txt = churchcore_getFieldChanges(getBookingFields(), null, $booking);
+  cr_log("CREATE BOOKING\n" . $txt, 3, $booking->id);
+  
+  return $booking;
 }
 
 /**
@@ -187,6 +178,8 @@ function getBookingFields() {
 
 /**
  * TODO: too much code in churchresource_updateBooking, split it up
+ * FIXME: the changes for using email template are breaking logging in case no email is send
+ * otherwise logging of complete mails dont seems useful => only log important things in a short text?
  *
  * @param array $params
  * @return multitype:multitype:unknown
@@ -207,6 +200,7 @@ function churchresource_updateBooking($params) {
   $i->setParam("note", false);
 
   if (empty($params["text"])) {
+
     $res = db_query('SELECT text FROM {cr_booking}
                      WHERE id=:id',
                      array (":id" => $params["id"]))
@@ -282,15 +276,23 @@ function churchresource_updateBooking($params) {
           $days[] = $exc["except_date_start"];
         }
       }
-      if (getConf("churchresource_send_emails", true)) {
-        if (count($days) && $bUser) {
-          // TODO: use email template
-          // TODO: dont send such emails to users adding exceptions to their event in cal
-          $txt = "<h3>Hallo " . $bUser->vorname . "!</h3><p>Bei Deiner Serien-Buchungsanfrage '" . $params["text"] .
-               "' fuer " . $ressources[$params["resource_id"]]->bezeichnung . " mussten leider von " . $user->vorname . " " .
-               $user->name . " folgende Tage abgelehnt werden: <b>" . implode(", ", $days) . "</b><p>";
-          churchresource_send_mail("[" . getConf('site_name') . "] " . t('updated.booking.request') . ": " . $params["text"], $txt, $bUser->email);
-        }
+
+      if (getConf("churchresource_send_emails", true) && count($days) && $bUser) {
+        // FIXME: dont send such emails to users adding exceptions to their repeating event in cal
+        $data = array(
+          'canceled' => true,
+          'surname'  => $bUser->vorname,
+          'name'     => $bUser->name,
+          'nickname' => $bUser->spitzname ? $bUser->spitzname : $bUser->vorname,
+          'user'     => $user,
+          'resource' => $resources[$params["resource_id"]]->bezeichnung,
+          'booking'  => $booking,
+          'days'     => implode(", ", $days),
+          'person'   => $bUser,
+          'contact'  => getConf('site_mail'), // TODO: add church contact data to config an use getConf('churchContact'),
+        );
+        $content = getTemplateContent('email/bookingRequest', 'churchresource', $data);
+        churchresource_send_mail("[" . getConf('site_name') . "] " . t('updated.booking.request') . ": " . $params["text"], $content, $bUser->email);
       }
     }
 
@@ -330,6 +332,7 @@ function churchresource_updateBooking($params) {
       }
     }
   }
+// <<<<<<< HEAD
 
   $txt = "";
   $location = ($params["location"]) ? t('booking.in', $params["location"]) : '';
@@ -340,17 +343,48 @@ function churchresource_updateBooking($params) {
 
   if ($params["status_id"] == 1) {
     $txt = " wurde aktualisiert und wartet auf Genehmigung.<p>";
+/*=======
+  // FIXME: check logic for correct function; i am not sure what should happen exactly in which cases
+  // TODO: maybe use $params as data and add further values
+  $data = array(
+      'enddate'    => churchcore_stringToDateDe($params["enddate"]),
+      'startdate'  => churchcore_stringToDateDe($params["startdate"]),
+      'resource'   => $resources[$params["resource_id"]]->bezeichnung,
+      'changes'    => str_replace("\n", "<br>", $changedFields),
+      'booking'    => $booking,
+      'bookingUrl' => $base_url . "?q=churchresource&id=" . $params["id"],
+      'text'       => $params['text'],
+      'note'       => $params['location'],
+      'pending'    => $params["status_id"] == CR_PENDING,
+      'approved'   => $params["status_id"] == CR_APPROVED && ($oldBooking->status_id != CR_APPROVED || $changedFields != null),
+      'canceled'   => $params["status_id"] == CR_CANCELED,
+      'deleted'    => $params["status_id"] == CR_DELETED,
+      'contact'    => getConf('site_mail'), // TODO: add church contact data to config and use getConf('churchContact'),
+  );
+  $logInfo = ' :: ' . t('bookingX.for.resource.on.date',
+                        $params["text"],
+                        $resources[$params["resource_id"]]->bezeichnung,
+                        $params["startdate"], $params["location"]
+  );
+  $subject = t('booking.request.updated');
+  if ($data['pending'])  {
+    $logInfo = t('booking.updated') . $logInfo;
+    $subject = t('booking.request.updated');
+>>>>>>> renarena-master*/
   }
-  else if (($params["status_id"] == 2) && ($oldArr->status_id != 2 || $changes != null)) {
-    $txt = " wurde von $user->vorname $user->name genehmigt!<p>";
+  elseif ($data['approved']) {
+    $logInfo = t('booking.approved') . $logInfo;
+    $subject = t('booking.request.updated');
   }
-  else if ($params["status_id"] == 3) {
-    $txt = " wurde leider abgelehnt, bitte suche Dir einen anderen Termin.<p>";
+  elseif ($data['canceled']) {
+    $logInfo = t('booking.canceled') . $logInfo;
+    $subject = t('booking.request.updated');
   }
-  else if ($params["status_id"] == 99) {
-    $txt = " wurde geloescht, bei Fragen dazu melde Dich bitte bei: " .
-         getConf('site_mail', 'Gemeinde-Buero unter info@elim-hamburg.de oder 040-2271970') . "<p>";
+  elseif ($data['deleted'])  {
+    $logInfo = t('booking.deleted') . $logInfo;
+    $subject = t('booking.request.updated');
   }
+//<<<<<<< HEAD
   if ($txt && $bUser) {
     // TODO: use email template
     $txt = "<h3>Hallo " . $bUser->vorname . "!</h3><p>Deine Buchungsanfrage " . $info . $txt;
@@ -373,7 +407,26 @@ function churchresource_updateBooking($params) {
   $res = array ("exceptions" => $res_exceptions, "additions" => $res_additions);
 
   return $res;
+/*=======
+  
+
+  if ($bUser && ($params["status_id"] != $oldBooking->status_id || $changedFields != null)) {
+//  if ($bUser && ($params["status_id"]  != $oldBooking->status_id || $changes) && $bUser->id != $user->id) {
+    $adminmails = explode(",", $resources[$params["resource_id"]]->admin_person_ids);
+    // if current user is not resource admin OR is not the booking creating user
+    if (!in_array($user->id, $adminmails) || $user->id != $bUser->id) {
+      $content = getTemplateContent('email/bookingUpdate', 'churchresource', $data);
+      churchresource_send_mail("[". getConf('site_name'). "] $subject: ". $params["text"], $content, $bUser->email);
+    }
+  }
+  // TODO: are $changes needed in log?
+  if ($changedFields) cr_log("UPDATE BOOKING\n" . $logInfo, 3, $booking->id);
+  
+  return array ("exceptions" => $res_exceptions, "additions" => $res_additions);
+>>>>>>> renarena-master*/
 }
+
+
 
 /**
  * shift date for $minutes minutes
@@ -402,7 +455,7 @@ function churchresource_deleteResourcesFromChurchCal($params, $source=null) {
     cr_log("UPDATE BOOKING\n" . "Set status=99 from source " . $source, 3, $b->id);
 
     db_update("cr_booking")
-      ->fields(array ("status_id" => 99, "repeat_id" => 0))
+      ->fields(array ("status_id" => CR_DELETED, "repeat_id" => 0))
       ->condition("id", $b->id, "=")
       ->execute();
   }
@@ -416,17 +469,16 @@ function churchresource_deleteResourcesFromChurchCal($params, $source=null) {
  */
 function churchresource_operateResourcesFromChurchCal($params) {
   global $user;
-  $newbookingstatus = 1;
-
+  $newBookingStatus = 1;
   $resources = churchcore_getTableData("cr_resource");
-  $db = db_query('SELECT * FROM {cr_booking}
+  $bookings = db_query('SELECT * FROM {cr_booking}
                   WHERE cc_cal_id=:cal_id',
                   array (":cal_id" => $params["id"]));
 
   $params["location"] = "";
   $params["note"] = "";
 
-  foreach ($db as $booking) {
+  foreach ($bookings as $booking) {
     if (isset($params["bookings"]) && isset($params["bookings"][$booking->id])) {
       $save = array_merge (array(), $params); // repeat id etc.
       foreach ($params["bookings"][$booking->id] as $key=>$val) {
@@ -436,6 +488,7 @@ function churchresource_operateResourcesFromChurchCal($params) {
 
       if (!isset($params["bookings"][$booking->id]["status_id"])) $save["status_id"] = $newbookingstatus;
       else $save["status_id"] = $params["bookings"][$booking->id]["status_id"];
+  
       $save["id"] = $booking->id;
       $save["person_id"] = $user->id;
       if (!isset($save["resource_id"])) $save["resource_id"] = $booking->resource_id;
@@ -445,14 +498,14 @@ function churchresource_operateResourcesFromChurchCal($params) {
       $save["enddate"]   = _shiftDate($save["enddate"], $params["bookings"][$booking->id]["minpost"]);
 
       // if not to delete
-      if ($save["status_id"] != 99) {
+      if ($save["status_id"] != CR_DELETED) {
         // on date change set status to need confirmation!
         if ((strtotime($save["startdate"]) != strtotime($booking->startdate)) ||
              (strtotime($save["enddate"]) != strtotime($booking->enddate))) {
           // But only if I am not an admin and resource is not autoaccept!
           if (!user_access("administer bookings", "churchresource")
               && $resources[$booking->id]->autoaccept_yn == 0) {
-            $save["status_id"] = 1;
+            $save["status_id"] = CR_PENDING;
           }
         }
       }
@@ -474,7 +527,7 @@ function churchresource_operateResourcesFromChurchCal($params) {
       foreach ($booking as $key=>$val) $save[$key] = $val;
 
       $save["cc_cal_id"]  = $params["id"];
-      $save["status_id"]  = isset($booking["status_id"]) ? $booking["status_id"] : $newbookingstatus;
+      $save["status_id"]  = isset($booking["status_id"]) ? $booking["status_id"] : $newBookingStatus;
       $save["person_id"]  = $user->id;
       $save["text"]       = $params["bezeichnung"];
       $save["startdate"]  = _shiftDate($save["startdate"], -$params["bookings"][$booking["id"]]["minpre"]);
@@ -496,7 +549,7 @@ function getOpenBookings() {
     SELECT b.id, b.person_id, concat(p.vorname,' ',p.name) AS person_name, DATE_FORMAT(startdate, '%d.%m.%Y %H:%i') AS startdate,
       enddate, b.text, r.bezeichnung resource
 	FROM {cr_booking} b, {cr_resource} r, {cdb_person} p
-    WHERE b.person_id=p.id AND status_id=1 AND b.resource_id=r.id AND DATEDIFF(startdate, NOW())>=0 ORDER BY startdate");
+    WHERE b.person_id=p.id AND status_id=" . CR_PENDING . " AND b.resource_id=r.id AND DATEDIFF(startdate, NOW())>=0 ORDER BY startdate");
   $arrs=array();
   foreach ($res as $arr) $arrs[$arr->id]=$arr;
 
@@ -605,7 +658,6 @@ function getBookings($from = null, $to = null, $status_id_in = "") {
                       ORDER by except_date_start");
 
     foreach ($res2 as $e) $b->exceptions[$e->id] = $e;
-
     $res2 = db_query("SELECT * FROM {cr_addition}
                       WHERE booking_id= $b->id
                       ORDER by add_date");
@@ -653,7 +705,6 @@ function churchresource_delBooking($params) {
   $res = db_query("DELETE FROM {cr_exception} where booking_id=" . $id);
   $res = db_query("DELETE FROM {cr_addition} where booking_id=" . $id);
   $res = db_query("DELETE FROM {cr_booking} where id=" . $id);
-
   return "ok";
 }
 
@@ -666,7 +717,6 @@ function churchresource_delBooking($params) {
 function cr_log($txt, $level = 3, $booking_id = -1) {
 	global $user;
 	$txt = str_replace("'", "\'", $txt);
-
 	db_query("INSERT INTO {cr_log} (person_id, level, datum, booking_id, txt)
 	          VALUES ('$user->id', $level, current_timestamp(), $booking_id, '$txt')");
 }

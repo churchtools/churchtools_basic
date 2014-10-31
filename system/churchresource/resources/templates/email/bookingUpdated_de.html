@@ -1,0 +1,32 @@
+<h4>Hallo <?= $nickname ?></h4>
+
+    <p>Deine Buchungsanfrage <b><?= $text ?> für <?= $startdate ?></b>, <?= $resource ?> <?php if ($note): ?>(<?= $note ?>)<?php endif; ?>
+    
+    
+  
+<?php if ($canceled): ?>
+     musste leider von <?= $user->vorname ?> <?= $user->name ?> <b>abgelehnt</b> werden. Bitte suche Dir einen anderen Termin.
+
+<?php elseif ($deleted): ?>
+    wurde von <?= $user->vorname ?> <?= $user->name ?> <b>gelöscht</b>, bei Fragen dazu melde Dich bitte bei:
+    <?= $contact ?>
+     
+     
+<?php else: ?>
+
+  <?php if ($pending): ?>
+    wurde <b>aktualisiert</b> und wartet auf Genehmigung.
+  <?php endif; ?>
+    
+  <?php if ($approved): ?>
+    wurde von <?= $user->vorname ?> <?= $user->name ?>  <b>genehmigt</b>.
+  <?php endif; ?>
+  
+  <?php if ($changes): ?>
+    <p><b>Folgende Anpassung an der Buchung wurden vorgenommen:</b>
+    <p><?= $changes ?>
+  <?php endif; ?>
+
+    <p><a class="btn" href="<?= $bookingUrl ?>">Zur Buchungsanfrage &raquo;</a>
+<?php endif; ?>
+

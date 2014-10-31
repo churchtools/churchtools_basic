@@ -37,6 +37,7 @@ function login_main() {
       else {
         $newpwd = random_string(8);
         // TODO: not needed to send passwords by email, use one time login key instead
+        // TODO: use email template
         $scrambled_password = scramble_password($newpwd);
         db_query("UPDATE {cdb_person}
                   SET password='" . $scrambled_password . "'

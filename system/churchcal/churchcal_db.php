@@ -1,6 +1,6 @@
 <?php
 
-include_once(CHURCHCORE."/churchcore_db.php");
+include_once (CHURCHCORE . "/churchcore_db.php");
 
 /**
  * TODO: i would rename category to calendar for it beeing different calendars in churchcal, not categories
@@ -8,7 +8,7 @@ include_once(CHURCHCORE."/churchcore_db.php");
 
 /**
  * meeting request
- * TODO: use lang dependent template for email
+ *
  * @param unknown $cal_id
  * @param unknown $params
  */
@@ -21,55 +21,52 @@ function churchcal_handleMeetingRequest($cal_id, $params) {
   $i->setParam("mailsend_date");
   $i->setParam("event_date");
   $dt = new DateTime();
-  foreach ($params["meetingRequest"] as $id=>$param) {
-    $param["mailsend_date"]=$dt->format('Y-m-d H:i:s');
-    $param["person_id"]=$id;
-    $param["event_date"]=$params["startdate"];
-    $param["cal_id"]=$cal_id;
-
-    $db=db_query('SELECT mr.*, c.modified_pid
+  foreach ($params["meetingRequest"] as $id => $param) {
+    $param["mailsend_date"] = $dt->format('Y-m-d H:i:s');
+    $param["person_id"]     = $id;
+    $param["event_date"]    = $params["startdate"];
+    $param["cal_id"]        = $cal_id;
+    
+    $db = db_query('SELECT mr.*, c.modified_pid
                   FROM {cc_meetingrequest} mr, {cc_cal} c
                   WHERE c.id=mr.cal_id and mr.person_id=:person_id and mr.cal_id=:cal_id',
-                  array(":person_id"=>$param["person_id"], ":cal_id"=>$param["cal_id"]))
+                  array(":person_id" => $param["person_id"], ":cal_id" => $param["cal_id"]))
                   ->fetch();
 
     if (!$db) {
       db_insert("cc_meetingrequest")
         ->fields($i->getDBInsertArrayFromParams($param))
         ->execute(false);
-
-      $txt = "<h3>" . t('hello') . "[Spitzname]!</h3><p>";
-
-      $txt .= "<P>Du wurdest auf ".getConf('site_name');
-      $txt .= ' von <i>'.$user->vorname." ".$user->name."</i>";
-      $txt .= " f&uuml;r einen Termin angefragt. ";
-
       // if person was not yet invited to churchtools send invitation
-      $db=db_query("SELECT IF (password IS NULL AND loginstr IS NULL AND lastlogin IS NULL,1,0) as invite
-                    FROM {cdb_person}
-                    WHERE id=:id",
-                    array(":id"=>$id))
-                    ->fetch();
-      if ($db) {
-        if ($db->invite == 1) {
-          include_once(CHURCHDB.'/churchdb_ajax.php');
+      $p = db_query("SELECT name, vorname, IF(spitzname, spitzname, vorname) AS spitzname, IF (password IS NULL AND loginstr IS NULL AND lastlogin IS NULL,1,0) as invite
+                      FROM {cdb_person}
+                      WHERE id=:id",
+                      array(":id" => $id))
+                      ->fetch();
+      if ($p) {
+        $data = array(
+            'p'        => $p,
+            'loginUrl' => $base_url . "?q=home&id=$id&loginstr" . churchcore_createOnTimeLoginKey($id),
+        );
+        if ($data['invite'] = $p->invite) {
+          include_once (CHURCHDB . '/churchdb_ajax.php');
           churchdb_invitePersonToSystem($id);
-          $txt.="Da Du noch nicht keinen Zugriff auf das System hast, bekommst Du noch eine separate E-Mail, mit der Du Dich dann anmelden kannst!";
         }
-
-        $txt.="<p>Zum Zu- oder Absagen bitte hier klicken:";
-        $loginstr=churchcore_createOnTimeLoginKey($id);
-        $txt.='<p><a href="'.$base_url.'?q=home&id='.$id.'&loginstr='.$loginstr.'" class="btn btn-primary">%sitename aufrufen</a>';
-        churchcore_sendEMailToPersonids($id, "[".getConf('site_name')."] " . t('new.meeting.request'), $txt, null, true);
+        // get populated template and send email
+        $content = getTemplateContent('email/meetingRequest', 'churchcal', $data);
+        churchcore_sendEMailToPersonIDs($id, "[" . getConf('site_name') . "] " . t('new.meeting.request'), $content, null, true);
       }
     }
     else {
-/*      db_update("cc_meetingrequest")
-        ->fields($i->getDBInsertArrayFromParams($param))
-        ->condition("person_id", $param["person_id"], "=")
-        ->condition("cal_id", $param["cal_id"], "=")
-        ->execute(false);
-      churchcore_sendEMailToPersonids($id, "[".getConf('site_name')."] Anpassung in einer Termin-Anfrage", "anpassung", null, true);*/
+      /*
+       * db_update("cc_meetingrequest")
+       *  ->fields($i->getDBInsertArrayFromParams($param))
+       *  ->condition("person_id",
+       * $param["person_id"], "=")
+       *  ->condition("cal_id", $param["cal_id"], "=")
+       *  ->execute(false);
+       * churchcore_sendEMailToPersonIDs($id, "[".getConf('site_name')."] Anpassung in einer Termin-Anfrage", "anpassung", null, true);
+       */
     }
   }
 }
@@ -80,6 +77,7 @@ function churchcal_handleMeetingRequest($cal_id, $params) {
  */
 function churchcal_updateMeetingRequest($params) {
   global $user;
+  
   $i = new CTInterface();
   $i->setParam("cal_id");
   $i->setParam("person_id");
@@ -87,9 +85,8 @@ function churchcal_updateMeetingRequest($params) {
   $i->setParam("event_date");
   $i->setParam("zugesagt_yn", false);
   $i->setParam("response_date");
-
-  $dt = new DateTime();
-
+  $dt = new DateTime(); //TODO: not used
+  
   if (!$params["zugesagt_yn"]) unset($params["zugesagt_yn"]);
 
   db_update("cc_meetingrequest")
@@ -104,18 +101,17 @@ function churchcal_updateMeetingRequest($params) {
  */
 function churchcal_getMyMeetingRequest() {
   global $user; // why 2x event_date?
-  $db=db_query("SELECT mr.*, mr.event_date, c.startdate, c.enddate, c.bezeichnung,
-                  CONCAT(p.vorname,' ',p.name) AS modified_name, p.id modified_pid
-                FROM {cc_meetingrequest} mr, {cc_cal} c, {cdb_person} p
-                WHERE mr.person_id=:person_id AND c.modified_pid=p.id
-                  AND DATEDIFF(mr.event_date, NOW())>0 AND mr.cal_id=c.id",
-                array(":person_id"=>$user->id));
-  $res=array();
-  foreach ($db as $d) $res[$d->id]=$d; //TESTEN!!
-
+  $db = db_query("SELECT mr.*, mr.event_date, c.startdate, c.enddate, c.bezeichnung,
+                    CONCAT(p.vorname,' ',p.name) AS modified_name, p.id modified_pid
+                  FROM {cc_meetingrequest} mr, {cc_cal} c, {cdb_person} p
+                  WHERE mr.person_id=:person_id AND c.modified_pid=p.id
+                    AND DATEDIFF(mr.event_date, NOW())>0 AND mr.cal_id=c.id",
+                  array(":person_id" => $user->id));
+  $res = array();
+  foreach ($db as $d) $res[$d->id] = $d; // TESTEN!!
+  
   return $res;
 }
-
 
 /**
  * Creates calender event and call other Modules
@@ -151,19 +147,19 @@ function churchcal_createEvent($params, $callCS=true) {
 
   // Add exceptions
   if (isset($params["exceptions"])) foreach ($params["exceptions"] as $exception) {
-    $res = churchcal_addException(array (
-        "cal_id" => $params["id"],
-        "except_date_start" => $exception["except_date_start"],
-        "except_date_end" => $exception["except_date_end"],
+    $res = churchcal_addException(array(
+            "cal_id" => $newId,
+            "except_date_start" => $exception["except_date_start"],
+            "except_date_end" => $exception["except_date_end"],
     ));
   }
 
   // Add additions
   if (isset($params["additions"])) foreach ($params["additions"] as $addition) {
     $res = churchcal_addAddition(array (
-        "cal_id" => $params["id"],
-        "add_date" => $addition["add_date"],
-        "with_repeat_yn" => $addition["with_repeat_yn"],
+            "cal_id" => $params["id"],
+            "add_date" => $addition["add_date"],
+            "with_repeat_yn" => $addition["with_repeat_yn"],
     ));
   }
 
@@ -199,7 +195,6 @@ function churchcal_createEvent($params, $callCS=true) {
 }
 
 /**
- *
  * @param int $categoryId
  * @return boolean
  */
@@ -209,11 +204,13 @@ function churchcal_isAllowedToEditCategory($categoryId) {
   $arr = churchcal_getAuthForAjax();
   if (!isset($arr["edit category"])) return false;
   if (isset($arr["edit category"][$categoryId])) return true;
+  
   return false;
 }
 
 /**
  * Store all Exception and Addition changes for communication to other modules
+ *
  * @param array $params
  * @param string $sourc; controls cooperation between modules if event comes from another modulee
  */
@@ -256,7 +253,6 @@ function churchcal_updateEvent($params, $callCS = true) {
                     ->condition("id", $params["id"], "=")
                     ->execute();
 
-
   // get all exceptions
   $exc = churchcore_getTableData("cc_cal_except", null, "cal_id=" . $params["id"]);
   // look which are already in DB
@@ -297,6 +293,7 @@ function churchcal_updateEvent($params, $callCS = true) {
       );
       churchcal_addAddition($add_add);
       $changes["add_addition"][] = $add_add;
+
     }
   }
   // delete from DB which are deleted.
@@ -406,17 +403,16 @@ function churchcal_getEventChangeImpact($params) {
     if (count($res->bookings) > 0) $res->warning = true;
   }
 
-
   return $res;
 }
 
 /**
  * get user auth
+ *
  * @return array auth
  */
 function churchcal_getAuthForAjax() {
   global $user;
-
   $ret = array ();
   if ($user && isset($_SESSION["user"]->auth["churchcal"])) {
     $ret = $_SESSION["user"]->auth["churchcal"];
@@ -428,7 +424,7 @@ function churchcal_getAuthForAjax() {
   }
   if (user_access("view", "churchservice"))                 $ret["view churchservice"] = true;
   if (user_access("view", "churchdb")) {
-                                                            $ret["view churchdb"] = true;
+    $ret["view churchdb"] = true;
     if (user_access("view alldata", "churchdb"))            $ret["view alldata"] = true;
   }
   if (user_access("view", "churchresource"))                $ret["view churchresource"] = true;
@@ -469,20 +465,18 @@ function churchcal_getAllowedCategories($withPrivat = true, $onlyIds = false) {
 /**
  *
  * @param unknown $params
- * @param string $withintern
+ * @param string $withIntern
  * @return multitype:|Ambigous <multitype:multitype: , NULL, object, boolean, db_accessor>
  */
-function churchcal_getCalPerCategory($params, $withintern = null) {
+function churchcal_getCalPerCategory($params, $withIntern = null) {
   global $user;
-
-  if ($withintern==null) {
-    if ($user==null || $user->id==-1) $withintern=false;
-    else $withintern=true;
+  if ($withIntern == null) {
+    $withIntern = ($user == null || $user->id == -1) ? false : true;
   }
-
-  $data = array ();
+  
+  $data = array();
   $from = getConf("churchcal_entries_last_days", 180);
-
+  
   $res = db_query("
       SELECT cal.*, CONCAT(p.vorname, ' ',p.name) AS modified_name, e.id AS event_id, e.startdate AS event_startdate,
         e.created_by_template_id AS event_template_id, b.id AS booking_id, b.startdate AS booking_startdate, b.enddate AS booking_enddate,
@@ -578,10 +572,9 @@ function churchcal_getCalPerCategory($params, $withintern = null) {
       $data[$e->cal_id]->additions[$e->id]->with_repeat_yn = $e->with_repeat_yn;
     }
   }
-
   $ret = array ();
   foreach ($params["category_ids"] as $cat) {
-    $ret[$cat] = array ();
+    $ret[$cat] = array();
     foreach ($data as $d) {
       if ($d->category_id == $cat) $ret[$cat][$d->id] = $d;
     }

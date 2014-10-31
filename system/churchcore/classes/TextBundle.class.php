@@ -43,7 +43,7 @@ class TextBundle {
   /**
    * Constructor.
    *
-   * @param type $path          
+   * @param type $path
    * @throws Exception
    */
   function __construct($path) {
@@ -57,8 +57,8 @@ class TextBundle {
   /**
    * Load bundle from the given resource.
    *
-   * @param type $bundle          
-   * @param type $locale          
+   * @param type $bundle
+   * @param type $locale
    */
   public function load($bundle, $locale = null) {
     // Country support is not implemented yet.
@@ -88,40 +88,38 @@ class TextBundle {
 
   /**
    * Get text for the passed key.
-   * 
-   * @param type $text          
+   *
+   * @param type $text
    * @param
    *          any params as variables for the key variable.
    */
   public function getText($text) {
-    $args = false;
-    if (func_num_args() > 1) {
-      $args = array_slice(func_get_args(), 1);
-    }
+
+    $args = (func_num_args() > 1) ? array_slice(func_get_args(), 1) : false;
     
-    $template = false;
+    $translation = false;
     if (isset($this->bundle[$text])) {
-      $template = $this->bundle[$text];
+      $translation = $this->bundle[$text];
     }
     else{
       // TODO: maybe add missed text keys to the xml file for easier translating?
     }
     
-    if ($template && $args ) {
+    if ($translation && $args ) {
       $idx = 0;
       foreach ($args as $arg) {
-        $template = str_replace("}", "", str_replace("{" . $idx, $arg, $template)); // %$#@^$ PHP's curly brackets! >:-(
+        $translation = str_replace("}", "", str_replace("{" . $idx, $arg, $translation)); // %$#@^$ PHP's curly brackets! >:-(
         $idx++;
       }
     }
     
-    return $template ? $template : ("***" . $text . "***");
+    return $translation ? $translation : ("***" . $text . "***");
   }
 
   /**
    * Write the current bundle as a JavaScript file to $filename
-   * 
-   * @param type $path          
+   *
+   * @param type $path
    */
   public function writeJSFile($filename, $modulename = "churchcore") {
     $content = array ();

@@ -1,0 +1,24 @@
+<h4>Hello <?= $leader->vorname ?></h4>
+
+<?php if (!empty($approved)): ?>
+  <p><?= $user->vorname ?> <?= $user->name ?> <b>approved <?= $service->bezeichnung ?></b>
+     for event <b><?= $event->bezeichnung?> on <?= $event->datum ?></b>.
+<?php endif; ?>
+
+<?php if (!empty($proposed)): ?>
+  <p><?= $user->vorname ?> <?= $user->name ?> <b>proposed <?= $name ?><?= $service->bezeichnung ?></b>
+     for event <b><?= $event->bezeichnung?> on <?= $event->datum ?></b>.
+<?php endif; ?>
+
+
+<?php if (!empty($canceled)): ?>
+  <p><?= $user->vorname ?> <?= $user->name ?> <b>canceled</b> service <b><?= $service->bezeichnung ?></b>
+     for event <b><?= $event->bezeichnung?> on <?= $event->datum ?></b>.
+<?php endif; ?>
+
+<?php if (!empty($reason)): ?>
+  <p>Following was proided as cause: <br/>
+     <?=$reason ?>
+<?php endif; ?>
+
+  <p><a href="<?= $eventUrl ?>" class="btn btn-primary">Goto Event &raquo;</a>';

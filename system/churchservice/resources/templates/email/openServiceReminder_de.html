@@ -1,0 +1,30 @@
+<h4>Hallo <?= $nickname ?>,</h4>
+
+  <p>Du wurdest im Dienstplan auf <?= $sitename ?>
+     <?php if (!empty($inviter)): ?>von <i><?= $inviter->vorname ?> <?= $inviter->name ?></i> <?php endif; ?>
+     zu Diensten vorgeschlagen. <br/>
+     Zum Zu- oder Absagen bitte hier klicken:
+  <p><a href='<?= $url ?>' class='btn btn-primary'><?= $sitename ?></a>
+  <p>
+  
+  <p><b>Folgende Dienst-Termine sind von Dir noch nicht bearbeitet:</b>
+  <ul>
+<?php foreach ($requestedServices as $s): ?>
+    <li><b><?= $s->datum ?></b>, <?= $s->event ?>: <b><?= $s->service ?></b> (<?= $s->servicegroup ?>) </li>
+<?php endforeach; ?>
+  </ul>
+
+<?php if (count($approvedServices)): ?>
+  <p>
+  <p><b>Bei folgenden Diensten hast Du schon zugesagt:</b>
+  <ul>
+  <?php foreach ($approvedServices as $s): ?>
+    <li><b><?= $s->datum ?></b>, <?= $s->event ?>: <b><?= $s->service ?></b> (<?= $s->servicegroup ?>) <?php if (!$s->mailsenddate): ?><b>NEU!</b><?php endif;?></li>
+  <?php endforeach; ?>
+  </ul>
+<?php endif; ?>
+
+
+<?php if ($user->invite): ?>
+  <p>Da Du noch keinen Zugriff auf <?= $sitename ?> hast, bekommst Du eine separate E-Mail, mit der Du Dich anmelden kannst!
+<?php endif; ?>

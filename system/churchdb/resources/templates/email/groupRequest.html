@@ -1,0 +1,7 @@
+<h4><?= $title ?></h4>
+
+<ul>
+<?php foreach ($request as $key => $val): ?>
+	<li><?= t($key)?>: <?= $val ?></li>
+<?php endforeach; ?>
+</ul>";

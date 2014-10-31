@@ -4,7 +4,7 @@
   <comment>ChurchResource messages</comment>
   <entry key="workload">Auslastung</entry>
 
-  <entry key="by.order.of">Im Auftrag von</entry>  
+  <entry key="by.order.of">Im Auftrag von</entry>
   <entry key="caution.conflicting.dates">Achtung, Termin-Konflikte</entry>
   <entry key="booking.request.x.was.created.by.y">Buchungsanfrage {0} wurde erstellt von {1}</entry>
   <entry key="booking.status">Status</entry>

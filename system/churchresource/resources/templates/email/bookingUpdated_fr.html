@@ -1,0 +1,32 @@
+<h4>Hallo <?= $nickname ?></h4>
+
+    <p>Your Booking request <b><?= $text ?> for <?= $startdate ?></b>, <?= $resource ?> <?php if ($note): ?>(<?= $note ?>)<?php endif; ?>
+    
+    <b>
+  
+<?php if ($canceled): ?>
+     had to be <b>canceled</b> by <?= $user->vorname ?> <?= $user->name ?>. Please look for another date.
+
+<?php elseif ($deleted): ?>
+    had to be <b>deleted</b> by <?= $user->vorname ?> <?= $user->name ?>, if you have questions, please contact:
+    <?= $contact ?>
+     
+     
+<?php else: ?>
+
+  <?php if ($pending): ?>
+    has <b>updated</b> and is awaiting approval.
+  <?php endif; ?>
+    
+  <?php if ($approved): ?>
+    was <b>approved</b> by <?= $user->vorname ?> <?= $user->name ?>.
+  <?php endif; ?>
+  
+  <?php if ($changes): ?>
+    <p><b>Following adaptions had performed:</b>
+    <p><?= $changes ?>
+  <?php endif; ?>
+
+    <p><a class="btn" href="<?= $bookingUrl ?>">Goto Booking Request &raquo;</a>
+<?php endif; ?>
+

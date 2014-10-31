@@ -1,0 +1,24 @@
+<h4>Hallo <?= $leader->vorname ?></h4>
+
+<?php if (!empty($approved)): ?>
+  <p><?= $user->vorname ?> <?= $user->name ?> hat den Dienst <b><?= $service->bezeichnung ?></b>
+     für die Veranstaltung <b><?= $event->bezeichnung?> am <?= $event->datum ?> zugesagt</b>.
+<?php endif; ?>
+
+<?php if (!empty($proposed)): ?>
+  <p><?= $user->vorname ?> <?= $user->name ?> hat für den Dienst <b><?= $service->bezeichnung ?></b>
+     für die Veranstaltung <b><?= $event->bezeichnung?> am <?= $event->datum ?> <?= $name ?> vorgeschlagen</b>.
+<?php endif; ?>
+
+
+<?php if (!empty($canceled)): ?>
+  <p><?= $user->vorname ?> <?= $user->name ?> hat den Dienst <b><?= $service->bezeichnung ?></b>
+     für die Veranstaltung <b><?= $event->bezeichnung?> am <?= $event->datum ?> abgesagt</b>.
+<?php endif; ?>
+
+<?php if (!empty($reason)): ?>
+  <p>Folgendes wurde als Grund angegeben: <br/>
+     <?=$reason ?>
+<?php endif; ?>
+
+  <p><a href="<?= $eventUrl ?>" class="btn btn-primary">Event aufrufen &raquo;</a>';

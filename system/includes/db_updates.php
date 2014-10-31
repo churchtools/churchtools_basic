@@ -784,7 +784,6 @@ function run_db_updates($db_version) {
       db_query("ALTER TABLE {cr_log} ADD person_id int(11) not null default -1 after userid");
       db_query("ALTER TABLE {cr_resource} ADD admin_person_ids int(11) not null default -1 after adminmails");
       db_query("ALTER TABLE {cr_resource} CHANGE adminmails adminmails_old varchar(30) null");
-
       db_query("UPDATE {cr_booking} a JOIN {cdb_person} p ON p.cmsuserid=a.userid SET a.person_id=p.id");
       db_query("UPDATE {cr_exception} a JOIN {cdb_person} p ON p.cmsuserid=a.userid SET a.person_id=p.id");
       db_query("UPDATE {cr_log} a JOIN {cdb_person} p ON p.cmsuserid=a.userid SET a.person_id=p.id");
@@ -1314,7 +1313,6 @@ function run_db_updates($db_version) {
       db_query("ALTER TABLE {cdb_gemeindeperson_gruppe} ADD  followup_erfolglos_zurueck_gruppen_id INT( 11 ) NULL AFTER followup_add_diff_days");
       db_query("UPDATE {cdb_feld} set sortkey=2 where db_spalte='max_teilnehmer' and feldkategorie_id=4");
       db_query("INSERT INTO {cdb_feld} VALUES(-1, 4, 2, 'fu_nachfolge_gruppenteilnehmerstatus_id', 'groupMemberTypes', 1, 'Followup-Nachfolger-Teilnehmerstatus', 'Followup-Nachfolger-Teilnehmerstatus', '<br/>', 'admingroups', 11, 5)");
-
       db_query("update {cdb_feld} set langtext='<p>Versteckte Gruppe<br/><small>Gruppe ist nur f&uuml;r Gruppenadmins & Leiter sichtbar</small>'
                   where langtext='<p>Versteckte Gruppe<br/><small>Gruppe ist nur f&uuml;r Gruppenadmins & Leiter sichbar</small>'");
       set_version("2.26");
@@ -1333,7 +1331,6 @@ function run_db_updates($db_version) {
       db_query("ALTER TABLE  {cc_cal_except} ADD except_date_end DATETIME NOT NULL AFTER except_date_start");
       db_query("update {cc_cal_except} set except_date_end=except_date_start");
       db_query("ALTER TABLE {cc_cal} ADD repeat_option_id INT( 11 ) NULL AFTER repeat_until");
-
       db_query("CREATE TABLE {cr_addition} (
         id int(11) NOT NULL AUTO_INCREMENT,
         booking_id int(11) NOT NULL,
@@ -1348,7 +1345,6 @@ function run_db_updates($db_version) {
       db_query("ALTER TABLE {cr_exception} CHANGE person_id  modified_pid INT( 11 ) NOT NULL DEFAULT '-1'");
       db_query("update {cr_exception} set except_date_end=except_date_start");
       db_query("ALTER TABLE {cr_booking} ADD repeat_option_id INT( 11 ) NULL AFTER repeat_until");
-
       db_query("CREATE TABLE {cc_repeat} (
       id int(11) NOT NULL, bezeichnung varchar(30) NOT NULL, sortkey int(11) NOT NULL, PRIMARY KEY (id)
       ) DEFAULT CHARSET=utf8");
@@ -1386,14 +1382,12 @@ function run_db_updates($db_version) {
     case '2.29':
       db_query("INSERT INTO {cc_auth} (id ,auth ,modulename ,datenfeld,bezeichnung)
         VALUES ( '601',  'view',  'churchcheckin', NULL ,  'Darf die Checkin-Anwendung nutzen')");
-
       db_query("ALTER TABLE  {cdb_gruppentreffen_gemeindeperson}
                        ADD modified_date DATETIME NOT NULL AFTER treffen_yn");
       db_query("ALTER TABLE  {cdb_gruppentreffen_gemeindeperson}
                        ADD modified_pid int(11) NOT NULL AFTER modified_date");
 
       db_query("ALTER TABLE  {cdb_gruppentreffen_gemeindeperson} ADD zufallscode VARCHAR( 10 ) NOT NULL AFTER treffen_yn");
-
       db_query("ALTER TABLE  {cdb_gruppentreffen}
                        ADD modified_date DATETIME NOT NULL AFTER ausgefallen_yn");
       db_query("ALTER TABLE  {cdb_gruppentreffen}
@@ -1579,7 +1573,6 @@ function run_db_updates($db_version) {
       reading_count int(11) NOT NULL DEFAULT '0',
       PRIMARY KEY (id)
     ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=0 ");
-
       db_query("ALTER TABLE {cdb_gruppe} CHANGE bezeichnung bezeichnung VARCHAR( 100 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
       db_query("ALTER TABLE {cdb_log} CHANGE txt txt VARCHAR( 2048 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
 
@@ -1636,7 +1629,6 @@ function run_db_updates($db_version) {
       db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (309, 'edit template', 'churchservice', null, 'Darf Event-Templates editieren',1)");
       db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (321, 'view facts', 'churchservice', null, 'Darf Fakten sehen',1)");
       db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (322, 'export facts', 'churchservice', null, 'Darf Fakten exportieren',1)");
-
       // Give permission to push/pull people from/to archive in CDB
       db_query("INSERT INTO {cc_auth} (id, auth, modulename, datenfeld, bezeichnung, admindarfsehen_yn) values (118, 'push/pull archive', 'churchdb', null, 'Darf Personen ins Archiv verschieben und zurueckholen',1)");
 
@@ -1744,7 +1736,6 @@ function run_db_updates($db_version) {
     case '2.46':
       db_query("ALTER TABLE {cc_wikicategory} ADD in_menu_yn INT( 1 ) NOT NULL DEFAULT '1'");
       db_query("UPDATE {cdb_feld} set autorisierung='viewalldetails || leader' where autorisierung='ViewAllDetailsOrPersonLeader'");
-
       db_query("CREATE TABLE {cc_notification} (
           id int(11) NOT NULL AUTO_INCREMENT,
           domain_type varchar(20) NOT NULL,
@@ -1819,7 +1810,6 @@ function run_db_updates($db_version) {
       ) ENGINE=MyISAM DEFAULT CHARSET=utf8;");
 
       set_version("2.48");
-
     case "2.48":
       db_query("ALTER TABLE {cs_event_fact} CHANGE value value VARCHAR( 11 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
       db_query("ALTER TABLE {cs_song_arrangement} CHANGE  note  note text");
@@ -1871,7 +1861,6 @@ function run_db_updates($db_version) {
     (1, 'Personen', 0x73656c65637420702e6461746520446174756d2c207965617228702e6461746529204a6168722c20646174655f666f726d617428702e646174652c202725592d256d2729204d6f6e61742c0a2020202020202020732e62657a656963686e756e67205374617475732c200a202020202020202073742e62657a656963686e756e672053746174696f6e2c0a20202020202020202863617365207768656e20732e6d6974676c6965645f796e3d30207468656e20274b65696e204d6974676c6965642720656c736520274d6974676c6965642720656e6429206173204d6974676c6965642c200a2020202020202020702e6e6577706572736f6e5f636f756e742c20702e636f756e742061732027636f756e74272066726f6d206372705f706572736f6e2070200a2020202020202020202020202020206c656674206a6f696e206364625f7374617475732073206f6e2028732e69643d702e7374617475735f6964290a2020202020202020202020202020206c656674206a6f696e206364625f73746174696f6e207374206f6e202873742e69643d702e73746174696f6e5f696429, 10),
     (2, 'Gruppen per Monat', 0x73656c65637420646174655f666f726d617428702e646174652c202725592d256d27292061732027446174756d272c0a20202020202020207965617228702e6461746529204a6168722c0a2020202020202020732e62657a656963686e756e67205374617475732c0a202020202020202073742e62657a656963686e756e672053746174696f6e2c0a2020202020202020672e62657a656963686e756e67204772757070652c0a2020202020202020642e62657a656963686e756e67204469737472696b742c0a202020202020202067742e62657a656963686e756e67204772757070656e7479702c0a20202020202020206774732e62657a656963686e756e67204772757070656e7465696c6e65686d65727374617475732c0a20202020202020202863617365207768656e20732e6d6974676c6965645f796e3d30207468656e20274b65696e204d6974676c6965642720656c736520274d6974676c6965642720656e642920617320204d6974676c6965642c0a202020202020202073756d28702e6e6577706572736f6e5f636f756e7429206e6577706572736f6e5f636f756e742c200a2020202020202020726f756e642873756d28702e636f756e74292f636f756e7428702e636f756e74292c302920617320636f756e740a202020202020202066726f6d206372705f67726f757020700a2020202020202020202020202020206c656674206a6f696e206364625f7374617475732073206f6e2028732e69643d702e7374617475735f6964290a2020202020202020202020202020206c656674206a6f696e206364625f6772757070652067206f6e2028672e69643d702e6772757070655f6964290a2020202020202020202020202020202020202020206c656674206a6f696e206364625f6772757070656e747970206774206f6e202867742e69643d672e6772757070656e7479705f69642920202020202020200a2020202020202020202020202020202020202020206c656674206a6f696e206364625f6469737472696b742064206f6e2028642e69643d672e6469737472696b745f69642920202020202020200a2020202020202020202020202020206c656674206a6f696e206364625f6772757070656e7465696c6e65686d657273746174757320677473206f6e20286774732e69643d702e6772757070656e7465696c6e65686d65727374617475735f6964290a2020202020202020202020202020206c656674206a6f696e206364625f73746174696f6e207374206f6e202873742e69643d702e73746174696f6e5f6964290a20202020202020202067726f757020627920446174756d2c205374617475732c2053746174696f6e2c204772757070652c204469737472696b742c204772757070656e7479702c204d6974676c6965642c204772757070656e7465696c6e65686d657273746174757309, 20),
     (3, 'Aktuelle Gruppen pro Woche', 0x73656c65637420636f6e63617428274b5720272c7965617228702e64617465292c272d272c20646174655f666f726d617428702e646174652c2027257527292b31292061732027446174756d272c0a20202020202020207965617228702e6461746529204a6168722c0a2020202020202020732e62657a656963686e756e67205374617475732c0a202020202020202073742e62657a656963686e756e672053746174696f6e2c0a2020202020202020672e62657a656963686e756e67204772757070652c0a2020202020202020642e62657a656963686e756e67204469737472696b742c0a202020202020202067742e62657a656963686e756e67204772757070656e7479702c0a20202020202020206774732e62657a656963686e756e67204772757070656e7465696c6e65686d65727374617475732c0a20202020202020202863617365207768656e20732e6d6974676c6965645f796e3d30207468656e20274b65696e204d6974676c6965642720656c736520274d6974676c6965642720656e642920617320204d6974676c6965642c0a202020202020202073756d28702e6e6577706572736f6e5f636f756e7429206e6577706572736f6e5f636f756e742c200a2020202020202020726f756e642873756d28702e636f756e74292f636f756e7428702e636f756e74292c302920617320636f756e740a202020202020202066726f6d206372705f67726f757020700a2020202020202020202020202020206c656674206a6f696e206364625f7374617475732073206f6e2028732e69643d702e7374617475735f6964290a2020202020202020202020202020206c656674206a6f696e206364625f6772757070652067206f6e2028672e69643d702e6772757070655f6964290a2020202020202020202020202020202020202020206c656674206a6f696e206364625f6772757070656e747970206774206f6e202867742e69643d672e6772757070656e7479705f69642920202020202020200a2020202020202020202020202020202020202020206c656674206a6f696e206364625f6469737472696b742064206f6e2028642e69643d672e6469737472696b745f69642920202020202020200a2020202020202020202020202020206c656674206a6f696e206364625f6772757070656e7465696c6e65686d657273746174757320677473206f6e20286774732e69643d702e6772757070656e7465696c6e65686d65727374617475735f6964290a2020202020202020202020202020206c656674206a6f696e206364625f73746174696f6e207374206f6e202873742e69643d702e73746174696f6e5f6964290a2020202020202020207768657265206461746564696666286e6f7728292c20702e64617465293c372a380a20202020202020202067726f757020627920446174756d2c205374617475732c2053746174696f6e2c204772757070652c204469737472696b742c204772757070656e7479702c204d6974676c6965642c204772757070656e7465696c6e65686d6572737461747573090a202020202020202020, 30)");
-
     db_query("ALTER TABLE {cdb_gruppe} ENGINE = INNODB");
     db_query("ALTER TABLE {cdb_gruppentyp} ENGINE = INNODB");
     db_query("ALTER TABLE {cdb_distrikt} ENGINE = INNODB");
@@ -1907,7 +1896,6 @@ function run_db_updates($db_version) {
         }
     }
     db_query("delete from {cc_usersettings} where modulename='churchdb' and attrib='filter'");
-
     // Repair group ids in cs_service
     $db=db_query('select * from {cs_service} s');
     foreach ($db as $s) {
@@ -1946,9 +1934,7 @@ function run_db_updates($db_version) {
     addInfoMessage("Datenbankupdates ausgef&uuml;hrt auf v$software_version.");
   else
     addInfoMessage("Datenbankupdates ausgef&uuml;hrt von <I>".getConf("site_name")."</i>. Versionswechsel von $db_version auf $software_version. $link");
-
   cleandir("$files_dir/files/messages/"); //delete temporal i18n files
-
   $sitename=$config["site_name"];
   churchcore_systemmail($config["site_mail"], "Neue Version auf ".$config["site_name"],
       "Datenbankupdates ausgef&uuml;hrt von ".getConf("site_name")."' v$db_version auf v$software_version. $link<br/><br/>".

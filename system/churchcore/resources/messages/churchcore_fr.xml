@@ -323,7 +323,7 @@
   <entry key="could.not.save.file.upload.canceled.or.server.error">Could not save uploaded file. The upload was cancelled, or server error encountered</entry>
 
 <!-- churchdb -->
-  <entry key="request.to.group">Request to group {0}.</entry>
+  <entry key="request.to.group">Request to group {0}</entry>
   <entry key="surname">Surname</entry>
   <entry key="name">Name</entry>
   <entry key="email">Email</entry>
@@ -359,6 +359,8 @@
   <entry key="salutation.woman.1">Mrs.</entry>
   <entry key="salutation.woman.2">Dear</entry>
   <entry key="in.group.x">in group {0}</entry>
+  <entry key="membership.request.to.group.x">Teilnahmeantrag zur Gruppe {0}</entry>
+  <entry key="change.in.group.x">Change in group {0}</entry>
   <entry key="new.persons.in.your.groups">New Persons in your groups</entry>
   <entry key="please.look.at.this.persons">Please look at following persons</entry>
   <entry key="birthdays.of.your.persons.in.next.31.days">Birthdays of your persons in next 31 days</entry>
@@ -380,7 +382,8 @@
   <entry key="file.could.not.be.copied.to.x">File could not be copied to {0}!</entry>
   <entry key="pending.service.requests">Pending service requests: </entry>
   <entry key="there.are.pending.services">There are pending service requests</entry>
-
+  <entry key="open.services">Offene Dienste</entry>
+  
   <!-- churchcore auth -->
   <entry key="edit.masterdata">Edit masterdata</entry>
 
@@ -444,10 +447,14 @@
   <entry key="additions">Additional Dates</entry>
   <entry key="new.booking.request">New Bookings</entry>
   <entry key="updated.booking.request">Update of booking request</entry>
-  <entry key="bookingX.for.resource.on.datetime">'{0}' for {1} ({2}h{3})</entry>
+  <entry key="bookingX.for.resource.on.datetime">'{1}' for {0}, start:{2}, note:{3}</entry>
   <entry key="booking.in"> in {0}</entry>
   <entry key="user.was.deleted">User was deleted.</entry>
-
+  <entry key="booking.request.updated">Booking request updated</entry>
+  <entry key="booking.request.approved">Booking request approved</entry>
+  <entry key="booking.request.canceled">Bookin request canceled</entry>
+  <entry key="booking.request.deleted">Booking request deleted</entry>
+  
   <!-- churchwiki -->
   <entry key="view.wiki.category">View single wiki category</entry>
   <entry key="edit.wiki.category">Edit single wiki category</entry>
@@ -544,5 +551,10 @@
   <entry key="event.not.found">Event '{0}' not found!</entry>
   <entry key="category.does.not.exist">Category don't exist</entry>
   <entry key="deleting.failed.because.of.remaining.services">Calendar could not be deleted. Thera are still services bound to this calendar!</entry>
+  
+  <!-- COMMON -->
+  <entry key="template.x.not.found">Template '{0}' was not found!</entry>
+  <entry key="news.for.abo.x">News in {0}</entry>
+  <entry key="new">New</entry>
 
 </properties>
