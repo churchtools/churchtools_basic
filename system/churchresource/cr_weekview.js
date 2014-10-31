@@ -203,46 +203,6 @@ WeekView.prototype.showAuslastung = function() {
   form_showOkDialog(_("workload"), rows.join(""), 450, 500);
 };
 
-WeekView.prototype.renderCreatePerson = function(value) {
-  var form = new CC_Form();
-  form.addHidden({cssid:"func", value:"createAddress"});
-  form.addInput({label:"Vorname", cssid:"vorname", required:true, value:(value.indexOf(" ")>=0?value.substr(0,value.indexOf(" ")):"")});
-  form.addInput({label:"Nachname", cssid:"name", required:true, value:(value.indexOf(" ")>=0?value.substr(value.indexOf(" ")+1,99):"")});
-  form.addInput({label:"E-Mail", cssid:"email", value:(value.indexOf("@")>=0?value:"")});
-  form.addSelect({label:"Bereich", cssid:"Inputf_dep", htmlclass:"setting", data:churchcore_sortMasterData(masterData.cdb_bereich), selected:masterData.settings.bereich_id});
-  form.addSelect({label:"Status", cssid:"Inputf_status", htmlclass:"setting", data:churchcore_sortMasterData(masterData.cdb_status), selected:masterData.settings.status_id});
-  form.addSelect({label:"Station", cssid:"Inputf_station", htmlclass:"setting", data:churchcore_sortMasterData(masterData.cdb_station), selected:masterData.settings.station_id});
-
-  var elem=form_showDialog(_("add.new.person"), form.render(null, "horizontal"), 500, 400);
-  elem.dialog("addbutton", _("add"), function() {
-    var obj=form.getAllValsAsObject();
-    if (obj!=null) {
-      if ((obj.vorname=="") || (obj.name=="")) {
-        alert("Bitte Vorname und Name angeben!");
-        return;
-      }
-      churchInterface.jsendWrite(obj, function(ok,data) {
-        if (ok) {
-          t.currentBooking.person_id=data.id;
-          t.currentBooking.person_name=obj.vorname+" "+obj.name;
-          $("#assistance_user").val(t.currentBooking.person_name);
-          $("#assistance_user").attr("disabled", true);
-
-          elem.dialog("close");
-        }
-        else {
-          alert(data);
-        }
-      }, null, false, "churchdb");
-    }
-  });
-  elem.dialog("addcancelbutton");
-  elem.find("select.setting").change(function(k) {
-    masterData.settings[$(this).attr("id")]=$(this).val();
-    churchInterface.jsendWrite({func:"saveSetting", sub:$(this).attr("id"), val:$(this).val()}, null, null, false);
-  });
-};
-
 WeekView.prototype.renderListMenu = function() {
   var t=this;
 
@@ -915,25 +875,30 @@ WeekView.prototype.addWeekButtons = function() {
   }
 };
 
-WeekView.prototype.closeAndSaveBookingDetail = function (elem) {
+WeekView.prototype.prepareSaveBookingDetail = function (elem) {
   var t=this;
   var a=t.currentBooking;
   a.repeat_frequence=1;
   form_getDatesInToObject(a);
   if (a.enddate<a.startdate) {
     alert("Das Enddatum liegt vor dem Startdatum, bitte korrigieren!");
-    return null;
+    return false;
   }
   if ($("#assistance_user").val()!=null && $("#assistance_user").val()!="") {
     if ($("#assistance_user").attr("disabled")==null) {
       if (user_access("create person")) {
         if (confirm("Person "+$("#assistance_user").val()+" nicht gefunden, soll ich sie anlegen?")) {
-          t.renderCreatePerson($("#assistance_user").val());
+          form_renderCreatePerson($("#assistance_user").val(), function(personId, personName) {
+            t.currentBooking.person_id=personId;
+            t.currentBooking.person_name=personName;
+            $("#assistance_user").val(t.currentBooking.person_name);
+            $("#assistance_user").attr("disabled", true);
+          });
         }
       }
       else
         alert("Die Person "+$("#assistance_user").val()+" wurde nicht gefunden!");
-      return null;
+      return false;
     }
   }
 
@@ -943,17 +908,24 @@ WeekView.prototype.closeAndSaveBookingDetail = function (elem) {
   a.location=$("input[id=location]").val().trim();
   a.show_in_churchcal_yn=($("input[id=showinchurchcal]").attr("checked")=="checked"?1:0);
   a.note=$("#inputNote").val().trim();
+  if ($("#assistance_user").attr("data-id") != null) {
+    a.person_id=$("#assistance_user").attr("data-id");
+    a.person_name=$("#assistance_user").attr("data-name");
+  }
+  console.log(a);
+
   if ($("#show_conflicts").html()!=null)
     a.conflicts=$("#show_conflicts").html();
 
   a.neu=false;
   if (a.text=="") {
     alert("Bitte eine Bezeichnung angeben!");
-    return null;
+    return false;
   }
 
   $("#cr_fields").html("<br/>Daten werden gespeichert..<br/><br/>");
 
+  return true;
   //t.saveBooking(a);
   //elem.empty().remove();
 };
@@ -1227,11 +1199,13 @@ WeekView.prototype.renderEditEvent = function(func, newEvent, myEvent, _isSeries
    });
 
   form_autocompletePersonSelect("#assistance_user", false, function(divid, ui) {
-   $("#assistance_user").val(ui.item.label);
-   $("#assistance_user").attr("disabled",true);
-   myEvent.person_id=ui.item.value;
-   myEvent.person_name=ui.item.label;
-   return false;
+    $("#assistance_user").val(ui.item.label);
+    $("#assistance_user").attr("disabled",true);
+    $("#assistance_user").attr("data-id", ui.item.value);
+    $("#assistance_user").attr("data-name", ui.item.label);
+    myEvent.person_id=ui.item.value;
+    myEvent.person_name=ui.item.label;
+    return false;
   });
 
   t.checkConflicts(myEvent);
@@ -1276,7 +1250,7 @@ WeekView.prototype.renderEditEvent = function(func, newEvent, myEvent, _isSeries
   }
 
   if (func=="delete") {
-    t.closeAndSaveBookingDetail(elem);
+    t.prepareSaveBookingDetail(elem);
     return;
   }
 
@@ -1284,8 +1258,8 @@ WeekView.prototype.renderEditEvent = function(func, newEvent, myEvent, _isSeries
   if (((masterData.auth.write) && (myEvent.person_id==masterData.user_pid)) || (user_access("edit", myEvent.resource_id)) || (myEvent.neu)) {
     elem.dialog('addbutton', _("save"), function() {
       t.currentBooking = $("#dates").renderCCEvent("getCCEvent");
-      t.closeAndSaveBookingDetail(elem);
-      resFunc(t.currentBooking, function(ok) {if (ok) elem.dialog("close");});
+      if (t.prepareSaveBookingDetail(elem))
+        resFunc(t.currentBooking, function(ok) {if (ok) elem.dialog("close");});
 
     });
 
@@ -1296,7 +1270,7 @@ WeekView.prototype.renderEditEvent = function(func, newEvent, myEvent, _isSeries
           myEvent.exceptionids=myEvent.exceptionids-1;
           myEvent.exceptions[myEvent.exceptionids]
                 ={id:myEvent.exceptionids, except_date_start:date, except_date_end:date};
-          t.closeAndSaveBookingDetail(elem);
+          t.prepareSaveBookingDetail(elem);
         });
       }
       else {
@@ -1306,14 +1280,14 @@ WeekView.prototype.renderEditEvent = function(func, newEvent, myEvent, _isSeries
               d=date.toDateEn();
               d.addDays(-1);
               $("#cr_fields input[id=inputRepeatUntil]").val(d.toStringDe());
-              t.closeAndSaveBookingDetail(elem);
+              t.prepareSaveBookingDetail(elem);
             });
         }
         title="Löschen";
         if (_isSeries) title="Gesamte Serie löschen";
         elem.dialog('addbutton', title, function() {
           $("select[id=InputStatus]").val(99);
-          t.closeAndSaveBookingDetail(elem);
+          t.prepareSaveBookingDetail(elem);
         });
       }
     }

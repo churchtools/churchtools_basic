@@ -197,6 +197,47 @@ function form_renderPersonImage(url, width) {
 }
 
 /**
+ * Show a formular with can create person over churchdb
+ * @param {[type]} value
+ * @param {[type]} func
+ */
+function form_renderCreatePerson (value, func) {
+  var form = new CC_Form();
+  form.addHidden({cssid:"func", value:"createAddress"});
+  form.addInput({label:"Vorname", cssid:"vorname", required:true, value:(value.indexOf(" ")>=0?value.substr(0,value.indexOf(" ")):"")});
+  form.addInput({label:"Nachname", cssid:"name", required:true, value:(value.indexOf(" ")>=0?value.substr(value.indexOf(" ")+1,99):"")});
+  form.addInput({label:"E-Mail", cssid:"email", value:(value.indexOf("@")>=0?value:"")});
+  form.addSelect({label:"Bereich", cssid:"Inputf_dep", htmlclass:"setting", data:churchcore_sortMasterData(masterData.cdb_bereich), selected:masterData.settings.bereich_id});
+  form.addSelect({label:"Status", cssid:"Inputf_status", htmlclass:"setting", data:churchcore_sortMasterData(masterData.cdb_status), selected:masterData.settings.status_id});
+  form.addSelect({label:"Station", cssid:"Inputf_station", htmlclass:"setting", data:churchcore_sortMasterData(masterData.cdb_station), selected:masterData.settings.station_id});
+
+  var elem=form_showDialog(_("add.new.person"), form.render(null, "horizontal"), 500, 400);
+  elem.dialog("addbutton", _("add"), function() {
+    var obj=form.getAllValsAsObject();
+    if (obj!=null) {
+      if ((obj.vorname=="") || (obj.name=="")) {
+        alert("Bitte Vorname und Name angeben!");
+        return;
+      }
+      churchInterface.jsendWrite(obj, function(ok,data) {
+        if (ok) {
+          func(data.id, obj.vorname+" "+obj.name);
+          elem.dialog("close");
+        }
+        else {
+          alert(data);
+        }
+      }, null, false, "churchdb");
+    }
+  });
+  elem.dialog("addcancelbutton");
+  elem.find("select.setting").change(function(k) {
+    masterData.settings[$(this).attr("id")]=$(this).val();
+    churchInterface.jsendWrite({func:"saveSetting", sub:$(this).attr("id"), val:$(this).val()}, null, null, false);
+  });
+};
+
+/**
  *
  * @param divid
  * @param withMyDeps - In addition get people which are in you deps. otherwise only visible people

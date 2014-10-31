@@ -464,6 +464,12 @@ function _renderEditEventContent(elem) {
       label:"Link",
       cssid:"inputLink"
     }));
+    if (user_access("assistance mode") && (currentEvent.id==null || currentEvent.modified_pid == masterData.user_pid)) {
+      rows.push(form_renderInput({
+        cssid:"assistance_user",
+        label:_("by.order.of")
+      }));
+    }
 
     rows.push('</form>');
 
@@ -480,6 +486,17 @@ function _renderEditEventContent(elem) {
 
     _renderInternVisible(elem, currentEvent);
     $("#dates").renderCCEvent({event: currentEvent});
+
+    form_autocompletePersonSelect("#assistance_user", false, function(divid, ui) {
+      $("#assistance_user").val(ui.item.label);
+      $("#assistance_user").attr("disabled", true);
+      currentEvent.modified_pid = ui.item.value;
+      currentEvent.modified_name = ui.item.label;
+      $("#assistance_user").attr("data-id", ui.item.value);
+      $("#assistance_user").attr("data-name", ui.item.label);
+      return false;
+    });
+
 
     $("#inputBezeichnung").focus();
 
@@ -745,6 +762,10 @@ function getCalEditFields(o) {
   o.notizen=$("#inputNote").val();
   o.link=$("#inputLink").val();
   o.category_id=$("#inputCategory").val();
+  if ($("#assistance_user").attr("data-id") != null) {
+    o.modified_pid=$("#assistance_user").attr("data-id");
+    o.modified_name=$("#assistance_user").attr("data-name");
+  }
 }
 
 
@@ -792,6 +813,24 @@ function renderEditEvent(myEvent, origEvent, isSeries, editSeries, func) {
           currentEvent = $("#dates").renderCCEvent("getCCEvent");
           getCalEditFields(currentEvent);
         }
+        if ($("#assistance_user").val()!=null && $("#assistance_user").val()!="") {
+          if ($("#assistance_user").attr("disabled")==null) {
+            if (user_access("create person")) {
+              if (confirm("Person "+$("#assistance_user").val()+" nicht gefunden, soll ich sie anlegen?")) {
+                form_renderCreatePerson($("#assistance_user").val(), function(personId, personName) {
+                  currentEvent.modified_pid=personId;
+                  currentEvent.modified_name=personName;
+                  $("#assistance_user").val(currentEvent.modified_name);
+                  $("#assistance_user").attr("disabled", true);
+                });
+              }
+            }
+            else
+              alert("Die Person "+$("#assistance_user").val()+" wurde nicht gefunden!");
+            return null;
+          }
+        }
+
         // Check if there are CSEvents to delete
         each(currentEvent.csevents, function(k, a) { a.mark=false; });
         each(churchcore_getAllDatesWithRepeats(currentEvent), function(a, ds) {
@@ -1222,7 +1261,9 @@ function renderTooltip(event) {
   if (event.status!=null)
     rows.push('<li>Status: '+event.status);
   if (myEvent!=null && myEvent.modified_name!=null) {
-    rows.push('<li><small>Erstellt von <span title="Erstellt am '+myEvent.modified_date.toDateEn().toStringDe(true)+'">'+myEvent.modified_name+'</span></small>');
+    rows.push('<li><small>Erstellt von <span '
+              + (myEvent.modified_date!=null ? 'title="Erstellt am '+myEvent.modified_date.toDateEn().toStringDe(true)+'"':'')
+              + '>' + myEvent.modified_name+'</span></small>');
   }
   rows.push('</ul>');
 

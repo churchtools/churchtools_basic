@@ -255,6 +255,7 @@
   <entry key="personal.calendar">Personal Calendar</entry>
   <entry key="group.calendar">Group Calendar</entry>
   <entry key="first.day.in.week">First day of week (0=Suday, 1=Monday, 2=Tuesday, ..)</entry>
+  <entry key="by.order.of">By order of</entry>
 
   <entry key="january">January</entry>
   <entry key="february">February</entry>
@@ -382,7 +383,7 @@
   <entry key="pending.service.requests">Pending service requests: </entry>
   <entry key="there.are.pending.services">There are pending service requests</entry>
   <entry key="open.services">Open Services</entry>
-  
+
   <!-- churchcore auth -->
   <entry key="edit.masterdata">Edit masterdata</entry>
 
@@ -451,7 +452,7 @@
   <entry key="booking.request.approved">Booking request approved</entry>
   <entry key="booking.request.canceled">Bookin request canceled</entry>
   <entry key="booking.request.deleted">Booking request deleted</entry>
-  
+
   <!-- churchwiki -->
   <entry key="view.wiki.category">View single wiki category</entry>
   <entry key="edit.wiki.category">Edit single wiki category</entry>
@@ -548,7 +549,7 @@
   <entry key="event.not.found">Event '{0}' not found!</entry>
   <entry key="category.does.not.exist">Category don't exist</entry>
   <entry key="deleting.failed.because.of.remaining.services">Calendar could not be deleted. Thera are still services bound to this calendar!</entry>
-  
+
   <!-- COMMON -->
   <entry key="template.x.not.found">Template '{0}' was not found!</entry>
   <entry key="news.for.abo.x">News in {0}</entry>

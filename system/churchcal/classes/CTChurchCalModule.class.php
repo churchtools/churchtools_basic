@@ -19,7 +19,12 @@ class CTChurchCalModule extends CTAbstractModule {
     $ret["notificationtype"]    = churchcore_getTableData("cc_notificationtype");
     $ret["base_url"]            = $base_url;
     $ret["user_pid"]            = $user->id;
-    if (user_access("view", "churchdb")) $ret["absent_reason"] = churchcore_getTableData("cs_absent_reason");
+    if (user_access("view", "churchdb")) {
+      $ret["cdb_bereich"]   = churchcore_getTableData("cdb_bereich");
+      $ret["cdb_status"]    = churchcore_getTableData("cdb_status");
+      $ret["cdb_station"]   = churchcore_getTableData("cdb_station");
+      $ret["absent_reason"] = churchcore_getTableData("cs_absent_reason");
+    }
     if (user_access("view", "churchresource") || user_access("create bookings", "churchresource")) {
       $ret["resources"]     = churchcore_getTableData("cr_resource");
       $ret["resourceTypes"] = churchcore_getTableData("cr_resourcetype");

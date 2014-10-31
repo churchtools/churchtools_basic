@@ -421,7 +421,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
 
         rows.push(t.addSecondMenu());
       }
-            
+
       $("#cdb_content").html(rows.join(""));
 
       if (debug) t.endTimer("renderTableView");
@@ -479,7 +479,7 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
       });
       if (listObject!=null) each(listObject, function(k, entry) {
         if ((entry!=null) && (t.checkFilter(entry)))
-          if ((entry.open) || (t.counter==1 && t.openIfOnlyOneIsAvailable)) 
+          if ((entry.open) || (t.counter==1 && t.openIfOnlyOneIsAvailable))
             t.renderEntryDetail(entry.id);
       });
 
@@ -1228,8 +1228,6 @@ StandardTableView.prototype.renderPersonImageUrl = function(url, width) {
 StandardTableView.prototype.autocompletePersonSelect = function (divid, withMyDeps, func) {
   form_autocompletePersonSelect(divid, withMyDeps, func);
 };
-
-
 
 StandardTableView.prototype.getAuthAsArray = function (auth) {
   var t=this;

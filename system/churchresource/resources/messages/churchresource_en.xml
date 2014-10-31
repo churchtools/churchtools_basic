@@ -4,14 +4,13 @@
   <comment>ChurchResource messages</comment>
   <entry key="workload">Workload</entry>
 
-  <entry key="by.order.of">By order of</entry>  
   <entry key="caution.conflicting.dates">Caution, conflicting dates</entry>
   <entry key="booking.request.x.was.created.by.y">Booking request {0} was created by {1}</entry>
   <entry key="booking.status">Status</entry>
-  
+
   <entry key="resourcetype_id">Ressoure type</entry>
   <entry key="autoaccept_yn">Automatically acception</entry>
   <entry key="admin_person_ids">Ids of Admin-Persons (comma separated)</entry>
-  
-  
+
+
 </properties>

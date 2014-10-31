@@ -26,7 +26,7 @@ function churchcal_handleMeetingRequest($cal_id, $params) {
     $param["person_id"]     = $id;
     $param["event_date"]    = $params["startdate"];
     $param["cal_id"]        = $cal_id;
-    
+
     $db = db_query('SELECT mr.*, c.modified_pid
                   FROM {cc_meetingrequest} mr, {cc_cal} c
                   WHERE c.id=mr.cal_id and mr.person_id=:person_id and mr.cal_id=:cal_id',
@@ -77,7 +77,7 @@ function churchcal_handleMeetingRequest($cal_id, $params) {
  */
 function churchcal_updateMeetingRequest($params) {
   global $user;
-  
+
   $i = new CTInterface();
   $i->setParam("cal_id");
   $i->setParam("person_id");
@@ -86,7 +86,7 @@ function churchcal_updateMeetingRequest($params) {
   $i->setParam("zugesagt_yn", false);
   $i->setParam("response_date");
   $dt = new DateTime(); //TODO: not used
-  
+
   if (!$params["zugesagt_yn"]) unset($params["zugesagt_yn"]);
 
   db_update("cc_meetingrequest")
@@ -109,7 +109,7 @@ function churchcal_getMyMeetingRequest() {
                   array(":person_id" => $user->id));
   $res = array();
   foreach ($db as $d) $res[$d->id] = $d; // TESTEN!!
-  
+
   return $res;
 }
 
@@ -204,7 +204,7 @@ function churchcal_isAllowedToEditCategory($categoryId) {
   $arr = churchcal_getAuthForAjax();
   if (!isset($arr["edit category"])) return false;
   if (isset($arr["edit category"][$categoryId])) return true;
-  
+
   return false;
 }
 
@@ -246,6 +246,7 @@ function churchcal_updateEvent($params, $callCS = true) {
   $i->setParam("repeat_until", false);
   $i->setParam("repeat_frequence", false);
   $i->setParam("repeat_option_id", false);
+  $i->setParam("modified_pid", false);
 
   $f = $i->getDBInsertArrayFromParams($params);
   if (count($f)) db_update("cc_cal")
@@ -431,6 +432,9 @@ function churchcal_getAuthForAjax() {
   if (user_access("create bookings", "churchresource"))     $ret["create bookings"] = true;
   if (user_access("administer bookings", "churchresource")) $ret["administer bookings"] = true;
 
+  // For assistance mode
+  if (user_access("create person", "churchdb"))             $ret["create person"] = true;
+
   return $ret;
 }
 
@@ -473,10 +477,10 @@ function churchcal_getCalPerCategory($params, $withIntern = null) {
   if ($withIntern == null) {
     $withIntern = ($user == null || $user->id == -1) ? false : true;
   }
-  
+
   $data = array();
   $from = getConf("churchcal_entries_last_days", 180);
-  
+
   $res = db_query("
       SELECT cal.*, CONCAT(p.vorname, ' ',p.name) AS modified_name, e.id AS event_id, e.startdate AS event_startdate,
         e.created_by_template_id AS event_template_id, b.id AS booking_id, b.startdate AS booking_startdate, b.enddate AS booking_enddate,

@@ -256,7 +256,7 @@
   <entry key="personal.calendar">Persönlicher Kalender</entry>
   <entry key="group.calendar">Gruppenkalender</entry>
   <entry key="first.day.in.week">Erster Tag der Woche (0=Sonntag, 1=Montag, 2=Dienstag, ..)</entry>
-
+  <entry key="by.order.of">Im Auftrag von</entry>
 
   <entry key="january">Januar</entry>
   <entry key="february">Februar</entry>
@@ -384,7 +384,7 @@
   <entry key="pending.service.requests">Offene Dienstanfragen: </entry>
   <entry key="there.are.pending.services">Es sind noch Dienste offen</entry>
   <entry key="open.services">Offene Dienste</entry>
-  
+
   <!-- churchcore auth -->
   <entry key="edit.masterdata">Stammdaten editieren</entry>
 
@@ -453,7 +453,7 @@
   <entry key="booking.request.approved">Buchungsanfrage bestätigt</entry>
   <entry key="booking.request.canceled">Buchungsanfrage abgelehnt</entry>
   <entry key="booking.request.deleted">Buchungsanfrage gelöscht</entry>
-  
+
   <!-- churchwiki -->
   <entry key="view.wiki.category">Einzelne Wiki-Kategorien sehen</entry>
   <entry key="edit.wiki.category">Einzelne Wiki-Kategorien editieren</entry>
@@ -549,11 +549,11 @@
   <entry key="event.not.found">Termin '{0}' nicht gefunden!</entry>
   <entry key="category.does.not.exist">Kategorie nicht vorhanden</entry>
   <entry key="deleting.failed.because.of.remaining.services">Es sind noch Dienste mit dem Kalender verbunden. Kann ihn deshalb nicht entfernen!</entry>
-  
+
   <!-- COMMON -->
   <entry key="template.x.not.found">Die Vorlage '{0}' wurde nicht gefunden!</entry>
   <entry key="news.for.abo.x">Neuigkeiten in {0}</entry>
   <entry key="new">Neu</entry>
   <entry key=""></entry>
-  
+
 </properties>
