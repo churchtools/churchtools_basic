@@ -17,6 +17,27 @@ function getMonthName(month) {
   return _(monthNames[month]);
 }
 
+function getMinutesDuration(nameOf0) {
+  var minutes=new Array();
+  if (nameOf0==null) nameOf0 = "-"
+  minutes.push({id:0, bezeichnung:nameOf0});
+  minutes.push({id:15, bezeichnung:'15 '+_("minutes")});
+  minutes.push({id:30, bezeichnung:'30 '+_("minutes")});
+  minutes.push({id:45, bezeichnung:'45 '+_("minutes")});
+  minutes.push({id:60, bezeichnung:'1 '+_("hour")});
+  minutes.push({id:90, bezeichnung:'1,5 '+_("hours")});
+  minutes.push({id:120, bezeichnung:'2 '+_("hours")});
+  minutes.push({id:150, bezeichnung:'2,5 '+_("hours")});
+  minutes.push({id:180, bezeichnung:'3 '+_("hours")});
+  minutes.push({id:240, bezeichnung:'4 '+_("hours")});
+  minutes.push({id:300, bezeichnung:'5 '+_("hours")});
+  minutes.push({id:360, bezeichnung:'6 '+_("hours")});
+  minutes.push({id:60*8, bezeichnung:'8 '+_("hours")});
+  minutes.push({id:60*12, bezeichnung:'12 '+_("hours")});
+  minutes.push({id:60*24, bezeichnung:'1 '+_("day")});
+  return minutes
+}
+
 function form_renderYesNo(nr, width) {
   if (width==null) width=24;
   if (nr==0)
@@ -25,6 +46,120 @@ function form_renderYesNo(nr, width) {
     return form_renderImage({src:"check-64.png",width:width});
   else
     return form_renderImage({src:"attention.png",width:width});
+}
+
+
+function form_getReminder(domainType, domainId) {
+  if (masterData.reminder && masterData.reminder[domainType] 
+      && masterData.reminder[domainType][domainId]!=null 
+      && masterData.reminder[domainType][domainId]) { 
+    return masterData.reminder[domainType][domainId].toDateEn(true);
+  }
+  else return null;
+}
+
+function form_renderReminder(domainType, domainId) {
+  var txt = "";
+  if (settings.user.id > 0) {
+    var icon = "reminder_sw";
+    var dt = new Date();
+    if (form_getReminder(domainType, domainId)!=null 
+           && form_getReminder(domainType, domainId).getTime() > dt.getTime()) {
+      icon = "reminder";      
+    } 
+    txt = form_renderImage({data:[{name:"type", value: domainType}, {name:"id", value: domainId}],
+                            cssid:"reminder", label:"Erinnern", src: icon+".png", width:20});
+    console.log(txt);
+  }
+  return txt;
+}
+
+/**
+ * 
+ * @param element JQuery element
+ * @param beforeDate - eventDate or can be null
+ * @param freeOption - freeOption shows a free date entry, otherwise duration from eventDate
+ */
+function form_editReminder(element, eventDate, freeOption) {
+  var domainId = element.attr("data-id");
+  var domainType = element.attr("data-type");
+  var minutes = getMinutesDuration("Zum Zeitpunkt");
+  if (freeOption == null) freeOption = false;
+  if (!freeOption && eventDate == null) freeOption = true; // otherwise makes no sense
+  var form = new CC_Form("Erinnerung für "+_(domainType));
+  var currentDate = form_getReminder(domainType, domainId);
+  if (currentDate && eventDate && !freeOption) {
+    if (!churchcore_ObjectContainsElementWith(minutes, "id", (eventDate.getTime()-currentDate.getTime())/60000))
+      freeOption = true;
+  }
+  else if (currentDate == null) currentDate = eventDate;
+  
+  if (!freeOption) {
+    minutes.push({id:-1, bezeichnung:"Zeitpunkt selber wählen..."});  
+    form.addSelect({data: minutes, cssid:"reminddate", 
+                    selected: (eventDate.getTime()-currentDate.getTime()) / 60000, 
+                    sort: false, label: "Vorher erinnern"})
+  }
+  else {
+    form.addInput({label: "Erinnern am", separator:"<nobr>", 
+                   controlgroup_start: true, cssid:"reminddate", type:"small",
+                   value: currentDate.toStringDe()});
+    form.addHtml("<div id=\"dp_date\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/>");
+    form.addHtml("&nbsp;");
+    form.addSelect({controlgroup: false, cssid: "remindhour", selected: currentDate.getHours(), 
+                   data: _getHoursArray(), type:"mini"});
+    form.addHtml(" : ");
+    form.addSelect({controlgroup_end: true, cssid: "remindmin", selected: currentDate.getMinutes(), 
+                    data:_getMinutesArray(), type:"mini"});
+  }
+  
+  var elem = form_showDialog("Erinnerung anpassen", form.render(null, "horizontal"), 500, 450);
+  elem.dialog("addbutton", _("save"), function() {
+    var res = null;
+    if (freeOption) {
+      var s = $("#reminddate").val() + " " + $("#remindhour").val() + ":" + $("#remindmin").val();
+      res = s.toDateDe(true);
+    } 
+    else {
+      res = new Date(eventDate.getTime() - $("#reminddate").val()*60000);
+    }
+    if (res == null || isNaN( res.getTime() )) alert(_("error.occured"));
+    else {
+      elem.dialog("close");
+      churchInterface.jsendWrite({func: "saveReminder", domain_id: domainId, domain_type: domainType, 
+          reminddate: res});
+      if (masterData.reminder == null) masterData.reminder = new Object();
+      if (masterData.reminder[domainType] == null) masterData.reminder[domainType] = new Object();
+      masterData.reminder[domainType][domainId] = res.toStringEn(true);
+    }
+  })
+  if (form_getReminder(domainType, domainId) != null) {
+    elem.dialog("addbutton", "Erinnerung entfernen", function() {
+      if (masterData.reminder[domainType] != null && masterData.reminder[domainType][domainId]!=null) {
+        delete masterData.reminder[domainType][domainId];
+        churchInterface.jsendWrite({func: "saveReminder", domain_id: domainId, domain_type: domainType});
+      }
+      else alert(_("error.occured"));
+      elem.dialog("close");
+    });
+  }
+  elem.dialog("addcancelbutton");
+  if (eventDate==null) {
+    $("#reminddate").click(function() {
+      form_implantDatePicker('dp_date', dt, function(dateText) {
+        $("#reminddate").val(dateText);
+        $("#reminddate").keyup();
+      });
+    });
+  }
+  else {
+    $("#reminddate").change(function() {
+      if ($(this).val()=="-1") {
+        elem.dialog("close");
+        form_editReminder(element, dateBefore, true);
+      }
+    })
+  }
 }
 
 /**

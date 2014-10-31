@@ -17,6 +17,7 @@ class CTChurchCalModule extends CTAbstractModule {
     $ret["firstDayInWeek"]      = getConf("churchcal_firstdayinweek", 1);
     $ret["notification"]        = churchcore_getMyNotifications();
     $ret["notificationtype"]    = churchcore_getTableData("cc_notificationtype");
+    $ret["reminder"]            = ct_getMyReminders($user->id, "event");
     $ret["base_url"]            = $base_url;
     $ret["user_pid"]            = $user->id;
     if (user_access("view", "churchdb")) {
@@ -102,4 +103,8 @@ class CTChurchCalModule extends CTAbstractModule {
     return churchcal_deleteEvent($params);
   }
 
+  public function saveReminder($params) {
+    return churchcore_saveReminder($params);
+  }
+  
 }

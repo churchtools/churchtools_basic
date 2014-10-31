@@ -670,7 +670,7 @@ function churchservice_remindme() {
                                 )); // TODO: add LIMIT 1 to sql? add fetch and remove foreach?
     
     foreach ($currentServices as $s) { // only executed for first service
-      if (churchcore_checkUserMail($u->person_id, "remindService", $s->eventservice_id, getConf('churchservice_reminderhours'))) {
+      if (ct_checkUserMail($u->person_id, "remindService", $s->eventservice_id, getConf('churchservice_reminderhours'))) {
         $data = array(
             'nickname'    => $s->spitzname ? $s->spitzname : $s->vorname,
             'serviceUrl'  => "$base_url?q=churchservice&id=",
@@ -685,7 +685,7 @@ function churchservice_remindme() {
                                  ));
         foreach ($nextServices as $s2) {
           if ($s2->eventservice_id == $s->eventservice_id ||
-                (churchcore_checkUserMail($u->person_id, "remindService", $s2->eventservice_id, getConf('churchservice_reminderhours')))) {
+                (ct_checkUserMail($u->person_id, "remindService", $s2->eventservice_id, getConf('churchservice_reminderhours')))) {
             $data['services'][] = $s2;
           }
         }
@@ -695,52 +695,6 @@ function churchservice_remindme() {
       }
     }
   }
-}
-
-/**
- * check if a new email should be send, write something into DB
- * TODO: explain, rename churchcore_checkUserMail
- *
- * @param int $personId
- * @param string $mailtype, f.e. remindService
- * @param int $domainId
- * @param int $interval
- * @return boolean
- */
-function churchcore_checkUserMail($personId, $mailtype, $domainId, $interval) {
-  $res = db_query("SELECT letzte_mail FROM {cc_usermails}
-                   WHERE person_id=:person_id AND mailtype=:mailtype AND domain_id=:domain_id",
-                   array (":person_id" => $personId,
-                          ":mailtype" => $mailtype,
-                          ":domain_id" => $domainId,
-                         ))->fetch();
-  $dt = new DateTime();
-  if (!$res) {
-    db_insert("cc_usermails")
-      ->fields(array ("person_id" => $personId,
-                      "mailtype"  => $mailtype,
-                      "domain_id" => $domainId,
-                      "letzte_mail" => $dt->format('Y-m-d H:i:s'),
-      ))->execute();
-
-    return true; //TODO: use on duplicate update or replace
-  }
-  else {
-    $lm = new DateTime($res->letzte_mail);
-    $dt = new DateTime(date("Y-m-d", strtotime("-" . $interval . " hour")));
-    if ($lm < $dt) {
-      $dt = new DateTime();
-      db_query("UPDATE {cc_usermails} SET letzte_mail=:dt
-                WHERE person_id=:person_id AND mailtype=:mailtype AND domain_id=:domain_id",
-                array(":person_id" => $personId,
-                      ":mailtype"  => $mailtype,
-                      ":domain_id" => $domainId,
-                      ":dt" => $dt->format('Y-m-d H:i:s'),
-                ));
-      return true;
-    }
-  }
-  return false;
 }
 
 /**
@@ -791,7 +745,7 @@ function churchservice_inform_leader() {
 
   // who should get an email?
   foreach ($persons as $person_id => $p) {
-    if (!churchcore_checkUserMail($person_id, "informLeaderService", -1, 6 * 24)) {
+    if (!ct_checkUserMail($person_id, "informLeaderService", -1, 6 * 24)) {
       $persons[$person_id] = null; // unset($persons[$person_id])?
     }
   }

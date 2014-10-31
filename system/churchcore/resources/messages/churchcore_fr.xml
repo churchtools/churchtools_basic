@@ -556,6 +556,7 @@
   <!-- COMMON -->
   <entry key="template.x.not.found">Template '{0}' was not found!</entry>
   <entry key="news.for.abo.x">News in {0}</entry>
+  <entry key="reminder.for.x">Reminder for {0}</entry>
   <entry key="new">New</entry>
 
 </properties>

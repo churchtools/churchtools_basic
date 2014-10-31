@@ -25,7 +25,8 @@ function do_cron() {
 function cron_main() {
   global $config;
   
-  // always send mails
+  // always send reminders and reminders
+  churchcore_sendReminders();
   churchcore_sendMails();
   
   if (getVar("standby")) {

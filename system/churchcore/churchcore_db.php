@@ -55,6 +55,125 @@ function createI18nFile($modulename) {
 }
 
 /**
+ * Get information to a domain in database domain_type like person, event
+ * @param unknown $domainType
+ * @throws CTException
+ * @return multitype:string
+ */
+function churchcore_getInfosForDomain($domainType) {
+  switch ($domainType) {
+    case 'person' : return array("tablename"=>"cdb_person");
+    case 'event' : return array("tablename"=>"cc_cal", "modulename"=>"churchcal");
+  }
+  throw new CTException("Domain $domainType not found!");  
+}
+
+/**
+ * Send all pending reminders. Will be called by cron job
+ */
+function churchcore_sendReminders() {
+  $reminders = db_query("SELECT r.*, p.id person_id, p.email, p.vorname, p.name, p.spitzname FROM {cc_reminder} r, {cdb_person} p 
+                         WHERE reminddate < now() AND r.person_id = p.id AND mailsenddate IS NULL");
+  foreach ($reminders as $reminder) {
+    $domaininfos = churchcore_getInfosForDomain($reminder->domain_type);
+    $raw = db_query("SELECT * FROM {".$domaininfos["tablename"]."}
+                     WHERE id = :id", array(":id" => $reminder->domain_id))->fetch();
+    $domain = array();
+    foreach ($raw as $key=>$d) {
+      if ($d!=null && $d!="")
+      switch ($key) {
+      	case "bezeichnung": $domain[t("caption")] = $d; break;
+      	case "startdate"  : $domain[t("start.date")] = churchcore_stringToDateDe($d); break; 
+      	case "enddate"  : $domain[t("end.date")] = churchcore_stringToDateDe($d); break; 
+      	case "repeat_until"  : $domain[t("repeat.to")] = churchcore_stringToDateDe($d); break; 
+      }
+    }
+    if ($reminder->email && $domain) {
+      $data = array(
+        'surname'     => $reminder->vorname,
+        'name'        => $reminder->name,
+        'nickname'    => ($reminder->spitzname ? $reminder->spitzname : $reminder->vorname),
+        'caption'     => $domain->bezeichnung,
+        'notifyName'  => t($reminder->domain_type),
+        'link'        => $site_url."?q=".$domaininfos["modulename"]."&id=".$reminder->domain_id,
+        'fields'      => $domain
+      );
+      $content = getTemplateContent('email/reminder', 'churchcore', $data);
+      churchcore_systemmail($p->email, "[" . getConf('site_name') . "] " . t('reminder.for.x', t($reminder->domain_type)), $content, true);
+      echo "sened mail";
+    }
+    db_query("UPDATE {cc_reminder} SET mailsenddate=NOW() 
+              WHERE person_id = :person_id AND domain_type = :domain_type
+                           AND domain_id = :domain_id", 
+                         array(':person_id' => $reminder->person_id, 
+                               ':domain_type' => $reminder->domain_type,
+                               ':domain_id' => $reminder->domain_id));
+  }
+}
+
+/**
+ * Get reminders for person person_id
+ * @param unknown $person_id
+ * @param unknown $listOfDomainTypes List of domainTypes, seperate by comma
+ * @return multitype:
+ */
+function ct_getMyReminders($person_id, $listOfDomainTypes) {
+  $reminders = db_query("SELECT * FROM {cc_reminder} r 
+                         WHERE person_id = :person_id AND domain_type IN ('$listOfDomainTypes')", 
+                         array(':person_id' => $person_id));
+  $ret = array();
+  foreach ($reminders as $reminder) {
+    $ret[$reminder->domain_type][$reminder->domain_id] = $reminder->reminddate; 
+  }  
+  return $ret;
+}
+
+/**
+ * Saves the reminder or delete if no reminddate is given. used by AJAX call
+ * @param unknown $params
+ * @return multitype:unknown
+ */
+function churchcore_saveReminder($params) {
+  global $user;
+  $params["person_id"] = $user->id;
+  
+  $i = new CTInterface();
+  $i->setParam("domain_id");
+  $i->setParam("domain_type");
+  $i->setParam("person_id");
+  $i->setParam("reminddate", false);
+  
+  if (!isset($params["reminddate"])) {
+    $id = db_delete("cc_reminder")
+      ->fields($i->getDBInsertArrayFromParams($params))
+      ->condition("person_id", $params["person_id"], "=")
+      ->condition("domain_id", $params["domain_id"], "=")
+      ->condition("domain_type", $params["domain_type"], "=")
+      ->execute(false);
+  }
+  else {  
+    $reminder = db_query("SELECT * FROM {cc_reminder} r 
+                         WHERE person_id = :person_id AND domain_type = :domain_type
+                           AND domain_id = :domain_id", 
+                         array(':person_id' => $person_id, 
+                               ':domain_type' => $params["domainType"],
+                               ':domain_id' => $params["domainId"]))->fetch();
+    if (!$reminder) {
+      $id = db_insert("cc_reminder")
+          ->fields($i->getDBInsertArrayFromParams($params))
+          ->execute(false);
+    }
+    else { 
+      $params["id"] = db_insert("cc_reminder")
+        ->fields($i->getDBInsertArrayFromParams($params))
+        ->condition("id", $params["id"], "=")
+        ->execute(false);
+    }
+  }
+  return array("id" => $params["id"]);
+}
+
+/**
  * log $txt into cdb_log and call ct_sendPendingNotifications
  *
  * @param string $domain_type
@@ -133,7 +252,7 @@ function ct_sendPendingNotifications($max_delayhours = null) {
             'messages'    => $messages,
           );
           $content = getTemplateContent("email/notification", 'churchcore', $data);
-          churchcore_systemmail($p->email, "[" . getConf('site_name') . "] " . t('"news.for.abo.x"', t($personANDtype->domain_type)), $content, true);
+          churchcore_systemmail($p->email, "[" . getConf('site_name') . "] " . t('news.for.abo.x', t($personANDtype->domain_type)), $content, true);
         }
       }
       
@@ -146,6 +265,51 @@ function ct_sendPendingNotifications($max_delayhours = null) {
                          ));
     }
   }
+}
+
+/**
+ * check if a new email should be send, write something into DB
+ *
+ * @param int $personId
+ * @param string $mailtype, f.e. remindService
+ * @param int $domainId
+ * @param int $interval
+ * @return boolean
+ */
+function ct_checkUserMail($personId, $mailtype, $domainId, $interval) {
+  $res = db_query("SELECT letzte_mail FROM {cc_usermails}
+                   WHERE person_id=:person_id AND mailtype=:mailtype AND domain_id=:domain_id",
+      array (":person_id" => $personId,
+          ":mailtype" => $mailtype,
+          ":domain_id" => $domainId,
+      ))->fetch();
+      $dt = new DateTime();
+      if (!$res) {
+        db_insert("cc_usermails")
+        ->fields(array ("person_id" => $personId,
+        "mailtype"  => $mailtype,
+        "domain_id" => $domainId,
+        "letzte_mail" => $dt->format('Y-m-d H:i:s'),
+        ))->execute();
+
+        return true; //TODO: use on duplicate update or replace
+      }
+      else {
+        $lm = new DateTime($res->letzte_mail);
+        $dt = new DateTime(date("Y-m-d", strtotime("-" . $interval . " hour")));
+        if ($lm < $dt) {
+          $dt = new DateTime();
+          db_query("UPDATE {cc_usermails} SET letzte_mail=:dt
+                WHERE person_id=:person_id AND mailtype=:mailtype AND domain_id=:domain_id",
+                array(":person_id" => $personId,
+                ":mailtype"  => $mailtype,
+                ":domain_id" => $domainId,
+                ":dt" => $dt->format('Y-m-d H:i:s'),
+                ));
+                return true;
+        }
+      }
+      return false;
 }
 
 /**

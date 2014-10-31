@@ -379,6 +379,20 @@ function churchcore_inObject(obj, objArray) {
   });
   return ret;
 }
+/**
+ * like id:10 in ObjectList
+ * @param element
+ * @param objArray
+ * @returns {Boolean}
+ */
+function churchcore_ObjectContainsElementWith(objArray, element, val) {
+  if ((obj==null) || (objArray==null)) return false;
+  ret=false;
+  each(objArray, function(k,a) {
+    if (a!=null && a[element]==val) ret=true;
+  });
+  return ret;
+}
 function churchcore_inArray(obj, arrArray) {
   if ((obj==null) || (arrArray==null)) return false;
   ret=false;

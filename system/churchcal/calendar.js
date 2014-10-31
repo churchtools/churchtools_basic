@@ -230,23 +230,9 @@ function _renderViewChurchResource(elem) {
       }
     });
   });
-  var minutes=new Array();
-  minutes.push({id:0, bezeichnung:'-'});
-  minutes.push({id:15, bezeichnung:'15 '+_("minutes")});
-  minutes.push({id:30, bezeichnung:'30 '+_("minutes")});
-  minutes.push({id:45, bezeichnung:'45 '+_("minutes")});
-  minutes.push({id:60, bezeichnung:'1 '+_("hour")});
-  minutes.push({id:90, bezeichnung:'1,5 '+_("hours")});
-  minutes.push({id:120, bezeichnung:'2 '+_("hours")});
-  minutes.push({id:150, bezeichnung:'2,5 '+_("hours")});
-  minutes.push({id:180, bezeichnung:'3 '+_("hours")});
-  minutes.push({id:240, bezeichnung:'4 '+_("hours")});
-  minutes.push({id:300, bezeichnung:'5 '+_("hours")});
-  minutes.push({id:360, bezeichnung:'6 '+_("hours")});
-  minutes.push({id:60*8, bezeichnung:'8 '+_("hours")});
-  minutes.push({id:60*12, bezeichnung:'12 '+_("hours")});
-  minutes.push({id:60*24, bezeichnung:'1 '+_("day")});
 
+  var minutes = getMinutesDuration();
+  
   var form = new CC_Form();
   if (currentEvent.minpre==null) {
     currentEvent.minpre=0; currentEvent.minpost=0;
@@ -1224,10 +1210,16 @@ function renderTooltip(event) {
     title=myEvent.bezeichnung;
     if (myEvent.intern_yn==1) title=title+" (intern)";
 
-    if (categoryEditable(myEvent.category_id)) {
-      title=title+'<span class="pull-right">&nbsp;<nobr>'+form_renderImage({cssid:"copyevent", label:"Kopieren", src:"copy.png", width:20});
-      title=title+"&nbsp;"+form_renderImage({cssid:"delevent", label:'Löschen', src:"trashbox.png", width:20})+"</nobr></span>";
+    title=title+'<span class="pull-right">&nbsp;<nobr>';
+    if (myEvent.startdate.getTime() > new Date().getTime() 
+           || form_getReminder("event", myEvent.id)!=null) {
+      title=title + form_renderReminder("event", myEvent.id);
     }
+    if (categoryEditable(myEvent.category_id)) {
+      //title=title+'&nbsp;'+form_renderImage({cssid:"copyevent", label:"Kopieren", src:"copy.png", width:20});
+      title=title+"&nbsp;"+form_renderImage({cssid:"delevent", label:'Löschen', src:"trashbox.png", width:20});
+    }
+    title = title + "</nobr></span>";
 
     // Now get the service texts out of the events
     if (myEvent.csevents!=null) {
@@ -1338,6 +1330,11 @@ function _eventMouseover(event, jsEvent, view) {
       $("#copyevent").click(function() {
         clearTooltip(true);
         copyEvent(event);
+        return false;
+      });
+      $("#reminder").click(function() {
+        clearTooltip(true);
+        form_editReminder($(this), event.startdate);
         return false;
       });
       $("#editevent").click(function() {

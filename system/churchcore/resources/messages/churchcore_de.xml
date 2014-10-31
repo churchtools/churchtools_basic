@@ -553,7 +553,7 @@
   <!-- COMMON -->
   <entry key="template.x.not.found">Die Vorlage '{0}' wurde nicht gefunden!</entry>
   <entry key="news.for.abo.x">Neuigkeiten in {0}</entry>
+  <entry key="reminder.for.x">Erinnerung an {0}</entry>
   <entry key="new">Neu</entry>
-  <entry key=""></entry>
 
 </properties>
