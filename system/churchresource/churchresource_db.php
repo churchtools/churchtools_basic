@@ -332,20 +332,11 @@ function churchresource_updateBooking($params) {
       }
     }
   }
-// <<<<<<< HEAD
-
-  $txt = "";
-  $location = ($params["location"]) ? t('booking.in', $params["location"]) : '';
-  $info = t('bookingX.for.resource.on.datetime', $params["text"], $ressources[$params["resource_id"]]->bezeichnung, $params["startdate"], $location);
-
-  $arr = getBooking($params["id"]);
-  $changes = churchcore_getFieldChanges(getBookingFields(), $oldArr, $arr, false);
-
-  if ($params["status_id"] == 1) {
-    $txt = " wurde aktualisiert und wartet auf Genehmigung.<p>";
-/*=======
   // FIXME: check logic for correct function; i am not sure what should happen exactly in which cases
   // TODO: maybe use $params as data and add further values
+  $arr=getBooking($params["id"]);
+  $changes = churchcore_getFieldChanges(getBookingFields(), $oldArr, $arr, false);
+  
   $data = array(
       'enddate'    => churchcore_stringToDateDe($params["enddate"]),
       'startdate'  => churchcore_stringToDateDe($params["startdate"]),
@@ -367,66 +358,25 @@ function churchresource_updateBooking($params) {
                         $params["startdate"], $params["location"]
   );
   $subject = t('booking.request.updated');
-  if ($data['pending'])  {
-    $logInfo = t('booking.updated') . $logInfo;
-    $subject = t('booking.request.updated');
->>>>>>> renarena-master*/
-  }
-  elseif ($data['approved']) {
-    $logInfo = t('booking.approved') . $logInfo;
-    $subject = t('booking.request.updated');
-  }
-  elseif ($data['canceled']) {
-    $logInfo = t('booking.canceled') . $logInfo;
-    $subject = t('booking.request.updated');
-  }
-  elseif ($data['deleted'])  {
-    $logInfo = t('booking.deleted') . $logInfo;
-    $subject = t('booking.request.updated');
-  }
-//<<<<<<< HEAD
-  if ($txt && $bUser) {
-    // TODO: use email template
-    $txt = "<h3>Hallo " . $bUser->vorname . "!</h3><p>Deine Buchungsanfrage " . $info . $txt;
-    if ($changes != null) {
-      $txt .= "<p><b>Folgende Anpassung an der Buchung wurden vorgenommen:</b><br/>" .
-           str_replace("\n", "<br>", $changes);
-    }
-    if ($params["status_id"] < 3) $txt .= '<p><a class="btn" href="' . $base_url . "?q=churchresource&id=" .
-         $params["id"] . '">Zur Buchungsanfrage &raquo;</a>';
-    $adminmails = explode(",", $ressources[$params["resource_id"]]->admin_person_ids);
-    if (getConf("churchresource_send_emails", true)) {
-      // if current user is not admin OR is not the booking creating user
+  if ($data['pending']) $logInfo = t('booking.updated') . $logInfo;
+  elseif ($data['approved']) $logInfo = t('booking.approved') . $logInfo;
+  elseif ($data['canceled']) $logInfo = t('booking.canceled') . $logInfo;
+  elseif ($data['deleted']) $logInfo = t('booking.deleted') . $logInfo;
+  if (getConf("churchresource_send_emails", true)) {
+    if (($params["status_id"] != $oldBooking->status_id || $changedFields != null) 
+        && $bUser) {
+      $adminmails = explode(",", $resources[$params["resource_id"]]->admin_person_ids);
+      // if current user is not resource admin OR is not the booking creating user
       if (!in_array($user->id, $adminmails) || $user->id != $bUser->id) {
-        churchresource_send_mail("[". getConf('site_name'). "] Aktualisierung der Buchungsanfrage: ". $params["text"], $txt, $bUser->email);
+        $content = getTemplateContent('email/bookingUpdated', 'churchresource', $data);
+        churchresource_send_mail("[". getConf('site_name'). "] $subject: ". $params["text"], $content, $bUser->email);
       }
     }
   }
-
-  if ($changes) cr_log("UPDATE BOOKING\n" . $txt, 3, $arr->id);
-  $res = array ("exceptions" => $res_exceptions, "additions" => $res_additions);
-
-  return $res;
-/*=======
-  
-
-  if ($bUser && ($params["status_id"] != $oldBooking->status_id || $changedFields != null)) {
-//  if ($bUser && ($params["status_id"]  != $oldBooking->status_id || $changes) && $bUser->id != $user->id) {
-    $adminmails = explode(",", $resources[$params["resource_id"]]->admin_person_ids);
-    // if current user is not resource admin OR is not the booking creating user
-    if (!in_array($user->id, $adminmails) || $user->id != $bUser->id) {
-      $content = getTemplateContent('email/bookingUpdate', 'churchresource', $data);
-      churchresource_send_mail("[". getConf('site_name'). "] $subject: ". $params["text"], $content, $bUser->email);
-    }
-  }
-  // TODO: are $changes needed in log?
   if ($changedFields) cr_log("UPDATE BOOKING\n" . $logInfo, 3, $booking->id);
   
   return array ("exceptions" => $res_exceptions, "additions" => $res_additions);
->>>>>>> renarena-master*/
 }
-
-
 
 /**
  * shift date for $minutes minutes

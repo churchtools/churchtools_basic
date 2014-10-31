@@ -2503,11 +2503,11 @@ function churchcore_saveMasterData($id, $table) {
   if ($id != "null" && $id != "") {
     $i = 0;
     $sql = "UPDATE {" . $table . "} SET ";
-    while (isset($_GET["col" . $i])) {
-      if ($_GET["value" . $i] != "null") {
-        $sql .= $_GET["col" . $i] . "='" . str_replace("'", "\'", $_GET["value" . $i]) . "', ";
+    while (isset($_POST["col" . $i])) {
+      if ($_POST["value" . $i] != "null") {
+        $sql .= $_POST["col" . $i] . "='" . str_replace("'", "\'", $_POST["value" . $i]) . "', ";
       }
-      else $sql .= $_GET["col" . $i] . "=null, ";
+      else $sql .= $_POST["col" . $i] . "=null, ";
       $i++;
     }
     $sql = substr($sql, 0, strlen($sql) - 2);
@@ -2519,19 +2519,19 @@ function churchcore_saveMasterData($id, $table) {
     $arr = db_query("SELECT MAX(id) id FROM {" . $table . "}")->fetch();
     $max_id = $arr->id + 1;
     
-    $sql = "INSERT INTO {" . $_GET["table"] . "} (id, "; // NEVER TRUST USER INPUT!!!
+    $sql = "INSERT INTO {" . $_POST["table"] . "} (id, "; // NEVER TRUST USER INPUT!!!
     // Build Cols
     $i = 0;
-    while (isset($_GET["col" . $i])) {
-      $sql = $sql . $_GET["col" . $i] . ", ";
+    while (isset($_POST["col" . $i])) {
+      $sql = $sql . $_POST["col" . $i] . ", ";
       $i++;
     }
     $sql = substr($sql, 0, strlen($sql) - 2);
     // build values
     $sql = $sql . ") values (" . $max_id . ",";
     $i = 0;
-    while (isset($_GET["col" . $i])) {
-      if ($_GET["value" . $i] != "null") $sql = $sql . "'" . $_GET["value" . $i] . "', "; // NEVER TRUST USER INPUT!!!
+    while (isset($_POST["col" . $i])) {
+      if ($_POST["value" . $i] != "null") $sql = $sql . "'" . $_POST["value" . $i] . "', "; // NEVER TRUST USER INPUT!!!
       else $sql = $sql . "null, ";
       $i++;
     }
