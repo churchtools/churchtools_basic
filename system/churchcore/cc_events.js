@@ -202,7 +202,6 @@ CCEvent.prototype.saveSplitted = function (newEvent, pastEvent, splitDate, until
  * @param {Object} event
  */
 CCEvent.prototype.isEqual = function (event) {
-  console.log(this); console.log(event);
   return (event !=null && this.id == event.id);
 };
 

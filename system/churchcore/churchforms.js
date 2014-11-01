@@ -69,7 +69,6 @@ function form_renderReminder(domainType, domainId) {
     } 
     txt = form_renderImage({data:[{name:"type", value: domainType}, {name:"id", value: domainId}],
                             cssid:"reminder", label:"Erinnern", src: icon+".png", width:20});
-    console.log(txt);
   }
   return txt;
 }
@@ -2203,6 +2202,12 @@ $.widget("ct.colorcheckbox", {
       t.options.change(t.options.checked, t.options.id, t.options.name);
       t._renderCheckbox();
     });
+  },
+  check : function(check) {
+    var t = this;
+    t.options.checked = check;
+    t.options.change(t.options.checked, t.options.id, t.options.name);
+    t._renderCheckbox();    
   }
 });
 

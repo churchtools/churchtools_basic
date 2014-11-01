@@ -79,8 +79,14 @@ function saveCalSuccess(newEvent, originEvent, data) {
     delete calCCType.data[originEvent.category_id].events[originEvent.id];
     calCCType.refreshView(originEvent.category_id, false);
   }
-  calCCType.data[newEvent.category_id].events[newEvent.id] = newEvent;
-  calCCType.refreshView(newEvent.category_id, false);
+  if (calCCType.data[newEvent.category_id]!=null) {  // already visible
+    calCCType.data[newEvent.category_id].events[newEvent.id] = newEvent;
+    calCCType.refreshView(newEvent.category_id, false);
+  }
+  else { // not loaded, so I activate it and load it
+    $("#filterCalender_"+(newEvent.category_id*1+100)).colorcheckbox("check", true)
+    calCCType.refreshView(newEvent.category_id, true);
+  }
 }
 
 /**
@@ -1000,7 +1006,8 @@ function _eventClick(event, jsEvent, view ) {
   clearTooltip(true);
 
   var myEvent=getEventFromEventSource(event);
-  if ((myEvent!=null) && (categoryEditable(myEvent.category_id))) {
+  if ((myEvent!=null) && (categoryEditable(myEvent.category_id)) 
+        && (!masterData.category[myEvent.category_id].ical_source_url)) {
     editEvent(myEvent, view.name=="month", event.start.format(DATETIMEFORMAT_EN).toDateEn(true), jsEvent);
   }
   else {
@@ -1009,6 +1016,10 @@ function _eventClick(event, jsEvent, view ) {
     rows.push('<p>'+_("start.date")+': '+event.start.format(event.start.hasTime()?DATETIMEFORMAT_DE:DATEFORMAT_DE));
     if (event.end!=null)
       rows.push('<p>'+_("end.date")+': '+event.end.format(event.end.hasTime()?DATETIMEFORMAT_DE:DATEFORMAT_DE));
+    if (myEvent!=null) {
+      if (myEvent.notizen!=null) rows.push('<p>'+myEvent.notizen);
+    }
+    console.log(myEvent);
     form_showOkDialog("Termin: "+event.title.html2csv(), rows.join(""), 400, 400);
   }
 

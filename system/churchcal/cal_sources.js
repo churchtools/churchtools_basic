@@ -223,7 +223,8 @@ CalCCType.prototype.jsonCall = function(ids) {
 CalCCType.prototype.showEventsOnCal = function(k) {
   var t = this;
   var cs_events = mapEvents(t.data[k].events, true);
-  t.data[k].current_CalEvents={container:t, category_id:k, color:"black", editable:categoryEditable(k),
+  t.data[k].current_CalEvents={container:t, category_id:k, color:"black", 
+      editable:categoryEditable(k) && !masterData.category[k].ical_source_url,
       events:function (start, end, timezone, callback) {
         callback(_getEventsFromDate(cs_events, start, end));
       }

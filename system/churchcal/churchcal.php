@@ -789,6 +789,7 @@ function churchcal_updateICalSource($id) {
       $data["category_id"] = $id;
       $data["repeat_id"] = 0;
       $data["intern_yn"] = 0;
+      $data["modified_pid"] = -1;
       $data["notizen"] = getVar("SUMMARY", "", $event) . " " . getVar("DESCRIPTION", "", $event);
       $data["link"] = getVar("URL", "", $event);
       $data["ort"] = "";
