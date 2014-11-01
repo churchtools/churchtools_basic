@@ -407,13 +407,13 @@ function _renderEditEventContent(elem) {
 
     var e_summe=new Array();
     var e=new Array();
-    if (currentEvent.csevents==null) {
-      e.push({id:-1, bezeichnung:"-- "+_("personal.calendar")+" --"});
-      each(churchcore_sortMasterData(masterData.category), function(k,a) {
-        if ((a.privat_yn==1) && (categoryEditable(a.id))) e.push(a);
-      });
-      if (e.length>1) e_summe=e_summe.concat(e);
-    }
+
+    e.push({id:-1, bezeichnung:"-- "+masterData.maincal_name+" --"});
+    each(churchcore_sortMasterData(masterData.category), function(k,a) {
+      if ((a.oeffentlich_yn==1) && (categoryEditable(a.id)) && 
+           (!masterData.category[a.id].ical_source_url)) e.push(a);
+    });
+    if (e.length>1) e_summe=e_summe.concat(e);
 
     var e=new Array();
     e.push({id:-1, bezeichnung:"-- "+_("group.calendar")+" --"});
@@ -421,13 +421,16 @@ function _renderEditEventContent(elem) {
       if ((a.oeffentlich_yn==0) && (a.privat_yn==0) && (categoryEditable(a.id))) e.push(a);
     });
     if (e.length>1) e_summe=e_summe.concat(e);
-
-    var e=new Array();
-    e.push({id:-1, bezeichnung:"-- "+masterData.maincal_name+" --"});
-    each(churchcore_sortMasterData(masterData.category), function(k,a) {
-      if ((a.oeffentlich_yn==1) && (categoryEditable(a.id))) e.push(a);
-    });
-    if (e.length>1) e_summe=e_summe.concat(e);
+    
+    if (currentEvent.csevents==null) {
+      var e=new Array();
+      e.push({id:-1, bezeichnung:"-- "+_("personal.calendar")+" --"});
+      each(churchcore_sortMasterData(masterData.category), function(k,a) {
+        if ((a.privat_yn==1) && (categoryEditable(a.id)) && 
+            (!masterData.category[a.id].ical_source_url)) e.push(a);
+      });
+      if (e.length>1) e_summe=e_summe.concat(e);
+    }
 
 
     rows.push(form_renderSelect({
@@ -963,7 +966,7 @@ function _viewChanged(view) {
 
 function categoryEditable(category_id) {
   if (category_id==null || masterData.category[category_id]==null) return false;
-
+  
   if (user_access("edit category", category_id))
     return true;
 
@@ -1446,8 +1449,8 @@ function _loadAllowedPersons(func) {
 
 function editCategory(cat_id, privat_yn, oeffentlich_yn) {
   var current=$.extend({}, masterData.category[cat_id]);
-  if (privat_yn==null) privat_yn=masterData.category[cat_id].privat_yn!=0;
-  if (oeffentlich_yn==null) oeffentlich_yn=masterData.category[cat_id].oeffentlich_yn!=0;
+  if (privat_yn==null) privat_yn=masterData.category[cat_id].privat_yn;
+  if (oeffentlich_yn==null) oeffentlich_yn=masterData.category[cat_id].oeffentlich_yn;
   if (current.sortkey==null) current.sortkey=0;
 
   var form = new CC_Form((cat_id==null?"Kalender erstellen":"Kalender editieren"), current);
@@ -1461,16 +1464,22 @@ function editCategory(cat_id, privat_yn, oeffentlich_yn) {
     form.addCaption({text:"<p><small>Hier kann eine Gruppen angegeben werden, die automatisch die Berechtigung erh&auml;lt den Kalender zu sehen</small></p>"});
     form.addCheckbox({label:"Gruppenteilnehmer erhalten Schreibrechte", cssid:"writeaccess", checked:false});
   }
-  form.addInput({label:"Bezeichnung", cssid:"bezeichnung", required:true});
+  form.addInput({label:_("caption"), cssid:"bezeichnung", required:true});
   //form.addInput({label:"Farbe", cssid:"color"});
   form.addHtml('<span class="color"></span>');
-  form.addInput({label:"Sortierungsnummer", cssid:"sortkey"});
+  form.addInput({label:_("sortkey"), cssid:"sortkey"});
+  if (oeffentlich_yn == 1 || privat_yn == 1) {
+    form.addInput({label:"Externe iCal-Quelle", cssid:"ical_source_url"});
+    form.addCaption({text:"<p><small>Die iCal-Quelle wird einmal täglich automatisch aktualisiert."});
+  }
 
   form.addHtml('<p><p><p class="pull-right"><small>#'+cat_id);
 
   var elem = form_showDialog((cat_id==null?"Kalender erstellen":"Kalender bearbeiten"), form.render(false, "horizontal"), 500, 500, {
     "Speichern": function() {
       var obj = form.getAllValsAsObject();
+      if (obj.ical_source_url && !confirm("Achtung, wenn eine iCal-Source angegeben wird, werden alle vorhandenen unwiderruflich Termine gelöscht!"))
+        return;
       obj.color=current.color;
       if (obj.color==null) obj.color="black";
       obj.privat_yn=privat_yn;
@@ -1569,13 +1578,11 @@ function shareCategory(cat_id, privat_yn, oeffentlich_yn) {
             if (!ok) alert("Es ist ein Fehler aufgetreten:"+data)
             else {
               elem.dialog("close");
-              editCategories(privat_yn, oeffentlich_yn);
             }
           });
         },
         "Abbruch": function() {
           elem.dialog("close");
-          editCategories(privat_yn, oeffentlich_yn);
         }
       });
       form_renderLabelList(current, "personRead", allPersons);

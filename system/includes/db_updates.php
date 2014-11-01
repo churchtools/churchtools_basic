@@ -1929,6 +1929,7 @@ function run_db_updates($db_version) {
                 domain_id int(11) NOT NULL,  person_id int(11) NOT NULL, reminddate datetime NOT NULL,
                 mailsenddate datetime NOT NULL
               ) ENGINE=InnoDB ");
+    db_query("ALTER TABLE {cc_calcategory} ADD ical_source_url VARCHAR(255) NULL AFTER randomurl");
     set_version("2.52");
     
   } //end switch

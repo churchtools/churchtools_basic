@@ -386,8 +386,6 @@ function churchcal_addAddition($params) {
  * @param array $params
  */
 function churchcal_delAddition($params) {
-  ct_log("del add", 1);
-
   $db = db_query("SELECT cal_id FROM {cc_cal_add}
                   WHERE id=:id",
                   array (":id" => $params["id"]))
@@ -606,13 +604,14 @@ function churchcal_saveCategory($params) {
     $auth = user_access("admin church category", "churchcal") || churchcal_isUserOwnerOf($id);
   }
   if (!$auth) throw new CTNoPermission("Admin edit category", "churchcal");
-
+  
   $i = new CTInterface();
   $i->setParam("bezeichnung");
   $i->setParam("sortkey");
   $i->setParam("color");
   $i->setParam("privat_yn");
-
+  $i->setParam("ical_source_url", false);
+  
   if (!$id) {
     // oeffentlich will be set on insert only
     $i->addModifiedParams();
@@ -649,6 +648,7 @@ function churchcal_saveCategory($params) {
       ->condition("id", $id, "=")
       ->execute(false);
   }
+  if (!empty($params["ical_source_url"])) churchcal_updateICalSource($id);
   return $id;
 }
 
@@ -752,6 +752,58 @@ function churchcal__ajax() {
   $ajax->addFunction("moveCSEvent");
 
   drupal_json_output($ajax->call());
+}
+
+function churchcal_cron() {
+  // Refresh external ical 
+  $cats = db_query("SELECT * FROM {cc_calcategory} 
+                    WHERE ical_source_url IS NOT NULL AND ical_source_url!='' 
+                      AND (DATEDIFF(NOW(), modified_date)>0 OR modified_date IS NULL)");
+  foreach ($cats as $cat) {
+    churchcal_updateICalSource($cat->id);
+  }
+}
+
+function churchcal_updateICalSource($id) {
+  // Set modified date to not load this calendar each cron job
+  //db_query("UPDATE {cc_calcategory} SET modified_date = now() WHERE id = :id", (array(":id"=>$id)));
+  
+  $cat = db_query("SELECT * FROM {cc_calcategory} 
+                    WHERE id = :id", array(":id"=>$id))->fetch();
+  if (!$cat) throw new CTException("No calcategory found");
+  require ASSETS . '/ics-parser/class.iCalReader.php';
+  
+  $ical   = new ICal($cat->ical_source_url);
+  $events = $ical->events();
+  if (!$events) {
+    ct_log("iCal Source from $cat->bezeichnung could not readed and processed!", 2, "calcategory", $id);
+  }
+  else {
+    db_query("DELETE FROM {cc_cal} WHERE category_id = :id", array(":id" => $id));
+    include_once (CHURCHCAL. '/churchcal_db.php');
+    foreach ($events as $event) {
+      $data = array();
+      $data["startdate"] = churchcore_icalToDate($event["DTSTART"]);
+      $data["enddate"] = churchcore_icalToDate($event["DTEND"]);
+      $data["bezeichnung"] = getVar("SUMMARY", "", $event);
+      $data["category_id"] = $id;
+      $data["repeat_id"] = 0;
+      $data["intern_yn"] = 0;
+      $data["notizen"] = getVar("SUMMARY", "", $event) . " " . getVar("DESCRIPTION", "", $event);
+      $data["link"] = getVar("URL", "", $event);
+      $data["ort"] = "";
+      if ($data["startdate"]!="" && $data["enddate"]!="") {
+        // Substract one day if it is a whole day date
+        $sd = new Datetime($data["startdate"]); 
+        $ed = new Datetime($data["enddate"]);
+        if (isFullDay($sd, $ed)) $ed->modify("-1 DAY");
+        $data["startdate"] = $sd->format("Y-m-d H:i");
+        $data["enddate"] = $ed->format("Y-m-d H:i");
+        churchcal_createEvent($data);
+      }
+    }
+    ct_log("iCal Source from $cat->bezeichnung readed and processed!", 2, $id, "category");    
+  }  
 }
 
 /**

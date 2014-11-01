@@ -1642,6 +1642,15 @@ function churchcore_stringToDateICal($string) {
   return $dt->format('Ymd\THis');
 }
 
+function churchcore_icalToDate($ical) {
+  if (($timestamp = strtotime($ical)) === false) {
+    return "";
+  } 
+  else {
+    return date('Y-m-d H:i', $timestamp);
+  }
+}
+
 /**
  * get dateTime object from string - only used 2 times - replaced by new Datetime($string)
  *
