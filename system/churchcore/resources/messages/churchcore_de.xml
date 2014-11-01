@@ -432,7 +432,8 @@
 
   <!-- churchresource -->
   <entry key="view.x">{0} sehen</entry> <!-- TODO: use it for all similar texts -->
-  <entry key="create.own.bookings">Eigene Buchugsanfragen erstellen</entry>
+  <entry key="create.own.bookings">Eigene Buchungsanfragen erstellen</entry>
+  <entry key="create.virtual.bookings">Eigene virtuelle Buchugsanfragen erstellen</entry>
   <entry key="administer.bookings">Alle Anfragen editieren, ablehnen, etc.</entry>
   <entry key="assistant.mode">Im Auftrag eines anderen Buchungen durchführen</entry>
   <entry key="here.are.all.ressources.listed">Hier sind alle Buchungsinformationen zusammengefasst</entry>

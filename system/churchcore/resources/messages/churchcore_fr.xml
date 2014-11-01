@@ -435,6 +435,7 @@
   <!-- churchresource -->
   <entry key="view.x">View {0}</entry> <!-- TODO: use it for all similar texts -->
   <entry key="create.own.bookings">Create own booking requests</entry>
+  <entry key="create.virtual.bookings">Create virtual own booking requests</entry>
   <entry key="administer.bookings">Edit, refuse, ... all bookings</entry>
   <entry key="assistant.mode">Create bookings for others</entry>
   <entry key="here.are.all.ressources.listed">All booking resources are listed here</entry>

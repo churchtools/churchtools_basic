@@ -85,7 +85,7 @@ WeekView.prototype.renderMenu = function() {
 
   menu = new CC_Menu(_("menu"));
   if (!this.printview) {
-    if (masterData.auth.write)
+    if (masterData.auth.write || masterData.auth.virtual)
       menu.addEntry(_("add.new.request"), "anewentry", "star");
 
     menu.addEntry(_("printview"), "adruckansicht", "print");
@@ -629,7 +629,8 @@ WeekView.prototype.renderListEntry = function (a) {
     rows.push(renderBookings(bookings));
 
     rows.push("</small>");
-    if ((masterData.auth.write) && (!this.printview))
+    if ((masterData.auth.write || (masterData.auth.virtual && a.virtual_yn==1)) 
+        && (!this.printview))
       rows.push("<a href=\"#"+d.toStringEn()+"\" id=\"new_"+a.id+"\">"+form_renderImage({src:"plus.png", width:16, hover:true})+"</a>");
   }
   return rows.join("");
@@ -692,7 +693,10 @@ WeekView.prototype.renderEditBookingFields = function (a) {
     cssid:"InputRessource",
     label:_("resources"),
     htmlclass:"input-medium",
-    selected:a.resource_id
+    selected:a.resource_id,
+    func: function(a) { 
+            return (masterData.auth.create || (masterData.auth.virtual && a.virtual_yn==1)); 
+          }
   }));
 
   rows.push('<div id="dates"></div>');
@@ -840,7 +844,10 @@ WeekView.prototype.calcConflicts = function(new_b, resource_id, withoutEvent) {
     var e = new Date(ds.enddate.getTime()); e.addDays(1); // Add 1 day of full day dates
     each(t.getIndexedBookings(ds.startdate, e), function(i,conflict) {
       var booking=allBookings[conflict.id];
-      if ((booking!=null) && (booking.resource_id==resource_id) && (new_b.id!=booking.id) && (!booking.isEqual(withoutEvent))) {
+      if ((booking!=null) && (booking.resource_id==resource_id) 
+           && (new_b.id!=booking.id) 
+           && (!booking.isEqual(withoutEvent))
+           && (masterData.resources[resource_id].virtual_yn==0)) {
         if ((booking.status_id==1) || (booking.status_id==2)) {
           if (churchcore_datesInConflict(ds.startdate, ds.enddate, conflict.startdate, conflict.enddate)) {
             if (conflict.startdate.sameDay(conflict.enddate))
@@ -1186,7 +1193,7 @@ WeekView.prototype.renderEditEvent = function(func, newEvent, myEvent, _isSeries
        authexceptions: user_access("edit", myEvent.resource_id),
        authadditions: user_access("edit", myEvent.resource_id),
        callback: function(){
-         t.implantEditBookingCallbacks("cr_fields", allBookings[id]);
+         t.implantEditBookingCallbacks("cr_fields", myEvent);
        }
     });
   }
@@ -1194,7 +1201,7 @@ WeekView.prototype.renderEditEvent = function(func, newEvent, myEvent, _isSeries
    $("#dates").renderCCEvent({
      event: myEvent,
      callback: function() {
-       t.implantEditBookingCallbacks("cr_fields", allBookings[id]);
+       t.implantEditBookingCallbacks("cr_fields", myEvent);
      }
    });
 
@@ -1211,9 +1218,9 @@ WeekView.prototype.renderEditEvent = function(func, newEvent, myEvent, _isSeries
   t.checkConflicts(myEvent);
 
   var log=$("#cr_logs");
-  if (log!=null && id!=null) {
+  if (log!=null && myEvent.id!=null) {
     // Hole die Log-Daten
-    churchInterface.jsendRead({ func: "getLogs", id:id }, function(ok, json) {
+    churchInterface.jsendRead({ func: "getLogs", id:myEvent.id }, function(ok, json) {
       if (json!=null) {
         logs='<small><font style="line-height:100%;"><a href="#" id="toogleLogs">Historie >></a><br/></small>';
         logs=logs+'<div id="cr_logs_detail" style="display: none; border: 1px solid white; height: 140px; overflow: auto; margin: 2px; padding: 2px;">';

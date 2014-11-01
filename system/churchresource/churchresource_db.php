@@ -150,7 +150,7 @@ function churchresource_createBooking($params) {
   $txt = churchcore_getFieldChanges(getBookingFields(), null, $booking);
   cr_log("CREATE BOOKING\n" . $txt, 3, $booking->id);
   
-  return $booking;
+  return array ("id" => $id );
 }
 
 /**

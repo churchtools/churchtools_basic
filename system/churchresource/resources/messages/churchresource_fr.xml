@@ -11,5 +11,6 @@
   <entry key="resourcetype_id">Type de ressource identifiant</entry>
   <entry key="autoaccept_yn">Confirmation automatique</entry>
   <entry key="admin_person_ids">Identifiants Admin</entry>
+  <entry key="virtual_yn">Virtual resource</entry>
 
 </properties>

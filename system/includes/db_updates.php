@@ -1926,7 +1926,7 @@ function run_db_updates($db_version) {
   case '2.51': 
     db_query("ALTER TABLE {cr_resource} ADD virtual_yn INT(1) NOT NULL DEFAULT '0'");
     db_query("CREATE TABLE {cc_reminder} (id int(11) NOT NULL, domain_type varchar(30) NOT NULL,
-                domain_id int(11) NOT NULL,  person_id int(11) NOT NULL,  reminddate datetime NOT NULL,
+                domain_id int(11) NOT NULL,  person_id int(11) NOT NULL, reminddate datetime NOT NULL,
                 mailsenddate datetime NOT NULL
               ) ENGINE=InnoDB ");
     set_version("2.52");

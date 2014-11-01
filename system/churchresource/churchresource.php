@@ -252,7 +252,8 @@ function churchresource__printview() {
 function churchresource_getAuth() {
   $cc_auth = array ();
   $cc_auth = addAuth($cc_auth, 201, 'view', 'churchresource', null, t('view.x', 'ChurchResource'), 1);
-  $cc_auth = addAuth($cc_auth, 306, 'create bookings', 'churchresource', null, t('create.bookings'), 1);
+  $cc_auth = addAuth($cc_auth, 306, 'create bookings', 'churchresource', null, t('create.own.bookings'), 1);
+  $cc_auth = addAuth($cc_auth, 204, 'create virtual bookings', 'churchresource', null, t('create.virtual.bookings'), 1);
   $cc_auth = addAuth($cc_auth, 202, 'administer bookings', 'churchresource', 'cr_resource', t('administer.bookings'), 1);
   $cc_auth = addAuth($cc_auth, 203, 'assistance mode', 'churchresource', null, t('assistant.mode'), 1);
   $cc_auth = addAuth($cc_auth, 299, 'edit masterdata', 'churchresource', null, t('edit.masterdata'), 1);
@@ -268,9 +269,8 @@ function churchresource_getAuthForAjax() {
   $auth = $_SESSION["user"]->auth["churchresource"];
 
   if (isset($auth["view"])) $res["view"] = true;
-  if (isset($auth["create bookings"])) {
-    $res["write"] = true;
-  }
+  if (isset($auth["create bookings"])) $res["write"] = true;
+  if (isset($auth["create virtual bookings"])) $res["virtual"] = true;
   if (isset($auth["administer bookings"])) {
     $res["write"] = true;
     // $res["editall"]=true;

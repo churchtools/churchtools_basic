@@ -11,6 +11,7 @@
   <entry key="resourcetype_id">Ressoure type</entry>
   <entry key="autoaccept_yn">Automatically acception</entry>
   <entry key="admin_person_ids">Ids of Admin-Persons (comma separated)</entry>
+  <entry key="virtual_yn">Virtual resource</entry>
 
 
 </properties>
