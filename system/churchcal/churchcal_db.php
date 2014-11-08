@@ -148,7 +148,7 @@ function churchcal_createEvent($params, $callCS=true) {
   // Add exceptions
   if (isset($params["exceptions"])) foreach ($params["exceptions"] as $exception) {
     $res = churchcal_addException(array(
-            "cal_id" => $newId,
+            "cal_id" => $params["id"],
             "except_date_start" => $exception["except_date_start"],
             "except_date_end" => $exception["except_date_end"],
     ));
@@ -221,7 +221,8 @@ function churchcal_updateEvent($params, $callCS = true) {
   // can user edit current event category?
   if (!churchcal_isAllowedToEditCategory($params["category_id"])) throw new CTNoPermission("AllowedToEditCategory[" .
        $params["category_id"] . "] (newCat)", "churchcal");
-  $old_cal = db_query("SELECT category_id, startdate
+
+  $old_cal = db_query("SELECT *
                        FROM {cc_cal}
                        WHERE id=:id",
                        array (":id" => $params["id"]))
@@ -230,6 +231,10 @@ function churchcal_updateEvent($params, $callCS = true) {
   if (!churchcal_isAllowedToEditCategory($old_cal->category_id)) {
     throw new CTNoPermission("AllowedToEditCategory[" . $old_cal->category_id . "] (oldCat)", "churchcal");
   }
+
+  // When empty, load originEvent for later sending Change protocol
+  $dummy = churchcal_getCalPerCategory(array ("category_ids" => array(0 => $params["category_id"])));
+  $originEvent = (array) $dummy[$params["category_id"]][$params["id"]];
 
   if (isset($params["notizen"])) $params["notizen"] = str_replace('\"', '"', $params["notizen"]);
 
@@ -246,7 +251,7 @@ function churchcal_updateEvent($params, $callCS = true) {
   $i->setParam("repeat_until", false);
   $i->setParam("repeat_frequence", false);
   $i->setParam("repeat_option_id", false);
-  $i->setParam("modified_pid", false);
+  if (isset($params["modified_pid"])) $i->setParam("modified_pid"); // not with ", false" cause this cause an update
 
   $f = $i->getDBInsertArrayFromParams($params);
   if (count($f)) db_update("cc_cal")
@@ -334,7 +339,28 @@ function churchcal_updateEvent($params, $callCS = true) {
   $txt .= churchcore_CCEventData2String($params);
   ct_notify("category", $params["category_id"], $txt);
 
+  // Inform creator when I am allowed and when it is not me!
+  if (getVar("informCreator", true) && $originEvent["modified_pid"]!=$user->id) {
+    $data = (array) churchcal_getEventChangeImpact(array ("newEvent" => $params, "originEvent" => $originEvent, "pastEvent" => null));
+    $data["caption"] = $params["bezeichnung"];
+    $data["startdate"]   = churchcore_stringToDateDe($params["startdate"]);
+    $p = db_query("SELECT name, vorname, IF(spitzname, spitzname, vorname) AS nickname
+                    FROM {cdb_person}
+                    WHERE id=:id",
+                    array(":id" => $originEvent["modified_pid"]))
+                    ->fetch();
+    $data["p"] = $p;
+
+    // get populated template and send email
+    $content = getTemplateContent('email/informCreator', 'churchcal', $data);
+    churchcore_sendEMailToPersonIDs($originEvent["modified_pid"], "[" . getConf('site_name') . "] " . t('information.for.your.event'), $content, null, true);
+  }
+
   return array("cseventIds" => $newCSIds, "bookingIds" => $newBookingIds);
+}
+
+function churchcal_getCCEventChanges($old, $new) {
+
 }
 
 function churchcal_saveSplittedEvent($params) {
@@ -376,32 +402,113 @@ function churchcal_saveSplittedEvent($params) {
   return array("id" => $newEventId, "bookingIds" => $res["bookingIds"]);
 }
 
+
+
+function churchcal_getCCEventChangeImpact($newEvent, $pastEvent, $originEvent) {
+  $changes = array ();
+  function _addCalChange(&$changes, $status, $startdate = null, $change = null) {
+    $changes[] = array("status" => $status, "startdate" => $startdate->format("Y-m-d"), "changes" => $change);
+  }
+
+  $splitDate = new DateTime($newEvent["startdate"]);
+
+  // 1. Get all Dates for the origin Event
+  $ds = getAllDatesWithRepeats((object) $originEvent, 0, 9999, $splitDate);
+  if ($ds) foreach ($ds as $d) {
+    if (!dateInCCEvent($d, $newEvent)) { // 1. Date is not in newEvent
+      if (!dateInCCEvent($d, $pastEvent)) {
+        // 2b. Deleted! Now for each booking make change entry
+        _addCalChange($changes, "deleted", $d);
+      }
+    }
+    else { // 3. event is in newEvent, now check bookings!
+      $change = makeCCEventDiff($originEvent, $newEvent);
+      if ($change != null) _addCalChange($changes, "updated", $d, $change);
+    }
+  }
+  // Now do 4.
+  $ds = getAllDatesWithRepeats((object) $newEvent, 0, 9999, $splitDate);
+  if ($ds) foreach ($ds as $d) {
+    if (!dateInCCEvent($d, $originEvent)) {
+      _addCalChange($changes, "new", $d);
+    }
+  }
+  return $changes;
+}
+
+function makeCCEventDiff($originEvent, $newEvent) {
+  $ret = array ();
+  foreach ($newEvent as $key=>$newEntry) {
+    if ($key != "informCreator" && $key != "modified_pid" && $key != "repeat_frequence"
+        && $key != "bookings" && $key != "csevents") {
+      if (!isset($originEvent[$key]) || $originEvent[$key] != $newEntry) {
+        $k = $key;
+        $einheit = "";
+        $old = $originEvent[$key];
+        $new = $newEntry;
+        if ($key == "startdate") $k ="start.date";
+        else if ($key == "enddate") $k = "end.date";
+        else if ($key == "repeat_id") {
+          $repeat_types = churchcore_getTableData("cc_repeat");
+          $k = "repeat.type";
+          $old = $repeat_types[$old]->bezeichnung;
+          $new = $repeat_types[$new]->bezeichnung;
+        }
+        else if ($key == "repeat_until") $k = "repeat.to";
+        else if ($key == "modified_name") $k = "creator";
+        if (strpos($key, "date") !== false || $key == "repeat_until") {
+           if ($old != "") $old = churchcore_stringToDateDe($old);
+           if ($new != "") $new = churchcore_stringToDateDe($new);
+        }
+        if ($key == "repeat_until") { $old = substr($old, 0, 10); $new = substr($old, 0, 10); }
+        $ret[$k] = array ("old" => $old . $einheit, "new" => $new . $einheit);
+      }
+    }
+  }
+  return $ret;
+}
+
+/**
+ * is Day date (without Time) in $event
+ * @param [type] $date
+ * @param [type] $event
+ */
+function dateInCCEvent($date, $event) {
+  $ret = false;
+  if ($event == null) return false;
+  $ds = getAllDatesWithRepeats((object) $event, 0, 9999, new DateTime($event["startdate"]));
+  if ($ds) foreach ($ds as $d) {
+    if ($date->format("Ymd") == $d->format("Ymd")) $ret = true;
+  }
+  return $ret;
+}
+
 /**
  * Checking the depending changes in other modules
- * @param [type] $params with newEvent, originEvent, Only for series: splitDate, untilEnd_yn
+ * @param [type] $params with newEvent, pastEvent, originEvent, Only for series: splitDate, untilEnd_yn
  */
 function churchcal_getEventChangeImpact($params) {
   $res = new stdClass();
 
+  $res->cal = churchcal_getCCEventChangeImpact( $params["newEvent"], $params["pastEvent"], $params["originEvent"]);
+
   // Get ChurchService impact
-  if (churchcore_isModuleActivated("churchservice")) {
+  if (churchcore_isModuleActivated("churchservice") && isset($params["newEvent"]["csevents"])) {
     // Get dependencies from CS
     include_once ('./' . CHURCHSERVICE . '/churchservice_db.php');
     //$res->services = churchservice_getActiveServicesInEvent(
       //                 $params["originEvent"]["id"], $splitDate, $params["untilEnd_yn"]
         //             );
     $res->services = churchservice_getEventChangeImpact($params["newEvent"]["csevents"]);
-    if (count($res->services) > 0) $res->warning = true;
   }
 
   // Get ChurchResource impact
   if (churchcore_isModuleActivated("churchresource")) {
     // Get dependencies from CR
     include_once ('./' . CHURCHRESOURCE . '/churchresource_db.php');
-    $res->bookings = churchresource_getActiveBookingsInEvent(
-                       $params["originEvent"]["id"], $splitDate, $params["untilEnd_yn"]
+    $res->bookings = churchresource_getEventChangeImpact(
+                       $params["newEvent"], $params["pastEvent"], $params["originEvent"]
                      );
-    if (count($res->bookings) > 0) $res->warning = true;
   }
 
   return $res;
@@ -484,12 +591,13 @@ function churchcal_getCalPerCategory($params, $withIntern = null) {
   $res = db_query("
       SELECT cal.*, CONCAT(p.vorname, ' ',p.name) AS modified_name, e.id AS event_id, e.startdate AS event_startdate,
         e.created_by_template_id AS event_template_id, b.id AS booking_id, b.startdate AS booking_startdate, b.enddate AS booking_enddate,
-        b.resource_id AS booking_resource_id, b.status_id AS booking_status_id
+        b.resource_id AS booking_resource_id, b.status_id AS booking_status_id, b.location AS booking_location,
+        b.note AS booking_note
       FROM {cc_cal} cal
       LEFT JOIN {cs_event} e ON (cal.id=e.cc_cal_id)
       LEFT JOIN {cr_booking} b ON (cal.id=b.cc_cal_id)
       LEFT JOIN {cdb_person} p ON (cal.modified_pid=p.id)
-      WHERE cal.category_id IN (". db_implode($params["category_ids"]).") ".(!$withintern ? " and intern_yn=0" : "")
+      WHERE cal.category_id IN (". db_implode($params["category_ids"]).") ".(!$withIntern ? " and intern_yn=0" : "")
         ." AND(     ( DATEDIFF  ( cal.enddate , NOW() ) > - $from )
                  OR ( cal.repeat_id>0 AND DATEDIFF (cal.repeat_until, NOW() ) > - $from) )
       ");
@@ -514,7 +622,12 @@ function churchcal_getCalPerCategory($params, $withIntern = null) {
           "minpost" => (strtotime($arr->booking_enddate) - strtotime($arr->enddate)) / 60,
           "resource_id" => $arr->booking_resource_id,
           "status_id" => $arr->booking_status_id,
+          "location" => $arr->booking_location,
+          "note" => $arr->booking_note
       );
+      unset($arr->booking_id); unset($arr->booking_startdate); unset($arr->booking_enddate);
+      unset($arr->booking_resource_id); unset($arr->booking_status_id);
+      unset($arr->booking_location); unset($arr->booking_note);
     }
     if ($arr->event_id) {
       // Get additional Service text infos, like "Preaching with [Vorname]"
@@ -579,7 +692,7 @@ function churchcal_getCalPerCategory($params, $withIntern = null) {
   $ret = array ();
   foreach ($params["category_ids"] as $cat) {
     $ret[$cat] = array();
-    foreach ($data as $d) {
+    if ($data) foreach ($data as $d) {
       if ($d->category_id == $cat) $ret[$cat][$d->id] = $d;
     }
   }

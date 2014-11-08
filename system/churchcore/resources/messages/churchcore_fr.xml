@@ -231,7 +231,7 @@
   <entry key="drop.file.for.uploading.here">Emplacement pour les fichiers à télécharger</entry>
   <entry key="error.occured">Une erreur est survenue</entry>
   <entry key="create">Créer</entry>
-  <entry key="resources">Ressource</entry>
+  <entry key="resource">Ressource</entry>
   <entry key="resources">Ressources</entry>
   <entry key="embed">Intégrer</entry>
   <entry key="subscribe.per.ical">Souscrire par iCal</entry>
@@ -242,6 +242,7 @@
   <entry key="save.data">Sauvegarder les données...</entry>
   <entry key="load.data">Charger les données...</entry>
   <entry key="saved">Sauvegardé</entry>
+  <entry key="no.changes">No changes</entry>
   <entry key="save.changes">Sauvegarder les modifications</entry>
   <entry key="undo.changes">Annuler les modifications</entry>
   <entry key="edit.permissions">Adapter les autorisations</entry>
@@ -256,7 +257,8 @@
   <entry key="group.calendar">Groupe d'agendas</entry>
   <entry key="first.day.in.week">First day of week (0=Suday, 1=Monday, 2=Tuesday, ..)</entry>
   <entry key="by.order.of">Par ordre de</entry>
-
+  <entry key="updated">updated</entry>
+  <entry key="deleted">deleted</entry>
   <entry key="january">Janvier</entry>
   <entry key="february">Février</entry>
   <entry key="march">Mars</entry>
@@ -456,6 +458,9 @@
   <entry key="booking.request.approved">Booking request approved</entry>
   <entry key="booking.request.canceled">Bookin request canceled</entry>
   <entry key="booking.request.deleted">Booking request deleted</entry>
+  <entry key="booking.deleted">Booking deleted</entry>
+  <entry key="booking.before">Before</entry>
+  <entry key="booking.after">After</entry>
 
   <!-- churchwiki -->
   <entry key="view.wiki.category">View single wiki category</entry>
@@ -541,6 +546,7 @@
   <entry key="cancelation.of.event.date">Cancelation from {0} on {1}</entry>
   <entry key="thank.you.for.feedback">Thank you for feedback!</entry>
   <entry key="category">Calendar</entry>
+  <entry key="information.for.your.event">Informations for your event</entry>
 
 
   <!-- churchcal auth -->

@@ -1,8 +1,3 @@
-
-// TODO
-// previousBookings=$.extend({}, o.bookings);
-// Copy!
-
 calendar=null;
 currentEvent=null;
 allEvents=null;
@@ -51,16 +46,20 @@ function saveSplitCalSuccess(newEvent, pastEvent, originEvent) {
 }
 
 function saveCalSuccess(newEvent, originEvent, data) {
-  // New CSEvent Id Mapping from -1, -2 ... to 1, 2 ...
+  if (newEvent.copychurchservice) {
+    // When copy then I need to refresh completly
+    calCCType.refreshView(newEvent.category_id, true);
+    return;
+  }
+
   if (data!=null) {
+    // New CSEvent Id Mapping from -1, -2 ... to 1, 2 ...
     each(data.cseventIds, function(k,a) {
       newEvent.csevents[a] = newEvent.csevents[k]
       newEvent.csevents[a].id=a;
       delete newEvent.csevents[k];
     });
-  }
-  // New Booking-Ids Mapping from -1, -2 ... to 1, 2 ...
-  if (data!=null) {
+    // New Booking-Ids Mapping from -1, -2 ... to 1, 2 ...
     each(data.bookingIds, function(k,a) {
       newEvent.bookings[a] = newEvent.bookings[k]
       newEvent.bookings[a].id=a;
@@ -110,7 +109,7 @@ function doEventChanges(event, delta, jsEvent, func) {
         originEvent.doSplit(splitDate, untilEnd, function(newEvent, pastEvent) {
           // Change new event
           newEvent = func(true, newEvent);
-          originEvent.prooveEventChangeImpact(newEvent, splitDate, untilEnd, function(ok) {
+          originEvent.prooveEventChangeImpact(newEvent, pastEvent, splitDate, untilEnd, function(ok) {
 
             if (!ok) func(false);
             else {
@@ -137,7 +136,7 @@ function editEvent(myEvent, month, currentDate, jsEvent) {
     if (untilEnd!=null) {
       myEvent.doSplit(currentDate, untilEnd, function(newEvent, pastEvent) {
         renderEditEvent(newEvent, myEvent, newEvent.isSeries(), untilEnd, function(newEvent, func) {
-          myEvent.prooveEventChangeImpact(newEvent, currentDate, null, function(ok) {
+          myEvent.prooveEventChangeImpact(newEvent, pastEvent, currentDate, null, function(ok) {
             if (!ok) func(false);
             else {
               myEvent.saveSplitted(newEvent, pastEvent, currentDate, untilEnd);
@@ -238,7 +237,7 @@ function _renderViewChurchResource(elem) {
   });
 
   var minutes = getMinutesDuration();
-  
+
   var form = new CC_Form();
   if (currentEvent.minpre==null) {
     currentEvent.minpre=0; currentEvent.minpost=0;
@@ -272,7 +271,8 @@ function _renderViewChurchResource(elem) {
     }
 
     form.addHtml('<legend>Vorhandene Buchungen</legend>');
-    form.addHtml('<div class="w_ell"><table class="table table-condensed"><tr><th>Ressource<th>Vorher<th>Nachher<th>Status<th>');
+    form.addHtml('<div class="w_ell"><table class="table table-condensed"><tr><th>'+_("resource")+
+                 '<th>'+_("booking.before")+'<th>'+_("booking.after")+'<th>'+_("status")+'<th>');
     each(currentEvent.bookings, function(k,a) {
       form.addHtml('<tr><td>');
       if (masterData.resources[a.resource_id]!=null)
@@ -280,11 +280,11 @@ function _renderViewChurchResource(elem) {
       else
         form.addHtml("-- Resource existiert nicht mehr --");
       form.addHtml('<td>');
-      form.addSelect({type:"small", cssid:"min-pre-"+a.id, controlgroup:false, sort:false, selected:a.minpre, data:minutes});
+      form.addSelect({type:"small", cssid:"min-pre-"+k, controlgroup:false, sort:false, selected:a.minpre, data:minutes});
       form.addHtml('<td>');
-      form.addSelect({type:"small", cssid:"min-post-"+a.id, controlgroup:false, sort:false, selected:a.minpost, data:minutes});
+      form.addSelect({type:"small", cssid:"min-post-"+k, controlgroup:false, sort:false, selected:a.minpost, data:minutes});
       form.addHtml('<td>');
-      form.addSelect({type:"medium", data:masterData.bookingStatus, cssid:"status-"+a.id, controlgroup:false, selected:a.status_id,
+      form.addSelect({type:"medium", data:masterData.bookingStatus, cssid:"status-"+k, controlgroup:false, selected:a.status_id,
           func:function(s) {
             return s.id==1
                    || (s.id==2 && masterData.resources[a.resource_id]!=null && masterData.resources[a.resource_id].autoaccept_yn==1)
@@ -294,7 +294,7 @@ function _renderViewChurchResource(elem) {
       });
       form.addHtml('<td>');
       if (a.status_id!=99)
-        form.addImage({src:"trashbox.png", htmlclass:"delete-booking", link:true, width:20, data:[{name:"id", value:a.id}]});
+        form.addImage({src:"trashbox.png", htmlclass:"delete-booking", link:true, width:20, data:[{name:"id", value:k}]});
       if (typeof weekView!='undefined') {
         if (allBookings[a.id]!=null && allBookings[a.id].exceptions!=null) {
           var arr=new Array();
@@ -315,6 +315,14 @@ function _renderViewChurchResource(elem) {
         c.startdate.setTime(currentEvent.startdate.getTime() - (a.minpre * 60 * 1000));
         c.enddate.setTime(currentEvent.enddate.getTime() + (a.minpost * 60 * 1000));
         c.id=a.id;
+
+        if (a.note || a.location) {
+          form.addHtml('<tr><td colspan="5"><div class="alert">');
+          if (a.location!="") form.addHtml('<i>Bemerkung: '+a.location+'</i>&nbsp;<br/>');
+          if (a.note!="") form.addHtml('<small><i>'+a.note+'</i></small><br/>');
+          form.addHtml('</div>');
+        }
+
         var conflicts=weekView.calcConflicts(c, a.resource_id);
         if (conflicts!="") form.addHtml('<tr><td colspan="5"><div class="alert alert-error">Konflikte: '+conflicts+"</div>");
       }
@@ -416,7 +424,7 @@ function _renderEditEventContent(elem) {
 
     e.push({id:-1, bezeichnung:"-- "+masterData.maincal_name+" --"});
     each(churchcore_sortMasterData(masterData.category), function(k,a) {
-      if ((a.oeffentlich_yn==1) && (categoryEditable(a.id)) && 
+      if ((a.oeffentlich_yn==1) && (categoryEditable(a.id)) &&
            (!masterData.category[a.id].ical_source_url)) e.push(a);
     });
     if (e.length>1) e_summe=e_summe.concat(e);
@@ -427,12 +435,12 @@ function _renderEditEventContent(elem) {
       if ((a.oeffentlich_yn==0) && (a.privat_yn==0) && (categoryEditable(a.id))) e.push(a);
     });
     if (e.length>1) e_summe=e_summe.concat(e);
-    
+
     if (currentEvent.csevents==null) {
       var e=new Array();
       e.push({id:-1, bezeichnung:"-- "+_("personal.calendar")+" --"});
       each(churchcore_sortMasterData(masterData.category), function(k,a) {
-        if ((a.privat_yn==1) && (categoryEditable(a.id)) && 
+        if ((a.privat_yn==1) && (categoryEditable(a.id)) &&
             (!masterData.category[a.id].ical_source_url)) e.push(a);
       });
       if (e.length>1) e_summe=e_summe.concat(e);
@@ -633,6 +641,7 @@ function _renderViewInvite(elem) {
  * @param {[type]} elem
  */
 function _renderViewChurchService(elem) {
+  console.log(currentEvent);
   if (masterData.eventTemplate==null) {
     churchInterface.jsendRead({func:"getEventTemplates"}, function(ok, data) {
       if (!ok) alert("Fehler beim Laden der Templates: "+data);
@@ -648,54 +657,51 @@ function _renderViewChurchService(elem) {
     rows.push(form_renderCaption({text:'<p>Hier können für <i>'+masterData.churchservice_name+'</i>'
                +' Events angelegt und aufgerufen werden. Um Dienste anzugelegen bitte '
                +' eine entsprechende Vorlage auswählen. '}));
-    rows.push('<div class="well">');
-    rows.push('<table class="table-condensed table">');
-    rows.push('<tr><th width="115px">Event-Datum<th>Event-Vorlage<th>');
-    var isOneNew = false; moreThenOne = false;
-    each(churchcore_getAllDatesWithRepeats(currentEvent), function(a,ds) {
-      if (a>0) moreThenOne=true;
-      rows.push('<tr data-id="'+a+'" data-date="'+ds.startdate.toStringEn(true)+'"><td>' + ds.startdate.toStringDe(true));
-      var csEvent=null;
-      var id = getCSEventId(currentEvent, ds.startdate);
-      if (id==null) isOneNew=true;
-      else csEvent = currentEvent.csevents[id];
-      rows.push('<td>');
-      rows.push(form_renderSelect({cssid:"eventTemplate"+a, htmlclass:"event-template", freeoption:true,
-                                   controlgroup:false, type:"medium", disabled:(id!=null && id>=0),
-                                   selected:(csEvent!=null?csEvent.eventTemplate:""), data:masterData.eventTemplate}));
-      rows.push('<td>');
-      if (id!=null && id>=0) rows.push('<a class="btn btn-small" href="?q=churchservice&id='+csEvent.id+'">Event aufrufen</a>');
-      rows.push('<span class="event-hint"></span>');
-    });
-    rows.push('</table>');
-    rows.push('</div>');
-/*
-    else if (currentEvent.copyevent) {
+    if (currentEvent.copyevent && !currentEvent.isSeries()) {
       var form = new CC_Form(masterData.churchservice_name+' kopieren oder Template nutzen?');
-      form.addCheckbox({label:"Alle Dienstanfragen mit kopieren",
+      form.addCheckbox({label:"Alle Events und Dienstanfragen mit kopieren",
         checked:currentEvent.copychurchservice, cssid:"copychurchservice"}  );
-      form.addCaption({text:'<i>oder</i><br/><br/> '});
-      form.addSelect({cssid:"eventTemplate", freeoption:true, selected:currentEvent.eventTemplate, label:"Eine Event-Vorlage w&auml;hlen", data:masterData.eventTemplate});
       rows.push(form.render(null, "horizontal"));
     }
-    */
+    rows.push('<div class="well">');
+
+      rows.push('<table class="table-condensed table">');
+      rows.push('<tr><th width="115px">Event-Datum<th>Event-Vorlage<th>');
+      var isOneNew = false; moreThenOne = false;
+      each(churchcore_getAllDatesWithRepeats(currentEvent), function(a,ds) {
+        if (a>0) moreThenOne=true;
+        rows.push('<tr data-id="'+a+'" data-date="'+ds.startdate.toStringEn(true)+'"><td>' + ds.startdate.toStringDe(true));
+        var csEvent=null;
+        var id = getCSEventId(currentEvent, ds.startdate);
+        if (id==null) isOneNew=true;
+        else csEvent = currentEvent.csevents[id];
+        rows.push('<td>');
+        rows.push(form_renderSelect({cssid:"eventTemplate"+a, htmlclass:"event-template", freeoption:true,
+                                     controlgroup:false, type:"medium", disabled:(id!=null && id>=0),
+                                     selected:(csEvent!=null?csEvent.eventTemplate:""), data:masterData.eventTemplate}));
+        rows.push('<td>');
+        if (id!=null && id>=0) rows.push('<a class="btn btn-small" href="?q=churchservice&id='+csEvent.id+'">Event aufrufen</a>');
+        rows.push('<span class="event-hint"></span>');
+      });
+      rows.push('</table>');
+
+    rows.push('</div>');
+
     elem.find("#cal_content").html(rows.join(""));
     elem.find("#copychurchservice").change(function() {
       currentEvent.copychurchservice=$(this).attr("checked")=="checked";
       if (currentEvent.copychurchservice) {
-        elem.find("#eventTemplate").val("");
+        elem.find("select.event-template").val("");
         currentEvent.eventTemplate=null;
       }
+      _refreshCSInfo();
     });
-    elem.find("#eventTemplate").change(function() {
-      elem.find("#copychurchservice").removeAttr("checked");
-      currentEvent.copychurchservice=null;
-      currentEvent.eventTemplate=$(this).val();
-    });
-    elem.find("#cal_content").html(rows.join(""));
     _refreshCSInfo();
     var firstOne=true;
     elem.find("select.event-template").change(function() {
+      // No copy anymore
+      elem.find("#copychurchservice").removeAttr("checked");
+      currentEvent.copychurchservice=false;
       var id = $(this).parents("tr").attr("data-id");
       if (isOneNew && moreThenOne && (id==0 || firstOne) && confirm("Soll es für alle Event übernommen werden?")) {
         firstOne=false;
@@ -835,8 +841,12 @@ function renderEditEvent(myEvent, origEvent, isSeries, editSeries, func) {
         each(currentEvent.csevents, function(k, a) {
           if (!a.mark) a.action = "delete";
         });
-
-        func(currentEvent, function(ok) {if (ok) elem.dialog("close");});
+        if ($("#inform_creator").attr("checked")=="checked") currentEvent.informCreator = true;
+        var myEvent = currentEvent.clone();
+        delete myEvent.view;
+        delete myEvent.minpre;
+        delete myEvent.minpost;
+        func(myEvent, function(ok) {if (ok) elem.dialog("close");});
       }
     });
 
@@ -860,7 +870,7 @@ function renderEditEvent(myEvent, origEvent, isSeries, editSeries, func) {
             newEvent = origEvent.clone();
             newEvent.repeat_until=d;
             deleteNewerExceptionsAndAdditions(newEvent, d, false);
-            origEvent.prooveEventChangeImpact(newEvent, null, null, function(ok) {
+            origEvent.prooveEventChangeImpact(newEvent, null, null, null, function(ok) {
               if (ok) {
                 elem.dialog("close");
                 newEvent.saveEvent(newEvent);
@@ -882,18 +892,28 @@ function renderEditEvent(myEvent, origEvent, isSeries, editSeries, func) {
       }
     }
     elem.dialog("addcancelbutton");
+    if (currentEvent.modified_pid!=null && currentEvent.modified_pid!=settings.user.id)
+      $("div.ui-dialog-buttonset").prepend(
+          form_renderCheckbox({label:"Ersteller über Änderung informieren", checked:true,
+                                controlgroup: false, cssid:"inform_creator"}));
+
+
 
     _renderEditEventNavi(elem, currentEvent);
 }
 
-function copyEvent(current_event) {
-  var event=current_event.clone();
-  event.orig_id=event.id;
-  event.id=null;
-  event.csevents=null;
-  event.copyevent=true;
-  event.copychurchservice=false;
-  editEvent(event, "week");
+function copyEvent(current_event, splitDate) {
+  current_event.orig_id=current_event.id;
+  current_event.doSplit(splitDate, true, function(newEvent, pastEvent) {
+    newEvent.id = null;
+    newEvent.csevents=null;
+    newEvent.copyevent=true;
+    newEvent.copychurchservice=false;
+    renderEditEvent(newEvent, current_event, true, true, function(newEvent, func) {
+      newEvent.save();
+      func(true);
+    });
+  });
 }
 
 
@@ -931,16 +951,16 @@ function delEventFormular(event, func, currentDate) {
         newEvent.repeat_until=d;
         deleteNewerExceptionsAndAdditions(newEvent, d, false);
         elem.dialog("close");
-        event.prooveEventChangeImpact(newEvent, null, null, function(ok) {
+        event.prooveEventChangeImpact(newEvent, null, null, null, function(ok) {
           if (ok) event.saveEvent(newEvent);
         });
       });
     }
     elem.dialog('addbutton', 'Nur aktueller', function() {
-       newEvent.addException(newEvent, currentDate);
+       newEvent.addException(currentDate);
        elem.dialog("close");
-       event.prooveEventChangeImpact(newEvent, null, null, function(ok) {
-         if (ok) event.saveEvent(newEvent);
+       event.prooveEventChangeImpact(newEvent, null, null, null, function(ok) {
+         if (ok) newEvent.save();
        });
     });
     elem.dialog("addcancelbutton");
@@ -972,7 +992,7 @@ function _viewChanged(view) {
 
 function categoryEditable(category_id) {
   if (category_id==null || masterData.category[category_id]==null) return false;
-  
+
   if (user_access("edit category", category_id))
     return true;
 
@@ -1006,7 +1026,7 @@ function _eventClick(event, jsEvent, view ) {
   clearTooltip(true);
 
   var myEvent=getEventFromEventSource(event);
-  if ((myEvent!=null) && (categoryEditable(myEvent.category_id)) 
+  if ((myEvent!=null) && (categoryEditable(myEvent.category_id))
         && (!masterData.category[myEvent.category_id].ical_source_url)) {
     editEvent(myEvent, view.name=="month", event.start.format(DATETIMEFORMAT_EN).toDateEn(true), jsEvent);
   }
@@ -1225,12 +1245,12 @@ function renderTooltip(event) {
     if (myEvent.intern_yn==1) title=title+" (intern)";
 
     title=title+'<span class="pull-right">&nbsp;<nobr>';
-    if (myEvent.startdate.getTime() > new Date().getTime() 
+    if (myEvent.startdate.getTime() > new Date().getTime()
            || form_getReminder("event", myEvent.id)!=null) {
       title=title + form_renderReminder("event", myEvent.id);
     }
     if (categoryEditable(myEvent.category_id)) {
-      //title=title+'&nbsp;'+form_renderImage({cssid:"copyevent", label:"Kopieren", src:"copy.png", width:20});
+      title=title+'&nbsp;'+form_renderImage({cssid:"copyevent", label:"Kopieren", src:"copy.png", width:20});
       title=title+"&nbsp;"+form_renderImage({cssid:"delevent", label:'Löschen', src:"trashbox.png", width:20});
     }
     title = title + "</nobr></span>";
@@ -1250,13 +1270,16 @@ function renderTooltip(event) {
       rows.push('<li><b>'+myEvent.ort+'</b>');
     if (myEvent.category_id!=null)
       rows.push("<li>Kalender: <i>"+masterData.category[myEvent.category_id].bezeichnung+'</i>');
-    if (myEvent.bookings!=null && masterData.resource!=null) {
-      rows.push('<li>Angefragte Resourcen<small><ul>');
+    if (myEvent.bookings!=null && masterData.resources!=null) {
+      rows.push('<li>Resourcen: <small>');
+      var r = new Array();
       each(myEvent.bookings, function(i,e) {
         if (masterData.resources[e.resource_id]!=null)
-          rows.push('<li>'+masterData.resources[e.resource_id].bezeichnung.trim(30));
+          r.push('<span class="cr-status-'+e.status_id+'">'
+                  + masterData.resources[e.resource_id].bezeichnung.trim(30)+'</span>');
       });
-      rows.push('</ul></small>');
+      rows.push(r.join(", "));
+      rows.push('</small>');
     }
     if ((myEvent.notizen!=null) && (myEvent.notizen!=""))
       rows.push('<li>'+_("comment")+': <small> '+myEvent.notizen.trim(60)+'</small>');
@@ -1275,7 +1298,7 @@ function renderTooltip(event) {
 
   // A calender event
   if (myEvent!=null) {
-    if ((!embedded) && (myEvent.booking_id!=null) && (masterData.auth["view churchresource"]))
+    if ((!embedded) && (myEvent.bookings!=null) && (masterData.auth["view churchresource"]))
       rows.push('<a href="?q=churchresource&id='+myEvent.booking_id+'"><span class="label label-info">'+masterData.churchresource_name+'</label></a>&nbsp;');
     if ((!embedded) && (churchcore_countObjectElements(myEvent.csevents)>0))
       rows.push('<a href="?q=churchservice&id='+myEvent.event_id+'"><span class="label label-info">'+masterData.churchservice_name+'</label></a>&nbsp;');
@@ -1343,7 +1366,7 @@ function _eventMouseover(event, jsEvent, view) {
       var event=getEventFromEventSource(data.event);
       $("#copyevent").click(function() {
         clearTooltip(true);
-        copyEvent(event);
+        copyEvent(event, data.event.start.format(DATETIMEFORMAT_EN).toDateEn(true));
         return false;
       });
       $("#reminder").click(function() {

@@ -25,6 +25,32 @@ span.error {
   color:red;
 }
 
+.cr-status-1 {
+  color:red
+}
+.cr-status-2 {
+  color:black;
+}
+.cr-status-3 {
+  color:gray;
+  text-decoration:line-through;
+}
+.cr-status-99 {
+  color:lightgray;
+  text-decoration:line-through;
+}
+
+span.old {
+  text-decoration:line-through;
+  color: grey;
+}
+span.old::before {
+    content: "(";
+}
+span.old::after {
+    content: ")";
+}
+
 ul.ct-ul-list {
   list-style-type: none;
   margin: 0 0 10px 0px;
@@ -34,7 +60,7 @@ ul.ct-ul-list {
 }
 
 span.clickable {
-  cursor: pointer;	
+  cursor: pointer;
 }
 
 div.ui-datepicker {
@@ -189,7 +215,7 @@ div.fixed {
 	.fc-day-grid-event > .fc-content {
   	  white-space: normal !important;
 	}
-	
+
 	.grouping {
 	  border-width: 2px !important;
     }
@@ -604,5 +630,5 @@ span.tag {
 }
 div.editable:hover {
     background:#F2F4F6 !important;
-	
+
 }

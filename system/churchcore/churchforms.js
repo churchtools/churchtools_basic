@@ -50,9 +50,9 @@ function form_renderYesNo(nr, width) {
 
 
 function form_getReminder(domainType, domainId) {
-  if (masterData.reminder && masterData.reminder[domainType] 
-      && masterData.reminder[domainType][domainId]!=null 
-      && masterData.reminder[domainType][domainId]) { 
+  if (masterData.reminder && masterData.reminder[domainType]
+      && masterData.reminder[domainType][domainId]!=null
+      && masterData.reminder[domainType][domainId]) {
     return masterData.reminder[domainType][domainId].toDateEn(true);
   }
   else return null;
@@ -63,10 +63,10 @@ function form_renderReminder(domainType, domainId) {
   if (settings.user.id > 0) {
     var icon = "reminder_sw";
     var dt = new Date();
-    if (form_getReminder(domainType, domainId)!=null 
+    if (form_getReminder(domainType, domainId)!=null
            && form_getReminder(domainType, domainId).getTime() > dt.getTime()) {
-      icon = "reminder";      
-    } 
+      icon = "reminder";
+    }
     txt = form_renderImage({data:[{name:"type", value: domainType}, {name:"id", value: domainId}],
                             cssid:"reminder", label:"Erinnern", src: icon+".png", width:20});
   }
@@ -74,7 +74,7 @@ function form_renderReminder(domainType, domainId) {
 }
 
 /**
- * 
+ *
  * @param element JQuery element
  * @param beforeDate - eventDate or can be null
  * @param freeOption - freeOption shows a free date entry, otherwise duration from eventDate
@@ -92,40 +92,40 @@ function form_editReminder(element, eventDate, freeOption) {
       freeOption = true;
   }
   else if (currentDate == null) currentDate = eventDate;
-  
+
   if (!freeOption) {
-    minutes.push({id:-1, bezeichnung:"Zeitpunkt selber wählen..."});  
-    form.addSelect({data: minutes, cssid:"reminddate", 
-                    selected: (eventDate.getTime()-currentDate.getTime()) / 60000, 
+    minutes.push({id:-1, bezeichnung:"Zeitpunkt selber wählen..."});
+    form.addSelect({data: minutes, cssid:"reminddate",
+                    selected: (eventDate.getTime()-currentDate.getTime()) / 60000,
                     sort: false, label: "Vorher erinnern"})
   }
   else {
-    form.addInput({label: "Erinnern am", separator:"<nobr>", 
+    form.addInput({label: "Erinnern am", separator:"<nobr>",
                    controlgroup_start: true, cssid:"reminddate", type:"small",
                    value: currentDate.toStringDe()});
     form.addHtml("<div id=\"dp_date\" style=\"position:absolute;background:#e7eef4;z-index:8001;\"/>");
     form.addHtml("&nbsp;");
-    form.addSelect({controlgroup: false, cssid: "remindhour", selected: currentDate.getHours(), 
+    form.addSelect({controlgroup: false, cssid: "remindhour", selected: currentDate.getHours(),
                    data: _getHoursArray(), type:"mini"});
     form.addHtml(" : ");
-    form.addSelect({controlgroup_end: true, cssid: "remindmin", selected: currentDate.getMinutes(), 
+    form.addSelect({controlgroup_end: true, cssid: "remindmin", selected: currentDate.getMinutes(),
                     data:_getMinutesArray(), type:"mini"});
   }
-  
+
   var elem = form_showDialog("Erinnerung anpassen", form.render(null, "horizontal"), 500, 450);
   elem.dialog("addbutton", _("save"), function() {
     var res = null;
     if (freeOption) {
       var s = $("#reminddate").val() + " " + $("#remindhour").val() + ":" + $("#remindmin").val();
       res = s.toDateDe(true);
-    } 
+    }
     else {
       res = new Date(eventDate.getTime() - $("#reminddate").val()*60000);
     }
     if (res == null || isNaN( res.getTime() )) alert(_("error.occured"));
     else {
       elem.dialog("close");
-      churchInterface.jsendWrite({func: "saveReminder", domain_id: domainId, domain_type: domainType, 
+      churchInterface.jsendWrite({func: "saveReminder", domain_id: domainId, domain_type: domainType,
           reminddate: res});
       if (masterData.reminder == null) masterData.reminder = new Object();
       if (masterData.reminder[domainType] == null) masterData.reminder[domainType] = new Object();
@@ -1016,7 +1016,7 @@ $.widget("ct.renderCCEvent", {
             type:"xxmini"}));
           if (event.repeat_until==null) {
             event.repeat_until=new Date(event.startdate);
-            event.repeat_until.addDays(event.repeat_id*1);
+            event.repeat_until.addDays(event.repeat_id*7-1);
           }
         }
         if (event.repeat_id==1)
@@ -2207,7 +2207,7 @@ $.widget("ct.colorcheckbox", {
     var t = this;
     t.options.checked = check;
     t.options.change(t.options.checked, t.options.id, t.options.name);
-    t._renderCheckbox();    
+    t._renderCheckbox();
   }
 });
 

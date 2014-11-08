@@ -243,6 +243,7 @@
   <entry key="save.data">Speichere Daten...</entry>
   <entry key="load.data">Lade Daten...</entry>
   <entry key="saved">gespeichert</entry>
+  <entry key="no.changes">Keine Änderungen vorhanden</entry>
   <entry key="save.changes">Änderungen speichern</entry>
   <entry key="undo.changes">Änderungen verwerfen</entry>
   <entry key="edit.permissions">Berechtigungen anpassen</entry>
@@ -257,7 +258,8 @@
   <entry key="group.calendar">Gruppenkalender</entry>
   <entry key="first.day.in.week">Erster Tag der Woche (0=Sonntag, 1=Montag, 2=Dienstag, ..)</entry>
   <entry key="by.order.of">Im Auftrag von</entry>
-
+  <entry key="updated">aktualisiert</entry>
+  <entry key="deleted">gelöscht</entry>
   <entry key="january">Januar</entry>
   <entry key="february">Februar</entry>
   <entry key="march">März</entry>
@@ -441,7 +443,7 @@
   <entry key="start">Beginn</entry>
   <entry key="end">Ende</entry>
   <entry key="repeat.type">Wiederholungstyp</entry>
-  <entry key="repeat.to">Wiederholung</entry>
+  <entry key="repeat.to">Wiederholung bis</entry>
   <entry key="conflicts">Konflikte</entry>
   <entry key="exceptions">Ausnahmen</entry>
   <entry key="additions">Weitere Termine</entry>
@@ -454,6 +456,9 @@
   <entry key="booking.request.approved">Buchungsanfrage bestätigt</entry>
   <entry key="booking.request.canceled">Buchungsanfrage abgelehnt</entry>
   <entry key="booking.request.deleted">Buchungsanfrage gelöscht</entry>
+  <entry key="booking.deleted">Buchung wurde gelöscht</entry>
+  <entry key="booking.before">Vorlauf</entry>
+  <entry key="booking.after">Nachlauf</entry>
 
   <!-- churchwiki -->
   <entry key="view.wiki.category">Einzelne Wiki-Kategorien sehen</entry>
@@ -538,6 +543,7 @@
   <entry key="cancelation.of.event.date">Absage von {0} am {1}</entry>
   <entry key="thank.you.for.feedback">Danke für deine Rückmeldung!</entry>
   <entry key="category">Kalender</entry>
+  <entry key="information.for.your.event">Informationen zu deinem Event</entry>
 
 
   <!-- churchcal auth -->

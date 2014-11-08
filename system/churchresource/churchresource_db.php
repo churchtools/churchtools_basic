@@ -2,49 +2,148 @@
 include_once ('./' . CHURCHRESOURCE . '/../churchcore/churchcore_db.php');
 
 
-function churchresource_rebindRessources($oldEventId, $newEventId, $splitDate, $untilEnd_yn) {
-
-}
-
 /**
- * Get active (status<99) Bookings to eventId
- * @param Number $eventId
- * @param DateTime $splitDate
- * @param String $untilEnd_yn 0/1
- * @return bookings as array or empty array
+ * Get booking changes
+ * 1. Check from originEvent if this is in newEvent
+ * 2a. If not in newEvent, if it is in pastEvent, everything fine. Nothing changed
+ * 2b. If is not in newEvent and in pastEvent, then it was deleted!
+ * 3. If is in newEvent, then diff the changes
+ * 4. Check if newEvent is not in originEvent, then there is something new
+ * @param [type] $originEvent
+ * @param [type] $newEvent
  */
-function churchresource_getActiveBookingsInEvent($eventId, $splitDate, $untilEnd_yn) {
-  $res = db_query("SELECT b.*, r.bezeichnung resource, s.bezeichnung status,
-                        concat(p.vorname, ' ', p.name) as person
-                   FROM {cr_booking} b, {cr_resource} r, {cr_status} s, {cdb_person} p
-                   WHERE b.cc_cal_id = :cal_id AND b.resource_id = r.id AND b.person_id = p.id
-                   AND b.status_id = s.id AND b.status_id < 99",
-                  array(":cal_id" => $eventId));
-  $bookings = array();
-  foreach ($res as $r) {
-    $r->startdate = new DateTime($r->startdate);
-    $r->enddate   = new DateTime($r->enddate);
-    $ds = getAllDatesWithRepeats($r, 0, ($untilEnd_yn==1 ? 9999 : 1), $splitDate);
-    if ($ds) foreach ($ds as $d) {
-      $bookings[] = array ("realstart" => new DateTime($d->format('Y-m-d H:i:s')),
-                           "startdate" => $r->startdate->format('Y-m-d H:i:s'),
-                           "enddate" => $r->enddate,
-                           "person" => $r->person,
-                           "person_id" => $r->person_id,
-                           "resource_id" => $r->resource_id,
-                           "resource" => $r->resource,
-                           "repeat_id" => $r->repeat_id,
-                           "status" => $r->status,
-                           "text" => $r->text,
-                           "id" => $r->id,
-                           );
-    }
-
+function churchresource_getEventChangeImpact($newEvent, $pastEvent, $originEvent) {
+  $changes = array ();
+  function _addCRChange(&$changes, $booking, $status, $startdate = null, $change = null) {
+    $resource = churchcore_getTableData("cr_resource", null, "id = " . $booking["resource_id"]);
+    $booking["resource"] = $resource[$booking["resource_id"]]->bezeichnung;
+    $changes[] = array("booking" => $booking, "status" => $status, "startdate" => $startdate->format("Y-m-d"),
+          "changes" => $change);
   }
-  return $bookings;
+
+  $splitDate = new DateTime($newEvent["startdate"]);
+
+  if (empty($originEvent["bookings"])) {
+    foreach ($newEvent["bookings"] as $booking) {
+      _addCRChange($changes, $booking, "new", $splitDate);
+    }
+  }
+  else {
+    // 1. Get all Dates for the origin Event
+    $ds = getAllDatesWithRepeats((object) $originEvent, 0, 9999, $splitDate);
+    if ($ds) foreach ($ds as $d) {
+      if (!dateInCCEvent($d, $newEvent)) { // 1. Date is not in newEvent
+        if (dateInCCEvent($d, $pastEvent)) {
+          // 2a. in past Event, everything fine. Nothing to check, because in past is no changes in bookings!
+          foreach ($originEvent["bookings"] as $booking) {
+            //_addCRChange($changes, $booking, "no.change", $d);
+          }
+        }
+        else {
+          // 2b. Deleted! Now for each booking make change entry
+          foreach ($originEvent["bookings"] as $booking) {
+            _addCRChange($changes, $booking, "deleted", $d);
+          }
+        }
+      }
+      else { // 3. event is in newEvent, now check bookings!
+        foreach ($originEvent["bookings"] as $booking) {
+          if (empty($newEvent["bookings"])) {
+            _addCRChange($changes, $booking, "deleted");
+          }
+          else {
+            $newBooking = findBookingInNewEvent($booking, $newEvent);
+            if ($newBooking != null) {
+              $change = makeBookingDiff($booking, $newBooking, $originEvent, $newEvent);
+              if ($change != null) _addCRChange($changes, $booking, "updated", $d, $change);
+              //else _addCRChange($changes, $booking, "no.changes", $d, $change);
+            }
+            // This is currently not supported, cause delete is not possible. Only set Status to deleted.
+            //else _addCRChange($changes, $booking, "error", $d, $change);
+          }
+        }
+        // Perhaps new resource in booking
+        foreach ($newEvent["bookings"] as $booking) {
+          $originBooking = findBookingInOriginEvent($booking, $originEvent);
+          if ($originBooking == null) {
+            _addCRChange($changes, $booking, "new", $d);
+          }
+        }
+      }
+    }
+    // Now do 4.
+    $ds = getAllDatesWithRepeats((object) $newEvent, 0, 9999, $splitDate);
+    if ($ds) foreach ($ds as $d) {
+      if (!dateInCCEvent($d, $originEvent)) {
+        foreach ($newEvents["bookings"] as $booking) {
+          _addCRChange($changes, $booking, "new", $d);
+        }
+      }
+    }
+  }
+  return $changes;
 }
 
 
+function findBookingInNewEvent($booking, $newEvent) {
+  $ret = null;
+  if (empty($newEvent["bookings"])) return $ret;
+
+  foreach ($newEvent["bookings"] as $newBooking) {
+    if ((!empty($newBooking["id"]) && !empty($booking["id"]) && $newBooking["id"] == $booking["id"])
+       || (!empty($newBooking["old_id"]) && !empty($booking["id"]) && $newBooking["old_id"] == $booking["id"]))
+       $ret = $newBooking;
+  }
+  return $ret;
+}
+function findBookingInOriginEvent($booking, $originEvent) {
+  $ret = null;
+  if (empty($originEvent["bookings"])) return $ret;
+
+  foreach ($originEvent["bookings"] as $originBooking) {
+    if ((!empty($originBooking["id"]) && !empty($booking["id"]) && $originBooking["id"] == $booking["id"])
+       || (!empty($originBooking["id"]) && !empty($booking["old_id"]) && $originBooking["id"] == $booking["old_id"]))
+       $ret = $originBooking;
+  }
+  return $ret;
+}
+
+function makeBookingDiff($booking, $newBooking, $originEvent, $newEvent) {
+  if ($booking == null || $newBooking == null) return null;
+  $ret = array ();
+  foreach ($newBooking as $key=>$newEntry) {
+    if ($key != "old_id" && $newEntry != $booking[$key]) {
+      $einheit = "";
+      $old = $booking[$key];
+      $new = $newEntry;
+      $k = $key;
+      if ($key == "minpre") { $k = "booking.before"; $einheit = "min"; }
+      else if ($key == "minpost") { $k = "booking.after"; $einheit = "min"; }
+      else if ($key == "status_id") {
+        $k = "status";
+        $status = churchcore_getTableData("cr_status");
+        $old = $status[$old]->bezeichnung;
+        $new = $status[$new]->bezeichnung;
+      }
+      else if ($key == "resource_id") {
+        $k = "resource";
+        $res = churchcore_getTableData("cr_resource");
+        $old = $res[$old]->bezeichnung;
+        $new = $res[$new]->bezeichnung;
+      }
+      $ret[$k] = array ("old" => $old . $einheit, "new" => $new . $einheit);
+    }
+  }
+  if (churchcore_stringToDateDe($originEvent["startdate"]) != churchcore_stringToDateDe($newEvent["startdate"])) {
+    $ret["start.date"] = array ("old" => _shiftDate($originEvent["startdate"], $booking["minpre"], 'd.m.Y H:i'),
+                                "new" => _shiftDate($newEvent["startdate"], $booking["minpre"], 'd.m.Y H:i'));
+  }
+  if (churchcore_stringToDateDe($originEvent["enddate"]) != churchcore_stringToDateDe($newEvent["enddate"])) {
+    $ret["end.date"] = array ("old" => _shiftDate($originEvent["enddate"], $booking["minpre"], 'd.m.Y H:i'),
+                                "new" => _shiftDate($newEvent["enddate"], $booking["minpre"], 'd.m.Y H:i'));
+  }
+  return $ret;
+}
 
 /**
  *
@@ -73,16 +172,16 @@ function churchresource_createBooking($params) {
   $i->setParam("location");
   $i->setParam("note");
   $i->setParam("cc_cal_id", false);
-  
+
   $bookingId = db_insert("cr_booking")
     ->fields($i->getDBInsertArrayFromParams($params))
     ->execute(false);
-  
+
   $booking = db_query("SELECT * FROM {cr_booking}
                    WHERE id = $bookingId")
                    ->fetch();
   $booking->ok = true;
-  
+
   $exceptions = "";
   if (isset($params["exceptions"])) foreach ($params["exceptions"] as $exception) {
     addException($booking->id, $exception["except_date_start"], $exception["except_date_end"], $user->id);
@@ -97,7 +196,7 @@ function churchresource_createBooking($params) {
         . ($addition["with_repeat_yn"] == 1) ? $additions .= "{R} &nbsp;" : '&nbsp;';
     }
   }
-  
+
   $resources = churchcore_getTableData("cr_resource"); //TODO: only get needed resource_id
   $status = churchcore_getTableData("cr_status"); //TODO: only get needed status_id
   $data = array(
@@ -127,7 +226,7 @@ function churchresource_createBooking($params) {
           $data['surname']  = $p->vorname;
           $data['nickname'] = $p->spitzname ? $p->spitzname : $p->vorname;
           $data['name']     = $p->name;
-          
+
           $content = getTemplateContent('email/bookingRequest', 'churchresource', $data);
           churchresource_send_mail("[". getConf('site_name')."] ". t('new.booking.request'). ": ". $params["text"], $content, $p->email);
         }
@@ -142,15 +241,15 @@ function churchresource_createBooking($params) {
     churchresource_send_mail("[". getConf('site_name'). "] ". t('new.booking.request').": " . $params["text"], $content, $user->email);
   }
   // TODO: maybe use $loginfo?
-  $logInfo = t('bookingX.for.resource.on.date',
+  $logInfo = t('bookingX.for.resource.on.datetime',
                 $params["text"],
                 $resources[$params["resource_id"]]->bezeichnung,
                 $params["startdate"], $params["location"]
   );
   $txt = churchcore_getFieldChanges(getBookingFields(), null, $booking);
   cr_log("CREATE BOOKING\n" . $txt, 3, $booking->id);
-  
-  return array ("id" => $id );
+
+  return array ("id" => $bookingId );
 }
 
 /**
@@ -184,11 +283,11 @@ function getBookingFields() {
  * @param array $params
  * @return multitype:multitype:unknown
  */
-function churchresource_updateBooking($params) {
+function churchresource_updateBooking($params, $sendNoEMailToUser = false) {
   global $base_url, $user;
 
-  $oldArr = getBooking($params["id"]);
-  $bUser = churchcore_getPersonById($oldArr->person_id);
+  $oldBooking = getBooking($params["id"]);
+  $bUser = churchcore_getPersonById($oldBooking->person_id);
   $ressources = churchcore_getTableData("cr_resource", "resourcetype_id,sortkey,bezeichnung");
 
   $i = new CTInterface();
@@ -207,15 +306,14 @@ function churchresource_updateBooking($params) {
                      ->fetch();
     $params["text"] = $res->text;
   }
-  $i->setParam("person_id");
+  $i->setParam("person_id", false);
+
   $id = db_update("cr_booking")
           ->fields($i->getDBInsertArrayFromParams($params))
           ->condition("id", $params["id"], "=")
           ->execute(false);
 
-  // TODO: put removing add/exceptions into a function (updateDates($type)?) with parameter for add/exc
-  // TODO: maybe put add/exceptions in one table with an flag set to 1 for add - could it simplify exception handling?
-  // get alle exceptions
+  $changes = null;
   $exceptions = churchcore_getTableData("cr_exception", null, "booking_id=" . $params["id"]);
   // look which exceptions are already saved in DB.
   if (isset($params["exceptions"])) foreach ($params["exceptions"] as $exception) {
@@ -260,6 +358,7 @@ function churchresource_updateBooking($params) {
   $res_exceptions = array ();
   $res_additions = array ();
   $days = array ();
+  $resources = churchcore_getTableData("cr_resource"); //TODO: only get needed resource_id
 
   if ($changes) {
     if (isset($changes["add_exception"])) {
@@ -277,7 +376,7 @@ function churchresource_updateBooking($params) {
         }
       }
 
-      if (getConf("churchresource_send_emails", true) && count($days) && $bUser) {
+      if ($sendNoEMailToUser && getConf("churchresource_send_emails", true) && count($days) && $bUser) {
         // FIXME: dont send such emails to users adding exceptions to their repeating event in cal
         $data = array(
           'canceled' => true,
@@ -334,9 +433,9 @@ function churchresource_updateBooking($params) {
   }
   // FIXME: check logic for correct function; i am not sure what should happen exactly in which cases
   // TODO: maybe use $params as data and add further values
-  $arr=getBooking($params["id"]);
-  $changes = churchcore_getFieldChanges(getBookingFields(), $oldArr, $arr, false);
-  
+  $booking=getBooking($params["id"]);
+  $changedFields = churchcore_getFieldChanges(getBookingFields(), $oldBooking, $booking, false);
+
   $data = array(
       'enddate'    => churchcore_stringToDateDe($params["enddate"]),
       'startdate'  => churchcore_stringToDateDe($params["startdate"]),
@@ -352,7 +451,7 @@ function churchresource_updateBooking($params) {
       'deleted'    => $params["status_id"] == CR_DELETED,
       'contact'    => getConf('site_mail'), // TODO: add church contact data to config and use getConf('churchContact'),
   );
-  $logInfo = ' :: ' . t('bookingX.for.resource.on.date',
+  $logInfo = ' :: ' . t('bookingX.for.resource.on.datetime',
                         $params["text"],
                         $resources[$params["resource_id"]]->bezeichnung,
                         $params["startdate"], $params["location"]
@@ -362,8 +461,9 @@ function churchresource_updateBooking($params) {
   elseif ($data['approved']) $logInfo = t('booking.approved') . $logInfo;
   elseif ($data['canceled']) $logInfo = t('booking.canceled') . $logInfo;
   elseif ($data['deleted']) $logInfo = t('booking.deleted') . $logInfo;
-  if (getConf("churchresource_send_emails", true)) {
-    if (($params["status_id"] != $oldBooking->status_id || $changedFields != null) 
+
+  if ($sendNoEMailToUser && getConf("churchresource_send_emails", true)) {
+    if (($params["status_id"] != $oldBooking->status_id || $changedFields != null)
         && $bUser) {
       $adminmails = explode(",", $resources[$params["resource_id"]]->admin_person_ids);
       // if current user is not resource admin OR is not the booking creating user
@@ -374,7 +474,7 @@ function churchresource_updateBooking($params) {
     }
   }
   if ($changedFields) cr_log("UPDATE BOOKING\n" . $logInfo, 3, $booking->id);
-  
+
   return array ("exceptions" => $res_exceptions, "additions" => $res_additions);
 }
 
@@ -384,10 +484,10 @@ function churchresource_updateBooking($params) {
  * @param string|int $minutes
  * @return string formatted date
  */
-function _shiftDate($date, $minutes) {
+function _shiftDate($date, $minutes, $format = 'Y-m-d H:i:s') {
   $dt = new DateTime($date);
-  $dt->modify("+$minutes Minute");
-  return $dt->format('Y-m-d H:i:s');
+  if (!empty($minutes)) $dt->modify("+$minutes Minute");
+  return $dt->format($format);
 }
 
 /**
@@ -411,6 +511,17 @@ function churchresource_deleteResourcesFromChurchCal($params, $source=null) {
   }
 }
 
+function copyTypicalDateFields($params) {
+  $res = array();
+  foreach ($params as $key => $param) {
+    if ($key == "startdate" || $key == "enddate" || $key == "exceptions" || "key" == "additions"
+          || strpos($key, "repeat_")!==false) {
+      $res[$key] = $param;
+    }
+  }
+  return $res;
+}
+
 /**
  *
  * @param array $params
@@ -430,18 +541,17 @@ function churchresource_operateResourcesFromChurchCal($params) {
 
   foreach ($bookings as $booking) {
     if (isset($params["bookings"]) && isset($params["bookings"][$booking->id])) {
-      $save = array_merge (array(), $params); // repeat id etc.
-      foreach ($params["bookings"][$booking->id] as $key=>$val) {
-        $save[$key] = $val;
-      }
+      $save = copyTypicalDateFields($params);
+      foreach ($params["bookings"][$booking->id] as $key=>$val) $save[$key] = $val;
       $save["cc_cal_id"] = $params["id"];
 
       if (!isset($params["bookings"][$booking->id]["status_id"])) $save["status_id"] = $newbookingstatus;
       else $save["status_id"] = $params["bookings"][$booking->id]["status_id"];
-  
+
       $save["id"] = $booking->id;
-      $save["person_id"] = $user->id;
+      if (!empty($params["modified_pid"])) $save["person_id"] = $params["modified_pid"];
       if (!isset($save["resource_id"])) $save["resource_id"] = $booking->resource_id;
+
       $save["text"] = $params["bezeichnung"];
 
       $save["startdate"] = _shiftDate($save["startdate"], -$params["bookings"][$booking->id]["minpre"]);
@@ -460,7 +570,7 @@ function churchresource_operateResourcesFromChurchCal($params) {
         }
       }
 
-      churchresource_updateBooking($save, $changes);
+      churchresource_updateBooking($save, false);
 
       $params["bookings"][$booking->id]["updated"] = true;
     }
@@ -478,10 +588,10 @@ function churchresource_operateResourcesFromChurchCal($params) {
 
       $save["cc_cal_id"]  = $params["id"];
       $save["status_id"]  = isset($booking["status_id"]) ? $booking["status_id"] : $newBookingStatus;
-      $save["person_id"]  = $user->id;
+      $save["person_id"]  = (empty($params["modified_pid"]) ? $user->id :$params["modified_pid"]);
       $save["text"]       = $params["bezeichnung"];
-      $save["startdate"]  = _shiftDate($save["startdate"], -$params["bookings"][$booking["id"]]["minpre"]);
-      $save["enddate"]    = _shiftDate($save["enddate"], $params["bookings"][$booking["id"]]["minpost"]);
+      $save["startdate"]  = _shiftDate($save["startdate"], -$booking["minpre"]);
+      $save["enddate"]    = _shiftDate($save["enddate"], $booking["minpost"]);
 
       $arr = churchresource_createBooking($save);
       $newIds[$oldbookingid] = $arr["id"];

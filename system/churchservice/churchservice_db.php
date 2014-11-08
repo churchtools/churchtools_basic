@@ -10,10 +10,11 @@ include_once('./'. CHURCHSERVICE .'/../churchcore/churchcore_db.php');
  * @param [type] $untilEnd_yn
 */
 function churchservice_rebindServicesToNewEvent($oldEventId, $newEventId, $splitDate, $untilEnd_yn) {
+  ct_log("Split CSEvent $oldEventId to $newEventId at " . $splitDate->format('Y-m-d H:i:s') . " until end: $untilEnd_yn", 2);
   db_update("cs_event")
   ->fields(array("cc_cal_id" => $newEventId))
   ->condition('cc_cal_id', $oldEventId, "=")
-  ->condition('startdate', $splitDate->format('Y-m-d H:i:s'), ( $untilEnd_yn ? ">=" : "="))
+  ->condition('DATE(startdate)', $splitDate->format('Y-m-d'), ( $untilEnd_yn ? ">=" : "="))
   ->execute();
 }
 
@@ -147,7 +148,7 @@ function churchservice_copyEventByCalId($orig_cal_id, $new_cal_id, $new_startdat
         $fields["modifieduser"] = $s->modifieduser;
         $fields["modified_pid"] = $s->modified_pid;
 
-        db_insert("cs_eventservice")
+        $ids[] = db_insert("cs_eventservice")
         ->fields($fields)
         ->execute(false);
       }
@@ -189,10 +190,12 @@ function _convertCTDateTimeToObjects($params) {
  * @param array $params
  */
 function churchservice_operateEventFromChurchCal($params) {
-  if (empty($params["csevents"])) return; // With no csevents in API there is nothing to do for ChurchService
-
   $newIds = array();
-  foreach ($params["csevents"] as $key=>$csevent) {
+  // shall it be copied? Only when I copy a event in Cal
+  if (getVar("copychurchservice", false) == "true") {
+    $newIds = churchservice_copyEventByCalId($params["orig_id"], $params["id"], $params["startdate"], true);
+  }
+  else if (!empty($params["csevents"])) foreach ($params["csevents"] as $key=>$csevent) {
     if (empty($csevent["id"])) {
       $newId = churchservice_createEvent($params, $csevent);
       $newIds[$key]=$newId;
@@ -200,22 +203,7 @@ function churchservice_operateEventFromChurchCal($params) {
     else churchservice_updateEvent($params, $csevent);
   }
   return $newIds;
-  /*
-   $o = _convertCTDateTimeToObjects($params);
-  foreach (getAllDatesWithRepeats($o, -1000, +1000) as $d) {  // TODO: Use constants for 1000
-  $params["startdate"] = $d->format('Y-m-d H:i:s');
-  $enddate = clone $d;
-  $enddate->modify("+$o->diff seconds");
-  $params["enddate"] = $enddate->format('Y-m-d H:i:s');
-  // shall it be copied?
-  if (getVar("copychurchservice", false, $params) == "true") {
-  churchservice_copyEventByCalId($params["orig_id"], $params["id"], $params["startdate"], true);
-  }
-  // create new one
-  else if (isset($params["eventTemplate"])) churchservice_saveEvent($params, "churchcal");
-  }*/
 }
-
 
   /**
   * called by ChurchCal on changes in calendar events

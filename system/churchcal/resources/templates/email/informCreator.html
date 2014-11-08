@@ -1,0 +1,34 @@
+<h4>Hallo <?= $p->nickname ?>!</h4>
+
+<p>In Deinem Event <i><?= $caption ?></i> am <?= $startdate ?> hat es Änderung gegeben:<p>
+
+<?php if (!empty($cal)) { ?>
+<h4>Kalender</h4>
+<ul>
+  <?php foreach ($cal as $b): ?>
+    <li><b><?= substr(churchcore_stringToDateDe($b["startdate"]),0,10) ?> - <?= $b["booking"]["resource"] ?></b> <i><?= t($b["status"]) ?></i>
+      <ul>
+        <?php foreach ($b["changes"] as $key=>$c): ?>
+          <li> <?= t($key) ?> ist nun <i><?= $c["new"] ?></i> <font color="gray" style="text-decoration:line-through;">(<?= $c["old"] ?>)</font>
+        <?php endforeach; ?>
+      </ul>
+    </li>
+  <?php endforeach; ?>
+</ul>
+<?php } ?>
+
+<?php if (!empty($bookings)) { ?>
+<h4>Buchungen</h4>
+<ul>
+  <?php foreach ($bookings as $b): ?>
+    <li><b><?= substr(churchcore_stringToDateDe($b["startdate"]),0,10) ?> - <?= $b["booking"]["resource"] ?></b> <i><?= t($b["status"]) ?></i>
+      <ul>
+        <?php foreach ($b["changes"] as $key=>$c): ?>
+          <li> <?= t($key) ?> ist nun <i><?= $c["new"] ?></i> <font color="gray" style="text-decoration:line-through;">(<?= $c["old"] ?>)</font>
+        <?php endforeach; ?>
+      </ul>
+    </li>
+  <?php endforeach; ?>
+</ul>
+
+<?php } ?>

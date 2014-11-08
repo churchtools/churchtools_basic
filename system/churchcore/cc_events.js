@@ -4,41 +4,85 @@
  * @param {[type]} func if confirm(true) otherwise (false)
  */
 function confirmImpactOfEventChange(data, func) {
-  if (data.warning || data.hint!=null) {
-    var rows = new Array();
-    rows.push('<legend>Achtung, die Änderung hat Auswirkungen!</legend>');
-    if (data.hint!=null) {
-      rows.push('<p>' + data.hint);
-    }
+  var rows = new Array();
+  var showConfirm = false;
+  if (data.hint!=null) rows.push('<p>' + data.hint);
 
-    if (churchcore_countObjectElements(data.bookings)>0) {
-      rows.push('<h4>Buchungen</h4>');
-      each(data.bookings, function(k,a) {
-        rows.push('<li>' + a.text + ": " + a.startdate.toDateEn().toStringDe(true)+ " " + a.status);
+  // Render Impacts of Cal
+  if (churchcore_countObjectElements(data.cal)>0) {
+    rows.push('<h4>Änderungen in '+masterData.churchcal_name+'</h4><ul>');
+    var dates = new Object();
+    each(data.cal, function(k, a) {
+      rows.push('<li>' +  'Datum: ' + a.startdate.toDateEn(false).toStringDe(false) + '<ul>');
+      var fields = new Array();
+      each(a.changes, function(j, c) {
+        fields.push(_(j) + ": " + c.new + ' <span class="old">' + c.old + "</span>");
       });
-    }
-    if (churchcore_countObjectElements(data.services)>0) {
-      rows.push('<h4>Dienstanfragen</h4>');
-      rows.push('<ul>');
-      each(data.services, function(k,a) {
-        rows.push('<li>' + a.date.toDateEn().toStringDe(true) +" " + a.service + ": " + a.name);
-        if ( !a.confirmed ) rows.push('? <i>(unbestätigt)</i>');
-        else rows.push('<i> (bestätigt)</i>');
-      });
+      rows.push(fields.join(", "));
       rows.push('</ul>');
-      rows.push('<p><small>Bestätigte Anfragen werden durch die Änderungen wiede unbestätigt!</small>');
+    });
+    rows.push('</ul>');
+  }
+  // Render Impacts of bookings
+  if (churchcore_countObjectElements(data.bookings)>0) {
+    var dates = new Object();
+    each(data.bookings, function(k, a) {
+      if (a.status.indexOf("no.change")!=0) {
+        if (dates[a.startdate] == null) dates[a.startdate] = new Array();
+        dates[a.startdate].push(a);
+      }
+    });
+    var rows_cr = new Array();
+    each(dates, function(k, a) {
+      rows_cr.push('<li>' +  'Datum: ' + k.toDateEn(false).toStringDe(false) + '<ul>');
+      each(a, function(i,b) {
+        rows_cr.push('<li>' + masterData.resources[b.booking.resource_id].bezeichnung+': ');
+        if (b.changes == null) {
+          rows_cr.push('<i>'+_(b.status)+'</i>');
+        }
+        else {
+          showConfirm = true;
+          var fields = new Array();
+          each(b.changes, function(j, c) {
+            fields.push(_(j) + ": " + c.new + ' <span class="old">' + c.old + "</span>");
+          });
+          rows_cr.push(fields.join(", "));
+        }
+      });
+      rows_cr.push('</ul>');
+    });
+    if (rows_cr.length > 0) {
+      rows.push('<h4>Auswirkung auf '+masterData.churchresource_name+'</h4><ul>');
+      rows.push(rows_cr.join(""));
+      rows.push('</ul>');
     }
+  }
 
-    var elem = form_showDialog("Bestätigung der Auswirkungen", rows.join(""), 500, 500, {
+  // Render impact of services
+  if (churchcore_countObjectElements(data.services)>0) {
+    showConfirm=true;
+    rows.push('<h4>Auswirkung auf '+masterData.churchservice_name+'</h4>');
+    rows.push('<ul>');
+    each(data.services, function(k,a) {
+      rows.push('<li>' + a.date.toDateEn().toStringDe(true) +" " + a.service + ": " + a.name);
+      if ( !a.confirmed ) rows.push('? <i>(unbestätigt)</i>');
+      else rows.push('<i> (bestätigt)</i>');
+    });
+    rows.push('</ul>');
+  }
+
+  // Check if there is something to confirm
+  if (rows.length==0 || !showConfirm) func(true);
+  else {
+    $txt = '<legend>Änderungen in anderen Modulen</legend><p>Die folgende Änderungen haben Auswirkungen '
+           + 'auf andere Module. Bitte sorgsam prüfen!' + rows.join("");
+    var elem = form_showDialog("Bestätigung der Auswirkungen", $txt, 500, 500, {
       "Ausführen": function() {
         elem.dialog("close");
         func(true);
       }
     });
     elem.dialog("addcancelbutton");
-  }
-  else {
-    func(true);
   }
 }
 
@@ -96,8 +140,8 @@ function CCEvent(source) {
 CCEvent.prototype.clone = function () {
   var t = this;
   var e = jQuery.extend(true, {}, this);
-  e.startdate = t.startdate;
-  e.enddate = t.enddate;
+  e.startdate = new Date(t.startdate.getTime());
+  e.enddate = new Date(t.enddate.getTime());
   if (t.repeat_until!=null)
     e.repeat_until=new Date(t.repeat_until.getTime());
   each(t.csevents, function(k,a) {
@@ -214,7 +258,7 @@ CCEvent.prototype.isEqual = function (event) {
  */
 CCEvent.prototype.askForSplit = function (position, func) {
   var t = this;
-  if (!t.isSeries()) func(false);
+  if (!t.isSeries() || position == null) func(false);
   else {
     $("#popupmenu").popupmenu({
       entries: ["Nur diesen Termin ändern", "Diesen und zukünftige ändern", "Abbruch"],
@@ -285,12 +329,13 @@ CCEvent.prototype.doSplit = function (splitDate, untilEnd, func) {
 
 var newbookingid=-1;
 function reIdBookings(newEvent) {
-  each(newEvent.bookings, function(k,a) {
-    if (k>0) {
+  each(newEvent.bookings, function(k, a) {
+    if (k > 0) {
+      a.old_id = a.id;
       delete a.id;
       newEvent.bookings[newbookingid] = a;
       delete newEvent.bookings[k];
-      newbookingid=newbookingid-1;
+      newbookingid = newbookingid - 1;
     }
   });
   return newEvent;
@@ -311,7 +356,7 @@ CCEvent.prototype.isSeries = function () {
  * @param splitDate - Where the Event should be devided
  * @param func Function callback with func(true) or func(false)
  */
-CCEvent.prototype.prooveEventChangeImpact = function (newEvent, splitDate, untilEnd, func) {
+CCEvent.prototype.prooveEventChangeImpact = function (newEvent, pastEvent, splitDate, untilEnd, func) {
   var t = this;
   // If it is an existing event, otherwise there nothing to prove
   if (t.id == null) {
@@ -321,6 +366,7 @@ CCEvent.prototype.prooveEventChangeImpact = function (newEvent, splitDate, until
   var o = new Object();
   o.func = "getEventChangeImpact";
   o.newEvent = newEvent;
+  o.pastEvent = pastEvent;
   o.originEvent = t;
   o.splitDate = splitDate;
   o.untilEnd_yn = (untilEnd ? 1 : 0);

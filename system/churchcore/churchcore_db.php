@@ -42,9 +42,9 @@ function cleanI18nFiles() {
  */
 function createI18nFile($modulename) {
   global $config, $files_dir;
-  
+
   if (!file_exists("$files_dir/files/messages/")) mkdir("$files_dir/files/messages", 0777, true);
-  
+
   $filename = "$files_dir/files/messages/$modulename" . "_" . $config["language"] . ".js";
   if (!file_exists($filename)) {
     $i18n = new TextBundle("system/$modulename/resources/messages");
@@ -65,14 +65,14 @@ function churchcore_getInfosForDomain($domainType) {
     case 'person' : return array("tablename"=>"cdb_person");
     case 'event' : return array("tablename"=>"cc_cal", "modulename"=>"churchcal");
   }
-  throw new CTException("Domain $domainType not found!");  
+  throw new CTException("Domain $domainType not found!");
 }
 
 /**
  * Send all pending reminders. Will be called by cron job
  */
 function churchcore_sendReminders() {
-  $reminders = db_query("SELECT r.*, p.id person_id, p.email, p.vorname, p.name, p.spitzname FROM {cc_reminder} r, {cdb_person} p 
+  $reminders = db_query("SELECT r.*, p.id person_id, p.email, p.vorname, p.name, p.spitzname FROM {cc_reminder} r, {cdb_person} p
                          WHERE reminddate < now() AND r.person_id = p.id AND mailsenddate IS NULL");
   foreach ($reminders as $reminder) {
     $domaininfos = churchcore_getInfosForDomain($reminder->domain_type);
@@ -83,9 +83,9 @@ function churchcore_sendReminders() {
       if ($d!=null && $d!="")
       switch ($key) {
       	case "bezeichnung": $domain[t("caption")] = $d; break;
-      	case "startdate"  : $domain[t("start.date")] = churchcore_stringToDateDe($d); break; 
-      	case "enddate"  : $domain[t("end.date")] = churchcore_stringToDateDe($d); break; 
-      	case "repeat_until"  : $domain[t("repeat.to")] = churchcore_stringToDateDe($d); break; 
+      	case "startdate"  : $domain[t("start.date")] = churchcore_stringToDateDe($d); break;
+      	case "enddate"  : $domain[t("end.date")] = churchcore_stringToDateDe($d); break;
+      	case "repeat_until"  : $domain[t("repeat.to")] = churchcore_stringToDateDe($d); break;
       }
     }
     if ($reminder->email && $domain) {
@@ -102,10 +102,10 @@ function churchcore_sendReminders() {
       churchcore_systemmail($p->email, "[" . getConf('site_name') . "] " . t('reminder.for.x', t($reminder->domain_type)), $content, true);
       echo "sened mail";
     }
-    db_query("UPDATE {cc_reminder} SET mailsenddate=NOW() 
+    db_query("UPDATE {cc_reminder} SET mailsenddate=NOW()
               WHERE person_id = :person_id AND domain_type = :domain_type
-                           AND domain_id = :domain_id", 
-                         array(':person_id' => $reminder->person_id, 
+                           AND domain_id = :domain_id",
+                         array(':person_id' => $reminder->person_id,
                                ':domain_type' => $reminder->domain_type,
                                ':domain_id' => $reminder->domain_id));
   }
@@ -118,13 +118,13 @@ function churchcore_sendReminders() {
  * @return multitype:
  */
 function ct_getMyReminders($person_id, $listOfDomainTypes) {
-  $reminders = db_query("SELECT * FROM {cc_reminder} r 
-                         WHERE person_id = :person_id AND domain_type IN ('$listOfDomainTypes')", 
+  $reminders = db_query("SELECT * FROM {cc_reminder} r
+                         WHERE person_id = :person_id AND domain_type IN ('$listOfDomainTypes')",
                          array(':person_id' => $person_id));
   $ret = array();
   foreach ($reminders as $reminder) {
-    $ret[$reminder->domain_type][$reminder->domain_id] = $reminder->reminddate; 
-  }  
+    $ret[$reminder->domain_type][$reminder->domain_id] = $reminder->reminddate;
+  }
   return $ret;
 }
 
@@ -136,13 +136,13 @@ function ct_getMyReminders($person_id, $listOfDomainTypes) {
 function churchcore_saveReminder($params) {
   global $user;
   $params["person_id"] = $user->id;
-  
+
   $i = new CTInterface();
   $i->setParam("domain_id");
   $i->setParam("domain_type");
   $i->setParam("person_id");
   $i->setParam("reminddate", false);
-  
+
   if (!isset($params["reminddate"])) {
     $id = db_delete("cc_reminder")
       ->fields($i->getDBInsertArrayFromParams($params))
@@ -151,11 +151,11 @@ function churchcore_saveReminder($params) {
       ->condition("domain_type", $params["domain_type"], "=")
       ->execute(false);
   }
-  else {  
-    $reminder = db_query("SELECT * FROM {cc_reminder} r 
+  else {
+    $reminder = db_query("SELECT * FROM {cc_reminder} r
                          WHERE person_id = :person_id AND domain_type = :domain_type
-                           AND domain_id = :domain_id", 
-                         array(':person_id' => $person_id, 
+                           AND domain_id = :domain_id",
+                         array(':person_id' => $person_id,
                                ':domain_type' => $params["domainType"],
                                ':domain_id' => $params["domainId"]))->fetch();
     if (!$reminder) {
@@ -163,7 +163,7 @@ function churchcore_saveReminder($params) {
           ->fields($i->getDBInsertArrayFromParams($params))
           ->execute(false);
     }
-    else { 
+    else {
       $params["id"] = db_insert("cc_reminder")
         ->fields($i->getDBInsertArrayFromParams($params))
         ->condition("id", $params["id"], "=")
@@ -184,7 +184,7 @@ function churchcore_saveReminder($params) {
 function ct_notify($domain_type, $domain_id, $txt, $loglevel = 2) {
   global $user;
   ct_log($txt, $loglevel, $domain_id, $domain_type);
-  
+
   // TODO: please explain
   $notify = db_query('SELECT * FROM {cc_notification} n, {cc_notificationtype} nt
                       WHERE n.notificationtype_id = nt.id AND n.person_id = :p_id AND n.domain_id = :domain_id
@@ -206,7 +206,7 @@ function ct_notify($domain_type, $domain_id, $txt, $loglevel = 2) {
  */
 function ct_sendPendingNotifications($max_delayhours = null) {
   $res = churchcore_getTableData("cc_notificationtype", "delay_hours", ($max_delayhours != null ? "delay_hours<=$max_delayhours" : ""));
-  
+
   foreach ($res as $n) {
     // Check if there is a pending notifications for a person and domain_type
     $personANDtypes = db_query(
@@ -217,7 +217,7 @@ function ct_sendPendingNotifications($max_delayhours = null) {
           array (':nt_id' => $n->id,
                  ':delay_hours' => $n->delay_hours
           ));
-    
+
     // Collect all notifications in this type for each person and domain_type
     foreach ($personANDtypes as $personANDtype) {
       $notis = db_query('SELECT * FROM {cc_notification} n
@@ -226,7 +226,7 @@ function ct_sendPendingNotifications($max_delayhours = null) {
                                 ':nt_id' => $n->id,
                                 ':dt_id' => $personANDtype->domain_type
                          ));
-      
+
       // Get all logs for each notification after? each lastsenddate
       foreach ($notis as $noti) {
         $logs = db_query("SELECT l.txt AS text, DATE_FORMAT(datum, '%e.%c.%Y %H:%i') date FROM {cdb_log} l
@@ -255,7 +255,7 @@ function ct_sendPendingNotifications($max_delayhours = null) {
           churchcore_systemmail($p->email, "[" . getConf('site_name') . "] " . t('news.for.abo.x', t($personANDtype->domain_type)), $content, true);
         }
       }
-      
+
       // update send date for notification
       $notis = db_query('UPDATE {cc_notification} n SET lastsenddate=NOW()
                          WHERE n.person_id=:person_id AND n.notificationtype_id=:nt_id AND n.domain_type=:dt_id',
@@ -418,7 +418,7 @@ function htmlize($text) {
  * @return string
  */
 function l($name, $url, $params = null) {
-  
+
 //   if ($params == null) $param = "";
 //   else {
 //     $param = "?";
@@ -429,7 +429,7 @@ function l($name, $url, $params = null) {
 //       $param .= "$key=$p";
 //     }
 //   }
-  
+
   $params = ($params ? '?' . http_build_query($parameter, '', '&') : '');
   return '<a href="' . $url . $param . '">' . $name . '</a>';
 }
@@ -469,7 +469,7 @@ function addInfoMessage($message, $hide = false) {
  */
 function t($txt) {
   global $i18n;
-  
+
   if (isset($i18n)) {
     // calls the function with the values in $data as arguments like $i18n->getText($data[0], $data[1], ...)
     $return = call_user_func_array(array ($i18n, "getText"), func_get_args());
@@ -522,7 +522,7 @@ function php_quot_print_encode($str) {
   $hex = "0123456789ABCDEF";
   $length = strlen($str);
   $str_index = 0;
-  
+
   while ($length--) {
     if ((($c = $str[$str_index++]) == "\015") && ($str[$str_index] == "\012") && $length > 0) {
       $return .= "\015";
@@ -581,9 +581,9 @@ function churchcore_isModuleActivated($modulename) {
  */
 function churchcore_getModulesSorted($withCoreModule = false, $withOfflineModules = false) {
   global $config;
-  
+
   if ($withCoreModule) $config["churchcore_sortcode"] = 0;
-  
+
   // Get module names out of the file system in directory system/*
   // name contains church, is not churchcore and is a directory
   $modules = array ();
@@ -594,7 +594,7 @@ function churchcore_getModulesSorted($withCoreModule = false, $withOfflineModule
       $modules[] = $file;
     }
   }
-  
+
   $sort_arr = array ();
   $mysort = 1000;
   foreach ($modules as $module) {
@@ -609,7 +609,7 @@ function churchcore_getModulesSorted($withCoreModule = false, $withOfflineModule
     }
   }
   ksort($sort_arr);
-  
+
   return $sort_arr;
 }
 
@@ -626,7 +626,7 @@ function churchcore_getModulesSorted($withCoreModule = false, $withOfflineModule
  */
 function churchcore_mail($from, $to, $subject, $content, $htmlmail = false, $withTemplate = true, $priority = 2) {
   global $base_url, $files_dir, $user;
-  
+
   $header = "";
   $body = "";
   // $header.='MIME-Version: 1.0' . "\n";
@@ -650,9 +650,9 @@ function churchcore_mail($from, $to, $subject, $content, $htmlmail = false, $wit
       $body = "%content";
   }
   // $header.="From: $from\n";
-  
+
   // $header.='X-Mailer: PHP/' . phpversion();
-  
+
   $variables = array (
     '%username' => (isset($user->cmsuserid) ? $user->cmsuserid : "anonymus"),
     '%useremail' => (isset($user->email) ? $user->email : "anonymus"),
@@ -663,7 +663,7 @@ function churchcore_mail($from, $to, $subject, $content, $htmlmail = false, $wit
   $content = strtr($content, $variables);
   // add content to body
   $variables["%content"] = $content;
-  
+
   ct_log("Speichere Mail an $to von $from - $subject", 2, -1, "mail");
   // mail($to, "=?utf-8?Q?".php_quot_print_encode($subject)."?=\n", strtr($body, $variables), $header);
   $dt = new DateTime();
@@ -720,11 +720,11 @@ function churchcore_sendMails_PHPMAIL($maxmails = MAX_MAILS) {
     $db = new stdClass();
     $db->value = 0;
   }
-  
+
   if ($db->value == "0") {
     db_query("UPDATE {cc_config} SET value='1'
               WHERE name='currently_mail_sending'");
-    
+
     $db = db_query("SELECT * FROM {cc_mail_queue}
                     WHERE send_date IS NULL
                     ORDER BY priority LIMIT $maxmails");
@@ -740,7 +740,7 @@ function churchcore_sendMails_PHPMAIL($maxmails = MAX_MAILS) {
         }
         else
           $header .= 'Content-type: text/plain; charset=utf-8' . "\n"; // 'Content-Transfer-Encoding: quoted-printable'."\n" .
-        
+
         // See churchtools.example.config for more details
         if (getVar("mail_with_user_from_address", "0") == "0") {
           $header.="From: ".getConf('site_mail', 'info@churchtools.de')."\n";
@@ -753,7 +753,7 @@ function churchcore_sendMails_PHPMAIL($maxmails = MAX_MAILS) {
         else {
           $header.="From: ".$mail->sender."\n";
         }
-        
+
         $header .= 'X-Mailer: PHP/' . phpversion();
         $error = 0;
         $counter++;
@@ -790,17 +790,17 @@ function churchcore_sendMails_PHPMAIL($maxmails = MAX_MAILS) {
 function churchcore_sendMails_PEARMAIL($maxmails = MAX_MAILS) {
   global $config, $base_url;
   ct_log("starte senden5");
-  
+
   include_once 'Mail.php'; //dont exists!
   include_once 'Mail/mime.php';
-  
+
   $db = db_query("SELECT value FROM {cc_config} WHERE name='currently_mail_sending'")->fetch();
   if (!$db) {
     db_query("INSERT INTO {cc_config} VALUES ('currently_mail_sending', '0')");
     $db = new stdClass();
     $db->value = 0;
   }
-  
+
   if ($db->value == "0") {
     db_query("UPDATE {cc_config} SET value='1' WHERE name='currently_mail_sending'");
     $db = db_query("SELECT * FROM {cc_mail_queue} WHERE send_date IS NULL ORDER BY priority LIMIT $maxmails");
@@ -816,15 +816,15 @@ function churchcore_sendMails_PEARMAIL($maxmails = MAX_MAILS) {
           'Subject' => $mail->subject,
           'Content-Type' => 'text/html; charset=UTF-8', 'X-Mailer' => 'PHP/' . phpversion(),
         );
-        
+
         $mime_params = array ('text_encoding' => '7bit',
                               'text_charset' => 'UTF-8',
                               'html_charset' => 'UTF-8',
                               'head_charset' => 'UTF-8',
                        );
-        
+
         $mime = new Mail_mime();
-        
+
         if ($mail->htmlmail_yn == 1) {
           $html = $mail->body;
           $html .= '<img src="' . $base_url . '?q=cron&standby=true&mailqueue_id=' . $mail->id . '"/>';
@@ -834,7 +834,7 @@ function churchcore_sendMails_PEARMAIL($maxmails = MAX_MAILS) {
           $text = $mail->body;
           $mime->setTXTBody($text);
         }
-        
+
         $error = 0;
         $counter++;
         ct_log("starte senden");
@@ -881,11 +881,11 @@ function churchcore_createOnTimeLoginKey($id) {
   db_query("UPDATE {cdb_person} SET loginstr='1'
             WHERE id=:id AND loginstr IS NULL",
             array(':id' => $id));
-  
+
   db_query("INSERT INTO {cc_loginstr} (person_id, loginstr, create_date)
             VALUES (:id, :loginstr, current_date)",
             array(':id' => $id, ':loginstr' => $loginstr));
-  
+
   return $loginstr;
 }
 
@@ -901,14 +901,14 @@ function churchcore_createOnTimeLoginKey($id) {
  */
 function churchcore_sendEMailToPersonIDs($ids, $subject, $content, $from = null, $htmlmail = false, $withtemplate = true) {
   global $base_url;
-  
+
   if (!$from) {
     $user_pid = $_SESSION["user"]->id;
     $res = db_query("SELECT vorname, name, email FROM {cdb_person}
                      WHERE id=$user_pid")->fetch();
     $from = "$res->vorname $res->name <$res->email>";
   }
-  
+
   $persons = db_query("SELECT * FROM {cdb_person} WHERE id IN ($ids)");
   $error = array ();
   foreach ($persons as $p) {
@@ -918,7 +918,7 @@ function churchcore_sendEMailToPersonIDs($ids, $subject, $content, $from = null,
       $mailtxt = str_replace('\"', '"', $mailtxt);
       $mailtxt = churchcore_personalizeTemplate($mailtxt, $p);
       // ct_log("[ChurchCore] - Sende Mail an $p->email $mailtxt",2,-1,"mail");
-      
+
       churchcore_mail($from, $p->email, $subject, $mailtxt, $htmlmail, $withtemplate);
     }
   }
@@ -956,12 +956,12 @@ function checkForDBUpdates() {
 
 // TODO: should be the same as next two lines, not tested
 //  if (!$software_version = getConf(["churchtools_version"]) die("churchtools_version nicht gefunden!");
-  
+
   if (!$mapping["churchtools_version"]) die("churchtools_version nicht gefunden!");
   $software_version = $mapping["churchtools_version"];
-  
+
   $db_version = "nodb";
-  
+
   try {
     // test if cc_config table is present
     $a = db_query("SELECT * FROM {cc_config} WHERE name='version'", null, false);
@@ -981,7 +981,7 @@ function checkForDBUpdates() {
   }
   /* anything to do? */
   if ($db_version == $software_version) return true;
-  
+
   include_once ("system/includes/db_updates.php");
   return run_db_updates($db_version);
 }
@@ -1148,7 +1148,7 @@ function churchcore_copyFileToOtherDomainId($id, $domain_ids) {
                    array (":id" => $id), false)
                    ->fetch();
   if (!$res) throw new CTFail(t('file.not.found.in.DB'));
-  
+
   $arr = explode(",", $domain_ids);
   foreach ($arr as $val) if ($val) {
     if (!file_exists("$files_dir/files/$res->domain_type/$val")) mkdir("$files_dir/files/$res->domain_type/$val", 0777, true);
@@ -1180,7 +1180,7 @@ function churchcore_renameFile($id, $filename) {
                    array (":id" => $id), false)
                    ->fetch();
   if (!$res) throw new CTFail(t('file.not.found.in.DB'));
-  
+
   db_query("UPDATE {cc_file} SET bezeichnung=:bezeichnung
             WHERE id=:id",
             array (":id" => $id, ":bezeichnung" => $filename), false);
@@ -1198,7 +1198,7 @@ function churchcore_delFile($id) {
                    array (":id" => $id), false)
                    ->fetch();
   if (!$res) throw new CTFail(t('file.not.found.in.DB'));
-  
+
   db_query("DELETE FROM {cc_file}
             WHERE id=:id",
             array (":id" => $id), false);
@@ -1232,7 +1232,7 @@ function churchcore_renderFile($file) {
   }
   $txt = '<a target="_clean" href="?q=churchservice/filedownload&id=' . $file->id . '&filename=' . $file->filename .
          '" title="' . $file->bezeichnung . '">' . churchcore_renderImage("$ext.png", 20) . '</a>';
-  
+
   return $txt;
 }
 
@@ -1316,7 +1316,7 @@ function churchcore_getCompleteUserByCMSId($CMSID, $multiple = false) {
           FROM {cdb_person}
           WHERE cmsuserid=:cmsId";
   $params = array(':cmsId' => $CMSID);
-  
+
   if (!$multiple) {
     if ($obj = db_query($sql, $params)->fetch()) {
     return $obj;
@@ -1351,7 +1351,7 @@ function churchcore_getCompleteUserByCMSId($CMSID, $multiple = false) {
 function churchcore_getUserSettings($modulename, $user_pid) {
   if (!$user_pid) return array ();
   if (is_array($user_pid)) $user_pid = $user_pid[0];
-  
+
   $res = db_query("SELECT attrib, value, serialized_yn
                    FROM {cc_usersettings}
                    WHERE modulename=:module AND person_id=:id",
@@ -1371,7 +1371,7 @@ function churchcore_getUserSettings($modulename, $user_pid) {
     else $settings[$entry->attrib] = $val;
   }
   foreach ($bundles as $key => $bundle) $settings[$key] = $bundle;
-  
+
   return $settings;
 }
 
@@ -1399,7 +1399,7 @@ function _churchcore_savePidUserSetting($modulename, $pid, $attrib, $val) {
       $val = serialize($val);
       $serizaled = 1;
     }
-    
+
     $res = db_query("SELECT * FROM {cc_usersettings}
                      WHERE modulename='$modulename' AND person_id=$pid AND attrib='$attrib'")
                      ->fetch();
@@ -1422,7 +1422,7 @@ function _churchcore_savePidUserSetting($modulename, $pid, $attrib, $val) {
 function churchcore_CCEventData2String($res) {
   $res = (object) $res;
 
-  $txt .= '<ul>';
+  $txt = '<ul>';
   $txt .= "<li>" . t('caption') . ": " . $res->bezeichnung;
   $txt .= "<li>" . t('start') . ": " . churchcore_stringToDateDe($res->startdate);
   $txt .= "<li>" . t('end') . ": " . churchcore_stringToDateDe($res->enddate);
@@ -1444,7 +1444,7 @@ function churchcore_CCEventData2String($res) {
  */
 function churchcore_getMyNotifications() {
   global $user;
-  
+
   $res = db_query("SELECT id, notificationtype_id, domain_id, domain_type, lastsenddate
                   FROM {cc_notification}
                   WHERE person_id=:p_id",
@@ -1455,20 +1455,20 @@ function churchcore_getMyNotifications() {
 //     // is isset needed or can we simple assign $abos[$abo->domain_type][$abo->domain_id]
 //     if (!isset($abos[$abo->domain_type])) $abos[$abo->domain_type] = array ();
 //     if (!isset($abos[$abo->domain_type][$abo->domain_id])) $abos[$abo->domain_type][$abo->domain_id] = array ();
-    
+
 //     $abos[$abo->domain_type][$abo->domain_id]["notificationtype_id"] = $abo->notificationtype_id;
 //     $abos[$abo->domain_type][$abo->domain_id]["lastsenddate"] = $abo->lastsenddate;
 
-    
+
     if (!isset($abos[$abo->domain_type])) $domaintype = array ();
     else $domaintype = $abos[$abo->domain_type];
-    
+
     if (!isset($domaintype[$abo->domain_id])) $domain_id = array ();
     else $domain_id = $domaintype[$abo->domain_id];
-    
+
     $domain_id["notificationtype_id"] = $abo->notificationtype_id;
     $domain_id["lastsenddate"] = $abo->lastsenddate;
-    
+
     $domaintype[$abo->domain_id] = $domain_id;
     $abos[$abo->domain_type] = $domaintype;
   }
@@ -1485,7 +1485,7 @@ function churchcore_getMyNotifications() {
  */
 function churchcore_saveUserSetting($modulename, $user_pid, $attrib, $val) {
   if (($user_pid == null) || ($user_pid <= 0)) return;
-  
+
   //TODO:  simplify by foreach ((array) $user_pid)?
   if (is_array($user_pid)) {
     foreach ($user_pid as $pid)
@@ -1560,7 +1560,7 @@ function churchcore_getFieldChanges($fields, $oldArr, $newArr, $cutDates = true)
       if ($fields[$name]["type"] == "date") {
         // only compare year and day of dates, time doesn't matter
         if ($cutDates && $fields[$name]["type"] == "date") $oldVal = substr($oldVal, 0, 10);
-        
+
         $oldVal = churchcore_stringToDateDe($oldVal);
         $value  = churchcore_stringToDateDe($value);
       }
@@ -1601,13 +1601,13 @@ function churchcore_getMasterDataEntry($id, $bezeichnung, $shortname, $tablename
     "tablename"   => $tablename,
     "sql_order"   => $sql_order,
   );
-  
+
   $tabledesc = db_query("DESCRIBE {" . $tablename . "}");
   foreach ($tabledesc as $desc) {
     // Seit Drupal 7,14 first letter of array keys is uppercase
 //      if (isset($desc->Field)) $desc->field = $desc->Field;
 //      if (isset($desc->Type)) $desc->type = $desc->Type;
-    
+
     $return["desc"][$desc->Field] = array_change_key_case((array) $desc, CASE_LOWER); //seems to work properly
   }
   return $return;
@@ -1623,7 +1623,7 @@ function churchcore_getMasterDataEntry($id, $bezeichnung, $shortname, $tablename
  */
 function churchcore_stringToDateDe($string, $withTime = true) {
   if (!$string) return null;
-  
+
   if (strlen($string) < 11) $string .= " 00:00:00";
   $dt = new Datetime($string);
   if ($withTime) return $dt->format('d.m.Y H:i');
@@ -1645,7 +1645,7 @@ function churchcore_stringToDateICal($string) {
 function churchcore_icalToDate($ical) {
   if (($timestamp = strtotime($ical)) === false) {
     return "";
-  } 
+  }
   else {
     return date('Y-m-d H:i', $timestamp);
   }
@@ -1723,7 +1723,7 @@ function datesInConflict($startdate, $enddate, $startdate2, $enddate2) {
 function churchcore_getAge($date) {
   $d = new DateTime($date);
   $age = floor((date("Ymd") - date("Ymd", $d->getTimestamp())) / 10000);
-  
+
   return $age;
 }
 
@@ -1753,34 +1753,40 @@ function getAllDatesWithRepeats($r, $_from = -1, $_to = 1, $fromDate = null) {
   $max = 999;
 
   if ($fromDate == null) $fromDate = new DateTime();
+  else $fromDate = new DateTime($fromDate->format('d.m.Y'));
   $to = new DateTime($fromDate->format('d.m.Y H:i'));
 
   $fromDate->modify("+$_from days");
   $to->modify("+$_to days");
 
-  $d = new DateTime($r->startdate->format('d.m.Y H:i'));
-  $e = new DateTime($r->enddate->format('d.m.Y H:i'));
-  
+  $d = new DateTime(($r->startdate instanceof DateTime ? $r->startdate->format('d.m.Y H:i') : $r->startdate));
+  $e = new DateTime(($r->enddate instanceof DateTime ? $r->enddate->format('d.m.Y H:i') : $r->enddate));
+
+  if (!isset($r->repeat_until)) $r->repeat_until = $d->format("d.m.Y H:i");
   $repeat_until = new DateTime($r->repeat_until);
   $repeat_until = $repeat_until->modify('+1 day'); // include given day!
   if ($to < $repeat_until) $repeat_until = $to;
-  
+
   if (isset($r->additions)) $additions = $r->additions;
   else $additions = array ();
-  
+
   $my = new stdClass();
   $my->add_date = $d->format('d.m.Y H:i');
   $my->with_repeat_yn = 1;
-  
+
   $additions[0] = $my;
+
   // array_unshift($additions, $my);
   foreach ($additions as $key => $add) {
     $d = new DateTime(substr($add->add_date, 0, 10) . " " . $d->format('H:i:s'));
     $e = new DateTime(substr($add->add_date, 0, 10) . " " . $e->format('H:i:s'));
-    
+
     // Mark exception as used, so datesInConflict() will be called only for new exceptions to save time!
-    if (isset($r->exceptions)) foreach ($r->exceptions as $exc) $exc->used = false;
-    
+    if (isset($r->exceptions)) foreach ($r->exceptions as $key => $exc) {
+      if (is_array($r->exceptions[$key])) $r->exceptions[$key] = (object) $r->exceptions[$key];
+      $r->exceptions[$key]->used = false;
+    }
+
     do {
       $exception = false;
       if (isset($r->exceptions)) foreach ($r->exceptions as $exc) {
@@ -1863,7 +1869,7 @@ function getAllDatesWithRepeats($r, $_from = -1, $_to = 1, $fromDate = null) {
         $d->modify("+ " . ($counter + 1 * $r->repeat_frequence) . " year");
         $e->modify("+ " . ($counter + 1 * $r->repeat_frequence) . " year");
       }
-      
+
       $max = $max - 1;
       if ($max == 0) {
         addErrorMessage("Zu viele Wiederholungen in getAllDatesWithRepeats! [$r->id]");
@@ -1957,7 +1963,7 @@ function _implantAuth($auth_table, $IamAdmin, $res, $auth) {
             $arr = $auth[$auth_entry->modulename][$auth_entry->auth];
           }
           // Datenautorisierung nicht mit true, sondern mit [id]=id. 1. Implode geht und 2. Direkter Zugriff geht!
-          
+
           $arr[$entry->daten_id] = $entry->daten_id;
           $auth[$auth_entry->modulename][$auth_entry->auth] = $arr;
         }
@@ -1975,13 +1981,13 @@ function _implantAuth($auth_table, $IamAdmin, $res, $auth) {
 function getUserAuthorization($user_id) {
   global $config;
   $auth = null;
-  
+
   if ($user_id == null) return null;
-  
+
   $auth_table = getAuthTable();
   $IamAdmin = false;
   if (in_array($user_id, $config["admin_ids"])) $IamAdmin = true;
-  
+
   // Wenn ich in den Admin-Mails bin, dann schuster ich mir alle Rechte zu, die der Admin sehen darf
   if ($IamAdmin) {
     foreach ($auth_table as $entry) {
@@ -2001,7 +2007,7 @@ function getUserAuthorization($user_id) {
       }
     }
   }
-  
+
   // F�r normale Benutzer und bei Admins nach Where nur die, wo es nicht f�r Admin alles gibt.
   // Autorisierung �ber direkte Personenzuordnung
   $res = db_query("SELECT daten_id, auth_id
@@ -2009,14 +2015,14 @@ function getUserAuthorization($user_id) {
                    WHERE pa.domain_type='person' AND pa.domain_id=:id",
                    array(':id' => $user_id));
   $auth = _implantAuth($auth_table, $IamAdmin, $res, $auth);
-  
+
   // Autorisierung �ber Status
   $res = db_query("SELECT daten_id, auth_id
                    FROM {cdb_gemeindeperson} gp, {cc_domain_auth} da
                    WHERE da.domain_type='status' AND da.domain_id=gp.status_id AND gp.person_id=:id",
                    array(':id' => $user_id));
   $auth = _implantAuth($auth_table, $IamAdmin, $res, $auth);
-  
+
   // Autorisierung �ber Gruppen
   $res = db_query("SELECT daten_id, auth_id
                    FROM {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg, {cc_domain_auth} da
@@ -2024,7 +2030,7 @@ function getUserAuthorization($user_id) {
                      AND da.domain_id=gpg.gruppe_id and gp.person_id=:id",
                    array(':id' => $user_id));
   $auth = _implantAuth($auth_table, $IamAdmin, $res, $auth);
-  
+
   // Wenn es kein Anonymous ist
   if ($user_id > 0) {
     $auth["home"]["view"] = true;
@@ -2044,10 +2050,10 @@ function getUserAuthorization($user_id) {
     if (isset($auth["churchcore"]) && isset($auth["churchcore"]["view logfile"])) {
       $auth["churchcore"]["view"] = true;
     }
-    
+
     if (isset($_SESSION["simulate"])) $auth["simulate"]["view"] = true;
   }
-  
+
   return $auth;
 }
 
@@ -2176,7 +2182,7 @@ function random_string($l = 20) {
   $c = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxwz0123456789";
   $s = "";
   for(; $l > 0; $l--) $s .= $c{rand(0, strlen($c) - 1)};
-  
+
   return str_shuffle($s);
 }
 
@@ -2292,20 +2298,20 @@ function db_connect() {
     $error_message .= "<div class='alert alert-info'>";
     $error_message .= "Please edit your default configuration file <code>" . $config["_current_config_file"] . "</code>, perhaps?";
     $error_message .= "</div>";
-    
+
     addErrorMessage($error_message);
     return false;
   }
-  
+
   return true;
 }
 
 /**
  * Allow only numbers and commata
- * 
+ *
  * TODO: rename to reflect function, f.e. cleanIDsForDB. With the UNALLOWED CHARS:[$ids] $ids is still not "clean".
  * throw a sort of exception instead?
- * 
+ *
  * @param int|array $ids
  * @return mixed
  */
@@ -2333,7 +2339,7 @@ function db_implode($arr) {
  */
 function db_query($sql, $params = null, $print_error = true) {
   global $db_pdo, $config;
-  
+
   $sql = str_replace("{", $config["prefix"], $sql);
   $sql = str_replace("}", "", $sql);
   $res = $db_pdo->prepare($sql);
@@ -2392,7 +2398,7 @@ class db_accessor implements Iterator {
   function key() {
     return null;
   }
-  
+
 // only used in __construct
   function next() {
     $this->current = $this->res->fetchObject();
@@ -2402,7 +2408,7 @@ class db_accessor implements Iterator {
   function valid() {
     return $this->current != null;
   }
-  
+
   /* FIXME: unused, but also not useful right now in "basic" version */
   function getResult() {
     return $this->res;
@@ -2439,7 +2445,7 @@ class db_fields {
 class db_updatefields extends db_fields {
 
   function fields($arr) {
-    
+
 //     //TODO: maybe use this code using array / implode, not tested
 //     $s = array();
 //     foreach ($arr as $key => $val) {
@@ -2564,7 +2570,7 @@ function isCTDBTable($table) {
  */
 function dump_database() {
   global $files_dir;
-  
+
   $dir = $files_dir . "/db_backup";
   if (!file_exists($dir)) mkdir($dir, 0700, true);
   if (!is_writable($dir)) {
@@ -2576,7 +2582,7 @@ function dump_database() {
       fwrite($handle, "Deny from all");
       fclose($handle);
     }
-    
+
     $tables = array ();
     $res = db_query('SHOW TABLES');
     foreach ($res as $row) {
@@ -2589,16 +2595,16 @@ function dump_database() {
     }
     $return = "";
     $dt = new DateTime();
-    
+
     $filename = $dir . '/db-backup-' . $dt->format('YmdHi') . '-' . (md5(implode(',', $tables))) . '.sql';
     $handle = fopen($filename, 'w+');
-    
+
     foreach ($tables as $table) {
       $return .= 'DROP TABLE IF EXISTS ' . $table . ';';
       $row2 = db_query('SHOW CREATE TABLE ' . $table)->fetch();
       $row2 = (array) $row2;
       $return .= "\n" . $row2["Create Table"] . ";\n\n";
-      
+
       $result = db_query('SELECT * FROM ' . $table);
       foreach ($result as $content) {
         $return .= 'INSERT INTO ' . $table . ' VALUES(';
@@ -2614,7 +2620,7 @@ function dump_database() {
       fwrite($handle, $return);
       $return = "";
     }
-    
+
     // save file
     fclose($handle);
     $zip = new ZipArchive();
@@ -2624,7 +2630,7 @@ function dump_database() {
     $zip->addFile($filename);
     $zip->close();
     unlink($filename);
-    
+
     // delete files older then 30 days
     if ($handle = opendir($dir)) {
       $now = new DateTime();
@@ -2691,7 +2697,7 @@ function churchcore_saveMasterData($id, $table) {
     // get MaxId for new record. We dont use auto_inecrement, so the IDs can be choosen
     $arr = db_query("SELECT MAX(id) id FROM {" . $table . "}")->fetch();
     $max_id = $arr->id + 1;
-    
+
     $sql = "INSERT INTO {" . $_POST["table"] . "} (id, "; // NEVER TRUST USER INPUT!!!
     // Build Cols
     $i = 0;

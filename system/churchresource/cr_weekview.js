@@ -48,9 +48,12 @@ function saveCRSuccess(a, b, json) {
 }
 
 function saveSplitCRSuccess(newEvent, pastEvent, originEvent) {
+  console.log(newEvent, pastEvent);
   if (pastEvent == null) delete allBookings[originEvent.booking_id];
   else allBookings[pastEvent.booking_id] = CAL2CRType(pastEvent);
-  allBookings[newEvent.booking_id] = CAL2CRType(newEvent);
+  var newBooking = CAL2CRType(newEvent);
+  console.log("newBooking", newBooking);
+  allBookings[newBooking.id] = CAL2CRType(newEvent);
   t.buildDates(allBookings);
   t.renderList();
 }
@@ -548,23 +551,17 @@ function renderBookings(bookings) {
       if (a.enddate.getMinutes()>0) endtxt=endtxt+":"+a.enddate.getMinutes();
     }
 
-    if (a.status_id==1) color="color:red";
-    else if (a.status_id==3) color="color:gray;text-decoration:line-through;";
-    else if (a.status_id==99) {
-      if (((masterData.auth.write) && (a.person_id==masterData.user_pid)) || ((user_access("edit",a.resource_id))))
-        color="color:lightgray;text-decoration:line-through;";
-      else color="";
-    }
-    else color="color:black";
-      text=a.text;
-      if (a.location)
-        text=text+" ("+a.location+")";
-    if (color!="") {
+    text=a.text;
+    if (a.location)
+      text=text+" ("+a.location+")";
+    if (a.status_id!=99 || (((masterData.auth.write) && (a.person_id==masterData.user_pid)) || ((user_access("edit",a.resource_id))))) {
       if ((!this.printview) &&
            ((masterData.auth.write) && (a.person_id==masterData.user_pid)) || ((user_access("edit", a.resource_id))))
-        txt=txt+"<a href=\"#"+a.viewing_date.toStringEn()+"\" class=\"tooltips\" id=\"edit"+a.id+"\" data-tooltip-id=\""+a.id+"\" style=\"font-weight:normal;"+color+"\">"+starttxt+"-"+endtxt+"h "+text.trim(17)+"</a>";
+        txt=txt+"<a href=\"#"+a.viewing_date.toStringEn()+"\" class=\"tooltips cr-status-"+a.status_id+"\" id=\"edit"+a.id+"\" data-tooltip-id=\""+a.id+"\" style=\"font-weight:normal;"
+                + "\">"+starttxt+"-"+endtxt+"h "+text.trim(17)+"</a>";
       else
-        txt=txt+"<span style=\"cursor:default;font-weight:normal;"+color+"\" class=\"tooltips\" data-tooltip-id=\""+a.id+"\">"+starttxt+"-"+endtxt+"h "+text.trim(17)+"</span>";
+        txt=txt+'<span style="cursor:default;font-weight:normal;" class="tooltips cr-status-"' + a.status_id + '" '
+                + 'data-tooltip-id="' + a.id + '">' + starttxt + "-" + endtxt + "h " + text.trim(17) + "</span>";
       if (a.repeat_id>0) txt=txt+"&nbsp;"+weekView.renderImage("recurring",12);
       txt=txt+"<br/>";
     }
@@ -629,7 +626,7 @@ WeekView.prototype.renderListEntry = function (a) {
     rows.push(renderBookings(bookings));
 
     rows.push("</small>");
-    if ((masterData.auth.write || (masterData.auth.virtual && a.virtual_yn==1)) 
+    if ((masterData.auth.write || (masterData.auth.virtual && a.virtual_yn==1))
         && (!this.printview))
       rows.push("<a href=\"#"+d.toStringEn()+"\" id=\"new_"+a.id+"\">"+form_renderImage({src:"plus.png", width:16, hover:true})+"</a>");
   }
@@ -694,8 +691,10 @@ WeekView.prototype.renderEditBookingFields = function (a) {
     label:_("resources"),
     htmlclass:"input-medium",
     selected:a.resource_id,
-    func: function(a) { 
-            return (masterData.auth.create || (masterData.auth.virtual && a.virtual_yn==1)); 
+    func: function(a) {
+            return (masterData.auth.write
+                    || (masterData.auth.edit && masterData.auth.edit[a.id])
+                    || (masterData.auth.virtual && a.virtual_yn==1));
           }
   }));
 
@@ -844,8 +843,8 @@ WeekView.prototype.calcConflicts = function(new_b, resource_id, withoutEvent) {
     var e = new Date(ds.enddate.getTime()); e.addDays(1); // Add 1 day of full day dates
     each(t.getIndexedBookings(ds.startdate, e), function(i,conflict) {
       var booking=allBookings[conflict.id];
-      if ((booking!=null) && (booking.resource_id==resource_id) 
-           && (new_b.id!=booking.id) 
+      if ((booking!=null) && (booking.resource_id==resource_id)
+           && (new_b.id!=booking.id)
            && (!booking.isEqual(withoutEvent))
            && (masterData.resources[resource_id].virtual_yn==0)) {
         if ((booking.status_id==1) || (booking.status_id==2)) {
@@ -1141,6 +1140,7 @@ function CR2CALType(event) {
   cal.bezeichnung = event.text;
   cal.category_id = event.category_id;
   cal.bookings[event.id] = {
+    id : event.id,
     status_id : event.status_id,
     location: event.location,
     note: event.note,
