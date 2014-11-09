@@ -1,4 +1,4 @@
- 
+
 // Constructor
 function AuthView() {
   StandardTableView.call(this);
@@ -23,18 +23,18 @@ AuthView.prototype.getData = function(sorted) {
 
 AuthView.prototype.checkFilter = function(a) {
   if (this.filter==null) return true;
-  
-  if ((this.filter["filterAuth"]!=null)) 
+
+  if ((this.filter["filterAuth"]!=null))
     return (a.auth!=null) && (a.auth[this.filter["filterAuth"]]!=null);
 
   if ((this.filter["searchAuth"]!=null) && (a.auth==null)) return false;
-  
+
   if (this.filter["searchEntry"]!=null && a.bezeichnung) {
     if (a.bezeichnung.toUpperCase().indexOf(this.filter["searchEntry"].toUpperCase())>=0) return true;
     return false;
   }
-  
-  return true;  
+
+  return true;
 };
 
 
@@ -46,9 +46,9 @@ $.widget("ct.permissioner", {
     change:function() {},
     saveSuccess:function() {}
   },
-  
+
   refresh:function() {this._create()},
-  
+
   _create:function() {
     var t=this;
     var children=new Array();
@@ -62,14 +62,14 @@ $.widget("ct.permissioner", {
             var child_daten=new Array();
             if (masterData[masterData.auth_table_plain[auth.id].datenfeld]!=null) {
               // Offers possiblity of subgroups, e.g. calendar for the church and for groups
-              var sub_child_daten=new Object();  
-              
+              var sub_child_daten=new Object();
+
               child_daten.push({title:"-- "+_("all")+" --", select:(masterData[t.options.domain_type][t.options.domain_id].auth!=null && masterData[t.options.domain_type][t.options.domain_id].auth[auth.id]!=null && masterData[t.options.domain_type][t.options.domain_id].auth[auth.id][-1]!=null), key:auth.id+"_-1"});
-    
+
               each(churchcore_sortMasterData(masterData[masterData.auth_table_plain[auth.id].datenfeld]), function(h, datenfeld) {
                 var select=false;
-                if ((masterData[t.options.domain_type][t.options.domain_id]!=null) && (masterData[t.options.domain_type][t.options.domain_id].auth!=null) 
-                     && (masterData[t.options.domain_type][t.options.domain_id].auth[auth.id]!=null) && 
+                if ((masterData[t.options.domain_type][t.options.domain_id]!=null) && (masterData[t.options.domain_type][t.options.domain_id].auth!=null)
+                     && (masterData[t.options.domain_type][t.options.domain_id].auth[auth.id]!=null) &&
                        // -1 means ALL! It comes from the authoriziation by ChurchDB
                         ((masterData[t.options.domain_type][t.options.domain_id].auth[auth.id][-1]!=null)
                          || (masterData[t.options.domain_type][t.options.domain_id].auth[auth.id][datenfeld.id]!=null))) {
@@ -79,10 +79,10 @@ $.widget("ct.permissioner", {
                 }
                 if (masterData.auth_table_plain[auth.id].datenfeld=="cc_calcategory") {
                   var type=masterData.publiccalendar_name;
-                  if (masterData.cc_calcategory[datenfeld.id].oeffentlich_yn==0 && 
+                  if (masterData.cc_calcategory[datenfeld.id].oeffentlich_yn==0 &&
                       masterData.cc_calcategory[datenfeld.id].privat_yn==0)
                     type=_("group.calendar");
-                  else if (masterData.cc_calcategory[datenfeld.id].oeffentlich_yn==0 && 
+                  else if (masterData.cc_calcategory[datenfeld.id].oeffentlich_yn==0 &&
                       masterData.cc_calcategory[datenfeld.id].privat_yn==1)
                     type=_("personal.calendar");
                   if (sub_child_daten[type]==null)
@@ -98,22 +98,22 @@ $.widget("ct.permissioner", {
                 child_daten.push({title:k, isFolder:true, children:a});
               });
             }
-            child.push({title:auth.bezeichnung+" ("+auth.auth+")", isFolder:true, children:child_daten, expand:!churchcore_isObjectEmpty(expand_datenfeld)});             
+            child.push({title:auth.bezeichnung+" ("+auth.auth+")", isFolder:true, children:child_daten, expand:!churchcore_isObjectEmpty(expand_datenfeld)});
           }
           else {
             select=false;
-            if ((masterData[t.options.domain_type]!=null) && (masterData[t.options.domain_type][t.options.domain_id]!=null) && (masterData[t.options.domain_type][t.options.domain_id].auth!=null) 
+            if ((masterData[t.options.domain_type]!=null) && (masterData[t.options.domain_type][t.options.domain_id]!=null) && (masterData[t.options.domain_type][t.options.domain_id].auth!=null)
                 && (masterData[t.options.domain_type][t.options.domain_id].auth[auth.id]!=null)) {
               select=true;
               expand=true;
             }
-            child.push({title:auth.bezeichnung+" ("+auth.auth+")", select:select, key:auth.id});              
+            child.push({title:auth.bezeichnung+" ("+auth.auth+")", select:select, key:auth.id});
           }
         }
       });
       children.push({title:(masterData.names[modulename]!=null?masterData.names[modulename]:modulename), isFolder:true, expand:expand, children:child});
     });
-    
+
     var ImadeTheChange=false;
     t.element.dynatree({
       onActivate: function(node) {
@@ -136,7 +136,7 @@ $.widget("ct.permissioner", {
         else if (!node.bSelected && node.parent.childList[0].data.key.indexOf("_-1")>0) {
           ImadeTheChange=true;
           node.parent.childList[0].select(false);
-          ImadeTheChange=false;        
+          ImadeTheChange=false;
         }
         t.options.change();
       },
@@ -147,32 +147,32 @@ $.widget("ct.permissioner", {
       children:children
     });
   },
-  
+
   save:function() {
     var t=this;
-    var selNodes=$("#tree").dynatree("getTree").getSelectedNodes(false);
+    var selNodes=$("#tree_" + t.options.domain_id).dynatree("getTree").getSelectedNodes(false);
     var data = $.map(selNodes, function(node){
       // Only a parent
-      if (node.data.key.indexOf('_')==0) 
+      if (node.data.key.indexOf('_')==0)
         return null;
         // with auth ids
       else if (node.data.key.indexOf('_')>0) {
         if (node.data.key.indexOf('_-1')>0) {
-          return {auth_id:node.data.key.substr(0,node.data.key.indexOf("_")), 
+          return {auth_id:node.data.key.substr(0,node.data.key.indexOf("_")),
                  daten_id:-1};
         }
         // if - Alle - is available and not selected, otherwise we can ignore it.
-        else if (node.parent.childList[0].data.key.indexOf('-1')==-1 
-                     || node.parent.childList[0].bSelected==false)  
-          return {auth_id:node.data.key.substr(0,node.data.key.indexOf("_")), 
+        else if (node.parent.childList[0].data.key.indexOf('-1')==-1
+                     || node.parent.childList[0].bSelected==false)
+          return {auth_id:node.data.key.substr(0,node.data.key.indexOf("_")),
                 daten_id:node.data.key.substr(node.data.key.indexOf("_")+1,99)};
         else {
-          return null;          
+          return null;
         }
       }
-      else 
+      else
         // only child without ids
-        return {auth_id:node.data.key}; 
+        return {auth_id:node.data.key};
     });
     churchInterface.jsendWrite({func:"saveAuth", domain_type:t.options.domain_type, domain_id:t.options.domain_id, data:data}, function(ok, data) {
       if (!ok) {
@@ -184,7 +184,7 @@ $.widget("ct.permissioner", {
           t.options.saveSuccess();
         });
       }
-    },true, false, "churchauth");    
+    },true, false, "churchauth");
   }
 });
 
@@ -192,24 +192,24 @@ $.widget("ct.permissioner", {
 AuthView.prototype.renderEntryDetail= function(domain_id) {
   var t=this;
   var rows=new Array();
-  rows.push('<div class="entrydetail" id="entrydetail_'+domain_id+'">');  
-  
+  rows.push('<div class="entrydetail" id="entrydetail_'+domain_id+'">');
+
   rows.push('<div class="well">');
     rows.push('<legend>'+_("permissions")+'</legend>');
 
-    rows.push('<div id="tree"></div>');  
+    rows.push('<div id="tree_'+domain_id+'"></div>');
     rows.push('<br> <p>'+form_renderButton({label:_("save.changes"), disabled:true, htmlclass:"save"})+"&nbsp;");
     rows.push(form_renderButton({label:_("undo.changes"), disabled:true, htmlclass:"undo"})+"&nbsp; &nbsp;");
     rows.push(form_renderButton({label:_("copy.permissions"), disabled:(t.clipboard!=null && t.clipboard.id==domain_id), htmlclass:"copy"})+"&nbsp;");
     if (t.clipboard!=null && t.clipboard.id!=domain_id)
-      rows.push(form_renderButton({label:_("paste.permissions"), disabled:false, htmlclass:"paste"}));    
-  rows.push('</div>');  
-  
- 
+      rows.push(form_renderButton({label:_("paste.permissions"), disabled:false, htmlclass:"paste"}));
+  rows.push('</div>');
+
+
   var elem=$("tr[id=" + domain_id + "]").after("<tr id=\"detail" + domain_id + "\"><td colspan=\"7\" id=\"detailTD" + domain_id + "\">"+rows.join("")+"</td></tr>").next();
-  
-  var perm=$("#tree");
-  
+
+  var perm=$("#tree_"+domain_id);
+
   perm.permissioner({
     domain_type:t.currentDomain,
     domain_id:domain_id,
@@ -221,12 +221,12 @@ AuthView.prototype.renderEntryDetail= function(domain_id) {
       t.renderList();
     }
   });
-  
+
   elem.find("input.save").click(function() {
     elem.find("input").attr("disabled",true);
-    perm.permissioner("save");  
-  });      
-  
+    perm.permissioner("save");
+  });
+
   elem.find("input.undo").click(function() {
     elem.remove();
     t.renderEntryDetail(domain_id);
@@ -235,11 +235,14 @@ AuthView.prototype.renderEntryDetail= function(domain_id) {
     if (elem.find("input.save").attr("disabled")!="disabled") alert(_("please.first.save.or.undo.current.changes"));
     else {
       t.clipboard=$.extend(true, {}, masterData[t.currentDomain][domain_id]);
-      t.renderList();      
+      t.renderList();
     }
   });
   elem.find("input.paste").click(function() {
     if (confirm(_("really.past.permissions"))) {
+      if (masterData[t.currentDomain][domain_id].auth == null)
+        masterData[t.currentDomain][domain_id].auth = new Object();
+      masterData[t.currentDomain][domain_id]
       each(t.clipboard.auth, function(k,a) {
         masterData[t.currentDomain][domain_id].auth[k]=a;
       });
@@ -255,7 +258,7 @@ AuthView.prototype.renderEntryDetail= function(domain_id) {
 
 AuthView.prototype.getListHeader = function() {
   return '<th>Nr.<th width=200px>'+_("caption")+'<th>'+_("permissions");
-  
+
 };
 
 AuthView.prototype.addFurtherListCallbacks  = function() {
@@ -281,7 +284,7 @@ AuthView.prototype.renderListEntry = function(a) {
         log('No Auth in masterData.auth_table_plain for AuthId:'+auth_id);
       }
       else {
-        var txt=masterData.auth_table_plain[auth_id].auth;    
+        var txt=masterData.auth_table_plain[auth_id].auth;
         if (typeof daten=="object") {
           var rows=new Array();
           each(daten, function(i, d) {
@@ -308,18 +311,18 @@ AuthView.prototype.renderListEntry = function(a) {
       rows_module.push("<b>"+k+": </b>"+rows_zeile.join(", ").trim(500));
     });
   }
-  
+
   var rows=new Array();
   rows.push('<td class="hoveractor"><a href="#" id="detail'+a.id+'">'+a.bezeichnung+'</a>');
-  if ((t.currentDomain=="person") && (churchcore_inArray(a.id,masterData.admins))) 
+  if ((t.currentDomain=="person") && (churchcore_inArray(a.id,masterData.admins)))
     rows.push('&nbsp; <span class="label label-important">'+_("administrator")+'</span>');
-  else {  
+  else {
     if ((t.currentDomain=="person") && (a.id>0)) {
       rows.push('&nbsp; <span class="hoverreactor" data-id="'+a.id+'" style="display:none">'+form_renderImage({src:"person_simulate.png", width:18, cssid:"simulate"})+"</span>");
     }
   }
   rows.push('<td>'+rows_module.join("<br>"));
-  
+
   return rows.join("");
 };
 
@@ -334,7 +337,7 @@ function loadAuthViewMasterData(func) {
       });
       if (func!=null) func();
     }
-  }, null, null, "churchauth");  
+  }, null, null, "churchauth");
 }
 
 AuthView.prototype.renderMenu = function() {
@@ -345,27 +348,27 @@ AuthView.prototype.renderMenu = function() {
 
   if (!menu.renderDiv("cdb_menu", churchcore_handyformat()))
     $("#cdb_menu").hide();
-  else {      
+  else {
     $("#cdb_menu a").click(function () {
       if ($(this).attr("id")=="anewentry") {
         t.renderAddEntry();
       }
       else if ($(this).attr("id")=="aexporter") {
-        t.exportData(); 
+        t.exportData();
       }
 
-    });   
+    });
   }
 };
 
 
 AuthView.prototype.renderFilter = function() {
   var t = this;
-  
+
   var form = new CC_Form();
   form.setHelp("ChurchAuth-Filter");
   //form.setLabel();
-  
+
   var data=new Array();
   var modulename="";
   each(churchcore_sortData(masterData.auth_table_plain, "modulename"), function(k,a) {
@@ -375,26 +378,26 @@ AuthView.prototype.renderFilter = function() {
     }
     data.push({id:a.id, bezeichnung:a.auth+" - "+a.bezeichnung.trim(50)});
   });
-  
+
   form.addSelect({cssid:"filterAuth",label:_("permissions"), sort:false, freeoption:true, selected:t.filter["filterAuth"], data:data});
   form.addCheckbox({cssid:"searchAuth",label:_("only.show.user.with.permissions"), checked:true});
   this.filter["searchAuth"]=true;
-  
+
   $("#cdb_filter").html(form.render(true, "inline"));
-    
+
   // Set values of current filters
   each(this.filter, function(k,a) {
     $("#"+k).val(a);
   });
 
-   
-  // Callbacks 
+
+  // Callbacks
   this.implantStandardFilterCallbacks(this, "cdb_filter");
 
   var t=this;
 
-  
-  
+
+
   $("#cdb_filter a").click(function(c) {
 
   });
@@ -403,8 +406,8 @@ AuthView.prototype.renderFilter = function() {
 
 AuthView.prototype.renderListMenu = function() {
   var t=this;
-  
-  if ($("searchEntry").val()!=null) 
+
+  if ($("searchEntry").val()!=null)
     searchEntry=$("searchEntry").val();
   else
     searchEntry=this.getFilter("searchEntry");
@@ -416,9 +419,9 @@ AuthView.prototype.renderListMenu = function() {
   navi.addSearch(searchEntry);
   navi.renderDiv("cdb_search", churchcore_handyformat());
   if (!churchcore_handyformat()) $("#searchEntry").focus();
-  
-  this.implantStandardFilterCallbacks(this, "cdb_search");    
-  
+
+  this.implantStandardFilterCallbacks(this, "cdb_search");
+
   $("#cdb_search a").click(function () {
     if ($(this).attr("id")=="apersonview") {
       t.currentDomain="person";
@@ -433,5 +436,5 @@ AuthView.prototype.renderListMenu = function() {
       t.renderView();
     }
     return false;
-  });  
+  });
 };
