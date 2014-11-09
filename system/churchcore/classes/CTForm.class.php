@@ -20,7 +20,7 @@ class CTForm {
   const CHECKBOX = 'CHECKBOX';
   const FILEUPLOAD = 'FILEUPLOAD';
   const PASSWORD = 'PASSWORD';
-  
+
   public  $fields = array ();
   private $buttons = array ();
   private $validator = null; //name of validate function
@@ -66,10 +66,10 @@ class CTForm {
    */
   public function addField($name, $class, $fieldType, $label = "", $autofocus = false) {
     if (!in_array($fieldType, $this->fieldTypes)) echo ("There is no FieldTyp $fieldType!");
-    
+
     $field = new CC_Field($this, $name, $class, $fieldType, $label, $autofocus);
     $this->fields[$name] = $field;
-    
+
     return $this->fields[$name];
   }
 
@@ -108,21 +108,20 @@ class CTForm {
   /**
    * render form
    *
-   * TODO: if variable source doesn't matter, use REQUEST by removing POST from getVar()
    * @return string html content of form
    */
-  public function render() {
+  public function render($withHtmlEncoding = true) {
     global $q_orig;
-    
+
     // check if dada was sent
-    if ($formData = getVar($this->getName(), false, $_POST)) {
+    if ($formData = getVar($this->getName(), false)) {
       // reset all checkboxes
       foreach ($this->fields as $field) {
         if ($field->getFieldType() == "CHECKBOX") $field->setValue("off");
       }
       // set values
       foreach ($formData as $key => $val) {
-        $this->fields[$key]->setValue(htmlspecialchars($val));
+        $this->fields[$key]->setValue(($withHtmlEncoding ? htmlspecialchars($val) : $val));
       }
       //validate values
       $isValid = true;
@@ -136,14 +135,14 @@ class CTForm {
         // return $ret;
       }
     }
-    
+
     // TODO: maybe use template?
     // render form
     $txt = "";
-    
+
     if ($this->header) $txt .= "<h1>$this->header</h1>";
     if ($this->subheader) $txt .= "<p>$this->subheader</p>";
-    
+
     $txt .= '<div class="form">'.NL;
     $txt .= '<form class="well form-vertical" id="verticalForm" action="?q=' . $q_orig . '" method="post">'.NL;
     if ($this->help_url) {
@@ -151,7 +150,7 @@ class CTForm {
            '" href="http://intern.churchtools.de?q=help&doc=' . $this->help_url . '" target="_clean">';
       $txt .= '<i class="icon-question-sign"></i></a></label>'.NL;
     }
-    
+
     $requiredFields = false;
     // render fields
     foreach ($this->fields as $field) {
@@ -259,8 +258,8 @@ class CC_Field extends CC_HTMLElement {
   public function getFieldType() {
     return $this->fieldType;
   }
-  
-  
+
+
   /**
    * set Value
    * @param string or bool $val, for checkbox "on" or 1 is valid
@@ -315,9 +314,9 @@ class CC_Field extends CC_HTMLElement {
       $txt .= '<label for="'. $this->form->getName().'_'.$this->getName().'">'.$this->getLabel();
       if ($this->isRequired()) $txt.=' <span class="required">*</span>';
       $txt .= '</label>'.NL;
-      
+
       $txt .= '<div class="control-group '. $this->getClass(). ($this->error ? " error" : '').'">'.NL;
-      
+
       if ($this->fieldType == "TEXTAREA") {
         $txt .= '<textarea rows=6 class="span8" name="'.$this->form->getName().'['.$this->getName().']" id="'.
              $this->form->getName().'_'.$this->getName().'">'. ($this->value ?  $this->value : '').'</textarea>'.NL;
@@ -343,7 +342,7 @@ class CC_Field extends CC_HTMLElement {
         $txt .= '&nbsp; <img style="max-width:100px;max-height:100px" src="'.$files_dir."/files/logo/".$this->value.'"/>'.
                 '&nbsp; <a href="#" id="del_logo">l&ouml;schen</a>';
       }
-      
+
       $txt .= '</span></label><div id="upload_button">'. t('again.please'). '</div>';
       $txt .= '<input type="hidden" name="' . $this->form->getName() . '['.$this->getName() .']" id="' .
                 $this->form->getName() . '_' . $this->getName() . '" value="' . $this->value . '"/>';
@@ -377,7 +376,7 @@ class CC_Field extends CC_HTMLElement {
     }
     else
       return NL.NL."FieldType $this->fieldType not implemented!".NL.NL; // TODO: error handling?
-    
+
     return $txt;
   }
 
