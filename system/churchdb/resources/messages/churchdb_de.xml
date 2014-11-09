@@ -2,7 +2,7 @@
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
   <comment>ChurchDB messages</comment>
-    
+
   <entry key="exporter">Exporter</entry>
   <entry key="emailer">E-Mailer</entry>
   <entry key="list.of.groups">Gruppenliste</entry>
@@ -11,25 +11,25 @@
   <entry key="statistic.view">Statistik</entry>
   <entry key="archive">Archiv</entry>
   <entry key="export.all">Gesamtexport</entry>
-  
+
   <entry key="my.todos">Meine Aufgaben</entry>
   <entry key="overdue.followups">überfällige FollowUps</entry>
   <entry key="pending.followups">nächste FollowUps</entry>
   <entry key="request.group.membership">Antrag Gruppenteilnahme</entry>
   <entry key="request.group.deletion">Löschung Gruppenteilnahme</entry>
   <entry key="followup.completed.for.today">Followup ist heute abgeschlossen.</entry>
-  
+
   <entry key="add.more.fields">Weitere Felder hinzufügen</entry>
   <entry key="categories">Kategorien</entry>
   <entry key="my.groups">Meine Gruppen</entry>
-  
+
   <entry key="back.to.list.of.persons">Zurück zur Personenliste</entry>
   <entry key="add.new.group">Neue Gruppe anlegen</entry>
   <entry key="add.related.person">Eine Person zuordnen</entry>
   <entry key="add.another.related.person">Eine weitere Person zuordnen</entry>
   <entry key="related.persons">Zugeordnete Personen</entry>
   <entry key="show.changes.between">Änderungen anzeigen innerhalb von:</entry>
-  
+
   <entry key="person.function">Personenfunktion</entry>
   <entry key="group.function">Gruppenfunktionen</entry>
   <entry key="selected.persons">Markierte Personen</entry>
@@ -51,19 +51,21 @@
   <entry key="meeting.was.cancelled">Treffen ausgefallen</entry>
   <entry key="who.was.there.on">Wer war am {0} da?</entry>
   <entry key="load.archive">Lade Archiv</entry>
-  <entry key="add.tag">Tag hinzufügen</entry>  
+  <entry key="add.tag">Tag hinzufügen</entry>
   <entry key="add.to.group">einer Gruppe hinzufügen</entry>
   <entry key="delete.from.group">aus einer Gruppe entfernen</entry>
   <entry key="add.to.department">einen Bereich hinzufügen</entry>
   <entry key="add.one.tag">einen Tag hinzufügen</entry>
   <entry key="add.one.permission">ein Zugriffssrecht hinzufügen</entry>
   <entry key="move.to.archive">ins Archiv verschieben</entry>
+  <entry key="invite.to">einladen zu {0}</entry>
+  <entry key="invite.person.to">Person zu {0} einladen</entry>
   <entry key="delete.irrevocable">endgültig löschen</entry>
   <entry key="history">Historie</entry>
   <entry key="relations">Beziehungen</entry>
   <entry key="edit.relation">Beziehungen pflegen</entry>
   <entry key="export.vcard">VCard export</entry>
-  
+
 
   <!-- SETTINGS -->
   <entry key="which.mail.should.be.used">Welche Mailer-Variante soll verwendet werden</entry>
@@ -72,7 +74,7 @@
   <entry key="mail.with.churchtools">E-Mail-Versand direkt über ChurchTools (inkl. Serienbrieffelder!)</entry>
   <entry key="which.separator.should.be.used">Welches Trennzeichen soll verwendet werden (nur für die oberen ersten beiden Auswahlmöglickeiten relevant)</entry>
   <entry key="semicolon.for.windows">Semikolon (bei Windows-PCs sinnvoll)</entry>
-  <entry key="commata.for.mac">Komma (bei z.Bsp Mac oder GMail sinnvoll)</entry> 
+  <entry key="commata.for.mac">Komma (bei z.Bsp Mac oder GMail sinnvoll)</entry>
   <entry key="which.field.should.be.used.for.local.email.app">Welches Feld soll bei Mailer mit direktem Aufruf verwendet werden</entry>
   <entry key="mail.to">An</entry>
   <entry key="mail.bcc">Bcc</entry>
@@ -81,10 +83,10 @@
   <entry key="show.traffic">Verkehrsdichte anzeigen</entry>
   <entry key="show.bike.paths">Fahrradwege anzeigen</entry>
   <entry key="show.transit">Verkehrsnetzplan (Transit) anzeigen</entry>
-  <entry key="hide.persons.with.status">Personen mit folgendem Status sollen ausgeblendet werden</entry> 
+  <entry key="hide.persons.with.status">Personen mit folgendem Status sollen ausgeblendet werden</entry>
   <entry key="signature">Signatur</entry>
   <entry key="save.signature">Signatur speichern</entry>
-  
+
   <!-- MASTERDATA -->
   <entry key="kuerzel">Kürzel</entry>
   <entry key="mitglied_yn">Bedeutet Mitglied</entry>
@@ -104,10 +106,10 @@
   <entry key="count_no">Nummer</entry>
   <entry key="days_diff">Anzahl Tage differenz</entry>
   <entry key="info">Info</entry>
-  
+
   <entry key="i.have.the.permission.from.this.user.for.x">Ich habe die Erlaubnis der Person, dass die Daten für {0} gespeichert, genutzt und verarbeitet werden dürfen.</entry>
   <entry key="please.confirm.agreement">Bitte die Erlaubnis zum Speichern der Daten bestätigen.</entry>
-  
+
   <!-- EXPORT -->
   <entry key="export">Export</entry>
   <entry key="export.settings">Einstellungen für den Export</entry>
@@ -123,5 +125,5 @@
   <entry key="please.fillin.a.name">Bitte einen Namen angeben</entry>
   <entry key="really.delete.template">Soll wirklich die Vorlage gelöscht werden?</entry>
 
-   
+
 </properties>

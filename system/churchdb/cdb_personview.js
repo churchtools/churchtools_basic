@@ -127,7 +127,7 @@ PersonView.prototype.renderMenu = function() {
               t.renderList();
             });
           }
-        } 
+        }
         else {
           t.furtherFilterVisible=false;
         }
@@ -286,12 +286,12 @@ PersonView.prototype.renderListMenu = function() {
 
 // Render AddNewPerson
 PersonView.prototype.renderAddEntry = function(prefill) {
-  
+
   if (masterData.auth.dep==null || churchcore_countObjectElements(masterData.auth.dep)==0) {
     alert("Es muß erst die Erlaubnis da sein einen Bereich editieren zu dürfen, sonst kann keine Person erstellt werden.");
     return;
   }
-  
+
   var _text='<div class="well"><div class="row-fluid">';
   var t=this;
 
@@ -574,6 +574,9 @@ PersonView.prototype.addSecondMenu = function() {
       rows.push('<option value="addPersonAuth">... '+_("add.one.permission"));
     if ((masterData.auth["push/pull archive"]) && (t.name=="PersonView"))
       rows.push('<option value="archivePerson">... '+_("move.to.archive"));
+    if (masterData.auth.adminpersons)
+      rows.push('<option value="invitePerson">... '+_("invite.to", masterData.site_name));
+
 
     if (churchInterface.isCurrentView("ArchiveView") && (masterData.auth.admin || masterData.auth.adminpersons))
       rows.push('<option value="deletePerson">... '+_("delete.irrevocable"));
@@ -1023,7 +1026,10 @@ PersonView.prototype.personFunction = function (value, param) {
     else if (value=="archivePerson") {
       form.setLabel("Personen archivieren");
       form.addHtml("Hiermit werden die markierten Personen in das Archiv verschieben. Diese sind dann nur noch mit speziellen Rechten sichtbar!");
-
+      form.addHidden({cssid:"inputId",value:"dummy"});
+    }
+    else if (value=="invitePerson") {
+      form.setLabel(_("invite.person.to", masterData.site_name));
       form.addHidden({cssid:"inputId",value:"dummy"});
     }
     form.addCheckbox({cssid:"delChecked",label:'Markierung bei den '+ids.length+' Personen wieder entfernen?'});
@@ -1083,6 +1089,9 @@ PersonView.prototype.personFunction = function (value, param) {
                obj.id=ids[current_id];
                allPersons[ids[current_id]]=null;
                churchInterface.jsendWrite(obj, null, false);
+             }
+             else if (value=="invitePerson") {
+               churchInterface.jsendWrite({func:"sendInvitationMail", id:ids[current_id]}, null, false);
              }
              elem.find("div.bar").width((100*(current_id+1)/ids.length)+'%');
              _progress(ids, current_id+1);
@@ -1730,7 +1739,7 @@ function _checkGroupFilter(a, filter, z) {
     return true;
   }
 
-  // Filter "In" 
+  // Filter "In"
   if ((filter["filterFilter "+z]==null) || (filter["filterFilter "+z]==0)) {
     var dabei=true;
     // Filter grouptype only, if group filter is not active. Cause group contains the grouptype
@@ -1783,7 +1792,7 @@ function _checkGroupFilter(a, filter, z) {
   }
 
 
-  // Filter "Nicht in" 
+  // Filter "Nicht in"
   else if ((filter["filterFilter "+z]!=null) && (filter["filterFilter "+z]==1)) {
     if (a.gruppe!=null) {
       dabei=false;
@@ -1829,7 +1838,7 @@ function _checkGroupFilter(a, filter, z) {
     }
   }
 
-  // Filter "War in" 
+  // Filter "War in"
   else if ((filter["filterFilter "+z]!=null) && (filter["filterFilter "+z]==2)) {
     var dabei=false;
     // Erst alte Gruppen (Gruppenarchiv) durchsuchen
@@ -1926,7 +1935,7 @@ PersonView.prototype.checkFilter = function(a) {
   if ((t.name=="ArchiveView") && (a.archiv_yn==0)) return false;
   // Es gibt noch keine Daten, soll er aber laden ueber Details
   if (a.name==null) return true;
-  
+
   if (a.id==-1 && !masterData.auth.adminpersons) return false;
 
   if ((masterData.settings.hideStatus!=null) && (a.status_id!=null) && (a.status_id==masterData.settings.hideStatus))
@@ -2071,10 +2080,10 @@ PersonView.prototype.checkFilter = function(a) {
     // ANDs
     if (filter["filterOr"]==null) {
       if (!res) return false;
-    }  
+    }
     // ORs
-    else if (res) or=true;   
-    z=z+1;  
+    else if (res) or=true;
+    z=z+1;
   }
   if (!or) return false;
 
@@ -2325,7 +2334,7 @@ function _renderOldGroupEntry(og) {
     _style="color:gray;text-decoration:line-through;";
   else if (og.leiter==-99)
     _style="color:gray;text-decoration:line-through;";
-  
+
   _text=_text+'<i><small> > <a href="#" title="'+_title+'" style="'+_style+'" id="grp_'+og.gp_id+'">'+masterData.groups[og.gp_id].bezeichnung+"</a>";
   if (og.leiter>0)
     _text=_text+" ("+masterData.groupMemberTypes[og.leiter].bezeichnung+")";
@@ -2336,7 +2345,7 @@ function _renderOldGroupEntry(og) {
 
   if ((og.comment!=null) && ((masterData.auth.editgroups) || (groupView.isPersonLeaderOfGroup(masterData.user_pid, og.id))))
     _text=_text+"&nbsp;"+t.renderImage("comment",16,"Kommentar: "+og.comment);
-  
+
   _text=_text+"<td><i><small>"+og.d.toDateEn().toStringDe()+"</small></i><td><td>";
   return _text;
 }
@@ -2443,7 +2452,7 @@ PersonView.prototype.getGroupEntries = function (p_id, gt_id, func) {
         _text=_text+'<td style="padding:0;width:16px;"><a href="#" id="editPersonGroupRelation'+b.id+'" grouptype="'+a.id+'">'+t.renderImage("options",16)+'</a>';
         _text=_text+'<td style="padding:0;width:16px;"><a href="#" id="delPersonGroupRelation'+b.id+'">'+t.renderImage("trashbox",16)+'</a>';
       }
-      
+
 
       if ((t.showGroupDetailsId==gt_id) && (t.showGroupDetailsWithHistory) && (allPersons[p_id].oldGroups!=null)) {
         each(allPersons[p_id].oldGroups, function(i,c) {
@@ -2711,13 +2720,13 @@ PersonView.prototype.renderDetails = function (id) {
                   _text=_text + '<div class="alert alert-info">Für '
                       + masterData.groupTypes[masterData.groups[b.id].gruppentyp_id].bezeichnung
                       + ' <b>' + masterData.groups[b.id].bezeichnung + '</b>'
-                      + ' ist eine Nachfolge angegeben. Die Person ' 
-                      +  t.renderFollowSuccessGroup(b.id, id) 
+                      + ' ist eine Nachfolge angegeben. Die Person '
+                      +  t.renderFollowSuccessGroup(b.id, id)
                       + '<form class="form-inline">';
-                      
+
                   _text=_text+form_renderButton({label:"Gruppe wechseln", cssid:"f_btn_successgroup_"+b.id, htmlclass:"btn", controlgroup:false});
                   if (masterData.groups[b.id].meetingList==null) {
-                    t.loadGroupMeetingList(b.id);                    
+                    t.loadGroupMeetingList(b.id);
                   }
                   _text=_text + '</form></div>';
                 }
@@ -2821,7 +2830,7 @@ PersonView.prototype.renderDetails = function (id) {
         else if (a.einladung==1)
           txt=a.vorname+' ist bereits eingeladen. <a href="#" style="color:black" id="invitatePerson">Erneut einladen</a>';
         else
-          txt='<a href="#" style="color:black" id="invitatePerson">'+form_renderImage({src:"person.png", width:18})+' Zu '+masterData.site_name+' einladen</a>';
+          txt='<a href="#" style="color:black" id="invitatePerson">'+form_renderImage({src:"person.png", width:18})+' '+_("invite.person.to", masterData.site_name)+'</a>';
         _text=_text+txt+"</small><br/>";
       }
       if (masterData.auth.adminpersons) {
@@ -3175,9 +3184,9 @@ PersonView.prototype.renderDetails = function (id) {
 
       var form = new CC_Form();
       form.addHtml("<h4>Wirklich zur Gruppe "+masterData.groups[to_g_id].bezeichnung+" wechseln?</h4> ");
-      if (masterData.groups[from_g_id].meetingList.length>0) 
+      if (masterData.groups[from_g_id].meetingList.length>0)
         form.addCheckbox({htmlclass:"copy-meetinglist", cssid:"f_movemeeting_successgroup", label:"Daten der Gruppenteilnahme in neue Gruppe übernehmen", controlgroup:false});
-      
+
       var elem=form_showDialog("Wechsel der Gruppe", form.render(null, "vertical"));
       elem.dialog("addbutton", "Ausführen", function() {
         t.addPersonGroupRelation(id, to_g_id, masterData.groups[from_g_id].fu_nachfolge_gruppenteilnehmerstatus_id);
@@ -3190,7 +3199,7 @@ PersonView.prototype.renderDetails = function (id) {
         elem.dialog("close");
       });
       elem.dialog("addcancelbutton");
-      
+
     }
     else if (fieldname.indexOf("f_followup_")==0) {
       // FollowUp Erg�nzen, falls die aktuelle Person hier ein FollowUp durchf�hren soll
@@ -3354,14 +3363,14 @@ PersonView.prototype.delPersonGroupRelation = function(g_id, p_id, func) {
   churchInterface.jsendWrite({func:"delPersonGroupRelation", id:p_id, g_id:g_id});
   delete allPersons[p_id].gruppe[g_id];
   allPersons[p_id].details=null;
-  t.renderList();  
+  t.renderList();
   if (func!=null) {
     func();
   }
 }
 
 PersonView.prototype.moveMeetingDataFromGroupPerson = function(from_g_id, to_g_id, p_id, func) {
-  var obj=new Object(); 
+  var obj=new Object();
   obj.func="moveMeetingDataFromGroupPerson";
   obj.from_g_id=from_g_id;
   obj.to_g_id=to_g_id;
@@ -3379,7 +3388,7 @@ PersonView.prototype.renderFollowSuccessGroup = function(g_id, p_id) {
   var rows = new Array();
   if (masterData.groups[g_id].fu_nachfolge_gruppenteilnehmerstatus_id==null)
     masterData.groups[g_id].fu_nachfolge_gruppenteilnehmerstatus_id=0;
-  
+
   if (masterData.groups[g_id].fu_nachfolge_typ_id==3) { // gruppe
     if (masterData.groups[g_id].fu_nachfolge_objekt_id!=null) {
       rows.push("soll in die Gruppe <i>"+masterData.groups[masterData.groups[g_id].fu_nachfolge_objekt_id].bezeichnung+"</i>");
@@ -3445,7 +3454,7 @@ PersonView.prototype.delPersonFromGroup = function (id, g_id, withoutConfirmatio
       alert("Person ist nicht in der Gruppe");
     return;
   }
-  
+
   // Muss erst pruefen, ob es sich um einen Leiter handelt und ein Gruppentyp, wo ein Leiter bleiben muss.
   if ((masterData.groupTypes[masterData.groups[g_id].gruppentyp_id].muss_leiter_enthalten_yn==1)
         && (allPersons[id].gruppe[g_id].leiter==1)) {
@@ -4415,7 +4424,7 @@ PersonView.prototype.renderFurtherFilter = function () {
   var t=this;
   if (this.furtherFilterVisible) {
     $("#divaddfilter").animate({ height: 'show'}, "medium");
-    
+
     var rows=new Array();
     rows.push('<ul class="nav nav-pills">');
     if (masterData.auth.viewalldata)
@@ -4424,11 +4433,11 @@ PersonView.prototype.renderFurtherFilter = function () {
     if (masterData.auth.viewalldetails)
       rows.push('<li class="'+(t.currentFurtherFilter=="beziehung"?"active":"")+'"><a href="#" data-filter="beziehung" class="filter">'+_("filter.for.relations")+'</a>');
     if (t.searchablesLoaded!==true) {
-      rows.push('<li>'+form_renderImage({src:"loading.gif"}));      
+      rows.push('<li>'+form_renderImage({src:"loading.gif"}));
     }
-    
+
     rows.push('<li class="pull-right"><a href="#" class="hide">'+_("close.filter")+'</a>');
-    
+
     rows.push('</ul>');
     rows.push('<div id="furtherFilterDetail"></div>');
 
@@ -4643,14 +4652,14 @@ PersonView.prototype.editExportTemplates = function(selected, func) {
     form.addHtml('<div class="span4" style="min-width:170px">');
     form.addHtml('<legend>'+fieldcategory.text+'</legend>');
     each(fieldcategory.fields, function(i,field) {
-      if (field.auth!="admingroups" && field.sql!="treffen_yn" && field.sql!="members_allowedmail_eachother_yn" 
+      if (field.auth!="admingroups" && field.sql!="treffen_yn" && field.sql!="members_allowedmail_eachother_yn"
          && t.checkFieldPermission(field))
         form.addCheckbox({label:field.text,  htmlclass:"field",
           data:[{name:"sql",value:field.sql}], controlgroup:false});
     });
     form.addHtml('</div>');
-  });  
-  
+  });
+
   // Add Group relation information
   if (user_access("viewalldata")) {
     form.addHtml('<div class="span4" style="min-width:170px">');
@@ -4658,19 +4667,19 @@ PersonView.prototype.editExportTemplates = function(selected, func) {
     each(masterData.groupTypes, function(k,a) {
       form.addCheckbox({label:a.bezeichnung,  htmlclass:"field",
         data:[{name:"sql",value:"grouptype_id_"+a.id}], controlgroup:false});
-    });    
+    });
   }
-  
+
   form.addHtml('</div>');
   rows.push(form.render(false));
   var elem=form_showDialog(_("chose.fields"), rows.join(""), 700, 600)
     .dialog("addbutton", _("save"), function() {
       _saveTemplate();
       elem.dialog("close");
-      if (func!=null) func(selected);          
+      if (func!=null) func(selected);
     }).dialog("addbutton", _("cancel"), function() {
       elem.dialog("close");
-      if (func!=null) func(selected);    
+      if (func!=null) func(selected);
     });
 
   elem.find("a.select-all").click(function() {
@@ -4725,8 +4734,8 @@ PersonView.prototype.editExportTemplates = function(selected, func) {
     }
     else _saveCheckboxes(elem.find("select.template").val());
   }
-  
-  
+
+
   _renderCheckboxes();
 
   var changes=false;

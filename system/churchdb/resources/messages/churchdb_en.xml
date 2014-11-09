@@ -11,18 +11,18 @@
   <entry key="statistic.view">Statistics</entry>
   <entry key="archive">Archive</entry>
   <entry key="export.all">Export all</entry>
-  
+
   <entry key="my.todos">My todos</entry>
   <entry key="overdue.followups">Overdue followups</entry>
   <entry key="pending.followups">Pending follwups</entry>
   <entry key="request.group.membership">Request group membership</entry>
   <entry key="request.group.deletion">Request group deletion</entry>
   <entry key="followup.completed.for.today">FollowUp completed for today.</entry>
-  
+
   <entry key="add.more.fields">Add more fields</entry>
   <entry key="categories">Categories</entry>
   <entry key="my.groups">My groups</entry>
-  
+
   <entry key="back.to.list.of.persons">Back to list of persons</entry>
   <entry key="add.new.group">Add new group</entry>
   <entry key="add.related.person">Add related person</entry>
@@ -40,7 +40,7 @@
   <entry key="filter.for.persons">Filter for persons</entry>
   <entry key="filter.for.groups">Filter for groups</entry>
   <entry key="filter.for.relations">Filter for relations</entry>
-  <entry key="close.filter">Close filter</entry> 
+  <entry key="close.filter">Close filter</entry>
   <entry key="reset.filter">Reset filter</entry>
   <entry key="mark.person.as.deleted.in.group">Mark person as deleted in group</entry>
   <entry key="why.the.person.should.not.be.in.this.group.anymore">Why the person should not be in this group anymore?</entry>
@@ -58,13 +58,15 @@
   <entry key="add.one.tag">add a tag</entry>
   <entry key="add.one.permission">add a permission</entry>
   <entry key="move.to.archive">move to archive</entry>
+  <entry key="invite.to">invite to {0}</entry>
+  <entry key="invite.person.to">Invite person to {0}</entry>
   <entry key="delete.irrevocable">delete irrevocable</entry>
-  <entry key="history">History</entry>  
+  <entry key="history">History</entry>
   <entry key="relations">Relations</entry>
   <entry key="edit.relation">Edit relations</entry>
   <entry key="export.vcard">Export vcard</entry>
-  
- 
+
+
   <!-- SETTINGS -->
   <entry key="which.mail.should.be.used">Which mailer should be used</entry>
   <entry key="direct.access.of.local.email.app">Direct access of the local email application (limited in Windows!)</entry>
@@ -72,7 +74,7 @@
   <entry key="mail.with.churchtools">E-Mail directly from ChurchTools (incl. mail merge fields!)</entry>
   <entry key="which.separator.should.be.used">Which separator should be used (only relevant for first and second option))</entry>
   <entry key="semicolon.for.windows">Semicolon (recomd. for Windows-PCs)</entry>
-  <entry key="commata.for.mac">Commata (recomd. for Mac)</entry> 
+  <entry key="commata.for.mac">Commata (recomd. for Mac)</entry>
   <entry key="which.field.should.be.used.for.local.email.app">Which field should be used for local email application</entry>
   <entry key="mail.to">To</entry>
   <entry key="mail.bcc">Bcc</entry>
@@ -81,10 +83,10 @@
   <entry key="show.traffic">Show traffic layer</entry>
   <entry key="show.bike.paths">Show bike path layer</entry>
   <entry key="show.transit">Show transit layer</entry>
-  <entry key="hide.persons.with.status">Hide persons with the following status</entry> 
+  <entry key="hide.persons.with.status">Hide persons with the following status</entry>
   <entry key="signature">Signature</entry>
-  <entry key="save.signature">Save signature</entry> 
-  
+  <entry key="save.signature">Save signature</entry>
+
   <!-- MASTERDATA -->
   <entry key="kuerzel">Shorty</entry>
   <entry key="mitglied_yn">Is member</entry>
@@ -122,5 +124,5 @@
   <entry key="discard.changes">Discard changes?</entry>
   <entry key="please.fillin.a.name">Please enter a name</entry>
   <entry key="really.delete.template">Really delete this template?</entry>
-    
+
 </properties>
