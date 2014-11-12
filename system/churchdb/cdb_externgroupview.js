@@ -1,7 +1,7 @@
-/** 
+/**
 }
  * cdb_main.js
- * 
+ *
  * @Author Jens Martin Rauen
  * @Version 20110101
  */
@@ -11,13 +11,13 @@ var churchdb_js_version = "7.x-1.97";
 // Alle Stammdaten werden hier gespeichert
 var masterData = null;
 
-// Alle Personendaten werden gespeichert, allerdings nur die Namen etc. Erst nach Klick auf Detail  
+// Alle Personendaten werden gespeichert, allerdings nur die Namen etc. Erst nach Klick auf Detail
 // werden weitere Daten nachgeladen und hier angereichert.
 var allPersons = new Object();
 
 // Infos ueber Teilnahme an Gruppen
 var groupMeetingStats = null;
-    
+
 
 // Aktuelle Menutiefe, amain ist der Starteinstieg.
 var menuDepth="amain";
@@ -35,9 +35,9 @@ function editGroup(a) {
   if (g.treffzeit!="") title=title+"<li>Zeit des Treffens: "+g.treffzeit;
   if ((g.treffpunkt!=null) && (g.treffpunkt!="")) title=title+", Ort: "+g.treffpunkt;
   if (g.treffname!="") title=title+"<li>Treffen bei: "+g.treffname;
-  if (g.zielgruppe!="") title=title+"<li>Zielgruppe: "+g.zielgruppe;        
+  if (g.zielgruppe!="") title=title+"<li>Zielgruppe: "+g.zielgruppe;
   title=title+"</ul></small>";
-  
+
   if (g.offen_yn==1) {
     form.addHtml('<legend>Anmeldung zu '+g.bezeichnung+'</legend>');
     form.addHtml('<p><div class="well">'+title+'</div>');
@@ -45,7 +45,7 @@ function editGroup(a) {
     form.addInput({label:"Nachname",required:true});
     form.addInput({label:"E-Mail-Adresse",required:true});
     form.addInput({label:"Telefon"});
-    form.addTextarea({label:"Kommentar", rows:3});
+    form.addTextarea({label:"Kommentar", rows:3, maxlength:250});
     form.addHidden({name:"g_id", value:a});
     form.addHtml('<p><small>Die Daten werden f&uuml;r interne Zwecke gespeichert. <br/>Wenn Vorname, Name und E-Mail dem System bekannt sind, wird die Teilnahme automatisch beantragt. Andernfalls wird der Leiter per E-Mail informiert.</small>');
     var elem = form_showDialog("Gruppe anfragen", form.render(null, "horizontal"), 500, 610, {
@@ -56,7 +56,7 @@ function editGroup(a) {
          churchInterface.jsendWrite(obj, function(ok, data) {
            if (ok) {
              elem.dialog("close");
-             alert(data);             
+             alert(data);
            }
            else {
              alert("Fehler: "+data);
@@ -76,12 +76,12 @@ function editGroup(a) {
          elem.dialog("close");
        }
     });
-  } 
+  }
 
 }
 
 function start() {
-  if (geocoder) {  
+  if (geocoder) {
     var image = new google.maps.MarkerImage("http://www.google.com/intl/en_us/mapfiles/ms/micons/blue-dot.png",
         new google.maps.Size(32, 32),
         new google.maps.Point(0, 0),
@@ -99,24 +99,24 @@ function start() {
       editGroup(a);
      });
   }
-  
+
 }
 
 jQuery(document).ready(function() {
 //  churchInterface.registerView("MapView", mapView);
   churchInterface.setModulename("externmapview");
-  
+
   cdb_initializeGoogleMaps();
   // Lade alle Kennzeichentabellen
   churchInterface.jsendWrite({func:"loadMasterData"}, function(status, data) {
     masterData=data;
     masterData.auth=new Object();
     masterData.settings=new Object();
-   
+
     // Initialisiere Browser-History, ruft damit schon RenderView() auf, falles Parameter uebergeben worden sind
     //churchInterface.activateHistory("PersonView");
     var rows = new Array();
-    
+
     if ($("#g_id").val()!=null) {
       var gid=$("#g_id").val();
       if (masterData.groups==null || masterData.groups[gid]==null) {
@@ -130,22 +130,22 @@ jQuery(document).ready(function() {
           }
           else {
             var func="addPersonGroupRelation";
-            if (masterData.groups[gid].status_no==-1) 
+            if (masterData.groups[gid].status_no==-1)
               func="editPersonGroupRelation";
             churchInterface.jsendWrite({func:func, g_id:gid}, function(ok, data) {
               var rows = new Array();
               if (ok) {
                 rows.push('<div class="alert alert-info">Hallo '+masterData.vorname+", <br>");
-                rows.push('Deine Anmeldung f&uuml;r <i>'+masterData.groups[gid].bezeichnung+'</i> wurde aufgenommen.<br/>Vielen Dank!</div>');                
+                rows.push('Deine Anmeldung f&uuml;r <i>'+masterData.groups[gid].bezeichnung+'</i> wurde aufgenommen.<br/>Vielen Dank!</div>');
               }
-              else 
+              else
                 rows.push('<div class="alert alert-error">Fehler aufgetreten:'+data+"</div>");
               $("#cdb_content").html(rows.join(""));
             });
           }
         }
         else {
-          editGroup(gid);        
+          editGroup(gid);
         }
       }
       $("#cdb_content").html(rows.join(""));
@@ -155,4 +155,4 @@ jQuery(document).ready(function() {
     }
 
   });
-}); 
+});

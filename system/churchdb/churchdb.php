@@ -264,7 +264,7 @@ function externmapview_main() {
   $content = '<script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=true"></script>';
 
   // id for direct access of a person
-  if ($id = getVar("id")) $content .= "<input type='hidden' id='g_id' value='$id'/>";
+  if ($id = getVar("g_id")) $content .= "<input type='hidden' id='g_id' value='$id'/>";
 
 
   $content .= NL . '<div id="cdb_content" style="width:100%;height:500px"></div>' . NL;
@@ -286,7 +286,7 @@ function externmapview__ajax() {
   $email   = getVar("E-Mail-Adresse");
   $fon     = getVar("Telefon");
   $comment = getVar("Kommentar");
-  
+
   if ($func == 'loadMasterData') {
     $res["home_lat"] = getConf('churchdb_home_lat', '53.568537');
     $res["home_lng"] = getConf('churchdb_home_lng', '10.03656');

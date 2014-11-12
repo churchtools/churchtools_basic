@@ -3628,7 +3628,7 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
 
     rows.push("<tr><td>Notiz<td>");
     var d= new Date();
-    rows.push('<textarea id="InputComment" size="10" rows="3"/></textarea>');
+    rows.push('<textarea id="InputComment" size="10" maxlength="250" rows="3"/></textarea>');
 
     rows.push("</table>");
     fieldname="addPersonGroupRelation";
@@ -3818,7 +3818,7 @@ PersonView.prototype.renderPersonGroupRelation = function(id, g_id) {
 
   rows.push("<tr><td>Notiz<td>");
   var d= new Date();
-  rows.push('<textarea id="InputComment" size="10" rows="3">');
+  rows.push('<textarea id="InputComment" size="10" rows="3" maxlength="250">');
     if (allPersons[id].gruppe[g_id].comment!=null) rows.push(allPersons[id].gruppe[g_id].comment);
   rows.push('</textarea>');
 
