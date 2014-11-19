@@ -68,7 +68,7 @@ function form_renderReminder(domainType, domainId) {
       icon = "reminder";
     }
     txt = form_renderImage({data:[{name:"type", value: domainType}, {name:"id", value: domainId}],
-                            cssid:"reminder", label:"Erinnern", src: icon+".png", width:20});
+                            cssid:"reminder", htmlclass:"reminder", label:"Erinnern", src: icon+".png", width:20});
   }
   return txt;
 }

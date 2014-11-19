@@ -1133,7 +1133,7 @@ function initCalendarView() {
       select: _select
     });
     if (!embedded)
-      $("div.fc-left").append("&nbsp; "+form_renderImage({src:"cal.png", width:28, htmlclass:"open-cal", link:true})+'<div style="position:absolute;z-index:12001" id="dp_month"></div>');
+      $("div.fc-left").append("&nbsp; "+form_renderImage({src:"cal.png", width:28, htmlclass:"open-cal", link:true})+'<div style="position:absolute;width:220px;z-index:12001" id="dp_month"></div>');
     $("div.fc-left").append(" "+form_renderImage({src:"printer.png", width:28, htmlclass:"printview", link:true})+'<div style="position:absolute;z-index:12001" id="dp_month"></div>');
     if (!embedded) {
 //      $("div.fc-right>div.fc-button-group").append('<button type="button" id="yearView" class="fc-button fc-state-default fc-corner-right">'+_("year")+'</button>');
@@ -1167,9 +1167,8 @@ function initCalendarView() {
   $("a.open-cal").click(function() {
     form_implantDatePicker('dp_month', masterData.settings["startDate"].toDateEn(), function(dateText) {
       var viewdate=dateText.toDateDe();
-      calendar.fullCalendar( 'gotoDate', viewdate);
+      calendar.fullCalendar('gotoDate', viewdate);
       calendar.fullCalendar('render');
-
     });
   });
 
@@ -1250,8 +1249,8 @@ function renderTooltip(event) {
       title=title + form_renderReminder("event", myEvent.id);
     }
     if (categoryEditable(myEvent.category_id)) {
-      title=title+'&nbsp;'+form_renderImage({cssid:"copyevent", label:"Kopieren", src:"copy.png", width:20});
-      title=title+"&nbsp;"+form_renderImage({cssid:"delevent", label:'Löschen', src:"trashbox.png", width:20});
+      title=title+'&nbsp;'+form_renderImage({cssid:"copyevent", htmlclass:"copy", label:"Kopieren", src:"copy.png", width:20});
+      title=title+"&nbsp;"+form_renderImage({cssid:"delevent", htmlclass:"delete", label:'Löschen', src:"trashbox.png", width:20});
     }
     title = title + "</nobr></span>";
 
@@ -1364,22 +1363,22 @@ function _eventMouseover(event, jsEvent, view) {
     },
     afterRender:function(element, data) {
       var event=getEventFromEventSource(data.event);
-      $("#copyevent").click(function() {
+      $("a.copy").click(function() {
         clearTooltip(true);
         copyEvent(event, data.event.start.format(DATETIMEFORMAT_EN).toDateEn(true));
         return false;
       });
-      $("#reminder").click(function() {
+      $("a.reminder").click(function() {
         clearTooltip(true);
         form_editReminder($(this), event.startdate);
         return false;
       });
-      $("#editevent").click(function() {
+      $("a.edit").click(function() {
         clearTooltip(true);
         editEvent(event);
         return false;
       });
-      $("#delevent").click(function() {
+      $("a.delete").click(function() {
         clearTooltip(true);
         currentDate=data.event.start;
         currentEvent=event;
