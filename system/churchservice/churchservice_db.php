@@ -446,7 +446,7 @@ function churchservice_getUserCurrentServices($user_id) {
       AS datum_start, ADDDATE(e.startdate, INTERVAL TIMEDIFF(cal.enddate, cal.startdate) HOUR_SECOND) AS enddate,
       DATE_FORMAT(adddate(e.startdate, interval timediff(cal.enddate, cal.startdate) HOUR_SECOND), '%Y%m%dT%H%i00') AS datum_end
     FROM {cs_event} e, {cc_cal} cal, {cs_eventservice} es, {cs_service} s, {cs_servicegroup} sg, {cdb_person} p
-    WHERE cal.id=e.cc_cal_id AND es.event_id=e.id AND es.service_id=s.id AND sg.id=s.servicegroup_id
+    WHERE cal.id=e.cc_cal_id AND es.event_id=e.id AND es.service_id=s.id AND sg.id=s.servicegroup_id AND e.valid_yn=1 
       AND es.modified_pid=p.id AND es.valid_yn=1 AND e.startdate>current_date - INTERVAL 61 DAY AND es.cdb_person_id=:userid",
     array (":userid" => $user_id));
 

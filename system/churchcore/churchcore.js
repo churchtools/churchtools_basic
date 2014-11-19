@@ -922,6 +922,8 @@ function churchcore_getAllDatesWithRepeats(o) {
 
   // Max verhindert, dass es durch Fehler zu einer Endlosschleife wird
   var max=999;
+  var d = new Date();
+  var max_year = d.getFullYear()+3; // Max. 2 Jahre im Voraus
   if (o.additions!=null) additions=$.extend({},o.additions);
   else additions=new Object;
   additions[0]=new Object();
@@ -998,7 +1000,7 @@ function churchcore_getAllDatesWithRepeats(o) {
       }
 
       max=max-1;
-    } while ((d<_repeat_until) && (max>0) && (a.with_repeat_yn==1) && (o.repeat_id>0) && (o.repeat_frequence>0));
+    } while ((d.getFullYear()<max_year) && (d<_repeat_until) && (max>0) && (a.with_repeat_yn==1) && (o.repeat_id>0) && (o.repeat_frequence>0));
   });
 
   if (max==0) log("Maximale Wiederholung erreicht! ["+o.id+"]");
