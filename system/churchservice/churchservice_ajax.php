@@ -643,7 +643,7 @@ function churchservice_updateEventService($params) {
       if (!empty($leader->email) && $user && $leader->id != $user->id) {
         $setting = churchcore_getUserSettings("churchservice", $leader->id);
         if (isset($setting["informInquirer"]) && ($setting["informInquirer"] == 1)) {
-  
+
           $txt = $base_url . '?q=churchservice&id=' . $arr->event_id;
           $content = getTemplateContent('email/serviceRequest', 'churchservice', $data);
           churchservice_send_mail($subject, $content, $leader->email);
