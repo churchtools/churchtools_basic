@@ -2205,9 +2205,11 @@ $.widget("ct.colorcheckbox", {
   },
   check : function(check) {
     var t = this;
-    t.options.checked = check;
-    t.options.change(t.options.checked, t.options.id, t.options.name);
-    t._renderCheckbox();
+    if (t.options.checked != check) {
+      t.options.checked = check;
+      t.options.change(t.options.checked, t.options.id, t.options.name);
+      t._renderCheckbox();
+    }
   }
 });
 

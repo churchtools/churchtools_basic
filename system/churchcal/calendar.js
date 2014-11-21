@@ -1865,6 +1865,9 @@ function renderFilterCalender() {
         rows.push('<li><a href="#" class="options notification">Email-Abo einrichten</a></li>');
       else
         rows.push('<li><a href="#" class="options notification">Email-Abo bearbeiten</a></li>');
+      rows.push('<li class="divider"></li>');
+      rows.push('<li><a href="#" class="options enable-all">Alle aktivieren</a></li>');
+      rows.push('<li><a href="#" class="options disable-all">Alle anderen deaktivieren</a></li>');
       rows.push('</ul></span>');
       rows.push('</span></span>');
     }
@@ -1966,6 +1969,21 @@ function renderFilterCalender() {
     else if ($(this).hasClass("notification")) {
       form_editNotification("category", id);
     }
+    else if ($(this).hasClass("enable-all")) {
+      each(masterData.category, function(k,a) {
+        if (a.oeffentlich_yn == masterData.category[id].oeffentlich_yn
+             && a.privat_yn == masterData.category[id].privat_yn)
+          $("span.colorcheckbox[data-id="+(a.id*1+100)+"]").colorcheckbox("check", true);
+      });
+    }
+    else if ($(this).hasClass("disable-all")) {
+      each(masterData.category, function(k,a) {
+        if (a.oeffentlich_yn == masterData.category[id].oeffentlich_yn
+          && a.privat_yn == masterData.category[id].privat_yn
+          && a.id != id)
+          $("span.colorcheckbox[data-id="+(a.id*1+100)+"]").colorcheckbox("check", false);
+        });
+    }
 
   });
 
@@ -1977,6 +1995,7 @@ function renderFilterCalender() {
       label: $(this).attr("data-label"),
       id: $(this).attr("data-id"),
       change: function(checked, id, name) {
+        console.log("CHANGE"+id);
         var arr = churchcore_getArrStrAsArray(masterData.settings[name]);
         if (checked) {
           needData("", id);
