@@ -100,7 +100,8 @@ PersonView.prototype.renderMenu = function() {
         t.renderAddEntry();
       }
       else if ($(this).attr("id")=="aexporter") {
-        t.exportData();
+        if (masterData.settings.selectedGroupType!=-4) t.exportData();
+        else t.exportMeetinglist();
       }
       else if ($(this).attr("id")=="amailer") {
         t.mailer();
@@ -670,6 +671,57 @@ PersonView.prototype.renderGroupmeetingTooltip = function(group_id, groupmeeting
   };
 };
 
+PersonView.prototype.exportMeetinglist = function() {
+  var g_id = personView.filter["filterMeine Gruppen"];
+  var res = new Object();
+  // Get relevant persons
+  each(allPersons, function(i,p) {
+    if (t.checkFilter(p)) {
+      res[p.id] = new Object();
+      res[p.id].id = p.id;
+      res[p.id].vorname = p.vorname;
+      res[p.id].name = p.name;
+    }
+  });
+  // Add meeting list to persons
+  each(masterData.groups[g_id].meetingList, function(k,meeting) {
+    each(res, function(i,p) {
+      var d = meeting.datumvon;
+      if (d.toDateEn(true).getHours()==0 && d.toDateEn(true).getMinutes()==0)
+        d = d.toDateEn(false).toStringDe(false);
+      else d = d.toDateEn(true).toStringDe(true);
+      res[p.id][d] = "";
+      each(meeting.entries, function(j, entry) {
+        if (entry.p_id == p.id) {
+          res[p.id][d] = entry.treffen_yn;
+        }
+      });
+    });
+  });
+  //prepare export
+  var exp = new Array();
+  var firstline = true;
+  var add = "";
+  each(res, function(k,a) {
+    each(a, function(i,b) {
+      if (firstline) add = add + i + ";"
+      exp.push(b+";");
+    });
+    firstline = false;
+    exp.push("\n");
+  });
+  var uri = 'data:text/col;charset=utf-8,' + escape(add+"\n"+exp.join(""));
+
+  var downloadLink = document.createElement("a");
+  downloadLink.href = uri;
+  downloadLink.download = "gruppenteilnehmerliste.csv";
+
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+
+};
+
 PersonView.prototype.getMeetingFromMeetingList = function (g_id, gruppentreffen_id) {
   var res=null;
   each(masterData.groups[g_id].meetingList, function(k,a) {
@@ -687,7 +739,7 @@ PersonView.prototype.editMeetingProperties = function(g_id, treffen_id) {
   if (meeting!=null) {
     var form=new CC_Form(null);
     form.addInput({label:_("date"),cssid:"inputmeetingdate", value:meeting.datumvon.toDateEn(false).toStringDe(), datepicker:"dp_meetingdate"});
-    form.addInput({label:_("time"),value:meeting.datumvon.toDateEn(true).toStringDeTime()});
+    form.addInput({label:_("time"),cssid:"Uhrzeit", value:meeting.datumvon.toDateEn(true).toStringDeTime()});
     form.addInput({label:_("number.of.guests"), value:meeting.anzahl_gaeste, cssid:"anzahl_gaeste"});
     form.addTextarea({label:_("please.comment"), rows:4, data:meeting.kommentar, placeholder:_("comment"), cssid:"kommentar"});
 
@@ -1151,20 +1203,24 @@ PersonView.prototype.renderListEntry = function(a) {
   }
   else if ((masterData.groups!=null) && (masterData.groups[t.filter["filterMeine Gruppen"]]!=null)) {
     a.open=false;
+    var cols = 8;
     if ((masterData.groups[t.filter["filterMeine Gruppen"]].meetingList!=null)
          && (masterData.groups[t.filter["filterMeine Gruppen"]].meetingList!="get data")) {
       each(masterData.groups[t.filter["filterMeine Gruppen"]].meetingList, function(k,m) {
         if (((m.datumvon.toDateEn(false).getFullYear()==t.gruppenteilnehmerdatum.getFullYear())
-               && m.datumvon.toDateEn(false).getMonth()==t.gruppenteilnehmerdatum.getMonth())) {
-          rows.push('<td><span class="clickyesno" data-person-id="'+a.id+'" data-gruppentreffen-id="'+m.id+'">');
-          var dabei=false;
-          each(m.entries, function(i,b) {
-            if (b.p_id==a.id) {
-              dabei=true;
-              rows.push(t.renderYesNo(b.treffen_yn, 18));
-            }
-          });
-          if (!dabei) rows.push(form_renderImage({src:"question.png", width:18}));
+               && m.datumvon.toDateEn(false).getMonth()>=t.gruppenteilnehmerdatum.getMonth())) {
+          cols = cols -1 ;
+          if (cols>=0) {
+            rows.push('<td><span class="clickyesno" data-person-id="'+a.id+'" data-gruppentreffen-id="'+m.id+'">');
+            var dabei=false;
+            each(m.entries, function(i,b) {
+              if (b.p_id==a.id) {
+                dabei=true;
+                rows.push(t.renderYesNo(b.treffen_yn, 18));
+              }
+            });
+            if (!dabei) rows.push(form_renderImage({src:"question.png", width:18}));
+          }
         }
       });
     }
@@ -1409,37 +1465,42 @@ PersonView.prototype.getListHeader = function() {
   if (masterData.settings.selectedGroupType==-4) {
     if ((masterData.groups!=null) && (masterData.groups[g_id]!=null) && (masterData.groups[g_id].meetingList!=null)
         && (masterData.groups[g_id].meetingList!="get data")) {
+      var cols = 8;
       each(masterData.groups[g_id].meetingList, function(k,m) {
         if ((m.datumvon!=null) &&
             (m.datumvon.toDateEn(false).getFullYear()==t.gruppenteilnehmerdatum.getFullYear()) &&
-             (m.datumvon.toDateEn(false).getMonth()==t.gruppenteilnehmerdatum.getMonth())) {
-          var d=m.datumvon.toDateEn(true);
-          tableHeader=tableHeader+'<th><span class="tooltip-groupmeeting" data-gruppentreffen-id="'+m.id+'" data-tooltip-id="'+g_id+'" data-datum="'+m.datumvon+'">'+d.getDate()+"."+(d.getMonth()+1)+".";
-          if (d.getHours()!=0)
-            tableHeader=tableHeader+" <small>"+d.getHours()+":"+((d.getMinutes()+"").length==1?"0"+d.getMinutes():d.getMinutes())+"h</small><br>";
-          tableHeader=tableHeader+form_renderImage(
-                {cssid:"editGruppentreffenProperties",
-                  src:(m.kommentar==null?"comment_sw.png":(m.kommentar!=""?"comment.png":"check-64.png")),
-                  width:16,
-                  data:[{name:"gruppentreffen-id",value:m.id},
-                        {name:"group-id",value:g_id}
-            ]})+"&nbsp;";
-          var count=0;
-          var count_absent=0;
-          if (m.entries!=null) {
-            each(m.entries, function(i,b) {
-              if (b.treffen_yn==1) count++;
-              else count_absent++;
-            });
+             (m.datumvon.toDateEn(false).getMonth()>=t.gruppenteilnehmerdatum.getMonth())) {
+          cols = cols - 1;
+          if (cols >= 0) {
+            var d=m.datumvon.toDateEn(true);
+            tableHeader=tableHeader+'<th><span class="tooltip-groupmeeting" data-gruppentreffen-id="'+m.id+'" data-tooltip-id="'+g_id+'" data-datum="'+m.datumvon+'">'+d.getDate()+"."+(d.getMonth()+1)+". ";
+            if (d.getHours()!=0)
+              tableHeader=tableHeader+" <small>"+d.getHours()+":"+((d.getMinutes()+"").length==1?"0"+d.getMinutes():d.getMinutes())+"h</small><br>";
+            tableHeader=tableHeader+form_renderImage(
+                  {cssid:"editGruppentreffenProperties",
+                    src:(m.kommentar==null?"comment_sw.png":(m.kommentar!=""?"comment.png":"check-64.png")),
+                    width:16,
+                    data:[{name:"gruppentreffen-id",value:m.id},
+                          {name:"group-id",value:g_id}
+              ]})+"&nbsp;";
+            var count=0;
+            var count_absent=0;
+            if (m.entries!=null) {
+              each(m.entries, function(i,b) {
+                if (b.treffen_yn==1) count++;
+                else count_absent++;
+              });
+            }
+            tableHeader=tableHeader+' <small>'+count+' </small>'+form_renderImage({src:"person.png", label:"Anzahl Teilnehmer", width:12});
+            if (m.anzahl_gaeste!=null && m.anzahl_gaeste>0)
+              tableHeader=tableHeader+' <small>'+m.anzahl_gaeste+' </small>'+form_renderImage({src:"person_sw.png", label:"Anzahl G&auml;ste", width:12});
+            if (count_absent>0)
+              tableHeader=tableHeader+' <small>'+count_absent+' </small>'+form_renderImage({src:"person_red.png", label:"Abwesend", width:12});
+            tableHeader=tableHeader+'</span>';
           }
-          tableHeader=tableHeader+' <small>'+count+' </small>'+form_renderImage({src:"person.png", label:"Anzahl Teilnehmer", width:12});
-          if (m.anzahl_gaeste!=null && m.anzahl_gaeste>0)
-            tableHeader=tableHeader+' <small>'+m.anzahl_gaeste+' </small>'+form_renderImage({src:"person_sw.png", label:"Anzahl G&auml;ste", width:12});
-          if (count_absent>0)
-            tableHeader=tableHeader+' <small>'+count_absent+' </small>'+form_renderImage({src:"person_red.png", label:"Abwesend", width:12});
-          tableHeader=tableHeader+'</span>';
         }
       });
+      if (cols<=0) tableHeader = tableHeader + "<th>..";
     }
     if (g_id!=null)
       tableHeader=tableHeader+"<th>"+form_renderImage({src:"plus.png", width:16, title:"Weiteres Datum hinzuf&uuml;gen", cssid:"addGruppenteilnehmerdatum"});
@@ -3986,6 +4047,16 @@ PersonView.prototype.msg_filterChanged = function (id, oldVal) {
     }
     // Wenn es mit "filter" anf�ngt, dann handelt es sich jetzt um intelligente Gruppen
     if ((typeof t.filter['filterMeine Gruppen']=="string") && (t.filter['filterMeine Gruppen'].indexOf("filter")==0)) {
+
+      if (!t.searchablesLoaded) {
+        t.searchablesLoaded="load data";
+        cdb_loadSearch(function() {
+          personView.searchablesLoaded=true;
+          t.renderList();
+        });
+        $("#cdb_content").html(form_renderImage({src:"loading.gif"}));
+      }
+
       t.saveCurrentFilter=t.filter;
       // Nun kopiere intelligente Gruppe in die Filter
       var merker=t.filter['filterMeine Gruppen'];
@@ -4881,9 +4952,11 @@ PersonView.prototype.renderGroupContent = function(g_id) {
     }
     rows.push('<div class="well">');
       if (json!=null) {
-        rows.push('<legend>Gruppentreffen <a href="#" id="a_gruppenliste">'+masterData.groups[g_id].bezeichnung+'</a> im <i>'+getMonthName(t.gruppenteilnehmerdatum.getMonth())+" "+t.gruppenteilnehmerdatum.getFullYear()+'</i></legend>');
+        rows.push('<legend>Gruppentreffen <a href="#" id="a_gruppenliste">'+masterData.groups[g_id].bezeichnung+'</a> ab <i>'+getMonthName(t.gruppenteilnehmerdatum.getMonth())+" "+t.gruppenteilnehmerdatum.getFullYear()+'</i></legend>');
         rows.push(form_renderButton({label:"<< Monat zur&uuml;ck", cssid:"btn_monatback"})+" ");
-        rows.push(form_renderButton({label:"Monat vor >>", cssid:"btn_monatfurther"}));
+        rows.push(form_renderButton({label:"Monat vor >>", cssid:"btn_monatfurther"})+ "&nbsp; &nbsp; ");
+        rows.push(form_renderButton({label:"<< Jahr zur&uuml;ck", cssid:"btn_yearback"})+" ");
+        rows.push(form_renderButton({label:"Jahr vor >>", cssid:"btn_yearfurther"}));
       }
       rows.push('<span class="pull-right">');
       rows.push(form_renderButton({label:"Gruppentreffen hinzuf&uuml;gen", cssid:"btn_addGroupMeetingDate"})+"&nbsp;");
@@ -4995,6 +5068,16 @@ PersonView.prototype.renderGroupContent = function(g_id) {
     }
     else if ($(this).attr("id")=="btn_monatfurther") {
       t.gruppenteilnehmerdatum.setMonth(t.gruppenteilnehmerdatum.getMonth()+1);
+      t.renderGroupEntry();
+      t.renderList();
+    }
+    else if ($(this).attr("id")=="btn_yearback") {
+      t.gruppenteilnehmerdatum.setFullYear(t.gruppenteilnehmerdatum.getFullYear()-1);
+      t.renderGroupEntry();
+      t.renderList();
+    }
+    else if ($(this).attr("id")=="btn_yearfurther") {
+      t.gruppenteilnehmerdatum.setFullYear(t.gruppenteilnehmerdatum.getFullYear()+1);
       t.renderGroupEntry();
       t.renderList();
     }

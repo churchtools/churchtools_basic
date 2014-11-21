@@ -41,11 +41,11 @@ function getMinutesDuration(nameOf0) {
 function form_renderYesNo(nr, width) {
   if (width==null) width=24;
   if (nr==0)
-    return form_renderImage({src:"delete_2.png",width:width});
+    return form_renderImage({src:"delete_2.png",htmlclass:"clickable", width:width});
   else if (nr==1)
-    return form_renderImage({src:"check-64.png",width:width});
+    return form_renderImage({src:"check-64.png",htmlclass:"clickable", width:width});
   else
-    return form_renderImage({src:"attention.png",width:width});
+    return form_renderImage({src:"attention.png",htmlclass:"clickable", width:width});
 }
 
 

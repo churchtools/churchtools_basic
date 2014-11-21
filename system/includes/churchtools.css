@@ -59,7 +59,7 @@ ul.ct-ul-list {
   padding-top: 2px;
 }
 
-span.clickable {
+.clickable {
   cursor: pointer;
 }
 
