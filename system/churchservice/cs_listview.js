@@ -572,7 +572,9 @@ ListView.prototype.renderEditEvent = function(event) {
         this_object.saveEditEvent(elem);
         // Wenn es neu ist, dann soll das Datum gesetzt werden, damit der neue Eintrag sichtbar wird.
         if (event.id==null) {
+          delete(this_object.filter.searchEntry);
           this_object.currentDate=event.startdate.withoutTime();
+          this_object.renderView();
         }
       }
     });
@@ -623,12 +625,24 @@ ListView.prototype.renderEditEvent = function(event) {
   });
 
   $("#reopenEvent").click(function (a) {
-    churchInterface.jsendWrite({func:"updateEvent", id:event.id, valid_yn:1}, function(ok, data) {
-      event.valid_yn=1;
-      cs_loadEventData(null, function(){
-        elem.dialog("close");
-        this_object.renderList();
-      });
+    var o = new Object();
+    console.log(event);
+    o.id = event.cc_cal_id;
+    o.category_id = event.category_id;
+    o.csevents = new Object();
+    o.csevents[event.id] = new Object();
+    o.csevents[event.id].id = event.id;
+    o.csevents[event.id].valid_yn = 1;
+    o.func = "updateEvent";
+    churchInterface.jsendWrite(o, function(ok, data) {
+      if (!ok) alert(data);
+      else {
+        event.valid_yn=1;
+        cs_loadEventData(null, function(){
+          elem.dialog("close");
+          this_object.renderList();
+        });
+      }
     });
 
   });
@@ -656,7 +670,7 @@ ListView.prototype.renderEditEvent = function(event) {
     elem.dialog('addbutton', 'Event absagen', function() {
       var form = new CC_Form();
       form.addCheckbox({cssid:"informDeleteEvent", label:"Alle angefragten Personen über die Absage informieren?", checked:true});
-      form.addCheckbox({cssid:"deleteCalEntry", label:"Endg&uuml;ltig entfernen (bei nicht Serienterminen auch der Kalendereintrag!)"});
+      form.addCheckbox({cssid:"deleteCalEntry", label:"Termin endgültig löschen <br><p><small>Wenn der Termin auch in "+masterData.churchcal_name+" gelöscht werden soll, muss er dort gelöscht werden!</small>"});
       var elem2 = form_showDialog("Absagen des Events", form.render(null, "vertical"), 300, 300, {
         "Absagen": function() {
           obj=form.getAllValsAsObject();
@@ -925,9 +939,8 @@ ListView.prototype.renderListEntry = function(event) {
     rows.push('<a href="#" id="detail'+event.id+'">' + event.startdate.toStringDeTime() + " "+event.bezeichnung+"</a>");
   else
     rows.push(event.startdate.toStringDeTime(true)+" "+event.bezeichnung);
-  if (event.valid_yn==0)
-    rows.push('</span>');
-  rows.push('</b>&nbsp;');
+  if (event.valid_yn==0) rows.push('</span></b> <i>(abgesagt)</i>&nbsp;');
+  else rows.push('</b>&nbsp;');
 
   if (masterData.auth.write)
     rows.push(form_renderImage({src:"options.png", hover:true, width:18, htmlclass:"edit-event", label:"Editieren", link:true}));
@@ -935,24 +948,22 @@ ListView.prototype.renderListEntry = function(event) {
   rows.push("<br/>");
 
 
-  if (event.valid_yn==0) {
-    rows.push("<div class=\"event_info\"><small>Event wurde abgesagt!</small></div>");
+  var _authMerker=masterData.auth.write || _bin_ich_admin;
+  // Check if I am a leader of the group
+  if (!_authMerker)
+    each(masterData.service, function(k,a) {
+      if (masterData.auth.leaderservice[a.id]) {
+        _authMerker=true;
+        //exit
+        return false;
+      }
+    });
+  if ((event.special!=null) && (event.special!="")) {
+    rows.push('<div class="event_info'+(_authMerker?" editable":"")+'">'+event.special.htmlize()+'</div>');
   }
-  else {
-    var _authMerker=masterData.auth.write || _bin_ich_admin;
-    // Check if I am a leader of the group
-    if (!_authMerker)
-      each(masterData.service, function(k,a) {
-        if (masterData.auth.leaderservice[a.id]) {
-          _authMerker=true;
-          //exit
-          return false;
-        }
-      });
-    if ((event.special!=null) && (event.special!="")) {
-      rows.push('<div class="event_info'+(_authMerker?" editable":"")+'">'+event.special.htmlize()+'</div>');
-    }
-    if (_authMerker) rows.push("<a href=\"#\" id=\"editNote" + event.id + "\" title=\"Editiere 'Weitere Infos'\">" +this.renderImage("info")+"</a>&nbsp;");
+  if (_authMerker) rows.push("<a href=\"#\" id=\"editNote" + event.id + "\" title=\"Editiere 'Weitere Infos'\">" +this.renderImage("info")+"</a>&nbsp;");
+
+  if (event.valid_yn==1) {
     // Check if I am in one of the services, so I am allowed to uplaod files
     if ((!_authMerker) && (event.services!=null)) {
       each(event.services, function(k,a) {
@@ -982,7 +993,6 @@ ListView.prototype.renderListEntry = function(event) {
         rows.push(form_renderImage({src:"agenda.png", htmlclass:"show-agenda", link:true, label:"Ablaufplan anzeigen", width:20}));
     }
   }
-
 
   rows.push('<div class="filelist" data-id="'+event.id+'"></div>');
 

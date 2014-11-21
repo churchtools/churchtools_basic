@@ -69,8 +69,7 @@ class CTChurchServiceModule extends CTAbstractModule {
 
   public function deleteEvent($params) {
     $this->checkPerm("edit events");
-    include_once ('./' . CHURCHCAL . '/churchcal_db.php');
-    return churchcal_deleteEvent($params);
+    return churchservice_deleteEvent($params);
   }
 
   public function getEventChangeImpact($params) {
