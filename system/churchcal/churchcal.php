@@ -604,14 +604,14 @@ function churchcal_saveCategory($params) {
     $auth = user_access("admin church category", "churchcal") || churchcal_isUserOwnerOf($id);
   }
   if (!$auth) throw new CTNoPermission("Admin edit category", "churchcal");
-  
+
   $i = new CTInterface();
   $i->setParam("bezeichnung");
   $i->setParam("sortkey");
   $i->setParam("color");
   $i->setParam("privat_yn");
   $i->setParam("ical_source_url", false);
-  
+
   if (!$id) {
     // oeffentlich will be set on insert only
     $i->addModifiedParams();
@@ -755,9 +755,9 @@ function churchcal__ajax() {
 }
 
 function churchcal_cron() {
-  // Refresh external ical 
-  $cats = db_query("SELECT * FROM {cc_calcategory} 
-                    WHERE ical_source_url IS NOT NULL AND ical_source_url!='' 
+  // Refresh external ical
+  $cats = db_query("SELECT * FROM {cc_calcategory}
+                    WHERE ical_source_url IS NOT NULL AND ical_source_url!=''
                       AND (DATEDIFF(NOW(), modified_date)>0 OR modified_date IS NULL)");
   foreach ($cats as $cat) {
     churchcal_updateICalSource($cat->id);
@@ -767,12 +767,12 @@ function churchcal_cron() {
 function churchcal_updateICalSource($id) {
   // Set modified date to not load this calendar each cron job
   //db_query("UPDATE {cc_calcategory} SET modified_date = now() WHERE id = :id", (array(":id"=>$id)));
-  
-  $cat = db_query("SELECT * FROM {cc_calcategory} 
+
+  $cat = db_query("SELECT * FROM {cc_calcategory}
                     WHERE id = :id", array(":id"=>$id))->fetch();
   if (!$cat) throw new CTException("No calcategory found");
   require ASSETS . '/ics-parser/class.iCalReader.php';
-  
+
   $ical   = new ICal($cat->ical_source_url);
   $events = $ical->events();
   if (!$events) {
@@ -784,8 +784,9 @@ function churchcal_updateICalSource($id) {
     foreach ($events as $event) {
       $data = array();
       $data["startdate"] = churchcore_icalToDate($event["DTSTART"]);
-      $data["enddate"] = churchcore_icalToDate($event["DTEND"]);
-      $data["bezeichnung"] = getVar("SUMMARY", "", $event);
+      if (isset($event["DTEND"]))
+        $data["enddate"] = churchcore_icalToDate($event["DTEND"]);
+      $data["bezeichnung"] = utf8_encode(getVar("SUMMARY", "", $event));
       $data["category_id"] = $id;
       $data["repeat_id"] = 0;
       $data["intern_yn"] = 0;
@@ -793,18 +794,21 @@ function churchcal_updateICalSource($id) {
       $data["notizen"] = getVar("SUMMARY", "", $event) . " " . getVar("DESCRIPTION", "", $event);
       $data["link"] = getVar("URL", "", $event);
       $data["ort"] = "";
-      if ($data["startdate"]!="" && $data["enddate"]!="") {
+      if ($data["startdate"]!="") {
         // Substract one day if it is a whole day date
-        $sd = new Datetime($data["startdate"]); 
-        $ed = new Datetime($data["enddate"]);
-        if (isFullDay($sd, $ed)) $ed->modify("-1 DAY");
+        $sd = new Datetime($data["startdate"]);
+        if (!isset($data["enddate"])) $ed = new Datetime($data["startdate"]);
+        else {
+          $ed = new Datetime($data["enddate"]);
+          if (isFullDay($sd, $ed)) $ed->modify("-1 DAY");
+        }
         $data["startdate"] = $sd->format("Y-m-d H:i");
         $data["enddate"] = $ed->format("Y-m-d H:i");
         churchcal_createEvent($data);
       }
     }
-    ct_log("iCal Source from $cat->bezeichnung readed and processed!", 2, $id, "category");    
-  }  
+    ct_log("iCal Source from $cat->bezeichnung readed and processed!", 2, $id, "category");
+  }
 }
 
 /**
