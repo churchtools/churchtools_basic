@@ -423,7 +423,7 @@ String.prototype.formatMS = function() {
   return Math.floor(this/60)+":"+s;
 }
 String.prototype.formatSM = function() {
-  var s=this/60%60+'';
+  var s=Math.round(this/60%60)+'';
   if (s.length==1) s='0'+s;
   return Math.floor(this/3600)+":"+s;
 }

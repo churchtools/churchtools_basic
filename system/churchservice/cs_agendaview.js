@@ -27,7 +27,7 @@ AgendaView.prototype.getData = function(sorted, withHeader) {
     var arr=new Array();
     if (this.currentAgenda.items!=null)
     each(churchcore_sortData(this.currentAgenda.items, "sortkey", null, false), function(k,a) {
-      arr.push(a);        
+      arr.push(a);
     });
     return arr;
   }
@@ -46,7 +46,7 @@ AgendaView.prototype.addMoreCols = function() {
         checked: (masterData.settings["viewgroup_agenda"+a.id]==null) || (masterData.settings["viewgroup_agenda"+a.id]==1)
       }));
     }
-  });  
+  });
   var elem = this.showDialog("Anpassen der Tabelle", rows.join(""), 400, 400, {
     "Schliessen": function() {
       $(this).dialog("close");
@@ -56,7 +56,7 @@ AgendaView.prototype.addMoreCols = function() {
     masterData.settings[$(this).attr("id")]=($(this).attr("checked")=="checked"?1:0);
     churchInterface.jsendWrite({func:"saveSetting", sub:$(this).attr("id"), val:masterData.settings[$(this).attr("id")]});
     t.renderList();
-  });  
+  });
 };
 
 
@@ -116,15 +116,15 @@ AgendaView.prototype.exportCurrentAgendaToSongBeamer = function () {
   rows.push("\r\n  items = <");
   each(t.getData(true), function(i,a) {
     var song=null;
-    if (a.arrangement_id>0) 
+    if (a.arrangement_id>0)
       song=songView.getSongFromArrangement(a.arrangement_id);
-    
+
     if (a.header_yn==1 || a.arrangement_id>0) {
       rows.push("\r\n    item");
       var bez=a.bezeichnung;
       if (song!=null) {
         if (bez!="") bez=bez+" - ";
-        bez=bez+song.bezeichnung;              
+        bez=bez+song.bezeichnung;
       }
       rows.push("\r\n      Caption = '"+bez+"'");
       if (a.header_yn==0)
@@ -135,13 +135,13 @@ AgendaView.prototype.exportCurrentAgendaToSongBeamer = function () {
         if (masterData.songwithcategoryasdir==1)
           rows.push("\r\n      FileName = '"+masterData.songcategory[song.songcategory_id].bezeichnung+"\\"+song.bezeichnung+".sng'");
         else
-          rows.push("\r\n      FileName = '"+song.bezeichnung+".sng'");        
+          rows.push("\r\n      FileName = '"+song.bezeichnung+".sng'");
       }
       rows.push("\r\n    end");
     }
   });
   rows.push(">\r\nend\r\n");
-  
+
   var uri = 'data:text/col;charset=utf-8,' + escape(rows.join(""));
 
   var downloadLink = document.createElement("a");
@@ -151,11 +151,11 @@ AgendaView.prototype.exportCurrentAgendaToSongBeamer = function () {
   document.body.appendChild(downloadLink);
   downloadLink.click();
   document.body.removeChild(downloadLink);
- 
+
 };
 
 AgendaView.prototype.exportCurrentAgendaToProPresenter = function () {
-  $.getCTScript("system/assets/jszip/jszip.min.js", function() {  
+  $.getCTScript("system/assets/jszip/jszip.min.js", function() {
     var rows=new Array();
     var dt=new Date();
     rows.push('<RVPlaylistDocument versionNumber="500" creatorCode="0000000000" playlistType="0"><playlists containerClass="NSMutableArray"><NSMutableDictionary containerClass="NSMutableDictionary" serialization-array-index="0"><NSMutableString serialization-native-value="5002768F-5F2E-4E7C-9086-502D81929BE9" serialization-dictionary-key="playlistUUID"></NSMutableString>'+
@@ -166,14 +166,14 @@ AgendaView.prototype.exportCurrentAgendaToProPresenter = function () {
     var count=0;
     each(t.getData(true), function(i,a) {
       var song=null;
-      if (a.arrangement_id>0) 
+      if (a.arrangement_id>0)
         song=songView.getSongFromArrangement(a.arrangement_id);
-      
+
       if (a.header_yn==1 || a.arrangement_id>0) {
         var bez=a.bezeichnung;
         if (song!=null) {
           if (bez!="") bez=bez+" - ";
-          bez=bez+song.bezeichnung;            
+          bez=bez+song.bezeichnung;
           if (masterData.songwithcategoryasdir==1)
             rows.push('<RVDocumentCue displayName="'+bez+'" delayTime="0" timeStamp="0" enabled="1" filePath="'+masterData.songcategory[song.songcategory_id].bezeichnung+"\\"+song.bezeichnung+'.pro5" serialization-array-index="'+count+'"></RVDocumentCue>');
           else
@@ -182,7 +182,7 @@ AgendaView.prototype.exportCurrentAgendaToProPresenter = function () {
         }
       }
     });
-    
+
     rows.push(
       '</NSMutableArray></NSMutableDictionary></playlists><deletions containerClass="NSMutableArray"></deletions></RVPlaylistDocument>');
 
@@ -191,17 +191,17 @@ AgendaView.prototype.exportCurrentAgendaToProPresenter = function () {
     pro5pl.file("data.pro5pl", rows.join(""));
 
     var uri = 'data:application/zip;base64,' + escape(zip.generate({type:"base64"}));
-    
+
     var downloadLink = document.createElement("a");
     downloadLink.href = uri;
     downloadLink.download = "test.pro5plx";
-  
+
     document.body.appendChild(downloadLink);
-    
+
     downloadLink.click();
     document.body.removeChild(downloadLink);
-    
-  }); 
+
+  });
 };
 
 AgendaView.prototype.editAgenda = function(agenda, template) {
@@ -213,12 +213,12 @@ AgendaView.prototype.editAgenda = function(agenda, template) {
   form.addInput({label:"Predigtserie", cssid:"series"});
   form.addSelect({label:"Für Kalender", data:masterData.category, cssid:"calcategory_id"})
   if (agenda!=null && template) {
-    form.addCheckbox({label:"Als Kopie speichern", cssid:"copy"});        
+    form.addCheckbox({label:"Als Kopie speichern", cssid:"copy"});
   }
   else if (agenda!=null && !template) {
     form.addCheckbox({label:"Kopie als Template speichern", cssid:"copy_as_template"});
   }
-    
+
   var elem = form_showDialog((agenda==null?"Neuen Ablaufplan erstellen":"Ablaufplan editieren"), form.render(false, "horizontal"), 500, 400, {
     "Speichern": function() {
       var obj=form.getAllValsAsObject(true);
@@ -231,8 +231,8 @@ AgendaView.prototype.editAgenda = function(agenda, template) {
         });
       }
       else if (agenda!=null && agenda.id!=null) obj.id=agenda.id;
-      if (template || obj.copy_as_template==1) 
-        obj.template_yn=1; 
+      if (template || obj.copy_as_template==1)
+        obj.template_yn=1;
       else obj.template_yn=0;
       if ((agenda==null) && (obj.items==null)) {
         obj.items=new Object();
@@ -243,13 +243,13 @@ AgendaView.prototype.editAgenda = function(agenda, template) {
         if (allAgendas==null) allAgendas=new Object();
         allAgendas[data.id]=data;
         t.currentAgenda=data;
-        t.renderView();        
+        t.renderView();
       });
     }
   });
   elem.dialog("addbutton", _("cancel"), function() {
     elem.dialog("close");
-  });  
+  });
 };
 
 /**
@@ -258,7 +258,7 @@ AgendaView.prototype.editAgenda = function(agenda, template) {
  * @returns new item
  */
 AgendaView.prototype.getNewItem = function(options) {
-  var o={bezeichnung:"Neue Position", note:"", sortkey:0, duration:"0", preservice_yn:0, 
+  var o={bezeichnung:"Neue Position", note:"", sortkey:0, duration:"0", preservice_yn:0,
       header_yn:0, responsible:""};
   if (options!=null)
     each(options, function(k,a) {
@@ -282,7 +282,7 @@ AgendaView.prototype.deleteAgenda = function(agenda) {
         if (t.currentAgenda.id==agenda.id){
           t.currentAgenda=null;
         }
-        delete allAgendas[agenda.id];       
+        delete allAgendas[agenda.id];
         t.renderView();
       }
     });
@@ -298,7 +298,7 @@ AgendaView.prototype.getCountCols = function() {
  */
 function sortData(data, origindex, newindex) {
   var origitem=data[origindex];
-  var newitem=data[newindex];    
+  var newitem=data[newindex];
   // Sortkey will be replaced.
   origitem.sortkey=newitem.sortkey;
   var sortkey=0;
@@ -310,11 +310,11 @@ function sortData(data, origindex, newindex) {
       a.sortkey=sortkey;
       sortkey=sortkey+1;
     }
-  });  
+  });
 }
 
 /**
- * Saves the agenda agenda. 
+ * Saves the agenda agenda.
  */
 AgendaView.prototype.saveAgenda = function(agenda, func) {
   var obj = $.extend({}, agenda);
@@ -342,11 +342,11 @@ AgendaView.prototype.saveAgenda = function(agenda, func) {
  */
 AgendaView.prototype.renderField = function(o, dataField, smallVersion) {
   var t=this;
-  
+
   if (o==null) return "";
-  
+
   var rows=new Array();
-  
+
   if (dataField=="duration") {
     rows.push(o.duration.formatSM());
   }
@@ -367,10 +367,10 @@ AgendaView.prototype.renderField = function(o, dataField, smallVersion) {
         if (song!=null) {
           var s=song.bezeichnung;
           // Song als URL!!
-          if (user_access("viewsong")) 
+          if (user_access("viewsong"))
             s='<a href="#" class="view-song" data-song-id="'+song.id+'" data-arrangement-id="'+o.arrangement_id+'">'+s+'</a>';
-            
-          if (o.bezeichnung=="") 
+
+          if (o.bezeichnung=="")
             bezeichnung=(!$("#printview").val()?"Song: ":"")+"<i>"+s+"</i>";
           else bezeichnung=bezeichnung+ "<i> - "+s+'</i>';
           arr=song.arrangement[o.arrangement_id];
@@ -382,9 +382,9 @@ AgendaView.prototype.renderField = function(o, dataField, smallVersion) {
             bezeichnung=bezeichnung+"&nbsp; </small></span>";
           }
         }
-      }   
+      }
       rows.push(bezeichnung);
-    } 
+    }
     if (t.agendaAllowedToEdit(t.currentAgenda)) {
       rows.push('&nbsp; <span class="hoverreactor">');
       rows.push('<a href="#" class="edit-item" data-id="'+o.id+'">'+form_renderImage({src:"options.png", width:16})+'</a> ');
@@ -405,11 +405,11 @@ AgendaView.prototype.renderField = function(o, dataField, smallVersion) {
       rows.push('<div class="event_info">');
       if ($("#printview").val() || t.currentAgenda.final_yn==1)
         rows.push(o.note.htmlize());
-      else        
+      else
         rows.push(o.note.trim((!smallVersion?200:40)).htmlize());
       rows.push("</div>");
     }
-    
+
   }
   else if (dataField.indexOf("servicegroup")==0) {
     if (o.servicegroup!=null && o.servicegroup[dataField.substr(12,99)]!=null)
@@ -421,16 +421,16 @@ AgendaView.prototype.renderField = function(o, dataField, smallVersion) {
   else {
     rows.push(o[dataField]);
   }
-  
-  return rows.join(""); 
+
+  return rows.join("");
 };
 
 AgendaView.prototype.agendaAllowedToEdit = function (agenda) {
   if (!agenda) return false;
-  return (user_access("edit agenda", agenda.calcategory_id) 
-       && !$("#printview").val() 
-       && (agenda.final_yn==0 || agenda.template_yn==1) 
-       && (agenda.template_yn==0 || user_access("edit agenda templates", agenda.calcategory_id)));  
+  return (user_access("edit agenda", agenda.calcategory_id)
+       && !$("#printview").val()
+       && (agenda.final_yn==0 || agenda.template_yn==1)
+       && (agenda.template_yn==0 || user_access("edit agenda templates", agenda.calcategory_id)));
 };
 
 AgendaView.prototype.renderFieldResponsible = function(content, event_ids) {
@@ -453,12 +453,12 @@ AgendaView.prototype.renderFieldResponsible = function(content, event_ids) {
         if (s.service_id==service.id) {
           entries.push(listView.renderPersonName(s));
         }
-      });        
+      });
       if (entries.length==0) return content;
       return entries.join(", ");
-    }      
+    }
   }
-  return content;  
+  return content;
 };
 
 AgendaView.prototype.rerenderField = function(input, dataField) {
@@ -467,10 +467,10 @@ AgendaView.prototype.rerenderField = function(input, dataField) {
     if (a.length==1)
       return a[0]*60+"";
     else
-      return (a[0]*3600+a[1]*60)+"";    
+      return (a[0]*3600+a[1]*60)+"";
   }
-  
-  return input; 
+
+  return input;
 };
 
 AgendaView.prototype.saveServiceGroupNote = function (data, servicegroup_id) {
@@ -482,6 +482,7 @@ AgendaView.prototype.saveServiceGroupNote = function (data, servicegroup_id) {
 
 
 AgendaView.prototype.renderAddButtons = function() {
+  $("#cdb_content div.bottom-field").remove ();
   var form = new CC_Form();
   form.addHtml('<p><div class="bottom-field well"> ');
   form.addButton({label:"Neue Position", htmlclass:"add-item post btn-small"});
@@ -503,16 +504,16 @@ AgendaView.prototype.renderAddButtons = function() {
       t.addItem(item.id, true, $(this).hasClass("header"));
     }
     return false;
-    
-  });    
+
+  });
 }
 
 AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
   var t=this;
-  if (smallVersion==null) smallVersion=false;  
-  
+  if (smallVersion==null) smallVersion=false;
+
   t.renderTimes();
-  
+
   $(cssid+" a").click(function (a) {
     if ($(this).attr("id")==null) {
       if ($(this).hasClass("view-song")) {
@@ -524,7 +525,7 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
         return false;
       }
       else
-        return true;    
+        return true;
     }
     else if ($(this).attr("id").indexOf("addMoreCols")==0) {
       t.addMoreCols();
@@ -540,7 +541,7 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
   });
 
   if (!smallVersion) {
-    
+
     $(cssid+" a.attachement").click(function() {
       var id=$(this).parents("tr").attr("id");
       var arr_id=t.currentAgenda.items[id].arrangement_id;
@@ -551,7 +552,7 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
         songView.setFilter("searchEntry", "#"+songView.getSongFromArrangement(arr_id).id);
       }
     });
-    
+
     if (t.agendaAllowedToEdit(t.currentAgenda)) {
 
       t.renderAddButtons();
@@ -563,24 +564,24 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
           $(this).removeClass("active");
         }
       );
-      
+
       // Implements editable
       $(cssid+" td.editable").each(function(k,a) {
         var id=$(this).parents("tr").attr("id");
         var field=$(this).attr("data-field");
         $(this).editable({
-          
+
           type: ($(this).hasClass("textarea")?"textarea":"input"),
-          
+
           data: {id:id, field:field},
-          
+
           success:
             function(newval, data) {
-              item=t.currentAgenda.items[data.id];           
-              if (data.field=="bezeichnung") { 
+              item=t.currentAgenda.items[data.id];
+              if (data.field=="bezeichnung") {
                 item[data.field]=newval;
                 t.saveItem(item);
-              } 
+              }
               else if (data.field.indexOf("servicegroup")==0) {
                 if (item.servicegroup==null) item.servicegroup=new Object();
                 item.servicegroup[data.field.substr(12,99)]=newval;
@@ -590,18 +591,18 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
                 item[data.field]=newval;
                 t.saveItem(item);
                 if (data.field=="duration") t.renderTimes();
-              }            
+              }
             },
-          
+
           value: (field.indexOf("servicegroup")==0
                    ?(t.currentAgenda.items[id].servicegroup!=null?t.currentAgenda.items[id].servicegroup[field.substr(12,99)]:"")
                    :t.currentAgenda.items[id][field]),
-                   
-          render: 
+
+          render:
             function(txt, data) {
               return t.renderField(t.currentAgenda.items[data.id], data.field, true);
             },
-            
+
           rerenderEditor:
             function(txt, data) {
               if (data.field=="duration") {
@@ -611,25 +612,25 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
                 else
                   return (a[0]*3600+a[1]*60)+"";
               }
-              else return txt;            
+              else return txt;
             },
-            
+
           renderEditor:
             function(txt, data) {
               if (data.field=="duration") return txt.formatSM();
               else return txt;
             },
-            
+
           afterRender:
             function(element, data) {
               // Now implement callbacks
               if (data.field=="bezeichnung") {
-                
+
                 element.find("a.dropdown-toggle").dropdown();
                 element.find("a.dropdown-toggle").mouseover(function() {
                   element.find("a.dropdown-toggle").dropdown("toggle");
                 })
-                
+
                 element.find("a.add-item").click(function() {
                   var elem=$(this);
                   var orig_item_id=elem.parents("span.dropdown").attr("data-id");
@@ -643,7 +644,7 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
                   }
                   return false;
                 });
-                
+
                 element.find("a.edit-item").click(function() {
                   t.editItem(t.currentAgenda.items[$(this).attr("data-id")]);
                   return false;
@@ -657,7 +658,7 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
                   churchInterface.setCurrentView(songView, false);
                   return false;
                 });
-                
+
                 element.find("a.delete-item").click(function() {
                   if (churchcore_countObjectElements(t.currentAgenda.items)==1) {
                     alert("Position kann nicht gelöscht werden. Es muß mindestens eine Position bestehen bleiben!");
@@ -671,10 +672,10 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
                   }
                   return false;
                 });
-                
-                
-                
-              }              
+
+
+
+              }
             }
         });
       });
@@ -688,16 +689,16 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
           if (churchcore_inArray(event_id, data[id].event_ids)) {
             churchcore_removeFromArray(event_id, data[id].event_ids);
             churchInterface.jsendWrite({func:"deleteItemEventRelation", item_id:id, event_id:event_id});
-          } 
+          }
           else {
             if (data[id].event_ids==null) data[id].event_ids=new Array();
             churchInterface.jsendWrite({func:"addItemEventRelation", item_id:id, event_id:event_id});
             data[id].event_ids.push(event_id);
           }
           t.renderTimes();
-        }    
+        }
       });
-      
+
       $("tbody").sortable({
           helper: function(e, tr) {
             var originals = tr.children();
@@ -720,27 +721,27 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
       }).disableSelection();
     }
   }
-  
+
 
 };
 
 
 AgendaView.prototype.addItem = function(orig_item_id, post, header, arrangement) {
   var t=this;
-  
+
   var sortkey=t.currentAgenda.items[orig_item_id].sortkey*1;
   // Add after this position?
   if (post) sortkey=sortkey+1;
-  
+
   // Move all positions one position behind
   each(t.currentAgenda.items, function(k,a) {
     if (a.sortkey*1>=sortkey) a.sortkey=a.sortkey*1+1;
   });
-  
-  
+
+
   var item = t.getNewItem({sortkey:sortkey, event_ids:t.currentAgenda.event_ids, agenda_id:t.currentAgenda.id});
-  
-  if (header) { 
+
+  if (header) {
     item.header_yn=1;
     item.bezeichnung="Neue Überschrift";
   }
@@ -758,23 +759,23 @@ AgendaView.prototype.addItem = function(orig_item_id, post, header, arrangement)
     window.setTimeout(function() { $(document).scrollTop(pos);}, 10);
     t.renderTimes();
   });
-  
+
 };
 
 AgendaView.prototype.getPrevItem = function(item) {
   var t=this;
-  
+
   var res=null;
   each(t.getData(true, true), function(k,a) {
     if (a.id==item.id) return false;
-    else res=a; 
+    else res=a;
   });
   return res;
 };
 
 AgendaView.prototype.getNextItem = function(item) {
   var t=this;
-  
+
   var next=false;
   var res=null;
   each(t.getData(true, true), function(k,a) {
@@ -803,7 +804,7 @@ AgendaView.prototype.editItem = function(item) {
     form.addSelect({data:allSongs, cssid:"song_id", htmlclass:"song", freeoption:true, label:"Song"});
     if (item.song_id!=null) {
       form.addSelect({data:allSongs[item.song_id].arrangement, cssid:"arrangement_id", label:"Arrangement",
-          htmlclass:"arrangement"});      
+          htmlclass:"arrangement"});
     }
     form.addInput({cssid:"duration_m", controlgroup_start:true, type:"mini", label:"Dauer (m:s)"});
     form.addHtml(' : ');
@@ -851,7 +852,7 @@ AgendaView.prototype.editItem = function(item) {
       item.song_id=null;
       $(this).dialog("close");
     }
-  });  
+  });
   elem.find('select.song').change(function() {
     item.song_id=$(this).val();
     if (allSongs[item.song_id].active_arrangement_id!=null)
@@ -875,7 +876,7 @@ AgendaView.prototype.editItem = function(item) {
 
 AgendaView.prototype.saveItem = function(item, func) {
   var t=this;
-  
+
   item.func="saveItem";
   churchInterface.jsendWrite(item, function(ok, data) {
     if (!ok) alert("Fehler: "+data);
@@ -884,12 +885,12 @@ AgendaView.prototype.saveItem = function(item, func) {
       t.currentAgenda.items[item.id]=item;
       if (func!=null) func(item.id);
     }
-  });  
+  });
 };
 
 AgendaView.prototype.deleteItem = function(item, func) {
   var t=this;
-  
+
   item.func="deleteItem";
   churchInterface.jsendWrite(item, function(ok, data) {
     if (!ok) alert("Fehler: "+data);
@@ -897,13 +898,13 @@ AgendaView.prototype.deleteItem = function(item, func) {
       delete t.currentAgenda.items[item.id];
       if (func!=null) func();
     }
-  });    
+  });
 };
- 
+
 AgendaView.prototype.renderFilter = function() {
   var t=this;
   var form = new CC_Form("Auswahl des Ablaufes");
-  
+
   var arr=new Array();
   if (allAgendas!=null) {
     each(allAgendas, function(k,a) {
@@ -919,12 +920,12 @@ AgendaView.prototype.renderFilter = function() {
       if (a.template_yn==1)
         arr.push({id:a.id, bezeichnung:a.bezeichnung.trim(50)});
     });
-    
+
   }
-  
-  form.addSelect({data:arr, sort:false, cssid:"event", type:"medium", 
+
+  form.addSelect({data:arr, sort:false, cssid:"event", type:"medium",
 	             selected:(t.currentAgenda!=null?t.currentAgenda.id:null), freeoption:true});
-  
+
   $("#cdb_filter").html(form.render(true));
   $("#cdb_filter").find("#event").change(function() {
     t.currentAgenda=allAgendas[$(this).val()];
@@ -937,7 +938,7 @@ AgendaView.prototype.renderFilter = function() {
 AgendaView.prototype.loadTemplates = function () {
   var t=this;
   if (!t.templatesLoaded) {
-    t.templatesLoaded=true; 
+    t.templatesLoaded=true;
     if (user_access("view agenda")) {
       churchInterface.jsendRead({func:"loadAllAgendaTemplates"}, function(ok, data) {
         if (!ok) alert("Fehler beim Laden der Daten: "+data);
@@ -952,12 +953,12 @@ AgendaView.prototype.loadTemplates = function () {
         }
       });
     }
-  }  
+  }
 };
 
 AgendaView.prototype.loadAgendaForEvent = function(event_id, func) {
   var t=this;
-  
+
   var agenda_id=null;
   if (allAgendas!=null) {
     each(allAgendas, function(k,a) {
@@ -975,12 +976,12 @@ AgendaView.prototype.loadAgendaForEvent = function(event_id, func) {
           if (func!=null) func(t.currentAgenda);
         });
       }
-      else 
+      else
         if (func!=null) window.setTimeout(function() {func(t.currentAgenda);}, 10);
     }
   }
 
-  if (agenda_id==null) {    
+  if (agenda_id==null) {
     churchInterface.jsendRead({func:"loadAgendaForEvent", event_id:event_id}, function(ok, data) {
       if (!ok) $("#cdb_content").html("Fehler beim Laden: "+data);
       else {
@@ -1013,14 +1014,14 @@ AgendaView.prototype.getListHeader = function () {
   var t=this;
   t.listViewTableHeight=null;
   masterData.settings["listMaxRows"+t.name]=9999;
-  
+
   if ($("#printview").val()) {
     t.showCheckboxes=false;
   }
   t.showFoundEntries=false;
-  
+
   t.loadTemplates();
-  
+
   // When allAgenda is null, start loading Songs and Templates
   if (allAgendas==null) {
     songView.loadSongData();
@@ -1034,7 +1035,7 @@ AgendaView.prototype.getListHeader = function () {
         masterData.settings.currentAgenda=$("#externevent_id").val();
       }
     }
-    
+
     if (ids.length>0) {
       churchInterface.jsendRead({func:"loadAgendas", ids:ids}, function(ok, data) {
         if (!ok) alert("Fehler beim Laden der Daten: "+data);
@@ -1046,7 +1047,7 @@ AgendaView.prototype.getListHeader = function () {
             });
             if (listView.currentEvent==null && masterData.settings.currentAgenda!=null)
               t.currentAgenda=allAgendas[masterData.settings.currentAgenda];
-            t.renderView();            
+            t.renderView();
           }
         }
       });
@@ -1061,26 +1062,26 @@ AgendaView.prototype.getListHeader = function () {
     });
     return;
   }
-  
-  
+
+
   if (t.currentAgenda==null || allAgendas==null) {
     var form=new CC_Form();
     if (listView.currentEvent!=null) {
       // If already an agenda mapped to the event
       if (listView.currentEvent.agenda) {
         t.loadAgendaForEvent(listView.currentEvent.id, function(data) {
-          t.renderView();          
+          t.renderView();
         });
         return;
-      } 
+      }
       // There is no agenda, please select one
       else {
         form.addHtml("<legend>"+listView.currentEvent.bezeichnung+'&nbsp;');
-        form.addHtml(listView.currentEvent.startdate.toDateEn(true).toStringDe(true));
+        form.addHtml(listView.currentEvent.startdate.toStringDe(true));
         form.addHtml("</legend>");
-        
+
         form.addHtml("Zum Erstellen des Ablaufplanes kann nun eine Vorlage ausgewählt werden:");
-        
+
         var arr2=new Array();
         if (allAgendas!=null) {
           each(allAgendas, function(k,a) {
@@ -1114,27 +1115,27 @@ AgendaView.prototype.getListHeader = function () {
             if (a.template_yn==1 && listView.currentEvent.category_id!=a.calcategory_id) arr.push(a);
           });
         }
-        
+
         form.addSelect({data:arr, sort:false, freeoption:true, htmlclass:"chose-template", label:"Vorlage auswählen"});
-        form.addButton({controlgroup:true, label:"Ohne Vorlage fortfahren", htmlclass:"go-without-template"});        
+        form.addButton({controlgroup:true, label:"Ohne Vorlage fortfahren", htmlclass:"go-without-template"});
       }
     }
     else {
       form.addHtml("Um Abläufe zu editieren bitte entweder ein Event im Dienstplan oder hier eine Vorlage auswählen.");
     }
 
-    
+
     $("#cdb_group").html(form.render(true, "horizontal"));
-    
+
     $("input.go-without-template").click(function() {
-      t.startNewAgenda(null);      
+      t.startNewAgenda(null);
     });
     $("select.chose-template").change(function() {
       if ($(this).val()!="") {
         if (listView.currentEvent!=null) {
           var id=$(this).val();
           if (allAgendas[$(this).val()]!=null && allAgendas[$(this).val()].template_yn==1) {
-            t.startNewAgenda(allAgendas[id]);            
+            t.startNewAgenda(allAgendas[id]);
           }
           else {
             var form = new CC_Form();
@@ -1142,26 +1143,26 @@ AgendaView.prototype.getListHeader = function () {
             form.addHtml("<ul><li><b>Kopieren</b> - Beim Kopieren wird eine Kopie angelegt, d.h. der neue Ablaufplan ist völlig unabhängig von dem alten.");
             form.addHtml("<li><b>Integrieren</b> - Beim Integrieren wird der neue Plan in den vorhandenen eingearbeitet. Der Ablauf erhält also eine zusätzliche Startzeit. Durch einen Klick auf die jeweilge Uhrzeit kann gewählt werden, ob der Eintrag nur in einem der Events stattfinden soll.");
             form.addHtml('</ul');
-  
+
             var elem=form_showDialog("Ablaufplan nutzen",form.render(), 500,350, {
               "Kopieren": function() {
                 t.startNewAgenda(allAgendas[id], true);
                 elem.dialog("close");
               },
               "Integrieren": function() {
-                t.startNewAgenda(allAgendas[id]);              
+                t.startNewAgenda(allAgendas[id]);
                 elem.dialog("close");
               },
               "Abbrechen": function() {
                 elem.dialog("close");
                 $("select.chose-template").val("");
-              }                         
+              }
             });
           }
         }
       }
     });
-    
+
     return;
   }
 
@@ -1169,7 +1170,7 @@ AgendaView.prototype.getListHeader = function () {
     masterData.settings.currentAgenda=t.currentAgenda.id;
     churchInterface.saveSetting("currentAgenda", t.currentAgenda.id);
   }
-  
+
   var form = new CC_Form();
 
   form.addHtml('<legend class="hoveractor">');
@@ -1179,16 +1180,18 @@ AgendaView.prototype.getListHeader = function () {
   if (t.currentAgenda.template_yn==1) form.addHtml("Vorlage: ");
   form.addHtml(t.currentAgenda.bezeichnung+"&nbsp;");
   if (t.currentAgenda.template_yn==0 && t.currentAgenda.final_yn==0) form.addHtml(" - ENTWURF &nbsp;");
-  if (user_access("edit agenda", t.currentAgenda.calcategory_id) 
+  if (user_access("edit agenda", t.currentAgenda.calcategory_id)
     && (t.currentAgenda.template_yn==0 || user_access("edit agenda templates", t.currentAgenda.calcategory_id))) {
-    form.addImage({src:"options.png", hover:true, width:20, htmlclass:"edit-agenda", label:"Editieren", link:true});
-    form.addImage({src:"trashbox.png", hover:true, width:20, htmlclass:"delete-agenda", label:"Löschen", link:true});
+    form.addHtml('<span class="hoverreactor">');
+    form.addImage({src:"options.png", width:20, htmlclass:"edit-agenda", label:"Editieren", link:true});
+    form.addImage({src:"trashbox.png", width:20, htmlclass:"delete-agenda", label:"Löschen", link:true});
+    form.addHtml("</span>");
   }
-  if (t.currentAgenda.series && (!$("#printview").val())) { 
+  if (t.currentAgenda.series && (!$("#printview").val())) {
     form.addHtml('<span class="series pull-right">'+t.currentAgenda.series+'</span>');
   }
   form.addHtml('</legend>');
-  if (t.currentAgenda.series && ($("#printview").val())) { 
+  if (t.currentAgenda.series && ($("#printview").val())) {
     form.addHtml('<span class="series">Serie: '+t.currentAgenda.series+'</span>');
   }
   if (!$("#printview").val()) {
@@ -1197,19 +1200,19 @@ AgendaView.prototype.getListHeader = function () {
       form.addHtml("&nbsp;");
     }
     if (t.currentAgenda.template_yn==0) {
-      if (t.currentAgenda.final_yn==0) { 
+      if (t.currentAgenda.final_yn==0) {
         form.addButton({label:"Als abgeschlossen markieren", htmlclass:"send-agenda"});
       }
       else {
         form.addButton({label:"Ablaufplan editieren", htmlclass:"reopen-agenda"});
-      }    
+      }
     }
   }
   $("#cdb_group").html(form.render(true));
   $("#cdb_group a.edit-agenda").click(function() {
     t.editAgenda(t.currentAgenda, t.currentAgenda.template_yn==1);
     return false;
-  });  
+  });
   $("#cdb_group a.delete-agenda").click(function() {
     t.deleteAgenda(t.currentAgenda);
     return false;
@@ -1223,7 +1226,7 @@ AgendaView.prototype.getListHeader = function () {
     churchInterface.setCurrentView(listView, true);
     window.setTimeout(function() {
       listView.currentDate=startdate;
-      listView.renderList();      
+      listView.renderList();
     },10);
     return false;
   });
@@ -1240,8 +1243,8 @@ AgendaView.prototype.getListHeader = function () {
       "Abbrechen": function() {
         elem.dialog("close");
       }
-    });    
-  });  
+    });
+  });
   $("#cdb_group .send-agenda").click(function() {
     var form = new CC_Form("Ablaufplan abschliessen");
     form.addCheckbox({label: "Ablaufplan als abgeschlossen markieren", checked:true, cssid:"final_yn"});
@@ -1262,9 +1265,9 @@ AgendaView.prototype.getListHeader = function () {
       "Abbrechen": function() {
         elem.dialog("close");
       }
-    });    
+    });
   });
-  
+
   return t.renderListHeader();
 };
 
@@ -1276,10 +1279,10 @@ AgendaView.prototype.getAllowedServiceGroupsWithComments = function() {
     each(t.currentAgenda.items, function(k,a) {
       if (a.servicegroup!=null) {
         each(a.servicegroup, function(i,s) {
-          if (s!="" && s!="\n" && masterData.auth.viewgroup[i])  
+          if (s!="" && s!="\n" && masterData.auth.viewgroup[i])
             groups[i]=masterData.servicegroup[i];
         });
-      } 
+      }
     });
   }
   return t.sortMasterData(groups);
@@ -1291,29 +1294,29 @@ function getServiceGroupsFromEvents(event_ids) {
   each(event_ids, function(k,event_id) {
     if (allEvents[event_id] && allEvents[event_id].services) {
       each(allEvents[event_id].services, function(s, service) {
-        if (service.valid_yn==1) { 
+        if (service.valid_yn==1) {
           if (servicegroups[masterData.service[service.service_id].servicegroup_id]==null)
             servicegroups[masterData.service[service.service_id].servicegroup_id]=new Array();
           servicegroups[masterData.service[service.service_id].servicegroup_id].push(service);
         }
       });
     }
-  });  
+  });
   return servicegroups;
 }
 
 AgendaView.prototype.renderListHeader = function(smallVersion) {
   var t=this;
-  
+
   // Add Service People List for print view
   if ($("#printview").val()) {
     $("#cdb_event").remove();
     $("#cdb_group").after('<div id="cdb_event"></div>');
-  
+
     var rows = new Array();
     var servicegroups=getServiceGroupsFromEvents(t.currentAgenda.event_ids);
     if (servicegroups!=null) {
-      
+
       each(churchcore_sortMasterData(masterData.servicegroup), function(k,sg) {
         if (servicegroups[sg.id]!=null && masterData.settings["viewgroup_agenda"+sg.id]=="1") {
           rows.push('<tr><td><b>'+sg.bezeichnung+'&nbsp;&nbsp;</b><td style="width:90%"><small>');
@@ -1333,24 +1336,24 @@ AgendaView.prototype.renderListHeader = function(smallVersion) {
       });
       var txt=rows.join("");
       if (txt!="") {
-        $("#cdb_event").html('<table class="table table-condensed">'+rows.join("")+'</table>');      
+        $("#cdb_event").html('<table class="table table-condensed">'+rows.join("")+'</table>');
       }
     }
-      
+
   }
-  
+
   if (smallVersion==null) smallVersion=false;
   var rows = new Array();
   if (t.currentAgenda.template_yn==1) {
-    rows.push('<th width="38px">Gesamt');     
-  } 
+    rows.push('<th width="38px">Gesamt');
+  }
   else if (t.currentAgenda.event_ids!=null) {
     if (churchcore_countObjectElements(t.currentAgenda.event_ids)==1)
-      rows.push('<th width="38px">Uhrzeit'); 
-    else {      
+      rows.push('<th width="38px">Uhrzeit');
+    else {
       each(t.currentAgenda.event_ids, function(k,a) {
         if (allEvents[a]!=null)
-          rows.push('<th width="38px">'+allEvents[a].startdate.toDateEn(true).toStringDeTime());      
+          rows.push('<th width="38px">'+allEvents[a].startdate.toDateEn(true).toStringDeTime());
       });
     }
   }
@@ -1365,8 +1368,8 @@ AgendaView.prototype.renderListHeader = function(smallVersion) {
         if (masterData.auth.viewgroup[a.id]) {
           groups[k]=a;
         }
-    });    
-  } 
+    });
+  }
 
   each(groups, function(k,a) {
     rows.push('<th class="hoveractor" style="min-width:60px" id="header'+a.id+'">'+a.bezeichnung);
@@ -1374,30 +1377,30 @@ AgendaView.prototype.renderListHeader = function(smallVersion) {
     rows.push('<a href="#" id="delCol'+a.id+'">'+form_renderImage({src:"minus.png",width:16})+'</a> ');
     rows.push('</span>');
   });
-  
+
   if (!smallVersion && $("#printview").val()==null) {
-    rows.push('<th width="16px"><a href="#" id="addMoreCols">'+this.renderImage("plus",16)+'</a>'); 
+    rows.push('<th width="16px"><a href="#" id="addMoreCols">'+this.renderImage("plus",16)+'</a>');
     rows.push('<th>'+form_renderImage({src:"paperclip.png", width:18}));
-  }  
+  }
   return rows.join("");
 };
 
 AgendaView.prototype.startNewAgenda = function(template_agenda, copying) {
   var t=this;
-  
+
   t.currentAgenda=$.extend({}, template_agenda);
   if (copying==null) copying=false;
 
   // If copying from a template delete Id
   if (t.currentAgenda.template_yn==1 || copying) {
-    copying=true;             
+    copying=true;
     delete t.currentAgenda.id;
   }
-  
+
   if (copying || template_agenda==null) {
     t.currentAgenda.template_yn=0;
     t.currentAgenda.calcategory_id=listView.currentEvent.category_id;
-      t.currentAgenda.bezeichnung=listView.currentEvent.startdate.toDateEn(true).toStringDe(true)+
+      t.currentAgenda.bezeichnung=listView.currentEvent.startdate.toStringDe(true)+
     " - Ablauf "+listView.currentEvent.bezeichnung;
     if (t.currentAgenda.series==null) t.currentAgenda.series="";
     if (t.currentAgenda.final_yn==null) t.currentAgenda.final_yn=0;
@@ -1426,17 +1429,17 @@ AgendaView.prototype.startNewAgenda = function(template_agenda, copying) {
       each(t.currentAgenda.items, function(k,a) {
         a.event_ids.push(listView.currentEvent.id);
       });
-    } 
+    }
     else {
       t.currentAgenda.items=new Object();
-      t.currentAgenda.items[-1]= t.getNewItem({event_ids:[listView.currentEvent.id]});      
+      t.currentAgenda.items[-1]= t.getNewItem({event_ids:[listView.currentEvent.id]});
     }
     t.saveAgenda(t.currentAgenda, function(data) {
-      t.renderList();              
+      t.renderList();
       t.currentAgenda=data;
     });
     listView.currentEvent.agenda=true;
-  }  
+  }
 };
 
 /**
@@ -1452,30 +1455,30 @@ AgendaView.prototype.loadItems = function (agenda_id, func) {
       if (data!=null) t.currentAgenda.items=data;
       if (func!=null) func();
     }
-  });          
+  });
 };
 
 AgendaView.prototype.renderListEntry = function (event, smallVersion, trimNote) {
   var t=this;
   if (smallVersion==null) smallVersion=false;
   if (trimNote==null) trimNote=false;
-  var rows = new Array();  
+  var rows = new Array();
 
   if (event.header_yn==1) {
     rows.push('<td id="'+event.id+'" class="hoveractor editable grouping" data-field="bezeichnung" colspan="12">');
     rows.push(t.renderField(event, "bezeichnung", trimNote));
   }
-  else {    
+  else {
     if (t.currentAgenda.template_yn==1) {
-      rows.push('<td class="clickable" data-field="time-1"></td>');              
+      rows.push('<td class="clickable" data-field="time-1"></td>');
     }
     else if (t.currentAgenda.event_ids!=null) {
       each(t.currentAgenda.event_ids, function(i,a) {
         if (allEvents[a]!=null)
-          rows.push('<td class="clickable" data-field="time'+a+'"></td>');        
+          rows.push('<td class="clickable" data-field="time'+a+'"></td>');
       });
     }
-    
+
     rows.push('<td class="editable" data-field="duration">');
     rows.push(t.renderField(event, "duration", trimNote));
     rows.push('<td class="hoveractor editable" data-field="bezeichnung">');
@@ -1484,11 +1487,11 @@ AgendaView.prototype.renderListEntry = function (event, smallVersion, trimNote) 
   }
 
   if (debug) rows.push("&nbsp;" +event.sortkey);
- 
+
 
   if (event.header_yn==0) {
     rows.push('<td class="editable" data-field="responsible">'+t.renderFieldResponsible(event.responsible, t.currentAgenda.event_ids));
-  
+
     var groups=new Object();
     if (smallVersion)
       groups=t.getAllowedServiceGroupsWithComments();
@@ -1498,11 +1501,11 @@ AgendaView.prototype.renderListEntry = function (event, smallVersion, trimNote) 
           if (masterData.auth.viewgroup[a.id]) {
             groups[k]=a;
           }
-      });    
-    }   
-    
+      });
+    }
+
     each(groups, function(k,a) {
-      rows.push('<td class="editable textarea" data-field="servicegroup'+a.id+'">');    
+      rows.push('<td class="editable textarea" data-field="servicegroup'+a.id+'">');
       rows.push(t.renderField(event, "servicegroup"+a.id, true));
     });
     if (!smallVersion && $("#printview").val()==null) {
@@ -1521,20 +1524,20 @@ AgendaView.prototype.renderListEntry = function (event, smallVersion, trimNote) 
 AgendaView.prototype.renderTimes = function() {
   var t=this;
   if (t.currentAgenda==null || t.currentAgenda.items==null) return;
-  
+
   var preservice_seconds=0;
   each(t.getData(), function(k,item) {
     if (item.preservice_yn==1)
       preservice_seconds=preservice_seconds+item.duration*1;
   });
-  
+
   if (t.currentAgenda.template_yn==1) t.currentAgenda.event_ids=[-1];
 
   // Get Starttimes from all Events
   var time = new Array();
   each(t.currentAgenda.event_ids, function(k,a) {
-    if (allEvents[a]!=null) 
-      time[a]=allEvents[a].startdate.toDateEn(true);
+    if (allEvents[a]!=null)
+      time[a]=allEvents[a].startdate.toStringEn(true).toDateEn(true);
     else {
       time[a]=new Date();
       time[a]=time[a].withoutTime();
@@ -1554,7 +1557,7 @@ AgendaView.prototype.renderTimes = function() {
       else elem.find('tr[id="'+item.id+'"] td[data-field=time'+a+']').html("");
     });
   });
-  
+
   if (t.currentAgenda.template_yn==1) delete t.currentAgenda.event_ids;
 };
 
