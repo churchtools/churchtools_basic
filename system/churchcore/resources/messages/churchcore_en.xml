@@ -333,7 +333,7 @@
   <entry key="comment">Comment</entry>
   <entry key="form.request.to.group">Request by form for group {0}</entry>
   <entry key="could.not.find.group.leader.please.try.other.ways">Sorry, no group leader was found. Please try using other ways!</entry>
-  <entry key="email.send.to">Email was sent to{0}!</entry>
+  <entry key="email.send.to">Email was sent to {0}!</entry>
   <entry key="unknown.call">Unknown call: {0}</entry>
   <entry key="hello">Hello!</entry>
   <entry key="hello.name">Hello {0}!</entry>

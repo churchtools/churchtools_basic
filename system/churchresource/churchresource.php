@@ -216,6 +216,7 @@ function churchresource__printview() {
   drupal_add_js(ASSETS . '/ui/jquery.ui.resizable.min.js');
 
   drupal_add_js(CHURCHCORE . '/churchcore.js');
+  drupal_add_js(CHURCHCORE . '/cc_events.js');
   drupal_add_js(CHURCHCORE . '/churchforms.js');
   drupal_add_js(CHURCHCORE . '/cc_abstractview.js');
   drupal_add_js(CHURCHCORE . '/cc_standardview.js');

@@ -48,7 +48,7 @@ function getVar($var, $default = false, &$array = false) {
  */
 function getConf($var, $default = false) {
   global $config, $mapping;
-  
+
   $var = isset($config[$var]) ? $config[$var] : (isset($mapping[$var]) ? $mapping[$var] : $default);
   return $var;
 }
@@ -124,7 +124,7 @@ function getBaseUrl() {
   if ((isset($_SERVER['HTTPS'])) && ($_SERVER['HTTPS'] != false))
     $baseUrl = "https://" . $baseUrl;
   else $baseUrl = "http://" . $baseUrl;
-  
+
   return $baseUrl;
 }
 
@@ -145,13 +145,13 @@ function getBaseUrl() {
  */
 function getTemplateContent($template, $module, $data = false, $type = 'html') {
   global $user;
-  
+
   if (!$type) $type = 'html';
   $lang = '_'. getConf("language", 'de');
   $defaultLang = '_en'; // TODO: use constant?
   $template = constant(strtoupper($module)) . TEMPLATES . "/$template";
   $filename = "$template$lang.$type";
-  
+
   // try to find template file for current or default lang or lang independently or as plain text with or without lang
   if (file_exists("$template$lang.$type"))             $filename = "$template$lang.$type";
   elseif (file_exists("$template$defaultLang.$type"))  $filename = "$template$defaultLang.$type";
@@ -159,17 +159,17 @@ function getTemplateContent($template, $module, $data = false, $type = 'html') {
   elseif (file_exists("$template$lang.$type"))         $filename = "$template$lang.txt";
   elseif (file_exists("$template$defaultLang.$type"))  $filename = "$template$defaultLang.txt";
   elseif (file_exists("$template.$type"))              $filename = "$template.txt";
-  
+
   if (!file_exists($filename)) throw new CTFail(t('template.x.not.found', "$template.$type"));
-  
+
   //get template prefixed with closing php tag to prevent eval take content as php code
   $content =  '?>' . file_get_contents($filename);
-  
+
   // if no data specified return content
   if (empty($data)) return $content;
-  
+
   // else extract data into current symbole table and eval content to populate variables
-  $nickname = $user->spitzname ? $user->spitzname : $user->vorname;
+  $nickname = isset($user->spitzname) ? $user->spitzname : $user->vorname;
   $surname  = $user->vorname;
   $name     = $user->name;
   $sitename = getConf('site_name');
@@ -181,7 +181,7 @@ function getTemplateContent($template, $module, $data = false, $type = 'html') {
   $content = ob_get_contents();
   ob_end_clean();
   if (!$content) throw new CTFail(t('error.occured'));  //TODO: refine error message
-  
+
   return $content;
 }
 
@@ -198,6 +198,6 @@ function getTemplateContentTemp($template, $module, $params) {
 //   include(constant(strtoupper($module)) . TEMPLATES . (empty($hasError) ? "/$template.html" : 'error.html'));
   $content = ob_get_contents();
   ob_end_clean();
-  
+
   return $content;
 }

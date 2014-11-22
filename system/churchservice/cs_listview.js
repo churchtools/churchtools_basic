@@ -354,7 +354,7 @@ ListView.prototype.saveEditEvent = function (elem) {
                         startdate: obj.startdate,
                         enddate: obj.enddate,
                         category_id: allEvents[csevent.id].category_id,
-                        repeat_id: 0,
+                        repeat_id: 0
                       };
     check.func = "getEventChangeImpact";
     churchInterface.jsendWrite(check, function(ok, data) {

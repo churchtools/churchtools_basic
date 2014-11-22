@@ -310,7 +310,7 @@ function churchtools_main() {
   }
   catch ( Exception $e ) {
     echo '
-<div style="margin:2em;padding:2em;background-color:#ffdddd">
+<div class="alert alert-error">
     <h3>Sorry, but there is an Error:</h3>
     <p><br/>'. $e->getMessage (). '</p>
   </div>';

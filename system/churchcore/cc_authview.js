@@ -242,7 +242,6 @@ AuthView.prototype.renderEntryDetail= function(domain_id) {
     if (confirm(_("really.past.permissions"))) {
       if (masterData[t.currentDomain][domain_id].auth == null)
         masterData[t.currentDomain][domain_id].auth = new Object();
-      masterData[t.currentDomain][domain_id]
       each(t.clipboard.auth, function(k,a) {
         masterData[t.currentDomain][domain_id].auth[k]=a;
       });

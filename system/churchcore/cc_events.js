@@ -16,7 +16,7 @@ function confirmImpactOfEventChange(data, func) {
       rows.push('<li>' +  'Datum: ' + a.startdate.toDateEn(false).toStringDe(false) + '<ul>');
       var fields = new Array();
       each(a.changes, function(j, c) {
-        fields.push(_(j) + ": " + c.new + ' <span class="old">' + c.old + "</span>");
+        fields.push(_(j) + ": " + c["new"] + ' <span class="old">' + c["old"] + "</span>");
       });
       rows.push(fields.join(", "));
       rows.push('</ul>');
@@ -44,7 +44,7 @@ function confirmImpactOfEventChange(data, func) {
           showConfirm = true;
           var fields = new Array();
           each(b.changes, function(j, c) {
-            fields.push(_(j) + ": " + c.new + ' <span class="old">' + c.old + "</span>");
+            fields.push(_(j) + ": " + c["new"] + ' <span class="old">' + c["old"] + "</span>");
           });
           rows_cr.push(fields.join(", "));
         }

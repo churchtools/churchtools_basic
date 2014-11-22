@@ -327,7 +327,7 @@ function externmapview__ajax() {
       $res = db_query("SELECT vorname, p.id id, g.bezeichnung
                        FROM {cdb_gemeindeperson_gruppe} gpg, {cdb_gemeindeperson} gp, {cdb_person} p, {cdb_gruppe} g
                        WHERE gpg.gemeindeperson_id = gp.id AND gp.person_id = p.id AND g.id = :gruppe_id
-                         AND gpg.gruppe_id = g.id AND status_no >= 1 AND status_no != 4",
+                         AND gpg.gruppe_id = g.id AND email!='' AND status_no >= 1 AND status_no != 4",
                        array (":gruppe_id" => $groupId));
       $rec = array ();
       foreach ($res as $p) {
