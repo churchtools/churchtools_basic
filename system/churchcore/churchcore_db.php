@@ -2559,6 +2559,7 @@ function isCTDBTable($table) {
   $return = (strpos($table, $config["prefix"] . "cc_")  !== false
           || strpos($table, $config["prefix"] . "cr_")  !== false
           || strpos($table, $config["prefix"] . "cdb_") !== false
+          || strpos($table, $config["prefix"] . "crp_") !== false
           || strpos($table, $config["prefix"] . "cs_")  !== false
   );
   return $return;

@@ -333,7 +333,7 @@ function loadAuthViewMasterData(func) {
     if (!ok) alert("Fehler: "+data);
     else {
       each(data, function(k,a) {
-        masterData[k]=a;
+        if (k!="modulename") masterData[k]=a;
       });
       if (func!=null) func();
     }
