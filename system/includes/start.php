@@ -288,10 +288,9 @@ function churchtools_processRequest($_q) {
  */
 function churchtools_main() {
   try {
-    //TODO: find a good place for constants.php
     require ("system/includes/constants.php");
     include_once (INCLUDES."/functions.php");
-    include_once (INCLUDES."/start.php");
+    includePlugins();
     churchtools_app();
   }
   catch ( SQLException $e ) {

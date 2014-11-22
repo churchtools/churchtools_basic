@@ -24,6 +24,13 @@ function __autoload($class_name)
   else include constant(strtoupper($GLOBALS['currentModule'])).CLASSES."/".$class_name.'.class.php';
 }
 
+function includePlugins() {
+  foreach (glob("system/main/plugins/*.php") as $filename) {
+    include $filename;
+  }
+}
+
+
 /**
  * Read var from $_REQUEST or from any other array and return the value or default.
  * $_REQUEST as default array doesnt work.
@@ -200,4 +207,26 @@ function getTemplateContentTemp($template, $module, $params) {
   ob_end_clean();
 
   return $content;
+}
+
+$filters;
+function addFilter($filterName, $funcName, $prio = 10) {
+  global $filters;
+  $filters[$filterName][$prio] = array('function' => $funcName);
+}
+
+function applyFilter($filterName, $value) {
+  global $filters;
+  if (!isset($filters[$filterName])) return $value;
+
+  ksort($filters[$filterName]);
+  do {
+    foreach( (array) current($filters[$filterName]) as $the_ )
+    if ( !is_null($the_) ){
+      $args = array();
+      $args[0] = $value;
+      $value = call_user_func_array($the_, $args);
+    }
+  } while ( next($filters[$filterName]) !== false);
+  return $value;
 }
