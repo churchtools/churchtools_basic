@@ -537,7 +537,7 @@ function churchcal_getAuthForAjax() {
   }
   if (user_access("view", "churchresource"))                $ret["view churchresource"] = true;
   if (user_access("create bookings", "churchresource"))     $ret["create bookings"] = true;
-  if (user_access("administer bookings", "churchresource")) $ret["administer bookings"] = true;
+  $ret["administer bookings"] = user_access("administer bookings", "churchresource");
 
   // For assistance mode
   if (user_access("create person", "churchdb"))             $ret["create person"] = true;

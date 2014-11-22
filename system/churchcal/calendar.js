@@ -288,7 +288,7 @@ function _renderViewChurchResource(elem) {
           func:function(s) {
             return s.id==1
                    || (s.id==2 && masterData.resources[a.resource_id]!=null && masterData.resources[a.resource_id].autoaccept_yn==1)
-                   || masterData.auth["administer bookings"]
+                   || user_access("administer bookings", a.resource_id)
                    || s.id==a.status_id;
           }
       });

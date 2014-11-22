@@ -1266,11 +1266,11 @@ StandardTableView.prototype.editDomainAuth = function (domain_id, domain_type, f
     $.getCTScript("system/churchcore/cc_authview.js", function() {
       loadAuthViewMasterData(function() {
         var perm;
-        var elem = t.showDialog(_("edit.permissions"), '<div id="tree"></div>', 700, 620);
+        var elem = t.showDialog(_("edit.permissions"), '<div id="tree_'+domain_id+'"></div>', 700, 620);
         elem.dialog("addsaveandcancelbutton", function() {
           perm.permissioner("save");
         });
-        perm=$("#tree");
+        perm=$("#tree_"+domain_id);
         perm.permissioner({
           domain_type:domain_type,
           domain_id:domain_id,
