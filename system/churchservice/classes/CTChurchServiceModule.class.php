@@ -160,6 +160,20 @@ class CTChurchServiceModule extends CTAbstractModule {
     return churchservice_getAllSongs();
   }
 
+  public function getSongStatistic($params) {
+    $this->checkPerm("view song statistics");
+    $res = db_query("SELECT arrangement_id, e.id event_id, e.startdate FROM {cs_item} i, {cs_event_item} ei, {cs_event} e
+               WHERE e.id = ei.event_id AND i.id = ei.item_id AND i.arrangement_id > 0 ORDER BY e.startdate");
+    $ret = array();
+    foreach ($res as $s) {
+      if (!isset($ret[$s->arrangement_id])) $arr = array();
+      else $arr = $ret[$s->arrangement_id];
+      $arr[] = $s->event_id;
+      $ret[$s->arrangement_id] = $arr;
+    }
+    return $ret;
+  }
+
   public function addNewSong($params) {
     $this->checkPerm("edit song");
     return churchservice_addNewSong($params);

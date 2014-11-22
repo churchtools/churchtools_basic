@@ -62,6 +62,7 @@ function churchservice_getAuth() {
   $cc_auth = addAuth($cc_auth, 313, 'view songcategory', 'churchservice', 'cs_songcategory', t('view.songcategory.churchservice.cs_songcategory'), 1);
   $cc_auth = addAuth($cc_auth, 311, 'view song', 'churchservice', null, t('view.song.churchservice'), 1);
   $cc_auth = addAuth($cc_auth, 312, 'edit song', 'churchservice', null,t('edit.song.churchservice') , 1);
+  $cc_auth = addAuth($cc_auth, 314, 'view song statistics', 'churchservice', null, t('view.song.statistics') , 1);
 
   $cc_auth = addAuth($cc_auth, 399, 'edit masterdata', 'churchservice', null, t('edit.masterdata'), 1);
 
@@ -221,7 +222,9 @@ function churchservice_main() {
   drupal_add_js(ASSETS.'/ckeditor/ckeditor.js');
   drupal_add_js(ASSETS.'/ckeditor/lang/de.js');
 
-  drupal_add_js(CHURCHCORE . '/cc_events.js');
+  drupal_add_js(ASSETS.'/sparkline/jquery.sparkline.min.js');
+
+    drupal_add_js(CHURCHCORE . '/cc_events.js');
   drupal_add_js(CHURCHCORE .'/cc_abstractview.js');
   drupal_add_js(CHURCHCORE .'/cc_standardview.js');
   drupal_add_js(CHURCHCORE .'/cc_maintainstandardview.js');
@@ -583,7 +586,7 @@ function churchservice_openservice_rememberdays() {
 //             AND es.event_id=e.id AND e.Startdate>=current_date
 //             AND ((es.mailsenddate IS NULL) OR (DATEDIFF(current_date,es.mailsenddate)>=$delay))
 //             AND p.email!='' AND p.id=es.cdb_person_id LIMIT 1";
-  
+
   $sql = "SELECT es.id, p.id p_id, p.vorname, p.spitzname, p.name, p.email, es.modified_pid,
             IF (password IS NULL AND loginstr IS NULL AND lastlogin IS NULL,1,0) AS invite
           FROM {cs_eventservice} es, {cs_event} e, {cc_cal} cal, {cs_service} s, {cdb_person} p
@@ -621,7 +624,7 @@ function churchservice_openservice_rememberdays() {
         AND e.startdate>=current_date
        ORDER BY e.startdate",
        array (":p_id" => $u->p_id));
-    
+
     foreach ($servicesOfPerson as $s) {
       if ($s->approved == 1)  $data['approvedServices'][] = $s;
       else $data['requestedServices'][] = $s;
@@ -654,18 +657,18 @@ function churchservice_remindme() {
             AND UNIX_TIMESTAMP(e.startdate) - UNIX_TIMESTAMP(now()) > 0
             AND s.sendremindermails_yn = 1 AND s.servicegroup_id = sg.id
           ORDER BY datum"; //TODO: is UNIX_TIMESTAMP outdated here?
-  
+
 //  $usersToRemind = db_query("SELECT * FROM {cc_usersettings}
   $usersToMailTo = db_query("SELECT person_id FROM {cc_usersettings}
                            WHERE modulename = 'churchservice' AND attrib = 'remindMe' AND value = 1", array());
-  
+
   foreach ($usersToMailTo as $u) {
     //get eventservices to be reminded now
     $currentServices = db_query($sql,
                                 array (":person_id" => $u->person_id,
                                        ":hours" => getConf('churchservice_reminderhours'),
                                 )); // TODO: add LIMIT 1 to sql? add fetch and remove foreach?
-    
+
     foreach ($currentServices as $s) { // only executed for first service
       if (ct_checkUserMail($u->person_id, "remindService", $s->eventservice_id, getConf('churchservice_reminderhours'))) {
         $data = array(
@@ -772,7 +775,7 @@ function churchservice_inform_leader() {
                      ORDER BY e.startdate");
     $openServices = array();
     foreach ($res as $s) $openServices[] = $s;
-    
+
     if (count($openServices)) {
       $data = array(
           'moreInfoUrl'  => "$base_url?q=churchservice",
@@ -782,7 +785,7 @@ function churchservice_inform_leader() {
           'nickname'     => $person["person"]->spitzname ? $person["person"]->spitzname : $person["person"]->vorname,
           'name'         => $person["person"]->name,
       );
-      
+
       $content = getTemplateContent('email/openServicesLeaderInfo', 'churchservice', $data);
       churchservice_send_mail("[" . getConf('site_name') . "] " . t('open.services'), $content, $person["person"]->email);
     }

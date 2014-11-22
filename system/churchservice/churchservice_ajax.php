@@ -86,7 +86,8 @@ function churchservice_getAuthorization() {
   if (isset($auth["view song"]))  if (isset($auth["view songcategory"])) { //use this? if (isset($auth["view song"]) && isset($auth["view songcategory"]))
     $res["viewsong"] = true;
     $res["viewsongcategory"] = $auth["view songcategory"];
-    }
+  }
+  $res["view song statistics"] = $auth["view song statistics"];
   if (isset($auth["edit song"])) if (isset($auth["view songcategory"])) {
     $res["viewsong"] = true;
     $res["editsong"] = true;

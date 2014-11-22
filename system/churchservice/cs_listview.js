@@ -626,7 +626,6 @@ ListView.prototype.renderEditEvent = function(event) {
 
   $("#reopenEvent").click(function (a) {
     var o = new Object();
-    console.log(event);
     o.id = event.cc_cal_id;
     o.category_id = event.category_id;
     o.csevents = new Object();
@@ -3394,7 +3393,7 @@ ListView.prototype.renderEntryDetail = function (event_id) {
   var event=allEvents[event_id];
   t.currentEvent=event;
   $("tr.detail[data-id="+event_id+"]").html("Lade Daten..");
-  if (event.agenda) {
+  if (event.agenda && event.valid_yn==1) {
     songView.loadSongData();
     agendaView.loadAgendaForEvent(event_id, function(data) {
       var rows=new Array();

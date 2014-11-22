@@ -641,7 +641,6 @@ function _renderViewInvite(elem) {
  * @param {[type]} elem
  */
 function _renderViewChurchService(elem) {
-  console.log(currentEvent);
   if (masterData.eventTemplate==null) {
     churchInterface.jsendRead({func:"getEventTemplates"}, function(ok, data) {
       if (!ok) alert("Fehler beim Laden der Templates: "+data);
@@ -1039,7 +1038,6 @@ function _eventClick(event, jsEvent, view ) {
     if (myEvent!=null) {
       if (myEvent.notizen!=null) rows.push('<p>'+myEvent.notizen);
     }
-    console.log(myEvent);
     form_showOkDialog("Termin: "+event.title.html2csv(), rows.join(""), 400, 400);
   }
 
@@ -1995,7 +1993,6 @@ function renderFilterCalender() {
       label: $(this).attr("data-label"),
       id: $(this).attr("data-id"),
       change: function(checked, id, name) {
-        console.log("CHANGE"+id);
         var arr = churchcore_getArrStrAsArray(masterData.settings[name]);
         if (checked) {
           needData("", id);

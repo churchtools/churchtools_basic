@@ -138,6 +138,19 @@ function cs_loadSongs(nextFunction) {
   });
 }
 
+function cs_loadSongStats(nextFunction) {
+  churchInterface.setStatus("Lade Songs...");
+  churchInterface.jsendRead({func: "getSongStatistic"}, function(ok, json) {
+    each(json, function(k,a) {
+      each(allSongs, function(i,s) {
+        if (s.arrangement[k]!=null) s.arrangement[k].statistics = a;
+      });
+    });
+    churchInterface.clearStatus();
+    if (nextFunction!=null) nextFunction();
+  });
+}
+
 function cs_loadFacts(nextFunction) {
   churchInterface.setStatus("Lade Fakten...");
   //Lade Daten!

@@ -1088,7 +1088,7 @@ AgendaView.prototype.getListHeader = function () {
             if (a.template_yn==0) {
               var add=false;
               each(a.event_ids, function(i,e) {
-                if (allEvents[e]!=null && (allEvents[e].startdate.substr(0,10)==listView.currentEvent.startdate.substr(0,10))
+                if (allEvents[e]!=null && (allEvents[e].startdate.toStringDe(false)==listView.currentEvent.startdate.toStringDe(false))
                    && (allEvents[e].category_id==a.calcategory_id))
                   add=true;
               });
@@ -1353,7 +1353,7 @@ AgendaView.prototype.renderListHeader = function(smallVersion) {
     else {
       each(t.currentAgenda.event_ids, function(k,a) {
         if (allEvents[a]!=null)
-          rows.push('<th width="38px">'+allEvents[a].startdate.toDateEn(true).toStringDeTime());
+          rows.push('<th width="38px">'+allEvents[a].startdate.toStringDeTime());
       });
     }
   }

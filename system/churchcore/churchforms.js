@@ -1918,7 +1918,7 @@ CC_Navi.prototype.render = function(asButton) {
     if (this.entries.length>1) {
       var activename=this.name;
       each(this.entries, function(k,a) {
-        if (this.active) activename=this.label;
+        if (a.active) activename=a.label;
       });
       rows.push('<span class="btn-group">');
       rows.push('<button class="btn dropdown-toggle" data-toggle="dropdown">'+activename+' <span class="caret"></span></button>');

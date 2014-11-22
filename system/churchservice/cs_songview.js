@@ -314,6 +314,7 @@ SongView.prototype.deleteSong = function(song_id) {
  */
 SongView.prototype.loadSongData = function(song_id, arrangement_id) {
   var t=this;
+
   if (!t.songsLoaded) {
     cs_loadSongs(function() {
       t.songsLoaded=true;
@@ -321,10 +322,9 @@ SongView.prototype.loadSongData = function(song_id, arrangement_id) {
         allSongs[song_id].open=true;
         if (allSongs[song_id].active_arrangement_id==null)
           allSongs[song_id].active_arrangement_id=arrangement_id;
-      }
-      if (churchInterface.getCurrentView()==t)
-        this_object.renderList();
-    });
+        }
+        if (churchInterface.getCurrentView()==t) this_object.renderList();
+      });
   }
 };
 
@@ -465,7 +465,62 @@ SongView.prototype.addFurtherListCallbacks = function(cssid) {
     t.editSong($(this).parents("tr").attr("id"));
     return false;
   });
+
+  window.setTimeout(function() { t.renderStats(); }, 10);
 };
+
+SongView.prototype.renderStats = function() {
+  var t = this;
+  if (!masterData.auth["view song statistics"] || churchcore_handyformat()) return;
+
+  cs_loadSongStats(function() {
+    var months = new Array();
+    var d = new Date();
+    for (var i=18; i>0; i--) {
+      d.setMonth(d.getMonth()-1);
+      months[d.getFullYear()+""+d.getMonth()]=0;
+    }
+
+    if (masterData.auth["view song statistics"]) {
+      var maxVal=0;
+      var months = new Object();
+      each(allSongs, function(k,s) {
+        months[s.id] = new Object();
+        var d = new Date();
+        for (var i=18; i>0; i--) {
+          months[s.id][d.getFullYear()+""+d.getMonth()]=0;
+          d.setMonth(d.getMonth()-1);
+        }
+        var count = 0;
+        each(s.arrangement, function(i,a) {
+          if (a.statistics!=null) {
+            each(a.statistics, function(j,st) {
+              if (allEvents[st]!=null) {
+                var w = allEvents[st].startdate.getFullYear()+""+allEvents[st].startdate.getMonth();
+                if (months[s.id][w]!=null) {
+                  months[s.id][w] = months[s.id][w] + 1;
+                  if (months[s.id][w]>maxVal) maxVal=months[s.id][w];
+                }
+              }
+            })
+          }
+        });
+      });
+      each(months, function(s, song) {
+        var sparks = new Array();
+        each(song, function(k,a) {
+          sparks.push(a);
+        })
+        $('.sparkline[data-id="'+s+'"]').sparkline(sparks, {chartRangeMax:maxVal, height:20, chartRangeMin:0,
+          tooltipFormat: '{{value:levels}} - {{value}}',type:"bar",
+          tooltipValueLookups: {
+            levels: $.range_map({ ':2': 'Low', '3:6': 'Medium', '7:': 'High' })
+          }});
+        });
+      }
+  });
+
+}
 
 SongView.prototype.editArrangement = function(song_id, arrangement_id) {
   var t=this;
@@ -625,6 +680,9 @@ SongView.prototype.renderListEntry = function (list) {
 
   rows.push('<td class="hoveractor"><a href="#" id="detail'+list.id+'">'+song.bezeichnung+"</a>");
   rows.push('&nbsp; <i><small>'+song.author.trim(50)+'</small></i>');
+
+  rows.push('<span class="pull-right sparkline" data-id="'+list.id+'" style="margin-right:20px"></span>');
+
   // Only nice to have, so not displayed when working on touchscreens
   if (masterData.auth.editsong!=null && !churchcore_touchscreen())
     rows.push('&nbsp; <span class="hoverreactor"><a href="#" class="edit-song" data-id="'+list.song_id+'">'+form_renderImage({src:"options.png", width:16})+'</a></span>');
