@@ -337,7 +337,8 @@ PersonView.prototype.renderAddEntry = function(prefill) {
         if (a.in_neue_person_erstellen_yn==1) {
           var data=new Array();
           each(masterData.groups, function(i,b) {
-            if ((b.gruppentyp_id==a.id) && (b.valid_yn==1) && (b.versteckt_yn==0) && ((b.abschlussdatum==null) || (b.abschlussdatum.toDateEn()>diff_date)))
+            if ((b.gruppentyp_id==a.id) && (b.valid_yn==1) && (groupView.isAllowedToSeeDetails(b.id)) &&
+              (b.abschlussdatum==null || b.abschlussdatum.toDateEn()>diff_date))
               data.push(form_prepareDataEntry(b.id, b.bezeichnung));
           });
           form.addSelect({data:data, freeoption:true, cssid:"createGroup", label:a.bezeichnung});
@@ -757,6 +758,10 @@ PersonView.prototype.editMeetingProperties = function(g_id, treffen_id) {
       meeting.datumbis=obj.datumvon;
       meeting.kommentar=obj.kommentar;
       meeting.anzahl_gaeste=obj.anzahl_gaeste;
+      if (obj.datumvon.toDateEn(true).getFullYear()<2000 || obj.datumvon.toDateEn(true).getFullYear()>3000) {
+        alert("Datum nicht korrekt, bitte nochmal prüfen!");
+        return;
+      }
       if (meeting.anzahl_gaeste=="") meeting.anzahl_gaeste=0;
 
       churchInterface.jsendWrite(obj, function(ok) {
@@ -798,13 +803,17 @@ PersonView.prototype.addGroupMeetingDate = function() {
   var form=new CC_Form("Ein Gruppentreffen hinzuf&uuml;gen");
   var dt=new Date();
   form.addInput({label:_("date"),cssid:"inputmeetingdate", value:dt.toStringDe(false), datepicker:"dp_meetingdate"});
-  form.addInput({label:_("time"),value:"10:00"});
+  form.addInput({label:_("time"),value:"10:00",cssid:"Uhrzeit"});
   form.addHtml('<p><small>Hinweis: Dieses Gruppentreffen wird nur für diese Gruppe angelegt. ');
   form.addHtml('<a href="https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc:Gruppentreffen/" target="_clean"><i class="icon-question-sign"></i></a>');
   var elem=form_showDialog("Gruppentreffen", form.render(), 400, 400);
   elem.dialog("addsaveandcancelbutton", function() {
     var obj=form.getAllValsAsObject();
     obj.datumvon=obj.inputmeetingdate.toDateDe().toStringEn(false)+" "+obj.Uhrzeit;
+    if (obj.datumvon.toDateEn(true).getFullYear()<2000 || obj.datumvon.toDateEn(true).getFullYear()>3000) {
+      alert("Datum nicht korrekt, bitte nochmal prüfen!");
+      return;
+    }
     obj.datumbis=obj.datumvon;
     obj.gruppe_id=t.filter["filterMeine Gruppen"];
     obj.func="addEvent";
