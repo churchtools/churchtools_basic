@@ -1,15 +1,18 @@
-	 
- 
+
+
 // Constructor
 function ArchiveView() {
   PersonView.call(this);
   this.name="ArchiveView";
-  
+
 }
 
 Temp.prototype = PersonView.prototype;
 ArchiveView.prototype = new Temp();
-archiveView = new ArchiveView();
+
+function getArchiveView() {
+	return new ArchiveView();
+}
 
 function cdb_loadPersonArchiveData(func) {
   churchInterface.setStatus(_("load.data"));
@@ -18,7 +21,7 @@ function cdb_loadPersonArchiveData(func) {
       each(json, function(k,a) {
         allPersons[a.p_id]=cdb_mapJsonPerson1(a, allPersons[a.p_id]);
       });
-    }  
+    }
     churchInterface.clearStatus();
     func();
   });
@@ -37,5 +40,5 @@ ArchiveView.prototype.getListHeader = function() {
   }
   else {
     return personView.getListHeader();
-  } 
+  }
 };

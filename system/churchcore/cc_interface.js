@@ -271,6 +271,26 @@ ChurchInterface.prototype.clearStatus = function () {
 };
 
 
+ChurchInterface.prototype.setCurrentLazyView = function (view, callWhenLoaded) {
+  var t = this;
+  if (!masterData.views[view]) { alert("View "+view+" not in List!"); return; }
+  if (masterData.views[view].loaded == null) {
+    $.getCTScript("system/"+this.modulename+"/"+masterData.views[view].filename+".js", function() {
+      var func = window["get"+view];
+      if (func==null) { alert("Cannot find function get"+view+"()"); return; }
+      masterData.views[view].loaded=true;
+      masterData.views[view].instance = func();
+      t.views[view]=masterData.views[view].instance;
+      callWhenLoaded(masterData.views[view].instance);
+      t.setCurrentView(masterData.views[view].instance);
+    });
+  }
+  else {
+    callWhenLoaded(masterData.views[view].instance);
+    t.setCurrentView(masterData.views[view].instance);
+  }
+};
+
 /**
  * Setzt die aktuelle View und baut Anwendung auf, in dem es die History des Browsers ansteuert
  * @param view - Instanz der aktuellen View

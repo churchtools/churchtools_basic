@@ -139,10 +139,8 @@ function churchdb_main() {
   drupal_add_js(CHURCHDB . '/cdb_settingsview.js');
   drupal_add_js(CHURCHDB . '/cdb_importview.js');
   drupal_add_js(CHURCHDB . '/cdb_personview.js');
-  drupal_add_js(CHURCHDB . '/cdb_archiveview.js');
   drupal_add_js(CHURCHDB . '/cdb_groupview.js');
   drupal_add_js(CHURCHDB . '/cdb_statisticview.js');
-  drupal_add_js(CHURCHDB . '/cdb_mapview.js');
   drupal_add_js(CHURCHDB . '/cdb_maintainview.js');
   drupal_add_js(CHURCHDB . '/cdb_main.js');
 

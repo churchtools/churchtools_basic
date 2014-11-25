@@ -266,20 +266,25 @@ PersonView.prototype.renderListMenu = function() {
     if ($(this).attr("id")=="apersonview") {
       personView.furtherFilterVisible=t.furtherFilterVisible;
       churchInterface.setCurrentView(personView);
+      churchInterface.getCurrentView().filter=t.filter;
     }
     else if ($(this).attr("id")=="astatisticview") {
       statisticView.furtherFilterVisible=t.furtherFilterVisible;
       churchInterface.setCurrentView(statisticView);
+      churchInterface.getCurrentView().filter=t.filter;
     }
     else if ($(this).attr("id")=="aviewmap") {
-      mapView.furtherFilterVisible=t.furtherFilterVisible;
-      churchInterface.setCurrentView(mapView);
+      churchInterface.setCurrentLazyView("MapView", function(view) {
+        view.furtherFilterVisible=t.furtherFilterVisible;
+        view.filter = t.filter;
+      });
     }
     else if ($(this).attr("id")=="aarchiveview") {
-      mapView.furtherFilterVisible=t.furtherFilterVisible;
-      churchInterface.setCurrentView(archiveView);
+      churchInterface.setCurrentLazyView("ArchiveView", function(view) {
+        view.furtherFilterVisible = t.furtherFilterVisible;
+        view.filter = t.filter;
+      });
     }
-    churchInterface.getCurrentView().filter=t.filter;
     return false;
   });
 };
