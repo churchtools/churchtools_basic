@@ -148,12 +148,12 @@ PersonView.prototype.renderMenu = function() {
       }
       else if ($(this).attr("id")=="amaintainview") {
         menuDepth="amain";
-        churchInterface.setCurrentLazyView("MaintainView", function(view) {
+        churchInterface.setCurrentLazyView("MaintainView", false, function(view) {
         });
       }
       else if ($(this).attr("id")=="asettingsview") {
         menuDepth="amain";
-        churchInterface.setCurrentLazyView("SettingsView", function(view) {
+        churchInterface.setCurrentLazyView("SettingsView", false, function(view) {
         });
       }
       else if ($(this).attr("id")=="ahelp") {
@@ -271,19 +271,19 @@ PersonView.prototype.renderListMenu = function() {
       churchInterface.getCurrentView().filter=t.filter;
     }
     else if ($(this).attr("id")=="astatisticview") {
-      churchInterface.setCurrentLazyView("StatisticView", function(view) {
+      churchInterface.setCurrentLazyView("StatisticView", false, function(view) {
         view.furtherFilterVisible=t.furtherFilterVisible;
         view.filter = t.filter;
       });
     }
     else if ($(this).attr("id")=="aviewmap") {
-      churchInterface.setCurrentLazyView("MapView", function(view) {
+      churchInterface.setCurrentLazyView("MapView", false, function(view) {
         view.furtherFilterVisible=t.furtherFilterVisible;
         view.filter = t.filter;
       });
     }
     else if ($(this).attr("id")=="aarchiveview") {
-      churchInterface.setCurrentLazyView("ArchiveView", function(view) {
+      churchInterface.setCurrentLazyView("ArchiveView", false, function(view) {
         view.furtherFilterVisible = t.furtherFilterVisible;
         view.filter = t.filter;
       });

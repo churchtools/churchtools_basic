@@ -15,48 +15,18 @@ function WeekView() {
 
 Temp.prototype = StandardTableView.prototype;
 WeekView.prototype = new Temp();
-weekView = new WeekView();
 
-function getCRBooking(a) {
-  var event = new CCEvent(a);
-  event.saveSuccess = saveCRSuccess;
-  event.saveSplitSuccess = saveSplitCRSuccess;
-  event.name = "Booking";
-  return event;
+function getWeekView() {
+  return new WeekView();
 }
 
-function saveCRSuccess(a, b, json) {
-  if (a.name=="Event") a = CAL2CRType(a); // When it saved over cal resource
-  var t=weekView;
-  if (json.id!=null) {
-    a.id=json.id;
-    allBookings[json.id]=a;
-  }
-  else if (a.id!=null)
-    allBookings[a.id]=a;
+WeekView.prototype.getNeededJSFiles = function() {
+  return ['/churchcore/cc_events.js', '/churchresource/cr_loadandmap.js', '/churchresource/cr_loadandmap.js'];
+};
 
-  // Get IDs for currently created Exceptions
-  if (json.exceptions!=null) {
-    each(json.exceptions, function(i,e) {
-      allBookings[a.id].exceptions[e]=allBookings[a.id].exceptions[i];
-      allBookings[a.id].exceptions[e].id=e;
-      delete allBookings[a.id].exceptions[i];
-    });
-  }
-  t.buildDates(allBookings);
-  t.renderList();
-}
-
-function saveSplitCRSuccess(newEvent, pastEvent, originEvent) {
-  console.log(newEvent, pastEvent);
-  if (pastEvent == null) delete allBookings[originEvent.booking_id];
-  else allBookings[pastEvent.booking_id] = CAL2CRType(pastEvent);
-  var newBooking = CAL2CRType(newEvent);
-  console.log("newBooking", newBooking);
-  allBookings[newBooking.id] = CAL2CRType(newEvent);
-  t.buildDates(allBookings);
-  t.renderList();
-}
+WeekView.prototype.getNeededDataObjects = function() {
+  return [{object: allBookings, loader: "cr_loadBookings"}];
+};
 
 WeekView.prototype.getData = function(sorted) {
   if (sorted) {
@@ -122,7 +92,8 @@ WeekView.prototype.renderMenu = function() {
       }
       else if ($(this).attr("id")=="amaintainview") {
         menuDepth="amain";
-        churchInterface.setCurrentView(maintainView);
+        churchInterface.setCurrentLazyView("MaintainView", false, function(view) {
+        });
       }
       else if ($(this).attr("id")=="adruckansicht") {
         fenster = window.open('?q=churchresource/printview&curdate='+t.currentDate.toStringEn(), _("printview"), "width=900,height=600,resizable=yes,scrollbars=1");
@@ -366,10 +337,10 @@ WeekView.prototype.messageReceiver = function(message, args) {
 
 
 WeekView.prototype.initView = function () {
-  if (masterData.settings.filterRessourcentyp==null)
-    masterData.settings.filterRessourcentyp=1;
-  this.filter["filterRessourcen-Typ"]=masterData.settings.filterRessourcentyp;
-
+  var t = this;
+  if (masterData.settings.filterRessourcentyp==null) masterData.settings.filterRessourcentyp=1;
+  t.filter["filterRessourcen-Typ"]=masterData.settings.filterRessourcentyp;
+  if (t.datesIndex==null) t.buildDates(allBookings);
 };
 
 WeekView.prototype.getListHeader = function () {
@@ -526,7 +497,7 @@ function orderBookings(bookings) {
  * @param bookings[]
  * @return String
  */
-function renderBookings(bookings) {
+WeekView.prototype.renderBookings = function(bookings) {
   txt="";
   each(bookings, function(k,a) {
     if (a.category_id!=null) {
@@ -562,7 +533,7 @@ function renderBookings(bookings) {
       else
         txt=txt+'<span style="cursor:default;font-weight:normal;" class="tooltips cr-status-"' + a.status_id + '" '
                 + 'data-tooltip-id="' + a.id + '">' + starttxt + "-" + endtxt + "h " + text.trim(17) + "</span>";
-      if (a.repeat_id>0) txt=txt+"&nbsp;"+weekView.renderImage("recurring",12);
+      if (a.repeat_id>0) txt=txt+"&nbsp;"+t.renderImage("recurring",12);
       txt=txt+"<br/>";
     }
   });
@@ -623,7 +594,7 @@ WeekView.prototype.renderListEntry = function (a) {
     rows.push("<td valign=\"top\" class=\"hoveractor "+_class+"\"><p><small>");
     bookings=this.getBookings(a.id, d);
     bookings=orderBookings(bookings);
-    rows.push(renderBookings(bookings));
+    rows.push(t.renderBookings(bookings));
 
     rows.push("</small>");
     if ((masterData.auth.write || (masterData.auth.virtual && a.virtual_yn==1))
@@ -1270,7 +1241,7 @@ WeekView.prototype.renderEditEvent = function(func, newEvent, myEvent, _isSeries
 
     });
 
-    if ((myEvent.status_id!=99) && (!myEvent.neu) && (date!=null)) {
+    if ((myEvent.status_id!=99) && (!myEvent.neu)) {
       if (_isSeries && !untilEnd) {
         elem.dialog('addbutton', 'Einzeltermin entfernen', function() {
           if (myEvent.exceptions==null) myEvent.exceptions=new Object();

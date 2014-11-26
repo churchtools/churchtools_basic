@@ -13,7 +13,8 @@ function ChurchInterface() {
   this.hideStatusTimer=null;
   this.errorWindow=null;
   this.fatalErrorOccured=false;
-  this.loadedJSFiles=new Array();
+  this.loadedJSFiles = new Array();
+  this.loadedDataObjects = new Array();
 }
 
 var churchInterface = new ChurchInterface();
@@ -21,6 +22,19 @@ var churchInterface = new ChurchInterface();
 ChurchInterface.prototype.setModulename = function (modulename) {
   this.modulename=modulename;
 };
+
+ChurchInterface.prototype.loadMasterData = function(nextFunction) {
+  churchInterface.setStatus("Lade Kennzeichen...");
+  churchInterface.jsendRead({ func: "getMasterData" }, function(ok, json) {
+    if (masterData == null) masterData = new Object();
+    each(json, function(k,a) {
+      masterData[k] = json[k];
+    });
+    churchInterface.clearStatus();
+    if (nextFunction!=null) nextFunction();
+  });
+};
+
 ChurchInterface.prototype.setLastLogId= function (lastLogId) {
   this.lastLogId=lastLogId;
 };
@@ -36,7 +50,7 @@ ChurchInterface.prototype.JSFilesLoaded = function(arr) {
   var t = this;
   var loaded = true;
   each(arr, function(k, filename) {
-    if (!churchcore_inArray("system/assets/"+filename, t.loadedJSFiles)) loaded = false;
+    if (!churchcore_inArray("system"+filename, t.loadedJSFiles)) loaded = false;
   });
   return loaded;
 };
@@ -46,25 +60,41 @@ ChurchInterface.prototype.JSFilesLoaded = function(arr) {
 * @param {[type]} arr Array of Strings
 * @param {[type]} func Will be executed if all loaded
 */
-ChurchInterface.prototype.loadJSFiles = function (arr, func) {
+ChurchInterface.prototype.loadJSFiles = function (arr, funcWhenReady) {
   var t = this;
-  if (arr.length==0) func();
+  if (arr.length==0) funcWhenReady();
   else {
-    var filename = "system/assets/"+arr[0];
+    var filename = "system"+arr[0];
     arr.shift();
 
-    // Check if file is not laoded already
+    // Check if file is not loaded already
     if (!churchcore_inArray(filename, t.loadedJSFiles)) {
       t.loadedJSFiles.push(filename);
       $.getCTScript(filename, function() {
-        t.loadJSFiles(arr, func);
+        t.loadJSFiles(arr, funcWhenReady);
       });
     }
-    else t.loadJSFiles(arr, func);
+    else t.loadJSFiles(arr, funcWhenReady);
   }
-}
+};
 
 
+ChurchInterface.prototype.loadDataObjects = function(arr, funcWhenReady) {
+  var t = this;
+  if (arr == null || arr.length == 0) funcWhenReady();
+  else {
+    var o = arr[0];
+    arr.shift();
+    if (!churchcore_ObjectContainsElementWith(t.loadedDataObjects, "loader", o.loader)) {
+      t.loadedDataObjects.push(o);
+      var func = window[o.loader];
+      o.object = func(function() {
+        t.loadDataObjects(arr, funcWhenReady);
+      });
+    }
+    else t.loadDataObjects(arr, funcWhenReady);
+  }
+};
 /**
  *
  * @param message: e.g. "allDataLoaded", "filterChanged"
@@ -126,47 +156,57 @@ ChurchInterface.prototype.history = function (hash) {
   if (hash==null) hash="";
   var arr=hash.split("/");
   // Wenn kein Hash vorhanden ist, wird erstmal die StandardViewName angezeigt
-  if (t.views[arr[0]]==null && masterData.views[arr[0]]==null) {
+  if (t.views[arr[0]]==null && (masterData.views==null || masterData.views[arr[0]]==null)) {
     arr[0]=t.standardviewname+"/";
     jQuery.history.load(arr.join("/"));
   }
   else {
     if (t.views[arr[0]] == null) {
-      t.setCurrentLazyView(arr[0], function() {t.history(hash)});
-      return;
+      t.loadLazyView(arr[0], function(currentView) {
+        t.currentView = currentView;
+        t.progressURLFilter(arr);
+      });
     }
-    t.currentView=this.views[arr[0]];
-    // filter-Wiederherstellung �ber die Url, f�r History(back), damit die Filter damit funktionieren.
-    // Ist momentan in der Testphase, funktioniert nur f�r das Suchfeld, erstmal auskommentiert,
-    // Probleme mit Multiselect, da es bei ToString nicht den Wert, sondern ein Array wiedergibt.
-    var doRefresh=false;
-    each(arr, function(k,a) {
-      if (a.indexOf("searchEntry:")==0) {
-        t.currentView.filter["searchEntry"] = a.substr(12,99);
-      }
-      else if ((a.indexOf("filter")==0) && (a.indexOf(":")>1)) {
-        t.currentView.filter[a.substr(0,a.indexOf(":"))] = a.substr(a.indexOf(":")+1,99);
-      }
-      else if ((a.indexOf("doc")==0) && (a.indexOf(":")>1)) {
-        var newdoc = a.substr(a.indexOf(":")+1,99);
-        var re=true;
-        if (t.currentHistoryArray!=null)
-          each(t.currentHistoryArray, function(i,b) {
-            if (b==newdoc) re=false;
-          });
-        if (re) {
-          t.currentView.filter[a.substr(0,a.indexOf(":"))]=newdoc;
-          doRefresh=true;
-        }
-      }
-    });
-   if ((this.currentHistoryArray==null) || (this.currentHistoryArray[0]!=arr[0]) || (doRefresh)) {
-     this.currentView.renderView();
-   }
-
-   this.currentHistoryArray=arr;
+    else {
+      t.currentView = this.views[arr[0]];
+      t.progressURLFilter(arr);
+    }
   }
 };
+
+/**
+ * Read URL and set the filter and if necessary call renderView
+ * @param {[type]} arr
+ */
+ChurchInterface.prototype.progressURLFilter = function (arr) {
+  var t = this;
+  var doRefresh = false;
+  each(arr, function(k,a) {
+    if (a.indexOf("searchEntry:")==0) {
+      t.currentView.filter["searchEntry"] = a.substr(12,99);
+    }
+    else if ((a.indexOf("filter")==0) && (a.indexOf(":")>1)) {
+      t.currentView.filter[a.substr(0,a.indexOf(":"))] = a.substr(a.indexOf(":")+1,99);
+    }
+    else if ((a.indexOf("doc")==0) && (a.indexOf(":")>1)) {
+      var newdoc = a.substr(a.indexOf(":")+1,99);
+      var re=true;
+      if (t.currentHistoryArray!=null)
+        each(t.currentHistoryArray, function(i,b) {
+          if (b==newdoc) re=false;
+        });
+      if (re) {
+        t.currentView.filter[a.substr(0,a.indexOf(":"))]=newdoc;
+        doRefresh=true;
+      }
+    }
+  });
+  if ((t.currentHistoryArray == null || t.currentHistoryArray[0] != arr[0]) || doRefresh) {
+    t.currentView.renderView();
+  }
+
+  t.currentHistoryArray=arr;
+}
 
 function history(hash) {
   churchInterface.history(hash);
@@ -313,7 +353,7 @@ ChurchInterface.prototype.clearStatus = function () {
 };
 
 
-ChurchInterface.prototype.setCurrentLazyView = function (view, callWhenLoaded) {
+ChurchInterface.prototype.loadLazyView = function (view, callWhenLoaded) {
   var t = this;
   if (!masterData.views[view]) { alert("View "+view+" not in List!"); return; }
   if (masterData.views[view].loaded == null) {
@@ -322,14 +362,12 @@ ChurchInterface.prototype.setCurrentLazyView = function (view, callWhenLoaded) {
       if (func==null) { alert("Cannot find function get"+view+"()"); return; }
       masterData.views[view].loaded=true;
       masterData.views[view].instance = func();
-      t.views[view]=masterData.views[view].instance;
-      callWhenLoaded(masterData.views[view].instance);
-      t.setCurrentView(masterData.views[view].instance);
+      t.views[view] = masterData.views[view].instance;
+      if (callWhenLoaded != null) callWhenLoaded(masterData.views[view].instance);
     });
   }
   else {
-    callWhenLoaded(masterData.views[view].instance);
-    t.setCurrentView(masterData.views[view].instance);
+    if (callWhenLoaded != null) callWhenLoaded(masterData.views[view].instance);
   }
 };
 
@@ -339,8 +377,16 @@ ChurchInterface.prototype.setCurrentLazyView = function (view, callWhenLoaded) {
  */
 ChurchInterface.prototype.setCurrentView = function (view, clearFilter) {
   this.currentView=view;
-  if ((clearFilter==null) || (clearFilter)) this.currentView.clearFilter();
+  if (clearFilter == null || clearFilter) this.currentView.clearFilter();
   this.currentView.historyCreateStep();
+};
+
+ChurchInterface.prototype.setCurrentLazyView = function (view, clearFilter, func) {
+  var t = this;
+  t.loadLazyView(view, function(currentView) {
+    if (func != null) func(currentView);
+    t.setCurrentView(currentView, clearFilter);
+  });
 };
 
 ChurchInterface.prototype.getCurrentView = function () {

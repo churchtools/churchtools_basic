@@ -386,7 +386,7 @@ function churchcore_inObject(obj, objArray) {
  * @returns {Boolean}
  */
 function churchcore_ObjectContainsElementWith(objArray, element, val) {
-  if ((obj==null) || (objArray==null)) return false;
+  if ((objArray==null) || (element==null)) return false;
   ret=false;
   each(objArray, function(k,a) {
     if (a!=null && a[element]==val) ret=true;

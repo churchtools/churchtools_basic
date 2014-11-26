@@ -2582,7 +2582,6 @@ Drafter.prototype.activateTimer = function() {
  * Deactivate timer and delete draft
  */
 Drafter.prototype.clear = function() {
-  console.log("CLEAR DRAFTER", settings.user.id+"/"+this.obj.id)
   if (this.timer!=null) window.clearTimeout(this.timer);
   churchcore_storeObject(settings.user.id+"/"+this.obj.id, null);
 };

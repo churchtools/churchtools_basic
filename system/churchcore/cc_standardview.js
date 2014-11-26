@@ -19,6 +19,7 @@ function StandardTableView(options) {
   this.openIfOnlyOneIsAvailable=true;
 
   this.jsFilesLoaded = false;
+  this.dataObjectsLoaded = false;
 
   // Number of entries currently visible
   this.counter=0;
@@ -60,6 +61,12 @@ StandardTableView.prototype.historyCreateStep = function () {
 StandardTableView.prototype.getNeededJSFiles = function() {
   return new Array();
 };
+/**
+* Please overwrite, if you need some JSFiles before rendering
+*/
+StandardTableView.prototype.getNeededDataObjects = function() {
+  return new Array();
+};
 
 /*
  * Ruft alle Functions auf, um die View komplett zu bauen
@@ -68,6 +75,7 @@ StandardTableView.prototype.getNeededJSFiles = function() {
 StandardTableView.prototype.renderView = function(withMenu) {
   var t=this;
 
+  // Load JS-Files
   if (!t.jsFilesLoaded) {
     var arr = t.getNeededJSFiles();
     churchInterface.loadJSFiles(arr, function() {
@@ -77,9 +85,19 @@ StandardTableView.prototype.renderView = function(withMenu) {
     return;
   }
 
-  if (t.init==false) {
+  // Load Data Objects
+  if (!t.dataObjectsLoaded) {
+    var arr = t.getNeededDataObjects();
+    churchInterface.loadDataObjects(arr, function() {
+      t.dataObjectsLoaded = true;
+      t.renderView(withMenu);
+    })
+    return;
+  }
+
+  if (t.init == false) {
     t.initView();
-    t.init=true;
+    t.init = true;
   }
 
   if (!churchcore_handyformat()) {

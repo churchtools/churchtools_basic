@@ -1,4 +1,4 @@
- 
+
 // Constructor
 function ReportView() {
   StandardTableView.call(this);
@@ -19,20 +19,12 @@ ReportView.prototype.renderNavi = function () {
   var t=this;
 
   var navi = new CC_Navi();
-  navi.addEntry(true,"alistview0",_("standard"));    
+  navi.addEntry(true,"alistview0",_("standard"));
   navi.renderDiv("cdb_navi", churchcore_handyformat());
 };
 
-function churchreport_loadMasterData() {
-  churchInterface.jsendWrite({func:"getMasterData"}, function(ok, data) {
-    if (ok) {
-      masterData=data;
-    }
-  },false);    
-}
-
 function cdb_loadMasterData(nextFunction) {
-  churchreport_loadMasterData(); 
+  churchreport_loadMasterData();
   if (nextFunction!=null) nextFunction();
 }
 
@@ -55,7 +47,7 @@ ReportView.prototype.loadQuery = function(id) {
 
 ReportView.prototype.renderView = function() {
   var t=this;
-  
+
   var rows=new Array();
   var form = new CC_Form(null, null, "cdb_form");
   form.addSelect({data:masterData.query, selected:t.currentQueryId, freeoption:true, label:_("query")+"&nbsp;", htmlclass:"query", controlgroup:false});
@@ -71,7 +63,7 @@ ReportView.prototype.renderView = function() {
   rows.push('<div id="pivottable"></div>');
 
   $("#cdb_content").html(rows.join(""));
-  
+
   $("#cdb_content select.query").change(function() {
     t.loadQuery($(this).val());
   });
@@ -83,17 +75,17 @@ ReportView.prototype.renderView = function() {
     churchInterface.setCurrentView(maintainView);
     return false;
   });
-  
+
   if (t.reportData!=null) {
-  
+
     var derived=new Object();
 //    derived["Monat"] = $.pivotUtilities.derivers.dateFormat("Datum", "%y-%m")
 //    derived["Jahr"] = $.pivotUtilities.derivers.dateFormat("Datum", "%y")
-  
+
     var countPersons = function() {
       return function() {
         var sumSuccesses= 0;
-        var dates=new Array();  
+        var dates=new Array();
         return {
           push: function(record) {
             if (!isNaN(parseFloat(record["count"]))) {
@@ -108,7 +100,7 @@ ReportView.prototype.renderView = function() {
           label: "Success Rate"
         };
       };
-    };  
+    };
     var countNewPersons = function() {
       return function() {
         var sumSuccesses= 0;
@@ -123,14 +115,14 @@ ReportView.prototype.renderView = function() {
           label: "Success Rate"
         };
       };
-    };    
+    };
     // See more: https://gist.github.com/stephanvd/7246890
-    
+
     var custom_aggregators = {
       "Anzahl Personen" : countPersons,
       "Anzahl neuer Personen": countNewPersons
     };
-  
+
     if (t.currentReportId==null || masterData.report[t.currentReportId]==null
            || masterData.report[t.currentReportId].query_id!=t.currentQueryId) {
       t.currentReportId=null;
@@ -141,23 +133,23 @@ ReportView.prototype.renderView = function() {
         }
       });
     }
-    
+
     if (t.currentReportId==null) {
       alert(_("no.report.available"));
       return;
     }
-    
+
     var options = {
       rows: masterData.report[t.currentReportId].rows.split(","),
       cols: masterData.report[t.currentReportId].cols.split(","),
       hiddenAttributes: ["newperson_count", "count"],
       derivedAttributes: derived,
-      aggregators: $.extend(custom_aggregators, $.pivotUtilities.aggregators)        
+      aggregators: $.extend(custom_aggregators, $.pivotUtilities.aggregators)
     };
     if (masterData.report[t.currentReportId].aggregatorName) {
       options.aggregatorName=masterData.report[t.currentReportId].aggregatorName;
     }
-    
+
     $("#pivottable").pivotUI(t.reportData, options);
   }
 };
@@ -167,6 +159,7 @@ $(document).ready(function() {
   churchInterface.setModulename("churchreport");
   churchInterface.registerView("ReportView", reportView);
   churchInterface.registerView("MaintainView", maintainView);
-  churchreport_loadMasterData();
-  churchInterface.activateHistory("ReportView");
+  churchInterface.loadMasterData(function() {
+    churchInterface.activateHistory("ReportView");    
+  });
 });

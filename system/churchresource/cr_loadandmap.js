@@ -1,16 +1,42 @@
+var allBookings = new Object();
 
-function cdb_loadMasterData(nextFunction) {
-  churchInterface.setStatus("Lade Kennzeichen...");
-  timers["startMasterdata"]=new Date();
-  churchInterface.jsendRead({ func: "getMasterData" }, function(ok, json) {
-    timers["endMasterdata"]=new Date();
-    each(json, function(k,a) {
-      masterData[k]=json[k];
+function getCRBooking(a) {
+  var event = new CCEvent(a);
+  event.saveSuccess = saveCRSuccess;
+  event.saveSplitSuccess = saveSplitCRSuccess;
+  event.name = "Booking";
+  return event;
+}
+
+function saveCRSuccess(a, b, json) {
+  if (a.name=="Event") a = CAL2CRType(a); // When it saved over cal resource
+  var t=weekView;
+  if (json.id!=null) {
+    a.id=json.id;
+    allBookings[json.id]=a;
+  }
+  else if (a.id!=null)
+    allBookings[a.id]=a;
+
+  // Get IDs for currently created Exceptions
+  if (json.exceptions!=null) {
+    each(json.exceptions, function(i,e) {
+      allBookings[a.id].exceptions[e]=allBookings[a.id].exceptions[i];
+      allBookings[a.id].exceptions[e].id=e;
+      delete allBookings[a.id].exceptions[i];
     });
+  }
+  t.buildDates(allBookings);
+  t.renderList();
+}
 
-    churchInterface.clearStatus();
-    if (nextFunction!=null) nextFunction();
-  });
+function saveSplitCRSuccess(newEvent, pastEvent, originEvent) {
+  if (pastEvent == null) delete allBookings[originEvent.booking_id];
+  else allBookings[pastEvent.booking_id] = CAL2CRType(pastEvent);
+  var newBooking = CAL2CRType(newEvent);
+  allBookings[newBooking.id] = CAL2CRType(newEvent);
+  t.buildDates(allBookings);
+  t.renderList();
 }
 
 function cr_loadBookings(nextFunction) {
@@ -21,5 +47,5 @@ function cr_loadBookings(nextFunction) {
     });
     churchInterface.clearStatus();
     if (nextFunction!=null) nextFunction();
-  });
+  }, null, null, "churchresource");
 }

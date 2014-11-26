@@ -2,7 +2,7 @@
 function cdb_mapJsonDetails(json, person) {
   // Person kann u.U. nicht existieren, z.B. wenn eine neue von anderem User angelegt wurde
   if (person==null) person=new Object();
-  
+
   each(json, function(k,a) {
     person[k]=a;
   });
@@ -17,7 +17,7 @@ function cdb_mapJsonSearchable(json, person) {
       person[k]=a;
     });
     person.searchable=true;
-  };  
+  };
   return person;
 }
 
@@ -31,19 +31,19 @@ function cdb_addJsonRels(json, person) {
     obj.kind_id=json.k_id;
     obj.beziehungstyp_id=json.typ_id;
     person.rels[json.id]=obj;
-  };  
+  };
 }
 
 function cdb_mapJsonPerson2(json, person) {
   if (person!=null) {
     person.gruppe=json.g;
-  };  
+  };
   return person;
 }
 
 function cdb_mapJsonPerson1(json, person) {
   if (person==null) {
-    person=new Object(); 
+    person=new Object();
   }
   person.id=json.p_id;
   person.name=json.name;
@@ -72,12 +72,12 @@ function cdb_loadRelations(nextFunction) {
     a.rels=null;
   });
   churchInterface.jsendRead({func:"getAllRels"}, function(ok, json) {
-    if (json.tags!=null) { 
+    if (json.tags!=null) {
       each(json.tags, function(k,a) {
         if (allPersons[a.id]!=null) {
           if (allPersons[a.id].tags==null)
             allPersons[a.id].tags=new Array();
-          allPersons[a.id].tags.push(a.tag_id);          
+          allPersons[a.id].tags.push(a.tag_id);
         }
       });
     }
@@ -97,33 +97,22 @@ function cdb_loadSearch(nextFunction) {
   churchInterface.jsendRead({func:"getSearchableData"}, function(ok, json) {
     each(json.searchable, function(k,a) {
       if (allPersons[a.id]!=null)
-        allPersons[a.id]=cdb_mapJsonSearchable(a, allPersons[a.id]);          
+        allPersons[a.id]=cdb_mapJsonSearchable(a, allPersons[a.id]);
     });
     if (json.oldGroupRelations!=null)
     each(json.oldGroupRelations, function(k,a) {
       if (allPersons[a.id]!=null) {
         if (allPersons[a.id].oldGroups==null)
           allPersons[a.id].oldGroups=new Array();
-        allPersons[a.id].oldGroups.push(a);          
+        allPersons[a.id].oldGroups.push(a);
       }
     });
-      
-    churchInterface.clearStatus();
-    if (nextFunction!=null) nextFunction();
-  });  
-}
 
-
-function cdb_loadMasterData(nextFunction) {
-  churchInterface.setStatus("Lade Kennzeichen...");
-  timers["startMasterdata"]=new Date();
-  churchInterface.jsendRead({ func: "getMasterData" }, function(ok, json) {
-    timers["endMasterdata"]=new Date();
-    masterData=json;
     churchInterface.clearStatus();
     if (nextFunction!=null) nextFunction();
   });
 }
+
 
 function cdb_loadPersonData(nextFunction, limit, p_id) {
   // Erst mal ein Timeout setzen, damit die History wirklich auch korrekt gesetzt wird und currentView gesetzt ist.
@@ -136,7 +125,7 @@ function cdb_loadPersonData(nextFunction, limit, p_id) {
         each(json, function(k,a) {
           allPersons[a.p_id]=cdb_mapJsonPerson1(a, allPersons[a.p_id]);
         });
-      }  
+      }
       churchInterface.clearStatus();
       if (nextFunction!=null) nextFunction();
     });
@@ -152,14 +141,13 @@ function cdb_loadGroupMeetingStats(filter, _id, func) {
   if ((masterData.auth.viewgroupstats) || (filter['filterOwnGroups']!=null)) {
 
     // Schraenke den Download nur ein auf die ausgewaehlte Gruppe, wenn er keine viewgroupstats-Rechte hat
-    if (!masterData.auth.viewgroupstats) 
+    if (!masterData.auth.viewgroupstats)
       _id=filter['filterOwnGroups'];
-      
+
     churchInterface.jsendRead({func:"GroupMeeting", sub:"stats", id: _id }, function(ok, json) {
       groupMeetingStats=json;
       if (func!=null) func(true);
     });
-  }  
+  }
   else if (func!=null) func(false);
 }
-

@@ -1,5 +1,3 @@
-(function($) {
-
 // Constructor
 function MaintainView() {
   StandardTableView.call(this);
@@ -8,7 +6,10 @@ function MaintainView() {
 
 Temp.prototype = MaintainStandardView.prototype;
 MaintainView.prototype = new Temp();
-maintainView = new MaintainView();
+
+function getMaintainView() {
+  return new MaintainView();
+}
 
 MaintainView.prototype.getData = function() {
   masterData.resourcetype=masterData.resourceTypes;
@@ -29,7 +30,7 @@ MaintainView.prototype.renderMenu = function() {
   else {
     $("#cdb_menu a").click(function () {
       if ($(this).attr("id")=="apersonview") {
-        churchInterface.setCurrentView(weekView, false);
+        churchInterface.setCurrentLazyView("WeekView", false);
       }
       else if ($(this).attr("id")=="ahelp") {
         churchcore_openNewWindow("http://intern.churchtools.de/?q=help&doc=ChurchResource-Stammdaten");
@@ -38,5 +39,3 @@ MaintainView.prototype.renderMenu = function() {
     });
   }
 };
-
-})(jQuery);

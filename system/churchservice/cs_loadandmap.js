@@ -1,18 +1,9 @@
 function cdb_loadMasterData(nextFunction) {
-  timers["startMasterdata"]=new Date();
-
-  churchInterface.setStatus("Lade Kennzeichen...");
-  churchInterface.jsendRead({ func: "getMasterData" }, function(ok, json) {
-    timers["endMasterdata"]=new Date();
-    masterData=json;
+  churchInterface.loadMasterData(function() {
     // Wenn ich sortiere, kann ich nicht mehr per ID darauf zugreifen...
     masterData.service_sorted=churchcore_sortData_numeric(masterData.service,"sortkey");
-
-    churchInterface.clearStatus();
-
-    if (nextFunction!=null) nextFunction();
+    nextFunction();
   });
-  //}
 }
 
 /**

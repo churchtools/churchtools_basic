@@ -54,7 +54,8 @@ class CTChurchDBModule extends CTAbstractModule {
                           "MapView" => array("filename"=>"cdb_mapview"),
                           "StatisticView" => array("filename"=>"cdb_statisticview"),
                           "SettingsView" => array("filename"=>"cdb_settingsview"),
-                          "MaintainView" => array("filename"=>"cdb_maintainview")
+                          "MaintainView" => array("filename"=>"cdb_maintainview"),
+                          "WeekView" => array("filename"=>"../churchresource/cr_weekview"),                          
                           );
     if (user_access("administer persons", "churchcore")) $res["auth_table"] = churchdb_getAuthTable();
 

@@ -18,16 +18,12 @@
 function churchresource_main() {
   drupal_add_js(ASSETS . '/js/jquery.history.js');
 
-  drupal_add_js(CHURCHCORE . '/cc_events.js');
   drupal_add_js(CHURCHCORE . '/cc_abstractview.js');
   drupal_add_js(CHURCHCORE . '/cc_standardview.js');
   drupal_add_js(CHURCHCORE . '/cc_maintainstandardview.js');
   drupal_add_js(CHURCHCORE . '/cc_interface.js');
 
-  drupal_add_js(CHURCHRESOURCE . '/cr_loadandmap.js');
-  drupal_add_js(CHURCHRESOURCE . '/cr_maintainview.js');
-  drupal_add_js(CHURCHRESOURCE . '/cr_weekview.js');
-  drupal_add_js(CHURCHRESOURCE . '/cr_main.js');
+    drupal_add_js(CHURCHRESOURCE . '/cr_main.js');
 
   drupal_add_js(createI18nFile("churchcore"));
   drupal_add_js(createI18nFile("churchresource"));

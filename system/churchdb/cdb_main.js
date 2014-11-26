@@ -31,7 +31,7 @@ jQuery(document).ready(function() {
 
   cdb_initializeGoogleMaps();
   // Lade alle Kennzeichentabellen
-  cdb_loadMasterData(function() {
+  churchInterface.loadMasterData(function() {
     // Initialisiere Browser-History, ruft damit schon RenderView() auf, falles Parameter uebergeben worden sind
     churchInterface.activateHistory((masterData.settings.churchdbInitView!=null?masterData.settings.churchdbInitView:"PersonView"));
     churchInterface.setLastLogId(masterData.last_log_id);

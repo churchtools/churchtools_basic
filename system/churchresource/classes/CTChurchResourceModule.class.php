@@ -48,7 +48,9 @@ class CTChurchResourceModule extends CTAbstractModule {
     $res["lastLogId"] = churchresource_getLastLogId();
     $res["churchcal_name"] = getConf('churchcal_name');
     $res["category"] = churchcore_getTableData("cc_calcategory", null, null, "id, color, bezeichnung");
-    return $res;
+    $res["views"] = array("WeekView" => array("filename"=>"cr_weekview"),
+                          "MaintainView" => array("filename"=>"cr_maintainview"));
+  return $res;
   }
 
   public function saveSplittedBooking($params) {
