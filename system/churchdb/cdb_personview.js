@@ -148,11 +148,13 @@ PersonView.prototype.renderMenu = function() {
       }
       else if ($(this).attr("id")=="amaintainview") {
         menuDepth="amain";
-        churchInterface.setCurrentView(maintainView);
+        churchInterface.setCurrentLazyView("MaintainView", function(view) {
+        });
       }
       else if ($(this).attr("id")=="asettingsview") {
         menuDepth="amain";
-        churchInterface.setCurrentView(settingsView);
+        churchInterface.setCurrentLazyView("SettingsView", function(view) {
+        });
       }
       else if ($(this).attr("id")=="ahelp") {
         churchcore_openNewWindow("http://intern.churchtools.de/?q=help&doc=ChurchDB");
@@ -269,9 +271,10 @@ PersonView.prototype.renderListMenu = function() {
       churchInterface.getCurrentView().filter=t.filter;
     }
     else if ($(this).attr("id")=="astatisticview") {
-      statisticView.furtherFilterVisible=t.furtherFilterVisible;
-      churchInterface.setCurrentView(statisticView);
-      churchInterface.getCurrentView().filter=t.filter;
+      churchInterface.setCurrentLazyView("StatisticView", function(view) {
+        view.furtherFilterVisible=t.furtherFilterVisible;
+        view.filter = t.filter;
+      });
     }
     else if ($(this).attr("id")=="aviewmap") {
       churchInterface.setCurrentLazyView("MapView", function(view) {

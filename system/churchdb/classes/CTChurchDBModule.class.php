@@ -51,7 +51,10 @@ class CTChurchDBModule extends CTAbstractModule {
     $res["last_log_id"] = churchdb_getLastLogId();
     $res["mailchimp"] = getConf('churchdb_mailchimp_apikey')!= "";
     $res["views"] = array("ArchiveView" => array("filename"=>"cdb_archiveview"),
-                          "MapView" => array("filename"=>"cdb_mapview")
+                          "MapView" => array("filename"=>"cdb_mapview"),
+                          "StatisticView" => array("filename"=>"cdb_statisticview"),
+                          "SettingsView" => array("filename"=>"cdb_settingsview"),
+                          "MaintainView" => array("filename"=>"cdb_maintainview")
                           );
     if (user_access("administer persons", "churchcore")) $res["auth_table"] = churchdb_getAuthTable();
 

@@ -6,12 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="ChurchTools">
   <meta name="author" content="">
-  
+
   <link href="<?= ASSETS ?>/ui/custom-theme/jquery-ui-1.10.3.custom.css" rel="stylesheet">
   <link href="<?= BOOTSTRAP ?>/css/bootstrap.min.css" rel="stylesheet">
   <!--  link href="<?= ASSETS ?>/ui/jquery-ui-1.8.18.custom.css" rel="stylesheet"-->
   <link href="<?= INCLUDES ?>/churchtools.css?<?= JS_VERSION ?>" rel="stylesheet">
-    
+
 <? if (!$embedded): ?>
   <style> body {padding-top: 60px; padding-bottom: 40px; } </style>
 <? endif; ?>
@@ -22,9 +22,9 @@
       <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
 
-  <script src="<?= ASSETS ?>/js/jquery-2.1.1.js"></script>
+  <script src="<?= ASSETS ?>/js/jquery-2.1.1.min.js"></script>
   <script src="<?= ASSETS ?>/js/jquery-migrate-1.2.1.min.js"></script>
-  
+
   <script src="<?= CHURCHCORE ?>/shortcut.js"></script>
   <script src="<?= ASSETS ?>/ui/jquery.ui.core.min.js"></script>
   <script src="<?= ASSETS ?>/ui/jquery.ui.position.min.js"></script>
@@ -96,7 +96,7 @@
       <? endforeach; ?>
               <li class="divider"></li>
     <? endif; ?>
-    
+
               <li><a href="?q=profile"><?= isset($user->password) ? t("change.password"): t("set.password") ?></a></li>
     <? if (user_access("view", "churchdb") && !empty($user->email)): ?>
               <li><a href="?q=churchdb/mailviewer"><?= t('sent.messages')?></a></li>
@@ -118,7 +118,7 @@
     <? if (user_access("administer settings", "churchcore")): ?>
               <li class="divider"></li>
     <? endif; ?>
-  
+
              <li><a href="?q=about"><?= t('about')?> <?= $sitename ?></a></li>
              <li class="divider"></li>
              <li><a href="?q=logout"><?= t('logout') ?></a></li>

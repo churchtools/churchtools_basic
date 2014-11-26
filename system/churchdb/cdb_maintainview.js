@@ -1,5 +1,3 @@
-(function($) {
-	 
 // Constructor
 function MaintainView() {
   MaintainStandardView.call(this);
@@ -8,7 +6,10 @@ function MaintainView() {
 
 Temp.prototype = MaintainStandardView.prototype;
 MaintainView.prototype = new Temp();
-maintainView = new MaintainView();
+
+function getMaintainView() {
+	return new MaintainView();
+}
 
 MaintainView.prototype.getData = function() {
   masterData.gruppentyp=masterData.groupTypes;
@@ -25,7 +26,7 @@ MaintainView.prototype.renderMenu = function() {
   menu = new CC_Menu(_("menu"));
   menu.addEntry(_("back.to.main.menu"), "apersonview", "arrow-left");
   menu.addEntry(_("help"), "ahelp", "question-sign");
-  
+
   if (!menu.renderDiv("cdb_menu"))
     $("#cdb_menu").hide();
   else {
@@ -49,9 +50,9 @@ MaintainView.prototype.editAuth = function(id, masterData_type_id) {
   personView.editDomainAuth(id, data.shortname, function(id) {
     cdb_loadMasterData(function() {
       churchInterface.getCurrentView().renderView();
-    });        
-  });      
-  return false;  
+    });
+  });
+  return false;
 };
 
 MaintainView.prototype.addFurtherListCallbacks = function() {
@@ -70,5 +71,3 @@ MaintainView.prototype.addFurtherListCallbacks = function() {
     }
   });
 };
-
-})(jQuery);

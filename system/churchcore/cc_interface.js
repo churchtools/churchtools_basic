@@ -13,6 +13,7 @@ function ChurchInterface() {
   this.hideStatusTimer=null;
   this.errorWindow=null;
   this.fatalErrorOccured=false;
+  this.loadedJSFiles=new Array();
 }
 
 var churchInterface = new ChurchInterface();
@@ -26,6 +27,43 @@ ChurchInterface.prototype.setLastLogId= function (lastLogId) {
 ChurchInterface.prototype.getLastLogId= function () {
   return this.lastLogId;
 };
+
+/**
+ * Checks if JSFile is already loaded
+ * @param {[type]} arr
+ */
+ChurchInterface.prototype.JSFilesLoaded = function(arr) {
+  var t = this;
+  var loaded = true;
+  each(arr, function(k, filename) {
+    if (!churchcore_inArray("system/assets/"+filename, t.loadedJSFiles)) loaded = false;
+  });
+  return loaded;
+};
+
+/**
+* Load all JSFiles in arr from system/assets/
+* @param {[type]} arr Array of Strings
+* @param {[type]} func Will be executed if all loaded
+*/
+ChurchInterface.prototype.loadJSFiles = function (arr, func) {
+  var t = this;
+  if (arr.length==0) func();
+  else {
+    var filename = "system/assets/"+arr[0];
+    arr.shift();
+
+    // Check if file is not laoded already
+    if (!churchcore_inArray(filename, t.loadedJSFiles)) {
+      t.loadedJSFiles.push(filename);
+      $.getCTScript(filename, function() {
+        t.loadJSFiles(arr, func);
+      });
+    }
+    else t.loadJSFiles(arr, func);
+  }
+}
+
 
 /**
  *
@@ -88,12 +126,16 @@ ChurchInterface.prototype.history = function (hash) {
   if (hash==null) hash="";
   var arr=hash.split("/");
   // Wenn kein Hash vorhanden ist, wird erstmal die StandardViewName angezeigt
-  if (this.views[arr[0]]==null) {
-    arr[0]=this.standardviewname+"/";
+  if (t.views[arr[0]]==null && masterData.views[arr[0]]==null) {
+    arr[0]=t.standardviewname+"/";
     jQuery.history.load(arr.join("/"));
   }
   else {
-    this.currentView=this.views[arr[0]];
+    if (t.views[arr[0]] == null) {
+      t.setCurrentLazyView(arr[0], function() {t.history(hash)});
+      return;
+    }
+    t.currentView=this.views[arr[0]];
     // filter-Wiederherstellung �ber die Url, f�r History(back), damit die Filter damit funktionieren.
     // Ist momentan in der Testphase, funktioniert nur f�r das Suchfeld, erstmal auskommentiert,
     // Probleme mit Multiselect, da es bei ToString nicht den Wert, sondern ein Array wiedergibt.

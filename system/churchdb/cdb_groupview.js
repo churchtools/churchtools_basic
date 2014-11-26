@@ -1,6 +1,6 @@
-(function($) { 
-	 
- 
+(function($) {
+
+
 // Constructor
 function GroupView() {
   CDBStandardTableView.call(this);
@@ -22,15 +22,19 @@ GroupView.prototype.getData = function(sorted) {
     return masterData.groups;
 };
 
+GroupView.prototype.getNeededJSFiles = function() {
+	return ['ui/jquery.ui.slider.min.js'];
+}
+
 GroupView.prototype.renderMenu = function() {
   this_object=this;
-  
-  
+
+
   menu = new CC_Menu(_("menu"));
   menu.addEntry(_("back.to.list.of.persons"), "apersonview", "arrow-left");
 
   if (masterData.auth.admingroups || this_object.isPersonSuperLeader(masterData.user_pid))
-    menu.addEntry(_("add.new.group"), "anewentry", "cog");  
+    menu.addEntry(_("add.new.group"), "anewentry", "cog");
 
   menu.addEntry(_("more.filter"), "aaddfilter", "filter");
   menu.addEntry(_("exporter"), "aexport", "share");
@@ -41,23 +45,23 @@ GroupView.prototype.renderMenu = function() {
 
   if (!menu.renderDiv("cdb_menu"))
     $("#cdb_menu").hide();
-  else {    
-  
+  else {
+
     rows = new Array();
     rows.push("<div id=\"divnewentry\" style=\"display:none\" class=\"new-entry\"></div>");
     rows.push("<div id=\"divaddfilter\" cstyle=\"display:none\" lass=\"new-entry\" style=\"width:100%;\"></div>");
     $("#cdb_precontent").html(rows.join(""));
-  
+
     $("#cdb_menu a").click(function () {
       if ($(this).attr("id")=="anewentry") {
         this_object.renderAddEntry();
       }
       else if ($(this).attr("id")=="aaddfilter") {
         if (!this_object.furtherFilterVisible) {
-          this_object.furtherFilterVisible=true;  
+          this_object.furtherFilterVisible=true;
         } else {
-          this_object.furtherFilterVisible=false;                
-        } 
+          this_object.furtherFilterVisible=false;
+        }
         this_object.renderFurtherFilter();
       }
       else if ($(this).attr("id")=="aadmin") {
@@ -85,7 +89,7 @@ GroupView.prototype.renderMenu = function() {
     });
   }
 
-  
+
 };
 
 GroupView.prototype.exporter = function() {
@@ -93,14 +97,14 @@ GroupView.prototype.exporter = function() {
   var rows=new Array();
   var txt=t.getListHeader().substr(4,9999);
   rows.push(txt.html2csv()+"\r\n");
-  
+
   each(t.getData(true), function(i,a) {
     if (t.checkFilter(a)) {
       var txt=t.renderListEntry(a).substr(4,9999);
       rows.push(a.id+";"+txt.html2csv()+"\r\n");
     }
   });
-  
+
   var uri = 'data:text/csv;charset=utf-8,' + escape(rows.join(""));
 
   var downloadLink = document.createElement("a");
@@ -137,26 +141,26 @@ GroupView.prototype.renderDistrict = function() {
       $("#cdb_group").html(rows.join(""));
       t.renderGrouptype();
     }
-  }  
+  }
   else if (masterData.districts[district_id]!=null) {
     rows.push('<div class="well">');
     rows.push('<legend>'+f("distrikt_id")+': '+masterData.districts[district_id].bezeichnung+'</legend>');
-    
+
     rows.push('<div class="container-fluid">');
     rows.push('<div class="span4">');
-    
+
     var ps=new Array();
     each(allPersons, function(k,a) {
       if ((a.districts!=null) && (a.districts[district_id]))
         ps.push(a);
     });
-    
+
     if (!churchInterface.isAllDataLoaded()) {
       rows.push('<p>'+form_renderImage({src:"loading.gif"}));
     }
     else {
-      if (ps.length==0) {     
-        if (masterData.auth.admingroups) 
+      if (ps.length==0) {
+        if (masterData.auth.admingroups)
           rows.push('<p><a href="#" class="add-person btn btn-small">'+_("add.related.person")+'</a>');
       }
       else {
@@ -164,15 +168,15 @@ GroupView.prototype.renderDistrict = function() {
         each(churchcore_sortData(ps, "name"), function(k,a) {
           rows.push('<tr><td><a href="#" class="visit-person tooltip-person" data-tooltip-id="'+a.id+'" >'+a.vorname+" "+a.name+'</a>');
           if (masterData.auth.admingroups) {
-            rows.push('<td><a href="#" class="del-person" data-id="'+a.id+'">'+this_object.renderImage("trashbox")+'</a>'); 
+            rows.push('<td><a href="#" class="del-person" data-id="'+a.id+'">'+this_object.renderImage("trashbox")+'</a>');
           }
         });
         rows.push('</table>');
-        if (masterData.auth.admingroups) 
+        if (masterData.auth.admingroups)
           rows.push('<p><a href="#" class="add-person btn btn-small">'+_("add.another.related.person")+'</a>');
       }
     }
-    
+
     rows.push('</div>');
     rows.push('<div class="span8">');
     if (masterData.auth.viewhistory) {
@@ -181,11 +185,11 @@ GroupView.prototype.renderDistrict = function() {
     }
     rows.push('</div>');
     rows.push('</div>');
-    
+
     $("#cdb_group").html(rows.join(""));
     personView.addPersonsTooltip($("#cdb_group"));
 
-    
+
     if (masterData.auth.viewhistory) {
       var renderTimer=null;
       if (t.range_startday==null) t.range_startday=-31;
@@ -198,7 +202,7 @@ GroupView.prototype.renderDistrict = function() {
         slide: function( event, ui ) {
           t.range_startday=ui.values[ 0 ];
           t.range_endday=ui.values[ 1 ];
-          
+
           _renderDistriktDate(t.range_startday, t.range_endday);
         }
       });
@@ -208,7 +212,7 @@ GroupView.prototype.renderDistrict = function() {
         var end= new Date();
         end.addDays(_end);
         $("#slider_value").html(start.toStringDe()+" - "+end.toStringDe());
-        if (renderTimer!=null) 
+        if (renderTimer!=null)
           window.clearTimeout(renderTimer);
         renderTimer=window.setTimeout(function() {
           t.renderList();
@@ -216,7 +220,7 @@ GroupView.prototype.renderDistrict = function() {
       }
       _renderDistriktDate(t.range_startday, t.range_endday);
     }
-    
+
     $("#cdb_group a").click(function() {
       if ($(this).hasClass("del-person")) {
         var id=$(this).attr("data-id");
@@ -228,7 +232,7 @@ GroupView.prototype.renderDistrict = function() {
             t.renderDistrict();
           }
         });
-        
+
       }
       else if ($(this).hasClass("add-person")) {
         personView.renderPersonSelect("Nach einer Person suchen", true, function(id) {
@@ -245,8 +249,8 @@ GroupView.prototype.renderDistrict = function() {
               t.renderDistrict();
             }
           });
-        });            
-        return false; 
+        });
+        return false;
       }
       else if ($(this).hasClass("visit-person")) {
         clearTooltip(true);
@@ -256,7 +260,7 @@ GroupView.prototype.renderDistrict = function() {
         personView.setFilter("searchEntry","#"+$(this).attr("data-tooltip-id"));
         personView.renderView();
       }
-      return false;    
+      return false;
     });
   }
 };
@@ -270,24 +274,24 @@ GroupView.prototype.renderGrouptype = function() {
   if (gruppentyp_id==null) {
     if ($("#cdb_group").html()!="") {
       $("#cdb_group").html(rows.join(""));
-      t.renderDistrict();    
+      t.renderDistrict();
     }
   }
   else {
     rows.push('<div class="well">');
     rows.push('<legend>'+f('gruppentyp_id')+': '+masterData.groupTypes[gruppentyp_id].bezeichnung+'</legend>');
-    
+
     rows.push('<div class="container-fluid">');
     rows.push('<div class="span5">');
-    
+
     var ps=new Array();
     each(allPersons, function(k,a) {
       if ((a.gruppentypen!=null) && (a.gruppentypen[gruppentyp_id]))
         ps.push(a);
     });
-    
-    if (ps.length==0) {     
-      if (masterData.auth.admingroups) 
+
+    if (ps.length==0) {
+      if (masterData.auth.admingroups)
         rows.push('<p><a href="#" class="add-person btn btn-small">'+_("add.related.person")+'</a>');
     }
     else {
@@ -295,19 +299,19 @@ GroupView.prototype.renderGrouptype = function() {
       each(churchcore_sortData(ps, "name"), function(k,a) {
         rows.push('<tr><td><a href="#" class="visit-person tooltip-person" data-tooltip-id="'+a.id+'" >'+a.vorname+" "+a.name+'</a>');
         if (masterData.auth.admingroups) {
-          rows.push('<td><a href="#" class="del-person"data-id="'+a.id+'">'+this_object.renderImage("trashbox")+'</a>'); 
+          rows.push('<td><a href="#" class="del-person"data-id="'+a.id+'">'+this_object.renderImage("trashbox")+'</a>');
         }
       });
       rows.push('</table>');
-      if (masterData.auth.admingroups) 
+      if (masterData.auth.admingroups)
         rows.push('<p><a href="#" class="add-person btn btn-small">'+_("add.another.related.person")+'</a>');
     }
-    
+
     rows.push('</div>');
     rows.push('<div class="span5">');
     rows.push('</div>');
     rows.push('</div>');
-    
+
     $("#cdb_group").html(rows.join(""));
     personView.addPersonsTooltip($("#cdb_group"));
 
@@ -322,7 +326,7 @@ GroupView.prototype.renderGrouptype = function() {
             t.renderGrouptype();
           }
         });
-        
+
       }
       else if ($(this).hasClass("add-person")) {
         personView.renderPersonSelect("Nach einer Person suchen", true, function(id) {
@@ -339,8 +343,8 @@ GroupView.prototype.renderGrouptype = function() {
               t.renderGrouptype();
             }
           });
-        });            
-        return false; 
+        });
+        return false;
       }
       else if ($(this).hasClass("visit-person")) {
         clearTooltip(true);
@@ -350,7 +354,7 @@ GroupView.prototype.renderGrouptype = function() {
         personView.setFilter("searchEntry","#"+$(this).attr("data-tooltip-id"));
         personView.renderView();
       }
-      return false;    
+      return false;
     });
   }
 };
@@ -372,8 +376,8 @@ GroupView.prototype.msg_filterChanged = function (id, oldVal) {
 
 GroupView.prototype.renderListMenu = function() {
   var t=this;
-  
-  
+
+
   searchEntry=this.getFilter("searchEntry");
 
   var navi = new CC_Navi();
@@ -387,22 +391,22 @@ GroupView.prototype.renderListMenu = function() {
 GroupView.prototype.renderAddEntry = function() {
   var _text="";
   _text=_text+'<div class="well"><div class="row-fluid">';
-  
+
   var form = new CC_Form("Name");
   form.surroundWithDiv("span4");
-  form.addInput({label: _("name"), cssid:"inputName"});    
+  form.addInput({label: _("name"), cssid:"inputName"});
   _text=_text+form.render();
-  
+
   var form = new CC_Form(_("group"));
   form.surroundWithDiv("span4");
   form.addSelect({label:f('gruppentyp_id'), cssid:"Inputf_grouptype", data:masterData.groupTypes,
        func:function(d){
-          return masterData.auth.admingroups 
-          || (allPersons[masterData.user_pid].districts!=null 
+          return masterData.auth.admingroups
+          || (allPersons[masterData.user_pid].districts!=null
                  && masterData.groupTypes[d.id].anzeigen_in_meinegruppen_teilnehmer_yn==1)
-          || ( allPersons[masterData.user_pid].gruppentypen!=null 
-                 && allPersons[masterData.user_pid].gruppentypen[d.id]!=null);                
-       } 
+          || ( allPersons[masterData.user_pid].gruppentypen!=null
+                 && allPersons[masterData.user_pid].gruppentypen[d.id]!=null);
+       }
   });
   _text=_text+form.render();
 
@@ -410,11 +414,11 @@ GroupView.prototype.renderAddEntry = function() {
   form.surroundWithDiv("span4");
   form.addSelect({label:f("distrikt_id"), cssid:"Inputf_district", data:masterData.districts,
     func:function(d) {
-      return masterData.auth.admingroups 
+      return masterData.auth.admingroups
       || (allPersons[masterData.user_pid].gruppentypen!=null)
-      || (allPersons[masterData.user_pid].districts!=null 
-             && allPersons[masterData.user_pid].districts[d.id]!=null);                
-   } 
+      || (allPersons[masterData.user_pid].districts!=null
+             && allPersons[masterData.user_pid].districts[d.id]!=null);
+   }
   });
   _text=_text+form.render();
 
@@ -427,23 +431,23 @@ GroupView.prototype.renderAddEntry = function() {
   form.addCheckbox({cssid:"forceDontHide",controlgroup_end:true,label:_("create.more.dataset")});
   _text=_text+form.render(false,"vertical");
   _text=_text+"</div>";
-    
+
   $("#divnewentry").html(_text);
   $("#btProoveNewAddress").click(function () {
     var obj = new Object();
     obj["func"]="createGroup";
-    obj["name"]=$("#inputName").val();  
+    obj["name"]=$("#inputName").val();
     $("#divnewentry select").each(function (i, s){
       obj[$(this).attr("id")]=$(this).val();
     });
     if ($("#forceCreate").attr("checked")=="checked") {
       obj["force"]="checked";
     }
-    churchInterface.jsendWrite(obj, function(ok, json) {        
+    churchInterface.jsendWrite(obj, function(ok, json) {
       if (json.result=="exist") {
-        $("#searchEntry").val(json.id).keyup();          
+        $("#searchEntry").val(json.id).keyup();
         alert("Mindestens eine Gruppe mit dem Namen existiert schon!");
-      } 
+      }
       else {
         $("#searchEntry").val(json.id).keyup();
         cdb_loadMasterData(function() {
@@ -455,26 +459,26 @@ GroupView.prototype.renderAddEntry = function() {
           }
           else t.renderView();
         });
-      }        
+      }
     });
   });
   $("#divnewentry").animate({ height: 'toggle'}, "slow", function() {
-    $("#inputName").focus();    
-  });  
+    $("#inputName").focus();
+  });
 };
 
 
 
 GroupView.prototype.renderFilter = function() {
   var form = new CC_Form();
-  
+
   form.setLabel(_("filter.functions"));
   var ret=personView.getMyGroupsSelector();
   if (ret!=false) {
     form.addSelect({
-//      freeoption:true, 
+//      freeoption:true,
       label:_('my.groups'),
-      selected:groupView.filter['filterMeine Gruppen'], 
+      selected:groupView.filter['filterMeine Gruppen'],
       cssid:"filterMeine Gruppen",
       data:ret,
       type:"medium",
@@ -482,9 +486,9 @@ GroupView.prototype.renderFilter = function() {
     });
   }
   form.addSelect({
-    freeoption:true, 
+    freeoption:true,
     label:f("distrikt_id"),
-    selected:personView.filter['filterDistrikt'], 
+    selected:personView.filter['filterDistrikt'],
     cssid:"filterDistrikt",
     data:churchcore_sortData(masterData.districts,"bezeichnung"),
     func:function(district) {
@@ -502,9 +506,9 @@ GroupView.prototype.renderFilter = function() {
     type:"medium"
   });
   form.addSelect({
-    freeoption:true, 
+    freeoption:true,
     label:f('gruppentyp_id'),
-    selected:personView.filter['filterGruppentyp'], 
+    selected:personView.filter['filterGruppentyp'],
     cssid:"filterGruppentyp",
     data:churchcore_sortData(masterData.groupTypes,"bezeichnung"),
     type:"medium",
@@ -513,21 +517,21 @@ GroupView.prototype.renderFilter = function() {
       return gt.anzeigen_in_meinegruppen_teilnehmer_yn==1;
     }
   });
-  form.addCheckbox({cssid:"searchChecked",label:_("selected")});  
+  form.addCheckbox({cssid:"searchChecked",label:_("selected")});
   //rows.push(form.render(true));
-  
 
-  this.implantStandardFilterCallbacks(this, "cdb_search");    
-  
+
+  this.implantStandardFilterCallbacks(this, "cdb_search");
+
   $("#cdb_filter").html(form.render(true));
 
-  
+
   // Setze die Werte auf die aktuellen Filter
   each(this.filter, function(k,a) {
     $("#"+k).val(a);
   });
 
-  // Callbacks 
+  // Callbacks
   this.implantStandardFilterCallbacks(this, "cdb_filter");
 };
 
@@ -535,7 +539,7 @@ GroupView.prototype.checkFilter = function(a) {
   // Ausblenden von versteckten Gruppen
   if (!this.isAllowedToSeeDetails(a.id))
     return false;
-  
+
   // Suchfeld
   searchEntry=this.getFilter("searchEntry").toUpperCase();
 
@@ -557,19 +561,19 @@ GroupView.prototype.checkFilter = function(a) {
             (a.id!=search)) {
         res=false;
         return false;
-      }    
+      }
     });
     if (!res) return false;
   }
 
-  
-  
+
+
 
   if ((this.filter["searchChecked"]!=null) && (a.checked!=true)) return false;
 
   // Filter der eigenen Gruppen, Bereiche, Status und Station
   if ((this.filter["filterMeine Gruppen"]!=null) && (a.id!=this.filter["filterMeine Gruppen"])) return false;
-    
+
   if ((this.filter["filterDistrikt"]!=null)
       && ((a.distrikt_id==null)||(a.distrikt_id!=this.filter["filterDistrikt"]))) return false;
   if ((this.filter["filterGruppentyp"]!=null)
@@ -582,10 +586,10 @@ GroupView.prototype.checkFilter = function(a) {
  * is current login user is allowed to see the name of the group g_id of person p_id
  */
 GroupView.prototype.isAllowedToSeeName = function(g_id, p_id) {
-  return ((masterData.auth.editgroups) && (masterData.groups[g_id].versteckt_yn==0)) 
+  return ((masterData.auth.editgroups) && (masterData.groups[g_id].versteckt_yn==0))
             || (groupView.isAllowedToSeeDetails(g_id))
             || (groupView.isPersonLeaderOfGroup(masterData.user_pid, g_id))
-            || ((groupView.isGroupViewableForMembers(g_id)) && (personView.isPersonLeaderOfPerson(masterData.user_pid, p_id)));             
+            || ((groupView.isGroupViewableForMembers(g_id)) && (personView.isPersonLeaderOfPerson(masterData.user_pid, p_id)));
 };
 
 /**
@@ -595,13 +599,13 @@ GroupView.prototype.isAllowedToSeeDetails = function(g_id) {
   if ((masterData.groups!=null) && (masterData.groups[g_id]!=null)) {
     if (user_access("viewgroups", g_id))
       return true;
-    
-    if ((masterData.auth.viewalldetails) || (masterData.auth.admingroups) || (groupView.isPersonLeaderOfGroup(masterData.user_pid, g_id)) 
+
+    if ((masterData.auth.viewalldetails) || (masterData.auth.admingroups) || (groupView.isPersonLeaderOfGroup(masterData.user_pid, g_id))
       || (groupView.isPersonInGroup(masterData.user_pid, g_id) && (groupView.isGroupViewableForMembers(g_id))))
 
-      if ((masterData.groups[g_id].versteckt_yn==0) || (masterData.auth.admingroups) 
+      if ((masterData.groups[g_id].versteckt_yn==0) || (masterData.auth.admingroups)
           || (groupView.isPersonLeaderOfGroup(masterData.user_pid, g_id)))
-        return true; 
+        return true;
     if (allPersons[masterData.user_pid]!=null) {
       if ((allPersons[masterData.user_pid].districts) && (allPersons[masterData.user_pid].districts[masterData.groups[g_id].distrikt_id]!=null))
         return true;
@@ -616,7 +620,7 @@ GroupView.prototype.isAllowedToSeeDetails = function(g_id) {
 GroupView.prototype.initView = function() {
   if ((this.filter==null) || (churchcore_isObjectEmpty(this.filter))) {
     if (masterData.settings.filterDistrikt!=null) {
-      this.filter["filterDistrikt"]=masterData.settings.filterDistrikt;    
+      this.filter["filterDistrikt"]=masterData.settings.filterDistrikt;
     }
   }
 };
@@ -626,16 +630,16 @@ GroupView.prototype.getListHeader = function() {
   str=str+'<th><a href="#" id="sortdistrikt_id">'+f("distrikt_id")+'</a><th><a href="#" id="sortgruppentyp_id">'+f('gruppentyp_id')+'</a>';
 
   if (this.filter["filterDistrikt"]=="null") delete this.filter["filterDistrikt"];
-  
+
   if ((this.filter["filterGruppentyp"]!=null) || (this.filter["filterDistrikt"]!=null)) {
     str=str+"<th>Leiter<th title=\"Gesamte Teilnehmer\">TN-Gesamt";
     if (this.range_startday!=null)
       str=str+'<th title="Hinzugef&uuml;gte Teilnehmer innerhalb des Schiebereglers">TN-Hinzugef&uuml;gt<th title="Herausgenommene Teilnehmer innerhalb des Schiebereglers">TN-Herausgenommen';
     else {
-      str=str+'<th title="Teilnehmer die auch Mitglied sind">TN-Mitglied-Status<th>TN-Nicht Mitglied';      
+      str=str+'<th title="Teilnehmer die auch Mitglied sind">TN-Mitglied-Status<th>TN-Nicht Mitglied';
     }
   }
-  str=str+"<th>Tags";    
+  str=str+"<th>Tags";
   return str;
 };
 
@@ -651,12 +655,12 @@ GroupView.prototype.renderListEntry = function(group) {
     leader=0;
     each(allPersons,function(k,a) {
       if (a.gruppe!=null) {
-        if (((this_object.filter["filterStatus"]!=null) && (a.status_id!=this_object.filter["filterStatus"])) 
-          || ((this_object.filter["filterStation"]!=null) && (a.status_id!=this_object.filter["filterStation"])) 
-          || ((this_object.filter["filterBereich"]!=null) && (a.status_id!=this_object.filter["filterBereich"]))) 
+        if (((this_object.filter["filterStatus"]!=null) && (a.status_id!=this_object.filter["filterStatus"]))
+          || ((this_object.filter["filterStation"]!=null) && (a.status_id!=this_object.filter["filterStation"]))
+          || ((this_object.filter["filterBereich"]!=null) && (a.status_id!=this_object.filter["filterBereich"])))
           filter=true;
         else {
-          each(a.gruppe, function(i,b) {           
+          each(a.gruppe, function(i,b) {
             if (b.id==group.id) {
               if (b.leiter==0 || b.leiter==4) counter++;
               else if (b.leiter==-1) todo_1=todo_1+1;
@@ -664,45 +668,45 @@ GroupView.prototype.renderListEntry = function(group) {
               else leader++;
             }
           });
-        } 
-      }    
+        }
+      }
     });
   }
-  else counter="";  
-  
+  else counter="";
+
   if ((!filter) || (counter>0)) {
     rows.push('<td><a href="#" id="detail'+group.id+'">' + group.bezeichnung+'</a>&nbsp; ');
-    
+
     if ((masterData.auth.adminpersons) && (group.auth!=null)) {
       rows.push(this.renderImage("schluessel", 18, "Berechtigungen: "+this.getAuthAsArray(group.auth).join(", "))+"&nbsp;");
     }
     if (group.offen_yn==1 && group.oeffentlich_yn==1)
       rows.push(form_renderImage({src:"unlock.png", width:18, label:"Offene und öffentliche Gruppe. Anmeldung über einen Link möglich"})+" ");
     else if (group.offen_yn==1 && group.oeffentlich_yn==0)
-      rows.push(form_renderImage({src:"unlock.png", width:18, label:"Offene Gruppe, Teilnahme kann über Startseite beantragt werden."})+" ");      
-    
-    if ((todo_1>0) && ((masterData.auth.admingroups) || (this_object.isPersonLeaderOfGroup(masterData.user_pid, group.id))))  
+      rows.push(form_renderImage({src:"unlock.png", width:18, label:"Offene Gruppe, Teilnahme kann über Startseite beantragt werden."})+" ");
+
+    if ((todo_1>0) && ((masterData.auth.admingroups) || (this_object.isPersonLeaderOfGroup(masterData.user_pid, group.id))))
       rows.push('<span title="Person soll geloescht werden" class="badge badge-important">'+todo_1+'</span>&nbsp;');
-    if ((todo_2>0) && ((masterData.auth.admingroups) || (this_object.isPersonLeaderOfGroup(masterData.user_pid, group.id))))  
+    if ((todo_2>0) && ((masterData.auth.admingroups) || (this_object.isPersonLeaderOfGroup(masterData.user_pid, group.id))))
       rows.push('<span title="Person hat bzw. wurde auf Antrag auf Teilnahme gestellt" class="badge badge-info">'+todo_2+'</span>&nbsp;');
-    
+
     if (group.distrikt_id!=null)
-      rows.push('<td><a href="#" id="filterDistrikt'+group.distrikt_id+'">' 
+      rows.push('<td><a href="#" id="filterDistrikt'+group.distrikt_id+'">'
                      + (masterData.districts[group.distrikt_id]!=null?
                             masterData.districts[group.distrikt_id].bezeichnung
-                            :"<font color=\"red\">Distrikt-Id:"+group.distrikt_id+"</font>")+'</a>'); 
+                            :"<font color=\"red\">Distrikt-Id:"+group.distrikt_id+"</font>")+'</a>');
     else rows.push("<td>-");
     if (group.gruppentyp_id!=null)
-      rows.push('<td><a href="#" id="filterGruppentyp'+group.gruppentyp_id+'">' 
+      rows.push('<td><a href="#" id="filterGruppentyp'+group.gruppentyp_id+'">'
                      + (masterData.groupTypes[group.gruppentyp_id]!=null?
                        masterData.groupTypes[group.gruppentyp_id].bezeichnung
-                          :'<font color="red">Gruppentyp_Id:'+group.gruppentyp_id+'</font>')+'</a>'); 
+                          :'<font color="red">Gruppentyp_Id:'+group.gruppentyp_id+'</font>')+'</a>');
     else rows.push("<td>-");
     if ((this.filter["filterGruppentyp"]!=null) || (this.filter["filterDistrikt"]!=null)) {
       rows.push("<td>"+leader+"<td>"+counter);
       if (group.max_teilnehmer!=null)
         rows.push(" <small>(max. "+group.max_teilnehmer+")</small>");
-    
+
       // Zeige nun neue Leute innerhalb des Schiebereglers
       if (this_object.range_startday!=null) {
         count=0;
@@ -716,7 +720,7 @@ GroupView.prototype.renderListEntry = function(group) {
               if ((b.id==group.id) && (b.d!=null)) {
                 var d = b.d.toDateEn();
                 if ((d>=start) && (d<=end)) {
-                  if (b.leiter==0 || b.leiter==4) 
+                  if (b.leiter==0 || b.leiter==4)
                     count=count+1;
                 }
               }
@@ -759,7 +763,7 @@ GroupView.prototype.renderListEntry = function(group) {
                 if (b.leiter==0 || b.leiter==4) {
                   if (masterData.status[a.status_id].mitglied_yn==1)
                     member=member+1;
-                  else not_member=not_member+1;    
+                  else not_member=not_member+1;
                 }
               }
             });
@@ -768,7 +772,7 @@ GroupView.prototype.renderListEntry = function(group) {
         rows.push("<td>"+member+"<td>"+not_member);
       }
     }
-    
+
     var t="";
     if (group.tags!=null)
       each(group.tags, function(k,a) {
@@ -777,7 +781,7 @@ GroupView.prototype.renderListEntry = function(group) {
     rows.push("<td>"+t);
     return rows.join("");
   }
-  else return null; 
+  else return null;
 };
 
 GroupView.prototype.addFurtherListCallbacks = function() {
@@ -800,7 +804,7 @@ GroupView.prototype.addFurtherListCallbacks = function() {
       }
       else if ($(this).attr("id").indexOf("search_tag")==0) {
         groupView.setFilter("searchEntry",'tag:"'+masterData.tags[$(this).attr("id").substr(10,99)].bezeichnung+'"');
-        groupView.renderView();        
+        groupView.renderView();
       }
     }
  });
@@ -813,19 +817,19 @@ GroupView.prototype.isPersonInGroup = function (p_id, g_id) {
       if ((a.id==g_id) && (a.leiter!=99))
         res=true;
     });
-  }        
+  }
   return res;
 };
 
 GroupView.prototype.isGroupViewableForMembers = function (gruppe_id) {
   if ((masterData.groups[gruppe_id]==null) || (masterData.groups[gruppe_id].versteckt_yn==1)) return false;
-  return masterData.groupTypes[masterData.groups[gruppe_id].gruppentyp_id].anzeigen_in_meinegruppen_teilnehmer_yn==1;  
+  return masterData.groupTypes[masterData.groups[gruppe_id].gruppentyp_id].anzeigen_in_meinegruppen_teilnehmer_yn==1;
 };
 
 
 GroupView.prototype.isGroupOfGroupType = function (gruppe_id, gruppentyp_id) {
   if (masterData.groups[gruppe_id]==null) return false;
-  return masterData.groups[gruppe_id].gruppentyp_id==gruppentyp_id; 
+  return masterData.groups[gruppe_id].gruppentyp_id==gruppentyp_id;
 };
 
 /**
@@ -845,11 +849,11 @@ GroupView.prototype.isPersonLeaderOfGroup = function (p_id, g_id, withstaff) {
           res=true;
           return false;
         }
-      });      
+      });
     }
     if (res) return true;
     return this.isPersonSuperLeaderOfGroup(p_id, g_id);
-  }        
+  }
   return res;
 };
 
@@ -858,7 +862,7 @@ GroupView.prototype.isPersonSuperLeader = function (p_id) {
   if (allPersons[p_id].districts!=null || allPersons[p_id].gruppentypen!=null)
     return true;
   return false;
-};  
+};
 
 
 
@@ -867,7 +871,7 @@ GroupView.prototype.isPersonSuperLeaderOfGroup = function (p_id, g_id) {
   if ((allPersons[p_id].districts!=null) && (allPersons[p_id].districts[masterData.groups[g_id].distrikt_id]!=null))
     return true;
   if ((allPersons[p_id].gruppentypen!=null) && (allPersons[p_id].gruppentypen[masterData.groups[g_id].gruppentyp_id]!=null))
-    return true;  
+    return true;
 };
 
 GroupView.prototype.getMemberOfGroup = function (g_id, status_no) {
@@ -906,7 +910,7 @@ GroupView.prototype.getLeaderOfGroup = function (g_id) {
 
 GroupView.prototype.editAutomaticEMails = function(g_id) {
   var rows = new Array();
-  
+
   rows.push('<legend>Automatische E-Mails f&uuml;r '+masterData.groups[g_id].bezeichnung+'</legend>');
   rows.push('<p><small>Sobald eine automatische Mail gespeichert und aktiviert ist, werden ab dem Zeitpunkt alle'+
            ' neuen Teilnehmer mit dieser E-Mail begruesst. Absender ist automatisch der erste Leiter der Gruppe</small>');
@@ -918,23 +922,23 @@ GroupView.prototype.editAutomaticEMails = function(g_id) {
   rows.push(form_renderInput({label:"Betreff", type:"xlarge", cssid:"email_betreff"}));
   rows.push('<div id="editor"</div>');
   rows.push('</form>');
-  
+
   var elem = this.showDialog("Automatische E-Mails verwalten", rows.join(""), 566, 600, {
     "Speichern": function() {
       if ($("#groupMemberType").val()=="") {
         alert("Bitte erst einen Teilnehmerstatus auswählen!");
         return;
       }
-      if (($("#aktiv_yn").attr("checked")=="checked") && ($("#sender_pid").val()=="")) { 
+      if (($("#aktiv_yn").attr("checked")=="checked") && ($("#sender_pid").val()=="")) {
         alert("Es muss eine Person als Absender genommen werden!");
       }
      else {
-       churchInterface.jsendWrite({func:"saveGroupAutomaticEMail", id:g_id, 
-          status_no:$("#groupMemberType").val(), 
-          aktiv_yn:($("#aktiv_yn").attr("checked")=="checked"?1:0), 
-          sender_pid:$("#sender_pid").val(), 
+       churchInterface.jsendWrite({func:"saveGroupAutomaticEMail", id:g_id,
+          status_no:$("#groupMemberType").val(),
+          aktiv_yn:($("#aktiv_yn").attr("checked")=="checked"?1:0),
+          sender_pid:$("#sender_pid").val(),
           email_betreff:$("#email_betreff").val(),
-          email_inhalt:CKEDITOR.instances.editor.getData()}, 
+          email_inhalt:CKEDITOR.instances.editor.getData()},
         function(ok, data) {
           if (ok) {
             alert("Automatische E-Mail für "+masterData.groupMemberTypes[$("#groupMemberType").val()].bezeichnung+" wurde gespeichert"+($("#aktiv_yn").attr("checked")=="checked"?" und ist aktiviert!":"."));
@@ -951,7 +955,7 @@ GroupView.prototype.editAutomaticEMails = function(g_id) {
   form_implantWysiwygEditor("editor", false);
   function _changeGroupMemberType() {
     if ($("#groupMemberType").val()!="") {
-      churchInterface.jsendWrite({func:"getGroupAutomaticEMail", id:g_id, status_no:$("#groupMemberType").val()}, 
+      churchInterface.jsendWrite({func:"getGroupAutomaticEMail", id:g_id, status_no:$("#groupMemberType").val()},
         function(ok, data) {
         if (ok) {
           if (data==null) {
@@ -967,18 +971,18 @@ GroupView.prototype.editAutomaticEMails = function(g_id) {
             else $("#aktiv_yn").removeAttr("checked");
             $("#sender_pid").val(data.sender_pid);
             $("#email_betreff").val(data.email_betreff);
-            CKEDITOR.instances.editor.setData(data.email_inhalt);            
+            CKEDITOR.instances.editor.setData(data.email_inhalt);
           }
         }
       });
     }
   }
   _changeGroupMemberType();
-  
+
   elem.find("#groupMemberType").change(function(k) {
-    _changeGroupMemberType();      
+    _changeGroupMemberType();
   });
-  
+
 };
 
 
@@ -992,28 +996,28 @@ GroupView.prototype.getStatsOfGroup = function(g_id) {
   stats.sum_age_all=0;
   stats.count_age_all=0;
   stats.entries=new Array();
-  
+
   each(allPersons, function(k, a) {
     if (a.gruppe!=null) {
       each(a.gruppe, function (i, b) {
-        if ((b.id==g_id) && 
+        if ((b.id==g_id) &&
               ((masterData.settings.hideStatus==null) || (a.status_id!=masterData.settings.hideStatus))) {
           if ((b.leiter>=0) && (b.leiter!=3)) {
             stats.count_all_people=stats.count_all_people+1;
             if (a.geburtsdatum!=null) {
-              var geb=a.geburtsdatum.toDateEn(false);      
+              var geb=a.geburtsdatum.toDateEn(false);
               stats.sum_age_all=stats.sum_age_all+geb.getAgeInYears().num;
               stats.count_age_all=stats.count_age_all+1;
             }
-          }  
+          }
           if ((b.leiter==0)) {
             stats.count_all_member=stats.count_all_member+1;
             if (a.geburtsdatum!=null) {
-              var geb=a.geburtsdatum.toDateEn(false);      
+              var geb=a.geburtsdatum.toDateEn(false);
               stats.sum_age=stats.sum_age+geb.getAgeInYears().num;
               stats.count_age=stats.count_age+1;
             }
-          }  
+          }
           // Eintr�ge nun in ein Array packen und sp�ter dann sortiert ausgeben.
           var entry=new Array();
           entry.id=a.id;
@@ -1026,9 +1030,9 @@ GroupView.prototype.getStatsOfGroup = function(g_id) {
           entry.comment=b.comment;
           stats.entries.push(entry);
         }
-      });   
+      });
     }
-  });   
+  });
   return stats;
 };
 
@@ -1050,9 +1054,9 @@ GroupView.prototype.editMailchimp = function (g_id) {
       }
     });
   }
-  else {    
+  else {
     var rows = new Array();
-    if (masterData.groups_mailchimp.lists.total==0) 
+    if (masterData.groups_mailchimp.lists.total==0)
       rows.push("Keine Liste eingerichtet. Bitte erst in MailChimp eine Liste einrichten.");
     else {
       rows.push('<legend>Vorhandene Newsletter f&uuml;r Gruppe '+masterData.groups[g_id].bezeichnung+"</legend>");
@@ -1071,7 +1075,7 @@ GroupView.prototype.editMailchimp = function (g_id) {
           rows.push("<td>"+t.renderYesNo(a.optin_yn));
           rows.push("<td>"+t.renderYesNo(a.goodbye_yn));
           rows.push("<td>"+t.renderYesNo(a.notifyunsubscribe_yn));
-          rows.push('<td><a href="#" class="delMailchimp" data-id="'+a.mailchimp_list_id+'">'+form_renderImage({src:"trashbox.png", width:20})+'</a>');          
+          rows.push('<td><a href="#" class="delMailchimp" data-id="'+a.mailchimp_list_id+'">'+form_renderImage({src:"trashbox.png", width:20})+'</a>');
         }
       });
       rows.push("</table>");
@@ -1085,7 +1089,7 @@ GroupView.prototype.editMailchimp = function (g_id) {
       form.addButton({label:"Hinzuf&uuml;gen", cssid:"addMailchimp"});
       rows.push(form.render(true, "vertical"));
     }
-    
+
     var elem = this.showDialog("Integration MailChimp", rows.join(""), 600, 550, {
       "Schliessen": function() {
         elem.dialog("close");
@@ -1126,18 +1130,18 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
   this_object=this;
   function _getGroupStats(p_id, g_id) {
     info="";
-      if ((masterData.auth.viewgroupstats) || 
+      if ((masterData.auth.viewgroupstats) ||
           (this_object.isPersonLeaderOfGroup(masterData.user_pid, pos_id))) {
         if ((masterData.groups[g_id].meetingList!=null) && (masterData.groups[g_id].meetingList!="get data")) {
           info=info+"<br/>";
           var count_dabei=0;
           var count_stattgefunden=0;
           each(churchcore_sortData(masterData.groups[g_id].meetingList,"datumvon"), function(k,a) {
-            if (a.eintragerfolgt_yn=="0") 
+            if (a.eintragerfolgt_yn=="0")
               info=info+'<img title="Eintrag noch nicht erfolgt f�r '+a.datumvon.toDateEn().toStringDe(false)+'" src="'+masterData.modulespath+'/images/box_white.png'+'"/>';
-            if (a.ausgefallen_yn=="1") 
+            if (a.ausgefallen_yn=="1")
               info=info+"x";
-            else {  
+            else {
               var dabei=false;
               each(a.entries, function(i,b) {
                 if (b.p_id==p_id) {
@@ -1147,36 +1151,36 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
                     count_dabei=count_dabei+1;
                     info=info+'<img title="Dabei am '+a.datumvon.toDateEn().toStringDe(false)+'" src="'+masterData.modulespath+'/images/box_green.png'+'"/>';
                   }
-                  else 
+                  else
                     info=info+'<img title="Abwesend am '+a.datumvon.toDateEn().toStringDe(false)+'" src="'+masterData.modulespath+'/images/box_red.png'+'"/>';
                 }
               });
               if ((!dabei) && (a.eintragerfolgt_yn=="1"))
                 info=info+'<img title="Am '+a.datumvon.toDateEn().toStringDe(false)+' Offen." src="'+masterData.modulespath+'/images/box_white.png'+'"/>';
-            }            
+            }
           });
           if (count_stattgefunden>0)
             info=info+" <small>"+Math.round(100*count_dabei/count_stattgefunden)+"%</small>";
         }
       }
     return info;
-  }  
+  }
   function _filterChecker(a) {
-    return (((this_object.filter["filterStatus"]!=null) && (a.status_id!=this_object.filter["filterStatus"])) 
-        || ((this_object.filter["filterStation"]!=null) && (a.status_id!=this_object.filter["filterStation"])) 
+    return (((this_object.filter["filterStatus"]!=null) && (a.status_id!=this_object.filter["filterStatus"]))
+        || ((this_object.filter["filterStation"]!=null) && (a.status_id!=this_object.filter["filterStation"]))
         || ((this_object.filter["filterBereich"]!=null) && (a.status_id!=this_object.filter["filterBereich"])));
   }
-  
+
   // Start function renderEntryDetail()
-  if (data_id==null) 
+  if (data_id==null)
     data_id=pos_id;
   var g_id=data_id;
   var p_id=pos_id;
   var g=this.getData()[g_id];
   var editGroup = (masterData.auth.admingroups) || (this_object.isPersonLeaderOfGroup(masterData.user_pid,g_id));
-  
+
   // Pr�fe ob es Treffen-Pflege gibt, wenn ja: Pr�fe ob Statistik-List schon vorhanden ist, ansonsten holen
-  if ((masterData.auth.viewgroupstats) || (this_object.isPersonLeaderOfGroup(masterData.user_pid, g_id))) { 
+  if ((masterData.auth.viewgroupstats) || (this_object.isPersonLeaderOfGroup(masterData.user_pid, g_id))) {
     if ((masterData.groups[g_id].meetingList==null)) {
       masterData.groups[g_id].meetingList="get data";
       churchInterface.jsendRead({ func: "GroupMeeting", sub:"getList", g_id: g_id }, function(ok, json) {
@@ -1187,30 +1191,30 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
         }
         // Dann lege ich ein leeres Array drauf, damit es nicht nochmal geladen wird
         else masterData.groups[g_id].meetingList=new Array();
-      });    
+      });
     }
   }
-  
-  
-  var rows = new Array();  
+
+
+  var rows = new Array();
 
   $("tr[id=" + p_id + "]").after("<tr id=\"detail" + p_id + "\"><td colspan=\"10\" id=\"groupinfosTD" + p_id + "\">Lade Daten..</td></tr>");
   rows[rows.length]="<div id=\"detail\" class=\"detail-view\">";
-  
-  
+
+
   // STATISTICAL CALCS
   stats_dabei=0;
   stats_stattgefunden=0;
-  
+
   var stats=this.getStatsOfGroup(g_id);
-  
+
   var count=100;
   // Sortiere nun Eintr�ge
   stats.entries.sort(function(a,b){
       var arr=new Array(); arr[-1]=-1; arr[-2]=-2; arr[0]=0; arr[1]=5; arr[2]=4; arr[3]=10; arr[4]=1;
       if (arr[a.leiter]==null) return 0;
       if (arr[b.leiter]==null) return 0;
-      
+
       if (arr[a.leiter]<arr[b.leiter]) return 1;
       else if (arr[a.leiter]>arr[b.leiter]) return -1;
       else if (a.leiter==b.leiter) {
@@ -1218,35 +1222,35 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
           var r=((a.name+a.vorname).toUpperCase()>(b.name+a.vorname).toUpperCase()?1:-1);
           return r;
         }
-        else  
-          return (a.date.getTime()>b.date.getTime()?-1:1);          
+        else
+          return (a.date.getTime()>b.date.getTime()?-1:1);
       }
       return 0;
     });
 
-  
-  
+
+
   rows.push('<div class="row-fluid">');
 
   // Linke Spalte
   rows.push("<div class=\"left-column span4\">");
 //  if (g.treffpunkt!="")
   rows[rows.length]='<div id="map_canvasg'+g_id+'" class="map-canvas"></div>';
-  
-  
+
+
   rows[rows.length]="</div>";
-  
-  
-  
+
+
+
   // Mittlere Spalte
   rows.push("<div class=\"middle-column span4\">");
   rows[rows.length]="<legend>"+g.bezeichnung;
-  
-  if (editGroup) { 
-    rows[rows.length]="&nbsp;&nbsp;<a href=\"\" id=\"edit_"+g_id+"\">"+this_object.renderImage("options")+"</a>";   
-    rows[rows.length]="&nbsp;<a href=\"\" title=\"Gruppenteilnehmer eine EMail senden\" id=\"sendMail\">"+this_object.renderImage("email")+"</a>";   
-  }  
-  
+
+  if (editGroup) {
+    rows[rows.length]="&nbsp;&nbsp;<a href=\"\" id=\"edit_"+g_id+"\">"+this_object.renderImage("options")+"</a>";
+    rows[rows.length]="&nbsp;<a href=\"\" title=\"Gruppenteilnehmer eine EMail senden\" id=\"sendMail\">"+this_object.renderImage("email")+"</a>";
+  }
+
   rows[rows.length]="</legend><div class=well><p>";
   if (g.distrikt_id>0)
     rows[rows.length]=f("distrikt_id")+': <a href="#" id="filterDistrikt'+g.distrikt_id+'">'
@@ -1273,24 +1277,24 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
       rows[rows.length]=" ("+stats.count_age_all+"P.)";
   }
   rows[rows.length]="</small>";
-  
-  
+
+
   if (stats_stattgefunden>0)
     rows[rows.length]="<p>Teilnehmerquote: "+Math.round(100*stats_dabei/stats_stattgefunden)+"%";
-  
+
   rows[rows.length]="<p>";
   if (g.gruendungsdatum!=null)
     rows[rows.length]="Gr&uuml;ndungsdatum: "+g.gruendungsdatum.toDateEn().toStringDe()+" ";
   if (g.abschlussdatum!=null)
     rows[rows.length]="Abschlussdatum: "+g.abschlussdatum.toDateEn().toStringDe();
-  
+
   rows[rows.length]="<p>";
   if (g.treffzeit!="")
     rows[rows.length]="Treffzeit: "+g.treffzeit+"<br/>";
   rows[rows.length]="Ort des Treffens: "+g.treffpunkt+"<br/>";
-  if (g.treffname!="") 
+  if (g.treffname!="")
   rows[rows.length]="Treffen bei: "+g.treffname;
-    
+
   rows[rows.length]="<p>";
   rows[rows.length]="Zielgruppe: "+g.zielgruppe+"<br/>";
   rows[rows.length]=f('gruppentyp_id')+': <a href="#" id="filterGruppentyp'+g.gruppentyp_id+'">'
@@ -1300,15 +1304,15 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
   if (g.max_teilnehmer!=null)
     rows[rows.length]="<p>"+f('max_teilnehmer')+": "+g.max_teilnehmer+"";
 
-  if (g.notiz!="") 
+  if (g.notiz!="")
     rows[rows.length]="<br/><br/>Notiz: <i>"+g.notiz.replace(/\n/g, '<br/>')+"</i><br/>";
 
-  rows.push('</div><div class="ui-widget">');  
-  
+  rows.push('</div><div class="ui-widget">');
+
   if (editGroup) {
     rows[rows.length]='<legend>Gruppeneinstellungen</legend>';
     if (g.valid_yn==1)
-      rows[rows.length]="<p>"+this_object.renderYesNo(g.valid_yn,16)+"&nbsp; Gruppe ausw&auml;hlbar";        
+      rows[rows.length]="<p>"+this_object.renderYesNo(g.valid_yn,16)+"&nbsp; Gruppe ausw&auml;hlbar";
     if (g.versteckt_yn==1)
       rows[rows.length]="<br/>"+this_object.renderYesNo(g.versteckt_yn,16)+"&nbsp; Gruppe versteckt";
     if (g.instatistik_yn==1)
@@ -1330,11 +1334,11 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
       rows.push('<br/>&nbsp;<p>'+form_renderImage({src:"email.png", width:18})+'&nbsp; <a href="#" id="editAutomaticEmails">Automatische E-Mails verwalten</a>');
     if (masterData.mailchimp)
       rows.push('<p>'+form_renderImage({src:"mailchimp.png", width:18})+'&nbsp; <a href="#" id="editMailchimp">MailChimp-Listen zuordnen</a>');
-    
+
   }
 
   if (masterData.auth.adminpersons) {
-    //rows[rows.length]="<br/><legend>Teilnehmerberechtigungen";        
+    //rows[rows.length]="<br/><legend>Teilnehmerberechtigungen";
     rows[rows.length]='<p style="margin-bottom:0px">'+form_renderImage({src:"schluessel.png", width:18})+"&nbsp; <a href=\"\" id=\"auth_"+g_id+"\">Gruppenteilnehmer berechtigen</a>";
 //    rows[rows.length]="&nbsp;&nbsp;<a href=\"\" id=\"auth_"+g_id+"\">"+this_object.renderImage("options")+"</a></legend>";
     if (g.auth!=null) {
@@ -1342,36 +1346,36 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
       var ar = new Array();
       each(g.auth, function(k,a) {
         ar.push(this_object.renderAuth(k));
-      }); 
+      });
       rows.push(ar.join(", "));
     }
     rows.push('</small></p>');
   }
   rows.push('</div>');
-  
-  rows.push("</div><!--middle-->");  
-  
-  
+
+  rows.push("</div><!--middle-->");
+
+
   // Rechte Spalte
   rows.push("<div class=\"right-column span4\">");
 
-  if (masterData.auth.viewtags || this_object.isPersonLeaderOfGroup(masterData.user_pid, g_id)) 
+  if (masterData.auth.viewtags || this_object.isPersonLeaderOfGroup(masterData.user_pid, g_id))
     rows.push(this_object.renderTags(g.tags, (masterData.auth.admingroups || this_object.isPersonLeaderOfGroup(masterData.user_pid, g_id)), g_id));
-  
+
   rows.push('<div class="detail-view-infobox">');
   rows.push('<p><table><tr style="background:#F4F4F4;">');
   rows.push('<td><i><a href="#" id="sortdetailname">In der Gruppe</a></i>');
-  rows.push('<td><i><a href="#" id="sortdetaildate">Dabei seit</a></i><td><td>');  
-  
-  
+  rows.push('<td><i><a href="#" id="sortdetaildate">Dabei seit</a></i><td><td>');
+
+
   // Und zeige sie an
   var amILeader=this_object.isPersonLeaderOfGroup(masterData.user_pid, g_id);
   var amISuperLeader=this.isPersonSuperLeaderOfGroup(masterData.user_pid, g_id);
   each(stats.entries, function(i,a) {
-    if (count>0) {          
-      count--; 
+    if (count>0) {
+      count--;
       rows.push("<tr><td><p><small>");
-      info=_getGroupStats(a.id, g_id);      
+      info=_getGroupStats(a.id, g_id);
       if ((a.comment!=null) && (amILeader || masterData.auth.editgroups))
         info="&nbsp;"+this_object.renderImage("comment",16,"Kommentar: "+a.comment)+info;
       style="color:black;";
@@ -1388,25 +1392,25 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
         rows.push('<small>'+a.date.toStringDe()+'</small>');
       if ((masterData.auth.editgroups) || ((amILeader) && (a.leiter!=-1)) || (amISuperLeader)) {
         rows.push('<td style="width:16px;padding:0 1px"><a href="#" id="editPerson_'+a.id+'" data-pid="'+a.id+'" data-gid="'+g_id+'">'+t.renderImage("options",16)+'</a>');
-        rows.push('<td style="width:16px;padding:0 3px 0 0"><a href="#" id="deletePerson_'+a.id+'_'+g_id+'" p_id="'+a.id+'">'+this_object.renderImage("trashbox",16)+'</a>'); 
+        rows.push('<td style="width:16px;padding:0 3px 0 0"><a href="#" id="deletePerson_'+a.id+'_'+g_id+'" p_id="'+a.id+'">'+this_object.renderImage("trashbox",16)+'</a>');
       }
-      
+
     }
   });
   if (count==0) rows[rows.length]="<tr><td>..";
   rows.push("</table></div>");
-  
-  
+
+
   // Show 4 last comments
   var comments=new Array();
   if (g.meetingList!=null && g.meetingList!="get data" && g.meetingList.length>0) {
-    
+
     rows.push('<p><small>');
     rows.push(form_renderImage({src:"box_green.png"})+" Anwesend &nbsp;");
     rows.push(form_renderImage({src:"box_red.png"})+" Abwesend &nbsp;");
     rows.push(form_renderImage({src:"box_white.png"})+" Offen &nbsp;");
     rows.push("x  ausgefallen</small>");
-    
+
     each(churchcore_sortData(g.meetingList,"datumvon", true), function(k,m) {
       if (comments.length<4 && m.kommentar!=null) {
         comments.push(m);
@@ -1417,11 +1421,11 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
     rows.push('<div class="detail-view-infobox">');
     rows.push("<table><tr><td><i>Die letzten Gruppentreffen-Kommentare");
     each(comments, function(k,m) {
-      rows.push("<tr><td><p><small>"+m.datumvon.toDateEn().toStringDe()+"<br>"+m.kommentar+'</small>');    
+      rows.push("<tr><td><p><small>"+m.datumvon.toDateEn().toStringDe()+"<br>"+m.kommentar+'</small>');
     });
     rows.push('</table></div>');
   }
-  
+
 
   if ((masterData.auth.viewhistory) && (this_object.range_startday!=null)){
     var history=new Array();
@@ -1435,27 +1439,27 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
         });
       }
     });
-    if (history.length>0) { 
+    if (history.length>0) {
       rows.push('<div class="detail-view-infobox">');
       rows.push("<p><br/><table><tr><td><i>Nicht mehr in der Gruppe</i><td><i>seit</i><td>");
-      rows.push(history.join(""));  
+      rows.push(history.join(""));
       rows.push("</table></div>");
     }
   }
-  
+
 
   rows.push("<p></p>");
   rows.push('<div class="ui-widget"><legend>Weitere Optionen</legend>');
   rows.push('<p>'+form_renderImage({src:'filter.png', width:18}));
-  rows.push('&nbsp;<a href="#" id="grp_to_filter">Gruppe in der Personenliste filtern</a>');    
-  if (editGroup) { 
+  rows.push('&nbsp;<a href="#" id="grp_to_filter">Gruppe in der Personenliste filtern</a>');
+  if (editGroup) {
     if ((masterData.groups[g_id].max_teilnehmer==null) || ((masterData.groups[g_id].max_teilnehmer>stats.count_all_member))) {
       rows.push('<p>'+form_renderImage({src:"person.png", width:18}));
       rows.push('&nbsp;<a href="#" id="addPerson">Weitere Person zur Gruppe hinzuf&uuml;gen</a>');
     }
     rows.push('<p>'+form_renderImage({src:'persons.png', width:18}));
     rows.push('&nbsp;<a href="#" style="width=100%" id="edit_meetinglist">Gruppentreffen pflegen</a>');
-    if ((masterData.groups[g_id].meetingList!=null) 
+    if ((masterData.groups[g_id].meetingList!=null)
         && (masterData.groups[g_id].meetingList!="get data")
         && (masterData.groups[g_id].meetingList.length>0)) {
       rows.push('<p>'+form_renderImage({src:'trashbox.png', width:18}));
@@ -1464,41 +1468,41 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
   }
   rows.push("</div>");
   rows.push("</div><!-- right -->");
-  
-  rows[rows.length]="<div style=\"clear:both\">";   
+
+  rows[rows.length]="<div style=\"clear:both\">";
 
   rows[rows.length]="<div class=\"detail-footer\">";
   rows[rows.length]="<div display:inline;\">&nbsp;";
   rows[rows.length]="<div style=\"float:right\"><small>";
-  
+
   if (masterData.auth.admingroups)
     rows[rows.length]="Admin-Funktion: &nbsp;<a href=\"#\" title=\"Gruppe entfernen\" id=\"deleteGroup\">"+form_renderImage({src:"trashbox.png", width:18})+"</a>&nbsp;&nbsp;";
 
-  
+
   if (g.letzteaenderung!=null)
     rows[rows.length]="&nbsp;<i>Letzte &Auml;nderung: "+g.letzteaenderung.toDateEn().toStringDe()+" durch "+g.aenderunguser+" &nbsp;";
   rows[rows.length]="&nbsp;id:"+g.id+"</i></small>&nbsp;&nbsp;";
   rows[rows.length]="</small></div><!--right--></div><!--inline-->";
-  
-  
-  rows[rows.length]="</div><!--detail-footer-->";  
-  rows[rows.length]="</div><!--clear-->";  
+
+
+  rows[rows.length]="</div><!--detail-footer-->";
+  rows[rows.length]="</div><!--clear-->";
   rows.push("</div><!--row-fluid-->");
   rows.push("</div><!--detail-->");
-  
+
   $("#groupinfosTD"+p_id).html(rows.join(""));
-  
+
   this.addFurtherListCallbacks();
-  
+
   this.addTagCallbacks(g_id, function(tag_id) {
     if (masterData.groups[g_id].tags==null)
       masterData.groups[g_id].tags= new Array();
     masterData.groups[g_id].tags.push(tag_id);
     churchInterface.jsendWrite({func:"addGroupTag", id:g_id, tag_id:tag_id});
     this_object.renderList();
-    this_object.renderEntryDetail(g_id);      
+    this_object.renderEntryDetail(g_id);
   });
-  
+
   $("#cdb_content a").click(function (a) {
     if ($(this).hasClass("extern")) {
       fenster = window.open($(this).attr("href"), "Anmeldung", "width=700,height=600,resizable=yes");
@@ -1511,26 +1515,26 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
         this_object.editDomainAuth(g_id, "gruppe", function(id) {
           cdb_loadMasterData(function() {
             churchInterface.getCurrentView().renderView();
-          });        
-        });      
-      } 
+          });
+        });
+      }
       else if ($(this).attr("id")=="deleteGroup") {
         var del = false;
         each(allPersons, function(k,a) {
           if (a.gruppe!=null) {
             each(a.gruppe, function(i,b) {
               if (b.id==p_id) del=true;
-            }); 
+            });
           }
         });
-        
+
         var form=new CC_Form();
-        
+
         if (del) {
           form.addHtml("<br/><p>Achtung, zu der Gruppe sind noch Personen zugeordnet. Sollen diese aus der Gruppe genommen werden? Das kann nicht r&uuml;ckg&auml;ngig gemacht werden!");
           form.addCheckbox({label:"Personen aus der Gruppe herausnehmen", cssid:"deletePersonGroup"});
         }
-        
+
         var elem=form_showDialog("Wirklich Gruppe löschen?", form.render(null, "vertical"), 370, 300, {
           "Ja": function() {
             var obj=form.getAllValsAsObject();
@@ -1540,7 +1544,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
               obj.func="deleteGroup";
               obj.id=p_id;
               churchInterface.jsendWrite(obj, function(ok) {
-                if (ok) {        
+                if (ok) {
                   delete masterData.groups[p_id];
                   churchInterface.getCurrentView().renderList();
                   elem.dialog("close");
@@ -1552,11 +1556,11 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
           "Abbruch":function() {
             $(this).dialog("close");
           }
-        });      
-      }  
+        });
+      }
       return false;
     }
- });  
+ });
   $("#groupinfosTD"+p_id+" a").click(function() {
     if ($(this).attr("id")!=null) {
       // L�sche den Tooltip, falls es ihn gibt
@@ -1571,28 +1575,28 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
         personView.filter["filterGruppe 1"]=g_id;
         personView.currentFurtherFilter="gruppe";
         personView.renderView();
-        return false;                
+        return false;
       }
       else if ($(this).attr("id").indexOf("addPerson")==0) {
         personView.renderPersonSelect("Nach einer Person suchen", true, function(id) {
-          if (!personView.addPersonGroupRelation(id, g_id)) 
+          if (!personView.addPersonGroupRelation(id, g_id))
             alert("Fehler beim Erstellen der Person-Gruppenbeziehung. Ist die Person schon in der Gruppe?");
           else {
             groupView.renderList();
           }
-        });            
+        });
         return false;
       }
       else if ($(this).attr("id").indexOf("editPerson_")==0) {
         var id=$(this).attr("data-pid");
-        var res=personView.renderPersonGroupRelation($(this).attr("data-pid"), $(this).attr("data-gid"));      
+        var res=personView.renderPersonGroupRelation($(this).attr("data-pid"), $(this).attr("data-gid"));
         width=380; height=330;
-        if (res==null) return false;      
+        if (res==null) return false;
         var elem = this_object.showDialog(_("change.of.dataset"), res, 380, 330);
         elem.dialog("addsaveandcancelbutton", function() {
           personView._saveEditEntryData(id, "editPersonGroupRelation", true, $(this));
         });
-        
+
         groupView.renderList();
         return false;
       }
@@ -1600,7 +1604,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
         var id=$(this).attr("p_id");
         //if (confirm("Wirklich "+allPersons[id].vorname+" "+allPersons[id].name+" aus der Gruppe entfernen?")) {
           personView.delPersonFromGroup(id, g_id);
-       // }     
+       // }
         groupView.renderList();
         return false;
       }
@@ -1622,14 +1626,14 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
         groupView.editMailchimp(p_id);
         return false;
       }
-      else if ($(this).attr("id").indexOf("person_")==0) {   
+      else if ($(this).attr("id").indexOf("person_")==0) {
         $("#cdb_group").html("");
         churchInterface.setCurrentView(personView);
         personView.clearFilter();
         personView.setFilter("searchEntry","#"+$(this).attr("id").substr(7,99));
         personView.renderView();
       }
-      else if ($(this).attr("id").indexOf("edit_meetinglist")==0) {   
+      else if ($(this).attr("id").indexOf("edit_meetinglist")==0) {
         $("#cdb_group").html("");
         churchInterface.setCurrentView(personView);
         personView.clearFilter();
@@ -1651,17 +1655,17 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
               });
             }
           });
-        }        
+        }
         return false;
       }
       else if ($(this).attr("id").indexOf("grp_close")==0) {
         $("#groupinfosTD"+p_id).remove();
         return false;
-      } 
+      }
       else if ($(this).attr("id").indexOf("edit_")==0) {
         this_object.renderEditEntry(g_id);
         return false;
-      } 
+      }
       else if ($(this).attr("id").indexOf("sendMail")==0) {
         var ids=""; var namen=""; var erster=true; var noemail=false;
         var mailTo="";
@@ -1676,7 +1680,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
                 if (a.email=="") noemail=true;
                 else {
                   if (erster)
-                    erster=false; 
+                    erster=false;
                   else {
                     ids=ids+",";
                     namen=namen+", ";
@@ -1684,18 +1688,18 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
                   ids=ids+a.id;
                   namen=namen+a.vorname+" "+a.name;
                   mailTo=mailTo+$.trim(a.email)+separator;
-  
+
                 }
               }
             });
           }
         });
-        if (ids=="") 
+        if (ids=="")
           alert("Keine Personen mit EMail-Adressen gefunden.");
         else {
           if (noemail) alert("Hinweis: Einige Einträge haben keine E-Mailadresse, diese wurden nicht berücksichtigt!");
-          
-          
+
+
           // Und los geht es
           if (masterData.settings.mailerType==0) {
             if (masterData.settings.mailerBcc==null)
@@ -1703,13 +1707,13 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
             var string ="";
             if (masterData.settings.mailerBcc==0)
               string="mailto:"+mailTo;
-            else 
+            else
               string="mailto:"+allPersons[masterData.user_pid].email+"?bcc="+mailTo;
             var Fenster = window.open(string,"Mailer");
             window.setTimeout(function() {
               Fenster.close();
             },500);
-          } 
+          }
           else if (masterData.settings.mailerType==1) {
             var Fenster = window.open("", "E-Mail-Adresse","width=500,height=300");
             Fenster.document.write(mailTo);
@@ -1718,8 +1722,8 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
           else if (masterData.settings.mailerType==2) {
             this_object.mailPerson(ids, namen.trim(80), "Gruppeninfos "+masterData.groups[g_id].bezeichnung);
           }
-  
-          
+
+
         }
         return false;
       }
@@ -1728,7 +1732,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
         $("#input_tag"+g_id).focus();
         return false;
       }
-      else if ($(this).attr("id").indexOf("del_tag")==0) {    
+      else if ($(this).attr("id").indexOf("del_tag")==0) {
         masterData.groups[g_id].tags.splice($.inArray($(this).attr("id").substring(7,99),masterData.groups[g_id].tags),1);
         churchInterface.jsendWrite({func:"delGroupTag", id:g_id, tag_id:$(this).attr("id").substring(7,99)}, null, false);
         this_object.renderView();
@@ -1740,41 +1744,41 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
           this_object.setFilter("searchEntry","tag:"+masterData.tags[$(this).attr("id").substring(10,99)].bezeichnung);
           this_object.renderView();
         }
-        return false;      
+        return false;
       }
     }
   });
 
   personView.addPersonsTooltip($("#groupinfosTD"+p_id));
-  cdb_showGeoGruppe(g.treffpunkt, g.id); 
+  cdb_showGeoGruppe(g.treffpunkt, g.id);
 };
 
 GroupView.prototype.renderEditEntry = function (id, fieldname) {
   var this_object=this;
-  
+
   var elem = this.showDialog("Veränderung der Gruppe", "", 500, 600);
   elem.dialog("addsaveandcancelbutton", function() {
     var s = $(this).attr("id");
-    
+
     obj=this_object.getSaveObjectFromInputFields(id, "f_group", masterData.groups[id]);
-    
+
     //if (obj.max_teilnehmer=="") delete obj.max_teilnehmer;
-    if (masterData.groups[id].max_teilnehmer=="") masterData.groups[id].max_teilnehmer=null; 
+    if (masterData.groups[id].max_teilnehmer=="") masterData.groups[id].max_teilnehmer=null;
 
     // L�sche die Geoinfos, falls es da ein Update bei der Adresse gab.
     masterData.groups[id].geolat="";
-      
+
     $("#cbn_editor").html("<p><br/><b>Daten werden gespeichert...</b><br/><br/>");
     churchInterface.jsendWrite(obj, function(ok) {
       // Hier wird absichtlich die CurrentView neu gerendet, es kann sein, dass eine Gruppe ja aus der
       // Personensicht geaendert wurde!
       churchInterface.getCurrentView().renderList();
-    });      
+    });
     $(this).dialog("close");
   });
-  
-  var rows = new Array();  
-  
+
+  var rows = new Array();
+
   var auth=new Array();
   if (this_object.isPersonSuperLeaderOfGroup(masterData.user_pid, id)) {
     auth.push("superleader");
@@ -1782,7 +1786,7 @@ GroupView.prototype.renderEditEntry = function (id, fieldname) {
   if (this_object.isPersonLeaderOfGroup(masterData.user_pid, id)) {
     auth.push("leader");
   }
-  
+
   this.renderStandardFieldsAsSelect(elem, "f_group", $.extend({},masterData.groups[id]), auth);
   elem.find("#Inputfu_nachfolge_typ_id").change(function() {
     elem.dialog("close");
@@ -1812,42 +1816,42 @@ GroupView.prototype.standardFieldCoder = function (typ, arr) {
 GroupView.prototype.renderFurtherFilter = function () {
   $("#divaddfilter").html('<div id="addfilter" style="width:100%;"><div style="height:200px"/></div>');
   if (this.furtherFilterVisible) {
-    $("#divaddfilter").animate({ height: 'show'}, "fast");  
+    $("#divaddfilter").animate({ height: 'show'}, "fast");
     this_object=this;
     var rows = new Array();
     rows.push("<p align=\"center\" class=\"addfilter-head\">"+_("filter.for.groups"));
     rows.push("&nbsp;&nbsp;&nbsp;<small><a href=\"#\" id=\"reset_personfilter\" style=\"color:lightgrey;\">("+_("reset.filter")+")</a></small>");
-    
-    rows.push("<p class=\"addfilter-body\">");      
+
+    rows.push("<p class=\"addfilter-body\">");
     rows.push("&nbsp;&nbsp;");
-    
+
     rows.push(this.getSelectFilter(masterData.status, f("status_id"), this_object.filter["filterStatus"]));
     rows.push(this.getSelectFilter(masterData.station, f("station_id"), this_object.filter["filterStation"]));
     rows.push(this.getSelectFilter(masterData.dep,f("bereich_id"), this_object.filter["filterBereich"]));
-  
+
     rows.push("<br/>&nbsp;&nbsp;");
-  
+
     rows.push("<i>Diesen Gruppenfilter filtern die Teilnehmer pro Gruppe, bitte vorher "+f("distrikt_id")+" oder "+f('gruppentyp_id')+" w&auml;hlen!</i>");
-    
-    $("#addfilter").html(rows.join(""));  
-  
+
+    $("#addfilter").html(rows.join(""));
+
     // Callbacks
     this.implantStandardFilterCallbacks(this, "addfilter");
     $("#addfilter a").click(function(c) {
       this_object.filter[$(this).attr("id")]=$(this).attr("checked");
       if ($(this).attr("id")=="reset_personfilter") {
-        delete this_object.filter["filterStatus"];    
-        delete this_object.filter["filterStation"];    
+        delete this_object.filter["filterStatus"];
+        delete this_object.filter["filterStation"];
         delete this_object.filter["filterBereich"];
         this_object.renderFurtherFilter();
         listOffset=0;
-        this_object.renderList();     
+        this_object.renderList();
         return false;
-      } 
-    });        
+      }
+    });
   }
   else {
-    $("#divaddfilter").animate({ height: 'hide'}, "fast");  
+    $("#divaddfilter").animate({ height: 'hide'}, "fast");
   }
 };
 

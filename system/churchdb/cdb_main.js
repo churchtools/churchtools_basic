@@ -27,12 +27,7 @@ var timers = new Array();
 jQuery(document).ready(function() {
   churchInterface.setModulename("churchdb");
   churchInterface.registerView("PersonView", personView);
-//  churchInterface.registerView("ArchiveView", archiveView);
   churchInterface.registerView("GroupView", groupView);
-  churchInterface.registerView("StatisticView", statisticView);
-  churchInterface.registerView("SettingsView", settingsView);
-  //churchInterface.registerView("MapView", mapView);
-  churchInterface.registerView("MaintainView", maintainView);
 
   cdb_initializeGoogleMaps();
   // Lade alle Kennzeichentabellen

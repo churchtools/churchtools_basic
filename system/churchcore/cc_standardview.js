@@ -18,6 +18,8 @@ function StandardTableView(options) {
   this.showCheckboxes=true;
   this.openIfOnlyOneIsAvailable=true;
 
+  this.jsFilesLoaded = false;
+
   // Number of entries currently visible
   this.counter=0;
   // Der letzte ge�ffnet Eintrag, wird gemerkt, damit er nach einem renderList()
@@ -52,12 +54,29 @@ StandardTableView.prototype.historyCreateStep = function () {
   churchInterface.historyCreateStep(this.name+str+"/");
 };
 
+/**
+ * Please overwrite, if you need some JSFiles before rendering
+ */
+StandardTableView.prototype.getNeededJSFiles = function() {
+  return new Array();
+};
+
 /*
  * Ruft alle Functions auf, um die View komplett zu bauen
  * Parameter: withMenu - default = true
  */
 StandardTableView.prototype.renderView = function(withMenu) {
   var t=this;
+
+  if (!t.jsFilesLoaded) {
+    var arr = t.getNeededJSFiles();
+    churchInterface.loadJSFiles(arr, function() {
+      t.jsFilesLoaded = true;
+      t.renderView(withMenu);
+    });
+    return;
+  }
+
   if (t.init==false) {
     t.initView();
     t.init=true;
@@ -583,6 +602,11 @@ StandardTableView.prototype.addTableContentCallbacks = function(cssid) {
 
 StandardTableView.prototype.mailPerson = function (personId, name, subject) {
   var t=this;
+  jsFiles = ['ckeditor/ckeditor.js', 'ckeditor/lang/de.js'];
+  if (!churchInterface.JSFilesLoaded(jsFiles)) {
+    churchInterface.loadJSFiles(jsFiles, function() { t.mailPerson(personId, name, subject); });
+    return;
+  }
   var rows = new Array();
   rows.push(form_renderInput({cssid:"betreff", label:_("subject"), type:"xlarge", text:(subject!=null?subject:"")}));
   rows.push('<p>'+_("content")+'<span class="pull-right editor-status"></span><div id="inhalt" class="well">');
@@ -616,8 +640,8 @@ StandardTableView.prototype.mailPerson = function (personId, name, subject) {
         obj.func="sendEMailToPersonIds";
         churchInterface.jsendWrite(obj, function(ok, data) {
           if (ok) {
-            alert(_("email.was.sent"));
             drafter.clear();
+            alert(_("email.was.sent"));
           }
           else alert(_("error.occured")+": "+data);
         }, null, false);

@@ -1,6 +1,3 @@
- (function($) {
-
-  
 // Constructor
 function SettingsView() {
   StandardTableView.call(this);
@@ -9,10 +6,17 @@ function SettingsView() {
 
 Temp.prototype = StandardTableView.prototype;
 SettingsView.prototype = new Temp();
-settingsView = new SettingsView();
+
+function getSettingsView() {
+  return new SettingsView();
+}
 
 SettingsView.prototype.getData = function() {
   return allPersons;
+};
+
+SettingsView.prototype.getNeededJSFiles = function() {
+  return ['ckeditor/ckeditor.js', 'ckeditor/lang/de.js'];
 };
 
 SettingsView.prototype.renderMenu = function() {
@@ -25,7 +29,7 @@ SettingsView.prototype.renderMenu = function() {
 
   if (!menu.renderDiv("cdb_menu"))
     $("#cdb_menu").hide();
-  else {    
+  else {
     $("#cdb_menu a").click(function () {
       if ($(this).attr("id")=="apersonview") {
         menuDepth="amain";
@@ -45,14 +49,14 @@ SettingsView.prototype.renderListMenu = function() {
 SettingsView.prototype.renderFilter = function() {
   var rows = new Array();
 
-  $("#cdb_filter").html(rows.join("")); 
-  
+  $("#cdb_filter").html(rows.join(""));
+
   each(this.filter, function(k,a) {
     $("#"+k).val(a);
   });
 
 
-  // Callbacks 
+  // Callbacks
   this.implantStandardFilterCallbacks(this, "cdb_filter");
 };
 
@@ -89,17 +93,17 @@ SettingsView.prototype.renderList = function() {
       rows.push('<option value="1" '+(masterData.settings.mailerBcc==1?"selected":"")+'>'+_("mail.bcc"));
     rows.push('</select>');
   }
-  
-  
+
+
   rows.push('</table>');
 
-  
+
   var showFU=false;
   if ((masterData.user_pid!=null) && (allPersons[masterData.user_pid]!=null) && (allPersons[masterData.user_pid].gruppe!=null)) {
     each(allPersons[masterData.user_pid].gruppe, function(k,a) {
       if ((a.leiter>0) && (masterData.groups[a.id].followup_typ_id!=null) && (masterData.groups[a.id].followup_typ_id!=0))
         showFU=true;
-    });    
+    });
   }
   if (showFU) {
     rows.push("<h2>Follow-Ups</h2><table>")
@@ -110,8 +114,8 @@ SettingsView.prototype.renderList = function() {
       rows.push('<option value="0" '+(masterData.settings.automaticActivateFollowupOverdue==0?"selected":"")+'>Filter nicht automatisch aktivieren');
       rows.push('<option value="1" '+(masterData.settings.automaticActivateFollowupOverdue==1?"selected":"")+'>Filter automatisch aktivieren');
     rows.push('</select></table>');
-  }  
-  
+  }
+
   rows.push("<h2>"+_("list.of.persons")+"</h2><table>")
   rows.push("<tr><td width=\"50%\">"+_("additional.layer.for.google.maps")+": ");
   rows.push('<td><select id="googleMapLayer">');
@@ -123,42 +127,40 @@ SettingsView.prototype.renderList = function() {
     rows.push('<option value="3" '+(masterData.settings.googleMapLayer==3?"selected":"")+'>'+_("show.transit"));
   rows.push('</select>');
 
-  if (masterData.auth.viewalldata) {  
+  if (masterData.auth.viewalldata) {
     rows.push("<tr><td width=\"50%\">"+_("hide.persons.with.status")+": ");
     rows.push('<td><select id="hideStatus">');
     if (masterData.settings.hideStatus==null)
       masterData.settings.hideStatus=-1;
-    rows.push('<option value="-1">');    
+    rows.push('<option value="-1">');
     each(masterData.status, function (k,a) {
-      rows.push('<option value="'+a.id+'" '+(masterData.settings.hideStatus==a.id?"selected":"")+'>'+a.bezeichnung);    
+      rows.push('<option value="'+a.id+'" '+(masterData.settings.hideStatus==a.id?"selected":"")+'>'+a.bezeichnung);
     });
     rows.push('</select>');
   }
 
   rows.push("</table>");
-  
-  
-  
-  
+
+
+
+
   rows.push("<h2>"+_("signature")+"</h2>");
   rows.push('<div id="editor">');
   if (masterData.settings.signature!=null)
     rows.push(masterData.settings.signature);
-  rows.push("</div><br/><p>");  
-  rows.push(form_renderButton({label:_("save.signature"), cssid:"savesignature"}));  
-    
+  rows.push("</div><br/><p>");
+  rows.push(form_renderButton({label:_("save.signature"), cssid:"savesignature"}));
+
   $("#cdb_content").html(rows.join(""));
   form_implantWysiwygEditor("editor", false);
   $("#savesignature").click(function(k) {
     masterData.settings["signature"]=CKEDITOR.instances.editor.getData();
-    churchInterface.jsendWrite({func:"saveSetting", sub:"signature", val:CKEDITOR.instances.editor.getData()});          
+    churchInterface.jsendWrite({func:"saveSetting", sub:"signature", val:CKEDITOR.instances.editor.getData()});
   });
-  
+
   $("#cdb_content select").change(function(c) {
     masterData.settings[$(this).attr("id")]=$(this).val();
-    churchInterface.jsendWrite({func:"saveSetting", sub:$(this).attr("id"), val:$(this).val()});      
-  });  
+    churchInterface.jsendWrite({func:"saveSetting", sub:$(this).attr("id"), val:$(this).val()});
+  });
 
 };
-
-})(jQuery);

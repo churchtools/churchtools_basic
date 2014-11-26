@@ -117,16 +117,9 @@ function churchdb_main() {
   drupal_add_css(ASSETS . '/fileuploader/fileuploader.css');
   drupal_add_css(ASSETS . '/dynatree/ui.dynatree.css');
 
-  drupal_add_js(ASSETS . '/flot/jquery.flot.min.js');
-  drupal_add_js(ASSETS . '/flot/jquery.flot.pie.js');
   drupal_add_js(ASSETS . '/js/jquery.history.js');
 
-  drupal_add_js(ASSETS . '/ui/jquery.ui.slider.min.js');
-
   drupal_add_js(ASSETS . '/fileuploader/fileuploader.js');
-
-  drupal_add_js(ASSETS . '/ckeditor/ckeditor.js');
-  drupal_add_js(ASSETS . '/ckeditor/lang/de.js');
 
   drupal_add_js(createI18nFile("churchdb"));
 
@@ -136,12 +129,8 @@ function churchdb_main() {
   drupal_add_js(CHURCHDB . '/cdb_cdbstandardview.js');
   drupal_add_js(CHURCHDB . '/cdb_geocode.js');
   drupal_add_js(CHURCHDB . '/cdb_loadandmap.js');
-  drupal_add_js(CHURCHDB . '/cdb_settingsview.js');
-  drupal_add_js(CHURCHDB . '/cdb_importview.js');
   drupal_add_js(CHURCHDB . '/cdb_personview.js');
   drupal_add_js(CHURCHDB . '/cdb_groupview.js');
-  drupal_add_js(CHURCHDB . '/cdb_statisticview.js');
-  drupal_add_js(CHURCHDB . '/cdb_maintainview.js');
   drupal_add_js(CHURCHDB . '/cdb_main.js');
 
   // API v3

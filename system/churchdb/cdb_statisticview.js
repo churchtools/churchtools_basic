@@ -8,8 +8,14 @@ function StatisticView() {
 //Temp.prototype = StandardTableView.prototype;
 Temp.prototype = PersonView.prototype;
 StatisticView.prototype = new Temp();
-statisticView = new StatisticView();
 
+function getStatisticView() {
+  return new StatisticView();
+}
+
+StatisticView.prototype.getNeededJSFiles = function() {
+  return ['flot/jquery.flot.min.js', 'flot/jquery.flot.pie.js'];
+}
 
 StatisticView.prototype.renderMasterDataStatistic = function(divid, masterDatafield, id_name) {
   var t=this;
