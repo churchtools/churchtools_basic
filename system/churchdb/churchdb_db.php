@@ -1073,6 +1073,7 @@ function getGroupMeetingStats($id = -1) {
   	      WHERE gg.gruppe_id=gt.gruppe_id AND gg.gemeindeperson_id=gp.id
              AND gg.gemeindeperson_id=gtp.gemeindeperson_id AND gtp.gruppentreffen_id=gt.id
              AND eintragerfolgt_yn=1 $where
+             AND DATEDIFF(now(), datumvon)<365*3
           GROUP BY gp.person_id, gg.gruppe_id";
 $res = db_query($sql);
   $stats = null;
@@ -1082,9 +1083,13 @@ $res = db_query($sql);
     $new_grp["dabei"] = $s->dabei;
     $new_grp["datum"] = $s->max_datumbis;
 
-    $new[$s->g_id] = $new_grp;
+    $new_grp["g_id"] = $s->g_id;
+    $new_grp["id"] = $s->id;
 
-    $stats[$s->id] = $new;
+//    $new[$s->g_id] = $new_grp;
+
+  //  $stats[$s->id] = $new;
+  $stats[]=$new_grp;
   }
   return $stats;
 }

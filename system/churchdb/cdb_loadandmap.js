@@ -145,7 +145,17 @@ function cdb_loadGroupMeetingStats(filter, _id, func) {
       _id=filter['filterOwnGroups'];
 
     churchInterface.jsendRead({func:"GroupMeeting", sub:"stats", id: _id }, function(ok, json) {
-      groupMeetingStats=json;
+      groupMeetingStats = new Object();
+      each(json, function(k,a) {
+        if (groupMeetingStats[a.id] == null) groupMeetingStats[a.id] = new Object();
+        if (groupMeetingStats[a.id][a.g_id] == null) groupMeetingStats[a.id][a.g_id] = new Object();
+        groupMeetingStats[a.id][a.g_id] = {
+          ausgefallen: a.ausgefallen,
+          stattgefunden: a.stattgefunden,
+          dabei: a.dabei,
+          datum: a.datum
+        };
+      })
       if (func!=null) func(true);
     });
   }
