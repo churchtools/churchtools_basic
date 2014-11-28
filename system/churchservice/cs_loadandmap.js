@@ -1,10 +1,45 @@
-function cdb_loadMasterData(nextFunction) {
-  churchInterface.loadMasterData(function() {
-    // Wenn ich sortiere, kann ich nicht mehr per ID darauf zugreifen...
-    masterData.service_sorted=churchcore_sortData_numeric(masterData.service,"sortkey");
-    nextFunction();
-  });
+function cs_loadListViewData(funcReady) {
+  // Lade nun Event-Data
+  cs_loadEventData(null, function() {
+    if (!currentDate_externGesetzt) {
+      if ($("#externevent_id").val()!=null) {
+        churchInterface.getCurrentView().currentDate=allEvents[$("#externevent_id").val()].startdate.withoutTime();
+        churchInterface.getCurrentView().filter["searchEntry"]="#"+$("#externevent_id").val();
+        churchInterface.getCurrentView().renderFilter();
+        churchInterface.getCurrentView().renderCalendar();
+      }
+      else {
+        var now = new Date(); now.addDays(-1);
+        var first = new Date(); first.addDays(1000);
+        var doit = false;
+        each(allEvents, function(k,a) {
+          if ((a.startdate>=now) && (a.startdate<first)) {
+            first = new Date(a.startdate.getTime());
+            doit = true;
+          }
+        });
+        if (doit) churchInterface.getCurrentView().currentDate=first;
+      }
+    }
+
+    cs_loadPersonDataFromCdb(function() {
+      // Genug Daten um nun die Anwendung zu zeigen.
+      // new: 27.1.13: RenderList reicht, denn Filter �ndert sich nix.
+      funcReady();
+//      churchInterface.getCurrentView().renderList();
+      churchInterface.sendMessageToAllViews("allDataLoaded");
+
+      // Lade nun alle Personendaten im Hintergrund weiter
+      window.setTimeout(function() {
+        cs_loadAbsent(function() {
+          cs_loadFiles(function() {
+          });
+        });
+      },10);
+    });
+  }, false);
 }
+
 
 /**
  *
@@ -105,7 +140,7 @@ function cs_loadAbsent(nextFunction) {
         allPersons[a.person_id].absent[a.id]=a;
       });
     }
-    listView.renderCalendar();
+    churchInterface.getCurrentView().renderCalendar();
 
     churchInterface.clearStatus();
     if (nextFunction!=null) nextFunction();
@@ -181,7 +216,7 @@ function cs_loadFiles(nextFunction) {
         }
       });
     }
-    listView.renderFiles();
+    churchInterface.getCurrentView().renderFiles();
 
     churchInterface.clearStatus();
     if (nextFunction!=null) nextFunction();

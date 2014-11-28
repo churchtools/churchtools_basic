@@ -160,9 +160,6 @@ function churchservice__printview() {
   drupal_add_js(ASSETS.'/mediaelements/mediaelement-and-player.min.js');
   drupal_add_css(ASSETS.'/mediaelements/mediaelementplayer.css');
 
-  drupal_add_js(ASSETS.'/ckeditor/ckeditor.js');
-  drupal_add_js(ASSETS.'/ckeditor/lang/de.js');
-
   drupal_add_js(CHURCHCORE .'/cc_abstractview.js');
   drupal_add_js(CHURCHCORE .'/cc_standardview.js');
   drupal_add_js(CHURCHCORE .'/cc_maintainstandardview.js');
@@ -219,25 +216,11 @@ function churchservice_main() {
   drupal_add_js(ASSETS.'/mediaelements/mediaelement-and-player.min.js');
   drupal_add_css(ASSETS.'/mediaelements/mediaelementplayer.css');
 
-  drupal_add_js(ASSETS.'/ckeditor/ckeditor.js');
-  drupal_add_js(ASSETS.'/ckeditor/lang/de.js');
-
-  drupal_add_js(ASSETS.'/sparkline/jquery.sparkline.min.js');
-
-    drupal_add_js(CHURCHCORE . '/cc_events.js');
   drupal_add_js(CHURCHCORE .'/cc_abstractview.js');
   drupal_add_js(CHURCHCORE .'/cc_standardview.js');
   drupal_add_js(CHURCHCORE .'/cc_maintainstandardview.js');
 
-  drupal_add_js(CHURCHSERVICE .'/cs_loadandmap.js');
-  drupal_add_js(CHURCHSERVICE .'/cs_settingsview.js');
-  drupal_add_js(CHURCHSERVICE .'/cs_maintainview.js');
   drupal_add_js(CHURCHSERVICE .'/cs_listview.js');
-  //drupal_add_js(CHURCHSERVICE .'/cs_testview.js');
-  drupal_add_js(CHURCHSERVICE .'/cs_calview.js');
-  drupal_add_js(CHURCHSERVICE .'/cs_factview.js');
-  drupal_add_js(CHURCHSERVICE .'/cs_agendaview.js');
-  drupal_add_js(CHURCHSERVICE .'/cs_songview.js');
   drupal_add_js(CHURCHSERVICE .'/cs_main.js');
 
   drupal_add_js(createI18nFile("churchcore"));

@@ -6,15 +6,24 @@ function SongView() {
   this.allDataLoaded=false;
   this.sortVariable="bezeichnung";
   this.availableRowCounts=[10,25,50,200];
-
 }
 
 Temp.prototype = ListView.prototype;
 SongView.prototype = new Temp();
-songView = new SongView();
 
+function getSongView() {
+  return new SongView();
+}
 
-SongView.prototype.getSongFromArrangement = function(arrangement_id) {
+SongView.prototype.getNeededDataObjects = function() {
+  return ["cs_loadSongs"];
+};
+
+SongView.prototype.getNeededJSFiles = function() {
+  return ['/churchcore/cc_events.js', '/churchservice/cs_loadandmap.js', '/assets/sparkline/jquery.sparkline.min.js'];
+}
+
+function getSongFromArrangement(arrangement_id) {
   var song=null;
   if (allSongs!=null)
     each(allSongs, function(k,a) {
@@ -29,7 +38,7 @@ SongView.prototype.getSongFromArrangement = function(arrangement_id) {
       if (song!=null) return false;
     });
   return song;
-};
+}
 
 SongView.prototype.getData = function(sorted) {
   if (sorted) {
@@ -76,15 +85,6 @@ SongView.prototype.renderFilter = function () {
   form.addCheckbox({cssid:"searchStandard",label:"Arrangements anzeigen", checked:masterData.settings.searchStandard=="true"});
   rows.push(form.render(true));
 
-  /*
-  if (agendaView.currentAgenda!=null && agendaView.currentAgenda!="") {
-    var form = new CC_Form("Zum Ablauf hinzufügen");
-    form.addSelect({label:"Arrangement", type:"medium", data:allAgendas});
-    form.addSelect({label:"Einordnen nach", type:"medium", data:agendaView.currentAgenda.items});
-    form.addButton({label:"Auswahl hinzufügen", type:"medium"});
-    rows.push(form.render(true));
-  }
-    */
   rows.push("<div id=\"cdb_filtercover\"></div>");
 
   $("#cdb_filter").html(rows.join(""));
@@ -103,8 +103,8 @@ SongView.prototype.renderFilter = function () {
 SongView.prototype.checkFilter = function(a) {
   if (a==null) return false;
   var song=allSongs[a.id];
-  if (songView.filter!=null) {
-    var filter=songView.filter;
+  if (churchInterface.views.SongView.filter!=null) {
+    var filter=churchInterface.views.SongView.filter;
     if ((filter.searchEntry!=null) && (song.bezeichnung.toLowerCase().indexOf(filter.searchEntry.toLowerCase())==-1)
         && (filter.searchEntry!=a.active_arrangement_id) && (filter.searchEntry!="#"+a.id))
       return false;
@@ -156,10 +156,11 @@ SongView.prototype.renderEntryDetail = function(pos_id) {
   var arrangement=song.arrangement[song.active_arrangement_id];
 
   if (t.songselect!=null) {
-    agendaView.addItem(t.songselect.orig_item_id, t.songselect.post, false, arrangement);
-    churchInterface.setCurrentView(agendaView);
-    t.songselect=null;
-    song.open=false;
+    churchInterface.setCurrentLazyView("AgendaView", false, function(view) {
+      view.addItem(t.songselect.orig_item_id, t.songselect.post, false, arrangement);
+      t.songselect=null;
+      song.open=false;
+    });
     return;
   }
 
@@ -315,17 +316,14 @@ SongView.prototype.deleteSong = function(song_id) {
 SongView.prototype.loadSongData = function(song_id, arrangement_id) {
   var t=this;
 
-  if (!t.songsLoaded) {
-    cs_loadSongs(function() {
-      t.songsLoaded=true;
-      if (allSongs[song_id]!=null) {
-        allSongs[song_id].open=true;
-        if (allSongs[song_id].active_arrangement_id==null)
-          allSongs[song_id].active_arrangement_id=arrangement_id;
-        }
-        if (churchInterface.getCurrentView()==t) this_object.renderList();
-      });
-  }
+  cs_loadSongs(function() {
+    if (allSongs[song_id]!=null) {
+      allSongs[song_id].open=true;
+      if (allSongs[song_id].active_arrangement_id==null)
+        allSongs[song_id].active_arrangement_id=arrangement_id;
+    }
+    if (churchInterface.getCurrentView()==t) this_object.renderList();
+  });
 };
 
 SongView.prototype.renderMenu = function() {
@@ -495,12 +493,11 @@ SongView.prototype.renderStats = function() {
         each(s.arrangement, function(i,a) {
           if (a.statistics!=null) {
             each(a.statistics, function(j,st) {
-              if (allEvents[st]!=null) {
-                var w = allEvents[st].startdate.getFullYear()+""+allEvents[st].startdate.getMonth();
-                if (months[s.id][w]!=null) {
-                  months[s.id][w] = months[s.id][w] + 1;
-                  if (months[s.id][w]>maxVal) maxVal=months[s.id][w];
-                }
+              var d = st.toDateEn(false);
+              var w = d.getFullYear()+""+d.getMonth();
+              if (months[s.id][w]!=null) {
+                months[s.id][w] = months[s.id][w] + 1;
+                if (months[s.id][w]>maxVal) maxVal=months[s.id][w];
               }
             })
           }
@@ -511,11 +508,7 @@ SongView.prototype.renderStats = function() {
         each(song, function(k,a) {
           sparks.push(a);
         })
-        $('.sparkline[data-id="'+s+'"]').sparkline(sparks, {chartRangeMax:maxVal, height:20, chartRangeMin:0,
-          tooltipFormat: '{{value:levels}} - {{value}}',type:"bar",
-          tooltipValueLookups: {
-            levels: $.range_map({ ':2': 'Low', '3:6': 'Medium', '7:': 'High' })
-          }});
+        $('.sparkline[data-id="'+s+'"]').sparkline(sparks, {chartRangeMax:maxVal, height:20, chartRangeMin:0, type:"bar"});
         });
       }
   });
@@ -637,12 +630,12 @@ SongView.prototype.getListHeader = function () {
   if (masterData.settings.listViewTableHeight==null) masterData.settings.listViewTableHeight=1;
 
 
-  this.loadSongData();
+//  this.loadSongData();
   var rows = new Array();
   if (masterData.settings.listViewTableHeight==0)
-    songView.listViewTableHeight=null;
+    t.listViewTableHeight=null;
   else
-    songView.listViewTableHeight=665;
+    t.listViewTableHeight=665;
 
   rows.push('<th>Nr.');
 
@@ -658,7 +651,7 @@ SongView.prototype.groupingFunction = function() {
   return null;
 };
 
-SongView.prototype.getDefaultArrangement = function(song) {
+function getDefaultArrangement (song) {
   if (song==null) return null;
   var ret=null;
   each(song.arrangement, function(k,a) {
@@ -673,7 +666,7 @@ SongView.prototype.renderListEntry = function (list) {
   var rows = new Array();
   var song=allSongs[list.id];
   if (song.active_arrangement_id==null) {
-    var arr=t.getDefaultArrangement(song);
+    var arr=getDefaultArrangement(song);
     if (arr!=null) song.active_arrangement_id=arr.id;
   }
   var arr=song.arrangement[song.active_arrangement_id];

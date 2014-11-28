@@ -18,8 +18,7 @@ function StandardTableView(options) {
   this.showCheckboxes=true;
   this.openIfOnlyOneIsAvailable=true;
 
-  this.jsFilesLoaded = false;
-  this.dataObjectsLoaded = false;
+  this.dependenciesLoaded = false;
 
   // Number of entries currently visible
   this.counter=0;
@@ -68,6 +67,24 @@ StandardTableView.prototype.getNeededDataObjects = function() {
   return new Array();
 };
 
+
+StandardTableView.prototype.loadDependencies = function(funcReady) {
+  var t = this;
+
+  if (!t.dependenciesLoaded) {
+    t.dependenciesLoaded = "loading"; // Set to loading, so that loading would not be executes two times
+    var arr = t.getNeededJSFiles();
+    churchInterface.loadJSFiles(arr, function() {
+      var arr = t.getNeededDataObjects();
+      churchInterface.loadDataObjects(arr, function() {
+        t.dependenciesLoaded = true;
+        funcReady();
+      })
+    });
+  }
+  else if (t.dependenciesLoaded==true) funcReady();
+};
+
 /*
  * Ruft alle Functions auf, um die View komplett zu bauen
  * Parameter: withMenu - default = true
@@ -75,23 +92,11 @@ StandardTableView.prototype.getNeededDataObjects = function() {
 StandardTableView.prototype.renderView = function(withMenu) {
   var t=this;
 
-  // Load JS-Files
-  if (!t.jsFilesLoaded) {
-    var arr = t.getNeededJSFiles();
-    churchInterface.loadJSFiles(arr, function() {
-      t.jsFilesLoaded = true;
-      t.renderView(withMenu);
+  if (t.dependenciesLoaded == false) {
+    t.loadDependencies(function() {
+      t.dependenciesLoaded = true;
+      t.renderView(withMenu)
     });
-    return;
-  }
-
-  // Load Data Objects
-  if (!t.dataObjectsLoaded) {
-    var arr = t.getNeededDataObjects();
-    churchInterface.loadDataObjects(arr, function() {
-      t.dataObjectsLoaded = true;
-      t.renderView(withMenu);
-    })
     return;
   }
 
@@ -620,7 +625,7 @@ StandardTableView.prototype.addTableContentCallbacks = function(cssid) {
 
 StandardTableView.prototype.mailPerson = function (personId, name, subject) {
   var t=this;
-  jsFiles = ['ckeditor/ckeditor.js', 'ckeditor/lang/de.js'];
+  jsFiles = ['/assets/ckeditor/ckeditor.js', '/assets/ckeditor/lang/de.js'];
   if (!churchInterface.JSFilesLoaded(jsFiles)) {
     churchInterface.loadJSFiles(jsFiles, function() { t.mailPerson(personId, name, subject); });
     return;

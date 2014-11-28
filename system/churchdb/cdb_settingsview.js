@@ -16,7 +16,7 @@ SettingsView.prototype.getData = function() {
 };
 
 SettingsView.prototype.getNeededJSFiles = function() {
-  return ['ckeditor/ckeditor.js', 'ckeditor/lang/de.js'];
+  return ['/assets/ckeditor/ckeditor.js', '/assets/ckeditor/lang/de.js'];
 };
 
 SettingsView.prototype.renderMenu = function() {

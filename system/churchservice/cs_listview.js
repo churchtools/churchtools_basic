@@ -21,8 +21,18 @@ function ListView(options) {
 
 Temp.prototype = StandardTableView.prototype;
 ListView.prototype = new Temp();
-listView = new ListView();
 
+function getListView() {
+  return new ListView();
+}
+
+ListView.prototype.getNeededJSFiles = function() {
+  return ['/churchcore/cc_events.js', '/churchservice/cs_loadandmap.js'];
+};
+
+ListView.prototype.getNeededDataObjects = function() {
+  return ["cs_loadListViewData"];
+};
 
 ListView.prototype.getData = function(sorted) {
   if (allEvents==null) return null;
@@ -97,11 +107,11 @@ ListView.prototype.renderMenu = function() {
       }
       else if ($(this).attr("id")=="settings") {
         menuDepth="amain";
-        churchInterface.setCurrentView(settingsView);
+        churchInterface.setCurrentLazyView("SettingsView", false);
       }
       else if ($(this).attr("id")=="maintain-masterdata") {
         menuDepth="amain";
-        churchInterface.setCurrentView(maintainView);
+        churchInterface.setCurrentLazyView("MaintainView");
       }
       else if ($(this).attr("id")=="amain") {
         menuDepth="amain";
@@ -135,23 +145,26 @@ ListView.prototype.renderListMenu = function() {
 
   $("#cdb_search a").click(function () {
     if ($(this).attr("id")=="alistview") {
-      listView.furtherFilterVisible=this_object.furtherFilterVisible;
-      churchInterface.setCurrentView(listView);
+      churchInterface.setCurrentLazyView("ListView", false, function(view) {
+        view.furtherFilterVisible=this_object.furtherFilterVisible;
+      });
     }
     else if ($(this).attr("id")=="acalview") {
-      calView.furtherFilterVisible=this_object.furtherFilterVisible;
-      churchInterface.setCurrentView(calView);
+      churchInterface.setCurrentLazyView("CalView", false, function(view) {
+        view.furtherFilterVisible=this_object.furtherFilterVisible;
+      });
     }
     else if ($(this).attr("id")=="afactview") {
-      factView.furtherFilterVisible=this_object.furtherFilterVisible;
-      factView.currentDate=this_object.currentDate;
-      churchInterface.setCurrentView(factView);
+      churchInterface.setCurrentLazyView("FactView", false, function(view) {
+        view.furtherFilterVisible=this_object.furtherFilterVisible;
+        view.currentDate=this_object.currentDate;
+      });
     }
     else if ($(this).attr("id")=="aagendaview") {
-      churchInterface.setCurrentView(agendaView);
+      churchInterface.setCurrentLazyView("AgendaView");
     }
     else if ($(this).attr("id")=="asongview") {
-      churchInterface.setCurrentView(songView);
+      churchInterface.setCurrentLazyView("SongView");
     }
     return false;
   });
@@ -326,6 +339,7 @@ ListView.prototype.saveEventAsTemplate = function (event, template_name, func) {
   o.admin = event.csevents[-1].admin;
   churchInterface.jsendWrite(o, null, false);
   cdb_loadMasterData(function() {
+    masterData.service_sorted=churchcore_sortData_numeric(masterData.service,"sortkey");
     func(_getTemplateIdFromName(template_name));
   });
 };
@@ -2389,6 +2403,13 @@ ListView.prototype.renderAddServiceToServicegroup = function(event, sg_id, user_
 
 ListView.prototype.sendEMailToEvent = function(event) {
   var this_object=this;
+
+  jsFiles = ['/assets/ckeditor/ckeditor.js', '/assets/ckeditor/lang/de.js'];
+  if (!churchInterface.JSFilesLoaded(jsFiles)) {
+    churchInterface.loadJSFiles(jsFiles, function() { this_object.sendEMailToEvent(event); });
+    return;
+  }
+
   var rows = new Array();
 
   var _dienstgruppen = new Array();
@@ -2506,6 +2527,13 @@ ListView.prototype.editNote = function(event) {
 
 ListView.prototype.attachFile = function(event) {
   var this_object=this;
+
+  jsFiles = ['/assets/ckeditor/ckeditor.js', '/assets/ckeditor/lang/de.js'];
+  if (!churchInterface.JSFilesLoaded(jsFiles)) {
+    churchInterface.loadJSFiles(jsFiles, function() { this_object.attachFile(event); });
+    return;
+  }
+
   var rows = new Array();
   var checked=false;
 
@@ -2725,8 +2753,9 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
     var event=allEvents[$(this).parents("tr").attr("id")];
     if (!event.agenda) {
       t.currentEvent=event;
-      agendaView.currentAgenda=null;
-      churchInterface.setCurrentView(agendaView, true);
+      churchInterface.setCurrentLazyView("AgendaView", true, function(view) {
+        view.currentAgenda=null;
+      });
     }
     else {
       t.entryDetailClick($(this).parents("tr").attr("id"));
@@ -2736,10 +2765,10 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
   $(cssid+" a.call-agenda").click(function() {
     var event=allEvents[$(this).parents("tr").attr("id")];
     if (event.agenda) {
-      songView.loadSongData();
-      agendaView.loadAgendaForEvent(event.id, function(data) {
-        agendaView.currentAgenda=allAgendas[data.id];
-        churchInterface.setCurrentView(agendaView);
+      churchInterface.setCurrentLazyView("AgendaView", true, function(view) {
+        view.loadAgendaForEvent(event.id, function(data) {
+          view.currentAgenda = allAgendas[data.id];
+        });
       });
     }
     return false;
@@ -3393,41 +3422,44 @@ ListView.prototype.renderEntryDetail = function (event_id) {
   if (allEvents[event_id]==null) return;
   var event=allEvents[event_id];
   t.currentEvent=event;
-  $("tr.detail[data-id="+event_id+"]").html("Lade Daten..");
+  $("tr.detail[data-id="+event_id+"]").html(_("load.data"));
   if (event.agenda && event.valid_yn==1) {
-    songView.loadSongData();
-    agendaView.loadAgendaForEvent(event_id, function(data) {
-      var rows=new Array();
-      rows.push('<tr class="detail" id="detail'+event_id+'" data-id="'+event_id+'"><td colspan=20><div class="well">');
-      rows.push('<legend>Ablauf ');
-      if (agendaView.currentAgenda!=null && agendaView.currentAgenda.final_yn==0)
-        rows.push(' ENTWURF');
-      rows.push('&nbsp;');
-      if (user_access("view agenda", event.category_id))
-        rows.push(form_renderImage({src:"agenda_call.png", htmlclass:"call-agenda", data:[{name:"id", value:data.id}], link:true, label:"Ablaufplan aufrufen", width:20})+"&nbsp;");
-      rows.push(form_renderImage({src:"printer.png", htmlclass:"print-agenda", data:[{name:"id", value:data.id}], link:true, label:"Druckansicht", width:20}));
+    churchInterface.loadLazyView("AgendaView", function(agendaView) {
+      agendaView.loadDependencies(function() {
+        agendaView.loadAgendaForEvent(event_id, function(data) {
+          var rows=new Array();
+          rows.push('<tr class="detail" id="detail'+event_id+'" data-id="'+event_id+'"><td colspan=20><div class="well">');
+          rows.push('<legend>Ablauf ');
+          if (agendaView.currentAgenda!=null && agendaView.currentAgenda.final_yn==0)
+            rows.push(' ENTWURF');
+          rows.push('&nbsp;');
+          if (user_access("view agenda", event.category_id))
+            rows.push(form_renderImage({src:"agenda_call.png", htmlclass:"call-agenda", data:[{name:"id", value:data.id}], link:true, label:"Ablaufplan aufrufen", width:20})+"&nbsp;");
+          rows.push(form_renderImage({src:"printer.png", htmlclass:"print-agenda", data:[{name:"id", value:data.id}], link:true, label:"Druckansicht", width:20}));
 
-      rows.push('</legend>');
-      rows.push('<table class="table table-mini AgendaView">');
-      rows.push('<tr>'+agendaView.renderListHeader(true));
-      each(agendaView.getData(true), function(k,a) {
-        rows.push('<tr id="'+a.id+'">'+agendaView.renderListEntry(a, true));
-      });
+          rows.push('</legend>');
+          rows.push('<table class="table table-mini AgendaView">');
+          rows.push('<tr>'+agendaView.renderListHeader(true));
+          each(agendaView.getData(true), function(k,a) {
+            rows.push('<tr id="'+a.id+'">'+agendaView.renderListEntry(a, true));
+          });
 
-      rows.push("</table>");
-      rows.push('</div>');
-      var elem=$("tr[id=" + event_id + "]").after(rows.join("")).next();
-      agendaView.addFurtherListCallbacks("tr.detail[data-id="+event_id+"]", true);
-      elem.find("a.call-agenda").click(function() {
-        agendaView.currentAgenda=allAgendas[$(this).attr("data-id")];
-        churchInterface.setCurrentView(agendaView);
-        return false;
-      });
-      elem.find("a.print-agenda").click(function() {
-        var win = window.open('?q=churchservice/printview&id='+$(this).attr("data-id")+'#AgendaView', "Druckansicht", "width=900,height=600,resizable=yes");
-        win.focus();
+          rows.push("</table>");
+          rows.push('</div>');
+          var elem=$("tr[id=" + event_id + "]").after(rows.join("")).next();
+          agendaView.addFurtherListCallbacks("tr.detail[data-id="+event_id+"]", true);
+          elem.find("a.call-agenda").click(function() {
+            agendaView.currentAgenda=allAgendas[$(this).attr("data-id")];
+            churchInterface.setCurrentView(agendaView);
+            return false;
+          });
+          elem.find("a.print-agenda").click(function() {
+            var win = window.open('?q=churchservice/printview&id='+$(this).attr("data-id")+'#AgendaView', "Druckansicht", "width=900,height=600,resizable=yes");
+            win.focus();
 
-        return false;
+            return false;
+          });
+        });
       });
     });
   }

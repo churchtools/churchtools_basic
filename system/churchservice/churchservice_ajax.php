@@ -249,30 +249,29 @@ function churchservice_getAllEventData($params) {
           cal.repeat_frequence, cal.repeat_option_id, cal.intern_yn, cal.notizen, cal.ort, cal.ort, cal.link,
          datediff(e.startdate,CURRENT_DATE) datediff
        FROM {cs_event} e, {cc_cal} cal
-       WHERE cal.id=e.cc_cal_id AND '.($id != null ? "e.id=$id" : "1=1")." AND cal.category_id in (" . db_implode($cat) . ")");
+       WHERE cal.id=e.cc_cal_id AND '.($id != null ? "e.id=$id" : "1=1")
+           ." AND cal.category_id in (" . db_implode($cat) . ")"
+           . " AND DATEDIFF(now(), e.startdate)<366*2");
 
 
   $events = array ();
   if ($res != false) {
     foreach ($res as $arr) {
       // check booking info to know if date can be changed here
-      // TODO: dont SELECT * if SELECT id is sufficient
-      $b = db_query( "SELECT * FROM {cr_booking}
+      $b = db_query( "SELECT id FROM {cr_booking}
                       WHERE cc_cal_id=:cal_id",
                       array (":cal_id" => $arr->cc_cal_id))
                       ->fetch();
       $arr->bookings = $b != false;
-      // Check if agenda items are available for this event
-      $b = db_query( "SELECT * FROM {cs_event_item}
-                      WHERE event_id=:event_id limit 1",
-                      array (":event_id" => $arr->id))
-                      ->fetch();
-      $arr->agenda = $b != false;
+
+      if ($arr->repeat_frequence == null) unset($arr->repeat_frequence);
+      if ($arr->repeat_option_id == null) unset($arr->repeat_option_id);
+      if ($arr->repeat_until == null) unset($arr->repeat_until);
 
       // here we go!
       $events[$arr->id] = $arr;
       $event_admin = false;
-      if ($arr->admin == null) $events[$arr->id]->admin = null;
+      if ($arr->admin == null) unset($events[$arr->id]->admin);
       else if (in_array($user->id, explode(",", $arr->admin))) $event_admin = true;
       if ($arr->special == null) $events[$arr->id]->special = null;
       // We don't have an enddate in cs-event, so we calculate it from the calendar
@@ -282,6 +281,13 @@ function churchservice_getAllEventData($params) {
       $arr->enddate = $event_enddate->format('Y-m-d H:i:s');
 
       if ((1 == 1) && $arr->datediff > $lastday) { ///TODO: remove 1 == 1
+
+        // Check if agenda items are available for this event
+        $b = db_query( "SELECT * FROM {cs_event_item}
+          WHERE event_id=:event_id limit 1",
+          array (":event_id" => $arr->id))
+          ->fetch();
+          $arr->agenda = $b != false;
 
         $services = db_query("
           SELECT es.service_id, es.name, es.cdb_person_id, es.id eventservice_id, es.counter,

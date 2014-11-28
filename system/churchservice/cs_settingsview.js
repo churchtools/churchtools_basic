@@ -1,6 +1,3 @@
- (function($) {
-
-  
 // Constructor
 function SettingsView() {
   StandardTableView.call(this);
@@ -9,7 +6,10 @@ function SettingsView() {
 
 Temp.prototype = StandardTableView.prototype;
 SettingsView.prototype = new Temp();
-settingsView = new SettingsView();
+
+function getSettingsView() {
+  return new SettingsView;
+}
 
 SettingsView.prototype.renderMenu = function() {
   this_object=this;
@@ -19,11 +19,11 @@ SettingsView.prototype.renderMenu = function() {
 
   if (!menu.renderDiv("cdb_menu"))
     $("#cdb_menu").hide();
-  else {    
+  else {
     $("#cdb_menu a").click(function () {
       if ($(this).attr("id")=="apersonview") {
         menuDepth="amain";
-        churchInterface.setCurrentView(listView, false);
+        churchInterface.setCurrentLazyView("ListView", false);
       }
       return false;
     });
@@ -34,13 +34,13 @@ SettingsView.prototype.renderMenu = function() {
 SettingsView.prototype.renderFilter = function() {
   var rows = new Array();
   rows.push("<div id=\"cdb_filtercover\"></div>");
-  $("#cdb_filter").html(rows.join("")); 
-  
+  $("#cdb_filter").html(rows.join(""));
+
   each(this.filter, function(k,a) {
     $("#"+k).val(a);
   });
 
-  // Callbacks 
+  // Callbacks
   this.implantStandardFilterCallbacks(this, "cdb_filter");
 };
 
@@ -81,10 +81,10 @@ SettingsView.prototype.renderList = function() {
     rows.push('</select>');
   }
   rows.push("</table>");
-  
+
   rows.push("<h2>Einstellungen zur Anzeige</h2>");
   rows.push("<table>");
-  
+
   rows.push('<tr><td width="50%"><td>');
   rows.push(form_renderCheckbox({
     cssid:"listViewTableHeight", label:"Titelleiste der Tabelle fixieren",
@@ -94,8 +94,8 @@ SettingsView.prototype.renderList = function() {
     cssid:"showFullName", label:"Anzeige mit Vor- und Nachnamen anstatt des Benutzernames",
     checked: (masterData.settings.showFullName==null) || (masterData.settings.showFullName==1)
   }));
-  
-  
+
+
   each(churchcore_sortData(masterData.servicegroup,"sortkey"), function(k,a) {
     if (masterData.auth.viewgroup[a.id]!=null) {
       rows.push('<tr><td width="50%"><td>');
@@ -104,7 +104,7 @@ SettingsView.prototype.renderList = function() {
         checked: (masterData.settings["viewgroup"+a.id]==null) || (masterData.settings["viewgroup"+a.id]==1)
       }));
     }
-  });  
+  });
   rows.push("</table>");
   rows.push("<h2>Abonnieren</h2>");
   rows.push("<table>");
@@ -112,23 +112,19 @@ SettingsView.prototype.renderList = function() {
   rows.push('<a class="abo_ical" href="#">'+form_renderCaption({text:"Dienstplan abonnieren"})+'</a>');
   rows.push("</table>");
 
-  
+
   $("#cdb_content").html(rows.join(""));
-  
+
   $("#cdb_content select").change(function(c) {
     masterData.settings[$(this).attr("id")]=$(this).val();
-    churchInterface.jsendWrite({func:"saveSetting", sub:$(this).attr("id"), val:$(this).val()});      
-  });  
+    churchInterface.jsendWrite({func:"saveSetting", sub:$(this).attr("id"), val:$(this).val()});
+  });
   $("#cdb_content input:checkbox").click(function(c) {
     masterData.settings[$(this).attr("id")]=($(this).attr("checked")=="checked"?1:0);
-    churchInterface.jsendWrite({func:"saveSetting", sub:$(this).attr("id"), val:masterData.settings[$(this).attr("id")]});      
-  });  
+    churchInterface.jsendWrite({func:"saveSetting", sub:$(this).attr("id"), val:masterData.settings[$(this).attr("id")]});
+  });
   $("#cdb_content a.abo_ical").click(function(c) {
     ical_abo();
     return false;
   });
-  
-
 };
-
-})(jQuery);

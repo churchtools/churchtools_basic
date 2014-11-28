@@ -21,11 +21,11 @@ function getWeekView() {
 }
 
 WeekView.prototype.getNeededJSFiles = function() {
-  return ['/churchcore/cc_events.js', '/churchresource/cr_loadandmap.js', '/churchresource/cr_loadandmap.js'];
+  return ['/churchcore/cc_events.js', '/churchresource/cr_loadandmap.js'];
 };
 
 WeekView.prototype.getNeededDataObjects = function() {
-  return [{object: allBookings, loader: "cr_loadBookings"}];
+  return ["cr_loadBookings"];
 };
 
 WeekView.prototype.getData = function(sorted) {

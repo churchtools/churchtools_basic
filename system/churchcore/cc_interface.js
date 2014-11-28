@@ -78,17 +78,18 @@ ChurchInterface.prototype.loadJSFiles = function (arr, funcWhenReady) {
   }
 };
 
-
 ChurchInterface.prototype.loadDataObjects = function(arr, funcWhenReady) {
   var t = this;
-  if (arr == null || arr.length == 0) funcWhenReady();
+  if (arr == null || arr.length == 0) {
+    if (funcWhenReady != null) funcWhenReady();
+  }
   else {
-    var o = arr[0];
+    var objectname = arr[0];
     arr.shift();
-    if (!churchcore_ObjectContainsElementWith(t.loadedDataObjects, "loader", o.loader)) {
-      t.loadedDataObjects.push(o);
-      var func = window[o.loader];
-      o.object = func(function() {
+    if (!churchcore_inArray(objectname, t.loadedDataObjects)) {
+      t.loadedDataObjects.push(objectname);
+      var func = window[objectname];
+      func(function() {
         t.loadDataObjects(arr, funcWhenReady);
       });
     }

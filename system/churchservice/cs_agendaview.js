@@ -1,5 +1,3 @@
-(function($) {
-
 // Constructor
 function AgendaView(options) {
   ListView.call(this, options);
@@ -11,9 +9,18 @@ function AgendaView(options) {
 
 Temp.prototype = ListView.prototype;
 AgendaView.prototype = new Temp();
-agendaView = new AgendaView({showPaging:false, rowNumbering:false});
 
-allAgendas=null;
+function getAgendaView() {
+  return new AgendaView({showPaging:false, rowNumbering:false});
+}
+
+AgendaView.prototype.getNeededDataObjects = function() {
+  return ["cs_loadSongs"];
+};
+
+AgendaView.prototype.getNeededJSFiles = function() {
+  return ['/churchservice/cs_loadandmap.js', '/churchservice/cs_songview.js'];
+}
 
 AgendaView.prototype.checkFilter = function(item) {
   return true;
@@ -117,7 +124,7 @@ AgendaView.prototype.exportCurrentAgendaToSongBeamer = function () {
   each(t.getData(true), function(i,a) {
     var song=null;
     if (a.arrangement_id>0)
-      song=songView.getSongFromArrangement(a.arrangement_id);
+      song=getSongFromArrangement(a.arrangement_id);
 
     if (a.header_yn==1 || a.arrangement_id>0) {
       rows.push("\r\n    item");
@@ -167,7 +174,7 @@ AgendaView.prototype.exportCurrentAgendaToProPresenter = function () {
     each(t.getData(true), function(i,a) {
       var song=null;
       if (a.arrangement_id>0)
-        song=songView.getSongFromArrangement(a.arrangement_id);
+        song=getSongFromArrangement(a.arrangement_id);
 
       if (a.header_yn==1 || a.arrangement_id>0) {
         var bez=a.bezeichnung;
@@ -363,7 +370,7 @@ AgendaView.prototype.renderField = function(o, dataField, smallVersion) {
       var song=null;
       var bezeichnung="<b>"+o.bezeichnung+"</b>";
       if (o.arrangement_id!=null) {
-        var song=songView.getSongFromArrangement(o.arrangement_id);
+        var song=getSongFromArrangement(o.arrangement_id);
         if (song!=null) {
           var s=song.bezeichnung;
           // Song als URL!!
@@ -451,7 +458,7 @@ AgendaView.prototype.renderFieldResponsible = function(content, event_ids) {
       var entries=new Array();
       each(sgs[service.servicegroup_id], function(k,s) {
         if (s.service_id==service.id) {
-          entries.push(listView.renderPersonName(s));
+          entries.push(churchInterface.views.ListView.renderPersonName(s));
         }
       });
       if (entries.length==0) return content;
@@ -497,8 +504,9 @@ AgendaView.prototype.renderAddButtons = function() {
     var item=churchcore_getLastElement(t.currentAgenda.items);
     // When addings songs it will lead to the songView, where I can select a song
     if ($(this).hasClass("song")) {
-      songView.songselect={post:true, orig_item_id:item.id};
-      churchInterface.setCurrentView(songView);
+      churchInterface.setCurrentLazyView("SongView", false, function(view) {
+        view.songselect={post:true, orig_item_id:item.id};
+      })
     }
     else {
       t.addItem(item.id, true, $(this).hasClass("header"));
@@ -520,8 +528,9 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
         var song_id=$(this).attr("data-song-id");
         var arrangement_id=$(this).attr("data-arrangement-id");
         allSongs[song_id].active_arrangement_id=arrangement_id;
-        songView.filter["searchEntry"]="#"+song_id;
-        churchInterface.setCurrentView(songView, false);
+        churchInterface.setCurrentLazyView("SongView", false, function(view) {
+          view.filter["searchEntry"]="#"+song_id;
+        });
         return false;
       }
       else
@@ -545,11 +554,12 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
     $(cssid+" a.attachement").click(function() {
       var id=$(this).parents("tr").attr("id");
       var arr_id=t.currentAgenda.items[id].arrangement_id;
-      var song=songView.getSongFromArrangement(arr_id);
+      var song=getSongFromArrangement(arr_id);
       if (song!=null) {
         song.active_arrangement_id=arr_id;
-        churchInterface.setCurrentView(songView, true);
-        songView.setFilter("searchEntry", "#"+songView.getSongFromArrangement(arr_id).id);
+        churchInterface.setCurrentLazyView("SongView", true, function(view) {
+          view.setFilter("searchEntry", "#"+getSongFromArrangement(arr_id).id);
+        });
       }
     });
 
@@ -636,8 +646,9 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
                   var orig_item_id=elem.parents("span.dropdown").attr("data-id");
                   // When addings songs it will lead to the songView, where I can select a song
                   if (elem.hasClass("song")) {
-                    songView.songselect={post:elem.hasClass("post"), orig_item_id:orig_item_id};
-                    churchInterface.setCurrentView(songView);
+                    churchInterface.setCurrentLazyView("SongView", false, function(view) {
+                      view.songselect={post:elem.hasClass("post"), orig_item_id:orig_item_id};
+                    });
                   }
                   else {
                     t.addItem(orig_item_id, elem.hasClass("post"), elem.hasClass("header"));
@@ -653,9 +664,10 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
                   var song_id=$(this).attr("data-song-id");
                   var arrangement_id=$(this).attr("data-arrangement-id");
                   allSongs[song_id].active_arrangement_id=arrangement_id;
-                  songView.filter["searchEntry"]="#"+song_id;
-                  delete songView.filter["filterSongcategory"];
-                  churchInterface.setCurrentView(songView, false);
+                  churchInterface.setCurrentLazyView("SongView", false, function(view) {
+                    view.filter["searchEntry"]="#"+song_id;
+                    delete view.filter["filterSongcategory"];
+                  });
                   return false;
                 });
 
@@ -797,7 +809,7 @@ AgendaView.prototype.editItem = function(item) {
   form.addInput({cssid:"bezeichnung", label:"Titel"});
   if (item.header_yn==0) {
     if (item.song_id==null && item.arrangement_id!=null) {
-      var s=songView.getSongFromArrangement(item.arrangement_id);
+      var s=getSongFromArrangement(item.arrangement_id);
       if (s!=null)
         item.song_id=s.id;
     }
@@ -858,7 +870,7 @@ AgendaView.prototype.editItem = function(item) {
     if (allSongs[item.song_id].active_arrangement_id!=null)
       item.arrangement_id=allSongs[item.song_id].active_arrangement_id;
     else
-      item.arrangement_id=songView.getDefaultArrangement(allSongs[item.song_id]);
+      item.arrangement_id=getDefaultArrangement(allSongs[item.song_id]);
 
     elem.dialog("close");
     t.editItem(item);
@@ -1024,10 +1036,8 @@ AgendaView.prototype.getListHeader = function () {
 
   // When allAgenda is null, start loading Songs and Templates
   if (allAgendas==null) {
-    songView.loadSongData();
-
     var ids=new Array();
-    if (listView.currentEvent==null) {
+    if (churchInterface.views.listView==null || churchInterface.views.listView.currentEvent==null) {
       if (masterData.settings.currentAgenda!=null)
         ids.push(masterData.settings.currentAgenda);
       if ($("#externevent_id").val()!=null) {
@@ -1045,7 +1055,8 @@ AgendaView.prototype.getListHeader = function () {
             each(data, function(k,a) {
               allAgendas[a.id]=a;
             });
-            if (listView.currentEvent==null && masterData.settings.currentAgenda!=null)
+            if ((churchInterface.views.listView==null || churchInterface.views.listView.currentEvent==null)
+                    && masterData.settings.currentAgenda!=null)
               t.currentAgenda=allAgendas[masterData.settings.currentAgenda];
             t.renderView();
           }
@@ -1066,7 +1077,7 @@ AgendaView.prototype.getListHeader = function () {
 
   if (t.currentAgenda==null || allAgendas==null) {
     var form=new CC_Form();
-    if (listView.currentEvent!=null) {
+    if (churchInterface.views.listView!=null && churchInterface.views.listView.currentEvent!=null) {
       // If already an agenda mapped to the event
       if (listView.currentEvent.agenda) {
         t.loadAgendaForEvent(listView.currentEvent.id, function(data) {
@@ -1511,7 +1522,7 @@ AgendaView.prototype.renderListEntry = function (event, smallVersion, trimNote) 
     if (!smallVersion && $("#printview").val()==null) {
       rows.push('<td><td>');
       if (event.arrangement_id!=null && event.arrangement_id>0) {
-        var song=songView.getSongFromArrangement(event.arrangement_id);
+        var song=getSongFromArrangement(event.arrangement_id);
         if (song!=null && song.files!=null)
           rows.push(form_renderImage({src:"paperclip.png", link:true, htmlclass:"attachement", width:20}));
       }
@@ -1579,6 +1590,3 @@ AgendaView.prototype.addSecondMenu = function() {
 
 AgendaView.prototype.renderEntryDetail = function (event_id) {
 };
-
-
-})(jQuery);

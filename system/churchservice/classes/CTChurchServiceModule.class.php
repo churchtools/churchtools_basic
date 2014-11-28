@@ -48,6 +48,14 @@ class CTChurchServiceModule extends CTAbstractModule {
     $res["churchcal_name"] = $config["churchcal_name"];
     $res["songwithcategoryasdir"] = getConf("churchservice_songwithcategoryasdir", "0");
     $res["songcategory"] = churchcore_getTableData("cs_songcategory", "sortkey");
+    $res["views"] = array("ListView" => array("filename"=>"cs_listview"),
+      "SettingsView" => array("filename"=>"cs_settingsview"),
+      "CalView" => array("filename"=>"cs_calview"),
+      "SongView" => array("filename"=>"cs_songview"),
+      "AgendaView" => array("filename"=>"cs_agendaview"),
+      "FactView" => array("filename"=>"cs_factview"),
+      "MaintainView" => array("filename"=>"cs_maintainview"));
+
     return $res;
   }
 
@@ -162,13 +170,13 @@ class CTChurchServiceModule extends CTAbstractModule {
 
   public function getSongStatistic($params) {
     $this->checkPerm("view song statistics");
-    $res = db_query("SELECT arrangement_id, e.id event_id, e.startdate FROM {cs_item} i, {cs_event_item} ei, {cs_event} e
+    $res = db_query("SELECT arrangement_id, e.startdate FROM {cs_item} i, {cs_event_item} ei, {cs_event} e
                WHERE e.id = ei.event_id AND i.id = ei.item_id AND i.arrangement_id > 0 ORDER BY e.startdate");
     $ret = array();
     foreach ($res as $s) {
       if (!isset($ret[$s->arrangement_id])) $arr = array();
       else $arr = $ret[$s->arrangement_id];
-      $arr[] = $s->event_id;
+      $arr[] = $s->startdate;
       $ret[$s->arrangement_id] = $arr;
     }
     return $ret;

@@ -1,5 +1,3 @@
-(function($) {
-
 // Constructor
 function FactView() {
   ListView.call(this);
@@ -12,8 +10,18 @@ function FactView() {
 
 Temp.prototype = ListView.prototype;
 FactView.prototype = new Temp();
-factView = new FactView();
 
+function getFactView() {
+  return new FactView();
+}
+
+FactView.prototype.getNeededJSFiles = function() {
+  return ['/churchcore/cc_events.js', '/churchservice/cs_loadandmap.js'];
+};
+
+FactView.prototype.getNeededDataObjects = function() {
+  return ["cs_loadListViewData"];
+};
 
 FactView.prototype.renderMenu = function() {
   this_object=this;
@@ -36,18 +44,18 @@ FactView.prototype.renderMenu = function() {
       else if ($(this).attr("id")=="aexport") {
         var rows=new Array();
         rows.push('<legend>Zeitraum des Exportes</legend>');
-        rows.push('<p>Es k&ouml;nnen entweder alle Fakten exportiert werden, '+ 
+        rows.push('<p>Es k&ouml;nnen entweder alle Fakten exportiert werden, '+
                      'oder die Fakten ab dem aktuell ausgew&auml;hlten Datum.');
         var elem=form_showDialog('Export von Fakten', rows.join(""), 370, 300, {
-            "Alle Fakten": function() {    
+            "Alle Fakten": function() {
                 churchcore_openNewWindow("?q=churchservice/exportfacts");
                 elem.dialog("close");
             },
-            "Ab aktuellem Datum": function() {    
+            "Ab aktuellem Datum": function() {
               churchcore_openNewWindow("?q=churchservice/exportfacts&date="+this_object.currentDate.toStringEn(false));
               elem.dialog("close");
             },
-            "Abbruch": function() {    
+            "Abbruch": function() {
               elem.dialog("close");
             }
         });
@@ -61,7 +69,7 @@ FactView.prototype.renderMenu = function() {
 };
 
 FactView.prototype.renderEntryDetail = function (event_id) {
-  
+
 };
 
 
@@ -70,10 +78,10 @@ FactView.prototype.getCountCols = function() {
 };
 
 FactView.prototype.groupingFunction = function (event) {
-  var tagDatum=event.startdate.toDateEn(false).toStringDe();
+  var tagDatum=event.startdate.toStringDe(false);
   var merker = new Object;
   each(allEvents, function(k,a) {
-    if (a.startdate.toDateEn(false).toStringDe()==tagDatum) {
+    if (a.startdate.toStringDe(false)==tagDatum) {
       if (a.facts!=null)
         each(a.facts, function(i,b) {
           if (merker[i]==null) merker[i]=0;
@@ -81,7 +89,7 @@ FactView.prototype.groupingFunction = function (event) {
         });
     }
   });
-  var txt=event.startdate.toDateEn(false).getDayInText()+", "+event.startdate.toDateEn(false).toStringDe();
+  var txt=event.startdate.getDayInText()+", "+event.startdate.toStringDe(false);
 
   each(churchcore_sortData(masterData.fact, "sortkey"), function(k,a) {
     txt=txt+'<td class="grouping">';
@@ -93,7 +101,7 @@ FactView.prototype.groupingFunction = function (event) {
 
 FactView.prototype.addFurtherListCallbacks = function(cssid) {
   var t=this;
-  
+
   if (masterData.auth.editfacts) {
 
     // Implements editable
@@ -101,18 +109,18 @@ FactView.prototype.addFurtherListCallbacks = function(cssid) {
       var event_id=$(this).attr("event_id");
       var fact_id=$(this).attr("fact_id");
       $(this).editable({
-        
+
         type: ($(this).hasClass("textarea")?"textarea":"input"),
-        
+
         data: {event_id:event_id, fact_id:fact_id},
-        
+
         autosaveSeconds: 5,
-        
-        rerenderEditor: 
+
+        rerenderEditor:
           function(txt) {
             return txt.replace(".",",");
           },
-        
+
         validate:
           function(newval, data) {
             var tester=newval.replace(",",".");
@@ -122,7 +130,7 @@ FactView.prototype.addFurtherListCallbacks = function(cssid) {
             }
             return true;
           },
-        
+
         success:
           function(newval, data) {
             if (allEvents[data.event_id].facts==null)
@@ -134,23 +142,23 @@ FactView.prototype.addFurtherListCallbacks = function(cssid) {
               if (!ok) alert("Fehler beim Speichern: "+data);
               else {
                 allEvents[event_id].facts[fact_id]=o;
-              }  
+              }
             });
           },
-        
+
         value: ((event_id!=null) && (allEvents[event_id].facts!=null) && (allEvents[event_id].facts[fact_id]!=null)?
             allEvents[event_id].facts[fact_id].value.replace(".", ","):null)
-                 
+
       });
-    });    
+    });
   }
 };
 
 FactView.prototype.getListHeader = function () {
   var this_object=this;
-  
+
   $("#cdb_group").html("");
-  
+
   if ((masterData.settings.filterCategory=="") || (masterData.settings.filterCategory==null))
     delete masterData.settings.filterCategory;
   if (this.filter["filterKategorien"]==null) {
@@ -169,9 +177,9 @@ FactView.prototype.getListHeader = function () {
   }
   var rows = new Array();
   if (masterData.settings.listViewTableHeight==0)
-    factView.listViewTableHeight=null;
+    churchInterface.views.FactView.listViewTableHeight=null;
   else
-    factView.listViewTableHeight=665;
+    churchInterface.views.FactView.listViewTableHeight=665;
 
   rows.push('<th>Events');
   each(churchcore_sortData(masterData.fact,"sortkey"), function(k,a){
@@ -184,7 +192,7 @@ FactView.prototype.getListHeader = function () {
 FactView.prototype.renderListEntry = function (event) {
   var rows = new Array();
   var width=100/(1+churchcore_countObjectElements(masterData.fact));
-  rows.push('<td width="'+width+'%">' + event.startdate.toDateEn(true).toStringDeTime(true)+" "+event.bezeichnung);
+  rows.push('<td width="'+width+'%">' + event.startdate.toStringDeTime(true)+" "+event.bezeichnung);
   if (event.special!=null) {
     rows.push("<div class=\"event_info\">"+event.special.htmlize()+"</div>");
   }
@@ -216,6 +224,3 @@ FactView.prototype.addSecondMenu = function() {
   return '';
 
 };
-
-
-})(jQuery);

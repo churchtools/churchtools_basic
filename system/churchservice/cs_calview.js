@@ -1,5 +1,3 @@
-(function($) {
-	  
 // Constructor
 function CalView() {
   ListView.call(this);
@@ -11,7 +9,10 @@ function CalView() {
 
 Temp.prototype = ListView.prototype;
 CalView.prototype = new Temp();
-calView = new CalView();
+
+function getCalView() {
+	return new CalView();
+}
 
 CalView.prototype.shiftCurrentDate = function() {
   this.currentDate.addDays(-this.currentDate.getDay()+1);
@@ -41,18 +42,18 @@ CalView.prototype.getData = function(sorted) {
           }
         });
       }
-    });    
+    });
     // Nun schiebe die komplette Servicegroup in die Daten rein.
     each(churchcore_sortData(servicegroup,"name"), function(k,a) {
       data.push(a);
     });
   });
-  
-  
+
+
   return data;
 };
 
-CalView.prototype.checkFilter = function (a) {    
+CalView.prototype.checkFilter = function (a) {
   if ((allPersons[a.group.p_id]!=null) && (allPersons[a.group.p_id].absent!=null)) {
     if (this.filter["filterDienstgruppen"]!=null)
       if (a.servicegroup_id!=this.filter["filterDienstgruppen"]) return false;
@@ -73,19 +74,19 @@ CalView.prototype.getCountCols = function() {
 CalView.prototype.getListHeader = function () {
   var rows = new Array();
   $("#cdb_group").html("");
-  
+
   this.shiftCurrentDate();
-  
+
   var currentDate=this.currentDate;
   rows.push('<th style="min-width:100px">');
   currentDate.addDays(1);
   rows.push("KW"+currentDate.getKW());
   currentDate.addDays(-1);
-  
+
   d = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
   for (i=0;i<7;i++) {
     d.addDays(1);
-    rows.push("<th>"+wochentag[d.getDay()]+", "+d.toStringDe()+"");      
+    rows.push("<th>"+wochentag[d.getDay()]+", "+d.toStringDe()+"");
   }
   rows.push("");
 
@@ -100,7 +101,7 @@ CalView.prototype.renderListEntry = function (a) {
   for (i=0;i<7;i++) {
     rows.push('<td style="min-width:40px">');
     d.addDays(1);
-  
+
     var p = allPersons[a.group.p_id];
     if (p.absent!=null) {
       each(p.absent,function(k,absent) {
@@ -109,8 +110,8 @@ CalView.prototype.renderListEntry = function (a) {
         }
       });
     }
-  }  
-  
+  }
+
   return rows.join("");
 };
 
@@ -122,5 +123,3 @@ CalView.prototype.messageReceiver = function(message, args) {
     }
   }
 };
-
-})(jQuery);
