@@ -295,8 +295,9 @@ CCEvent.prototype.doSplit = function (splitDate, untilEnd, func) {
     var pastEvent = t.clone();
     newEvent.startdate = new Date( newEvent.startdate.getTime() + delta );
     newEvent.enddate = new Date( newEvent.enddate.getTime() + delta );
+    newEvent.old_id = newEvent.id;
 
-    if (!untilEnd) {
+    if (!untilEnd) {  // Only single day
       delete newEvent.id;
       newbookingid=-1;
       reIdBookings(newEvent);
@@ -309,7 +310,7 @@ CCEvent.prototype.doSplit = function (splitDate, untilEnd, func) {
       delete newEvent.additions;
       func(newEvent, pastEvent);
     }
-    else {
+    else {  // Split until end
       // If editing first of series, change the whole series, no new Event is neccesary
       if (t.startdate.withoutTime().getTime() == splitDate.getTime()) func(newEvent, null);
       else {

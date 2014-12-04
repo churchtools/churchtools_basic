@@ -27,7 +27,7 @@ function churchcal_handleMeetingRequest($cal_id, $params) {
     $param["event_date"]    = $params["startdate"];
     $param["cal_id"]        = $cal_id;
 
-    $db = db_query('SELECT mr.*, c.modified_pid
+    $db = db_query('SELECT mr.*, c.modified_pid, c.bezeichnung
                   FROM {cc_meetingrequest} mr, {cc_cal} c
                   WHERE c.id=mr.cal_id and mr.person_id=:person_id and mr.cal_id=:cal_id',
                   array(":person_id" => $param["person_id"], ":cal_id" => $param["cal_id"]))
@@ -38,14 +38,21 @@ function churchcal_handleMeetingRequest($cal_id, $params) {
         ->fields($i->getDBInsertArrayFromParams($param))
         ->execute(false);
       // if person was not yet invited to churchtools send invitation
-      $p = db_query("SELECT name, vorname, IF(spitzname, spitzname, vorname) AS spitzname, IF (password IS NULL AND loginstr IS NULL AND lastlogin IS NULL,1,0) as invite
+      $p = db_query("SELECT name, vorname, IF(spitzname, spitzname, vorname) AS nickname, IF (password IS NULL AND loginstr IS NULL AND lastlogin IS NULL,1,0) as invite
                       FROM {cdb_person}
                       WHERE id=:id",
                       array(":id" => $id))
                       ->fetch();
+
+      $cal = db_query('SELECT c.* FROM {cc_cal} c
+                        WHERE c.id=:cal_id',
+                        array(":cal_id" => $param["cal_id"]))
+                        ->fetch();
       if ($p) {
         $data = array(
             'p'        => $p,
+            'caption'  => $db->bezeichnung,
+            'date'     => churchcore_CCEventData2String($cal),
             'loginUrl' => $base_url . "?q=home&id=$id&loginstr" . churchcore_createOnTimeLoginKey($id),
         );
         if ($data['invite'] = $p->invite) {
@@ -85,14 +92,20 @@ function churchcal_updateMeetingRequest($params) {
   $i->setParam("event_date");
   $i->setParam("zugesagt_yn", false);
   $i->setParam("response_date");
-  $dt = new DateTime(); //TODO: not used
 
-  if (!$params["zugesagt_yn"]) unset($params["zugesagt_yn"]);
+  if (isset($params["zugesagt_yn"]) && $params["zugesagt_yn"]=="") unset($params["zugesagt_yn"]);
 
-  db_update("cc_meetingrequest")
-    ->fields($i->getDBInsertArrayFromParams($params))
-    ->condition("id", $params["id"], "=")
-    ->execute(false);
+  // Update to clean all
+  if (!isset($params["zugesagt_yn"]) && !isset($params["response_date"])) {
+    db_query("UPDATE {cc_meetingrequest} SET response_date = null, zugesagt_yn = null
+                WHERE id = :id", array(":id"=>$params["id"]));
+  }
+  else {
+    db_update("cc_meetingrequest")
+      ->fields($i->getDBInsertArrayFromParams($params))
+      ->condition("id", $params["id"], "=")
+      ->execute(false);
+  }
 }
 
 /**
@@ -108,7 +121,9 @@ function churchcal_getMyMeetingRequest() {
                     AND DATEDIFF(mr.event_date, NOW())>0 AND mr.cal_id=c.id",
                   array(":person_id" => $user->id));
   $res = array();
-  foreach ($db as $d) $res[$d->id] = $d; // TESTEN!!
+  foreach ($db as $d) {
+    $res[$d->id] = $d;
+  }
 
   return $res;
 }
@@ -402,8 +417,15 @@ function churchcal_saveSplittedEvent($params) {
   return array("id" => $newEventId, "bookingIds" => $res["bookingIds"]);
 }
 
-
-
+/*
+* Get Event changes
+* Origin Event: Like it was before. PastEvent: New event for the past. NewEvent: NewEvent for splitDate
+* 1. Check from originEvent if this is in newEvent
+* 2a. If it is not in newEvent, if it is in pastEvent, everything fine. Nothing changed
+* 2b. If it is not in newEvent but not in pastEvent, then it was deleted!
+* 3. If is in newEvent, then diff the changes
+* 4. Check if newEvent is not in originEvent, then there is something new
+*/
 function churchcal_getCCEventChangeImpact($newEvent, $pastEvent, $originEvent) {
   $changes = array ();
   function _addCalChange(&$changes, $status, $startdate = null, $change = null) {
@@ -422,7 +444,7 @@ function churchcal_getCCEventChangeImpact($newEvent, $pastEvent, $originEvent) {
       }
     }
     else { // 3. event is in newEvent, now check bookings!
-      $change = makeCCEventDiff($originEvent, $newEvent);
+      $change = makeCCEventDiff(getOneEventOutOfSeries($originEvent, $d), $newEvent);
       if ($change != null) _addCalChange($changes, "updated", $d, $change);
     }
   }
@@ -436,11 +458,27 @@ function churchcal_getCCEventChangeImpact($newEvent, $pastEvent, $originEvent) {
   return $changes;
 }
 
+/**
+ * Extracts one date out of a series. Make event single day event
+ * @param [type] $originEvent
+ * @param [type] $d
+ */
+function getOneEventOutOfSeries($originEvent, $d) {
+  $originEvent["repeat_id"] = 0;
+  $ds = new DateTime($originEvent["startdate"]);
+  $de = new DateTime($originEvent["enddate"]);
+  $originEvent["startdate"] = $d->format('Y-m-d H:i');
+  $enddate = clone $d;
+  $enddate->modify("+".$de->getTimestamp()-$ds->getTimestamp()." seconds");
+  $originEvent["enddate"] = $enddate->format('Y-m-d H:i');
+  return $originEvent;
+}
+
 function makeCCEventDiff($originEvent, $newEvent) {
   $ret = array ();
   foreach ($newEvent as $key=>$newEntry) {
     if ($key != "informCreator" && $key != "modified_pid" && $key != "repeat_frequence"
-        && $key != "bookings" && $key != "csevents") {
+        && $key != "bookings" && $key != "csevents" && $key != "old_id") {
       if (!isset($originEvent[$key]) || $originEvent[$key] != $newEntry) {
         $k = $key;
         $einheit = "";

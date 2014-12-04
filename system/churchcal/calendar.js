@@ -256,15 +256,10 @@ function _renderViewChurchResource(elem) {
   if (currentEvent.bookings!=null) {
     if (allBookings==null) {
       if (user_access("view churchresource")) {
-        allBookings=new Object();
-        $.getCTScript("system/churchresource/cr_loadandmap.js", function() {
-          $.getCTScript("system/churchresource/cr_weekview.js", function() {
-            churchInterface.setModulename("churchresource");
-            cr_loadBookings(function() {
-              weekView.buildDates(allBookings);
-              _renderViewChurchResource(elem);
-            });
-            churchInterface.setModulename("churchcal");
+        churchInterface.loadLazyView("WeekView", function(view) {
+          view.loadDependencies(function() {
+            view.buildDates(allBookings);
+            _renderViewChurchResource(elem);
           });
         });
       }
@@ -295,7 +290,7 @@ function _renderViewChurchResource(elem) {
       form.addHtml('<td>');
       if (a.status_id!=99)
         form.addImage({src:"trashbox.png", htmlclass:"delete-booking", link:true, width:20, data:[{name:"id", value:k}]});
-      if (typeof weekView!='undefined') {
+      if (churchInterface.views.WeekView!=null) {
         if (allBookings[a.id]!=null && allBookings[a.id].exceptions!=null) {
           var arr=new Array();
           each(churchcore_sortData(allBookings[a.id].exceptions, "except_date_start"), function(i,b) {
@@ -323,7 +318,7 @@ function _renderViewChurchResource(elem) {
           form.addHtml('</div>');
         }
 
-        var conflicts=weekView.calcConflicts(c, a.resource_id);
+        var conflicts=churchInterface.views.WeekView.calcConflicts(c, a.resource_id, allBookings[a.old_id]);
         if (conflicts!="") form.addHtml('<tr><td colspan="5"><div class="alert alert-error">Konflikte: '+conflicts+"</div>");
       }
       else if (user_access("view churchresource")) {

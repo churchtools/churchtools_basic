@@ -39,6 +39,7 @@ class CTChurchCalModule extends CTAbstractModule {
       $ret["settings"] = $arr;
     }
     $ret["auth"] = churchcal_getAuthForAjax();
+    $ret["views"] = array("WeekView" => array("filename"=>"../churchresource/cr_weekview"));
     return $ret;
   }
 
@@ -106,5 +107,5 @@ class CTChurchCalModule extends CTAbstractModule {
   public function saveReminder($params) {
     return churchcore_saveReminder($params);
   }
-  
+
 }

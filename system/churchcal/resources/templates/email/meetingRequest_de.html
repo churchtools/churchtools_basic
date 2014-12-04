@@ -1,6 +1,6 @@
-<h4>Hallo <?= $p->nickname ?></h4>
+<h4>Hallo <?= $p->nickname ?>!</h4>
 
-<p>Du wurdest auf <?= $sitename ?> von <i><?=$user->vorname?> <?=$user->name?></i> für einen Termin angefragt.</p>
+<p>Du wurdest auf <?= $sitename ?> von <i><?= $user->vorname ?> <?= $user->name ?></i> für den Termin <?= $date ?> angefragt.</p>
 
 <?php if ($invite): ?>
 <p>Da Du noch keinen Zugriff auf <?= $sitename ?> hast, bekommst Du eine separate E-Mail, mit der Du Dich anmelden kannst!</p>

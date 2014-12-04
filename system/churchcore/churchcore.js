@@ -650,7 +650,7 @@ Date.prototype.toStringEn = function (withTime) {
   if (!withTime)
     return d.getFullYear()+"-"+month+"-"+day;
   else
-  return d.getFullYear()+"-"+month+"-"+day+" "+d.getHours()+":"+d.getMinutes();
+  return d.getFullYear()+"-"+month+"-"+day+" "+d.getHours()+":"+(d.getMinutes()<10?"0"+d.getMinutes():d.getMinutes());
 };
 
 

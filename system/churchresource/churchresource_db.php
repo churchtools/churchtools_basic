@@ -54,7 +54,7 @@ function churchresource_getEventChangeImpact($newEvent, $pastEvent, $originEvent
           else {
             $newBooking = findBookingInNewEvent($booking, $newEvent);
             if ($newBooking != null) {
-              $change = makeBookingDiff($booking, $newBooking, $originEvent, $newEvent);
+              $change = makeBookingDiff($booking, $newBooking, getOneEventOutOfSeries($originEvent, $d), $newEvent);
               if ($change != null) _addCRChange($changes, $booking, "updated", $d, $change);
               //else _addCRChange($changes, $booking, "no.changes", $d, $change);
             }
