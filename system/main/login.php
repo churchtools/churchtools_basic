@@ -71,7 +71,7 @@ function login_main() {
         drupal_json_output(jsend()->fail(t('email.unknown')));
       }
       else if (user_check_password($password, $res)) {
-        login_user($res);
+        login_user($res, null, false);
         ct_log("Login by Direct-Tool $directTool with $email", 2, "-1", "login");
         drupal_json_output(jsend()->success());
       }
@@ -130,7 +130,10 @@ function login_main() {
             . t('user.change.to.familyX.failed.session.is.empty', $familyId) .
         "</div>";
     }
-    else {
+    else if (getVar("directtool", false, $_POST)) {
+      drupal_json_output(jsend()->success("Already logged in"));
+    }
+    else {     
       $txt .= '<div class="alert alert-info">'
           . t('you.are.logged.in.as.x.click.y.to.continue', $_SESSION["user"]->vorname, '<a href="?q=home">' .t('home') . '</a>') .
       '</div>';
@@ -203,7 +206,7 @@ function validateLogin($form) {
  * @param bool $rember_me
  * @return NULL
  */
-function login_user($u, $rember_me = false) {
+function login_user($u, $rember_me = false, $redirect = true) {
   global $q, $q_orig;
 
   if (empty($u->id)) {
@@ -269,7 +272,9 @@ function login_user($u, $rember_me = false) {
 
   ct_log("Login succeed: $u->email with " . getVar('HTTP_USER_AGENT', "Unkown Browser", $_SERVER), 2, -1, "login");
 
-  // on switching family login dont forward to login again
-  if ($q != $q_orig) header("Location: ?q=$q_orig");
-  else if ($q == "login") header("Location: ?q=" . getConf("site_startpage", "home"));
+  if ($redirect) {
+    // on switching family login dont forward to login again
+    if ($q != $q_orig) header("Location: ?q=$q_orig");
+    else if ($q == "login") header("Location: ?q=" . getConf("site_startpage", "home"));
+  }
 }

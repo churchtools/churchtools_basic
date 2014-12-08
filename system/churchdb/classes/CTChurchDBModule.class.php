@@ -346,7 +346,7 @@ class CTChurchDBModule extends CTAbstractModule {
 
     db_query("DELETE FROM {cdb_gruppe_tag}
               WHERE tag_id=:tag_id AND gruppe_id=:gp_id",
-              array(':tag_id' => $params["tag_id"], ':gp_id' => $gp_id));
+              array(':tag_id' => $params["tag_id"], ':gp_id' => $params["id"]));
   }
 
   public function addNewTag($params) {
