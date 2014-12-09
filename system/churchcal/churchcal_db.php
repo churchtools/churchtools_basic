@@ -355,7 +355,7 @@ function churchcal_updateEvent($params, $callCS = true) {
   ct_notify("category", $params["category_id"], $txt);
 
   // Inform creator when I am allowed and when it is not me!
-  if (getVar("informCreator", true) && $originEvent["modified_pid"]!=$user->id) {
+  if ($callCS && getVar("informCreator", true) && $originEvent["modified_pid"]!=$user->id) {
     $data = (array) churchcal_getEventChangeImpact(array ("newEvent" => $params, "originEvent" => $originEvent, "pastEvent" => null));
     $data["caption"] = $params["bezeichnung"];
     $data["startdate"]   = churchcore_stringToDateDe($params["startdate"]);
@@ -379,13 +379,19 @@ function churchcal_getCCEventChanges($old, $new) {
 }
 
 function churchcal_saveSplittedEvent($params) {
+  global $user;
+  
   $res = new stdClass();
   // if no splitDate given it is a new event without impact
   if (!isset($params["splitDate"])) throw new CTException("saveSplittedEvent: splitDate not given!");
   $splitDate = new DateTime($params["splitDate"]);
   $untilEnd_yn = $params["untilEnd_yn"];
   $pastEventId = $params["pastEvent"]["id"];
-
+  
+  // Get originEvent out of Database
+  $dummy = churchcal_getCalPerCategory(array ("category_ids" => array(0 => $params["pastEvent"]["category_id"])));
+  $originEvent = (array) $dummy[$params["pastEvent"]["category_id"]][$params["newEvent"]["old_id"]];
+  
   // Copy all entries from past to new event, cause CR und CS does not have all infos and doesn't need it :)
   $pastEventDB = db_query("SELECT bezeichnung, ort, notizen, link, intern_yn, category_id  "
                          ."FROM {cc_cal} WHERE id = :id ", array (":id" => $pastEventId)) -> fetch();
@@ -413,6 +419,25 @@ function churchcal_saveSplittedEvent($params) {
 
   // Save old Event
   churchcal_updateEvent($params["pastEvent"], false);
+  
+  if (getVar("informCreator", true, $params["newEvent"]) && $originEvent["modified_pid"] != $user->id) {
+    $data = (array) churchcal_getEventChangeImpact(array ("newEvent" => $params["newEvent"], "originEvent" => $originEvent, 
+              "pastEvent" => $params["pastEvent"]));
+    $data["caption"] = $params["newEvent"]["bezeichnung"];
+    $data["startdate"]   = churchcore_stringToDateDe($params["newEvent"]["startdate"]);
+    $p = db_query("SELECT name, vorname, IF(spitzname, spitzname, vorname) AS nickname
+                    FROM {cdb_person}
+                    WHERE id=:id",
+        array(":id" => $originEvent["modified_pid"]))
+        ->fetch();
+    $data["p"] = $p;
+  
+    // get populated template and send email
+    $content = getTemplateContent('email/informCreator', 'churchcal', $data);
+    echo $content;
+    //churchcore_sendEMailToPersonIDs($originEvent["modified_pid"], "[" . getConf('site_name') . "] " . t('information.for.your.event'), $content, null, true);
+  }
+  
 
   return array("id" => $newEventId, "bookingIds" => $res["bookingIds"]);
 }
@@ -444,7 +469,7 @@ function churchcal_getCCEventChangeImpact($newEvent, $pastEvent, $originEvent) {
       }
     }
     else { // 3. event is in newEvent, now check bookings!
-      $change = makeCCEventDiff(getOneEventOutOfSeries($originEvent, $d), $newEvent);
+      $change = makeCCEventDiff(getOneEventOutOfSeries($originEvent, $d), getOneEventOutOfSeries($newEvent, $d));
       if ($change != null) _addCalChange($changes, "updated", $d, $change);
     }
   }
@@ -477,8 +502,9 @@ function getOneEventOutOfSeries($originEvent, $d) {
 function makeCCEventDiff($originEvent, $newEvent) {
   $ret = array ();
   foreach ($newEvent as $key=>$newEntry) {
-    if ($key != "informCreator" && $key != "modified_pid" && $key != "repeat_frequence"
-        && $key != "bookings" && $key != "csevents" && $key != "old_id") {
+    if ($key != "informCreator" && $key != "modified_pid" && $key != "repeat_frequence" && $key != "allDay" && $key != "name"
+        && $key != "func" && $key != "currentEvent_id" && $key != "id" && $key != "cal_id" && $key != "bookings" 
+            && $key != "csevents" && $key != "old_id") {
       if (!isset($originEvent[$key]) || $originEvent[$key] != $newEntry) {
         $k = $key;
         $einheit = "";
@@ -492,14 +518,18 @@ function makeCCEventDiff($originEvent, $newEvent) {
           $old = $repeat_types[$old]->bezeichnung;
           $new = $repeat_types[$new]->bezeichnung;
         }
-        else if ($key == "repeat_until") $k = "repeat.to";
+        else if ($key == "repeat_until") { 
+          $old = substr($old, 0, 10); 
+          $new = substr($old, 0, 10); 
+          $k = "repeat.to";
+        }        
         else if ($key == "modified_name") $k = "creator";
         if (strpos($key, "date") !== false || $key == "repeat_until") {
            if ($old != "") $old = churchcore_stringToDateDe($old);
            if ($new != "") $new = churchcore_stringToDateDe($new);
         }
-        if ($key == "repeat_until") { $old = substr($old, 0, 10); $new = substr($old, 0, 10); }
-        $ret[$k] = array ("old" => $old . $einheit, "new" => $new . $einheit);
+        // TODO: Treat exceptions in Diff
+        if ($old != $new) $ret[$k] = array ("old" => $old . $einheit, "new" => $new . $einheit);
       }
     }
   }

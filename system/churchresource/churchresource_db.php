@@ -54,7 +54,7 @@ function churchresource_getEventChangeImpact($newEvent, $pastEvent, $originEvent
           else {
             $newBooking = findBookingInNewEvent($booking, $newEvent);
             if ($newBooking != null) {
-              $change = makeBookingDiff($booking, $newBooking, getOneEventOutOfSeries($originEvent, $d), $newEvent);
+              $change = makeBookingDiff($booking, $newBooking, getOneEventOutOfSeries($originEvent, $d), getOneEventOutOfSeries($newEvent, $d));
               if ($change != null) _addCRChange($changes, $booking, "updated", $d, $change);
               //else _addCRChange($changes, $booking, "no.changes", $d, $change);
             }
@@ -161,7 +161,7 @@ function churchresource_send_mail($subject, $message, $to) {
  * @param array $params
  * @return unknown
  */
-function churchresource_createBooking($params) {
+function churchresource_createBooking($params, $sendEMails = true) {
   global $base_url, $user;
   $i = new CTInterface();
   $i->setParam("resource_id");
@@ -217,28 +217,32 @@ function churchresource_createBooking($params) {
     'userIsResourceAdmin' => false,
     'person'      => false,
   );
-  if ($resources[$params["resource_id"]]->admin_person_ids > 0) {
-    foreach (explode(',', $resources[$params["resource_id"]]->admin_person_ids) as $id) {
-      // dont send mails for own actions to resource admins
-      if ($user->id != $id) {
-        $p = churchcore_getPersonById($id);
-        if ($p && $p->email) {
-          $data['surname']  = $p->vorname;
-          $data['nickname'] = $p->spitzname ? $p->spitzname : $p->vorname;
-          $data['name']     = $p->name;
-
-          $content = getTemplateContent('email/bookingRequest', 'churchresource', $data);
-          churchresource_send_mail("[". getConf('site_name')."] ". t('new.booking.request'). ": ". $params["text"], $content, $p->email);
+  // Now send email to admin persons
+  if (getConf("churchresource_send_emails", true)) {
+    if ($resources[$params["resource_id"]]->admin_person_ids > 0) {
+      foreach (explode(',', $resources[$params["resource_id"]]->admin_person_ids) as $id) {
+        // dont send mails for own actions to resource admins
+        if ($user->id != $id) {
+          $p = churchcore_getPersonById($id);
+          if ($p && $p->email) {
+            $data['surname']  = $p->vorname;
+            $data['nickname'] = $p->spitzname ? $p->spitzname : $p->vorname;
+            $data['name']     = $p->name;
+  
+            $content = getTemplateContent('email/bookingRequest', 'churchresource', $data);
+            churchresource_send_mail("[". getConf('site_name')."] ". t('new.booking.request'). ": ". $params["text"], $content, $p->email);
+          }
+          else $userIsAdmin = true;
         }
-        else $userIsAdmin = true;
+        else $data['userIsResourceAdmin'] = true;
       }
-      else $data['userIsResourceAdmin'] = true;
     }
-  }
-  // TODO: dont send mails for own actions to main admin users?
-  if (!$data['userIsResourceAdmin']) {
-    $content = getTemplateContent('email/bookingRequest', 'churchresource', $data);
-    churchresource_send_mail("[". getConf('site_name'). "] ". t('new.booking.request').": " . $params["text"], $content, $user->email);
+    // Send email to author
+    if ($sendEMails && !$data['userIsResourceAdmin']) {
+      $data['nickname'] = $user->spitzname ? $user->spitzname : $user->vorname;
+      $content = getTemplateContent('email/bookingRequest', 'churchresource', $data);
+      churchresource_send_mail("[". getConf('site_name'). "] ". t('new.booking.request').": " . $params["text"], $content, $user->email);
+    }
   }
   // TODO: maybe use $loginfo?
   $logInfo = t('bookingX.for.resource.on.datetime',
@@ -283,7 +287,7 @@ function getBookingFields() {
  * @param array $params
  * @return multitype:multitype:unknown
  */
-function churchresource_updateBooking($params, $sendNoEMailToUser = false) {
+function churchresource_updateBooking($params, $sendEMails = true) {
   global $base_url, $user;
 
   $oldBooking = getBooking($params["id"]);
@@ -376,7 +380,7 @@ function churchresource_updateBooking($params, $sendNoEMailToUser = false) {
         }
       }
 
-      if ($sendNoEMailToUser && getConf("churchresource_send_emails", true) && count($days) && $bUser) {
+      if ($sendEMails && getConf("churchresource_send_emails", true) && count($days) && $bUser) {
         // FIXME: dont send such emails to users adding exceptions to their repeating event in cal
         $data = array(
           'canceled' => true,
@@ -462,7 +466,7 @@ function churchresource_updateBooking($params, $sendNoEMailToUser = false) {
   elseif ($data['canceled']) $logInfo = t('booking.canceled') . $logInfo;
   elseif ($data['deleted']) $logInfo = t('booking.deleted') . $logInfo;
 
-  if ($sendNoEMailToUser && getConf("churchresource_send_emails", true)) {
+  if ($sendEMails && getConf("churchresource_send_emails", true)) {
     if (($params["status_id"] != $oldBooking->status_id || $changedFields != null)
         && $bUser) {
       $adminmails = explode(",", $resources[$params["resource_id"]]->admin_person_ids);
@@ -593,7 +597,7 @@ function churchresource_operateResourcesFromChurchCal($params) {
       $save["startdate"]  = _shiftDate($save["startdate"], -$booking["minpre"]);
       $save["enddate"]    = _shiftDate($save["enddate"], $booking["minpost"]);
 
-      $arr = churchresource_createBooking($save);
+      $arr = churchresource_createBooking($save, false);
       $newIds[$oldbookingid] = $arr["id"];
     }
   }

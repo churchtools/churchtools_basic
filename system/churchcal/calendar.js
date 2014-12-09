@@ -462,7 +462,7 @@ function _renderEditEventContent(elem) {
       label:"Link",
       cssid:"inputLink"
     }));
-    if (user_access("assistance mode") && (currentEvent.id==null || currentEvent.modified_pid == masterData.user_pid)) {
+    if (user_access("assistance mode") && (currentEvent.modified_pid==null || currentEvent.modified_pid == masterData.user_pid)) {
       rows.push(form_renderInput({
         cssid:"assistance_user",
         label:_("by.order.of")

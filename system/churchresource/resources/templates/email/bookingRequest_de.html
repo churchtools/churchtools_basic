@@ -1,36 +1,4 @@
-<!-- TODO: remove before publishing
-updateBooking
-    'canceled' => true,
-    'surname'  => $bUser->vorname,
-    'name'     => $bUser->name,
-    'nickname' => $bUser->spitzname ? $bUser->spitzname : $bUser->vorname,
-    'user'     => $user,
-    'resource' => $resources[$params["resource_id"]]->bezeichnung,
-    'booking'  => $booking,
-    'days'     => implode(", ", $days),
-    'person'   => $bUser,
-    'contact'  => getConf('site_mail'), // TODO: add church contact data to config an use getConf('churchContact'),
-    
-createBooking
-    'booking'     => $booking,
-    'resource'    => $resources[$params["resource_id"]]->bezeichnung,
-    'conflicts'   => getVar("conflicts", false, $params),
-    'startdate'   => churchcore_stringToDateDe($booking->startdate),
-    'enddate'     => churchcore_stringToDateDe($booking->enddate),
-    'status'      => $status[$booking->status_id]->bezeichnung,
-    'repeatType'  => false,
-    'exceptions'  => $exceptions,
-    'additions'   => $additions,
-    'conflicts'   => getVar("conflicts", false, $params),
-    'bookingUrl'  => $base_url . "?q=churchresource&id=" . $booking->id,
-    'pending'     => getVar("status_id", false, $params) == CR_PENDING,
-    'succesful'   => getVar("status_id", false, $params) == CR_APPROVED, //TODO: was != CR_PENDING, but CR_APPROVED seems more logical
-    'canceled'    => false,
-    'userIsResourceAdmin' => false,
-    'person'      => false,
- -->
-
-<h4>Hallo <?= $nickname ?></h4>
+<h4>Hallo <?= $nickname ?>!</h4>
 
 <?php if (!empty($userIsResourceAdmin)): ?>
   <?php if (!empty($pending)): ?>
