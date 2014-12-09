@@ -1504,7 +1504,8 @@ function editCategory(cat_id, privat_yn, oeffentlich_yn) {
   var elem = form_showDialog((cat_id==null?"Kalender erstellen":"Kalender bearbeiten"), form.render(false, "horizontal"), 500, 500, {
     "Speichern": function() {
       var obj = form.getAllValsAsObject();
-      if (obj.ical_source_url && !confirm("Achtung, wenn eine iCal-Source angegeben wird, werden alle vorhandenen unwiderruflich Termine gelöscht!"))
+      if (obj.ical_source_url && !confirm("Achtung, wenn eine iCal-Source angegeben wird, werden alle bereits im Kalender "
+             +masterData.category[cat_id].bezeichnung+" vorhandenen Termine unwiderruflich gelöscht!"))
         return;
       obj.color=current.color;
       if (obj.color==null) obj.color="black";
