@@ -393,7 +393,11 @@ CalAbsentsType.prototype.jsonCall = function(id) {
   var t=this;
   var cals=churchcore_getArrStrAsArray(masterData.settings.filterGruppenKalender);
   if (cals.length>0) {
-    churchInterface.jsendRead({func:"getAbsents", cal_ids:cals}, function(ok, json) {
+    var realIds = new Array();
+    each(cals, function(k,a) {
+      if (a>100) realIds.push(a*1-100);
+    });
+    churchInterface.jsendRead({func:"getAbsents", cal_ids:realIds}, function(ok, json) {
        if (ok) {
          t.data[id].events=json;
          t.data[id].status="loaded";
