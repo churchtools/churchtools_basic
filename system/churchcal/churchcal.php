@@ -38,8 +38,11 @@ function churchcal_main() {
 
   if ($catId = getVar("category_id")) {
     $txt .= '<input type="hidden" id="filtercategory_id" name="category_id" value="' . $catId . '"/>' . NL;
+    if ($id = getVar("id")) { // only of category_id is set
+      $txt .= '<input type="hidden" id="filterevent_id" name="id" value="' . $id . '"/>' . NL;
+    }
   }
-
+  
   if ($embedded) {
     if ($catSel = getVar("category_select")) {
       $txt .= '<input type="hidden" id="filtercategory_select" name="category_select" value="' . $catSel . '"/>' . NL;
@@ -123,6 +126,39 @@ function churchcal_getUserMeetings() {
 
 /**
  *
+ * @return string; empty div
+ */
+function churchcal_getUserMyMeetings() {
+  global $user;
+  $db = db_query("SELECT count(*) count, c.id, c.category_id, c.startdate, c.bezeichnung, 
+                  sum(if (mr.zugesagt_yn=1,1,0)) as zugesagt,
+                  sum(if (mr.zugesagt_yn is null AND mr.response_date is not null,1,0)) as perhaps,
+                  sum(if (mr.response_date is not null,1,0)) as response 
+             FROM {cc_cal} c, {cc_meetingrequest} mr
+             WHERE c.id = mr.cal_id 
+              AND c.modified_pid=$user->id AND DATEDIFF(c.startdate,now())>=0
+              GROUP BY c.id, c.category_id, c.startdate, c.bezeichnung
+              ORDER BY c.startdate");
+  $txt ="";
+  foreach ($db as $entry) {
+    $txt .= '<li><a href="?q=churchcal&category_id=' . $entry->category_id . '&id=' . $entry->id . '">' . churchcore_stringToDateDe($entry->startdate) . " - " . $entry->bezeichnung . "</a>";
+    $txt .= '<p><small>';
+    $txt .= '<span class="badge badge-info">' . ($entry->count-$entry->response) . '</span> Offen &nbsp;';
+    if ($entry->zugesagt>0)
+      $txt .= '<span class="badge badge-success">' . $entry->zugesagt . '</span> Zusage &nbsp;';
+    if ($entry->perhaps>0)
+      $txt .= '<span class="badge">' . ($entry->perhaps) . '</span> Vielleicht &nbsp;';
+    if ($entry->response-$entry->perhaps-$entry->zugesagt>0)
+      $txt .= '<span class="badge badge-important">' . ($entry->response-$entry->perhaps-$entry->zugesagt) . '</span> Absage &nbsp;';
+    $txt .= "</small>";
+      
+  }
+  if ($txt!="") $txt = "<ul>" . $txt . "</ul>";
+  return $txt;
+}
+
+/**
+ *
  * @return array
  */
 function churchcal_blocks() {
@@ -143,7 +179,14 @@ function churchcal_blocks() {
               "help" => t('meeting.requests'),
               "class" => "cal-request",
           ),
-   ));
+          3 => array (
+              "label" => "Deine erstellten Besprechungsanfragen",
+              "col" => 2,
+              "sortkey" => 3,
+              "html" => churchcal_getUserMyMeetings(),
+              "class" => "cal-request",
+          ),
+  ));
 }
 
 /**
@@ -441,6 +484,8 @@ function churchcal_deleteEvent($params, $source = null) {
     }
   }
 
+  db_query("DELETE FROM {cc_meetingrequest} WHERE cal_id=:id", array (":id" => $id));
+  
   db_query("DELETE FROM {cc_cal_except} WHERE cal_id=:id", array (":id" => $id));
   db_query("DELETE FROM {cc_cal_add}    WHERE cal_id=:id", array (":id" => $id));
   db_query("DELETE FROM {cc_cal}        WHERE id=:id", array (":id" => $id));

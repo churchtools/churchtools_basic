@@ -427,7 +427,7 @@ ListView.prototype.renderEditEvent = function(event) {
   }
   else {
     rows.push('<div id="in_edit">');
-    rows.push('<div ' + (event.id == null ? 'style="float:left;width:70%"' : '') + '>');
+    rows.push('<div ' + (event.id == null ? 'style="float:left;width:480px"' : '') + '>');
 
     rows.push('<form class="form-horizontal">');
 
@@ -574,7 +574,7 @@ ListView.prototype.renderEditEvent = function(event) {
 
   var this_object=this;
 
-  var elem = this.showDialog(_("change.of.dataset"), rows.join(""), (event.id==null?730:460), (event.id==null?600:500));
+  var elem = this.showDialog(_("change.of.dataset"), rows.join(""), (event.id==null?850:460), (event.id==null?600:500));
 
   $("#datefields").renderCCEvent({event: event, allDayAllowed:false, repeatsAllowed: event.id==null});
 

@@ -450,7 +450,7 @@ GroupView.prototype.renderAddEntry = function() {
       }
       else {
         $("#searchEntry").val(json.id).keyup();
-        cdb_loadMasterData(function() {
+        churchInterface.loadMasterData(function() {
           t.filter=new Object();
           t.filter.searchEntry=json.id;
           if ($("#forceDontHide").attr("checked")=="checked") {

@@ -72,7 +72,7 @@ function home_main() {
           $txt .= '<li class="ct_whitebox '.$block["class"] . '">';
           $txt .= '<label class="ct_whitebox_label">' . $block["label"] . "</label>";
           
-          if ($block["help"]) {
+          if (isset($block["help"])) {
             $txt .= '<div style="float:right;margin:-34px -12px">';
             $txt .= '<a href="http://intern.churchtools.de?q=help&doc=' . $block["help"] . '" title="' . t("open.help") .
                  '" target="_clean"><i class="icon-question-sign"></i></a>';

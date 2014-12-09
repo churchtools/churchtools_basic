@@ -401,8 +401,8 @@ function churchservice_getUserNextServices($short = true) {
   foreach ($res as $arr) {
     $nr++;
     if (($nr <= 5) || (!$short)) {
-      $txt .= "<p><a href='?q=churchservice&id='$arr->event_id'>$arr->datum - $arr->event</a>:
-               <a href='?q=churchservice&id='$arr->event_id'><b>$arr->service</b></a> ($arr->servicegroup)";
+      $txt .= "<p><a href='?q=churchservice&id=$arr->event_id'>$arr->datum - $arr->event</a>:
+               <a href='?q=churchservice&id=$arr->event_id'><b>$arr->service</b></a> ($arr->servicegroup)";
       $files = churchcore_getFilesAsDomainIdArr("service", $arr->event_id);
       $txt .= '<span class="pull-right">';
       if (isset($files) && isset($files[$arr->event_id])) {

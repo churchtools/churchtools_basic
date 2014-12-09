@@ -9,6 +9,7 @@ viewName="calView";
 filterName="";
 previousBookings=null;
 filterCategoryIds=null;
+filterId=null;
 var saveSettingTimer=null;
 var filter=new Object();
 var embedded=false;
@@ -1199,7 +1200,9 @@ function send2Calendar(a,b) {
   else if (viewName=="eventView")
     calendar.eventCalendar(a,b);
   else alert("Unbekannter send Calendar");
-
+  
+  if (b.category_id==filterCategoryIds)
+    editEvent(b.container.data[filterCategoryIds].events[filterId]);
 }
 
 function renderTooltip(event) {
@@ -2032,6 +2035,7 @@ $(document).ready(function() {
   churchInterface.setModulename("churchcal");
   if ($("#filtercategory_id").val()!=null) {
     filterCategoryIds=$("#filtercategory_id").val().split(",");
+    filterId=$("#filterevent_id").val();
   }
 
   if ($("#printview").length!=0) {
