@@ -148,17 +148,8 @@ AgendaView.prototype.exportCurrentAgendaToSongBeamer = function () {
     }
   });
   rows.push(">\r\nend\r\n");
-
-  var uri = 'data:text/col;charset=utf-8,' + escape(rows.join(""));
-
-  var downloadLink = document.createElement("a");
-  downloadLink.href = uri;
-  downloadLink.download = "ablaufplan.col";
-
-  document.body.appendChild(downloadLink);
-  downloadLink.click();
-  document.body.removeChild(downloadLink);
-
+  
+  churchInterface.downloadFile("ablaufplan", "col", rows.join(""));
 };
 
 AgendaView.prototype.exportCurrentAgendaToProPresenter = function () {
@@ -166,7 +157,7 @@ AgendaView.prototype.exportCurrentAgendaToProPresenter = function () {
     var rows=new Array();
     var dt=new Date();
     rows.push('<RVPlaylistDocument versionNumber="500" creatorCode="0000000000" playlistType="0"><playlists containerClass="NSMutableArray"><NSMutableDictionary containerClass="NSMutableDictionary" serialization-array-index="0"><NSMutableString serialization-native-value="5002768F-5F2E-4E7C-9086-502D81929BE9" serialization-dictionary-key="playlistUUID"></NSMutableString>'+
-        '<NSMutableString serialization-native-value="'+agendaView.currentAgenda.bezeichnung+'" serialization-dictionary-key="playlistName"></NSMutableString>'+
+        '<NSMutableString serialization-native-value="'+churchInterface.views.AgendaView.currentAgenda.bezeichnung+'" serialization-dictionary-key="playlistName"></NSMutableString>'+
         '<NSNumber serialization-native-value="3" serialization-dictionary-key="playlistType"></NSNumber>'+
         '<NSDate serialization-native-value="'+dt.toStringEn(false)+'T10:00:00+0200" serialization-dictionary-key="playlistModifiedDate"></NSDate>'+
         '<NSMutableArray containerClass="NSMutableArray" serialization-dictionary-key="playlistChildren">');
@@ -196,18 +187,7 @@ AgendaView.prototype.exportCurrentAgendaToProPresenter = function () {
     var zip = new JSZip();
     var pro5pl=zip.folder("test.pro5pl");
     pro5pl.file("data.pro5pl", rows.join(""));
-
-    var uri = 'data:application/zip;base64,' + escape(zip.generate({type:"base64"}));
-
-    var downloadLink = document.createElement("a");
-    downloadLink.href = uri;
-    downloadLink.download = "test.pro5plx";
-
-    document.body.appendChild(downloadLink);
-
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-
+    churchInterface.downloadFile("ablaufplan", "pro5plx", zip.generate({type:"base64"}));    
   });
 };
 

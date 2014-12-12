@@ -104,16 +104,8 @@ GroupView.prototype.exporter = function() {
       rows.push(a.id+";"+txt.html2csv()+"\r\n");
     }
   });
-
-  var uri = 'data:text/csv;charset=utf-8,' + escape(rows.join(""));
-
-  var downloadLink = document.createElement("a");
-  downloadLink.href = uri;
-  downloadLink.download = "export_gruppenliste.csv";
-
-  document.body.appendChild(downloadLink);
-  downloadLink.click();
-  document.body.removeChild(downloadLink);
+  
+  churchInterface.downloadFile("export_gruppenliste", "csv", rows.join(""));
 };
 
 

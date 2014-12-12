@@ -719,16 +719,7 @@ PersonView.prototype.exportMeetinglist = function() {
     firstline = false;
     exp.push("\n");
   });
-  var uri = 'data:text/col;charset=utf-8,' + escape(add+"\n"+exp.join(""));
-
-  var downloadLink = document.createElement("a");
-  downloadLink.href = uri;
-  downloadLink.download = "gruppenteilnehmerliste.csv";
-
-  document.body.appendChild(downloadLink);
-  downloadLink.click();
-  document.body.removeChild(downloadLink);
-
+  churchInterface.downloadFile("gruppenteilnehmerliste", "csv", add+"\n"+exp.join(""));
 };
 
 PersonView.prototype.getMeetingFromMeetingList = function (g_id, gruppentreffen_id) {

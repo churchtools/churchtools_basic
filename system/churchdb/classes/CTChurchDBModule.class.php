@@ -578,5 +578,4 @@ class CTChurchDBModule extends CTAbstractModule {
   public function getMasterDataTablenames() {
     return churchdb_getMasterDataTablenames();
   }
-
 }

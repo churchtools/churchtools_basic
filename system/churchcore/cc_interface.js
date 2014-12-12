@@ -96,6 +96,39 @@ ChurchInterface.prototype.loadDataObjects = function(arr, funcWhenReady) {
     else t.loadDataObjects(arr, funcWhenReady);
   }
 };
+
+/**
+ * Make a JavaScript download function.
+ * For Safari und Firefox it will not be running with downloadLink (only open data in new window, not downloading)
+ * It will store file on server and give link in new window.
+ * @param filename
+ * @param filesuffix
+ * @param data
+ */
+ChurchInterface.prototype.downloadFile = function(filename, filesuffix, data) {
+  var t = this;
+  t.jsendWrite({func:"makeDownloadFile", filename:filename, suffix: filesuffix, data:data}, function(ok, data) {
+    console.log("open window "+data);
+    var Fenster = window.open(data);
+    // Timer for deleting file
+    window.setTimeout(function() { 
+      t.jsendWrite({func:"makeDownloadFile", delete:true, filename:data});
+    }, 1000);
+  });    
+
+  /* THIS IS NOT SUPPORTED BY SAFARI UND FIREFOX   
+  var uri = 'data:text/col;charset=utf-8,' + escape(add+"\n"+exp.join(""));
+
+  var downloadLink = document.createElement("a");
+  downloadLink.href = uri;
+  downloadLink.download = "gruppenteilnehmerliste.csv";
+
+  document.body.appendChild(downloadLink);
+  downloadLink.click();
+  document.body.removeChild(downloadLink);
+  */
+}
+
 /**
  *
  * @param message: e.g. "allDataLoaded", "filterChanged"

@@ -158,7 +158,7 @@
     <div class="container-fluid" id="page">
 <? else: ?>
      <body style="background:none">
-     <div>
+     <div id="page">
 <? endif; ?>
 <? if (getConf("site_offline") == 1): ?>
      <div class="alert alert-info"><?= t("offline.mode.is.active") ?></div>

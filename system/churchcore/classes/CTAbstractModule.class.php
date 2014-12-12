@@ -232,5 +232,18 @@ abstract class CTAbstractModule implements CTModuleInterface {
   public function getMasterDataTablenames() {
     return null;
   }
+  
+  public function makeDownloadFile($params) {
+    global $files_dir;
+    if (getVar("delete", false, $params)) {
+      unlink($params["filename"]);
+    }
+    else {
+      mkdir($files_dir . "/files/downloader");
+      $temp = $files_dir . "/files/downloader/" . $params["filename"] . random_string(10) . "." . $params["suffix"];
+      file_put_contents($temp, $params["data"]);
+      return $temp;
+    }
+  }
 
 }
