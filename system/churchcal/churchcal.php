@@ -456,6 +456,7 @@ function churchcal_deleteEvent($params, $source = null) {
   global $user;
   $id = $params["id"];
   $logger = db_query("SELECT * FROM {cc_cal} WHERE id=:id", array(":id" => $params["id"])) -> fetch();
+  if (!$logger) return;
 
   if (!churchcal_isAllowedToEditEvent($id)) throw new CTNoPermission("AllowToEditEvent", "churchcal");
 
@@ -468,7 +469,7 @@ function churchcal_deleteEvent($params, $source = null) {
   }
   if (!$source || $source != "churchservice") {
     include_once (CHURCHSERVICE . '/churchservice_db.php');
-    $cs_params = array_merge(array(), $params); //TODO: whats this for?
+    $cs_params = array_merge(array(), $params);
     $cs_params["cal_id"] = $params["id"];
     $cs_params["informDeleteEvent"] = 1;
     $cs_params["deleteCalEntry"] = 1;
@@ -712,12 +713,20 @@ function churchcal_deleteCategory($params) {
   if ($data->modified_pid != $user->id && (!$auth || !isset($auth[$id]))) throw new CTNoPermission("Edit Category", "churchcal");
 
   $c = db_query("SELECT COUNT(*) c
-                 FROM {cs_event} e, {cc_cal} cal
-                 WHERE cal.id=e.cc_cal_id AND cal.category_id=:id",
+                 FROM {cs_event} e, {cc_cal} cal, {cs_eventservice} es
+                 WHERE cal.id=e.cc_cal_id AND cal.category_id=:id
+                 AND es.event_id=e.id AND zugesagt_yn=1 AND es.valid_yn=1
+                 AND DATEDIFF(cal.startdate, now())>=0",
                  array (":id" => $id))
                  ->fetch();
   if ($c->c > 0) throw new CTFail(t('deleting.failed.because.of.remaining.services'));
 
+  $db = db_query("SELECT c.id FROM {cs_event} e, {cc_cal} c WHERE c.category_id=:category_id AND e.cc_cal_id = c.id", 
+            array(":category_id" => $id));
+  foreach ($db as $cal) {
+    churchcal_deleteEvent(array("id"=>$cal->id));
+  }
+  
   db_query("DELETE FROM {cc_cal}         WHERE category_id=:id", array (":id" => $id));
   db_query("DELETE FROM {cc_calcategory} WHERE id=:id", array (":id" => $id));
   db_query("DELETE FROM {cc_domain_auth} WHERE auth_id in (403, 404) and daten_id=:id", array (":id" => $id));

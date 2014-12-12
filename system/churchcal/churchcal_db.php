@@ -248,8 +248,8 @@ function churchcal_updateEvent($params, $callCS = true) {
   }
 
   // When empty, load originEvent for later sending Change protocol
-  $dummy = churchcal_getCalPerCategory(array ("category_ids" => array(0 => $params["category_id"])));
-  $originEvent = (array) $dummy[$params["category_id"]][$params["id"]];
+  $dummy = churchcal_getCalPerCategory(array ("category_ids" => array(0 => $old_cal->category_id)));
+  $originEvent = (array) $dummy[$old_cal->category_id][$params["id"]];
 
   if (isset($params["notizen"])) $params["notizen"] = str_replace('\"', '"', $params["notizen"]);
 
