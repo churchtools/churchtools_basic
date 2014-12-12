@@ -116,23 +116,43 @@ function _getEventsFromDate(cs_events, start, end) {
       arr=arr.concat(cs_events[go.getFullYear()][go.getMonth()+1][go.getDate()]);
     go.addDays(1);
   }
-  return arr;
+  // Delete items which are over one day, cause they are more than one time in it
+  var ids = new Object();
+  var newArr = new Array();
+  each(arr, function(k, a) {
+    if (ids[a.id]==null) {
+      ids[a.id]=true;
+      newArr.push(a);
+    }    
+  });
+  return newArr;
 }
 
+/**
+ * Uses a runningDate to get all days to the index
+ * @param cs_events
+ * @param o
+ */
 function _addEventsToDateIndex(cs_events, o) {
-  var year=cs_events[o.start.getFullYear()];
+  if (o.runningDate==null) o.runningDate = new Date(o.start.getTime());
+  var year=cs_events[o.runningDate.getFullYear()];
   if (year==null) year=new Array();
 
-  var month=year[o.start.getMonth()+1];
+  var month=year[o.runningDate.getMonth()+1];
   if (month==null) month=new Array();
 
-  var day=month[o.start.getDate()];
+  var day=month[o.runningDate.getDate()];
   if (day==null) day=new Array();
 
   day.push(o);
-  month[o.start.getDate()]=day;
-  year[o.start.getMonth()+1]=month;
-  cs_events[o.start.getFullYear()]=year;
+  month[o.runningDate.getDate()]=day;
+  year[o.runningDate.getMonth()+1]=month;
+  cs_events[o.runningDate.getFullYear()]=year;
+    
+  o.runningDate.addDays(1);
+  if (o.runningDate.getTime() < o.end.getTime()) {
+   _addEventsToDateIndex(cs_events, o);
+  }
 }
 
 // ---------------------------------------------------------------------------------------------------------
