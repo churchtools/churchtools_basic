@@ -847,7 +847,7 @@ ListView.prototype.renderEventServiceEntry = function(event_id, services, bin_ic
         _class="angefragt";
 
     rows.push('<font class="'+_class+'">');
-      rows.push(t.renderPersonName(services));
+      rows.push(renderPersonName(services));
     rows.push('</font>');
     if (edit) rows.push('</a>');
     else rows.push('</span>');
@@ -1812,7 +1812,7 @@ ListView.prototype.showAuslastung = function() {
   form_showOkDialog("Anzeige der Auslastung der Mitarbeiter", rows.join(""));
 };
 
-ListView.prototype.renderPersonName = function(entry) {
+function renderPersonName(entry) {
   if (entry==null || entry.name==null) return '<font class="offen">?</font>';
   var name=entry.name;
   if (masterData.settings.showFullName==0 && entry.cmsuserid!=null)

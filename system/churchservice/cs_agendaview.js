@@ -15,11 +15,11 @@ function getAgendaView() {
 }
 
 AgendaView.prototype.getNeededDataObjects = function() {
-  return ["cs_loadSongs"];
+  return ["cs_loadListViewData", "cs_loadSongs"];
 };
 
 AgendaView.prototype.getNeededJSFiles = function() {
-  return ['/churchservice/cs_loadandmap.js', '/churchservice/cs_songview.js'];
+  return ['/churchcore/cc_events.js', '/churchservice/cs_loadandmap.js', '/churchservice/cs_songview.js'];
 }
 
 AgendaView.prototype.checkFilter = function(item) {
@@ -438,7 +438,7 @@ AgendaView.prototype.renderFieldResponsible = function(content, event_ids) {
       var entries=new Array();
       each(sgs[service.servicegroup_id], function(k,s) {
         if (s.service_id==service.id) {
-          entries.push(churchInterface.views.ListView.renderPersonName(s));
+          entries.push(renderPersonName(s));
         }
       });
       if (entries.length==0) return content;
@@ -1316,7 +1316,7 @@ AgendaView.prototype.renderListHeader = function(smallVersion) {
               each(servicegroups[sg.id], function(j, s) {
                 if (s.service_id==service.id) {
                   rows.push(''+service.bezeichnung+": ");
-                  rows.push(listView.renderPersonName(s));
+                  rows.push(renderPersonName(s));
                   rows.push('&nbsp; &nbsp; ');
                 }
               });

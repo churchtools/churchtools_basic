@@ -164,15 +164,7 @@ function churchservice__printview() {
   drupal_add_js(CHURCHCORE .'/cc_standardview.js');
   drupal_add_js(CHURCHCORE .'/cc_maintainstandardview.js');
 
-  drupal_add_js(CHURCHSERVICE .'/cs_loadandmap.js');
-  drupal_add_js(CHURCHSERVICE .'/cs_settingsview.js');
-  drupal_add_js(CHURCHSERVICE .'/cs_maintainview.js');
   drupal_add_js(CHURCHSERVICE .'/cs_listview.js');
-  //drupal_add_js(CHURCHSERVICE .'/cs_testview.js');
-  drupal_add_js(CHURCHSERVICE .'/cs_calview.js');
-  drupal_add_js(CHURCHSERVICE .'/cs_factview.js');
-  drupal_add_js(CHURCHSERVICE .'/cs_agendaview.js');
-  drupal_add_js(CHURCHSERVICE .'/cs_songview.js');
   drupal_add_js(CHURCHSERVICE .'/cs_main.js');
 
   drupal_add_js(createI18nFile("churchcore"));

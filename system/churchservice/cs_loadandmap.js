@@ -2,7 +2,7 @@ function cs_loadListViewData(funcReady) {
   // Lade nun Event-Data
   cs_loadEventData(null, function() {
     if (!currentDate_externGesetzt) {
-      if ($("#externevent_id").val()!=null) {
+      if ($("#externevent_id").val()!=null && allEvents[$("#externevent_id").val()]!=null) {
         churchInterface.getCurrentView().currentDate=allEvents[$("#externevent_id").val()].startdate.withoutTime();
         churchInterface.getCurrentView().filter["searchEntry"]="#"+$("#externevent_id").val();
         churchInterface.getCurrentView().renderFilter();
@@ -25,7 +25,7 @@ function cs_loadListViewData(funcReady) {
     cs_loadPersonDataFromCdb(function() {
       // Genug Daten um nun die Anwendung zu zeigen.
       // new: 27.1.13: RenderList reicht, denn Filter �ndert sich nix.
-      funcReady();
+      if (funcReady!=null) funcReady();
 //      churchInterface.getCurrentView().renderList();
       churchInterface.sendMessageToAllViews("allDataLoaded");
 
