@@ -1,14 +1,15 @@
-(function($) {
-
 // Constructor
 function MaintainView() {
-  StandardTableView.call(this);
+  MaintainStandardView.call(this);
   this.name="MaintainView";
 }
 
 Temp.prototype = MaintainStandardView.prototype;
 MaintainView.prototype = new Temp();
-maintainView = new MaintainView();
+
+function getMaintainView() {
+  return new MaintainView();
+}
 
 MaintainView.prototype.renderMenu = function() {
   this_object=this;
@@ -42,5 +43,3 @@ MaintainView.prototype.renderMenu = function() {
     });
   }  
 };
-
-})(jQuery);

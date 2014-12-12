@@ -120,8 +120,8 @@ function _getEventsFromDate(cs_events, start, end) {
   var ids = new Object();
   var newArr = new Array();
   each(arr, function(k, a) {
-    if (ids[a.id]==null) {
-      ids[a.id]=true;
+    if (ids[a.id+"."+a.repeat_number]==null) {
+      ids[a.id+"."+a.repeat_number]=true;
       newArr.push(a);
     }    
   });
@@ -210,6 +210,7 @@ function mapEvents(allEvents) {
           if ((a.category_id!=null) && (masterData.category[a.category_id].color!=null))
             o.color=masterData.category[a.category_id].color;
 
+          o.repeat_number = k;
           _addEventsToDateIndex(cs_events, o);
         });
       }

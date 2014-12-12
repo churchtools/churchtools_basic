@@ -943,6 +943,8 @@ function churchcore_personalizeTemplate($txt, $p) {
   $txt = str_replace("[Titel]", $p->titel, $txt);
   $txt = str_replace("[Spitzname]", ($p->spitzname ? $p->spitzname : $p->vorname), $txt);
   $txt = str_replace("[Id]", $p->id, $txt);
+  $txt = str_replace("[Initialen]", substr($p->vorname,0,1) . substr($p->name,0,1), $txt);
+  $txt = str_replace("[Benutzername]", $p->cmsuserid, $txt);
   return $txt;
 }
 
