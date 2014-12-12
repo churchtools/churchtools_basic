@@ -1883,7 +1883,16 @@ function getAllDatesWithRepeats($r, $_from = -1, $_to = 1, $fromDate = null) {
 }
 
 function cleanICal($txt) {
-  return str_replace("\n", "\\n", $txt);
+  $str = str_replace("\n", "\\n", $txt);
+  // Now do folding see RFC 5545: http://tools.ietf.org/html/rfc5545
+  $res = "";
+  while ($str!="") {
+    $sub = substr($str, 0, 70);
+    $str = substr($str, 70, 9999);
+    if (strlen($str)>0) $sub .= NL . " ";
+    $res .= $sub;
+  }
+  return $res;
 }
 
 function surroundWithVCALENDER($txt) {
