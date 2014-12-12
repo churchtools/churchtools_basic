@@ -112,7 +112,7 @@ ChurchInterface.prototype.downloadFile = function(filename, filesuffix, data) {
     var Fenster = window.open(data);
     // Timer for deleting file
     window.setTimeout(function() { 
-      t.jsendWrite({func:"makeDownloadFile", delete:true, filename:data});
+      t.jsendWrite({func:"makeDownloadFile", remove:true, filename:data});
     }, 1000);
   });    
 

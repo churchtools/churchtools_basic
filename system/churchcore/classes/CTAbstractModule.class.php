@@ -235,7 +235,7 @@ abstract class CTAbstractModule implements CTModuleInterface {
   
   public function makeDownloadFile($params) {
     global $files_dir;
-    if (getVar("delete", false, $params)) {
+    if (getVar("remove", false, $params)) {
       unlink($params["filename"]);
     }
     else {
