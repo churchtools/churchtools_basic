@@ -749,8 +749,8 @@ function churchcal_isAllowedToEditEvent($id) {
 
   // author of event can edit it
   if ($data && $data->modified_pid == $user->id) return true;
-  if ($auth && !isset($auth[$id])) return true;
-
+  if ($auth && isset($auth[$data->category_id])) return true;
+  
   return false;
 }
 

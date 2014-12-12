@@ -54,7 +54,8 @@
       settings.user.name="<?= $user->name ?>";
 <? endif; ?>
       version=<?= getConf("version") ?>;
-  </script>
+      jsversion=<?= JS_VERSION ?>;
+    </script>
 
  <link rel="shortcut icon" href="<?= ASSETS ?>/ico/favicon.ico">
     <link rel="apple-touch-icon-precomposed" sizes="144x144" href="<?= ASSETS ?>/ico/apple-touch-icon-144-precomposed.png">

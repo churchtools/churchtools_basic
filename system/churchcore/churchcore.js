@@ -788,9 +788,9 @@ jQuery.extend({
     var head = document.getElementsByTagName("head")[0] || document.documentElement;
     var script = document.createElement("script");
     if (url.indexOf("?")==-1)
-      script.src = url+"?"+version;
+      script.src = url+"?"+jsversion;
     else
-      script.src = url+"&"+version;
+      script.src = url+"&"+jsversion;
 
     // Handle Script loading
     var done = false;
