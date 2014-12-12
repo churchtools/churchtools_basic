@@ -1211,14 +1211,13 @@ AgendaView.prototype.getListHeader = function () {
   $("#cdb_group .go-to-event").click(function() {
     var startdate=new Date(2000);
     each(t.currentAgenda.event_ids, function(k,a) {
-      if (allEvents[a]!=null && allEvents[a].startdate.toDateEn(false)>startdate)
-        startdate=allEvents[a].startdate.toDateEn(false);
+      if (allEvents[a]!=null && allEvents[a].startdate.getTime()>startdate.getTime())
+        startdate=new Date(allEvents[a].startdate.getTime());
     });
-    churchInterface.setCurrentView(listView, true);
-    window.setTimeout(function() {
+    churchInterface.setCurrentLazyView("ListView", true, function(listView) {
       listView.currentDate=startdate;
       listView.renderList();
-    },10);
+    });
     return false;
   });
   $("#cdb_group .reopen-agenda").click(function() {
