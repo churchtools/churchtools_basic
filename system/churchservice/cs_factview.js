@@ -167,7 +167,7 @@ FactView.prototype.getListHeader = function () {
   }
   this.filter["filterKategorien"].render2Div("filterKategorien", {label:"Kategorien"});
 
-  if ((!this.factLoaded) && (this.allDataLoaded)) {
+  if ((!this.factLoaded)) {
     var elem = this.showDialog("Lade Faktendaten", "Lade Faktendaten...", 300,300);
     cs_loadFacts(function() {
       this_object.factLoaded=true;
