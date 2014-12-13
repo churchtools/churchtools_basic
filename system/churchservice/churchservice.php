@@ -691,7 +691,7 @@ function churchservice_inform_leader() {
   if (!count($arr)) return false;
 
   // get persons being (co)leader of one of this service groups
-  $res = db_query("SELECT p.id AS person_id, gpg.gruppe_id, p.email, p.vorname, p.cmsuserid
+  $res = db_query("SELECT p.id AS person_id, gpg.gruppe_id, p.email, p.vorname, p.name, p.spitzname, p.cmsuserid
                    FROM {cdb_person} p, {cdb_gemeindeperson_gruppe} gpg, {cdb_gemeindeperson} gp
                    WHERE gpg.gemeindeperson_id = gp.id AND p.id = gp.person_id AND status_no >= 1 AND status_no <= 2
                      AND gpg.gruppe_id IN (" . db_implode($arr) . ")");

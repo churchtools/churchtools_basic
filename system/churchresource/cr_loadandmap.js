@@ -10,7 +10,7 @@ function getCRBooking(a) {
 
 function saveCRSuccess(a, b, json) {
   if (a.name=="Event") a = CAL2CRType(a); // When it saved over cal resource
-  var t=weekView;
+  var t=churchInterface.views.WeekView;
   if (json.id!=null) {
     a.id=json.id;
     allBookings[json.id]=a;

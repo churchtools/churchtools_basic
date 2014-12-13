@@ -1,15 +1,7 @@
 <h4>Hallo <?= $nickname ?>,</h4>
 
   <p>Es sind in den nächsten <?= DAYS_TO_INFORM_LEADER_ABOUT_OPEN_SERVICES ?> Tagen noch folgende Dienste offen:
-  
-  <ul>
-<?php foreach ($openServices as $s): ?>
-    <li><?= $s->datum ?>, <?= $s->event ?> - Dienst <?= $s->service ?>
-        <font style="color:red"><?php if($s->name):?><?= $s->name ?><?php else:?>?<?php endif;?></font>
-    </li>
-<?php endforeach; ?>
-  </ul>
-  
+  <p>
   <table class="table table-condensed" styl="width:auto">
 <?php foreach ($openServices as $s): ?>
     <tr><td><?= $s->datum ?> <?= $s->event ?>

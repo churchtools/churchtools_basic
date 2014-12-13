@@ -889,8 +889,6 @@ WeekView.prototype.prepareSaveBookingDetail = function (elem) {
     a.person_id=$("#assistance_user").attr("data-id");
     a.person_name=$("#assistance_user").attr("data-name");
   }
-  console.log(a);
-
   if ($("#show_conflicts").html()!=null)
     a.conflicts=$("#show_conflicts").html();
 

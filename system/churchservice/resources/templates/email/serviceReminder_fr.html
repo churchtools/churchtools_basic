@@ -7,9 +7,9 @@
 <?php foreach ($services as $s): ?>
     <tr><td><?= $s->datum ?> <?= $s->bezeichnung ?>
         <td>Service: <?= $s->dienst?> (<?= $s->sg ?>)
-        <td style="min-width:79px;"><a href="$serviceUrl<?= $s->event_id ?>" class="btn btn-primary">Goto Event &raquo;</a>
+        <td style="min-width:79px;"><a href="<?= $serviceUrl ?><?= $s->event_id ?>" class="btn btn-primary">Goto Event &raquo;</a>
 <?php endforeach; ?>
   </table>
   <br/>
   <br/>
-  <a class="btn" href="$settingsUrl">Deaktivate Rememberings &raquo;</a>
+  <a class="btn" href="<?= $settingsUrl ?>">Deaktivate Rememberings &raquo;</a>

@@ -214,7 +214,6 @@ function churchresource_createBooking($params, $sendEMails = true) {
     'pending'     => getVar("status_id", false, $params) == CR_PENDING,
     'succesful'   => getVar("status_id", false, $params) == CR_APPROVED, //TODO: was != CR_PENDING, but CR_APPROVED seems more logical
     'canceled'    => false,
-    'userIsResourceAdmin' => false,
     'person'      => false,
   );
   // Now send email to admin persons
@@ -225,6 +224,7 @@ function churchresource_createBooking($params, $sendEMails = true) {
         if ($user->id != $id) {
           $p = churchcore_getPersonById($id);
           if ($p && $p->email) {
+            $data['userIsResourceAdmin'] = true;
             $data['surname']  = $p->vorname;
             $data['nickname'] = $p->spitzname ? $p->spitzname : $p->vorname;
             $data['name']     = $p->name;
@@ -232,13 +232,13 @@ function churchresource_createBooking($params, $sendEMails = true) {
             $content = getTemplateContent('email/bookingRequest', 'churchresource', $data);
             churchresource_send_mail("[". getConf('site_name')."] ". t('new.booking.request'). ": ". $params["text"], $content, $p->email);
           }
-          else $userIsAdmin = true;
         }
-        else $data['userIsResourceAdmin'] = true;
+        else $userIsAdmin = true;
       }
     }
     // Send email to author
-    if ($sendEMails && !$data['userIsResourceAdmin']) {
+    if ($sendEMails && !$userIsAdmin) {
+      $data['userIsResourceAdmin'] = false;
       $data['nickname'] = $user->spitzname ? $user->spitzname : $user->vorname;
       $content = getTemplateContent('email/bookingRequest', 'churchresource', $data);
       churchresource_send_mail("[". getConf('site_name'). "] ". t('new.booking.request').": " . $params["text"], $content, $user->email);
