@@ -1121,6 +1121,7 @@ function CR2CALType(event) {
 }
 
 WeekView.prototype.renderEditEvent = function(func, newEvent, myEvent, _isSeries, untilEnd, resFunc) {
+  var t = this;
   t.currentBooking = newEvent;
   var title="";
   var txt="";

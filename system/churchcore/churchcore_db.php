@@ -1761,8 +1761,10 @@ function getAllDatesWithRepeats($r, $_from = -1, $_to = 1, $fromDate = null) {
   $fromDate->modify("+$_from days");
   $to->modify("+$_to days");
 
-  $d = new DateTime(($r->startdate instanceof DateTime ? $r->startdate->format('d.m.Y H:i') : $r->startdate));
-  $e = new DateTime(($r->enddate instanceof DateTime ? $r->enddate->format('d.m.Y H:i') : $r->enddate));
+  $r->startdate = new DateTime(($r->startdate instanceof DateTime ? $r->startdate->format('d.m.Y H:i') : $r->startdate));
+  $d = clone $r->startdate;
+  $r->enddate = new DateTime(($r->enddate instanceof DateTime ? $r->enddate->format('d.m.Y H:i') : $r->enddate));
+  $e = clone $r->enddate;
 
   if (!isset($r->repeat_until)) $r->repeat_until = $d->format("d.m.Y H:i");
   $repeat_until = new DateTime($r->repeat_until);
@@ -1777,7 +1779,7 @@ function getAllDatesWithRepeats($r, $_from = -1, $_to = 1, $fromDate = null) {
   $my->with_repeat_yn = 1;
 
   $additions[0] = $my;
-
+  
   // array_unshift($additions, $my);
   foreach ($additions as $key => $add) {
     $d = new DateTime(substr($add->add_date, 0, 10) . " " . $d->format('H:i:s'));

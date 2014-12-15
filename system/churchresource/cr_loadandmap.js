@@ -46,6 +46,7 @@ function cr_loadBookings(nextFunction) {
       allBookings[a.id]=getCRBooking(a);
     });
     churchInterface.clearStatus();
+    churchInterface.sendMessageToAllViews("allDataLoaded");
     if (nextFunction!=null) nextFunction();
   }, null, null, "churchresource");
 }

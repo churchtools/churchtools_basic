@@ -984,7 +984,7 @@ $.widget("ct.renderCCEvent", {
           r.push(form_prepareDataEntry(4,"Vierter "+d,4));
           r.push(form_prepareDataEntry(5,"F&uuml;nter "+d+" (falls vorhanden)",5));
           r.push(form_prepareDataEntry(6,"Letzter "+d,6));
-          if (repeat_option_id==null) {
+          if (event.repeat_option_id==null) {
             var tester=new Date(event.startdate);
             tester.setDate(0);
             var counter=0;
@@ -998,7 +998,7 @@ $.widget("ct.renderCCEvent", {
             data:r,
             cssid:"inputRepeatOptionId",
             disabled:disabled,
-            selected:repeat_option_id,
+            selected:event.repeat_option_id,
             type:"medium",
             label:""
           }));

@@ -15,10 +15,5 @@ jQuery(document).ready(function() {
 
     // Initialisiere Browser-History, ruft damit schon RenderView() auf, falles Parameter uebergeben worden sind
     churchInterface.activateHistory("WeekView");
-
-/*    // Lade nun Event-Data
-    cr_loadBookings(function() {
-      churchInterface.sendMessageToAllViews("allDataLoaded");
-    });*/
   });
 });

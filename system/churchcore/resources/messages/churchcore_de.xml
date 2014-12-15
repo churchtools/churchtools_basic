@@ -374,7 +374,7 @@
 
   <!-- churchservice -->
   <entry key="no.rights.to.add.or.remove.service">Not enough rights in addOrRemoveServiceToEvent: </entry> <!-- needed? -->
-  <entry key="surname.name.has.confirmed.service.x.for.date.event">{0} {1} hat den Dienst {2} für die Veranstaltung {4} am {3} zugesagt.</entry>
+  <entry key="surname.name.has.confirmed.service.x.on.date.event">{0} {1} hat den Dienst {2} für die Veranstaltung {4} am {3} zugesagt.</entry>
   <entry key="surname.name.has.confirmed.request">{0} {1} hat eine Anfrage zugesagt</entry>
   <entry key="surname.name.has.proposed.x.for.service.y.on.date.event">{0} {1} hat für den Dienst {3} für die Veranstaltung {5} am {4} {2} vorgeschlagen.</entry>
   <entry key="surname.name.has.proposed.someone">{0} {1} hat jemanden vorgeschlagen</entry>
