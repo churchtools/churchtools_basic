@@ -80,7 +80,7 @@ ChurchInterface.prototype.loadJSFiles = function (arr, funcWhenReady) {
 
 ChurchInterface.prototype.loadDataObjects = function(arr, funcWhenReady) {
   var t = this;
-  if (arr == null || arr.length == 0) {
+  if (arr == null || arr.length == 0) {
     if (funcWhenReady != null) funcWhenReady();
   }
   else {

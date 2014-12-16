@@ -58,7 +58,7 @@ WeekView.prototype.renderMenu = function() {
 
   menu = new CC_Menu(_("menu"));
   if (!this.printview) {
-    if (masterData.auth.write || masterData.auth.virtual)
+    if (masterData.auth.write || masterData.auth.virtual)
       menu.addEntry(_("add.new.request"), "anewentry", "star");
 
     menu.addEntry(_("printview"), "adruckansicht", "print");

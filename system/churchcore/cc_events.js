@@ -72,7 +72,7 @@ function confirmImpactOfEventChange(data, func) {
   }
 
   // Check if there is something to confirm
-  if (rows.length==0 || !showConfirm) func(true);
+  if (rows.length==0 || !showConfirm) func(true);
   else {
     $txt = '<legend>Änderungen in anderen Modulen</legend><p>Die folgende Änderungen haben Auswirkungen '
            + 'auf andere Module. Bitte sorgsam prüfen!' + rows.join("");
@@ -131,8 +131,8 @@ function CCEvent(source) {
   t.saveSuccess = function() { alert("Please overwrite saveSuccess!") };
   t.saveSplitSuccess = function() { alert("Please overwrite saveSplitSuccess!") };
   each(source, function(k, a) {
-    if (k == "startdate" || k == "enddate" || k == "cal_startdate"
-            || k == "cal_enddate" || k == "repeat_until") t[k] = readDate(a);
+    if (k == "startdate" || k == "enddate" || k == "cal_startdate"
+            || k == "cal_enddate" || k == "repeat_until") t[k] = readDate(a);
     else t[k] = a;
   });
 }
@@ -210,7 +210,7 @@ CCEvent.prototype.saveSplitted = function (newEvent, pastEvent, splitDate, until
   // If special case, pastEvent is not necessary (see doSplit() for more informations)
   // Second possiblite: No series, so no pastEvent
   // Third one: If I only click on delete, then newEvent is pastEvent to prevent creating new event
-  if (pastEvent == null || pastEvent.id == newEvent.id) {
+  if (pastEvent == null || pastEvent.id == newEvent.id) {
     newEvent.save(t, func);
   }
   else {

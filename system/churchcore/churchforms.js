@@ -851,7 +851,7 @@ $.widget("ct.renderCCEvent", {
     var disabled=(t.options.disabled!=null) && (t.options.disabled==true);
 
     var allDayAllowed = (t.options.allDayAllowed == null || t.options.allDayAllowed );
-    var repeatsAllowed = (t.options.repeatsAllowed == null || t.options.repeatsAllowed );
+    var repeatsAllowed = (t.options.repeatsAllowed == null || t.options.repeatsAllowed );
 
     var minutes = _getMinutesArray();
     var hours = _getHoursArray();
