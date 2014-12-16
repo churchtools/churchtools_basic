@@ -1269,7 +1269,7 @@ WeekView.prototype.renderEditEvent = function(func, newEvent, myEvent, _isSeries
         title="Löschen";
         if (_isSeries) title="Gesamte Serie löschen";
         elem.dialog('addbutton', title, function() {
-          myEvent.status=99;
+          myEvent.status_id=99;
           t.saveBooking(myEvent);
           elem.empty().remove();
         });
