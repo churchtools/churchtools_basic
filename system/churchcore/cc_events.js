@@ -140,6 +140,7 @@ function CCEvent(source) {
 CCEvent.prototype.clone = function () {
   var t = this;
   var e = jQuery.extend(true, {}, this);
+  if (e.cc_cal_id == null) delete e.cc_cal_id;
   e.startdate = new Date(t.startdate.getTime());
   e.enddate = new Date(t.enddate.getTime());
   if (t.repeat_until!=null)

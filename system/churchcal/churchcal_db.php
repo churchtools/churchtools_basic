@@ -434,8 +434,7 @@ function churchcal_saveSplittedEvent($params) {
   
     // get populated template and send email
     $content = getTemplateContent('email/informCreator', 'churchcal', $data);
-    echo $content;
-    //churchcore_sendEMailToPersonIDs($originEvent["modified_pid"], "[" . getConf('site_name') . "] " . t('information.for.your.event'), $content, null, true);
+    churchcore_sendEMailToPersonIDs($originEvent["modified_pid"], "[" . getConf('site_name') . "] " . t('information.for.your.event'), $content, null, true);
   }
   
 

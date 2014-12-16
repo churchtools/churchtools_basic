@@ -2153,6 +2153,7 @@ $.widget("ct.popupmenu", {
     this.element.find("a.options").click(function() {
       t.options.click($(this).attr("data-id"));
       t.hide();
+      return false;
     });
   },
 

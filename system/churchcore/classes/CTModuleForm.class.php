@@ -23,10 +23,10 @@ class CTModuleForm extends CTForm {
     }
   }
 
-  public function render() {
+  public function render($withHtmlEncoding = true) {
     $this->addButton(t('save'), "ok");
     
-    return parent::render();
+    return parent::render($withHtmlEncoding);
   }
 
 }

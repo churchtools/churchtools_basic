@@ -900,7 +900,7 @@ WeekView.prototype.prepareSaveBookingDetail = function (elem) {
 
   $("#cr_fields").html("<br/>Daten werden gespeichert..<br/><br/>");
 
-  return true;
+  return a;
   //t.saveBooking(a);
   //elem.empty().remove();
 };
@@ -1036,7 +1036,7 @@ WeekView.prototype.showBookingDetails = function(func, id, date, element) {
 
   if (func == "new") myEvent = createNewBooking(id, date);
   else myEvent = allBookings[id].clone();
-  if (myEvent.cc_cal_id!=null) myEvent = CR2CALType(myEvent);
+  if (myEvent.cc_cal_id!=null && myEvent.cc_cal_id!=0) myEvent = CR2CALType(myEvent);
 
   // D.h. entweder Erstelle oder Editiere
   myEvent.askForSplit(t.mousePosition, function(untilEnd) {
@@ -1121,6 +1121,7 @@ function CR2CALType(event) {
 }
 
 WeekView.prototype.renderEditEvent = function(func, newEvent, myEvent, _isSeries, untilEnd, resFunc) {
+  if (debug) console.log("renderEditEvent", func, newEvent, myEvent, _isSeries, untilEnd);
   var t = this;
   t.currentBooking = newEvent;
   var title="";
@@ -1227,6 +1228,7 @@ WeekView.prototype.renderEditEvent = function(func, newEvent, myEvent, _isSeries
   }
 
   if (func=="delete") {
+    alert("delete!");
     t.prepareSaveBookingDetail(elem);
     return;
   }
@@ -1235,9 +1237,11 @@ WeekView.prototype.renderEditEvent = function(func, newEvent, myEvent, _isSeries
   if (((masterData.auth.write) && (myEvent.person_id==masterData.user_pid)) || (user_access("edit", myEvent.resource_id)) || (myEvent.neu)) {
     elem.dialog('addbutton', _("save"), function() {
       t.currentBooking = $("#dates").renderCCEvent("getCCEvent");
-      if (t.prepareSaveBookingDetail(elem))
+      var res = t.prepareSaveBookingDetail(elem);
+      if (res!=false) {
+        t.currentBooking = res;
         resFunc(t.currentBooking, function(ok) {if (ok) elem.dialog("close");});
-
+      }
     });
 
     if ((myEvent.status_id!=99) && (!myEvent.neu)) {
@@ -1247,7 +1251,8 @@ WeekView.prototype.renderEditEvent = function(func, newEvent, myEvent, _isSeries
           myEvent.exceptionids=myEvent.exceptionids-1;
           myEvent.exceptions[myEvent.exceptionids]
                 ={id:myEvent.exceptionids, except_date_start:date, except_date_end:date};
-          t.prepareSaveBookingDetail(elem);
+          t.saveBooking(myEvent);
+          elem.empty().remove();
         });
       }
       else {
@@ -1256,15 +1261,17 @@ WeekView.prototype.renderEditEvent = function(func, newEvent, myEvent, _isSeries
             elem.dialog('addbutton', 'Diesen und nachfolgende löschen', function() {
               d=date.toDateEn();
               d.addDays(-1);
-              $("#cr_fields input[id=inputRepeatUntil]").val(d.toStringDe());
-              t.prepareSaveBookingDetail(elem);
+              myEvent.repeat_until=d;
+              t.saveBooking(myEvent);
+              elem.empty().remove();
             });
         }
         title="Löschen";
         if (_isSeries) title="Gesamte Serie löschen";
         elem.dialog('addbutton', title, function() {
-          $("select[id=InputStatus]").val(99);
-          t.prepareSaveBookingDetail(elem);
+          myEvent.status=99;
+          t.saveBooking(myEvent);
+          elem.empty().remove();
         });
       }
     }
