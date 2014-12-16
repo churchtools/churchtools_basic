@@ -1783,7 +1783,7 @@ PersonView.prototype.renderFilter = function() {
           t.makeMasterDataMultiselectFilter("Bereich", masterData.settings.filterBereich, masterData.auth.dep);
           t.filter["filterMeine Gruppen"]="filter"+name;
           t.furtherFilterVisible=false;
-          cdb_loadMasterData(function() {
+          churchInterface.loadMasterData(function() {
             t.renderFilter();
             t.renderFurtherFilter();
             listOffset=0;
@@ -3838,7 +3838,7 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
             alert("Gruppe mit dem Namen existiert schon!");
           }
           else {
-            cdb_loadMasterData(function() {
+            churchInterface.loadMasterData(function() {
               t.renderEditEntry(id, fieldname+gt_id, json.id);
             })
           };

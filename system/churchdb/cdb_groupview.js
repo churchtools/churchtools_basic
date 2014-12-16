@@ -1505,7 +1505,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
       if ($(this).attr("id").indexOf("auth_")==0) {
         var g_id=$(this).attr("id").substr(5,99);
         this_object.editDomainAuth(g_id, "gruppe", function(id) {
-          cdb_loadMasterData(function() {
+          churchInterface.loadMasterData(function() {
             churchInterface.getCurrentView().renderView();
           });
         });
