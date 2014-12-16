@@ -1017,7 +1017,7 @@ AgendaView.prototype.getListHeader = function () {
   // When allAgenda is null, start loading Songs and Templates
   if (allAgendas==null) {
     var ids=new Array();
-    if (churchInterface.views.listView==null || churchInterface.views.listView.currentEvent==null) {
+    if (churchInterface.views.ListView==null || churchInterface.views.ListView.currentEvent==null) {
       if (masterData.settings.currentAgenda!=null)
         ids.push(masterData.settings.currentAgenda);
       if ($("#externevent_id").val()!=null) {
@@ -1035,7 +1035,7 @@ AgendaView.prototype.getListHeader = function () {
             each(data, function(k,a) {
               allAgendas[a.id]=a;
             });
-            if ((churchInterface.views.listView==null || churchInterface.views.listView.currentEvent==null)
+            if ((churchInterface.views.ListView==null || churchInterface.views.ListView.currentEvent==null)
                     && masterData.settings.currentAgenda!=null)
               t.currentAgenda=allAgendas[masterData.settings.currentAgenda];
             t.renderView();
@@ -1057,18 +1057,18 @@ AgendaView.prototype.getListHeader = function () {
 
   if (t.currentAgenda==null || allAgendas==null) {
     var form=new CC_Form();
-    if (churchInterface.views.listView!=null && churchInterface.views.listView.currentEvent!=null) {
+    if (churchInterface.views.ListView!=null && churchInterface.views.ListView.currentEvent!=null) {
       // If already an agenda mapped to the event
-      if (listView.currentEvent.agenda) {
-        t.loadAgendaForEvent(listView.currentEvent.id, function(data) {
+      if (churchInterface.views.ListView.currentEvent.agenda) {
+        t.loadAgendaForEvent(churchInterface.views.ListView.currentEvent.id, function(data) {
           t.renderView();
         });
         return;
       }
       // There is no agenda, please select one
       else {
-        form.addHtml("<legend>"+listView.currentEvent.bezeichnung+'&nbsp;');
-        form.addHtml(listView.currentEvent.startdate.toStringDe(true));
+        form.addHtml("<legend>"+churchInterface.views.ListView.currentEvent.bezeichnung+'&nbsp;');
+        form.addHtml(churchInterface.views.ListView.currentEvent.startdate.toStringDe(true));
         form.addHtml("</legend>");
 
         form.addHtml("Zum Erstellen des Ablaufplanes kann nun eine Vorlage ausgewählt werden:");
@@ -1079,7 +1079,7 @@ AgendaView.prototype.getListHeader = function () {
             if (a.template_yn==0) {
               var add=false;
               each(a.event_ids, function(i,e) {
-                if (allEvents[e]!=null && (allEvents[e].startdate.toStringDe(false)==listView.currentEvent.startdate.toStringDe(false))
+                if (allEvents[e]!=null && (allEvents[e].startdate.toStringDe(false)==churchInterface.views.ListView.currentEvent.startdate.toStringDe(false))
                    && (allEvents[e].category_id==a.calcategory_id))
                   add=true;
               });
@@ -1097,13 +1097,13 @@ AgendaView.prototype.getListHeader = function () {
         }
         if (allAgendas!=null) {
           each(allAgendas, function(k,a) {
-            if (a.template_yn==1 && listView.currentEvent.category_id==a.calcategory_id) arr.push(a);
+            if (a.template_yn==1 && churchInterface.views.ListView.currentEvent.category_id==a.calcategory_id) arr.push(a);
           });
         }
         if (allAgendas!=null) {
           arr.push({id:"", bezeichnung:"-- Vorlage anderer Kalender auswählen --"});
           each(allAgendas, function(k,a) {
-            if (a.template_yn==1 && listView.currentEvent.category_id!=a.calcategory_id) arr.push(a);
+            if (a.template_yn==1 && churchInterface.views.ListView.currentEvent.category_id!=a.calcategory_id) arr.push(a);
           });
         }
 
@@ -1123,7 +1123,7 @@ AgendaView.prototype.getListHeader = function () {
     });
     $("select.chose-template").change(function() {
       if ($(this).val()!="") {
-        if (listView.currentEvent!=null) {
+        if (churchInterface.views.ListView.currentEvent!=null) {
           var id=$(this).val();
           if (allAgendas[$(this).val()]!=null && allAgendas[$(this).val()].template_yn==1) {
             t.startNewAgenda(allAgendas[id]);
@@ -1247,7 +1247,7 @@ AgendaView.prototype.getListHeader = function () {
           t.saveAgenda(t.currentAgenda);
         }
         if (o.email==1) {
-          listView.sendEMailToEvent(allEvents[t.currentAgenda.event_ids[0]]);
+          churchInterface.views.ListView.sendEMailToEvent(allEvents[t.currentAgenda.event_ids[0]]);
         }
         elem.dialog("close");
         t.renderList();
@@ -1389,46 +1389,46 @@ AgendaView.prototype.startNewAgenda = function(template_agenda, copying) {
 
   if (copying || template_agenda==null) {
     t.currentAgenda.template_yn=0;
-    t.currentAgenda.calcategory_id=listView.currentEvent.category_id;
-      t.currentAgenda.bezeichnung=listView.currentEvent.startdate.toStringDe(true)+
-    " - Ablauf "+listView.currentEvent.bezeichnung;
+    t.currentAgenda.calcategory_id=churchInterface.views.ListView.currentEvent.category_id;
+      t.currentAgenda.bezeichnung=churchInterface.views.ListView.currentEvent.startdate.toStringDe(true)+
+    " - Ablauf "+churchInterface.views.ListView.currentEvent.bezeichnung;
     if (t.currentAgenda.series==null) t.currentAgenda.series="";
     if (t.currentAgenda.final_yn==null) t.currentAgenda.final_yn=0;
   }
 
   if (t.currentAgenda.event_ids==null)
     t.currentAgenda.event_ids=new Array();
-  t.currentAgenda.event_ids.push(listView.currentEvent.id);
+  t.currentAgenda.event_ids.push(churchInterface.views.ListView.currentEvent.id);
   if (copying) {
     // Load Items from template
     t.loadItems(template_agenda.id, function() {
       each(t.currentAgenda.items, function(k,a) {
         delete a.id;
         a.event_ids=new Array();
-        a.event_ids.push(listView.currentEvent.id);
+        a.event_ids.push(churchInterface.views.ListView.currentEvent.id);
       });
       t.saveAgenda(t.currentAgenda, function(data) {
         t.currentAgenda=data;
         t.renderList();
       });
-      listView.currentEvent.agenda=true;
+      churchInterface.views.ListView.currentEvent.agenda=true;
     });
   }
   else {
     if (t.currentAgenda.items!=null) {
       each(t.currentAgenda.items, function(k,a) {
-        a.event_ids.push(listView.currentEvent.id);
+        a.event_ids.push(churchInterface.views.ListView.currentEvent.id);
       });
     }
     else {
       t.currentAgenda.items=new Object();
-      t.currentAgenda.items[-1]= t.getNewItem({event_ids:[listView.currentEvent.id]});
+      t.currentAgenda.items[-1]= t.getNewItem({event_ids:[churchInterface.views.ListView.currentEvent.id]});
     }
     t.saveAgenda(t.currentAgenda, function(data) {
       t.renderList();
       t.currentAgenda=data;
     });
-    listView.currentEvent.agenda=true;
+    churchInterface.views.ListView.currentEvent.agenda=true;
   }
 };
 

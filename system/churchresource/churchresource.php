@@ -233,6 +233,7 @@ function churchresource__printview() {
   $content .= "</head><body>";
 
   $content .= "<input type='hidden' id='printview' value='true'/>";
+  $content .= "<script>jsversion=".JS_VERSION."</script>";
 
   if ($curdate = getVar("curdate")) $content .= "<input type='hidden' id='curdate' value='$curdate'/>";
 
