@@ -26,6 +26,14 @@ function getListView() {
   return new ListView();
 }
 
+ListView.prototype.initView = function() {
+  var t = this;
+  if ($("#currentdate").val()!=null) {
+    t.currentDate=$("#currentdate").val().toDateEn();
+    currentDate_externGesetzt=true;
+  }
+}
+
 ListView.prototype.getNeededJSFiles = function() {
   return ['/churchcore/cc_events.js', '/churchservice/cs_loadandmap.js'];
 };

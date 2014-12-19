@@ -26,15 +26,10 @@ jQuery(document).ready(function() {
   // Lade alle Kennzeichentabellen
   churchInterface.loadMasterData(function() {
     masterData.service_sorted=churchcore_sortData_numeric(masterData.service,"sortkey");
-
-    if (jQuery("#currentdate").val()!=null) {
-      listView.currentDate=jQuery("#currentdate").val().toDateEn();
-      currentDate_externGesetzt=true;
-    }
     churchInterface.setLastLogId(masterData.lastLogId);
 
     // Initialisiere Browser-History, ruft damit schon RenderView() auf, falles Parameter uebergeben worden sind
     churchInterface.activateHistory("ListView");
-
+    
   }, false);
 });
