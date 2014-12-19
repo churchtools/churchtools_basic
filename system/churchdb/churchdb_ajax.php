@@ -441,17 +441,16 @@ function _churchdb_getMembersOfGroup($group_id) {
  * inform leader about new or changed group member and sends an additional text if available
  *
  * @param int $group_id, group ID
- * @param int $gp_id, churchperson ID
+ * @param int $p_id, person ID
  * @param string $add_text, additional text
  */
 function informLeaderAboutMembershipChange($groupId, $pId, $changeType, $additionalText = false) {
   global $base_url, $user;
-  //TODO: why not get only needed persons by adding an additionalWhere option to _churchdb_getMembersOfGroup?
   $mt = getGroupMemberTypes();
-//   $persons = _churchdb_getMembersOfGroup($groupId);
 
+  // Get involved person (pId) and all Leaders in Group
   $res = db_query("
-      SELECT p.name, p.vorname, p.spitzname, p.email, p.id p_id, p.lastlogin, gp.id id, gpg.status_no, g.bezeichnung,
+      SELECT p.name, p.vorname, p.spitzname, p.email, p.id p_id, p.lastlogin, gp.id gp_id, gpg.status_no, g.bezeichnung,
         DATE_FORMAT(gpg.letzteaenderung, '%d.%m.%Y') letzteaenderung, cmsuserid, gpg.comment
       FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_gemeindeperson_gruppe} gpg, {cdb_gruppe} g
       WHERE p.id=gp.person_id AND gp.id=gpg.gemeindeperson_id AND g.id=gpg.gruppe_id
@@ -459,11 +458,13 @@ function informLeaderAboutMembershipChange($groupId, $pId, $changeType, $additio
         (p.id = :pId OR (NOT ISNULL(p.lastlogin) AND gpg.status_no BETWEEN 1 AND 3 AND p.email > ''))",
       array(':pId' => $pId, ':groupId' => $groupId)
   );
-  foreach ($res as $p) $persons[$p->id] = $p;
+  foreach ($res as $p) $persons[$p->p_id] = $p;
   foreach ($persons as $p) {
     // if person had logged in in the past and is one of leader(1), coleader(2) or supervisor(3)
     // and it was not changed by current user
-    if ($p->status_no >= 1 && $p->status_no <= 3 && $p->cmsuserid != $user->cmsuserid) {
+    // and if delete a person, the person himselves should not be informed about his deletion!
+    if ($p->status_no >= 1 && $p->status_no <= 3 && $p->p_id != $user->id
+              && ($changeType!="delete" || $p->p_id != $pId)) {
          $data = array(
            'title'            => $mt[$p->status_no]["bezeichnung"],
            'userIsSupervisor' => $p->status_no == 3,
@@ -483,26 +484,23 @@ function informLeaderAboutMembershipChange($groupId, $pId, $changeType, $additio
 
 /**
  * inform leader about new group member and sends an additional text if available
- *
- * TODO: use language dependent templates for email text and put this and the next
- * two functions together as informLeaderAboutChangedGroupMember
  */
-function informLeaderAboutNewGroupMember($group_id, $gp_id, $add_text = null) {
-  informLeaderAboutMembershipChange($group_id, $gp_id, 'new', $add_text);
+function informLeaderAboutNewGroupMember($group_id, $p_id, $add_text = null) {
+  informLeaderAboutMembershipChange($group_id, $p_id, 'new', $add_text);
 }
 
 /**
  * inform leader about edited group member and sends an additional text if available
  */
-function informLeaderAboutEditedGroupMember($group_id, $gp_id, $add_text = null) {
-  informLeaderAboutMembershipChange($group_id, $gp_id, 'edit', $add_text);
+function informLeaderAboutEditedGroupMember($group_id, $p_id, $add_text = null) {
+  informLeaderAboutMembershipChange($group_id, $p_id, 'edit', $add_text);
 }
 
 /**
  * inform leader about deleted group member
  */
-function informLeaderAboutDeletedGroupMember($group_id, $gp_id) {
-  informLeaderAboutMembershipChange($group_id, $gp_id, 'delete');
+function informLeaderAboutDeletedGroupMember($group_id, $p_id) {
+  informLeaderAboutMembershipChange($group_id, $p_id, 'delete');
 }
 
 /**
@@ -555,7 +553,7 @@ function churchdb_addPersonGroupRelation($p_id, $g_id, $leader, $date, $followup
     $txt = "";
     if ($comment) $txt .= '<p>Kommentar: <i>'. $comment. '</i>';
     if ($automail) $txt .= '<p>Eine automatische E-Mail wurde an die Person gesendet: <i>"'. $automail. '"</i>';
-    informLeaderAboutNewGroupMember($g_id, $gp_id, $txt);
+    informLeaderAboutNewGroupMember($g_id, $p_id, $txt);
   }
   return "ok";
 }
@@ -634,7 +632,7 @@ function _churchdb_editPersonGroupRelation($p_id, $g_id, $leader, $date, $follow
     $txt = "";
     if ($comment)  $txt .= '<p>Kommentar: <i>'. $comment. '</i>';
     if ($automail) $txt .= '<p>Eine automatische E-Mail wurde an die Person gesendet: <i>"'. $automail. '"</i>';
-    informLeaderAboutEditedGroupMember($g_id, $gp_id, $txt);
+    informLeaderAboutEditedGroupMember($g_id, $p_id, $txt);
   }
   return "ok";
 }
@@ -678,7 +676,7 @@ function _churchdb_delPersonGroupRelation($p_id, $g_id) {
 
   $info = getGroupInfo($g_id);
   if (getConf('churchdb_sendgroupmails', true) && $info->mail_an_leiter_yn == 1)
-    informLeaderAboutDeletedGroupMember($g_id, $gp_id);
+    informLeaderAboutDeletedGroupMember($g_id, $p_id);
 
   db_query("DELETE FROM {cdb_gemeindeperson_gruppe}
             WHERE gemeindeperson_id=$gp_id AND gruppe_id=$g_id");
