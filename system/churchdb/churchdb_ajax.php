@@ -463,7 +463,7 @@ function informLeaderAboutMembershipChange($groupId, $pId, $changeType, $additio
     // if person had logged in in the past and is one of leader(1), coleader(2) or supervisor(3)
     // and it was not changed by current user
     // and if delete a person, the person himselves should not be informed about his deletion!
-    if ($p->status_no >= 1 && $p->status_no <= 3 && $p->p_id != $user->id
+    if (!empty($p->lastlogin) && $p->status_no >= 1 && $p->status_no <= 3 && $p->p_id != $user->id
               && ($changeType!="delete" || $p->p_id != $pId)) {
          $data = array(
            'title'            => $mt[$p->status_no]["bezeichnung"],
