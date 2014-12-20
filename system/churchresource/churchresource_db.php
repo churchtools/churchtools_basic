@@ -212,7 +212,7 @@ function churchresource_createBooking($params, $sendEMails = true) {
     'conflicts'   => getVar("conflicts", false, $params),
     'bookingUrl'  => $base_url . "?q=churchresource&id=" . $booking->id,
     'pending'     => getVar("status_id", false, $params) == CR_PENDING,
-    'succesful'   => getVar("status_id", false, $params) == CR_APPROVED, //TODO: was != CR_PENDING, but CR_APPROVED seems more logical
+    'succesful'   => getVar("status_id", false, $params) == CR_APPROVED,
     'canceled'    => false,
     'person'      => false,
   );

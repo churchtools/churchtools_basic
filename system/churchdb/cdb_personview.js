@@ -2987,7 +2987,9 @@ PersonView.prototype.renderDetails = function (id) {
           if ((masterData.auth.viewalldetails)
                  || (a.anzeigen_in_meinegruppen_teilnehmer_yn==1)
                  || (masterData.auth.editgroups)
+                 || (groupView.isPersonSuperLeaderOfOneGroupInGroupType(masterData.user_pid, a.id))
                  || (t.isPersonLeaderOfOneGroupTypeOfPerson(masterData.user_pid, a.id, id))) {
+            console.log(a);
             _text="";
             _text=_text+'<div class="detail-view-infobox"><table><tbody style="border:none"><tr><th>'+a.bezeichnung;
             _text=_text+'<th class="datum"><th style="width:16px;padding:0">';

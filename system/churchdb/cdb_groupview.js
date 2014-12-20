@@ -856,7 +856,19 @@ GroupView.prototype.isPersonSuperLeader = function (p_id) {
   return false;
 };
 
-
+GroupView.prototype.isPersonSuperLeaderOfOneGroupInGroupType = function(p_id, gt_id) {
+  if ((allPersons[p_id]==null) || (masterData.groups==null) || (masterData.groupTypes[gt_id]==null)) return false;
+  var t = this;
+  
+  var ret = false;
+  each(masterData.groups, function(k, group) {
+    if (group.gruppentyp_id==gt_id && t.isPersonSuperLeaderOfGroup(p_id, group.id)) {
+      ret = true;
+      return false;
+    }
+  });
+  return ret;
+}
 
 GroupView.prototype.isPersonSuperLeaderOfGroup = function (p_id, g_id) {
   if ((allPersons[p_id]==null) || (masterData.groups==null) || (masterData.groups[g_id]==null)) return false;

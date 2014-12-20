@@ -678,7 +678,8 @@ WeekView.prototype.renderEditBookingFields = function (a) {
     cssid:"InputStatus",
     label:_("booking.status"),
     selected:a.status_id,
-    disabled:!user_access("edit", a.resource_id)
+    disabled:!user_access("edit", a.resource_id),
+    func:function(status) { if (!a.neu || status.id<3) return true; else return false; }
   }));
 
   rows.push(form_renderTextarea({
@@ -956,7 +957,8 @@ WeekView.prototype.addFurtherListCallbacks = function() {
         currentTooltip=$(tooltip);
         element.find("#copy").click(function() {
           clearTooltip();
-          t.showBookingDetails("copy", data.id);
+          var date=tooltip.attr("href").substr(1,99);
+          t.showBookingDetails("copy", data.id, date.toDateEn(false));
           return false;
         });
         element.find("#delete").click(function() {
@@ -1036,6 +1038,7 @@ WeekView.prototype.showBookingDetails = function(func, id, date, element) {
 
   if (func == "new") myEvent = createNewBooking(id, date);
   else myEvent = allBookings[id].clone();
+  if (func == "copy") myEvent.id=null;
   if (myEvent.cc_cal_id!=null && myEvent.cc_cal_id!=0) myEvent = CR2CALType(myEvent);
 
   // D.h. entweder Erstelle oder Editiere

@@ -9,7 +9,7 @@
     <p>Eine neue Buchung von <i><?=$user->vorname?> <?=$user->name?></i> wurde erstellt und automatisch genehmigt.
   <?php endif; ?>
   
-  <?php else: ?>
+<?php else: ?>
 
   <?php if (!empty($pending)): ?>
     <p>Deine Buchungsanfrage <i><?= $booking->text ?></i> ist bei uns eingegangen und wird bearbeitet.
