@@ -143,7 +143,7 @@ function form_editReminder(element, eventDate, freeOption) {
     });
   }
   elem.dialog("addcancelbutton");
-  if (eventDate==null) {
+  if (freeOption) {
     $("#reminddate").click(function() {
       form_implantDatePicker('dp_date', dt, function(dateText) {
         $("#reminddate").val(dateText);
@@ -155,7 +155,9 @@ function form_editReminder(element, eventDate, freeOption) {
     $("#reminddate").change(function() {
       if ($(this).val()=="-1") {
         elem.dialog("close");
-        form_editReminder(element, dateBefore, true);
+        var date = new Date(eventDate.getTime());
+        date.setMinutes(date.getMinutes()-30);
+        form_editReminder(element, date, true);
       }
     })
   }

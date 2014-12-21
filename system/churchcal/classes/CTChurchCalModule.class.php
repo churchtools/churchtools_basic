@@ -78,6 +78,11 @@ class CTChurchCalModule extends CTAbstractModule {
     return $res;
   }
 
+  public function getEvent($params) {
+    $event = db_query("SELECT * FROM {cc_cal} WHERE id = :id", array(":id"=>$params["id"]))->fetch();
+    $dummy = churchcal_getCalPerCategory(array ("category_ids" => array(0 => $event->category_id)));
+    return $dummy[$event->category_id][$params["id"]];    
+  }
 
 /**
  * Checking the depending changes in other modules

@@ -15,6 +15,7 @@ function ChurchInterface() {
   this.fatalErrorOccured=false;
   this.loadedJSFiles = new Array();
   this.loadedDataObjects = new Array();
+  this.reminderTimer = null;
 }
 
 var churchInterface = new ChurchInterface();
@@ -24,15 +25,62 @@ ChurchInterface.prototype.setModulename = function (modulename) {
 };
 
 ChurchInterface.prototype.loadMasterData = function(nextFunction) {
+  var t = this;
   churchInterface.setStatus("Lade Kennzeichen...");
   churchInterface.jsendRead({ func: "getMasterData" }, function(ok, json) {
     if (masterData == null) masterData = new Object();
     each(json, function(k,a) {
       masterData[k] = json[k];
     });
+    if (masterData.reminder!=null) {
+      if (t.reminderTimer!=null) window.clearTimeout(t.reminderTimer);
+      t.acticateReminderPopup();
+    }
     churchInterface.clearStatus();
     if (nextFunction!=null) nextFunction();
   });
+};
+
+ChurchInterface.prototype.acticateReminderPopup = function (delay) {
+  var t = this;
+  t.reminderTimer = window.setTimeout(function() {
+    var dt = new Date();
+    each(masterData.reminder, function(k, domain) {
+      each(domain, function(id, reminder) {
+        if (reminder!=null && reminder.toDateEn(true).getTime()<dt.getTime()) {
+          t.showReminderPopup(k, id);
+          delete masterData.reminder[k];
+        }
+      });
+    });
+    t.acticateReminderPopup(10000);
+  }, (delay == null ? 1000 : delay));
+};
+
+ChurchInterface.prototype.showReminderPopup = function(domainType, domainId) {
+  if (domainType=="event") {
+    churchInterface.jsendRead({func: "getEvent", id: domainId}, function(ok, data) {
+      var rows = new Array();
+      rows.push("<legend>"+data.bezeichnung + " (" + masterData.category[data.category_id].bezeichnung+')</legend>');
+      rows.push("<p>Startzeit: "+data.startdate.toDateEn(true).toStringDe(true));
+      rows.push("<p>Endzeit: "+data.enddate.toDateEn(true).toStringDe(true));
+      if (calCCType.data[data.category_id]!=null)
+        rows.push("<p>"+form_renderButton({label:"Event öffnen", cssid:"openEvent"}));
+      var elem = form_showDialog("Erinnerung an " + _(domainType), rows.join(""), 300, 300);
+      elem.dialog("addbutton", _("close"), function() {
+        churchInterface.jsendWrite({func: "saveReminder", domain_id: domainId, domain_type: domainType});
+        elem.dialog("close");  
+      });
+      elem.dialog("addbutton", "Erneut erinnern", function() {
+        elem.dialog("close");  
+      });
+      elem.find("#openEvent").click(function() {
+        var event = calCCType.data[data.category_id].events[domainId];
+        var pos = elem.find("#openEvent").offset();
+        editEvent(event, true, event.startdate, {clientX: pos.left, clientY: pos.top});
+      });
+    }, null, null, "churchcal");
+  }  
 };
 
 ChurchInterface.prototype.setLastLogId= function (lastLogId) {
@@ -108,7 +156,6 @@ ChurchInterface.prototype.loadDataObjects = function(arr, funcWhenReady) {
 ChurchInterface.prototype.downloadFile = function(filename, filesuffix, data) {
   var t = this;
   t.jsendWrite({func:"makeDownloadFile", filename:filename, suffix: filesuffix, data:data}, function(ok, data) {
-    console.log("open window "+data);
     var Fenster = window.open(data);
     // Timer for deleting file
     window.setTimeout(function() { 

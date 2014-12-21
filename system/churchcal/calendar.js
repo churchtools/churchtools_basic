@@ -2048,10 +2048,7 @@ $(document).ready(function() {
   if ($("#isminical").length!=0) minical=true;
   if ($("#entries").length!=0) max_entries=$("#entries").val();
 
-  churchInterface.setStatus("Lade Kennzeichen...");
-  churchInterface.jsendRead({func:"getMasterData"}, function(ok, json) {
-    churchInterface.clearStatus();
-    masterData=json;
+  churchInterface.loadMasterData(function() {
 
     if ($("#viewname").val()!=null) viewName=$("#viewname").val();
     initCalendarView();
