@@ -1,6 +1,10 @@
 <h4>Hallo <?= $p->nickname ?>!</h4>
 
-<p>In Deinem Event <i><?= $caption ?></i> am <?= $startdate ?> hat es Änderung gegeben:<p>
+<?php if ($new): ?>
+  <p>Das Event <i><?= $caption ?></i> am <?= $startdate ?> wurde für Dich erstellt:<p>
+<?php else: ?>
+  <p>In Deinem Event <i><?= $caption ?></i> am <?= $startdate ?> hat es Änderung gegeben:<p>
+<?php endif; ?>
 
 <?php if (!empty($cal)) { ?>
 <h4>Kalender</h4>

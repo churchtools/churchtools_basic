@@ -544,6 +544,9 @@
   <entry key="thank.you.for.feedback">Thank you for feedback!</entry>
   <entry key="category">Calendar</entry>
   <entry key="information.for.your.event">Informations for your event</entry>
+  <entry key="link">Link</entry>
+  <entry key="only.intern.visible">Only visible for logged in user</entry>  
+  <entry key="modified.date">Last modified date</entry>  
 
 
   <!-- churchcal auth -->
@@ -562,5 +565,7 @@
   <entry key="news.for.abo.x">News in {0}</entry>
   <entry key="reminder.for.x">Reminder for {0}</entry>
   <entry key="new">New</entry>
+  <entry key="yes">Yes</entry>
+  <entry key="no">No</entry>
 
 </properties>

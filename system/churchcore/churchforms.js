@@ -2618,8 +2618,10 @@ function form_editNotification (domain_type, domain_id) {
     form.addHtml('<legend>Vorhandene Email-Abos</legend>');
     form.addHtml('<table class="table table-condensed"><tr><th style="min-width:60px">Abo<th style="min-width:60px">Notiz<th>Wie oft?<th width="22px">');
     each(masterData.notification[domain_type], function(k,a) {
-      form.addHtml('<tr data-id="'+k+'"><td>'+_(domain_type)+": "+masterData[domain_type][k].bezeichnung+'<td>');
-      if (masterData[domain_type][k].notiz!=null)
+      var txt = domain_type + " : "+ k;
+      if (masterData[domain_type][k]!=null) txt = masterData[domain_type][k].bezeichnung;
+      form.addHtml('<tr data-id="'+k+'"><td>'+_(domain_type)+": "+txt+'<td>');
+      if (masterData[domain_type][k]!=null && masterData[domain_type][k].notiz!=null)
         form.addHtml('<small>'+masterData[domain_type][k].notiz+'</small>');
       form.addHtml('<td>');
       form.addSelect({data:masterData.notificationtype, type:"medium", htmlclass:"edit-notificationtype",

@@ -247,7 +247,7 @@ function ct_sendPendingNotifications($max_delayhours = null) {
             'surname'     => $p->vorname,
             'name'        => $p->name,
             'nickname'    => ($p->spitzname ? $p->spitzname : $p->vorname),
-            'notifyName'  => ucfirst($personANDtype->domain_type),
+            'notifyName'  => t($personANDtype->domain_type),
             'notifyType'  => $n->bezeichnung,
             'messages'    => $messages,
           );
@@ -902,13 +902,17 @@ function churchcore_createOnTimeLoginKey($id) {
 function churchcore_sendEMailToPersonIDs($ids, $subject, $content, $from = null, $htmlmail = false, $withtemplate = true) {
   global $base_url;
 
+  if ($ids==null || $ids=="") { 
+    ct_log("Konnte Email $subject nicht senden, kein Empfänger angegeben!", 1);
+    return;
+  }
+  
   if (!$from) {
     $user_pid = $_SESSION["user"]->id;
     $res = db_query("SELECT vorname, name, email FROM {cdb_person}
                      WHERE id=$user_pid")->fetch();
     $from = "$res->vorname $res->name <$res->email>";
   }
-
   $persons = db_query("SELECT * FROM {cdb_person} WHERE id IN ($ids)");
   $error = array ();
   foreach ($persons as $p) {

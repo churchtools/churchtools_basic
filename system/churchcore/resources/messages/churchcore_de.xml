@@ -544,7 +544,9 @@
   <entry key="thank.you.for.feedback">Danke für deine Rückmeldung!</entry>
   <entry key="category">Kalender</entry>
   <entry key="information.for.your.event">Informationen zu deinem Event</entry>
-
+  <entry key="link">Link</entry>
+  <entry key="only.intern.visible">Nur für angemeldete Personen sichtbar</entry>
+  <entry key="modified.date">Letzte Änderung</entry>  
 
   <!-- churchcal auth -->
   <entry key="view.single.calendar">Einzelnen Kalender sehen</entry>
@@ -562,5 +564,7 @@
   <entry key="news.for.abo.x">Neuigkeiten in {0}</entry>
   <entry key="reminder.for.x">Erinnerung an {0}</entry>
   <entry key="new">Neu</entry>
+  <entry key="yes">Ja</entry>
+  <entry key="no">Nein</entry>
 
 </properties>

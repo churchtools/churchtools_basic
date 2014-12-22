@@ -205,6 +205,25 @@ function churchcal_createEvent($params, $callCS=true) {
   $txt .= " einen neuen Termin angelegt:<br>";
   $txt .= churchcore_CCEventData2String($params);
   ct_notify("category", $params["category_id"], $txt);
+  
+  // Inform creator when I am allowed and when it is not me!
+  if ($callCS && getVar("informCreator", true) && !empty($params["modified_pid"])
+            && $params["modified_pid"]!=$user->id) {
+    $data = (array) churchcal_getEventChangeImpact(array ("newEvent" => $params, "originEvent" => null, "pastEvent" => null));
+    $data["new"] = true;
+    $data["caption"] = $params["bezeichnung"];
+    $data["startdate"]   = churchcore_stringToDateDe($params["startdate"]);
+    $p = db_query("SELECT name, vorname, IF(spitzname, spitzname, vorname) AS nickname
+                    FROM {cdb_person}
+                    WHERE id=:id",
+        array(":id" => $params["modified_pid"]))
+        ->fetch();
+    $data["p"] = $p;
+  
+    // get populated template and send email
+    $content = getTemplateContent('email/informCreator', 'churchcal', $data);
+    churchcore_sendEMailToPersonIDs($params["modified_pid"], "[" . getConf('site_name') . "] " . t('information.for.your.event'), $content, null, true);
+  }  
 
   return array("id"=>$params["id"], "cseventIds"=>$newCSIds, "bookingIds"=>$newBookingIds);
 }
@@ -357,6 +376,7 @@ function churchcal_updateEvent($params, $callCS = true) {
   // Inform creator when I am allowed and when it is not me!
   if ($callCS && getVar("informCreator", true) && $originEvent["modified_pid"]!=$user->id) {
     $data = (array) churchcal_getEventChangeImpact(array ("newEvent" => $params, "originEvent" => $originEvent, "pastEvent" => null));
+    $data["new"] = false;
     $data["caption"] = $params["bezeichnung"];
     $data["startdate"]   = churchcore_stringToDateDe($params["startdate"]);
     $p = db_query("SELECT name, vorname, IF(spitzname, spitzname, vorname) AS nickname
@@ -476,7 +496,8 @@ function churchcal_getCCEventChangeImpact($newEvent, $pastEvent, $originEvent) {
   $ds = getAllDatesWithRepeats((object) $newEvent, 0, 9999, $splitDate);
   if ($ds) foreach ($ds as $d) {
     if (!dateInCCEvent($d, $originEvent)) {
-      _addCalChange($changes, "new", $d);
+      $change = makeCCEventDiff(null, $newEvent, $d);
+      _addCalChange($changes, "new", $d, $change);
     }
   }
   return $changes;
@@ -503,28 +524,45 @@ function makeCCEventDiff($originEvent, $newEvent) {
   foreach ($newEvent as $key=>$newEntry) {
     if ($key != "informCreator" && $key != "modified_pid" && $key != "repeat_frequence" && $key != "allDay" && $key != "name"
         && $key != "func" && $key != "currentEvent_id" && $key != "id" && $key != "cal_id" && $key != "bookings" 
-            && $key != "csevents" && $key != "old_id") {
+            && $key != "csevents" && $key != "old_id" && $key != "old_category_id") {
       if (!isset($originEvent[$key]) || $originEvent[$key] != $newEntry) {
         $k = $key;
         $einheit = "";
-        $old = $originEvent[$key];
+        if (isset($originEvent[$key])) $old = $originEvent[$key];
+        else $old = null;
         $new = $newEntry;
         if ($key == "startdate") $k ="start.date";
         else if ($key == "enddate") $k = "end.date";
         else if ($key == "repeat_id") {
           $repeat_types = churchcore_getTableData("cc_repeat");
           $k = "repeat.type";
-          $old = $repeat_types[$old]->bezeichnung;
+          if ($old!=null) $old = $repeat_types[$old]->bezeichnung;
           $new = $repeat_types[$new]->bezeichnung;
         }
-        else if ($key == "repeat_until") { 
-          $old = substr($old, 0, 10); 
+        else if ($key == "repeat_until") {
+          if ($old!=null) $old = substr($old, 0, 10); 
           $new = substr($old, 0, 10); 
           $k = "repeat.to";
         }        
         else if ($key == "modified_name") $k = "creator";
+        else if ($key == "category_id") {
+          $k = "category";  
+          if ($old!=null) $old = churchcal_getCategory($old)->bezeichnung;
+          $new = churchcal_getCategory($new)->bezeichnung;
+        }
+        else if ($key == "notizen") $k = "more.information";
+        else if ($key == "intern_yn") {
+          $k = "only.intern.visible";
+          if ($old!=null) { 
+            if ($old==0) $old = t("yes"); else $old = t("no");
+          }
+          if ($new==0) $new = t("yes"); else $new = t("no");
+        }
+        else if ($key == "modified_date") {
+          $k = "modified.date";
+        }
         if (strpos($key, "date") !== false || $key == "repeat_until") {
-           if ($old != "") $old = churchcore_stringToDateDe($old);
+           if ($old!=null && $old != "") $old = churchcore_stringToDateDe($old);
            if ($new != "") $new = churchcore_stringToDateDe($new);
         }
         // TODO: Treat exceptions in Diff
@@ -533,6 +571,12 @@ function makeCCEventDiff($originEvent, $newEvent) {
     }
   }
   return $ret;
+}
+
+function churchcal_getCategory($id) {
+  $db = db_query("SELECT * FROM {cc_calcategory} WHERE id = :id", array(":id" => $id))->fetch();
+  if ($db==false) return null;
+  else return $db;
 }
 
 /**
@@ -563,9 +607,6 @@ function churchcal_getEventChangeImpact($params) {
   if (churchcore_isModuleActivated("churchservice") && isset($params["newEvent"]["csevents"])) {
     // Get dependencies from CS
     include_once ('./' . CHURCHSERVICE . '/churchservice_db.php');
-    //$res->services = churchservice_getActiveServicesInEvent(
-      //                 $params["originEvent"]["id"], $splitDate, $params["untilEnd_yn"]
-        //             );
     $res->services = churchservice_getEventChangeImpact($params["newEvent"]["csevents"]);
   }
 
