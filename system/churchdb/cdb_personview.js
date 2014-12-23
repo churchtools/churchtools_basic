@@ -2915,6 +2915,7 @@ PersonView.prototype.renderDetails = function (id) {
           each(a.gruppentypen, function(k,b) {
             _text=_text+"<br/>- "+churchcore_getCaption("groupTypes", b.gruppentyp_id)+"";
           });
+          _text=_text+"</small>";
         }
         if (a.auth!=null) {
           var auth=t.getAuthAsArray(a.auth).join(", ");

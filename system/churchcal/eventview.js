@@ -59,8 +59,6 @@ function eventCalendar(element, options, eventSources) {
   }
 
   function render() {
-//    if (timer!=null) window.clearTimeout(timer);
-//    timer=window.setTimeout(function() {
       renderCalendar();
       var d2 = new Date();
       var d = new Date(d2.getFullYear()+"");  
@@ -77,17 +75,20 @@ function eventCalendar(element, options, eventSources) {
               event.category_id=s.category_id;
               event.compare=s.category_id+"_"+event.start.toStringEn(false)+"_"+event.title;
               var drin=false;
-              each(allData, function(i,b) {
-                if (b.start!=event.start && b.compare==event.compare) {
-                  drin=true;
-                  if (b.multi==null) {
-                    b.multi=new Array();
-                    b.multi.push(b.start);
+              // For minical we put together dates on one day with same category
+              if (minical) {
+                each(allData, function(i,b) {
+                  if (b.start!=event.start && b.compare==event.compare) {
+                    drin=true;
+                    if (b.multi==null) {
+                      b.multi=new Array();
+                      b.multi.push(b.start);
+                    }
+                    if (!churchcore_inArray(event.start, b.multi)) b.multi.push(event.start);
+                    return false;
                   }
-                  b.multi.push(event.start);
-                  return false;
-                }
-              });
+                });
+              }
               if (!drin) allData.push(event);
             });
           });
@@ -120,17 +121,20 @@ function eventCalendar(element, options, eventSources) {
               // MiniCalender
               else {
                 rows.push('<p>');
-                rows.push('<span class="event-date">');
                 if (a.multi==null) {
                   rows.push(_renderDate(a));
                 }
                 else { 
-                  rows.push(a.start.toStringDe()+" - ");
+                  rows.push('<p class="event-date">');
+                  rows.push('<span class="date-date">');
+                  rows.push(a.start.toStringDe()+"&nbsp;");
+                  rows.push('</span><span class="date-time">');
                   each(churchcore_sortData(a.multi, null, true), function(i,b) {
                     rows.push(b.toStringDeTime()+" | ");
                   });
+                  rows.push('</span>');
                 }
-                rows.push('</span><br>');
+                rows.push('<br>');
                 
                 if (a.link!=null) 
                   rows.push('<a href="'+a.link+'" class="event-name" target="_parent">'+a.title+'</a>');
@@ -142,11 +146,7 @@ function eventCalendar(element, options, eventSources) {
               
   
               var notizen="";
-              if ((a.notizen!=null) && (a.notizen!="")) {
-                notizen=a.notizen.replace(/(http:\/\/\S*)/g, '<a target="_clean" href="$1">$1<\/a>');
-                notizen=notizen.replace(/(https:\/\/\S*)/g, '<a target="_clean" href="$1">$1<\/a>');
-                notizen=notizen.replace(/\n/g, '<br/>');
-              }
+              if ((a.notizen!=null) && (a.notizen!="")) notizen=a.notizen.htmlize();
               
               if ((a.link!=null) && (a.link!="")) {
                 if (notizen!="") notizen=notizen+'<br><br>';

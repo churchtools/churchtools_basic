@@ -1201,7 +1201,7 @@ function send2Calendar(a,b) {
     calendar.eventCalendar(a,b);
   else alert("Unbekannter send Calendar");
   
-  if (b.category_id==filterCategoryIds)
+  if (b.category_id==filterCategoryIds && filterId!=null)
     editEvent(b.container.data[filterCategoryIds].events[filterId]);
 }
 
