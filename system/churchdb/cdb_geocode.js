@@ -116,8 +116,8 @@ function _cdb_addPersonButton2Maps(controlDiv, map) {
 function _cdb_limitZoom(map) {
   google.maps.event.addListener(map, 'zoom_changed', function() {
     if (map.getZoom()>12) {
-      alert("Ein weiterer Zoom ist leider nicht erlaubt!");
       map.setZoom(12);
+      alert("Ein weiterer Zoom ist leider nicht erlaubt!");
     }
   });
 }  
