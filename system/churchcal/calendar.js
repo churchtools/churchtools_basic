@@ -683,31 +683,9 @@ function _renderViewChurchService(elem) {
     rows.push('</div>');
 
     elem.find("#cal_content").html(rows.join(""));
-    elem.find("#copychurchservice").change(function() {
-      currentEvent.copychurchservice=$(this).attr("checked")=="checked";
-      if (currentEvent.copychurchservice) {
-        elem.find("select.event-template").val("");
-        currentEvent.eventTemplate=null;
-      }
-      _refreshCSInfo();
-    });
-    _refreshCSInfo();
-    var firstOne=true;
-    elem.find("select.event-template").change(function() {
-      // No copy anymore
-      elem.find("#copychurchservice").removeAttr("checked");
-      currentEvent.copychurchservice=false;
-      var id = $(this).parents("tr").attr("data-id");
-      if (isOneNew && moreThenOne && (id==0 || firstOne) && confirm("Soll es für alle Event übernommen werden?")) {
-        firstOne=false;
-        var newVal = $(this).val();
-        elem.find("select.event-template").each(function() {
-          if ($(this).attr("disabled")==null) $(this).val(newVal);
-        });
-      }
-      _refreshCSInfo();
-    });
+    
     function _refreshCSInfo() {
+      console.log("TACH");
       elem.find("select.event-template").each(function() {
         var startdate = $(this).parents("tr").attr("data-date").toDateEn();
         var csEventId = getCSEventId(currentEvent, startdate);
@@ -723,7 +701,32 @@ function _renderViewChurchService(elem) {
           }
         }
       });
-    }
+    }    
+    _refreshCSInfo();
+    
+    elem.find("#copychurchservice").change(function() {
+      currentEvent.copychurchservice=$(this).attr("checked")=="checked";
+      if (currentEvent.copychurchservice) {
+        elem.find("select.event-template").val("");
+        currentEvent.eventTemplate=null;
+      }
+      _refreshCSInfo();
+    });
+    var firstOne=true;
+    elem.find("select.event-template").change(function() {
+      // No copy anymore
+      elem.find("#copychurchservice").removeAttr("checked");
+      currentEvent.copychurchservice=false;
+      var id = $(this).parents("tr").attr("data-id");
+      if (isOneNew && moreThenOne && (id==0 || firstOne) && confirm("Soll es für alle Event übernommen werden?")) {
+        firstOne=false;
+        var newVal = $(this).val();
+        elem.find("select.event-template").each(function() {
+          if ($(this).attr("disabled")==null) $(this).val(newVal);
+        });
+      }
+      _refreshCSInfo();
+    });
   }
 }
 
