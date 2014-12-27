@@ -14,18 +14,20 @@ include_once ('./' . CHURCHRESOURCE . '/../churchcore/churchcore_db.php');
  */
 function churchresource_getEventChangeImpact($newEvent, $pastEvent, $originEvent) {
   $changes = array ();
-  function _addCRChange(&$changes, $booking, $status, $startdate = null, $change = null) {
+  $addCRChange = function (&$changes, $booking, $status, $startdate = null, $change = null) {
     $resource = churchcore_getTableData("cr_resource", null, "id = " . $booking["resource_id"]);
     $booking["resource"] = $resource[$booking["resource_id"]]->bezeichnung;
     $changes[] = array("booking" => $booking, "status" => $status, "startdate" => $startdate->format("Y-m-d"),
           "changes" => $change);
-  }
+  };
 
   $splitDate = new DateTime($newEvent["startdate"]);
 
   if (empty($originEvent["bookings"])) {
-    foreach ($newEvent["bookings"] as $booking) {
-      _addCRChange($changes, $booking, "new", $splitDate);
+    if (isset($newEvent["bookings"])) {
+      foreach ($newEvent["bookings"] as $booking) {
+        $addCRChange($changes, $booking, "new", $splitDate);
+      }
     }
   }
   else {
@@ -36,37 +38,37 @@ function churchresource_getEventChangeImpact($newEvent, $pastEvent, $originEvent
         if (dateInCCEvent($d, $pastEvent)) {
           // 2a. in past Event, everything fine. Nothing to check, because in past is no changes in bookings!
           foreach ($originEvent["bookings"] as $booking) {
-            //_addCRChange($changes, $booking, "no.change", $d);
+            //$addCRChange($changes, $booking, "no.change", $d);
           }
         }
         else {
           // 2b. Deleted! Now for each booking make change entry
           foreach ($originEvent["bookings"] as $booking) {
-            _addCRChange($changes, $booking, "deleted", $d);
+            $addCRChange($changes, $booking, "deleted", $d);
           }
         }
       }
       else { // 3. event is in newEvent, now check bookings!
         foreach ($originEvent["bookings"] as $booking) {
           if (empty($newEvent["bookings"])) {
-            _addCRChange($changes, $booking, "deleted");
+            $addCRChange($changes, $booking, "deleted");
           }
           else {
             $newBooking = findBookingInNewEvent($booking, $newEvent);
             if ($newBooking != null) {
               $change = makeBookingDiff($booking, $newBooking, getOneEventOutOfSeries($originEvent, $d), getOneEventOutOfSeries($newEvent, $d));
-              if ($change != null) _addCRChange($changes, $booking, "updated", $d, $change);
-              //else _addCRChange($changes, $booking, "no.changes", $d, $change);
+              if ($change != null) $addCRChange($changes, $booking, "updated", $d, $change);
+              //else $addCRChange($changes, $booking, "no.changes", $d, $change);
             }
             // This is currently not supported, cause delete is not possible. Only set Status to deleted.
-            //else _addCRChange($changes, $booking, "error", $d, $change);
+            //else $addCRChange($changes, $booking, "error", $d, $change);
           }
         }
         // Perhaps new resource in booking
         foreach ($newEvent["bookings"] as $booking) {
           $originBooking = findBookingInOriginEvent($booking, $originEvent);
           if ($originBooking == null) {
-            _addCRChange($changes, $booking, "new", $d);
+            $addCRChange($changes, $booking, "new", $d);
           }
         }
       }
@@ -76,7 +78,7 @@ function churchresource_getEventChangeImpact($newEvent, $pastEvent, $originEvent
     if ($ds) foreach ($ds as $d) {
       if (!dateInCCEvent($d, $originEvent)) {
         foreach ($newEvents["bookings"] as $booking) {
-          _addCRChange($changes, $booking, "new", $d);
+          $addCRChange($changes, $booking, "new", $d);
         }
       }
     }

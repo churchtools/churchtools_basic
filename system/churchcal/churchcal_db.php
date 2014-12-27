@@ -472,9 +472,9 @@ function churchcal_saveSplittedEvent($params) {
 */
 function churchcal_getCCEventChangeImpact($newEvent, $pastEvent, $originEvent) {
   $changes = array ();
-  function _addCalChange(&$changes, $status, $startdate = null, $change = null) {
+  $addCalChange = function (&$changes, $status, $startdate = null, $change = null) {
     $changes[] = array("status" => $status, "startdate" => $startdate->format("Y-m-d"), "changes" => $change);
-  }
+  };
 
   $splitDate = new DateTime($newEvent["startdate"]);
 
@@ -484,12 +484,12 @@ function churchcal_getCCEventChangeImpact($newEvent, $pastEvent, $originEvent) {
     if (!dateInCCEvent($d, $newEvent)) { // 1. Date is not in newEvent
       if (!dateInCCEvent($d, $pastEvent)) {
         // 2b. Deleted! Now for each booking make change entry
-        _addCalChange($changes, "deleted", $d);
+        $addCalChange($changes, "deleted", $d);
       }
     }
     else { // 3. event is in newEvent, now check bookings!
       $change = makeCCEventDiff(getOneEventOutOfSeries($originEvent, $d), getOneEventOutOfSeries($newEvent, $d));
-      if ($change != null) _addCalChange($changes, "updated", $d, $change);
+      if ($change != null) $addCalChange($changes, "updated", $d, $change);
     }
   }
   // Now do 4.
@@ -497,7 +497,7 @@ function churchcal_getCCEventChangeImpact($newEvent, $pastEvent, $originEvent) {
   if ($ds) foreach ($ds as $d) {
     if (!dateInCCEvent($d, $originEvent)) {
       $change = makeCCEventDiff(null, $newEvent, $d);
-      _addCalChange($changes, "new", $d, $change);
+      $addCalChange($changes, "new", $d, $change);
     }
   }
   return $changes;
