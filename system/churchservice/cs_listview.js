@@ -2447,7 +2447,20 @@ ListView.prototype.sendEMailToEvent = function(event) {
 
     var txt='<div id="inhalt" class="well" contenteditable="true">';
     if (event.agenda && (user_access("view agenda", event.category_id) || t.amIInvolved(event))) {
-      var a=agendaView.getAgendaForEventIdIfOnline(event.id);
+      // Load AgendaView for adding agenda link
+      if (churchInterface.views.AgendaView==null) {
+        churchInterface.loadLazyView("AgendaView", function(agendaView) {
+          this_object.sendEMailToEvent(event);
+        });
+        return;
+      } 
+      else if (churchInterface.views.AgendaView.getAgendaForEventIdIfOnline(event.id)==null) {
+        churchInterface.views.AgendaView.loadAgendaForEvent(event.id, function(data) {
+          this_object.sendEMailToEvent(event);
+        });
+        return;
+      }
+      var a=churchInterface.views.AgendaView.getAgendaForEventIdIfOnline(event.id);
       if (a!=null)
         txt=txt+'<br/><br/><a href="'+masterData.base_url+'?q=churchservice&id='+a.id+'#AgendaView" class="button">Ablauf aufrufen</a>';
     }
@@ -2535,7 +2548,29 @@ ListView.prototype.editNote = function(event) {
 
 ListView.prototype.attachFile = function(event) {
   var this_object=this;
+  
+  var attachTxt = "";
 
+  if (event.agenda && (user_access("view agenda", event.category_id) || t.amIInvolved(event))) {
+    // Load AgendaView for adding agenda link
+    if (churchInterface.views.AgendaView==null) {
+      churchInterface.loadLazyView("AgendaView", function(agendaView) {
+        this_object.attachFile(event);
+      });
+      return;
+    } 
+    else if (churchInterface.views.AgendaView.getAgendaForEventIdIfOnline(event.id)==null) {
+      churchInterface.views.AgendaView.loadAgendaForEvent(event.id, function(data) {
+        this_object.attachFile(event);
+      });
+      return;
+    }
+    var a=churchInterface.views.AgendaView.getAgendaForEventIdIfOnline(event.id);
+    if (a!=null)
+      attachTxt = attachTxt+'<br/><br/><a href="'+masterData.base_url+'?q=churchservice&id='+a.id+'#AgendaView" class="button">Ablauf aufrufen</a>';
+  }
+  
+  
   jsFiles = ['/assets/ckeditor/ckeditor.js', '/assets/ckeditor/lang/de.js'];
   if (!churchInterface.JSFilesLoaded(jsFiles)) {
     churchInterface.loadJSFiles(jsFiles, function() { this_object.attachFile(event); });
@@ -2580,7 +2615,8 @@ ListView.prototype.attachFile = function(event) {
             cssid:"file_informServiceGroup"+a.id})+"&nbsp; &nbsp;");
       }
     });
-   rows.push('<p>Hier kann ein Kommentar angeben werden:<div class="well" contenteditable="true" id="editor">&nbsp;</div>');
+   rows.push('<p>Hier kann ein Kommentar angeben werden:<div class="well" contenteditable="true" id="editor">&nbsp;');
+   rows.push(attachTxt + '</div>');
 
   }
   if (rows.length==1) {

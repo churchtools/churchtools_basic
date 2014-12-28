@@ -1297,7 +1297,7 @@ function form_implantWysiwygEditor(id, smallmenu, inline) {
     }
     else if (smallmenu==null) {
       toolbar= [
-                { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ], items: [ 'Bold', 'Underline'] }
+                { name: 'basicstyles', groups: [ 'basicstyles', 'cleanup' ], items: [ 'Bold', 'Underline', 'Link', 'Unlink'] }
               ];
     }
     CKEDITOR.config.extraPlugins = 'churchtools';
