@@ -150,7 +150,7 @@ function _addEventsToDateIndex(cs_events, o) {
   cs_events[o.runningDate.getFullYear()]=year;
     
   o.runningDate.addDays(1);
-  if (o.runningDate.getTime() < o.end.getTime()) {
+  if (o.end != null && o.runningDate.getTime() < o.end.getTime()) {
    _addEventsToDateIndex(cs_events, o);
   }
 }
@@ -295,6 +295,7 @@ CalBirthdayType.prototype.showEventsOnCal = function(id) {
     each(t.data[id].events, function(k,a) {
       for (var i=-1;i<=1;i++) {
         var o=Object();
+        o.id = a.id;
         o.title= a.name;
         o.allDay= true;
         var b = a.birthday.toDateEn();
