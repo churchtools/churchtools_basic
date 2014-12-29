@@ -294,14 +294,16 @@ CalBirthdayType.prototype.showEventsOnCal = function(id) {
   if (t.data[id].events!=null) {
     each(t.data[id].events, function(k,a) {
       for (var i=-1;i<=1;i++) {
-        var o=Object();
-        o.id = a.id;
-        o.title= a.name;
-        o.allDay= true;
-        var b = a.birthday.toDateEn();
-        b.setYear(d.getFullYear()+i);
-        o.start= b;
-        _addEventsToDateIndex(cs_events, o);
+        if (a.birthday != null) {
+          var o = Object();
+          o.id = a.id;
+          o.title= a.name;
+          o.allDay= true;
+          var b = a.birthday.toDateEn();
+          b.setYear(d.getFullYear()+i);
+          o.start = b;
+          _addEventsToDateIndex(cs_events, o);
+        }
       }
     });
   }
