@@ -3,6 +3,10 @@ https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc
 
 2.52c
 - Fix ChurchDB Export with relations bug 
+- Fix CS reload new data bug
+- Fix CS overlaying icon issue
+- Fix CS template saving problems
+- Fix Cal bug: Creater was always informed
 
 2.52b
 - Fix birthday showing problem in Cal

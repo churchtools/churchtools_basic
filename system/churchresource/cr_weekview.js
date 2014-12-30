@@ -1043,7 +1043,6 @@ WeekView.prototype.showBookingDetails = function(func, id, date, element) {
   myEvent.askForSplit(t.mousePosition, function(untilEnd) {
     if (untilEnd!=null) {
       myEvent.doSplit(date, untilEnd, function(newEvent, pastEvent) {
-        console.log(pastEvent);
         t.renderEditEvent(func, newEvent, myEvent, myEvent.isSeries(), untilEnd, function(newEvent, func) {
           if (myEvent.cc_cal_id==null) {
             newEvent.save();

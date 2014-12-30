@@ -292,6 +292,8 @@ function _getEditEventFromForm() {
         services[$(this).attr("id").substr(3,99)]=1;
       else if (($(this).val()>0))
         services[$(this).attr("id").substr(3,99)]=$(this).val();
+      else
+        services[$(this).attr("id").substr(3,99)]=0;
     }
   });
   csevent.services=services;
@@ -345,8 +347,9 @@ ListView.prototype.saveEventAsTemplate = function (event, template_name, func) {
   o.services = event.csevents[-1].services;
   o.special = event.csevents[-1].special;
   o.admin = event.csevents[-1].admin;
+  o.category_id = event.category_id;
   churchInterface.jsendWrite(o, null, false);
-  cdb_loadMasterData(function() {
+  churchInterface.loadMasterData(function() {
     masterData.service_sorted=churchcore_sortData_numeric(masterData.service,"sortkey");
     func(_getTemplateIdFromName(template_name));
   });
@@ -387,13 +390,13 @@ ListView.prototype.saveEditEvent = function (elem) {
                     "Wenn alle Events geändert werden sollen, bitte "+masterData.churchcal_name+" verwenden!";
         }
         confirmImpactOfEventChange(data, function() {
-          if (check.originEvent.isSeries()) {
-            splitEvent(check.originEvent, allEvents[csevent.id].startdate, false, function(newEvent, pastEvent) {
-              obj.func = "saveSplittedEvent";
-              obj.newEvent = newEvent;
-              obj.newEvent.bezeichnung = obj.bezeichnung;
-              obj.pastEvent = pastEvent;
-              obj.splitDate = allEvents[csevent.id].startdate;
+           if (check.originEvent.isSeries()) {
+             check.originEvent.doSplit(allEvents[csevent.id].startdate, false, function(newEvent, pastEvent) {
+               obj.func = "saveSplittedEvent";
+               obj.newEvent = newEvent;
+               obj.newEvent.bezeichnung = obj.bezeichnung;
+               obj.pastEvent = pastEvent;
+               obj.splitDate = allEvents[csevent.id].startdate;
             });
           }
           else {
@@ -401,7 +404,7 @@ ListView.prototype.saveEditEvent = function (elem) {
           }
           churchInterface.jsendWrite(obj, function(ok, data) {
             if (!ok) alert(data);
-            cs_loadEventData(null, function(){
+            cs_loadEventData(null, function() {
               this_object.renderList();
             });
           }, null, false);
@@ -414,6 +417,7 @@ ListView.prototype.saveEditEvent = function (elem) {
     churchInterface.jsendWrite(obj, function(ok, data) {
       if (!ok) alert(data);
       cs_loadEventData(null, function(){
+        this_object.currentDate = obj.startdate.withoutTime();
         this_object.renderList();
       });
     }, null, false);
@@ -595,7 +599,6 @@ ListView.prototype.renderEditEvent = function(event) {
         // Wenn es neu ist, dann soll das Datum gesetzt werden, damit der neue Eintrag sichtbar wird.
         if (event.id==null) {
           delete(this_object.filter.searchEntry);
-          this_object.currentDate=event.startdate.withoutTime();
           this_object.renderView();
         }
       }
