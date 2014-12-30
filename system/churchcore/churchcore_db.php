@@ -1629,6 +1629,11 @@ function churchcore_getMasterDataEntry($id, $bezeichnung, $shortname, $tablename
  */
 function churchcore_stringToDateDe($string, $withTime = true) {
   if (!$string) return null;
+  if (!is_string($string)) {
+    echo "churchcore_StringToDateDe() expected a String..<br/>";
+    print_r($string);
+    return "-";
+  }
 
   if (strlen($string) < 11) $string .= " 00:00:00";
   $dt = new Datetime($string);

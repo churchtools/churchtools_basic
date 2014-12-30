@@ -88,7 +88,7 @@ function cs_loadNewEventData(lastLogId, nextFunction) {
     if ((ok) && (json!=null)) {
       each(json, function(k,a) {
         newEvents.push(a.id);
-        allEvents[a.id]=a;
+        allEvents[a.id]=getCSEvent(a);
       });
     }
     churchInterface.clearStatus();

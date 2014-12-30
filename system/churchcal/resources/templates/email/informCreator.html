@@ -1,6 +1,6 @@
 <h4>Hallo <?= $p->nickname ?>!</h4>
 
-<?php if ($new): ?>
+<?php if (isset($new) && $new): ?>
   <p>Das Event <i><?= $caption ?></i> am <?= $startdate ?> wurde für Dich erstellt:<p>
 <?php else: ?>
   <p>In Deinem Event <i><?= $caption ?></i> am <?= $startdate ?> hat es Änderung gegeben:<p>
@@ -27,9 +27,11 @@
   <?php foreach ($bookings as $b): ?>
     <li><b><?= substr(churchcore_stringToDateDe($b["startdate"]),0,10) ?> - <?= $b["booking"]["resource"] ?></b> <i><?= t($b["status"]) ?></i>
       <ul>
-        <?php foreach ($b["changes"] as $key=>$c): ?>
-          <li> <?= t($key) ?> ist nun <i><?= $c["new"] ?></i> <font color="gray" style="text-decoration:line-through;">(<?= $c["old"] ?>)</font>
-        <?php endforeach; ?>
+        <?php if (isset($b["changes"])): ?>
+          <?php foreach ($b["changes"] as $key=>$c): ?>
+            <li> <?= t($key) ?> ist nun <i><?= $c["new"] ?></i> <font color="gray" style="text-decoration:line-through;">(<?= $c["old"] ?>)</font>
+          <?php endforeach; ?>
+        <?php endif; ?>
       </ul>
     </li>
   <?php endforeach; ?>

@@ -77,7 +77,7 @@ function churchresource_getEventChangeImpact($newEvent, $pastEvent, $originEvent
     $ds = getAllDatesWithRepeats((object) $newEvent, 0, 9999, $splitDate);
     if ($ds) foreach ($ds as $d) {
       if (!dateInCCEvent($d, $originEvent)) {
-        foreach ($newEvents["bookings"] as $booking) {
+        foreach ($newEvent["bookings"] as $booking) {
           $addCRChange($changes, $booking, "new", $d);
         }
       }

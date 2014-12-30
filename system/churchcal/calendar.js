@@ -839,8 +839,9 @@ function renderEditEvent(myEvent, origEvent, isSeries, editSeries, func) {
         each(currentEvent.csevents, function(k, a) {
           if (!a.mark) a.action = "delete";
         });
-        if ($("#inform_creator").attr("checked")=="checked") currentEvent.informCreator = true;
+        currentEvent.informCreator = $("#inform_creator").attr("checked")=="checked";
         var myEvent = currentEvent.clone();
+        console.log(myEvent);
         delete myEvent.view;
         delete myEvent.minpre;
         delete myEvent.minpost;
@@ -980,9 +981,11 @@ function _viewChanged(view) {
       masterData.settings["viewName"]=view.name;
       churchInterface.jsendWrite({func:"saveSetting", sub:"viewName", val:view.name});
     }
-    if ((masterData.settings["startDate"]==null) || (masterData.settings["startDate"]!=view.start.format(DATEFORMAT_EN))) {
-      masterData.settings["startDate"]=view.start.format(DATEFORMAT_EN);
-      churchInterface.jsendWrite({func:"saveSetting", sub:"startDate", val:view.start.format(DATEFORMAT_EN)});
+    var d = view.start.format(DATEFORMAT_EN).toDateEn();
+    if (view.name=="month") d.addDays(8);
+    if ((masterData.settings["startDate"]==null) || (masterData.settings["startDate"]!=d.toStringEn(false))) {
+      masterData.settings["startDate"]=d.toStringEn(false);
+      churchInterface.jsendWrite({func:"saveSetting", sub:"startDate", val:d.toStringEn(true)});
     }
     saveSettingTimer=null;
   },700);
@@ -1052,18 +1055,15 @@ function _calcCalendarHeight() {
 
 function initCalendarView() {
   calendar=$('#calendar');
-  var d=new Date();
-  if ($("#init_startdate").val()!=null)
-    d=$("#init_startdate").val().toDateEn(true);
-  if (d==null && masterData.settings.startDate!=null)
-    d=masterData.settings.startDate.toDateEn();
+  var d = null;
+  if ($("#init_startdate").val() != null) var d = $("#init_startdate").val().toDateEn(true);
+  else if (masterData.settings.startDate!=null)
+    d = masterData.settings.startDate.toDateEn();
+  else d = new Date();
   var height=$( window ).height()-150;
   if (height>1000) height=1000;
   if (viewName=="calView") {
     calendar.fullCalendar({
-      year: d.getFullYear(),
-      month:d.getMonth(),
-      date:  d.getDate(),
       header: {
         left: 'prev,next today',
         center: 'title',
@@ -1141,10 +1141,7 @@ function initCalendarView() {
       style="overflow:scroll;height:'+(_calcCalendarHeight()+20)+'px"
     });
     $("#header").html("");
-    if ($("#viewdate").val()!=null) {
-      var viewdate=$("#viewdate").val().toDateEn();
-      calendar.fullCalendar( 'gotoDate', viewdate);
-    }
+    calendar.fullCalendar( 'gotoDate', moment(d));
   }
   else if (viewName=="yearView") {
     calendar.yearCalendar({});

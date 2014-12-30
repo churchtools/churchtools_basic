@@ -135,10 +135,10 @@ function churchcal_getMyMeetingRequest() {
  * @throws CTNoPermission
  * @return int; id of created event
  */
-function churchcal_createEvent($params, $callCS=true) {
+function churchcal_createEvent($params, $callCS=true, $withoutPerm = false) {
   global $user;
   // if source is another module rights are already checked
-  if (!churchcal_isAllowedToEditCategory($params["category_id"])) {
+  if (!$withoutPerm && !churchcal_isAllowedToEditCategory($params["category_id"])) {
     throw new CTNoPermission(t('no.create.right.for.cal.id.x', $params["category_id"]), "churchcal");
   }
   $i = new CTInterface();
@@ -247,25 +247,25 @@ function churchcal_isAllowedToEditCategory($categoryId) {
  *
  * @param array $params
  * @param string $sourc; controls cooperation between modules if event comes from another modulee
+ * @param boolean $withoutPerm If permission will be checked.
  */
-function churchcal_updateEvent($params, $callCS = true) {
+function churchcal_updateEvent($params, $callCS = true, $withoutPerm = false) {
   global $user;
   $changes = array ();
 
-  // can user edit current event category?
-  if (!churchcal_isAllowedToEditCategory($params["category_id"])) throw new CTNoPermission("AllowedToEditCategory[" .
-       $params["category_id"] . "] (newCat)", "churchcal");
-
+  if (!$withoutPerm && !churchcal_isAllowedToEditCategory($params["category_id"])) {
+    throw new CTNoPermission("AllowedToEditCategory[" . $params["category_id"] . "] (newCat)", "churchcal");
+  }
+         
   $old_cal = db_query("SELECT *
                        FROM {cc_cal}
                        WHERE id=:id",
                        array (":id" => $params["id"]))
                        ->fetch();
   // can user edit old event category?
-  if (!churchcal_isAllowedToEditCategory($old_cal->category_id)) {
+  if (!$withoutPerm && !churchcal_isAllowedToEditCategory($old_cal->category_id)) {
     throw new CTNoPermission("AllowedToEditCategory[" . $old_cal->category_id . "] (oldCat)", "churchcal");
   }
-
   // When empty, load originEvent for later sending Change protocol
   $dummy = churchcal_getCalPerCategory(array ("category_ids" => array(0 => $old_cal->category_id)));
   $originEvent = (array) $dummy[$old_cal->category_id][$params["id"]];
@@ -293,7 +293,7 @@ function churchcal_updateEvent($params, $callCS = true) {
                     ->condition("id", $params["id"], "=")
                     ->execute();
 
-  // get all exceptions
+  // get all exceptions for event
   $exc = churchcore_getTableData("cc_cal_except", null, "cal_id=" . $params["id"]);
   // look which are already in DB
   if (isset($params["exceptions"])) foreach ($params["exceptions"] as $exception) {
@@ -347,7 +347,7 @@ function churchcal_updateEvent($params, $callCS = true) {
 
   // meeting request
   if (isset($params["meetingRequest"])) churchcal_handleMeetingRequest($params["id"], $params);
-
+        
   // Call other modules
   $newBookingIds = null;
   if (churchcore_isModuleActivated("churchresource")) {
@@ -372,9 +372,9 @@ function churchcal_updateEvent($params, $callCS = true) {
   $txt .= " auf:<br>";
   $txt .= churchcore_CCEventData2String($params);
   ct_notify("category", $params["category_id"], $txt);
-
+  
   // Inform creator when I am allowed and when it is not me!
-  if ($callCS && getVar("informCreator", true) && $originEvent["modified_pid"]!=$user->id) {
+  if ($callCS && getVar("informCreator", true)===true && $originEvent["modified_pid"]!=$user->id) {
     $data = (array) churchcal_getEventChangeImpact(array ("newEvent" => $params, "originEvent" => $originEvent, "pastEvent" => null));
     $data["new"] = false;
     $data["caption"] = $params["bezeichnung"];
@@ -407,7 +407,7 @@ function churchcal_saveSplittedEvent($params) {
   $splitDate = new DateTime($params["splitDate"]);
   $untilEnd_yn = $params["untilEnd_yn"];
   $pastEventId = $params["pastEvent"]["id"];
-  
+
   // Get originEvent out of Database
   $dummy = churchcal_getCalPerCategory(array ("category_ids" => array(0 => $params["pastEvent"]["category_id"])));
   $originEvent = (array) $dummy[$params["pastEvent"]["category_id"]][$params["newEvent"]["old_id"]];
@@ -420,7 +420,7 @@ function churchcal_saveSplittedEvent($params) {
     if (empty($params["newEvent"][$key])) $params["newEvent"][$key] = $entry;
   }
   // Save new Event without impact on CS and CR ...
-  $res = churchcal_createEvent($params["newEvent"], false);
+  $res = churchcal_createEvent($params["newEvent"], false, true);
 
   // ... and now bind related bookings and services to the new event
   $newEventId = $res["id"];
@@ -438,7 +438,7 @@ function churchcal_saveSplittedEvent($params) {
   }
 
   // Save old Event
-  churchcal_updateEvent($params["pastEvent"], false);
+  churchcal_updateEvent($params["pastEvent"], false, true);
   
   if (getVar("informCreator", true, $params["newEvent"]) && $originEvent["modified_pid"] != $user->id) {
     $data = (array) churchcal_getEventChangeImpact(array ("newEvent" => $params["newEvent"], "originEvent" => $originEvent, 
@@ -521,10 +521,35 @@ function getOneEventOutOfSeries($originEvent, $d) {
 
 function makeCCEventDiff($originEvent, $newEvent) {
   $ret = array ();
+  
+  $internFields = array();
+  $internFields[] = "informCreator";
+  $internFields[] = "modified_pid";  
+  $internFields[] = "repeat_frequence";
+  $internFields[] = "allDay";
+  $internFields[] = "name";
+  $internFields[] = "func";
+  $internFields[] = "currentEvent_id";
+  $internFields[] = "id";
+  $internFields[] = "cal_id";
+  $internFields[] = "bookings";
+  $internFields[] = "csevents";
+  $internFields[] = "old_id";
+  $internFields[] = "old_category_id";
+  $internFields[] = "old_startdate";
+  // From CR
+  $internFields[] = "cc_cal_id";
+  $internFields[] = "person_id";
+  $internFields[] = "text";
+  $internFields[] = "show_in_churchcal_yn";
+  $internFields[] = "person_name";
+  $internFields[] = "cal_startdate";
+  $internFields[] = "cal_enddate";
+  $internFields[] = "booking_id";
+  $internFields[] = "neu";
+  
   foreach ($newEvent as $key=>$newEntry) {
-    if ($key != "informCreator" && $key != "modified_pid" && $key != "repeat_frequence" && $key != "allDay" && $key != "name"
-        && $key != "func" && $key != "currentEvent_id" && $key != "id" && $key != "cal_id" && $key != "bookings" 
-            && $key != "csevents" && $key != "old_id" && $key != "old_category_id") {
+    if (!in_array($key, $internFields)) {
       if (!isset($originEvent[$key]) || $originEvent[$key] != $newEntry) {
         $k = $key;
         $einheit = "";
