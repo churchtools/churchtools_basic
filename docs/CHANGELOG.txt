@@ -1,2 +1,14 @@
-Das Changelog ist nun hier zu finden:
+Das gesamte Changelog ist hier zu finden:
 https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc:Changelog/
+
+2.52c
+- Fix ChurchDB Export with relations bug 
+
+2.52b
+- Fix birthday showing problem in Cal
+- Add link to Agenda when email with CS
+
+2.52a
+- Fix french translation issue
+- Fix ical reader bug
+- Fix a php warning in CR

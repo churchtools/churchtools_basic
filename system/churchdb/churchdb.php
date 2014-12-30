@@ -943,7 +943,7 @@ function churchdb__export() {
   if ($rels != null) {
     $rel_types = getAllRelationTypes();
     foreach ($rels as $rel) {
-      if (getVar("agg" . $rel->typ_id == "y") && isset($export[$rel->v_id]) && isset($export[$rel->k_id])) {
+      if (getVar("agg" . $rel->typ_id) == "y" && isset($export[$rel->v_id]) && isset($export[$rel->k_id])) {
         // use the male as first person, if available
         if (!isset($export[$rel->v_id]["anrede2"]) || $export[$rel->v_id]["anrede2"] == t('salutation.man.2')) {
           $p1 = $rel->v_id;
