@@ -1,0 +1,6 @@
+php_value memory_limit 64M
+
+<FilesMatch "\.(col|pro5plx|csv)$">
+  ForceType application/octet-stream
+  Header set Content-Disposition attachment
+</FilesMatch>
