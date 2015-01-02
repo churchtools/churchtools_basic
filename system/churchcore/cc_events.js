@@ -163,7 +163,6 @@ CCEvent.prototype.clone = function () {
  */
 CCEvent.prototype.addException = function (date, deleteCS) {
   var t = this;
-  console.log("addExcpetion", date, deleteCS,t );
   if (t.exceptions==null) t.exceptions = new Object();
   else if (t.exceptions instanceof Array) {
     // Change array to object, for adding -1 etc. 
@@ -176,7 +175,6 @@ CCEvent.prototype.addException = function (date, deleteCS) {
   t.exceptionids = t.exceptionids-1;
   t.exceptions[t.exceptionids]
         ={id:t.exceptionids, except_date_start:date.toStringEn(), except_date_end:date.toStringEn()};
-  console.log(t)
   // Add Exception for CS Events
   var csId = getCSEventId(t, date, true);
   if (csId!=null) {
@@ -321,7 +319,6 @@ CCEvent.prototype.doSplit = function (splitDate, untilEnd, func) {
       delete newEvent.repeat_until;
       delete newEvent.exceptions;
       delete newEvent.additions;
-      console.log("newEvent", "pastEvent", newEvent, pastEvent);
       func(newEvent, pastEvent);
     }
     else {  // Split until end
