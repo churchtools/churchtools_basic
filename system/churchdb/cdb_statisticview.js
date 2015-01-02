@@ -14,7 +14,7 @@ function getStatisticView() {
 }
 
 StatisticView.prototype.getNeededJSFiles = function() {
-  return ['flot/jquery.flot.min.js', 'flot/jquery.flot.pie.js'];
+  return ['/assets/flot/jquery.flot.min.js', '/assets/flot/jquery.flot.pie.js'];
 }
 
 StatisticView.prototype.renderMasterDataStatistic = function(divid, masterDatafield, id_name) {
