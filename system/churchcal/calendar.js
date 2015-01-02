@@ -1047,6 +1047,7 @@ function _eventClick(event, jsEvent, view ) {
 
 function _calcCalendarHeight() {
   if (printview) return 1000;
+  else if (embedded) return 600;
   var height=$( window ).height()-150;
   if (height>1000) height=1000;
   else if (height<400) height=400;

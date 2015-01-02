@@ -507,7 +507,6 @@ function churchservice_deleteEvent($params) {
                       array (":event_id" => $params["id"]));
       foreach ($db as $p) {
         $subject = "[" . getConf('site_name') . "] " . t('cancelation.of.event.date', $db_cal->bezeichnung, $db_event->date_de);
-        //TODO: use mail template
         $data = array(
           'person'     => $p,
           'eventTitle' => $db_cal->bezeichnung,
