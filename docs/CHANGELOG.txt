@@ -9,6 +9,7 @@ https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc
 - Fix CS changing an event out of a series forgot future exceptions 
 - Fix Cal bug: Creater was always informed
 - Cal: Set a fixed cal height for embedding pages 
+- Fix ChurchDB bug: change own address causes the permission to the all streets
 
 2.52b
 - Fix birthday showing problem in Cal

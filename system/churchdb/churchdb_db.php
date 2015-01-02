@@ -361,8 +361,8 @@ function churchdb_addEvent($params) {
  *
  * @return boolean
  */
-function _checkPersonAuthorisation($authorisation, $userIsLeader, $userIsSuperLeader) {
-  global $config;
+function _checkPersonAuthorisation($authorisation, $userIsLeader, $userIsSuperLeader, $userId) {
+  global $config, $user;
   if ($authorisation == null) return true;
   $ret = false;
   foreach (explode("||", $authorisation) as $auth) {
@@ -383,7 +383,7 @@ function _checkPersonAuthorisation($authorisation, $userIsLeader, $userIsSuperLe
       if ($userIsSuperLeader) $ret = true;
     }
     else if ($auth == "changeownaddress") {
-      if (isset($config["churchdb_changeownaddress"]) && ($config["churchdb_changeownaddress"] == 1)) $ret = true;
+      if ($userId == $user->id && isset($config["churchdb_changeownaddress"]) && ($config["churchdb_changeownaddress"] == 1)) $ret = true;
     }
     else
       throw new CTException("Unbekanntes Recht: '" . $auth . "'");
@@ -469,7 +469,7 @@ function churchdb_getPersonDetails($id, $withComments = true) {
   $sqlFields[] = "cmsuserid";
 
   foreach ($res as $res2) {
-    if (($res2->autorisierung == null) || (_checkPersonAuthorisation($res2->autorisierung, $userIsLeader, $userIsSuperLeader))) {
+    if (($res2->autorisierung == null) || (_checkPersonAuthorisation($res2->autorisierung, $userIsLeader, $userIsSuperLeader, $id))) {
       if (($res2->intern_code == "f_address") || ($userIsLeader) || (user_access('view alldetails',"churchdb"))){
         $sqlFields[]=$res2->db_spalte;
       }
