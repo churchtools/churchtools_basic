@@ -370,7 +370,6 @@ ListView.prototype.saveEditEvent = function (elem) {
     check.originEvent = allEvents[csevent.id].clone();
     check.originEvent.startdate = allEvents[csevent.id].cal_startdate;
     check.originEvent.enddate = allEvents[csevent.id].cal_enddate;
-    delete check.originEvent.bookings;
     delete check.originEvent.services;
 
     check.originEvent.id = allEvents[csevent.id].cc_cal_id
@@ -386,7 +385,7 @@ ListView.prototype.saveEditEvent = function (elem) {
       if (!ok) alert(data);
       else {
         if (allEvents[csevent.id].isSeries()) {
-          data.hint="Mit dem Ausführen wird das Event aus der Kalenderserie herausgenommen und die gewünschten Änderungen übernommen. <br/>"+
+          data.hint="<b>Mit dem Ausführen wird das Event aus der Kalenderserie herausgenommen und die gewünschten Änderungen übernommen. </b><br/>"+
                     "Wenn alle Events geändert werden sollen, bitte "+masterData.churchcal_name+" verwenden!";
         }
         confirmImpactOfEventChange(data, function() {

@@ -242,11 +242,18 @@ function churchservice_getAllEventData($params) {
   $cat[] = -1;
 
   $lastday = -getConf('churchservice_entries_last_days');
-  // $auth=user_access("view servicegroup","churchservice");
+
+  $excs_db = db_query("SELECT id, cal_id, except_date_start, except_date_end FROM {cc_cal_except}");
+  $excs = array();
+  foreach ($excs_db as $exc) {
+    if (!isset($excs[$exc->cal_id])) $excs[$exc->cal_id] = array();
+    $excs[$exc->cal_id][] = $exc;
+  }
+
   $res = db_query(
       'SELECT e.id, e.startdate startdate, e.valid_yn, cal.startdate cal_startdate, cal.enddate cal_enddate,
           e.cc_cal_id, cal.bezeichnung, e.special, cal.category_id, e.admin, cal.repeat_id, cal.repeat_until,
-          cal.repeat_frequence, cal.repeat_option_id, cal.intern_yn, cal.notizen, cal.ort, cal.ort, cal.link,
+          cal.repeat_frequence, cal.repeat_option_id, cal.intern_yn, cal.notizen, cal.ort, cal.link,
          datediff(e.startdate,CURRENT_DATE) datediff
        FROM {cs_event} e, {cc_cal} cal
        WHERE cal.id=e.cc_cal_id AND '.($id != null ? "e.id=$id" : "1=1")
@@ -257,16 +264,10 @@ function churchservice_getAllEventData($params) {
   $events = array ();
   if ($res != false) {
     foreach ($res as $arr) {
-      // check booking info to know if date can be changed here
-      $b = db_query( "SELECT id FROM {cr_booking}
-                      WHERE cc_cal_id=:cal_id",
-                      array (":cal_id" => $arr->cc_cal_id))
-                      ->fetch();
-      $arr->bookings = $b != false;
-
       if ($arr->repeat_frequence == null) unset($arr->repeat_frequence);
       if ($arr->repeat_option_id == null) unset($arr->repeat_option_id);
       if ($arr->repeat_until == null) unset($arr->repeat_until);
+      if (isset($excs[$arr->cc_cal_id])) $arr->exceptions = $excs[$arr->cc_cal_id]; 
 
       // here we go!
       $events[$arr->id] = $arr;

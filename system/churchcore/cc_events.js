@@ -6,7 +6,10 @@
 function confirmImpactOfEventChange(data, func) {
   var rows = new Array();
   var showConfirm = false;
-  if (data.hint!=null) rows.push('<p>' + data.hint);
+  if (data.hint!=null) {
+    rows.push('<p>' + data.hint);
+    showConfirm = true;
+  }
 
   // Render Impacts of Cal
   if (churchcore_countObjectElements(data.cal)>0) {
@@ -160,11 +163,20 @@ CCEvent.prototype.clone = function () {
  */
 CCEvent.prototype.addException = function (date, deleteCS) {
   var t = this;
+  console.log("addExcpetion", date, deleteCS,t );
   if (t.exceptions==null) t.exceptions = new Object();
+  else if (t.exceptions instanceof Array) {
+    // Change array to object, for adding -1 etc. 
+    t.exceptions = t.exceptions.reduce(function(o, v, i) {
+      o[i] = v;
+      return o;
+    }, {});
+  }
   if (t.exceptionids==null) t.exceptionids = 0;
   t.exceptionids = t.exceptionids-1;
   t.exceptions[t.exceptionids]
         ={id:t.exceptionids, except_date_start:date.toStringEn(), except_date_end:date.toStringEn()};
+  console.log(t)
   // Add Exception for CS Events
   var csId = getCSEventId(t, date, true);
   if (csId!=null) {
@@ -309,6 +321,7 @@ CCEvent.prototype.doSplit = function (splitDate, untilEnd, func) {
       delete newEvent.repeat_until;
       delete newEvent.exceptions;
       delete newEvent.additions;
+      console.log("newEvent", "pastEvent", newEvent, pastEvent);
       func(newEvent, pastEvent);
     }
     else {  // Split until end

@@ -136,7 +136,7 @@ function editEvent(myEvent, month, currentDate, jsEvent) {
   myEvent.askForSplit(jsEvent, function(untilEnd) {
     if (untilEnd!=null) {
       myEvent.doSplit(currentDate, untilEnd, function(newEvent, pastEvent) {
-        renderEditEvent(newEvent, myEvent, newEvent.isSeries(), untilEnd, function(newEvent, func) {
+        renderEditEvent(newEvent, myEvent, myEvent.isSeries(), untilEnd, function(newEvent, func) {
           myEvent.prooveEventChangeImpact(newEvent, pastEvent, currentDate, null, function(ok) {
             if (!ok) func(false);
             else {
@@ -685,7 +685,6 @@ function _renderViewChurchService(elem) {
     elem.find("#cal_content").html(rows.join(""));
     
     function _refreshCSInfo() {
-      console.log("TACH");
       elem.find("select.event-template").each(function() {
         var startdate = $(this).parents("tr").attr("data-date").toDateEn();
         var csEventId = getCSEventId(currentEvent, startdate);
@@ -841,7 +840,6 @@ function renderEditEvent(myEvent, origEvent, isSeries, editSeries, func) {
         });
         currentEvent.informCreator = $("#inform_creator").attr("checked")=="checked";
         var myEvent = currentEvent.clone();
-        console.log(myEvent);
         delete myEvent.view;
         delete myEvent.minpre;
         delete myEvent.minpost;

@@ -3,10 +3,12 @@ https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc
 
 2.52c
 - Fix ChurchDB Export with relations bug 
-- Fix CS reload new data bug
+- Fix CS reload new data bug, this causes an error when clicking to new other dates
 - Fix CS overlaying icon issue
-- Fix CS template saving problems
+- Fix CS template saving problems, template could not be saved 
+- Fix CS changing an event out of a series forgot future exceptions 
 - Fix Cal bug: Creater was always informed
+- Cal: Set a fixed cal height for embedding pages 
 
 2.52b
 - Fix birthday showing problem in Cal
