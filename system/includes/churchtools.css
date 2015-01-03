@@ -269,6 +269,11 @@ td.angefragt, a.angefragt, font.angefragt {
           border-radius: 4px;
 }
 
+/* Seams to be a bug in fullcalender, table has 1 pixel more width then parent div in FireFox... */ 
+.fc-view > table {
+	width:99.9% !important; 
+}
+
 .offen {
 	color:red
 }
