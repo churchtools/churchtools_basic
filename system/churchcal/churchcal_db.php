@@ -223,7 +223,7 @@ function churchcal_createEvent($params, $callCS=true, $withoutPerm = false) {
     // get populated template and send email
     $content = getTemplateContent('email/informCreator', 'churchcal', $data);
     churchcore_sendEMailToPersonIDs($params["modified_pid"], "[" . getConf('site_name') . "] " . t('information.for.your.event'), $content, null, true);
-  }  
+  }
 
   return array("id"=>$params["id"], "cseventIds"=>$newCSIds, "bookingIds"=>$newBookingIds);
 }
@@ -441,7 +441,7 @@ function churchcal_saveSplittedEvent($params) {
   churchcal_updateEvent($params["pastEvent"], false, true);
   
   if (getVar("informCreator", true, $params["newEvent"]) && $originEvent["modified_pid"] != $user->id) {
-    $data = (array) churchcal_getEventChangeImpact(array ("newEvent" => $params["newEvent"], "originEvent" => $originEvent, 
+    $data = (array) churchcal_getEventChangeImpact(array ("newEvent" => $params["newEvent"], "originEvent" => $originEvent,
               "pastEvent" => $params["pastEvent"]));
     $data["caption"] = $params["newEvent"]["bezeichnung"];
     $data["startdate"]   = churchcore_stringToDateDe($params["newEvent"]["startdate"]);
@@ -524,7 +524,7 @@ function makeCCEventDiff($originEvent, $newEvent) {
   
   $internFields = array();
   $internFields[] = "informCreator";
-  $internFields[] = "modified_pid";  
+  $internFields[] = "modified_pid";
   $internFields[] = "repeat_frequence";
   $internFields[] = "allDay";
   $internFields[] = "name";
@@ -565,20 +565,20 @@ function makeCCEventDiff($originEvent, $newEvent) {
           $new = $repeat_types[$new]->bezeichnung;
         }
         else if ($key == "repeat_until") {
-          if ($old!=null) $old = substr($old, 0, 10); 
-          $new = substr($old, 0, 10); 
+          if ($old!=null) $old = substr($old, 0, 10);
+          $new = substr($old, 0, 10);
           $k = "repeat.to";
-        }        
+        }
         else if ($key == "modified_name") $k = "creator";
         else if ($key == "category_id") {
-          $k = "category";  
+          $k = "category";
           if ($old!=null) $old = churchcal_getCategory($old)->bezeichnung;
           $new = churchcal_getCategory($new)->bezeichnung;
         }
         else if ($key == "notizen") $k = "more.information";
         else if ($key == "intern_yn") {
           $k = "only.intern.visible";
-          if ($old!=null) { 
+          if ($old!=null) {
             if ($old==0) $old = t("yes"); else $old = t("no");
           }
           if ($new==0) $new = t("yes"); else $new = t("no");
@@ -772,6 +772,7 @@ function churchcal_getCalPerCategory($params, $withIntern = null) {
         array (":event_id" => $arr->event_id));
 
       foreach ($es as $e) if ($e) {
+        $txt = false;
         if (strpos($e->cal_text_template, "[") === false) {
           $txt = $e->cal_text_template;
         }
