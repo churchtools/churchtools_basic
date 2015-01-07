@@ -902,7 +902,7 @@ function churchcore_createOnTimeLoginKey($id) {
 function churchcore_sendEMailToPersonIDs($ids, $subject, $content, $from = null, $htmlmail = false, $withtemplate = true) {
   global $base_url;
 
-  if ($ids==null || $ids=="") { 
+  if ($ids==null || $ids=="") {
     ct_log("Konnte Email $subject nicht senden, kein Empfänger angegeben!", 1);
     return;
   }

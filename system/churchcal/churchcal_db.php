@@ -699,8 +699,14 @@ function churchcal_getAllowedCategories($withPrivat = true, $onlyIds = false) {
       // Zugriff, weil ich View-Rechte auf die Kategorie habe
       if ((isset($auth["view category"]) && isset($auth["view category"][$category->id]))
        || (isset($auth["edit category"]) && isset($auth["edit category"][$category->id]))) {
-        $res[$category->id] = ($onlyIds) ? $category->id : $res[$category->id] = $category;
-      }
+        if ($onlyIds) {
+          $res[$category->id] = $category->id;
+        }
+        else {
+          $category->textColor = getContrastYIQ($category->color);
+          $res[$category->id] = $category;
+        }
+       }
     }
   }
   return $res;

@@ -230,3 +230,28 @@ function applyFilter($filterName, $value) {
   } while ( next($filters[$filterName]) !== false);
   return $value;
 }
+
+/**
+ * get black or white color, depending on contrast to $hexcolor
+ * used for nice, readable calendar colors
+ *
+ * @author http://24ways.org/2010/calculating-color-contrast/
+ * first tri lines added
+ *
+ * @param string $hexcolor
+ * @return string
+ */
+function getContrastYIQ($hexcolor){
+  /**
+   * TODO: add config setting for black, white, automatic?
+   */
+  $hexcolor = trim($hexcolor, '#');
+  if ($hexcolor == 'black') $hexcolor = "000000";
+  if ($hexcolor == 'white') $hexcolor = "ffffff";
+  $r = hexdec(substr($hexcolor,0,2));
+  $g = hexdec(substr($hexcolor,2,2));
+  $b = hexdec(substr($hexcolor,4,2));
+  $yiq = (($r*299)+($g*587)+($b*114))/1000;
+
+  return ($yiq >= 156) ? 'black' : 'white'; // original value was 128
+}

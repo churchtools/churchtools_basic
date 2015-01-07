@@ -25,6 +25,10 @@ class CTChurchCalModule extends CTAbstractModule {
       $ret["cdb_status"]    = churchcore_getTableData("cdb_status");
       $ret["cdb_station"]   = churchcore_getTableData("cdb_station");
       $ret["absent_reason"] = churchcore_getTableData("cs_absent_reason");
+      foreach ($ret["absent_reason"] as $key => $reason) if (isset($reason->color)){
+        $ret["absent_reason"][$key]->textColor = getContrastYIQ($reason->color);
+      }
+
     }
     if (user_access("view", "churchresource") || user_access("create bookings", "churchresource")) {
       $ret["resources"]     = churchcore_getTableData("cr_resource");
@@ -81,7 +85,7 @@ class CTChurchCalModule extends CTAbstractModule {
   public function getEvent($params) {
     $event = db_query("SELECT * FROM {cc_cal} WHERE id = :id", array(":id"=>$params["id"]))->fetch();
     $dummy = churchcal_getCalPerCategory(array ("category_ids" => array(0 => $event->category_id)));
-    return $dummy[$event->category_id][$params["id"]];    
+    return $dummy[$event->category_id][$params["id"]];
   }
 
 /**

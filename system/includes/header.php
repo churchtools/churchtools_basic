@@ -57,6 +57,7 @@
       jsversion=<?= JS_VERSION ?>;
     </script>
 
+<!-- TODO: shouldnt this come from sites (if available) to allow customisation of site icon? -->
  <link rel="shortcut icon" href="<?= ASSETS ?>/ico/favicon.ico">
     <link rel="apple-touch-icon-precomposed" sizes="144x144" href="<?= ASSETS ?>/ico/apple-touch-icon-144-precomposed.png">
     <link rel="apple-touch-icon-precomposed" sizes="114x114" href="<?= ASSETS ?>/ico/apple-touch-icon-114-precomposed.png">

@@ -123,7 +123,7 @@ function _getEventsFromDate(cs_events, start, end) {
     if (ids[a.id+"."+a.repeat_number]==null) {
       ids[a.id+"."+a.repeat_number]=true;
       newArr.push(a);
-    }    
+    }
   });
   return newArr;
 }
@@ -207,9 +207,10 @@ function mapEvents(allEvents) {
             o.end.addDays(1);
           }
 
-          if ((a.category_id!=null) && (masterData.category[a.category_id].color!=null))
+          if ((a.category_id!=null) && (masterData.category[a.category_id].color!=null)){
             o.color=masterData.category[a.category_id].color;
-
+            o.textColor=masterData.category[a.category_id].textColor;
+          }
           o.repeat_number = k;
           _addEventsToDateIndex(cs_events, o);
         });
@@ -307,7 +308,7 @@ CalBirthdayType.prototype.showEventsOnCal = function(id) {
       }
     });
   }
-  t.data[id].current_CalEvents={container:t, category_id:id, color:"lightblue", editable:false,
+  t.data[id].current_CalEvents={container:t, category_id:id, color:"lightblue", textColor:"blue", editable:false,
       events:function (start, end, timezone, callback) {
         callback(_getEventsFromDate(cs_events, start, end));
       }
@@ -388,7 +389,7 @@ CalMyServicesType.prototype.showEventsOnCal = function(id) {
   });
   if (t.data[id].status!="hide") {
     t.data[id].status="loaded";
-    t.data[id].current_CalEvents={container:t, category_id:id, color:"blue", editable:false,
+    t.data[id].current_CalEvents={container:t, category_id:id, color:"blue", textColor:"blue", editable:false,
         events:function (start, end, timezone, callback) {
           callback(_getEventsFromDate(cr, start, end));
         }
@@ -443,8 +444,10 @@ CalAbsentsType.prototype.showEventsOnCal = function(id) {
     o.start=a.startdate.toDateEn(true);
     o.end=a.enddate.toDateEn(true);
     if (masterData.absent_reason[a.reason_id]!=null) {
-      if (masterData.absent_reason[a.reason_id].color!="")
+      if (masterData.absent_reason[a.reason_id].color!=""){
         o.color=masterData.absent_reason[a.reason_id].color;
+        o.textColor=masterData.absent_reason[a.reason_id].textColor;
+      }
       o.bezeichnung=masterData.absent_reason[a.reason_id].bezeichnung;
     }
     if ((o.start.getHours()==0) && (o.end.getHours()==0))
@@ -455,7 +458,7 @@ CalAbsentsType.prototype.showEventsOnCal = function(id) {
   });
   if (t.data[id].status!="hide") {
     t.data[id].status="loaded";
-    t.data[id].current_CalEvents={container:t, category_id:id, color:"lightgreen", editable:false,
+    t.data[id].current_CalEvents={container:t, category_id:id, color:"lightgreen", textColor:"green", editable:false,
         events:function (start, end, timezone, callback) {
           callback(_getEventsFromDate(cr, start, end));
         }
