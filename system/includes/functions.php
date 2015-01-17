@@ -25,7 +25,7 @@ function __autoload($class_name)
 }
 
 function includePlugins() {
-  foreach (glob("system/main/plugins/*.php") as $filename) {
+  foreach (glob("system/main/*.php") as $filename) {
     include $filename;
   }
 }
