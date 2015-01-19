@@ -201,7 +201,7 @@ function sendConfirmationMail($mail, $vorname = "", $g_id) {
       'groupName' => $g->bezeichnung,
     );
     $content = getTemplateContent('email/groupRequestSent', 'churchdb', $data);
-    $res = churchcore_mail(getConf('site_mail'), $mail, "[". getConf('site_name'). "] ". t('', '<i>'.$g->bezeichnung.'</i>'), $content, true, true, 2);
+    $res = churchcore_mail(getConf('site_mail'), $mail, "[". getConf('site_name'). "] ". '<i>'.$g->bezeichnung.'</i>', $content, true, true, 2);
   }
 }
 
@@ -268,7 +268,7 @@ function externmapview__ajax() {
   $func    = getVar("func");
   $groupId = getVar("g_id");
   $surname = getVar("Vorname");
-  $name    = getVar("Name");
+  $name    = getVar("Nachname");
   $groupId = getVar("g_id");
   $email   = getVar("E-Mail-Adresse");
   $fon     = getVar("Telefon");
@@ -307,7 +307,7 @@ function externmapview__ajax() {
     if ($db) {
       include_once (CHURCHDB . '/churchdb_ajax.php');
       churchdb_addPersonGroupRelation($db->id, $groupId, -2, null, null, null, t("request.by.external.mapview") . ": $comment");
-      sendConfirmationMail($email, $surname, $goupId);
+      sendConfirmationMail($email, $surname, $groupId);
       $txt = t("person.found.and.request.sent");
     }
     else {
@@ -325,7 +325,7 @@ function externmapview__ajax() {
           'surname' => $surname,
           'name'    => $name,
           'email'   => $email,
-          'fon'     => $fon,
+          'phone'   => $fon,
           'comment' => $comment,
           ),
         );
