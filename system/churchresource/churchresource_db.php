@@ -740,6 +740,8 @@ function getBookings($from = null, $to = null, $status_id_in = "") {
         $b->cal_startdate = $r->cal_startdate;
         $b->cal_enddate = $r->cal_enddate;
       }
+      // No cal-entry anymore, so unset cc_cal_id. e.g. deleted from ChurchCal
+      else unset($b->cc_cal_id);
     }
     if (!$b->person_name)  $b->person_name = t('user.was.deleted');
 

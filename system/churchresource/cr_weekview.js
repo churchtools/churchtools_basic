@@ -1146,7 +1146,7 @@ WeekView.prototype.renderEditEvent = function(func, newEvent, myEvent, _isSeries
     if (((!user_access("edit", myEvent.resource_id)) && (masterData.auth.write) && (myEvent.person_id==masterData.user_pid) &&
         (myEvent.status_id!=1) && (masterData.resources[myEvent.resource_id].autoaccept_yn==0))) {
       txt=txt+"<i><div class=\"alert alert-error\"><b>Achtung: Die Anfrage wurde schon vom Administrator bearbeitet!</b><br/>Wenn nun 'Speichern' gew&auml;hlt, muss erneut der Administrator best&auml;tigen.</i></div>";
-      myEvent.status_id=1;
+      newEvent.status_id=1;
     }
     if (((masterData.auth.write) && (myEvent.person_id==masterData.user_pid)) || ((user_access("edit", myEvent.resource_id))))
       title="Editiere Buchungsanfrage";
@@ -1162,6 +1162,10 @@ WeekView.prototype.renderEditEvent = function(func, newEvent, myEvent, _isSeries
   }
   else if (func=="copy") {
     t.id=null;
+    // Pruefen, ob der Eintrag schon von einem Admin bestaetigt wurde, dann muss er auf 1 (unbestaetigt) zurueckgesetzt werden
+    if (user_access("edit", myEvent.resource_id) || (masterData.resources[myEvent.resource_id].autoaccept_yn==1)) 
+      newEvent.status_id=2;
+    else newEvent.status_id=1;
     title="Buchungsanfrage kopieren";
     myEvent["func"]="createBooking";
     myEvent.exceptionids=0;
