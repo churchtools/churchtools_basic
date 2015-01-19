@@ -1130,10 +1130,11 @@ function initCalendarView() {
     });
     if (!embedded)
       $("div.fc-left").append("&nbsp; "+form_renderImage({src:"cal.png", width:28, htmlclass:"open-cal", link:true})+'<div style="position:absolute;width:220px;z-index:12001" id="dp_month"></div>');
-    $("div.fc-left").append(" "+form_renderImage({src:"printer.png", width:28, htmlclass:"printview", link:true})+'<div style="position:absolute;z-index:12001" id="dp_month"></div>');
+    $("div.fc-left").append(" "+form_renderImage({src:"printer.png", width:28, htmlclass:"printview", link:true}));
     if (!embedded) {
 //      $("div.fc-right>div.fc-button-group").append('<button type="button" id="yearView" class="fc-button fc-state-default fc-corner-right">'+_("year")+'</button>');
       $("div.fc-right>div.fc-button-group").append('<button type="button" id="eventView" class="fc-button fc-state-default fc-corner-right"><i class="icon-list"></button>');
+      $("div.fc-right").prepend('<button type="button" id="showTooltip" sty_le="overflow:inherit" class="' + (showTooltip?"fc-state-active":"")+' fc-button fc-state-default fc-corner-right fc-corner-left">Popup zeigen</button>');
     }
     $( window ).resize(function() {
       calendar.fullCalendar('option', 'contentHeight', _calcCalendarHeight());
@@ -1183,6 +1184,14 @@ function initCalendarView() {
   });
   $("#eventView").click(function(k) {
     window.location.href="?q=churchcal&viewname=eventView";
+  });
+  $("#showTooltip").click(function(k) {
+    if (showTooltip) $(this).removeClass("fc-state-active");
+    else $(this).addClass("fc-state-active");
+    showTooltip=!showTooltip;
+    churchInterface.jsendWrite({func:"saveSetting", sub:"showTooltip", val:(showTooltip?1:0)});
+    
+    return false;
   });
   $("#searchEntry").keyup(function() {
     filterName=$(this).val();
@@ -1335,6 +1344,7 @@ function _eventMouseover(event, jsEvent, view) {
   if (debug) console.log("_eventMouseover", event, jsEvent, view);
 
   if (event.source==null) return;
+  if (!showTooltip) return;
 
   // No tooltip when popupmenu is visible
   if ($("#popupmenu").data("popupmenu")!=null) return;
@@ -2053,6 +2063,7 @@ $(document).ready(function() {
   if ($("#entries").length!=0) max_entries=$("#entries").val();
 
   churchInterface.loadMasterData(function() {
+    showTooltip = masterData.settings.showTooltip==null || masterData.settings.showTooltip==1; 
 
     if ($("#viewname").val()!=null) viewName=$("#viewname").val();
     initCalendarView();

@@ -2116,10 +2116,17 @@ function form_implantDatePicker(divid, curDate, func, highlightDay) {
    $("#"+divid).datepicker("destroy");
    $("#"+divid).html("");
  });
- $("#"+divid).mouseleave(function(){
-   $("#"+divid).datepicker("destroy");
-   $("#"+divid).html("");
-})
+ var c = null;
+ $("#"+divid).mouseenter(function() {
+   if (c!=null) window.clearTimeout(c);
+  })
+ $("#"+divid).mouseleave(function() {
+   c = window.setTimeout(function() {
+     $("#"+divid).datepicker("destroy");
+     $("#"+divid).html("");
+     c = null;
+   }, 400);
+  })
 };
 
 function form_renderHelpLink(link, invert) {
