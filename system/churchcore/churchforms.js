@@ -269,7 +269,11 @@ function form_renderColorPicker(options) {
 
 function form_renderColor(color) {
   return '<span class="simplecolorpicker icon" '
-            + 'title="'+color+'"style="background-color: '+color+'">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+            + 'title="'+color+'"style="background-color: '+color+'">&nbsp;</span>';
+}
+function form_renderColorCheckbox(color, textColor, checked) {
+  check = checked ? "&#10004;" : "&nbsp;";
+  return '<span class="simplecolorpicker icon" style="background-color: '+color+';color: '+textColor+';">'+check+'</span>';
 }
 function form_renderColorWithImage(color, src) {
   if (src.indexOf("/")==-1)
@@ -2171,6 +2175,7 @@ $.widget("ct.popupmenu", {
 $.widget("ct.colorcheckbox", {
   options: {
     color: "blue",
+    textColor: "white",
     checked : false,
     id : null,
     name : "unnamed",
@@ -2190,12 +2195,14 @@ $.widget("ct.colorcheckbox", {
   _renderCheckbox : function() {
     var t = this;
     var rows = new Array();
-    if (t.options.checked) {
-      rows.push(form_renderColorWithImage(t.options.color, "check.png")+"&nbsp; ");
-    }
-    else {
-      rows.push(form_renderColor(t.options.color)+"&nbsp; ");
-    }
+//    if (t.options.checked) {
+//      rows.push(form_renderColorWithImage(t.options.color, "check.png")+"&nbsp; ");
+//    }
+//    else {
+//      rows.push(form_renderColor(t.options.color)+"&nbsp; ");
+//    }
+    rows.push(form_renderColorCheckbox(t.options.color, t.options.textColor, t.options.checked)+"&nbsp; ");
+
     if (t.options.label!=null) {
       rows.push(t.options.label);
     }

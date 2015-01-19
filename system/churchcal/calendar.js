@@ -73,7 +73,7 @@ function saveCalSuccess(newEvent, originEvent, data) {
     if (a.action=="delete") delete newEvent.csevents[k];
   });
   if (newEvent.id == null) newEvent.id = data.id;
-  // Perhaps a change in the category?
+  // Perhaps a change in category?
   else if ( originEvent != null && originEvent.category_id != null
              && originEvent.category_id != newEvent.category_id ) {
     delete calCCType.data[originEvent.category_id].events[originEvent.id];
@@ -83,7 +83,7 @@ function saveCalSuccess(newEvent, originEvent, data) {
     calCCType.data[newEvent.category_id].events[newEvent.id] = newEvent;
     calCCType.refreshView(newEvent.category_id, false);
   }
-  else { // not loaded, so I activate it and load it
+  else { // not loaded, so activate and load it
     $("#filterCalender_"+(newEvent.category_id*1+100)).colorcheckbox("check", true)
     calCCType.refreshView(newEvent.category_id, true);
   }
@@ -700,7 +700,7 @@ function _renderViewChurchService(elem) {
           }
         }
       });
-    }    
+    }
     _refreshCSInfo();
     
     elem.find("#copychurchservice").change(function() {
@@ -1511,7 +1511,9 @@ function editCategory(cat_id, privat_yn, oeffentlich_yn) {
              +masterData.category[cat_id].bezeichnung+" vorhandenen Termine unwiderruflich gelöscht!"))
         return;
       obj.color=current.color;
+      obj.textColor=current.textColor;
       if (obj.color==null) obj.color="black";
+      if (obj.textColor==null) obj.color="white";
       obj.privat_yn=privat_yn;
       obj.oeffentlich_yn=oeffentlich_yn;
       if (oeffentlich_yn==1)
@@ -1845,7 +1847,7 @@ function renderFilterCalender() {
   rows.push('<div style="white-space: nowrap">');
   rows.push('<ul class="ct-ul-list">');
 
-  function _renderCalenderEntry(name, id, color, desc) {
+  function _renderCalenderEntry(name, id, color, textColor, desc) {
     var rows = new Array ();
     if (color==null) color="#000000";
     rows.push('<li class="hoveractor">');
@@ -1877,8 +1879,10 @@ function renderFilterCalender() {
                 +'data-id="'+(id)+'" '
                 +'data-name="'+name+'" '
                 +'data-color="'+color+'" '
+                +'data-textColor="'+textColor+'" '
                 +'data-label="'+desc+'" '
                 +'class="colorcheckbox" id="filterCalender_'+id+'"></span>');
+//                +'data-textColor="'+textColor+'" '
     return rows.join("");
   }
 
@@ -1891,7 +1895,7 @@ function renderFilterCalender() {
 
   each(churchcore_sortData(masterData.category,"sortkey"), function(k, cat) {
     if ((cat.oeffentlich_yn==1) && (cat.privat_yn==0)) {
-      rows.push(_renderCalenderEntry("filterGemeindekalendar", cat.id*1+100, cat.color, cat.bezeichnung));
+      rows.push(_renderCalenderEntry("filterGemeindekalendar", cat.id*1+100, cat.color, cat.textColor, cat.bezeichnung));
     }
   });
   rows.push('</ul>');
@@ -1900,7 +1904,7 @@ function renderFilterCalender() {
   var rows_cal = new Array();
   each(churchcore_sortData(masterData.category,"sortkey"), function(k, cat) {
     if ((cat.oeffentlich_yn==0) && (cat.privat_yn==0)) {
-      rows_cal.push(_renderCalenderEntry("filterGruppenKalender", cat.id*1+100, cat.color, cat.bezeichnung));
+      rows_cal.push(_renderCalenderEntry("filterGruppenKalender", cat.id*1+100, cat.color, cat.textColor, cat.bezeichnung));
     }
   });
   if (!embedded && (rows_cal.length>0 || user_access("create group category"))) {
@@ -1917,24 +1921,24 @@ function renderFilterCalender() {
   var rows_cal = new Array();
   each(churchcore_sortData(masterData.category,"sortkey"), function(k, cat) {
     if ((cat.oeffentlich_yn==0) && (cat.privat_yn==1)) {
-      rows_cal.push(_renderCalenderEntry("filterPersonalKalender", cat.id*1+100, cat.color, cat.bezeichnung));
+      rows_cal.push(_renderCalenderEntry("filterPersonalKalender", cat.id*1+100, cat.color, cat.textColor, cat.bezeichnung));
     }
   });
   if (user_access("view churchservice")) {
-    rows_cal.push(_renderCalenderEntry("filterPersonalKalender", 1, "blue", 'Meine Dienste'));
-    rows_cal.push(_renderCalenderEntry("filterPersonalKalender", 2, "red", 'Meine Abwesenheiten'));
+    rows_cal.push(_renderCalenderEntry("filterPersonalKalender", 1, "blue", "white", 'Meine Dienste'));
+    rows_cal.push(_renderCalenderEntry("filterPersonalKalender", 2, "red", "white", 'Meine Abwesenheiten'));
   }
   if (masterData.auth["view churchdb"]) {
     if (masterData.auth["view alldata"]) {
-      rows_cal.push(_renderCalenderEntry("filterPersonalKalender", 4, "lightblue", _("birthdays")+' (Gruppen)'));
-      rows_cal.push(_renderCalenderEntry("filterPersonalKalender", 6, "lightblue", _("birthdays")+' (Alle)'));
+      rows_cal.push(_renderCalenderEntry("filterPersonalKalender", 4, "lightblue", "blue", _("birthdays")+' (Gruppen)'));
+      rows_cal.push(_renderCalenderEntry("filterPersonalKalender", 6, "lightblue", "blue", _("birthdays")+' (Alle)'));
     }
     else {
-      rows_cal.push(_renderCalenderEntry("filterPersonalKalender", 6, "lightblue", _("birthdays")));
+      rows_cal.push(_renderCalenderEntry("filterPersonalKalender", 6, "lightblue", "blue", _("birthdays")));
     }
   }
   if (user_access("view churchservice")) {
-    rows_cal.push(_renderCalenderEntry("filterGruppenKalender", 5, "lightgreen", "Abwesenheit in Gruppen"));
+    rows_cal.push(_renderCalenderEntry("filterGruppenKalender", 5, "lightgreen", "green", "Abwesenheit in Gruppen"));
   }
   if (!embedded && rows_cal.length>0 || user_access("create personal category") || user_access("admin personal category")) {
     rows.push('<ul class="ct-ul-list">');
@@ -1988,6 +1992,7 @@ function renderFilterCalender() {
     $(this).colorcheckbox({
       checked : $(this).attr("checked")=="checked",
       color: $(this).attr("data-color"),
+      textColor: $(this).attr("data-textColor"),
       name: $(this).attr("data-name"),
       label: $(this).attr("data-label"),
       id: $(this).attr("data-id"),

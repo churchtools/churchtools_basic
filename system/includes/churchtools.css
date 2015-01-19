@@ -14,10 +14,10 @@
   border-style: solid;
   border-width: 1px;
   border-color: lightgray;
-  padding: 1px 4px 3px 4px;	
+  padding: 1px 4px 3px 4px;
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
-  border-radius: 3px;  
+  border-radius: 3px;
 }
 
 small {
@@ -269,9 +269,9 @@ td.angefragt, a.angefragt, font.angefragt {
           border-radius: 4px;
 }
 
-/* Seams to be a bug in fullcalender, table has 1 pixel more width then parent div in FireFox... */ 
+/* Seams to be a bug in fullcalender, table has 1 pixel more width then parent div in FireFox... */
 .fc-view > table {
-	width:99.9% !important; 
+	width:99.9% !important;
 }
 
 .offen {
@@ -643,5 +643,12 @@ span.tag {
 }
 div.editable:hover {
     background:#F2F4F6 !important;
-
 }
+
+.simplecolorpicker.icon{
+    text-align:center;
+    width:1em;
+    font-weight: bold;
+    padding-left: 1px;
+  }
+
