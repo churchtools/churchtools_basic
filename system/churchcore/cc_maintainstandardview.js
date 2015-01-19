@@ -380,7 +380,7 @@ MaintainStandardView.prototype.renderEditEntry = function (id, table_id) {
       if (!ok) alert(_("error.occured")+": "+data);
       else {
         var filter=masterData.masterDataTables[table_id].filter;
-        cdb_loadMasterData(function() {
+        churchInterface.loadMasterData(function() {
           if (masterData.masterDataTables[table_id]!=null) {
             masterData.masterDataTables[table_id].filter=filter;
             masterData.masterDataTables[table_id].open=true;

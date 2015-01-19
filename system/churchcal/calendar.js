@@ -1887,10 +1887,10 @@ function renderFilterCalender() {
   }
 
   // Church Calendar
-  rows.push('<h4>'+masterData.maincal_name);
   if (!embedded && user_access("admin church category")) {
     rows.push(form_renderImage({cssid:"edit_church", src:"options.png", top:0, width:24, htmlclass:"pull-right"}));
   }
+  rows.push('<h4>'+masterData.maincal_name);
   rows.push('</h4>');
 
   each(churchcore_sortData(masterData.category,"sortkey"), function(k, cat) {
@@ -1909,9 +1909,9 @@ function renderFilterCalender() {
   });
   if (!embedded && (rows_cal.length>0 || user_access("create group category"))) {
     rows.push('<ul class="ct-ul-list">');
-    rows.push('<h4>'+_("group.calendar"));
     if (user_access("admin group category") || user_access("create group category"))
       rows.push(form_renderImage({cssid:"edit_group", src:"options.png", top:0, width:24, htmlclass:"pull-right"}));
+    rows.push('<h4>'+_("group.calendar"));
     rows.push('</h4>');
     rows.push(rows_cal.join(""));
     rows.push('</ul><ul class="ct-ul-list">');
@@ -1926,7 +1926,7 @@ function renderFilterCalender() {
   });
   if (user_access("view churchservice")) {
     rows_cal.push(_renderCalenderEntry("filterPersonalKalender", 1, "blue", "white", 'Meine Dienste'));
-    rows_cal.push(_renderCalenderEntry("filterPersonalKalender", 2, "red", "white", 'Meine Abwesenheiten'));
+    rows_cal.push(_renderCalenderEntry("filterPersonalKalender", 2, "lightgreen", "green", 'Meine Abwesenheiten'));
   }
   if (masterData.auth["view churchdb"]) {
     if (masterData.auth["view alldata"]) {
@@ -1938,13 +1938,13 @@ function renderFilterCalender() {
     }
   }
   if (user_access("view churchservice")) {
-    rows_cal.push(_renderCalenderEntry("filterGruppenKalender", 5, "lightgreen", "green", "Abwesenheit in Gruppen"));
+    rows_cal.push(_renderCalenderEntry("filterGruppenKalender", 5, "red", "white", "Abwesenheit in Gruppen"));
   }
   if (!embedded && rows_cal.length>0 || user_access("create personal category") || user_access("admin personal category")) {
     rows.push('<ul class="ct-ul-list">');
-    rows.push('<h4>'+_("personal.calendar"));
     if (user_access("admin group category") || user_access("create group category"))
       rows.push(form_renderImage({cssid:"edit_personal", src:"options.png", top:0, width:24, htmlclass:"pull-right"}));
+    rows.push('<h4>'+_("personal.calendar"));
     rows.push('</h4>');
     rows.push(rows_cal.join(""));
     rows.push('</ul><ul class="ct-ul-list">');

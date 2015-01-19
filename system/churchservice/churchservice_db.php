@@ -440,7 +440,7 @@ function churchservice_updateEvent($params, $csevent) {
  */
 function churchservice_getUserCurrentServices($user_id) {
   $arr = db_query("
-    SELECT cal.bezeichnung AS event, cal.ort, s.bezeichnung AS dienst, es.id AS eventservice_id,
+    SELECT es.id, cal.bezeichnung AS event, cal.ort, s.bezeichnung AS dienst, es.id AS eventservice_id,
       sg.bezeichnung AS servicegroup, DATE_FORMAT(es.modified_date, '%Y%m%dT%H%i00') AS modified_date,
       p.vorname, p.name, es.modified_pid, zugesagt_yn, e.startdate AS startdate, DATE_FORMAT(e.startdate, '%Y%m%dT%H%i00')
       AS datum_start, ADDDATE(e.startdate, INTERVAL TIMEDIFF(cal.enddate, cal.startdate) HOUR_SECOND) AS enddate,

@@ -381,6 +381,7 @@ CalMyServicesType.prototype.showEventsOnCal = function(id) {
       o.title=a.dienst+" ("+a.servicegroup+")";
     else
       o.title="Anfrage: "+a.dienst+" ("+a.servicegroup+")";
+    o.id=a.id;
     o.title=o.title+" "+a.event;
     o.start=a.startdate.toDateEn(true);
     o.end=a.enddate.toDateEn(true);
@@ -389,7 +390,7 @@ CalMyServicesType.prototype.showEventsOnCal = function(id) {
   });
   if (t.data[id].status!="hide") {
     t.data[id].status="loaded";
-    t.data[id].current_CalEvents={container:t, category_id:id, color:"blue", textColor:"blue", editable:false,
+    t.data[id].current_CalEvents={container:t, category_id:id, color:"blue", textColor:"white", editable:false,
         events:function (start, end, timezone, callback) {
           callback(_getEventsFromDate(cr, start, end));
         }
@@ -439,7 +440,8 @@ CalAbsentsType.prototype.showEventsOnCal = function(id) {
   var cr= new Array();
   each(t.data[id].events, function(i,a) {
     var o=Object();
-    o.id=a.p_id;
+    o.id=a.id;
+    o.p_id=a.p_id;
     o.title=a.vorname+" "+a.name;
     o.start=a.startdate.toDateEn(true);
     o.end=a.enddate.toDateEn(true);

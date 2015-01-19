@@ -258,7 +258,7 @@ function churchcal_getAbsents($params) {
   $arrs = array();
   if (count($persons)) {
     // get absences
-    $res = db_query("SELECT p.id AS p_id, a.startdate, a.enddate, p.vorname, p.name, absent_reason_id AS reason_id
+    $res = db_query("SELECT p.id AS p_id, a.id, a.startdate, a.enddate, p.vorname, p.name, absent_reason_id AS reason_id
                      FROM {cs_absent} a, {cdb_person} p
                      WHERE p.id IN (" . db_implode($persons) . ") AND a.person_id=p.id");
     foreach ($res as $a) $arrs[] = $a;
