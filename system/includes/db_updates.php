@@ -990,7 +990,7 @@ function run_db_updates($db_version) {
 
       // Add existing nationality values to new table
      db_query("ALTER TABLE {cdb_nationalitaet} CHANGE  id id INT( 11 ) NOT NULL AUTO_INCREMENT");
-     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) {
+     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) 
                SELECT nationalitaet
                FROM {cdb_gemeindeperson} gp LEFT JOIN {cdb_nationalitaet} n ON (gp.nationalitaet=n.bezeichnung)
                WHERE n.bezeichnung IS NULL AND gp.nationalitaet!=''
@@ -1946,9 +1946,11 @@ function run_db_updates($db_version) {
     addInfoMessage("Datenbankupdates ausgef&uuml;hrt von <I>".getConf("site_name")."</i>. Versionswechsel von $db_version auf $software_version. $link");
   cleandir("$files_dir/files/messages/"); //delete temporal i18n files
   $sitename=$config["site_name"];
-  churchcore_systemmail($config["site_mail"], "Neue Version auf ".$config["site_name"],
+  if (isset($config["site_mail"])) {
+    churchcore_systemmail($config["site_mail"], "Neue Version auf ".$config["site_name"],
       "Datenbankupdates ausgef&uuml;hrt von ".getConf("site_name")."' v$db_version auf v$software_version. $link<br/><br/>".
          "<a href=\"$base_url\" class=\"btn\">$sitename aufrufen</a>", true);
+  }
   if (userLoggedIn()) {
     $user=$_SESSION["user"];
     $user->auth=getUserAuthorization($user->id);
