@@ -1,6 +1,13 @@
 Das gesamte Changelog ist hier zu finden:
 https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc:Changelog/
 
+2.52d
++ Cal: Add hide popup feature in ChurchCal
++ Cal: Add automatic font color feature depending on background color
+- Cal: Fix display bug of absence und services more than one in one time slot
+- CR: Fix problem with old open bookings showing http://tinyurl.com/nqd4p65
+- CDB: Fix missing surname in group request
+
 2.52c
 - Fix ChurchDB Export with relations bug 
 - Fix CS reload new data bug, this causes an error when clicking to new other dates
