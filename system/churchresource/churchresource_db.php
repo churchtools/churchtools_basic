@@ -607,22 +607,6 @@ function churchresource_operateResourcesFromChurchCal($params) {
 }
 
 /**
- *
- * @return array bookings
- */
-function getOpenBookings() {
-  $res = db_query("
-    SELECT b.id, b.person_id, concat(p.vorname,' ',p.name) AS person_name, DATE_FORMAT(startdate, '%d.%m.%Y %H:%i') AS startdate,
-      enddate, b.text, r.bezeichnung resource
-	FROM {cr_booking} b, {cr_resource} r, {cdb_person} p
-    WHERE b.person_id=p.id AND status_id=" . CR_PENDING . " AND b.resource_id=r.id AND DATEDIFF(startdate, NOW())>=0 ORDER BY startdate");
-  $arrs=array();
-  foreach ($res as $arr) $arrs[$arr->id]=$arr;
-
-  return $arrs;
-}
-
-/**
  * get last log id
  * @return int id
  */
@@ -697,8 +681,8 @@ function churchresource_delAddition($add_id) {
 /**
  * TODO: use :params for query?
  *
- * @param string $from
- * @param string $to
+ * @param string $from in days from now
+ * @param string $to in day 
  * @param string $status_id_in
  * @return array bookings
  */
@@ -715,7 +699,8 @@ function getBookings($from = null, $to = null, $status_id_in = "") {
     WHERE ((startdate<=DATE_ADD(NOW(),INTERVAL $from day) AND enddate>DATE_ADD(NOW(),INTERVAL $from day) )
       OR (enddate>=DATE_ADD(now(),INTERVAL $from day) and enddate<=DATE_ADD(now(),INTERVAL $to day))
       OR (repeat_id>0 and startdate<=DATE_ADD(now(),INTERVAL $to day)
-      AND (repeat_until>=DATE_ADD(now(),INTERVAL $from day) or repeat_id=999))) $status_id_in");
+      AND (repeat_until>=DATE_ADD(now(),INTERVAL $from day) or repeat_id=999))) $status_id_in
+      ORDER BY startdate");
 
   $arrs = array();
   foreach ($res as $b) {

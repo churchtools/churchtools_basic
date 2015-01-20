@@ -91,15 +91,26 @@ function churchresource_getAdminForm() {
  */
 function churchresource_getOpenBookings() {
   $txt = "";
+  $now = new DateTime();
   if (user_access("administer bookings", "churchresource")) {
     include_once ("churchresource_db.php");
-    if ($bookings = getOpenBookings()) {
-      foreach ($bookings as $val) {
-        $txt .= "<li><p><a href='?q=churchresource&id=$val->id'>$val->text</a> ($val->resource)<br/>
-                 <small>$val->startdate $val->person_name</small><br/>";
-      }
-      if ($txt) $txt = "<ul>$txt</ul>";
+    $res = getBookings(0, 999, CR_PENDING);
+    if ($res != null) {
+      foreach ($res as $key=>$r) {
+        $r->startdate = new DateTime($r->startdate);
+        $r->enddate   = new DateTime($r->enddate);
+        $ds = getAllDatesWithRepeats($r, 0, 999);
+        // If no result is there, then there is only exceptions for this booking.
+        if (!$ds || $r->startdate<$now) unset($res[$key]);
+      } 
+    }    
+    $resource = churchcore_getTableData("cr_resource");
+    foreach ($res as $val) {
+      $txt .= "<li><p><a href='?q=churchresource&id=$val->id'>$val->text</a> (". 
+               $resource[$val->resource_id]->bezeichnung.")<br/>
+               <small>".$val->startdate->format('d.m.Y H:i')." $val->person_name</small><br/>";
     }
+    if ($txt) $txt = "<ul>$txt</ul>";
   }
   return $txt;
 }
@@ -139,7 +150,7 @@ function churchresource_getCurrentBookings() {
       if (count($arr)) {
         $resources = churchcore_getTableData("cr_resource");
 
-        // custom sort function; TODO: wh not order by in db query???
+        // custom sort function: cause there can be repeats in sorted the events
         function cmp($a, $b) {
           if ($a["realstart"] == $b["realstart"]) return 0;
           else if ($a["realstart"] > $b["realstart"]) return 1;
