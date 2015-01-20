@@ -1,6 +1,10 @@
 Das gesamte Changelog ist hier zu finden:
 https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc:Changelog/
 
+2.52e
+- Cal: Fix sending email to creator of events
+- CR: Fix resource not editable when it comes from Cal 
+
 2.52d
 + Cal: Add hide popup feature in ChurchCal
 + Cal: Add automatic font color feature depending on background color

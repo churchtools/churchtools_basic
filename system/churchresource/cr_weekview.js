@@ -1052,7 +1052,6 @@ WeekView.prototype.showBookingDetails = function(func, id, date, element) {
           else {
             if (newEvent.id==null) newEvent.booking_id = -1;
             else newEvent.id = newEvent.cc_cal_id;
-            newEvent.old_id = pastEvent.cc_cal_id;
             var b = churchcore_getFirstElement(newEvent.bookings);
             var minpre = b.minpre;
             var minpost = b.minpost;
@@ -1077,6 +1076,7 @@ WeekView.prototype.showBookingDetails = function(func, id, date, element) {
             if (pastEvent != null && newEvent.id == null) {
               pastEvent.startdate = new Date(pastEvent.startdate.getTime() + minpre * 60000);
               pastEvent.enddate = new Date(pastEvent.enddate.getTime() - minpost * 60000);
+              newEvent.old_id = pastEvent.cc_cal_id;
               pastEvent.id = pastEvent.cc_cal_id;
               delete newEvent.bookings[pastEvent.booking_id];
             }

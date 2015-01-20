@@ -207,7 +207,7 @@ function churchcal_createEvent($params, $callCS=true, $withoutPerm = false) {
   ct_notify("category", $params["category_id"], $txt);
   
   // Inform creator when I am allowed and when it is not me!
-  if ($callCS && getVar("informCreator", true) && !empty($params["modified_pid"])
+  if ($callCS && getVar("informCreator", "true") == "true" && !empty($params["modified_pid"])
             && $params["modified_pid"]!=$user->id) {
     $data = (array) churchcal_getEventChangeImpact(array ("newEvent" => $params, "originEvent" => null, "pastEvent" => null));
     $data["new"] = true;
@@ -250,7 +250,7 @@ function churchcal_isAllowedToEditCategory($categoryId) {
  * @param boolean $withoutPerm If permission will be checked.
  */
 function churchcal_updateEvent($params, $callCS = true, $withoutPerm = false) {
-  global $user;
+  global $user, $base_url;
   $changes = array ();
 
   if (!$withoutPerm && !churchcal_isAllowedToEditCategory($params["category_id"])) {
@@ -374,21 +374,25 @@ function churchcal_updateEvent($params, $callCS = true, $withoutPerm = false) {
   ct_notify("category", $params["category_id"], $txt);
   
   // Inform creator when I am allowed and when it is not me!
-  if ($callCS && getVar("informCreator", true)===true && $originEvent["modified_pid"]!=$user->id) {
+  if ($callCS && getVar("informCreator", "true")=="true" && $originEvent["modified_pid"]!=$user->id) {
     $data = (array) churchcal_getEventChangeImpact(array ("newEvent" => $params, "originEvent" => $originEvent, "pastEvent" => null));
-    $data["new"] = false;
-    $data["caption"] = $params["bezeichnung"];
-    $data["startdate"]   = churchcore_stringToDateDe($params["startdate"]);
-    $p = db_query("SELECT name, vorname, IF(spitzname, spitzname, vorname) AS nickname
-                    FROM {cdb_person}
-                    WHERE id=:id",
-                    array(":id" => $originEvent["modified_pid"]))
-                    ->fetch();
-    $data["p"] = $p;
-
-    // get populated template and send email
-    $content = getTemplateContent('email/informCreator', 'churchcal', $data);
-    churchcore_sendEMailToPersonIDs($originEvent["modified_pid"], "[" . getConf('site_name') . "] " . t('information.for.your.event'), $content, null, true);
+    if (!empty($data["bookings"]) || !empty($data["cal"])) {
+      $data["new"]       = false;
+      $data["caption"]   = $params["bezeichnung"];
+      $data["startdate"] = churchcore_stringToDateDe($params["startdate"]);
+      $data["eventUrl"]  = $base_url . "?q=churchcal&category_id=" 
+                            . $params["category_id"] . "&id=" . $params["id"];
+      $p = db_query("SELECT name, vorname, IF(spitzname, spitzname, vorname) AS nickname
+                      FROM {cdb_person}
+                      WHERE id=:id",
+                      array(":id" => $originEvent["modified_pid"]))
+                      ->fetch();
+      $data["p"] = $p;
+  
+      // get populated template and send email
+      $content = getTemplateContent('email/informCreator', 'churchcal', $data);
+      churchcore_sendEMailToPersonIDs($originEvent["modified_pid"], "[" . getConf('site_name') . "] " . t('information.for.your.event'), $content, null, true);
+    }
   }
 
   return array("cseventIds" => $newCSIds, "bookingIds" => $newBookingIds);
@@ -440,7 +444,7 @@ function churchcal_saveSplittedEvent($params) {
   // Save old Event
   churchcal_updateEvent($params["pastEvent"], false, true);
   
-  if (getVar("informCreator", true, $params["newEvent"]) && $originEvent["modified_pid"] != $user->id) {
+  if (getVar("informCreator", "true", $params["newEvent"])=="true" && $originEvent["modified_pid"] != $user->id) {
     $data = (array) churchcal_getEventChangeImpact(array ("newEvent" => $params["newEvent"], "originEvent" => $originEvent,
               "pastEvent" => $params["pastEvent"]));
     $data["caption"] = $params["newEvent"]["bezeichnung"];
@@ -576,6 +580,7 @@ function makeCCEventDiff($originEvent, $newEvent) {
           $new = churchcal_getCategory($new)->bezeichnung;
         }
         else if ($key == "notizen") $k = "more.information";
+        else if ($key == "ort") $k = "note";
         else if ($key == "intern_yn") {
           $k = "only.intern.visible";
           if ($old!=null) {

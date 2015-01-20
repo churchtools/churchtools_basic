@@ -19,8 +19,8 @@ function home_main() {
   // Start buttons for Desktop-View
   $txt = '
   <div class="hero-unit hidden-phone">
-    <h1>' . $config["welcome"] . '</h1>
-    <p class="hidden-phone">' . $config["welcome_subtext"] . '</p>
+    <h1>' . getVar("welcome", "", $config) . '</h1>
+    <p class="hidden-phone">' . getVar("welcome_subtext", "", $config) . '</p>
     <p>';
   
   // module buttons normal

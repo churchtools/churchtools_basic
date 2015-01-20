@@ -105,7 +105,7 @@ function churchresource_getOpenBookings() {
       } 
     }    
     $resource = churchcore_getTableData("cr_resource");
-    foreach ($res as $val) {
+    if (!empty($res)) foreach ($res as $val) {
       $txt .= "<li><p><a href='?q=churchresource&id=$val->id'>$val->text</a> (". 
                $resource[$val->resource_id]->bezeichnung.")<br/>
                <small>".$val->startdate->format('d.m.Y H:i')." $val->person_name</small><br/>";
