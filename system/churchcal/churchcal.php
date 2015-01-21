@@ -816,6 +816,9 @@ function churchcal_cron() {
   foreach ($cats as $cat) {
     churchcal_updateICalSource($cat->id);
   }
+  db_query("UPDATE {cc_calcategory} SET modified_date=NOW()
+                    WHERE ical_source_url IS NOT NULL AND ical_source_url!=''
+                      AND (DATEDIFF(NOW(), modified_date)>0 OR modified_date IS NULL)");
 }
 
 function churchcal_updateICalSource($id) {
@@ -858,7 +861,7 @@ function churchcal_updateICalSource($id) {
         }
         $data["startdate"] = $sd->format("Y-m-d H:i");
         $data["enddate"] = $ed->format("Y-m-d H:i");
-        churchcal_createEvent($data);
+        churchcal_createEvent($data, null, true);
       }
     }
     ct_log("iCal Source from $cat->bezeichnung readed and processed!", 2, $id, "category");

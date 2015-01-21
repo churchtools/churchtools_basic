@@ -198,7 +198,7 @@ function about__ajax() {
     if (getConf("mail_enabled")) {
         $recipients = explode(",", getConf("admin_mail", $config["site_mail"]));
         foreach ($recipients as $recipient) {
-          churchcore_mail($user->email,
+          churchcore_mail("$user->vorname $user->name <$user->email>",
                           trim($recipient),
                           $params["subject"], $params["text"],
                           true,

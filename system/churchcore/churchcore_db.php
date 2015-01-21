@@ -742,13 +742,16 @@ function churchcore_sendMails_PHPMAIL($maxmails = MAX_MAILS) {
           $header .= 'Content-type: text/plain; charset=utf-8' . "\n"; // 'Content-Transfer-Encoding: quoted-printable'."\n" .
 
         // See churchtools.example.config for more details
-        if (getVar("mail_with_user_from_address", "0") == "0") {
-          $header.="From: ".getConf('site_mail', 'info@churchtools.de')."\n";
+        if (getConf("mail_with_user_from_address", "0") == "0") {
+          $from = getConf('site_mail', 'info@churchtools.de');          
+          if (strpos($mail->sender, "<")>0 && strpos($from, "<")===false) {
+            $from = substr($mail->sender, 0, strpos($mail->sender, "<")-1) . " <$from>";
+          } 
+          $header.="From: $from\n";
           if ($mail->sender!=getConf('site_mail', 'info@churchtools.de')) {
             $header.="Reply-To: $mail->sender\n";
             $header.="Return-Path: $mail->sender\n";
           }
-          ct_log($header, 1);
         }
         else {
           $header.="From: ".$mail->sender."\n";
@@ -789,11 +792,14 @@ function churchcore_sendMails_PHPMAIL($maxmails = MAX_MAILS) {
  */
 function churchcore_sendMails_PEARMAIL($maxmails = MAX_MAILS) {
   global $config, $base_url;
-  ct_log("starte senden5");
 
-  include_once 'Mail.php'; //dont exists!
+  include_once 'Mail.php'; 
   include_once 'Mail/mime.php';
-
+  
+  if (!class_exists("Mail_mime")) {
+    ct_log("Mime-Extension für PearMail nicht gefunden. Bitte erst installieren!",1);
+    return;
+  }
   $db = db_query("SELECT value FROM {cc_config} WHERE name='currently_mail_sending'")->fetch();
   if (!$db) {
     db_query("INSERT INTO {cc_config} VALUES ('currently_mail_sending', '0')");
@@ -805,14 +811,11 @@ function churchcore_sendMails_PEARMAIL($maxmails = MAX_MAILS) {
     db_query("UPDATE {cc_config} SET value='1' WHERE name='currently_mail_sending'");
     $db = db_query("SELECT * FROM {cc_mail_queue} WHERE send_date IS NULL ORDER BY priority LIMIT $maxmails");
     if ($db != false) {
-      ct_log("starte senden0");
       $counter = 0;
       $counter_error = 0;
       foreach ($db as $mail) {
         $headers = array (
-          'From' => getConf('site_mail', 'info@churchtools.de'),
-          'Reply-To' => $mail->sender,
-          'Return-Path' => $mail->sender,
+          'From' => $mail->sender,
           'Subject' => $mail->subject,
           'Content-Type' => 'text/html; charset=UTF-8', 'X-Mailer' => 'PHP/' . phpversion(),
         );
@@ -824,7 +827,7 @@ function churchcore_sendMails_PEARMAIL($maxmails = MAX_MAILS) {
                        );
 
         $mime = new Mail_mime();
-
+        
         if ($mail->htmlmail_yn == 1) {
           $html = $mail->body;
           $html .= '<img src="' . $base_url . '?q=cron&standby=true&mailqueue_id=' . $mail->id . '"/>';
@@ -837,7 +840,6 @@ function churchcore_sendMails_PEARMAIL($maxmails = MAX_MAILS) {
 
         $error = 0;
         $counter++;
-        ct_log("starte senden");
         // Wenn test gesetzt ist, soll er keine Mails senden, sondern nur so tun!
         if (!isset($config["test"])) {
           $body = $mime->get($mime_params);
@@ -857,6 +859,7 @@ function churchcore_sendMails_PEARMAIL($maxmails = MAX_MAILS) {
     }
     db_query("UPDATE {cc_config} SET value='0' WHERE name='currently_mail_sending'");
   }
+  else ct_log("Sende keine neuen Mails, da gerade Mails gesendet werden", 1);
 }
 
 /**
@@ -1438,7 +1441,7 @@ function churchcore_CCEventData2String($res) {
   }
   if (!empty($res->ort)) $txt .= "<li>" . t('note') . ": " . $res->ort;
   if (!empty($res->intern_yn)) $txt .= "<li>" . t('note') . ": " . $res->ort;
-  if (!empty($res->notizen)) $txt .= "<li>" . t('comment') . ": " . $res->note;
+  if (!empty($res->notizen)) $txt .= "<li>" . t('comment') . ": " . $res->notizen;
   if (!empty($res->link)) $txt .= "<li>Link: " . $res->link;
   $txt .= '</ul>';
   return $txt;
