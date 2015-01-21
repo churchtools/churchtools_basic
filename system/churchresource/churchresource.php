@@ -63,9 +63,7 @@ function churchresource__ajax() {
   $ajax = new CTAjaxHandler($module);
   $ajax->addFunction("delException", "administer bookings");
   $ajax->addFunction("delBooking", "edit masterdata");
-  $ajax->addFunction("createBooking", "view");
-  $ajax->addFunction("updateBooking", "view");
-
+  
   drupal_json_output($ajax->call());
 }
 

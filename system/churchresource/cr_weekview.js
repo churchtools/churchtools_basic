@@ -540,30 +540,21 @@ WeekView.prototype.renderBookings = function(bookings) {
   return txt;
 }
 
-WeekView.prototype.updateBookingStatus = function(id, new_status) {
-  var t=this;
-  var oldStatus=allBookings[id].status_id;
-  allBookings[id].status_id=new_status;
-  allBookings[id].func="updateBooking";
-  churchInterface.jsendWrite(allBookings[id], function(ok, data) {
-    if (!ok) allBookings[id].status_id=oldStatus;
-    else {
-      // Get IDs for currently created Exceptions
-      if (data.exceptions!=null) {
-        each(data.exceptions, function(i,e) {
-          if (i<0) {
-            allBookings[id].exceptions[e]=allBookings[id].exceptions[i];
-            allBookings[id].exceptions[e].id=e;
-            delete allBookings[id].exceptions[i];
-          }
-        });
-      }
-    }
-    t.renderList();
-  }, false, false);
+WeekView.prototype.updateBookingStatus = function(id, newStatus) {
+  var t = this;
+
+  var myEvent = allBookings[id];
+  myEvent.status_id = newStatus;
+  if (myEvent.cc_cal_id!=null && myEvent.cc_cal_id!=0) {
+    myEvent = CR2CALType(myEvent);
+    myEvent.id = myEvent.cc_cal_id;
+    delete myEvent.status_id;
+    delete myEvent.resource_id;
+  }
+    
+  myEvent.save();
   t.renderList();
 };
-
 
 WeekView.prototype.groupingFunction = function (event) {
   return masterData.resourceTypes[event.resourcetype_id].bezeichnung;

@@ -136,7 +136,7 @@ function churchcal_getMyMeetingRequest() {
  * @return int; id of created event
  */
 function churchcal_createEvent($params, $callCS=true, $withoutPerm = false) {
-  global $user;
+  global $user, $base_url;
   // if source is another module rights are already checked
   if (!$withoutPerm && !churchcal_isAllowedToEditCategory($params["category_id"])) {
     throw new CTNoPermission(t('no.create.right.for.cal.id.x', $params["category_id"]), "churchcal");
@@ -205,24 +205,29 @@ function churchcal_createEvent($params, $callCS=true, $withoutPerm = false) {
   $txt .= " einen neuen Termin angelegt:<br>";
   $txt .= churchcore_CCEventData2String($params);
   ct_notify("category", $params["category_id"], $txt);
-  
   // Inform creator when I am allowed and when it is not me!
-  if ($callCS && getVar("informCreator", "true") == "true" && !empty($params["modified_pid"])
-            && $params["modified_pid"]!=$user->id) {
-    $data = (array) churchcal_getEventChangeImpact(array ("newEvent" => $params, "originEvent" => null, "pastEvent" => null));
-    $data["new"] = true;
-    $data["caption"] = $params["bezeichnung"];
-    $data["startdate"]   = churchcore_stringToDateDe($params["startdate"]);
-    $p = db_query("SELECT name, vorname, IF(spitzname, spitzname, vorname) AS nickname
-                    FROM {cdb_person}
-                    WHERE id=:id",
-        array(":id" => $params["modified_pid"]))
-        ->fetch();
-    $data["p"] = $p;
-  
-    // get populated template and send email
-    $content = getTemplateContent('email/informCreator', 'churchcal', $data);
-    churchcore_sendEMailToPersonIDs($params["modified_pid"], "[" . getConf('site_name') . "] " . t('information.for.your.event'), $content, null, true);
+  if ($callCS) { 
+    if (((getVar("informMe", "true") == "true")) 
+           || ((getVar("informCreator", "true") == "true") 
+               && !empty($params["modified_pid"]) && $params["modified_pid"]!=$user->id)) {
+      if (empty($params["modified_pid"])) $params["modified_pid"] = $user->id; 
+      $data = (array) churchcal_getEventChangeImpact(array ("newEvent" => $params, "originEvent" => null, "pastEvent" => null));
+      $data["new"] = true;
+      $data["caption"] = $params["bezeichnung"];
+      $data["startdate"]   = churchcore_stringToDateDe($params["startdate"]);
+      $data["eventUrl"]  = $base_url . "?q=churchcal&category_id=" 
+                            . $params["category_id"] . "&id=" . $params["id"];
+      $p = db_query("SELECT name, vorname, IF(spitzname, spitzname, vorname) AS nickname
+                      FROM {cdb_person}
+                      WHERE id=:id",
+          array(":id" => $params["modified_pid"]))
+          ->fetch();
+      $data["p"] = $p;
+    
+      // get populated template and send email
+      $content = getTemplateContent('email/informCreator', 'churchcal', $data);
+      churchcore_sendEMailToPersonIDs($params["modified_pid"], "[" . getConf('site_name') . "] " . t('information.for.your.event'), $content, null, true);
+    }
   }
 
   return array("id"=>$params["id"], "cseventIds"=>$newCSIds, "bookingIds"=>$newBookingIds);
@@ -481,19 +486,20 @@ function churchcal_getCCEventChangeImpact($newEvent, $pastEvent, $originEvent) {
   };
 
   $splitDate = new DateTime($newEvent["startdate"]);
-
   // 1. Get all Dates for the origin Event
-  $ds = getAllDatesWithRepeats((object) $originEvent, 0, 9999, $splitDate);
-  if ($ds) foreach ($ds as $d) {
-    if (!dateInCCEvent($d, $newEvent)) { // 1. Date is not in newEvent
-      if (!dateInCCEvent($d, $pastEvent)) {
-        // 2b. Deleted! Now for each booking make change entry
-        $addCalChange($changes, "deleted", $d);
+  if ($originEvent != null) {
+    $ds = getAllDatesWithRepeats((object) $originEvent, 0, 9999, $splitDate);
+    if ($ds) foreach ($ds as $d) {
+      if (!dateInCCEvent($d, $newEvent)) { // 1. Date is not in newEvent
+        if (!dateInCCEvent($d, $pastEvent)) {
+          // 2b. Deleted! Now for each booking make change entry
+          $addCalChange($changes, "deleted", $d);
+        }
       }
-    }
-    else { // 3. event is in newEvent, now check bookings!
-      $change = makeCCEventDiff(getOneEventOutOfSeries($originEvent, $d), getOneEventOutOfSeries($newEvent, $d));
-      if ($change != null) $addCalChange($changes, "updated", $d, $change);
+      else { // 3. event is in newEvent, now check bookings!
+        $change = makeCCEventDiff(getOneEventOutOfSeries($originEvent, $d), getOneEventOutOfSeries($newEvent, $d));
+        if ($change != null) $addCalChange($changes, "updated", $d, $change);
+      }
     }
   }
   // Now do 4.
@@ -527,6 +533,7 @@ function makeCCEventDiff($originEvent, $newEvent) {
   $ret = array ();
   
   $internFields = array();
+  $internFields[] = "informMe";
   $internFields[] = "informCreator";
   $internFields[] = "modified_pid";
   $internFields[] = "repeat_frequence";
@@ -541,6 +548,10 @@ function makeCCEventDiff($originEvent, $newEvent) {
   $internFields[] = "old_id";
   $internFields[] = "old_category_id";
   $internFields[] = "old_startdate";
+  $internFields[] = "copychurchservice";
+  $internFields[] = "newCSEventId";
+  $internFields[] = "exceptionids";
+  
   // From CR
   $internFields[] = "cc_cal_id";
   $internFields[] = "person_id";
@@ -648,7 +659,6 @@ function churchcal_getEventChangeImpact($params) {
                        $params["newEvent"], $params["pastEvent"], $params["originEvent"]
                      );
   }
-
   return $res;
 }
 

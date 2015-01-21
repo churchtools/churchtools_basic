@@ -4,6 +4,10 @@ https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc
 2.52e
 - Cal: Fix sending email to creator of events
 - CR: Fix resource not editable when it comes from Cal 
+- Fix sending mail to admin with correct sender address
+- Add sender name in mail system when not using real sender in config
+- CR: Correction in E-Mail when it is a booking from Cal
++ Cal: Man kann nun als Ersteller auch eine E-Mail bekommen mit allen Infos 
 
 2.52d
 + Cal: Add hide popup feature in ChurchCal

@@ -3,7 +3,7 @@
  *  constants to use anywhere
  */
 // To prevent Browser caching old versions of JS and CSS Files
-define('JS_VERSION',     '25214');
+define('JS_VERSION',     '25215');
 
 //TODO: next two maybe not needed?
 define('SITES',          'sites');

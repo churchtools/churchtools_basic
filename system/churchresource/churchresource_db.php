@@ -23,15 +23,8 @@ function churchresource_getEventChangeImpact($newEvent, $pastEvent, $originEvent
 
   $splitDate = new DateTime($newEvent["startdate"]);
 
-  if (empty($originEvent["bookings"])) {
-    if (isset($newEvent["bookings"])) {
-      foreach ($newEvent["bookings"] as $booking) {
-        $addCRChange($changes, $booking, "new", $splitDate);
-      }
-    }
-  }
-  else {
-    // 1. Get all Dates for the origin Event
+  // 1. Get all Dates for the origin Event
+  if ($originEvent!=null) {
     $ds = getAllDatesWithRepeats((object) $originEvent, 0, 9999, $splitDate);
     if ($ds) foreach ($ds as $d) {
       if (!dateInCCEvent($d, $newEvent)) { // 1. Date is not in newEvent
@@ -73,7 +66,9 @@ function churchresource_getEventChangeImpact($newEvent, $pastEvent, $originEvent
         }
       }
     }
-    // Now do 4.
+  }
+  // Now do 4.
+  if (isset($newEvent["bookings"])) {
     $ds = getAllDatesWithRepeats((object) $newEvent, 0, 9999, $splitDate);
     if ($ds) foreach ($ds as $d) {
       if (!dateInCCEvent($d, $originEvent)) {
@@ -544,7 +539,6 @@ function churchresource_operateResourcesFromChurchCal($params) {
 
   $params["location"] = "";
   $params["note"] = "";
-
   foreach ($bookings as $booking) {
     if (isset($params["bookings"]) && isset($params["bookings"][$booking->id])) {
       $save = copyTypicalDateFields($params);
@@ -575,7 +569,6 @@ function churchresource_operateResourcesFromChurchCal($params) {
           }
         }
       }
-
       churchresource_updateBooking($save, false);
 
       $params["bookings"][$booking->id]["updated"] = true;
