@@ -195,8 +195,20 @@ function about__ajax() {
   global $config, $user;
   $params = $_POST;
   if ($params["func"] == "sendEmailToAdmin") {
-    churchcore_systemmail(getConf("admin_mail", $config["site_mail"]), $params["subject"], $params["text"], true, 1);
-    $res = jsend()->success();
+    if (getConf("mail_enabled")) {
+        $recipients = explode(",", getConf("admin_mail", $config["site_mail"]));
+        foreach ($recipients as $recipient) {
+          churchcore_mail($user->email,
+                          trim($recipient),
+                          $params["subject"], $params["text"],
+                          true,
+                          true,
+                          0
+          );
+        }
+      $res = jsend()->success();
+    }
+    else $res = jsend()->fail("EMails sind deaktivert!");
   }
   else if ($params["func"] == "amILoggedIn") {
     if ($user == null) $res = jsend()->success(false);
