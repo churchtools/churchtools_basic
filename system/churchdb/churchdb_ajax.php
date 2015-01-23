@@ -1446,6 +1446,7 @@ function f_functions($params) {
   }
   if ($function == "f_group") saveGeocodeGruppe($params["id"], "", "");
 
+  $arr = array();
   foreach ($fields["fields"] as $key => $value) {
     if (isset($params[$key])) $arr[$key] = $params[$key];
   }
