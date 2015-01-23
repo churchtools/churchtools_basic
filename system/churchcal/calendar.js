@@ -1048,8 +1048,11 @@ function _eventClick(event, jsEvent, view ) {
     var rows = new Array();
     rows.push('<legend>'+event.title+'</legend>');
     rows.push('<p>'+_("start.date")+': '+event.start.format(event.start.hasTime()?DATETIMEFORMAT_DE:DATEFORMAT_DE));
-    if (event.end!=null)
-      rows.push('<p>'+_("end.date")+': '+event.end.format(event.end.hasTime()?DATETIMEFORMAT_DE:DATEFORMAT_DE));
+    if (event.end != null) {
+      var dt = new Date(event.end.format(event.end.hasTime()?DATETIMEFORMAT_EN:DATEFORMAT_EN));
+      dt.addDays(-1);
+      rows.push('<p>' + _("end.date") + ': ' + dt.toStringDe(event.end.hasTime()));
+    }
     if (myEvent!=null) {
       if (myEvent.notizen!=null) rows.push('<p>'+myEvent.notizen);
     }
