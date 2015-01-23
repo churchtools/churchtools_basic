@@ -148,7 +148,7 @@ function _addEventsToDateIndex(cs_events, o) {
   month[o.runningDate.getDate()]=day;
   year[o.runningDate.getMonth()+1]=month;
   cs_events[o.runningDate.getFullYear()]=year;
-    
+
   o.runningDate.addDays(1);
   if (o.end != null && o.runningDate.getTime() < o.end.getTime()) {
    _addEventsToDateIndex(cs_events, o);
@@ -452,8 +452,12 @@ CalAbsentsType.prototype.showEventsOnCal = function(id) {
       }
       o.bezeichnung=masterData.absent_reason[a.reason_id].bezeichnung;
     }
-    if ((o.start.getHours()==0) && (o.end.getHours()==0))
-      o.allDay=true;
+
+    if (churchcore_isAllDayDate(o.start, o.end)) {
+      o.allDay = true;
+      // Add 1 day, because fullCalendar 2.0 works with exclusive end date!
+      o.end.addDays(1);
+    }
     else
       o.allDay= false;
     _addEventsToDateIndex(cr, o);

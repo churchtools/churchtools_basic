@@ -168,10 +168,16 @@ function _eventDrop(event, delta, revertFunc, jsEvent, ui, view ) {
   doEventChanges(event, delta, jsEvent, function(ok, newEvent) {
     if (!ok) revertFunc();
     else {
+      // AllDay
       if (!event.start.hasTime()) {
         newEvent.startdate = new Date(event.start.format(DATEFORMAT_EN)).withoutTime();
-        if (event.end==null) newEvent.enddate = new Date(newEvent.startdate.getTime());
-        else newEvent.enddate = new Date(event.end.format(DATEFORMAT_EN)).withoutTime();
+        if (event.end==null) {  // Drop from time event to allDay-Event
+          newEvent.enddate = new Date(newEvent.startdate.getTime());
+        }
+        else {
+          newEvent.enddate = new Date(event.end.format(DATEFORMAT_EN)).withoutTime();
+          newEvent.enddate.addDays(-1);
+        }
       }
       else {
         newEvent.startdate = new Date(newEvent.startdate.getTime() + delta.asMilliseconds());
@@ -683,7 +689,7 @@ function _renderViewChurchService(elem) {
     rows.push('</div>');
 
     elem.find("#cal_content").html(rows.join(""));
-    
+
     function _refreshCSInfo() {
       elem.find("select.event-template").each(function() {
         var startdate = $(this).parents("tr").attr("data-date").toDateEn();
@@ -702,7 +708,7 @@ function _renderViewChurchService(elem) {
       });
     }
     _refreshCSInfo();
-    
+
     elem.find("#copychurchservice").change(function() {
       currentEvent.copychurchservice=$(this).attr("checked")=="checked";
       if (currentEvent.copychurchservice) {
@@ -896,14 +902,14 @@ function renderEditEvent(myEvent, origEvent, isSeries, editSeries, func) {
                                 controlgroup: false, cssid:"inform_creator"}));
     else if (currentEvent.id==null)
       $("div.ui-dialog-buttonset").prepend(
-          form_renderCheckbox({label:"Alle Infos auch per E-Mail zustellen", 
+          form_renderCheckbox({label:"Alle Infos auch per E-Mail zustellen",
                                checked : (masterData.settings.inform_me == null || masterData.settings.inform_me == 1),
                                controlgroup: false, cssid:"inform_me"}));
     $("#inform_me").change(function() {
       masterData.settings.inform_me = ($(this).attr("checked")=="checked" ? 1 : 0 );
       churchInterface.jsendWrite({func:"saveSetting", sub:"inform_me", val:masterData.settings.inform_me});
     });
-    
+
 
     _renderEditEventNavi(elem, currentEvent);
 }
@@ -1199,7 +1205,7 @@ function initCalendarView() {
     else $(this).addClass("fc-state-active");
     showTooltip=!showTooltip;
     churchInterface.jsendWrite({func:"saveSetting", sub:"showTooltip", val:(showTooltip?1:0)});
-    
+
     return false;
   });
   $("#searchEntry").keyup(function() {
@@ -1217,7 +1223,7 @@ function send2Calendar(a,b) {
   else if (viewName=="eventView")
     calendar.eventCalendar(a,b);
   else alert("Unbekannter send Calendar");
-  
+
   if (b.category_id==filterCategoryIds && filterId!=null)
     editEvent(b.container.data[filterCategoryIds].events[filterId]);
 }
@@ -2072,7 +2078,7 @@ $(document).ready(function() {
   if ($("#entries").length!=0) max_entries=$("#entries").val();
 
   churchInterface.loadMasterData(function() {
-    showTooltip = masterData.settings.showTooltip==null || masterData.settings.showTooltip==1; 
+    showTooltip = masterData.settings.showTooltip==null || masterData.settings.showTooltip==1;
 
     if ($("#viewname").val()!=null) viewName=$("#viewname").val();
     initCalendarView();
