@@ -37,12 +37,20 @@ function churchcal_main() {
   $txt = '';
 
   if ($catId = getVar("category_id")) {
+  	include_once (CHURCHCAL. '/churchcal_db.php');
+  	$auth = churchcal_getAuthForAjax();
+  	// Check permission, perhaps show login mask
+  	if (empty($auth["view category"]) || empty($auth["view category"][$catId])) {
+  		include_once(MAIN.'/login.php');
+  		$login = login_main();
+  		if (!userLoggedIn()) return $login;
+  	}
     $txt .= '<input type="hidden" id="filtercategory_id" name="category_id" value="' . $catId . '"/>' . NL;
     if ($id = getVar("id")) { // only of category_id is set
       $txt .= '<input type="hidden" id="filterevent_id" name="id" value="' . $id . '"/>' . NL;
     }
   }
-  
+
   if ($embedded) {
     if ($catSel = getVar("category_select")) {
       $txt .= '<input type="hidden" id="filtercategory_select" name="category_select" value="' . $catSel . '"/>' . NL;
@@ -130,12 +138,12 @@ function churchcal_getUserMeetings() {
  */
 function churchcal_getUserMyMeetings() {
   global $user;
-  $db = db_query("SELECT count(*) count, c.id, c.category_id, c.startdate, c.bezeichnung, 
+  $db = db_query("SELECT count(*) count, c.id, c.category_id, c.startdate, c.bezeichnung,
                   sum(if (mr.zugesagt_yn=1,1,0)) as zugesagt,
                   sum(if (mr.zugesagt_yn is null AND mr.response_date is not null,1,0)) as perhaps,
-                  sum(if (mr.response_date is not null,1,0)) as response 
+                  sum(if (mr.response_date is not null,1,0)) as response
              FROM {cc_cal} c, {cc_meetingrequest} mr
-             WHERE c.id = mr.cal_id 
+             WHERE c.id = mr.cal_id
               AND c.modified_pid=$user->id AND DATEDIFF(c.startdate,now())>=0
               GROUP BY c.id, c.category_id, c.startdate, c.bezeichnung
               ORDER BY c.startdate");
@@ -151,7 +159,7 @@ function churchcal_getUserMyMeetings() {
     if ($entry->response-$entry->perhaps-$entry->zugesagt>0)
       $txt .= '<span class="badge badge-important">' . ($entry->response-$entry->perhaps-$entry->zugesagt) . '</span> Absage &nbsp;';
     $txt .= "</small>";
-      
+
   }
   if ($txt!="") $txt = "<ul>" . $txt . "</ul>";
   return $txt;
@@ -486,7 +494,7 @@ function churchcal_deleteEvent($params, $source = null) {
   }
 
   db_query("DELETE FROM {cc_meetingrequest} WHERE cal_id=:id", array (":id" => $id));
-  
+
   db_query("DELETE FROM {cc_cal_except} WHERE cal_id=:id", array (":id" => $id));
   db_query("DELETE FROM {cc_cal_add}    WHERE cal_id=:id", array (":id" => $id));
   db_query("DELETE FROM {cc_cal}        WHERE id=:id", array (":id" => $id));
@@ -721,12 +729,12 @@ function churchcal_deleteCategory($params) {
                  ->fetch();
   if ($c->c > 0) throw new CTFail(t('deleting.failed.because.of.remaining.services'));
 
-  $db = db_query("SELECT c.id FROM {cs_event} e, {cc_cal} c WHERE c.category_id=:category_id AND e.cc_cal_id = c.id", 
+  $db = db_query("SELECT c.id FROM {cs_event} e, {cc_cal} c WHERE c.category_id=:category_id AND e.cc_cal_id = c.id",
             array(":category_id" => $id));
   foreach ($db as $cal) {
     churchcal_deleteEvent(array("id"=>$cal->id));
   }
-  
+
   db_query("DELETE FROM {cc_cal}         WHERE category_id=:id", array (":id" => $id));
   db_query("DELETE FROM {cc_calcategory} WHERE id=:id", array (":id" => $id));
   db_query("DELETE FROM {cc_domain_auth} WHERE auth_id in (403, 404) and daten_id=:id", array (":id" => $id));
@@ -750,7 +758,7 @@ function churchcal_isAllowedToEditEvent($id) {
   // author of event can edit it
   if ($data && $data->modified_pid == $user->id) return true;
   if ($auth && isset($auth[$data->category_id])) return true;
-  
+
   return false;
 }
 

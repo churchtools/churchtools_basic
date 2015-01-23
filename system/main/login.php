@@ -133,7 +133,7 @@ function login_main() {
     else if (getVar("directtool", false, $_POST)) {
       drupal_json_output(jsend()->success("Already logged in"));
     }
-    else {     
+    else {
       $txt .= '<div class="alert alert-info">'
           . t('you.are.logged.in.as.x.click.y.to.continue', $_SESSION["user"]->vorname, '<a href="?q=home">' .t('home') . '</a>') .
       '</div>';
@@ -274,7 +274,7 @@ function login_user($u, $rember_me = false, $redirect = true) {
 
   if ($redirect) {
     // on switching family login dont forward to login again
-    if ($q != $q_orig) header("Location: ?q=$q_orig");
+    if ($q != $q_orig) header("Location: ".$_SERVER["REQUEST_URI"]);
     else if ($q == "login") header("Location: ?q=" . getConf("site_startpage", "home"));
   }
 }
