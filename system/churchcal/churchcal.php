@@ -39,11 +39,15 @@ function churchcal_main() {
   if ($catId = getVar("category_id")) {
   	include_once (CHURCHCAL. '/churchcal_db.php');
   	$auth = churchcal_getAuthForAjax();
-  	// Check permission, perhaps show login mask
-  	if (empty($auth["view category"]) || empty($auth["view category"][$catId])) {
-  		include_once(MAIN.'/login.php');
-  		$login = login_main();
-  		if (!userLoggedIn()) return $login;
+  	$perm = true;
+  	foreach (explode(",", $catId) as $id) {
+      // Check permission, perhaps show login mask
+      if (empty($auth["view category"]) || empty($auth["view category"][$id])) $perm = false;
+  	}
+  	if (!$perm) {
+  	  include_once(MAIN.'/login.php');
+  	  $login = login_main();
+  	  if (!userLoggedIn()) return $login;
   	}
     $txt .= '<input type="hidden" id="filtercategory_id" name="category_id" value="' . $catId . '"/>' . NL;
     if ($id = getVar("id")) { // only of category_id is set
