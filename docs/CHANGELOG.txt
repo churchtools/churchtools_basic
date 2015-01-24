@@ -1,6 +1,9 @@
 Das gesamte Changelog ist hier zu finden:
 https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc:Changelog/
 
+2.52e
+- Cal: Fix embedding problem with more then one id
+
 2.52f
 + Cal: Add copy and reminder icons to event dialog
 - Printview: Don't show complete link anymore
