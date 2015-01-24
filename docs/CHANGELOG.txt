@@ -1,13 +1,20 @@
 Das gesamte Changelog ist hier zu finden:
 https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc:Changelog/
 
+2.52f
++ Cal: Add copy and reminder icons to event dialog
+- Printview: Don't show complete link anymore
+- CS: Fix display of absence
+- After login the Browser will now forward to complete entry URL
+- Fixed import bug
+
 2.52e
 - Cal: Fix sending email to creator of events
-- CR: Fix resource not editable when it comes from Cal 
+- CR: Fix resource not editable when it comes from Cal
 - Fix sending mail to admin with correct sender address
 - Add sender name in mail system when not using real sender in config
 - CR: Correction in E-Mail when it is a booking from Cal
-+ Cal: Man kann nun als Ersteller auch eine E-Mail bekommen mit allen Infos 
++ Cal: Man kann nun als Ersteller auch eine E-Mail bekommen mit allen Infos
 
 2.52d
 + Cal: Add hide popup feature in ChurchCal
@@ -17,13 +24,13 @@ https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc
 - CDB: Fix missing surname in group request
 
 2.52c
-- Fix ChurchDB Export with relations bug 
+- Fix ChurchDB Export with relations bug
 - Fix CS reload new data bug, this causes an error when clicking to new other dates
 - Fix CS overlaying icon issue
-- Fix CS template saving problems, template could not be saved 
-- Fix CS changing an event out of a series forgot future exceptions 
+- Fix CS template saving problems, template could not be saved
+- Fix CS changing an event out of a series forgot future exceptions
 - Fix Cal bug: Creater was always informed
-- Cal: Set a fixed cal height for embedding pages 
+- Cal: Set a fixed cal height for embedding pages
 - Fix ChurchDB bug: change own address causes the permission to the all streets
 
 2.52b

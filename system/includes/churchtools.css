@@ -220,6 +220,10 @@ div.fixed {
 }
 
 @media print {
+	a:link:after, a:visited:after {
+	    content: "";
+	}
+
 	.fc-day-grid-event > .fc-content {
   	  white-space: normal !important;
 	}

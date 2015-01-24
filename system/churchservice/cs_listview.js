@@ -2455,7 +2455,7 @@ ListView.prototype.sendEMailToEvent = function(event) {
           this_object.sendEMailToEvent(event);
         });
         return;
-      } 
+      }
       else if (churchInterface.views.AgendaView.getAgendaForEventIdIfOnline(event.id)==null) {
         churchInterface.views.AgendaView.loadAgendaForEvent(event.id, function(data) {
           this_object.sendEMailToEvent(event);
@@ -2550,7 +2550,7 @@ ListView.prototype.editNote = function(event) {
 
 ListView.prototype.attachFile = function(event) {
   var this_object=this;
-  
+
   var attachTxt = "";
 
   if (event.agenda && (user_access("view agenda", event.category_id) || t.amIInvolved(event))) {
@@ -2560,7 +2560,7 @@ ListView.prototype.attachFile = function(event) {
         this_object.attachFile(event);
       });
       return;
-    } 
+    }
     else if (churchInterface.views.AgendaView.getAgendaForEventIdIfOnline(event.id)==null) {
       churchInterface.views.AgendaView.loadAgendaForEvent(event.id, function(data) {
         this_object.attachFile(event);
@@ -2571,8 +2571,8 @@ ListView.prototype.attachFile = function(event) {
     if (a!=null)
       attachTxt = attachTxt+'<br/><br/><a href="'+masterData.base_url+'?q=churchservice&id='+a.id+'#AgendaView" class="button">Ablauf aufrufen</a>';
   }
-  
-  
+
+
   jsFiles = ['/assets/ckeditor/ckeditor.js', '/assets/ckeditor/lang/de.js'];
   if (!churchInterface.JSFilesLoaded(jsFiles)) {
     churchInterface.loadJSFiles(jsFiles, function() { this_object.attachFile(event); });
@@ -2637,7 +2637,7 @@ ListView.prototype.attachFile = function(event) {
       $(this).dialog("close");
     }
   });
-  form_implantWysiwygEditor("editor", null, true);
+  if (_dienstgruppen.length > 0) form_implantWysiwygEditor("editor", null, true);
   elem.find("input:checkbox").change(function() {
     masterData.settings[$(this).attr("id")]=($(this).attr("checked")=="checked"?1:0);
     churchInterface.jsendWrite({func:"saveSetting", sub:$(this).attr("id"), val:($(this).attr("checked")=="checked"?1:0)});
