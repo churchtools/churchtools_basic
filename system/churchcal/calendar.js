@@ -854,6 +854,27 @@ function renderEditEvent(myEvent, origEvent, isSeries, editSeries, func) {
       }
     });
 
+    // Make title bar icons
+    if (myEvent.id != null) {
+      var txt = "";
+	    if (myEvent.startdate.getTime() > new Date().getTime()
+	            || form_getReminder("event", myEvent.id)!=null) {
+	       txt = txt + form_renderReminder("event", myEvent.id) + " &nbsp;";
+	     }
+	    txt = txt + form_renderImage({link: true, htmlclass: "copy", src: "copy.png", width: 20}) + " &nbsp;";
+	    $("div.ui-dialog-titlebar").append('<div class="ui-dialog-title" style="float:right">' + txt + '</div>');
+	    $("a.copy").click(function() {
+	      elem.dialog("close");
+        copyEvent(origEvent, origEvent.startdate);
+        return false;
+	    });
+      $("a.reminder").click(function() {
+          elem.dialog("close");
+        form_editReminder($(this), origEvent.startdate);
+        return false;
+      });
+    }
+
     _renderEditEventContent(elem);
 
     if (isSeries && !editSeries) {
@@ -921,7 +942,7 @@ function copyEvent(current_event, splitDate) {
     newEvent.csevents=null;
     newEvent.copyevent=true;
     newEvent.copychurchservice=false;
-    renderEditEvent(newEvent, current_event, true, true, function(newEvent, func) {
+    renderEditEvent(newEvent, current_event, newEvent.isSeries(), true, function(newEvent, func) {
       newEvent.save();
       func(true);
     });
