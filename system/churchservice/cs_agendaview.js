@@ -523,7 +523,9 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
     else if ($(this).attr("id").indexOf("delCol")==0) {
       var id=$(this).attr("id").substr(6,99);
       masterData.settings["viewgroup_agenda"+id]=0;
-      churchInterface.jsendWrite({func:"saveSetting", sub:"viewgroup_agenda"+id, val:0});
+      if (!$("#printview").val()) {
+        churchInterface.jsendWrite({func:"saveSetting", sub:"viewgroup_agenda"+id, val:0});
+      }
       t.renderList();
       return false;
     }
