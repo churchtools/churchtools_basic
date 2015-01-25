@@ -1308,7 +1308,9 @@ AgendaView.prototype.renderListHeader = function(smallVersion) {
     if (servicegroups!=null) {
 
       each(churchcore_sortMasterData(masterData.servicegroup), function(k,sg) {
-        if (servicegroups[sg.id]!=null && masterData.settings["viewgroup_agenda"+sg.id]=="1") {
+        if (servicegroups[sg.id]!=null && 
+        	((masterData.settings["viewgroup_agenda"+sg.id]=="1") || 
+        	 (masterData.settings["viewgroup_agenda"+sg.id]==null))) {
           rows.push('<tr><td><b>'+sg.bezeichnung+'&nbsp;&nbsp;</b><td style="width:90%"><small>');
           each(churchcore_sortMasterData(masterData.service), function(i,service) {
             if (service.servicegroup_id==sg.id) {
