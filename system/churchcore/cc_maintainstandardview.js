@@ -1,4 +1,4 @@
-   
+
 // Constructor
 function MaintainStandardView() {
   StandardTableView.call(this);
@@ -20,7 +20,7 @@ MaintainStandardView.prototype.renderMenu = function() {
 };
 
 (function($) {
-  
+
   MaintainStandardView.prototype.renderListMenu = function() {
   searchEntry=this.getFilter("searchEntry");
   var navi = new CC_Navi();
@@ -38,7 +38,7 @@ MaintainStandardView.prototype.renderFilter = function() {
   form.setLabel(_("filter.functions"));
   form.addCheckbox({cssid:"searchChecked", label:_("selected")});
   rows.push(form.render(true));
-  
+
   $("#cdb_filter").html(rows.join(""));
   this.implantStandardFilterCallbacks(this, "cdb_filter");
 
@@ -47,7 +47,7 @@ MaintainStandardView.prototype.renderFilter = function() {
 MaintainStandardView.prototype.checkFilter = function(a) {
   // Eintrag wurde geloescht o.ae.
   if (a==null) return false;
-  
+
   // Suchfeld
   searchEntry=this.getFilter("searchEntry").toUpperCase();
   if ((searchEntry!="") && (a.bezeichnung.toUpperCase().indexOf(searchEntry)<0) &&
@@ -66,7 +66,7 @@ MaintainStandardView.prototype.getListHeader = function() {
 MaintainStandardView.prototype.renderListEntry = function(a) {
   rows=new Array();
 
-  
+
   var name=a.bezeichnung;
   if (masterData.fields!=null)
   each(masterData.fields, function(k,m) {
@@ -80,14 +80,14 @@ MaintainStandardView.prototype.renderListEntry = function(a) {
     }
   });
 
-  rows.push("<td>" + name);
+  rows.push("<td>" + '<a href="#" id="detail'+a.id+'">' + name + '</a>');
   i=0;
   if (masterData[a.shortname]!=null)
     each(masterData[a.shortname], function(k,a) {
       i++;
     });
   rows.push("<td>" + i);
-  
+
   return rows.join("");
 };
 
@@ -96,13 +96,13 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
   if (data_id==null)
     data_id=pos_id;
   table=this.getData()[pos_id];
-  
+
   var rows = new Array();
   $("tr[id=detail" + pos_id + "]").remove();
 
   $("tr[id=" + pos_id + "]").after("<tr id=\"detail" + pos_id + "\"><td colspan=\"10\" id=\"groupinfosTD" + pos_id + "\">"+form_renderImage({src:"loading.gif"})+"</td></tr>");
   rows[rows.length]="<div id=\"detail\" class=\"detail-view-admin\">";
-  
+
   // Schaue nach sinnvollen Filtern
   var row=new Array();
   each(table.desc, function(i,b) {
@@ -119,24 +119,24 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
   });
   if (row.length>0)
   rows.push('<p><form class="form-inline">&nbsp;'+_("filter")+': '+row.join("&nbsp;")+'</form>');
-  
-  
-  
+
+
+
   rows[rows.length]="<p style='line-height:100%'><small><table><tr>";
-  
+
   // Tabellenheader
   each(table.desc, function(k,a) {
     rows.push('<td><b><i><a href="#" id="'+a.field+'">'+_(a.field));
     if (this_object.sortKey==a.field)
       if (this_object.sortAsc) rows.push(" &and;")
       else rows.push(" &or;");
-    
+
     rows.push('</a></b></i>');
   });
   if (table.special_func!=null) rows.push("<td><b><i>Funktionen</i></b>");
   rows.push("<td><b><i>"+_("delete")+"</b></i><tr>");
-  
-  
+
+
   if (masterData[table.shortname]!=null) {
     var data=masterData[table.shortname];
     // Tabellen-Daten
@@ -173,10 +173,10 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
           row.push((a[i]!=null?a[i].trim(80):"<i>null</i>"));
           row.push('</a>');
         }
-        
+
       });
-      
-      
+
+
       if (table.special_func!=null) {
         row.push('<td><a href="#" id="special_func_'+a.id+'" func="'+table.special_func.func+'">');
         if (table.special_func.image!=null)
@@ -185,7 +185,7 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
           row.push(table.special_func.name);
         row.push("</a>");
       }
-      
+
       row.push('<td>'+form_renderImage({
         label: _("delete"),
         cssid:'delete_'+a.id,
@@ -193,10 +193,10 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
         htmlclass: "small"
       }));
       row.push("<tr>");
-      
-      
+
+
       if (!filter) rows.push(row.join(""));
-      
+
     });
   }
 
@@ -208,7 +208,7 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
     htmlclass: "small"
   });
     rows[rows.length]="</div>";
-  
+
   $("#groupinfosTD"+pos_id).html(rows.join(""));
 
 
@@ -283,7 +283,7 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
     obj.id=$(this).attr("row");
     obj.col0=$(this).attr("col");
     obj.value0=$(this).val();
-    
+
     obj.shorttablename=$(this).attr("shorttablename");
     churchInterface.jsendWrite(obj, function(ok, data) {
       if (!ok) alert(_("error.occured")+": "+data);
@@ -304,7 +304,7 @@ MaintainStandardView.prototype.renderEditEntry = function (id, table_id) {
   var entry=new Object();
   if (id!=null)
     entry=masterData[table.shortname][id];
-  
+
   var form = new CC_Form(null, null, "in_edit");
   each(table.desc, function(k,a) {
     if (a.field=="id") {
@@ -348,11 +348,11 @@ MaintainStandardView.prototype.renderEditEntry = function (id, table_id) {
       }
     }
   });
- 
+
   var elem = this.showDialog((id==null?_("add.new.entry"):_("change.of.dataset")), form.render(null, "horizontal"), 500, 450);
   elem.dialog("addsaveandcancelbutton", function() {
     var s = $(this).attr("id");
-    
+
     obj=new Object();
     obj.func="saveMasterData";
     obj.table=table.tablename;
@@ -373,7 +373,7 @@ MaintainStandardView.prototype.renderEditEntry = function (id, table_id) {
 
       k++;
     });
-      
+
     $("#cbn_editor").html("<p><br/>"+form_renderImage({src:"loading.gif"})+"<br/><br/>");
     churchInterface.jsendWrite(obj, function(ok, data) {
       elem.dialog("close");

@@ -23,7 +23,7 @@ GroupView.prototype.getData = function(sorted) {
 };
 
 GroupView.prototype.getNeededJSFiles = function() {
-	return ['/assets/ui/jquery.ui.slider.min.js'];
+	return ['/assets/ui/jquery.ui.slider.min.js', '/assets/ckeditor/ckeditor.js', '/assets/ckeditor/lang/de.js'];
 }
 
 GroupView.prototype.renderMenu = function() {

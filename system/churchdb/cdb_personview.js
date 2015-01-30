@@ -2041,6 +2041,7 @@ PersonView.prototype.checkFilter = function(a) {
       else if ((a.name.toUpperCase().indexOf(search)<0) &&
                  (a.vorname.toUpperCase().indexOf(search)<0) &&
                  ((a.email==null) || (a.email.toUpperCase().indexOf(search)!=0)) &&
+                 ((a.tel==null) || (a.tel.toUpperCase().indexOf(search)<0)) &&
                  (a.spitzname.toUpperCase().indexOf(search)!=0) &&
                  (a.cmsuserid==null || a.cmsuserid.toUpperCase().indexOf(search)!=0) &&
                  (a.id!=search) &&
@@ -4108,7 +4109,7 @@ PersonView.prototype.renderPersonFilter = function() {
   rows.push("<tr><td>"+form_renderSelect({
     cssid:"filterFamilienstatus",
     data:masterData.familyStatus,
-    label:"Familenstatus",
+    label:"Familienstatus",
     selected: this.getFilter("filterFamilienstatus"),
     freeoption:true, type:"small"
   }));
