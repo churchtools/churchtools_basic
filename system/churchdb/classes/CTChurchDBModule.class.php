@@ -207,12 +207,13 @@ class CTChurchDBModule extends CTAbstractModule {
     $res = saveNote($params["id"], $params["note"], $params["comment_viewer"], (isset($params["relation_name"]) ? $params["relation_name"] : "person"));
     if (isset($params["followup_count_no"])) {
       $gp_id = _churchdb_getGemeindepersonIdFromPersonId($params["id"]);
+      print_r($params);
 
       db_query("UPDATE {cdb_gemeindeperson_gruppe}
                 SET followup_count_no=:followup_count, followup_add_diff_days=:followup_diff
                 WHERE gemeindeperson_id=:gp_id AND gruppe_id=:followup_gid",
                 array(':followup_count' => $params["followup_count_no"],
-                      ':followup_diff' => $params["followup_diff"],
+                      ':followup_diff' => $params["followup_add_diff_days"],
                       ':gp_id' => $gp_id,
                       ':followup_gid' => $params["followup_gid"]
                 ));
