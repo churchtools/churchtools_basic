@@ -104,7 +104,7 @@ GroupView.prototype.exporter = function() {
       rows.push(a.id+";"+txt.html2csv()+"\r\n");
     }
   });
-  
+
   churchInterface.downloadFile("export_gruppenliste", "csv", rows.join(""));
 };
 
@@ -548,8 +548,14 @@ GroupView.prototype.checkFilter = function(a) {
           return false;
         }
       }
+      else if (search.indexOf("#")==0) {
+        if ("#"+a.id!=search) {
+          res=false;
+          return false;
+        }
+      }
       // searchEntry>0 zeigt, dass es sich um eine ID handelt, soll also nicht per Text gesucht werden!
-      else if ((search!="") && ((a.bezeichnung.toUpperCase().indexOf(search)<0) || (search>0)) &&
+      else if ((search!="") && ((a.bezeichnung.toUpperCase().indexOf(search)<0)) &&
             (a.id!=search)) {
         res=false;
         return false;
@@ -859,7 +865,7 @@ GroupView.prototype.isPersonSuperLeader = function (p_id) {
 GroupView.prototype.isPersonSuperLeaderOfOneGroupInGroupType = function(p_id, gt_id) {
   if ((allPersons[p_id]==null) || (masterData.groups==null) || (masterData.groupTypes[gt_id]==null)) return false;
   var t = this;
-  
+
   var ret = false;
   each(masterData.groups, function(k, group) {
     if (group.gruppentyp_id==gt_id && t.isPersonSuperLeaderOfGroup(p_id, group.id)) {

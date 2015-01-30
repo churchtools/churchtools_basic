@@ -8,7 +8,7 @@ include_once("churchdb_db.php");
  */
 function getSearchableData() {
   $persons = churchdb_getAllowedPersonData('', 'person_id p_id, person_id id, geburtsdatum, familienstand_no, geschlecht_no, hochzeitsdatum, nationalitaet_id,
-              erstkontakt, zugehoerig, eintrittsdatum, austrittsdatum, taufdatum, plz, geburtsort, imageurl, cmsuserid');
+              erstkontakt, zugehoerig, eintrittsdatum, austrittsdatum, taufdatum, plz, geburtsort, imageurl, cmsuserid, lastlogin');
   foreach ($persons as $arr) {
     unset($persons[$arr->id]->p_id);
     $persons[$arr->id]->auth = getAuthForPerson($arr->id);

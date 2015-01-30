@@ -1411,13 +1411,6 @@ PersonView.prototype.getListHeader = function() {
   var t = this;
   t.currentTooltip=null;
   var g_id=t.filter["filterMeine Gruppen"];
-  // Diese Zeilen dienen beim ersten Aufruf �ber Direkteinstieg mit Id daf�r, dass der Datenssatz
-  // angelegt wird, so dass sofort PersonDetails geladen werden.
-  if ((this.filter["searchEntry"]!=null) && (this.filter["searchEntry"]>0)
-      && (allPersons[this.filter["searchEntry"]]==null)) {
-    allPersons[this.filter["searchEntry"]]=new Object();
-    allPersons[this.filter["searchEntry"]].id=this.filter["searchEntry"];
-  }
   t.createMultiselect("Status", f("status_id"), masterData.status);
   t.createMultiselect("Station", f("station_id"), masterData.station);
   t.createMultiselect("Bereich", f("bereich_id"), masterData.auth.dep);
@@ -2036,7 +2029,7 @@ PersonView.prototype.checkFilter = function(a) {
         var dabei=false;
         each(a.gruppe, function (b,k) {
           // Nicht die anzeigen, wo ich SuperVisor bin!
-          if (masterData.groups[k.id].bezeichnung.toUpperCase().indexOf(search.substr(7,99).toUpperCase())>=0) {
+          if (masterData.groups[k.id].bezeichnung.toUpperCase()==search.substr(7,99).toUpperCase()) {
             dabei=true;
             return false;
           }
@@ -4199,6 +4192,7 @@ PersonView.prototype.renderPersonFilter = function() {
     if (k["type"]=="date")
       data.push(form_prepareDataEntry(k["sql"], k["text"]));
   });
+  if (masterData.auth.admin) data.push(form_prepareDataEntry("lastlogin", "Zuletzt online"));
   rows.push("<td>"+form_renderSelect({
     cssid:"filterDates",
     data:data,
