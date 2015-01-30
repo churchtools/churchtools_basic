@@ -5,7 +5,7 @@
      To approve or cancel please click here:
   <p><a href='<?= $url ?>' class='btn btn-primary'><?= $sitename ?></a>
   <p>
-  
+
   <p><b>Following service requests are still to answer:</b>
   <ul>
 <?php foreach ($requestedServices as $s): ?>
@@ -15,7 +15,7 @@
 
 <?php if (count($approvedServices)): ?>
   <p>
-  <p><b>Bei folgenden Diensten hast Du schon zugesagt:</b>
+  <p><b>You alreay confirmed the following services:</b>
   <ul>
   <?php foreach ($approvedServices as $s): ?>
     <li><b><?= $s->datum ?></b>, <?= $s->event ?>: <b><?= $s->service ?></b> (<?= $s->servicegroup ?>) <?php if (!$s->mailsenddate): ?><b>NEW!</b><?php endif;?></li>

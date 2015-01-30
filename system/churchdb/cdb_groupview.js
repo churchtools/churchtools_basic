@@ -270,6 +270,7 @@ GroupView.prototype.renderGrouptype = function() {
     }
   }
   else {
+    t.range_startday=null;
     rows.push('<div class="well">');
     rows.push('<legend>'+f('gruppentyp_id')+': '+masterData.groupTypes[gruppentyp_id].bezeichnung+'</legend>');
 

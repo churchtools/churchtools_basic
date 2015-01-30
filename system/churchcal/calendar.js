@@ -1324,17 +1324,17 @@ function renderTooltip(event) {
       rows.push('</small>');
     }
     if ((myEvent.notizen!=null) && (myEvent.notizen!=""))
-      rows.push('<li>'+_("comment")+': <small> '+myEvent.notizen.trim(60)+'</small>');
+      rows.push('<li class="event-comment">'+_("comment")+': <small> '+myEvent.notizen.trim(60)+'</small>');
     if ((myEvent.link!=null) && (myEvent.link!=""))
-      rows.push('<li>Link: <small> <a href="'+myEvent.link+'" target="_clean">'+myEvent.link+'</a></small>');
+      rows.push('<li class="event-link">Link: <small> <a href="'+myEvent.link+'" target="_clean">'+myEvent.link+'</a></small>');
 
   }
   if (event.status!=null)
-    rows.push('<li>Status: '+event.status);
+    rows.push('<li class="event-status"><span class="event-status">Status: '+event.status+'</span>');
   if (myEvent!=null && myEvent.modified_name!=null) {
-    rows.push('<li><small>Erstellt von <span '
+    rows.push('<li class="event-author"><span class="event-author"><small>Erstellt von <span '
               + (myEvent.modified_date!=null ? 'title="Erstellt am '+myEvent.modified_date.toDateEn().toStringDe(true)+'"':'')
-              + '>' + myEvent.modified_name+'</span></small>');
+              + '>' + myEvent.modified_name+'</span></small></span>');
   }
   rows.push('</ul>');
 
