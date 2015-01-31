@@ -239,11 +239,46 @@ abstract class CTAbstractModule implements CTModuleInterface {
       unlink($params["filename"]);
     }
     else {
-      mkdir($files_dir . "/files/downloader");
-      $temp = $files_dir . "/files/downloader/" . $params["filename"] . random_string(10) . "." . $params["suffix"];
+      $downloader_path = $files_dir . "/files/downloader";
+      if(!is_dir($downloader_path)){
+        mkdir($downloader_path);
+      }
+      $temp = $downloader_path . "/" . $params["filename"] . random_string(10) . "." . $params["suffix"];
       file_put_contents($temp, $params["data"]);
       return $temp;
     }
   }
 
+  /**
+   * Generate a pdf from html and store it for download
+   * 
+   * @param string $basename
+   * @param string $html
+   * 
+   * @return string $path_to_pdf
+   */
+  public function generatePDF($params) {
+    if (!file_exists("phantomjs")) {
+      return null;
+    }
+    
+    $html = $params["html"];
+    $filename = $params["basename"] . "_" . random_string(10) . ".pdf";
+    
+    // store the html content in a temporary file for processing
+    $tempfile = "pdf" . random_string(10) . ".html";
+    file_put_contents($tempfile, $html);
+    
+    // convert to pdf
+    $cmd = "./phantomjs ".ASSETS."/phantomjs/generatePDF.js file://".getcwd()."/".$tempfile." ".$filename." A4";
+    exec($cmd);
+    
+    // remove temp file
+    unlink($tempfile);
+    
+    return $filename;    
+  }
+  public function hasPDFGenerator() {
+    return file_exists("phantomjs");    
+  }
 }

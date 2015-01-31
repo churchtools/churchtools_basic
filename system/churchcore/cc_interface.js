@@ -174,7 +174,48 @@ ChurchInterface.prototype.downloadFile = function(filename, filesuffix, data) {
   downloadLink.click();
   document.body.removeChild(downloadLink);
   */
-}
+};
+
+/**
+ * Generates a pdf of the current page and opens it in a new window
+ * @param basename: e.g. "agenda"
+ */
+ChurchInterface.prototype.generatePDF = function (basename) {
+  var t = this;
+  var getDocTypeAsString = function () { 
+    var node = document.doctype;
+    return node ? "<!DOCTYPE "
+     + node.name
+     + (node.publicId ? ' PUBLIC "' + node.publicId + '"' : '')
+     + (!node.publicId && node.systemId ? ' SYSTEM' : '') 
+     + (node.systemId ? ' "' + node.systemId + '"' : '')
+     + '>\n' : '';
+  };
+  var html = getDocTypeAsString() + document.documentElement.outerHTML;  
+  html = html.replace(/<script.*?\/script>/g, "");
+  html = html.replace(/bootstrap.min.css/g, "bootstrap-pdf.min.css");
+  html = html.replace(/churchtools.css/g, "churchtools-pdf.css");
+  t.jsendWrite({func:"generatePDF", html:html, basename:basename}, function(ok, data) {
+    if (data != null) {
+      var fenster = window.open(data);
+      fenster.focus();
+      // Timer for deleting file
+      window.setTimeout(function() { 
+        t.jsendWrite({func:"makeDownloadFile", remove:true, filename:data});
+      }, 1000);
+    }
+  });
+};
+
+/**
+ * Checks if the PDF generator is available and calls the callback with a boolean argument
+ * @param callback: needs to accept a boolean parameter
+ */
+ChurchInterface.prototype.checkPDFGenerator = function (callback) {
+  this.jsendWrite({func:"hasPDFGenerator"}, function(ok, data) {
+    callback(data);
+  });
+};
 
 /**
  *
@@ -287,7 +328,7 @@ ChurchInterface.prototype.progressURLFilter = function (arr) {
   }
 
   t.currentHistoryArray=arr;
-}
+};
 
 function history(hash) {
   churchInterface.history(hash);
@@ -324,7 +365,7 @@ ChurchInterface.prototype.throwFatalError=function(errorText){
   });
   modal.dialog("addbutton", _("reload"), function() {
     location.reload(true);
-  })
+  });
   this.errorWindow=modal;
 };
 
@@ -367,7 +408,7 @@ ChurchInterface.prototype.jsend = function (name, obj, func, async, get, overwri
         // Error = ist was schlimmes passiert!
         if (json.status=="error")  {
           if (json.message=="Session expired!")
-            window.location.href="?q=home&message="+_("session.expired.please.login")
+            window.location.href="?q=home&message="+_("session.expired.please.login");
           else
             alert(_("error.occured")+": "+name+"."+modulename+": "+json.message);
         }
