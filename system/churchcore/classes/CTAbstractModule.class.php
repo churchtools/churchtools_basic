@@ -2,9 +2,9 @@
 
 /**
  * Base class for modules?
- * 
- * TOOD: set modulename in child classes without using function parameter 
- * what will happen on calling CTChurchServiceModule("churchcal")? 
+ *
+ * TOOD: set modulename in child classes without using function parameter
+ * what will happen on calling CTChurchServiceModule("churchcal")?
  */
 abstract class CTAbstractModule implements CTModuleInterface {
   private $modulename = "abstract";
@@ -33,10 +33,10 @@ abstract class CTAbstractModule implements CTModuleInterface {
    * @throws CTNoPermission
    */
   public function deleteMasterData($params) {
-    if (user_access("edit masterdata", $this->modulename) 
+    if (user_access("edit masterdata", $this->modulename)
         && churchcore_isAllowedMasterData($this->getMasterDataTablenames(), $params["table"])) {
-      db_query("DELETE FROM {" . $params["table"] . "} 
-                WHERE id=:id", 
+      db_query("DELETE FROM {" . $params["table"] . "}
+                WHERE id=:id",
                 array (":id" => $params["id"])); // delete Masterdata
       $this->logMasterData($params);
     }
@@ -72,7 +72,7 @@ abstract class CTAbstractModule implements CTModuleInterface {
   /**
    * Set cookie
    * TODO: time should be set using constant to be customizable
-   * 
+   *
    * @param array $params array(sub, val)
    */
   public function setCookie($params) {
@@ -89,19 +89,19 @@ abstract class CTAbstractModule implements CTModuleInterface {
   }
 
   /**
-   * 
+   *
    * @param array $params
    */
   public function editNotification($params) {
     global $user;
     if (empty($params["person_id"])) $params["person_id"] = $user->id;
-    
+
     $i = new CTInterface();
     $i->setParam("domain_type");
     $i->setParam("domain_id");
     $i->setParam("person_id");
     $i->setParam("notificationtype_id", false);
-    
+
     // Delete if abo type is not set
     if (empty($params["notificationtype_id"])) {
       db_delete("cc_notification")
@@ -130,7 +130,7 @@ abstract class CTAbstractModule implements CTModuleInterface {
 
   /**
    * TODO: it dont get tables, but data; rename to getMasterDataOfTable()?
-   * 
+   *
    * @return array data
    */
   protected function getMasterDataTables() {
@@ -143,7 +143,7 @@ abstract class CTAbstractModule implements CTModuleInterface {
   }
 
   /**
-   * 
+   *
    * @param unknown $auth
    * @param string $modulename
    * @param string $datafield
@@ -158,7 +158,7 @@ abstract class CTAbstractModule implements CTModuleInterface {
   }
 
   /**
-   * 
+   *
    * @param string $domain_type
    * @param unknown $domain_id
    * @param string $txt
@@ -172,7 +172,7 @@ abstract class CTAbstractModule implements CTModuleInterface {
    *
    * Prepare parameter for logging
    *
-   * @param array $params          
+   * @param array $params
    *
    * @return string
    */
@@ -185,12 +185,12 @@ abstract class CTAbstractModule implements CTModuleInterface {
     $str = "";
     if (isset($params["func"])) $str .= $params["func"] . " ";
     if (count($my)) $str .= "(" . implode(", ", $my) . ")";
-    
+
     return $str;
   }
 
   /**
-   * 
+   *
    * @param array $params
    * @param int $loglevel
    */
@@ -199,7 +199,7 @@ abstract class CTAbstractModule implements CTModuleInterface {
   }
 
   /**
-   * 
+   *
    * @param array $params
    * @param int $loglevel
    */
@@ -208,7 +208,7 @@ abstract class CTAbstractModule implements CTModuleInterface {
   }
 
   /**
-   * 
+   *
    * @param array $params
    * @param int $loglevel
    */
@@ -217,7 +217,7 @@ abstract class CTAbstractModule implements CTModuleInterface {
   }
 
   /**
-   * 
+   *
    * @param array $params
    * @param int $loglevel
    */
@@ -232,7 +232,7 @@ abstract class CTAbstractModule implements CTModuleInterface {
   public function getMasterDataTablenames() {
     return null;
   }
-  
+
   public function makeDownloadFile($params) {
     global $files_dir;
     if (getVar("remove", false, $params)) {
@@ -240,7 +240,7 @@ abstract class CTAbstractModule implements CTModuleInterface {
     }
     else {
       $downloader_path = $files_dir . "/files/downloader";
-      if(!is_dir($downloader_path)){
+      if (!is_dir($downloader_path)) {
         mkdir($downloader_path);
       }
       $temp = $downloader_path . "/" . $params["filename"] . random_string(10) . "." . $params["suffix"];
@@ -251,34 +251,41 @@ abstract class CTAbstractModule implements CTModuleInterface {
 
   /**
    * Generate a pdf from html and store it for download
-   * 
+   *
    * @param string $basename
    * @param string $html
-   * 
+   *
    * @return string $path_to_pdf
    */
   public function generatePDF($params) {
+    global $files_dir;
+
     if (!file_exists("phantomjs")) {
       return null;
     }
-    
+
     $html = $params["html"];
     $filename = $params["basename"] . "_" . random_string(10) . ".pdf";
-    
+
     // store the html content in a temporary file for processing
-    $tempfile = "pdf" . random_string(10) . ".html";
-    file_put_contents($tempfile, $html);
-    
+    $tempfile = $files_dir . "/tmp/" . random_string(10) . ".html";
+    if (!file_put_contents($tempfile, $html)) throw new CTException("Could not create temp file");
+
     // convert to pdf
-    $cmd = "./phantomjs ".ASSETS."/phantomjs/generatePDF.js file://".getcwd()."/".$tempfile." ".$filename." A4";
-    exec($cmd);
-    
+    $downloader_path = $files_dir . "/files/downloader";
+    if (!is_dir($downloader_path)) mkdir($downloader_path);
+    $cmd = "./phantomjs ".ASSETS."/phantomjs/generatePDF.js file://".getcwd()."/$tempfile $downloader_path/$filename A4";
+    exec($cmd, $output, $result);
+
+    if ($result != 0) throw new CTException("Could not execute phantomjs, Error code: $result");
+
     // remove temp file
     unlink($tempfile);
-    
-    return $filename;    
+
+    return "$downloader_path/$filename";
   }
+
   public function hasPDFGenerator() {
-    return file_exists("phantomjs");    
+    return file_exists("phantomjs");
   }
 }
