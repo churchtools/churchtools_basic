@@ -225,7 +225,7 @@ function churchresource_createBooking($params, $sendEMails = true) {
             $data['surname']  = $p->vorname;
             $data['nickname'] = $p->spitzname ? $p->spitzname : $p->vorname;
             $data['name']     = $p->name;
-  
+
             $content = getTemplateContent('email/bookingRequest', 'churchresource', $data);
             churchresource_send_mail("[". getConf('site_name')."] ". t('new.booking.request'). ": ". $params["text"], $content, $p->email);
           }
@@ -515,8 +515,7 @@ function churchresource_deleteResourcesFromChurchCal($params, $source=null) {
 function copyTypicalDateFields($params) {
   $res = array();
   foreach ($params as $key => $param) {
-    if ($key == "startdate" || $key == "enddate" || $key == "exceptions" || "key" == "additions"
-          || strpos($key, "repeat_")!==false) {
+    if ($key == "startdate" || $key == "enddate" || strpos($key, "repeat_")!==false) {
       $res[$key] = $param;
     }
   }
@@ -583,6 +582,10 @@ function churchresource_operateResourcesFromChurchCal($params) {
   foreach ($params["bookings"] as $oldbookingid => $booking) {
     if (!isset($booking["updated"])) {
       $save = array_merge(array (), $params);
+      // Additions and exceptions will be handled from calendar
+      unset($save["additions"]);
+      unset($save["exceptions"]);
+
       foreach ($booking as $key=>$val) $save[$key] = $val;
 
       $save["cc_cal_id"]  = $params["id"];
@@ -675,7 +678,7 @@ function churchresource_delAddition($add_id) {
  * TODO: use :params for query?
  *
  * @param string $from in days from now
- * @param string $to in day 
+ * @param string $to in day
  * @param string $status_id_in
  * @return array bookings
  */
@@ -717,6 +720,26 @@ function getBookings($from = null, $to = null, $status_id_in = "") {
         $b->category_id = $r->category_id;
         $b->cal_startdate = $r->cal_startdate;
         $b->cal_enddate = $r->cal_enddate;
+        $b->exceptions = null; // Don't use CR Exceptions anymore, use Cal Exceptions
+        $exc = db_query("SELECT * FROM {cc_cal_except} WHERE cal_id=:cal_id",
+                         array(':cal_id' => $b->cc_cal_id));
+        foreach ($exc as $e) {
+          if ($b->exceptions == null) $b->exceptions = array();
+          $b->exceptions[$e->id] = new stdClass();
+          $b->exceptions[$e->id]->id = $e->id;
+          $b->exceptions[$e->id]->except_date_start = $e->except_date_start;
+          $b->exceptions[$e->id]->except_date_end = $e->except_date_end;
+        }
+        $b->additions = null; // Don't use CR Adds anymore, use Cal adds
+        $add = db_query("SELECT * FROM {cc_cal_add} WHERE cal_id=:cal_id",
+                         array(':cal_id' => $b->cc_cal_id));
+        foreach ($add as $a) {
+          if ($b->additions == null) $b->additions = array();
+          $b->additions[$a->id] = new stdClass();
+          $b->additions[$a->id]->id = $a->id;
+          $b->additions[$a->id]->add_date = $a->add_date;
+          $b->additions[$a->id]->with_repeat_yn = $a->with_repeat_yn;
+        }
       }
       // No cal-entry anymore, so unset cc_cal_id. e.g. deleted from ChurchCal
       else unset($b->cc_cal_id);

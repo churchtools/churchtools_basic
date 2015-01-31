@@ -1,0 +1,44 @@
+<h4>Hello <?= $p->nickname ?>!</h4>
+
+<?php if (isset($new) && $new): ?>
+  <p>Event <i><?= $caption ?></i> on <?= $startdate ?> was created for you:<p>
+<?php else: ?>
+  <p>In your event <i><?= $caption ?></i> am <?= $startdate ?> there were the following changes:<p>
+<?php endif; ?>
+
+<?php if (!empty($cal)) { ?>
+<h4>Calendar</h4>
+<ul>
+  <?php foreach ($cal as $b): ?>
+    <li><b><?= substr(churchcore_stringToDateDe($b["startdate"]),0,10) ?> - </b> <i><?= t($b["status"]) ?></i>
+      <ul>
+        <?php foreach ($b["changes"] as $key=>$c): ?>
+          <li> <?= t($key) ?> is now <i><?= $c["new"] ?></i> <font color="gray" style="text-decoration:line-through;">(<?= $c["old"] ?>)</font>
+        <?php endforeach; ?>
+      </ul>
+    </li>
+  <?php endforeach; ?>
+</ul>
+<?php } ?>
+
+<?php if (!empty($bookings)) { ?>
+<h4>Bookings</h4>
+<ul>
+  <?php foreach ($bookings as $b): ?>
+    <li><b><?= substr(churchcore_stringToDateDe($b["startdate"]),0,10) ?> - <?= $b["booking"]["resource"] ?></b> <i><?= t($b["status"]) ?></i>
+      <ul>
+        <?php if (isset($b["changes"])): ?>
+          <?php foreach ($b["changes"] as $key=>$c): ?>
+            <li> <?= t($key) ?> is now <i><?= $c["new"] ?></i> <font color="gray" style="text-decoration:line-through;">(<?= $c["old"] ?>)</font>
+          <?php endforeach; ?>
+        <?php endif; ?>
+      </ul>
+    </li>
+  <?php endforeach; ?>
+</ul>
+
+<?php } ?>
+
+<p><a class="btn" href="<?= $eventUrl ?>">Goto event &raquo;</a>
+
+

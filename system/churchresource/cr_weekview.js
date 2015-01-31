@@ -386,7 +386,7 @@ WeekView.prototype.buildDates = function (allBookings) {
   if (allBookings!=null) {
     each(allBookings, function(k,a) {
       if (a!=null) {
-        each(churchcore_getAllDatesWithRepeats(a), function(k,ds) {
+        each(churchcore_getAllDatesWithRepeats(a), function(i, ds) {
 
           // while-Schleife, da es ein Termin �ber mehrere Tage sein kann
           var go_through_days=new Date(ds.startdate);
@@ -551,7 +551,7 @@ WeekView.prototype.updateBookingStatus = function(id, newStatus) {
     delete myEvent.status_id;
     delete myEvent.resource_id;
   }
-    
+
   myEvent.save();
   t.renderList();
 };
@@ -1028,6 +1028,7 @@ WeekView.prototype.showBookingDetails = function(func, id, date, element) {
   if (func == "new") myEvent = createNewBooking(id, date);
   else myEvent = allBookings[id].clone();
   if (func == "copy") myEvent.id=null;
+  // NEW This have to be before the split, cause the bookings have to split correctly
   if (myEvent.cc_cal_id!=null && myEvent.cc_cal_id!=0) myEvent = CR2CALType(myEvent);
 
   // D.h. entweder Erstelle oder Editiere
@@ -1035,7 +1036,7 @@ WeekView.prototype.showBookingDetails = function(func, id, date, element) {
     if (untilEnd!=null) {
       myEvent.doSplit(date, untilEnd, function(newEvent, pastEvent) {
         t.renderEditEvent(func, newEvent, myEvent, myEvent.isSeries(), untilEnd, function(newEvent, func) {
-          if (myEvent.cc_cal_id==null) {
+          if (myEvent.cc_cal_id==null || myEvent.cc_cal_id==0) {
             newEvent.save();
             if (pastEvent!=null) pastEvent.save(); // Only for real splits
             func(true);
@@ -1115,11 +1116,11 @@ function CR2CALType(event) {
     resource_id : event.resource_id,
     minpre : minpre,
     minpost : minpost,
-    exceptions: event.exceptions,
-    additions: event.additions
-  }  
-  delete cal.exceptions;
-  delete cal.additions;
+    //exceptions: event.exceptions,
+    //additions: event.additions
+  }
+//  delete cal.exceptions;
+//  delete cal.additions;
   return cal;
 }
 
@@ -1154,7 +1155,7 @@ WeekView.prototype.renderEditEvent = function(func, newEvent, myEvent, _isSeries
   else if (func=="copy") {
     t.id=null;
     // Pruefen, ob der Eintrag schon von einem Admin bestaetigt wurde, dann muss er auf 1 (unbestaetigt) zurueckgesetzt werden
-    if (user_access("edit", myEvent.resource_id) || (masterData.resources[myEvent.resource_id].autoaccept_yn==1)) 
+    if (user_access("edit", myEvent.resource_id) || (masterData.resources[myEvent.resource_id].autoaccept_yn==1))
       newEvent.status_id=2;
     else newEvent.status_id=1;
     title="Buchungsanfrage kopieren";

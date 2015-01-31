@@ -1051,7 +1051,7 @@ $.widget("ct.renderCCEvent", {
 
       // AUSNAHMEN
 
-      if ((event.repeat_id>0) && (event.repeat_id!=999)) {
+      if (event.repeat_id>0) {
         rows.push('<div id="repeats_exceptions">');
         rows.push('<div class="control-group"><label class="control-label">Ausnahmen</label>');
         rows.push('<div class="controls">');
@@ -1184,7 +1184,7 @@ $.widget("ct.renderCCEvent", {
       }
       else if ($(this).attr("id")=="addException") {
         form_getDatesInToObject(event);
-        form_implantDatePicker('dp_addexception', null, function(dateText) {
+        form_implantDatePicker('dp_addexception', event.startdate, function(dateText) {
           event.addException(dateText.toDateDe());
           t.render();
         }, function(chose) {
@@ -1214,7 +1214,7 @@ $.widget("ct.renderCCEvent", {
       }
       else if ($(this).attr("id")=="addAddition") {
         form_getDatesInToObject(t.options.event);
-        form_implantDatePicker('dp_addaddition', null, function(dateText) {
+        form_implantDatePicker('dp_addaddition', t.options.event.startdate, function(dateText) {
           if (t.options.event.additions==null) t.options.event.additions=new Object();
           if (t.options.event.exceptionids==null) t.options.event.exceptionids=0;
           t.options.event.exceptionids=t.options.event.exceptionids-1;
