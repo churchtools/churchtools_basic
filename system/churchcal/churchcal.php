@@ -169,6 +169,42 @@ function churchcal_getUserMyMeetings() {
   return $txt;
 }
 
+function churchcal_getNextGroupCalDates() {
+  include_once("churchcal_db.php");
+  $cats = churchcal_getAllowedCategories(true);
+  $ids = array();
+  foreach ($cats as $cat) {
+    if ($cat->oeffentlich_yn==0) {
+      $ids[] = $cat->id;
+    }
+  }
+  if (count($ids) > 0) {
+    $ret = "";
+    $now = new DateTime();
+    $end = new DateTime();
+    $end->modify("+99 days");
+    $categories = churchcal_getCalPerCategory(array("category_ids" => $ids), true);
+    foreach ($categories as $id=>$category) {
+      $txt = "";
+      $count = 0;
+      foreach ($category as $source) {
+        $ds = getAllDatesWithRepeats($source, 0, 99);
+        if ($ds) foreach ($ds as $d) {
+          if ($d >= $now && $d <= $end) {
+            $count++;
+            if ($count < 4)
+              $txt .= $d->format('d.m.Y H:i') . ' ' . $source->bezeichnung . '<br/>';
+            else if ($count == 4) $txt .= '...';
+          }
+        }
+      }
+      if ($txt != "") $ret.= "<li>" . $cats[$id]->bezeichnung . "<br><p><small>" . $txt . '</small>';
+    }
+    if ($ret!="") return '<ul>' . $ret . '</ul>';
+  }
+
+}
+
 /**
  *
  * @return array
@@ -192,10 +228,17 @@ function churchcal_blocks() {
               "class" => "cal-request",
           ),
           3 => array (
-              "label" => "Deine erstellten Besprechungsanfragen",
+              "label" => t("meeting.requests.made.by.you"),
               "col" => 2,
               "sortkey" => 3,
               "html" => churchcal_getUserMyMeetings(),
+              "class" => "cal-request",
+          ),
+          4 => array (
+              "label" => t("upcoming.dates.of.your.group.calendars"),
+              "col" => 2,
+              "sortkey" => 3,
+              "html" => churchcal_getNextGroupCalDates(),
               "class" => "cal-request",
           ),
   ));

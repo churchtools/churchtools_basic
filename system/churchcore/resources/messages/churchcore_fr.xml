@@ -548,8 +548,10 @@
   <entry key="category">Calendar</entry>
   <entry key="information.for.your.event">Informations for your event</entry>
   <entry key="link">Link</entry>
-  <entry key="only.intern.visible">Seulement visible pour les personnes internes</entry>  
-  <entry key="modified.date">Last modified date</entry>  
+  <entry key="only.intern.visible">Seulement visible pour les personnes internes</entry>
+  <entry key="modified.date">Last modified date</entry>
+  <entry key="meeting.requests.made.by.you">Meeting requests made by you</entry>
+  <entry key="upcoming.dates.of.your.group.calendars">Upcoming dates of your group calendars</entry>
 
 
   <!-- churchcal auth -->

@@ -546,7 +546,10 @@
   <entry key="information.for.your.event">Informationen zu deinem Event</entry>
   <entry key="link">Link</entry>
   <entry key="only.intern.visible">Nur für angemeldete Personen sichtbar</entry>
-  <entry key="modified.date">Letzte Änderung</entry>  
+  <entry key="modified.date">Letzte Änderung</entry>
+  <entry key="meeting.requests.made.by.you">Deine erstellten Besprechungsanfragen</entry>
+  <entry key="upcoming.dates.of.your.group.calendars">Anstehende Termine aus Deinen Gruppenkalendern</entry>
+
 
   <!-- churchcal auth -->
   <entry key="view.single.calendar">Einzelnen Kalender sehen</entry>
