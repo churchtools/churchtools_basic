@@ -1174,11 +1174,18 @@ AgendaView.prototype.getListHeader = function () {
   form.addHtml(t.currentAgenda.bezeichnung+"&nbsp;");
   if (t.currentAgenda.template_yn==0 && t.currentAgenda.final_yn==0) form.addHtml(" - ENTWURF &nbsp;");
   if (user_access("edit agenda", t.currentAgenda.calcategory_id)
-    && (t.currentAgenda.template_yn==0 || user_access("edit agenda templates", t.currentAgenda.calcategory_id))) {
+    && (t.currentAgenda.template_yn==0 || user_access("edit agenda templates", t.currentAgenda.calcategory_id))
+    && !$("#printview").val()) {
     form.addHtml('<span class="hoverreactor">');
     form.addImage({src:"options.png", width:20, htmlclass:"edit-agenda", label:"Editieren", link:true});
     form.addImage({src:"trashbox.png", width:20, htmlclass:"delete-agenda", label:"Löschen", link:true});
     form.addHtml("</span>");
+  }
+  if ($("#printview").val()) {
+    form.addHtml('<span id="pdf-hover" style="display:none">');
+    form.addHtml('<span class="hoverreactor">');
+    form.addImage({src:"pdf.png", width:25, htmlclass:"pdf-agenda", label:"PDF", link:true});      
+    form.addHtml("</span></span>");    
   }
   if (t.currentAgenda.series && (!$("#printview").val())) {
     form.addHtml('<span class="series pull-right">'+t.currentAgenda.series+'</span>');
@@ -1202,12 +1209,21 @@ AgendaView.prototype.getListHeader = function () {
     }
   }
   $("#cdb_group").html(form.render(true));
+  churchInterface.checkPDFGenerator(function(available){
+    if (available) {
+      $("#pdf-hover").show();
+    }
+  });
   $("#cdb_group a.edit-agenda").click(function() {
     t.editAgenda(t.currentAgenda, t.currentAgenda.template_yn==1);
     return false;
   });
   $("#cdb_group a.delete-agenda").click(function() {
     t.deleteAgenda(t.currentAgenda);
+    return false;
+  });
+  $("#cdb_group a.pdf-agenda").click(function() {
+    churchInterface.generatePDF("agenda");
     return false;
   });
   $("#cdb_group .go-to-event").click(function() {

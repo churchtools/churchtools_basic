@@ -1,0 +1,21 @@
+Einrichtung des PDF-Exports
+---------------------------
+
+Der PDF-Export verwendet phantomjs (http://www.phantomjs.org) um das PDF zu rendern.
+
+Damit ChurchTools phantomjs zum PDF-Export nutzen kann, muß im Wurzelverzeichnis
+von ChurchTools ein symbolischer Link "phantomjs" liegen, der auf das Binary zeigt.
+Alternativ kann auch das Binary direkt in das Wurzelverzeichnis von ChurchTools kopiert
+werden.
+
+Phantomjs Binaries können auf der Phantomjs-Webseite (http://phantomjs.org/download.html)
+für Linux, Mac OS oder Windows heruntergelanden werden.
+
+Nutzung des PDF-Exports
+-----------------------
+
+Aktuell können nur Ablaufpläne als PDF exportiert werden. Dazu den Ablaufplan in der
+Druckansicht öffnen, den sich öffnenden Drucker-Dialog schließen und in dem Hover-Menü
+über dem Ablaufplan-Titel auf das PDF-Icon klicken. Je nach Betriebssystem und Phantomjs-
+Version kann es 1-15 Sekunden dauern, bis das PDF erzeugt ist. Es öffnet sich dann in
+einem separaten Popup.
