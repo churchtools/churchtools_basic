@@ -10,6 +10,7 @@ home/memberlist_settings = main/home.php
 
 cron = main/cron.php
 login = main/login.php
+login/newpwd = main/login.php
 logout = main/logout.php
 profile = main/profile.php
 simulate = main/simulate.php

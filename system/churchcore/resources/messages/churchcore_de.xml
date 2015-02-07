@@ -118,6 +118,7 @@
   <!--  GENERAL MENU ENTRIES -->
   <entry key="menu">Menü</entry>
   <entry key="back.to.main.menu">Zurück zum Hauptmenü</entry>
+  <entry key="back.to.login">Zurück zur Anmeldung</entry>
   <entry key="settings">Einstellungen</entry>
   <entry key="maintain.masterdata">Stammdatenpflege</entry>
   <entry key="printview">Druckansicht</entry>

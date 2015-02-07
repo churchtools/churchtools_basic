@@ -18,43 +18,15 @@ function login_main() {
     $form = new CTForm("LoginForm", "validateLogin", "Login");
     $form->setHeader(t("login.headline"), t("please.fill.following.fields"));
     $form->addField("email", "", "INPUT_REQUIRED", t("email.or.username"), true);
+    if (getVar("email")) $form->fields["email"]->setValue(getVar("email"));
     $form->addField("password", "", "PASSWORD", t("password"));
     // TODO: when is this false?
     if (getConf("show_remember_me", 1 ) == 1) $form->addField("rememberMe", "", "CHECKBOX", t("remember.me"));
     $form->addButton(t("login"), "ok");
 
-    if (getVar("newpwd") && $email = getVar("email")) {
-      $res = db_query("SELECT COUNT(*) c FROM {cdb_person}
-                       WHERE email=:email AND archiv_yn=0",
-                       array(':email' => $email))
-             ->fetch();
-      if ($res->c == 0) {
-        $txt .= $res->c.$email.'
-        <div class="alert alert-error">
-            <p>' . t('login.error.longtext', '<a href="' . getConf("site_mail") . '">' . getConf("site_mail") . '</a>') . '
-        </div>';
-      }
-      else {
-        $newpwd = random_string(8);
-        // TODO: not needed to send passwords by email, use one time login key instead
-        // TODO: use email template
-        $scrambled_password = scramble_password($newpwd);
-        db_query("UPDATE {cdb_person}
-                  SET password='" . $scrambled_password . "'
-                  WHERE email=:email",
-                  array(':email' => $email));
-
-        $content = "<h3>" . t('hello') . "</h3>
-          <p>" . t('new.password.requested.for.x.is.y', "<i>$email</i>", $newpwd) . "</p>";
-        churchcore_systemmail($email, "[" . getConf('site_name') . "] Neues Passwort", $content, true, 1);
-        churchcore_sendMails(1);
-        $txt .= '<div class="alert alert-info">' . t('new.password.was.sent.to.x', "<i>$_GET[email]</i>") . '</div>';
-        ct_log("Neues Passwort angefordert: $email", 2, "-1", "login");
-      }
-    }
     // access through externale tools through GET and additional direct
     // POST so no GET is used , so it is not visible in the URL
-    else if (getVar("email", false, $_POST)
+    if (getVar("email", false, $_POST)
              && getVar("password", false, $_POST)
              && getVar("directtool", false, $_POST)) {
       include_once (CHURCHCORE . "/churchcore_db.php");
@@ -110,7 +82,7 @@ function login_main() {
     $txt .= $form->render();
     $txt .= '<script>jQuery("#newpwd").click(function(k,a) {
          if (confirm("' . t('want.to.receive.new.password') . '")) {
-           window.location.href="?newpwd=true&email="+jQuery("#LoginForm_email").val()+"&q=' . $q . '";
+           window.location.href="?q=login/newpwd&email="+jQuery("#LoginForm_email").val();
             }
           });</script>';
   }
@@ -198,6 +170,44 @@ function validateLogin($form) {
     ct_log("Login failed: " . $form->fields["email"]->getValue() . " wrong password", 2, "-1", "login");
     return false;
   }
+}
+
+function login__newpwd() {
+  $txt = "";
+  if ($email = getVar("email")) {
+    $res = db_query("SELECT COUNT(*) c FROM {cdb_person}
+                     WHERE email=:email AND archiv_yn=0",
+                     array(':email' => $email))
+           ->fetch();
+    if ($res->c == 0) {
+      $txt .= '
+      <div class="alert alert-error">
+          <p>' . t('login.error.longtext', '<a href="' . getConf("site_mail") . '">' . getConf("site_mail") . '</a>') . '
+      </div>';
+    }
+    else {
+      $newpwd = random_string(8);
+      // TODO: not needed to send passwords by email, use one time login key instead
+      // TODO: use email template
+      $scrambled_password = scramble_password($newpwd);
+      db_query("UPDATE {cdb_person}
+                SET password='" . $scrambled_password . "'
+                WHERE email=:email",
+                array(':email' => $email));
+
+      $content = "<h3>" . t('hello') . "</h3>
+        <p>" . t('new.password.requested.for.x.is.y', "<i>$email</i>", $newpwd) . "</p>";
+      churchcore_systemmail($email, "[" . getConf('site_name') . "] Neues Passwort", $content, true, 1);
+      churchcore_sendMails(1);
+      $txt .= '<div class="alert alert-info">' . t('new.password.was.sent.to.x', "<i>$email</i>") . '</div>';
+      ct_log("Neues Passwort angefordert: $email", 2, "-1", "login");
+    }
+  }
+  else {
+    return "No email in parameter";
+  }
+  $txt .= '<a href="?q=login&email=' . $email . '" class="btn">' . t("back.to.login") . '</a>';
+  return $txt;
 }
 
 /**
