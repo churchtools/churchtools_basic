@@ -201,7 +201,7 @@ AuthView.prototype.renderEntryDetail= function(domain_id) {
     rows.push('<br> <p>'+form_renderButton({label:_("save.changes"), disabled:true, htmlclass:"save"})+"&nbsp;");
     rows.push(form_renderButton({label:_("undo.changes"), disabled:true, htmlclass:"undo"})+"&nbsp; &nbsp;");
     rows.push(form_renderButton({label:_("copy.permissions"), disabled:(t.clipboard!=null && t.clipboard.id==domain_id), htmlclass:"copy"})+"&nbsp;");
-    if (t.clipboard!=null && t.clipboard.id!=domain_id)
+    if (t.clipboard!=null)
       rows.push(form_renderButton({label:_("paste.permissions"), disabled:false, htmlclass:"paste"}));
   rows.push('</div>');
 
@@ -246,6 +246,7 @@ AuthView.prototype.renderEntryDetail= function(domain_id) {
         masterData[t.currentDomain][domain_id].auth[k]=a;
       });
       masterData[t.currentDomain][domain_id].saveable=true;
+      masterData[t.currentDomain][domain_id].open=true;
       t.renderList(masterData[t.currentDomain][domain_id]);
       perm.permissioner("save");
     }
