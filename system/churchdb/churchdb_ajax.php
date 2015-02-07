@@ -7,7 +7,7 @@ include_once("churchdb_db.php");
  * @return array with persons, key = id
  */
 function getSearchableData() {
-  $persons = churchdb_getAllowedPersonData('', 'person_id p_id, person_id id, geburtsdatum, familienstand_no, geschlecht_no, hochzeitsdatum, nationalitaet_id,
+  $persons = churchdb_getAllowedPersonData('', 'person_id p_id, person_id id, familienstand_no, geschlecht_no, hochzeitsdatum, nationalitaet_id,
               erstkontakt, zugehoerig, eintrittsdatum, austrittsdatum, taufdatum, plz, geburtsort, imageurl, cmsuserid, lastlogin');
   foreach ($persons as $arr) {
     unset($persons[$arr->id]->p_id);
@@ -123,7 +123,7 @@ function getGroupMemberTypes() {
  */
 function churchdb_getGroupFilterTypes() {
   $res[0] = array ("id" => 0, "bezeichnung" => 'in');
-  $res[1] = array ("id" => 1, "bezeichnung" => 'nicht_in');
+  $res[1] = array ("id" => 1, "bezeichnung" => 'nicht in');
   $res[2] = array ("id" => 2, "bezeichnung" => 'war in');
 
   return $res;
@@ -884,15 +884,31 @@ function getTagRelations() {
  * get old group relation data, if user is allowed to view history
  * @return array
  */
-function getOldGroupRelations() {
+function getOldGroupRelations($id = null) {
   if (!user_access("view history", "churchdb")) return null;
 
-  $res = db_query("SELECT gp.person_id id, gpa.gruppe_id gp_id, status_no leiter, gpa.letzteaenderung d,
+  if ($id == null) {
+    $res = db_query("SELECT gp.person_id id, gpa.gruppe_id gp_id, status_no leiter, gpa.letzteaenderung d,
                    gpa.aenderunguser user, gpa.comment
                    FROM {cdb_gemeindeperson_gruppe_archive} gpa, {cdb_gemeindeperson} gp
-                   WHERE gpa.gemeindeperson_id=gp.id ORDER BY gpa.letzteaenderung DESC");
+                   WHERE gpa.gemeindeperson_id=gp.id
+                   ORDER BY gpa.letzteaenderung DESC");
+  }
+  else {
+    $res = db_query("SELECT gp.person_id id, gpa.gruppe_id gp_id, status_no leiter, gpa.letzteaenderung d,
+                   gpa.aenderunguser user, gpa.comment
+                   FROM {cdb_gemeindeperson_gruppe_archive} gpa, {cdb_gemeindeperson} gp
+                   WHERE gpa.gemeindeperson_id=gp.id AND id=:id
+                   ORDER BY gpa.letzteaenderung DESC", array(":id"=>$id));
+  }
   $arrs = null;
-  foreach ($res as $arr) $arrs[] = $arr;
+  foreach ($res as $arr) {
+    $id = $arr->id;
+    unset($arr->id);
+    if ($arr->comment == null) unset($arr->comment);
+    if (empty($arrs[$id])) $arrs[$id] = array();
+    $arrs[$id][] = $arr;
+  }
 
   return $arrs;
 }

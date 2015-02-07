@@ -914,7 +914,7 @@ PersonView.prototype.addFurtherListCallbacks = function(cssid) {
       groupView.clearFilter();
       // Wenn er nicht alle sehen darf, dann hat er Meine Gruppen.
       if (masterData.auth.viewalldata)
-        groupView.setFilter("searchEntry",$(this).attr("href").substring(1,99));
+        groupView.setFilter("searchEntry","#"+$(this).attr("href").substring(1,99));
       else
         groupView.setFilter("filterMeine Gruppen", $(this).attr("href").substring(1,99));
       groupView.renderView();

@@ -2,7 +2,6 @@
 function cdb_mapJsonDetails(json, person) {
   // Person kann u.U. nicht existieren, z.B. wenn eine neue von anderem User angelegt wurde
   if (person==null) person=new Object();
-
   each(json, function(k,a) {
     person[k]=a;
   });
@@ -61,6 +60,7 @@ function cdb_mapJsonPerson1(json, person) {
   person.gruppe=json.groups;
   person.districts=json.districts;
   person.gruppentypen=json.gruppentypen;
+  person.geburtsdatum=json.geb;
   return person;
 }
 
@@ -100,11 +100,13 @@ function cdb_loadSearch(nextFunction) {
         allPersons[a.id]=cdb_mapJsonSearchable(a, allPersons[a.id]);
     });
     if (json.oldGroupRelations!=null)
-    each(json.oldGroupRelations, function(k,a) {
-      if (allPersons[a.id]!=null) {
-        if (allPersons[a.id].oldGroups==null)
-          allPersons[a.id].oldGroups=new Array();
-        allPersons[a.id].oldGroups.push(a);
+    each(json.oldGroupRelations, function(k, groups) {
+      if (allPersons[k]!=null) {
+        if (allPersons[k].oldGroups==null) allPersons[k].oldGroups=new Array();
+        each(groups, function(i, group) {
+          group.id=k;
+          allPersons[k].oldGroups.push(group);
+        })
       }
     });
 

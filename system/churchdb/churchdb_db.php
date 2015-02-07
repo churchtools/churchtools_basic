@@ -14,7 +14,7 @@ include_once (CHURCHCORE . '/churchcore_db.php');
  */
 function churchdb_getAllowedPersonData($cond = '', $fields = "p.id p_id, gp.id gp_id, name, vorname, spitzname,
     station_id stn_id, status_id sts_id, email AS em, IF (telefonhandy='',telefonprivat, telefonhandy) AS tl,
-    geolat AS lat, geolng AS lng, archiv_yn") {
+    geolat AS lat, geolng AS lng, archiv_yn, date(geburtsdatum) geb") {
   global $user;
 
   $where = ($cond) ? "AND $cond" : "";
@@ -507,6 +507,7 @@ function churchdb_getPersonDetails($id, $withComments = true) {
       }
     }
     $person->auth = getAuthForPerson($id);
+    if ($oldGroups = getOldGroupRelations($id)) $person->oldGroups = $oldGroups[$id];
   }
   return $person;
 }
