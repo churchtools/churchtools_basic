@@ -4721,7 +4721,7 @@ PersonView.prototype.editExportTemplates = function(selected, func) {
 
   // Add special fields
   fields["f_address"].fields["age"]={sql:"age", text:_("age")};
-  fields["f_address"].fields["Anrede1"]={sql:"Anrede1", text:"Herr/Frau"};
+  fields["f_address"].fields["Anrede1"]={sql:"Anrede1", text:"Herrn/Frau"};
   fields["f_address"].fields["Anrede2"]={sql:"Anrede2", text:"Lieber/Liebe"};
   fields["f_address"].fields["id"]={sql:"id", text:"Id"};
   each(fields, function(i,fieldcategory) {
@@ -5155,7 +5155,7 @@ PersonView.prototype.mailer = function() {
 
   if ((!masterData.auth.viewalldata) &&
       (masterData.groups[this.getFilter("filterMeine Gruppen")]==null || masterData.groups[this.getFilter("filterMeine Gruppen")].members_allowedmail_eachother_yn==0)
-      && (!groupView.isPersonLeaderOfGroup(masterData.user_pid, this.getFilter("filterMeine Gruppen")))) {
+      && (!groupView.isPersonLeaderOfGroup(masterData.user_pid, this.getFilter("filterMeine Gruppen"), true))) {
     alert("Um den E-Mailer zu nutzen muss unter 'Meine Gruppen' eine Gruppe gefiltert werden, in der Du Leiter bist oder in der es entsprechend erlaubt wird.");
     return null;
   }

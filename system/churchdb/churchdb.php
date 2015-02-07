@@ -945,7 +945,7 @@ function churchdb__export() {
     foreach ($rels as $rel) {
       if (getVar("agg" . $rel->typ_id) == "y" && isset($export[$rel->v_id]) && isset($export[$rel->k_id])) {
         // use the male as first person, if available
-        if (!isset($export[$rel->v_id]["anrede2"]) || $export[$rel->v_id]["anrede2"] == t('salutation.man.2')) {
+        if (!isset($export[$rel->v_id]["Anrede2"]) || $export[$rel->v_id]["Anrede2"] == t('salutation.man.2')) {
           $p1 = $rel->v_id;
           $p2 = $rel->k_id;
         }
@@ -954,10 +954,10 @@ function churchdb__export() {
           $p2 = $rel->v_id;
         }
         // add second to the male
-        $export[$p1]["anrede"] = $rel_types[$rel->typ_id]->export_title;
-        if (isset($export[$p1]["anrede2"]) && (isset($export[$p2]["anrede2"]))) $export[$p1]["anrede2"] = $export[$p2]["anrede2"] .
-             " " . $export[$p2]["vorname"] . ", " . $export[$p1]["anrede2"];
-        $export[$p1]["vorname2"] = $export[$p2]["vorname"];
+        $export[$p1]["Anrede"] = $rel_types[$rel->typ_id]->export_title;
+        if (isset($export[$p1]["Anrede2"]) && (isset($export[$p2]["Anrede2"]))) $export[$p1]["Anrede2"] = $export[$p2]["Anrede2"] .
+             " " . $export[$p2]["vorname"] . ", " . $export[$p1]["Anrede2"];
+        $export[$p1]["Vorname2"] = $export[$p2]["vorname"];
         if (isset($export[$p2]["email"])) $export[$p1]["email_beziehung"] = $export[$p2]["email"];
         // remove second from export data
         $export[$p2] = null;
