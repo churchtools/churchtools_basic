@@ -1210,7 +1210,11 @@ function initCalendarView() {
       window.print();
     }
     else {
-      var fenster=window.open("?q=churchcal&embedded=true&printview=true", '_blank', 'location=yes,height=570,width=700,scrollbars=yes,status=yes');
+      var ids = new Array();
+      $("span.colorcheckbox .checked").each(function() {
+        ids.push($(this).parents("span.colorcheckbox").attr("data-id")*1-100);
+      });
+      var fenster=window.open("?q=churchcal&embedded=true&printview=true&category_id="+ids.join(","), '_blank', 'location=yes,height=570,width=700,scrollbars=yes,status=yes');
       fenster.focus();
     }
   });
@@ -1470,11 +1474,12 @@ function createMultiselect(name, data) {
       each($('#filtercategory_select').val().split(","), function(k,a) {
         arr.push(a*1+100);
       });
-      masterData.settings[name]="["+arr.join(",")+"]";
+      filter[name].setSelectedAsArrayString("["+arr.join(",")+"]");
     }
-    if (masterData.settings[name]==null)
+    else {
+      // Select all categories is nothing given
       filter[name].selectAll();
-    else filter[name].setSelectedAsArrayString(masterData.settings[name]);
+    }
   }
   else
     filter[name].setSelectedAsArrayString(masterData.settings[name]);
@@ -1542,7 +1547,6 @@ function editCategory(cat_id, privat_yn, oeffentlich_yn) {
     form.addCheckbox({label:"Gruppenteilnehmer erhalten Schreibrechte", cssid:"writeaccess", checked:false});
   }
   form.addInput({label:_("caption"), cssid:"bezeichnung", required:true});
-  //form.addInput({label:"Farbe", cssid:"color"});
   form.addHtml('<span class="color"></span>');
   form.addInput({label:_("sortkey"), cssid:"sortkey"});
   if (oeffentlich_yn == 1 || privat_yn == 1) {
@@ -1562,11 +1566,10 @@ function editCategory(cat_id, privat_yn, oeffentlich_yn) {
       obj.color=current.color;
       obj.textColor=current.textColor;
       if (obj.color==null) obj.color="black";
-      if (obj.textColor==null) obj.color="white";
+      if (obj.textColor==null) obj.textColor="white";
       obj.privat_yn=privat_yn;
       obj.oeffentlich_yn=oeffentlich_yn;
-      if (oeffentlich_yn==1)
-        obj.privat_yn=0;
+      if (oeffentlich_yn==1) obj.privat_yn=0;
       obj.func="saveCategory";
       obj.id=cat_id;
       elem.html("<legend>Speichere Daten...</legend>");
@@ -2118,9 +2121,6 @@ $(document).ready(function() {
     }
     if (!embedded) {
       rows.push('<div id="filterCalender"></div>');
-      //rows.push(renderPersonalCategories());
-      //rows.push(renderGroupCategories());
-      //rows.push(renderChurchCategories());
     }
     else {
       // All together in one well div.
@@ -2137,7 +2137,6 @@ $(document).ready(function() {
     else {
       filterMultiselect("filterGemeindekalendar", _("calendar"));
     }
-    //filterMultiselect("filterGruppenKalender", _("group.calendar"));
     //filterMultiselect("filterRessourcen", _("resources"));
 
     if (embedded) {

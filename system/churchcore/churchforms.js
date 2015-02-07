@@ -273,7 +273,8 @@ function form_renderColor(color) {
 }
 function form_renderColorCheckbox(color, textColor, checked) {
   check = checked ? "&#10004;" : "&nbsp;";
-  return '<span class="simplecolorpicker icon" style="background-color: '+color+';color: '+textColor+';">'+check+'</span>';
+  return '<span class="simplecolorpicker icon' + (checked ? " checked" : "")
+         + '" style="background-color: '+color+';color: '+textColor+';">'+check+'</span>';
 }
 function form_renderColorWithImage(color, src) {
   if (src.indexOf("/")==-1)
@@ -2202,12 +2203,6 @@ $.widget("ct.colorcheckbox", {
   _renderCheckbox : function() {
     var t = this;
     var rows = new Array();
-//    if (t.options.checked) {
-//      rows.push(form_renderColorWithImage(t.options.color, "check.png")+"&nbsp; ");
-//    }
-//    else {
-//      rows.push(form_renderColor(t.options.color)+"&nbsp; ");
-//    }
     rows.push(form_renderColorCheckbox(t.options.color, t.options.textColor, t.options.checked)+"&nbsp; ");
 
     if (t.options.label!=null) {
