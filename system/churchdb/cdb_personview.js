@@ -2192,6 +2192,8 @@ PersonView.prototype.checkFilter = function(a) {
       if (a[filter["filterDates"]]!=null) {
         flt=a[filter["filterDates"]].toDateEn();
         src=filter["dateBefore"].toDateDe();
+        src.addDays(1); src.setSeconds(src.getSeconds()-1);
+        console.log(src);
         if (filter["dateIgnoreYear"]!=null) {
           flt.setFullYear(2000);
           src.setFullYear(2000);
