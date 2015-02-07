@@ -100,7 +100,6 @@ function churchcore_sendReminders() {
       );
       $content = getTemplateContent('email/reminder', 'churchcore', $data);
       churchcore_systemmail($p->email, "[" . getConf('site_name') . "] " . t('reminder.for.x', t($reminder->domain_type)), $content, true);
-      echo "sened mail";
     }
     db_query("UPDATE {cc_reminder} SET mailsenddate=NOW()
               WHERE person_id = :person_id AND domain_type = :domain_type
@@ -743,10 +742,10 @@ function churchcore_sendMails_PHPMAIL($maxmails = MAX_MAILS) {
 
         // See churchtools.example.config for more details
         if (getConf("mail_with_user_from_address", "0") == "0") {
-          $from = getConf('site_mail', 'info@churchtools.de');          
+          $from = getConf('site_mail', 'info@churchtools.de');
           if (strpos($mail->sender, "<")>0 && strpos($from, "<")===false) {
             $from = substr($mail->sender, 0, strpos($mail->sender, "<")-1) . " <$from>";
-          } 
+          }
           $header.="From: $from\n";
           if ($mail->sender!=getConf('site_mail', 'info@churchtools.de')) {
             $header.="Reply-To: $mail->sender\n";
@@ -793,9 +792,9 @@ function churchcore_sendMails_PHPMAIL($maxmails = MAX_MAILS) {
 function churchcore_sendMails_PEARMAIL($maxmails = MAX_MAILS) {
   global $config, $base_url;
 
-  include_once 'Mail.php'; 
+  include_once 'Mail.php';
   include_once 'Mail/mime.php';
-  
+
   if (!class_exists("Mail_mime")) {
     ct_log("Mime-Extension für PearMail nicht gefunden. Bitte erst installieren!",1);
     return;
@@ -827,7 +826,7 @@ function churchcore_sendMails_PEARMAIL($maxmails = MAX_MAILS) {
                        );
 
         $mime = new Mail_mime();
-        
+
         if ($mail->htmlmail_yn == 1) {
           $html = $mail->body;
           $html .= '<img src="' . $base_url . '?q=cron&standby=true&mailqueue_id=' . $mail->id . '"/>';
@@ -909,7 +908,7 @@ function churchcore_sendEMailToPersonIDs($ids, $subject, $content, $from = null,
     ct_log("Konnte Email $subject nicht senden, kein Empfänger angegeben!", 1);
     return;
   }
-  
+
   if (!$from) {
     $user_pid = $_SESSION["user"]->id;
     $res = db_query("SELECT vorname, name, email FROM {cdb_person}
@@ -1791,7 +1790,7 @@ function getAllDatesWithRepeats($r, $_from = -1, $_to = 1, $fromDate = null) {
   $my->with_repeat_yn = 1;
 
   $additions[0] = $my;
-  
+
   // array_unshift($additions, $my);
   foreach ($additions as $key => $add) {
     $d = new DateTime(substr($add->add_date, 0, 10) . " " . $d->format('H:i:s'));

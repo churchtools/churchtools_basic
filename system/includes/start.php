@@ -6,15 +6,17 @@
  * Copyright (c) 2013 Jens Martin Rauen
  * Licensed under the MIT license, located in LICENSE.txt
  */
+
+/* Important global vars */
 $q = ""; // which module to use
-$config = array (); //
-$mapping = array (); //
+$config = array (); // all config from config file and amended with table cc_config
+$mapping = array (); // all mappings
 $files_dir = null; // dir for page specific files
 
 $add_header = ""; // http headers?
 $content = ""; // page content
 $user = null; // user
-$embedded = false; //
+$embedded = false; // is calling is with embedding=true (without menu etc.)
 $i18n = null; // translation object
 $ajax = false; // to find out if its an ajax call
 

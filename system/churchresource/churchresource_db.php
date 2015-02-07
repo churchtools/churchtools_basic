@@ -42,7 +42,7 @@ function churchresource_getEventChangeImpact($newEvent, $pastEvent, $originEvent
         }
       }
       else { // 3. event is in newEvent, now check bookings!
-        foreach ($originEvent["bookings"] as $booking) {
+        if (!empty($originEvent["bookings"])) foreach ($originEvent["bookings"] as $booking) {
           if (empty($newEvent["bookings"])) {
             $addCRChange($changes, $booking, "deleted");
           }
@@ -445,7 +445,7 @@ function churchresource_updateBooking($params, $sendEMails = true) {
       'booking'    => $booking,
       'bookingUrl' => $base_url . "?q=churchresource&id=" . $params["id"],
       'text'       => $params['text'],
-      'note'       => $params['location'],
+      'note'       => isset($params['location']) ? $params['location'] : "",
       'pending'    => $params["status_id"] == CR_PENDING,
       'approved'   => $params["status_id"] == CR_APPROVED && ($oldBooking->status_id != CR_APPROVED || $changedFields != null),
       'canceled'   => $params["status_id"] == CR_CANCELED,
@@ -455,7 +455,7 @@ function churchresource_updateBooking($params, $sendEMails = true) {
   $logInfo = ' :: ' . t('bookingX.for.resource.on.datetime',
                         $params["text"],
                         $resources[$params["resource_id"]]->bezeichnung,
-                        $params["startdate"], $params["location"]
+                        $params["startdate"], isset($params['location']) ? $params['location'] : ""
   );
   $subject = t('booking.request.updated');
   if ($data['pending']) $logInfo = t('booking.updated') . $logInfo;

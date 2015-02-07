@@ -275,6 +275,6 @@ function login_user($u, $rember_me = false, $redirect = true) {
   if ($redirect) {
     // on switching family login dont forward to login again
     if ($q != $q_orig) header("Location: ".$_SERVER["REQUEST_URI"]);
-    else if ($q == "login") header("Location: ?q=" . getConf("site_startpage", "home"));
+    else if ($q == "login") header("Location: ?q=home");
   }
 }
