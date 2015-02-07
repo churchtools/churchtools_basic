@@ -148,7 +148,7 @@ AgendaView.prototype.exportCurrentAgendaToSongBeamer = function () {
     }
   });
   rows.push(">\r\nend\r\n");
-  
+
   churchInterface.downloadFile("ablaufplan", "col", rows.join(""));
 };
 
@@ -187,7 +187,7 @@ AgendaView.prototype.exportCurrentAgendaToProPresenter = function () {
     var zip = new JSZip();
     var pro5pl=zip.folder("test.pro5pl");
     pro5pl.file("data.pro5pl", rows.join(""));
-    churchInterface.downloadFile("ablaufplan", "pro5plx", zip.generate({type:"base64"}));    
+    churchInterface.downloadFile("ablaufplan", "pro5plx", zip.generate({type:"base64"}));
   });
 };
 
@@ -424,28 +424,25 @@ AgendaView.prototype.renderFieldResponsible = function(content, event_ids) {
   // Evalute responsible, when it is e.g. [Worshipleader]
   var txt=content;
   if ((txt.substr(0,1)=="[") && (txt.indexOf("]")>0)) {
-    txt=content.substr(1,txt.indexOf("]")-1);
-    var service=null;
-    each(masterData.service, function(k,s) {
-      if (s.bezeichnung==txt) {
-        service=s;
-        return false;
+    txt = content.substr(1,txt.indexOf("]")-1);
+    var res = null;
+    // Iterate through all services, perhaps there are services with the same name, but different people
+    each(masterData.service, function(k,service) {
+      if (service.bezeichnung == txt && res == null) {
+        var sgs=getServiceGroupsFromEvents(event_ids);
+        if (sgs!=null && sgs[service.servicegroup_id]!=null) {
+          var entries=new Array();
+          each(sgs[service.servicegroup_id], function(k,s) {
+            if (s.service_id==service.id) {
+              entries.push(renderPersonName(s));
+            }
+          });
+          if (entries.length > 0) res = entries.join(", ");
+        }
       }
     });
-    var sgs=getServiceGroupsFromEvents(event_ids);
-    if (service==null || sgs==null || sgs[service.servicegroup_id]==null) return content;
-    else {
-      var entries=new Array();
-      each(sgs[service.servicegroup_id], function(k,s) {
-        if (s.service_id==service.id) {
-          entries.push(renderPersonName(s));
-        }
-      });
-      if (entries.length==0) return content;
-      return entries.join(", ");
-    }
   }
-  return content;
+  if (res) return res; else return content;
 };
 
 AgendaView.prototype.rerenderField = function(input, dataField) {
@@ -1184,8 +1181,8 @@ AgendaView.prototype.getListHeader = function () {
   if ($("#printview").val()) {
     form.addHtml('<span id="pdf-hover" style="display:none">');
     form.addHtml('<span class="hoverreactor">');
-    form.addImage({src:"pdf.png", width:25, htmlclass:"pdf-agenda", label:"PDF", link:true});      
-    form.addHtml("</span></span>");    
+    form.addImage({src:"pdf.png", width:25, htmlclass:"pdf-agenda", label:"PDF", link:true});
+    form.addHtml("</span></span>");
   }
   if (t.currentAgenda.series && (!$("#printview").val())) {
     form.addHtml('<span class="series pull-right">'+t.currentAgenda.series+'</span>');
@@ -1326,8 +1323,8 @@ AgendaView.prototype.renderListHeader = function(smallVersion) {
     if (servicegroups!=null) {
 
       each(churchcore_sortMasterData(masterData.servicegroup), function(k,sg) {
-        if (servicegroups[sg.id]!=null && 
-        	((masterData.settings["viewgroup_agenda"+sg.id]=="1") || 
+        if (servicegroups[sg.id]!=null &&
+        	((masterData.settings["viewgroup_agenda"+sg.id]=="1") ||
         	 (masterData.settings["viewgroup_agenda"+sg.id]==null))) {
           rows.push('<tr><td><b>'+sg.bezeichnung+'&nbsp;&nbsp;</b><td style="width:90%"><small>');
           each(churchcore_sortMasterData(masterData.service), function(i,service) {
