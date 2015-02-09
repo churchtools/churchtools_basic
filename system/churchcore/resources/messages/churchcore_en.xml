@@ -300,6 +300,7 @@
   <entry key="send.bcc.copy.to.myself">send bcc copy to myself.</entry>
   <entry key="send.email.to.x">Send email to {0}</entry>
   <entry key="caution.that.email.will.be.send.to.x.persons">Do you really want to send this email to {0} recipients?</entry>
+  <entry key="please.fillin.name">Merci de remplir le nom</entry>
   <entry key="looking.for.visible.persons.in.all.your.departments">Looking in all persons visible to you and in persons of your departements</entry>
   <entry key="looking.for.a.person">Looking for a person</entry>
   <entry key="public.user">Public User</entry>
@@ -406,6 +407,7 @@
   <entry key="view.songcategory.churchservice.cs_songcategory">View single song category</entry>
   <entry key="view.song.churchservice">View songs and download files</entry>
   <entry key="edit.song.churchservice">Edit songs and upload files</entry>
+  <entry key="edit.masterdata.churchservice">Edit masterdata of ChurchService</entry>
   <entry key="no.permisson.to.export.facts">No permission to export fact data (edit facts)</entry>
 
   <!-- churchdb auth -->
@@ -497,8 +499,7 @@
   <entry key="center.coordinates.longitude">Longitude of center coordinates (best to find out using Google Maps)</entry>
   <entry key="email.default.separator">Default separator to use for multiple recipients on ChurchDB-Emailer</entry>
   <entry key="days.to.show.terminated.groups">How many days after termination should groups be present?</entry>
-  <entry key="status.ids.for.birthdaylist.comma.separated">Status ids for birthday list (comma separated)</entry>
-  <entry key="station.ids.for.birthdaylist.comma.separated">Station ids for birthday list (comma separated)</entry>
+  <entry key="xxx.ids.for.birthdaylist.comma.separated">{0} ids for birthday list (comma separated)</entry>
   <entry key="api.key.mailchimp.if.used">API-Key for integration of MailChimp.com (only if you want to use it).</entry>
   <entry key="api.key.smspromote.if.used">API-Key for integration of SMSpromote.de (only if you want to use it).</entry>
   <entry key="send.groupchanges.to.leaders">Send changes in groups to leaders, co-leaders and supervisors</entry>

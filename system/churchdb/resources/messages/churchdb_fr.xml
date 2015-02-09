@@ -53,7 +53,7 @@
   <entry key="load.archive">Charger l'archive</entry>
   <entry key="add.tag">Ajouter un jour</entry>
   <entry key="add.to.group">Ajouter au groupe</entry>
-  <entry key="delete.from.group">delete from group</entry>
+  <entry key="delete.from.group">Supprimer du groupe</entry>
   <entry key="add.to.department">Ajouter au département</entry>
   <entry key="add.one.tag">Ajouter un jour</entry>
   <entry key="add.one.permission">Ajouter une permission</entry>
@@ -90,7 +90,7 @@
   <!-- MASTERDATA -->
   <entry key="kuerzel">Diminutif</entry>
   <entry key="mitglied_yn">Signifie membre</entry>
-  <entry key="infreitextauswahl_yn">Utiliser aver la recherche</entry>
+  <entry key="infreitextauswahl_yn">Utiliser avec la recherche</entry>
   <entry key="anzeigen_in_meinegruppen_teilnehmer_yn">Les participants doivent se voir mutuellement</entry>
   <entry key="muss_leiter_enthalten_yn">Un responsable doit être présent</entry>
   <entry key="in_neue_person_erstellen_yn">Accepter en 'créer une nouvelle personne</entry>
@@ -99,30 +99,30 @@
   <entry key="bez_vater">Nom de la relation mère</entry>
   <entry key="bez_kind">Nom de la relation subordonnée</entry>
   <entry key="export_aggregation_yn">Résumer dans export</entry>
-  <entry key="export_title">Titre au résumé dans export</entry>
+  <entry key="export_title">Titre du résumé dans export</entry>
   <entry key="comment_viewer_id">Calcul de commentaire</entry>
-  <entry key="intern_code">Code intern (ne pas modifier!)</entry>
+  <entry key="intern_code">Code interne (ne pas modifier!)</entry>
   <entry key="followup_typ_id">Type de suivis </entry>
   <entry key="count_no">Numéro</entry>
   <entry key="days_diff">Intervalle de jours</entry>
   <entry key="info">Info</entry>
 
-  <entry key="i.have.the.permission.from.this.user.for.x">I have the permission from this person to add and edit his data in {0}.</entry>
-  <entry key="please.confirm.agreement">Please confirm the agreement to save the data.</entry>
+  <entry key="i.have.the.permission.from.this.user.for.x">J’ai l’autorisation de cette personne d’ajouter et d’éditer ses données dans {0}.</entry>
+  <entry key="please.confirm.agreement">Merci d’accepter l’accord pour sauvegarder les données.</entry>
 
  <!-- EXPORT -->
-  <entry key="export">Export</entry>
-  <entry key="export.settings">Export settings</entry>
-  <entry key="chose.export.template">Chose export template</entry>
-  <entry key="template.for.columns.in.exporting">Template for columns in export</entry>
-  <entry key="aggregate.relations">Aggregate relations</entry>
-  <entry key="export.related.persons">Export related persons in addition</entry>
-  <entry key="select.mygroup.to.export.data">To export, please select a group under my group where you are a leader.</entry>
-  <entry key="it.is.only.allowed.to.export.x.entries">It is only allowed to filter {0} entries. Please filter more specified!</entry>
-  <entry key="select.template">Select template</entry>
-  <entry key="chose.fields">Chose your fields</entry>
-  <entry key="discard.changes">Discard changes?</entry>
-  <entry key="please.fillin.a.name">Please enter a name</entry>
-  <entry key="really.delete.template">Really delete this template?</entry>
-
+  <entry key="export">Exporter</entry>
+  <entry key="export.settings">Exporter les réglages</entry>
+  <entry key="chose.export.template">Choisir d’exporter le modèle</entry>
+  <entry key="template.for.columns.in.exporting">Modèle des colonnes en exportation</entry>
+  <entry key="aggregate.relations">Regrouper les relations</entry>
+  <entry key="export.related.persons">Exporter les personnes apparentées en plus</entry>
+  <entry key="select.mygroup.to.export.data">Pour exporter, merci de sélectionner un groupe sous mon groupe où tu es un leader.</entry>
+  <entry key="it.is.only.allowed.to.export.x.entries">Il est uniquement autorisé de filtrer {0} entrées. Merci de filtrer plus spécifiquement!</entry>
+  <entry key="select.template">Sélectionner le modèle</entry>
+  <entry key="chose.fields">Choisis tes champs</entry>
+  <entry key="discard.changes">Jeter les modifications?</entry>
+  <entry key="please.fillin.a.name">Merci d'entrer un nom</entry>
+  <entry key="really.delete.template">Vraiment supprimer ce modèle?</entry>  
+  
 </properties>

@@ -990,7 +990,7 @@ function run_db_updates($db_version) {
 
       // Add existing nationality values to new table
      db_query("ALTER TABLE {cdb_nationalitaet} CHANGE  id id INT( 11 ) NOT NULL AUTO_INCREMENT");
-     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung) 
+     db_query("INSERT INTO {cdb_nationalitaet} (bezeichnung)
                SELECT nationalitaet
                FROM {cdb_gemeindeperson} gp LEFT JOIN {cdb_nationalitaet} n ON (gp.nationalitaet=n.bezeichnung)
                WHERE n.bezeichnung IS NULL AND gp.nationalitaet!=''
@@ -1932,6 +1932,11 @@ function run_db_updates($db_version) {
     db_query("ALTER TABLE {cc_calcategory} ADD ical_source_url VARCHAR(255) NULL AFTER randomurl");
     db_query("ALTER TABLE {cr_booking} DROP userid"); // Was deprecated, now use person_id
     set_version("2.52");
+
+  case '2.52':
+    db_query("UPDATE {cc_cal} SET enddate = ADDDATE(startdate, INTERVAL '60:00' MINUTE_SECOND)
+              WHERE enddate<startdate AND startdate>=now()");
+    set_version("2.53");
 
   } //end switch
 

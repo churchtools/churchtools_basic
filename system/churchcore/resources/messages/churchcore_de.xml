@@ -407,6 +407,7 @@
   <entry key="view.songcategory.churchservice.cs_songcategory">Einzelne Song-Kategorien einsehen</entry>
   <entry key="view.song.churchservice">Songs anschauen und Dateien herunterladen</entry>
   <entry key="edit.song.churchservice">Songs editieren und Dateien hochladen</entry>
+  <entry key="edit.masterdata.churchservice">Stammdaten von ChurchService editieren</entry>
   <entry key="no.permisson.to.export.facts">Keine Berechtigung zum Exportieren von Faktendaten (edit facts)</entry>
 
   <!-- churchdb auth -->
