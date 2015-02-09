@@ -1115,12 +1115,8 @@ function CR2CALType(event) {
     note: event.note,
     resource_id : event.resource_id,
     minpre : minpre,
-    minpost : minpost,
-    //exceptions: event.exceptions,
-    //additions: event.additions
+    minpost : minpost
   }
-//  delete cal.exceptions;
-//  delete cal.additions;
   return cal;
 }
 
