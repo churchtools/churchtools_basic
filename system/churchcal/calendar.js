@@ -838,8 +838,11 @@ function renderEditEvent(myEvent, origEvent, isSeries, editSeries, func) {
         // Check if there are CSEvents to delete
         each(currentEvent.csevents, function(k, a) { a.mark=false; });
         each(churchcore_getAllDatesWithRepeats(currentEvent), function(a, ds) {
-          var id = getCSEventId(currentEvent, ds.startdate);
-          if (id!=null) currentEvent.csevents[id].mark=true;
+          var id = getCSEventId(currentEvent, ds.startdate, true);
+          if (id!=null) {
+            currentEvent.csevents[id].mark = true;
+            currentEvent.csevents[id].startdate = ds.startdate;
+          }
         });
         each(currentEvent.csevents, function(k, a) {
           if (!a.mark) a.action = "delete";

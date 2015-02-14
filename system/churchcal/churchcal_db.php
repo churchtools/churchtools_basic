@@ -516,15 +516,16 @@ function churchcal_getCCEventChangeImpact($newEvent, $pastEvent, $originEvent) {
 /**
  * Extracts one date out of a series. Make event single day event
  * @param [type] $originEvent
- * @param [type] $d
+ * @param [type] $d Which day to take (time will be ignored)
  */
 function getOneEventOutOfSeries($originEvent, $d) {
   $originEvent["repeat_id"] = 0;
   $ds = new DateTime($originEvent["startdate"]);
   $de = new DateTime($originEvent["enddate"]);
-  $originEvent["startdate"] = $d->format('Y-m-d H:i');
+  // Take date from $d and time from $ds
+  $originEvent["startdate"] = $d->format('Y-m-d') . " " . $ds->format('H:i');
   $enddate = clone $d;
-  $enddate->modify("+".$de->getTimestamp()-$ds->getTimestamp()." seconds");
+  $enddate->modify("+" . $de->getTimestamp() - $ds->getTimestamp() . " seconds");
   $originEvent["enddate"] = $enddate->format('Y-m-d H:i');
   return $originEvent;
 }
@@ -647,7 +648,7 @@ function churchcal_getEventChangeImpact($params) {
   // pastEvent and originEvent may be undefined
   $pastEvent = null;
   if (isset($params["pastEvent"])) $pastEvent = $params["pastEvent"];
-  
+
   $originEvent = null;
   if (isset($params["originEvent"])) $originEvent = $params["originEvent"];
 
