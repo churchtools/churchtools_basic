@@ -69,10 +69,10 @@ ChurchInterface.prototype.showReminderPopup = function(domainType, domainId) {
       var elem = form_showDialog("Erinnerung an " + _(domainType), rows.join(""), 300, 300);
       elem.dialog("addbutton", _("close"), function() {
         churchInterface.jsendWrite({func: "saveReminder", domain_id: domainId, domain_type: domainType});
-        elem.dialog("close");  
+        elem.dialog("close");
       });
       elem.dialog("addbutton", "Erneut erinnern", function() {
-        elem.dialog("close");  
+        elem.dialog("close");
       });
       elem.find("#openEvent").click(function() {
         var event = calCCType.data[data.category_id].events[domainId];
@@ -80,7 +80,7 @@ ChurchInterface.prototype.showReminderPopup = function(domainType, domainId) {
         editEvent(event, true, event.startdate, {clientX: pos.left, clientY: pos.top});
       });
     }, null, null, "churchcal");
-  }  
+  }
 };
 
 ChurchInterface.prototype.setLastLogId= function (lastLogId) {
@@ -158,12 +158,12 @@ ChurchInterface.prototype.downloadFile = function(filename, filesuffix, data) {
   t.jsendWrite({func:"makeDownloadFile", filename:filename, suffix: filesuffix, data:data}, function(ok, data) {
     var Fenster = window.open(data);
     // Timer for deleting file
-    window.setTimeout(function() { 
+    window.setTimeout(function() {
       t.jsendWrite({func:"makeDownloadFile", remove:true, filename:data});
     }, 1000);
-  });    
+  });
 
-  /* THIS IS NOT SUPPORTED BY SAFARI UND FIREFOX   
+  /* THIS IS NOT SUPPORTED BY SAFARI UND FIREFOX
   var uri = 'data:text/col;charset=utf-8,' + escape(add+"\n"+exp.join(""));
 
   var downloadLink = document.createElement("a");
@@ -182,17 +182,18 @@ ChurchInterface.prototype.downloadFile = function(filename, filesuffix, data) {
  */
 ChurchInterface.prototype.generatePDF = function (basename) {
   var t = this;
-  var getDocTypeAsString = function () { 
+  var getDocTypeAsString = function () {
     var node = document.doctype;
     return node ? "<!DOCTYPE "
      + node.name
      + (node.publicId ? ' PUBLIC "' + node.publicId + '"' : '')
-     + (!node.publicId && node.systemId ? ' SYSTEM' : '') 
+     + (!node.publicId && node.systemId ? ' SYSTEM' : '')
      + (node.systemId ? ' "' + node.systemId + '"' : '')
      + '>\n' : '';
   };
-  var html = getDocTypeAsString() + document.documentElement.outerHTML;  
+  var html = getDocTypeAsString() + document.documentElement.outerHTML;
   html = html.replace(/<script.*?\/script>/g, "");
+  html = html.replace(/="system\//g, '="../../../system/');
   html = html.replace(/bootstrap.min.css/g, "bootstrap-pdf.min.css");
   html = html.replace(/churchtools.css/g, "churchtools-pdf.css");
   t.jsendWrite({func:"generatePDF", html:html, basename:basename}, function(ok, data) {
@@ -200,7 +201,7 @@ ChurchInterface.prototype.generatePDF = function (basename) {
       var fenster = window.open(data);
       fenster.focus();
       // Timer for deleting file
-      window.setTimeout(function() { 
+      window.setTimeout(function() {
         t.jsendWrite({func:"makeDownloadFile", remove:true, filename:data});
       }, 1000);
     }
