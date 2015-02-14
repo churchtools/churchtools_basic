@@ -366,50 +366,69 @@ ListView.prototype.saveEditEvent = function (elem) {
   if (csevent.id > 0) {    // Existing Event
     obj.id = allEvents[csevent.id].cc_cal_id;
 
-    var check = new Object();
-    check.originEvent = allEvents[csevent.id].clone();
-    check.originEvent.startdate = allEvents[csevent.id].cal_startdate;
-    check.originEvent.enddate = allEvents[csevent.id].cal_enddate;
-    delete check.originEvent.services;
+    // check if this is only a change of special info
+    var originEvent = allEvents[csevent.id];
+    var splitMaybeNeeded = false;
+    if (obj.startdate.toStringEn(true) != originEvent.startdate.toStringEn(true)) splitMaybeNeeded = true;
+    if (obj.enddate.toStringEn(true) != originEvent.enddate.toStringEn(true)) splitMaybeNeeded = true;
+    if (obj.bezeichnung != originEvent.bezeichnung) splitMaybeNeeded = true;
+    if (obj.category_id != originEvent.category_id) splitMaybeNeeded = true;
 
-    check.originEvent.id = allEvents[csevent.id].cc_cal_id
-    check.splitDate = allEvents[csevent.id].startdate;
-    check.newEvent = {
-                        startdate: obj.startdate,
-                        enddate: obj.enddate,
-                        category_id: allEvents[csevent.id].category_id,
-                        repeat_id: 0
-                      };
-    check.func = "getEventChangeImpact";
-    churchInterface.jsendWrite(check, function(ok, data) {
-      if (!ok) alert(data);
-      else {
-        if (allEvents[csevent.id].isSeries()) {
-          data.hint="<b>Mit dem Ausführen wird das Event aus der Kalenderserie herausgenommen und die gewünschten Änderungen übernommen. </b><br/>"+
-                    "Wenn alle Events geändert werden sollen, bitte "+masterData.churchcal_name+" verwenden!";
+    if (splitMaybeNeeded) {
+      var check = new Object();
+      check.originEvent = allEvents[csevent.id].clone();
+      check.originEvent.startdate = allEvents[csevent.id].cal_startdate;
+      check.originEvent.enddate = allEvents[csevent.id].cal_enddate;
+      delete check.originEvent.services;
+
+      check.originEvent.id = allEvents[csevent.id].cc_cal_id
+      check.splitDate = allEvents[csevent.id].startdate;
+      check.newEvent = {
+        startdate: obj.startdate,
+        enddate: obj.enddate,
+        category_id: allEvents[csevent.id].category_id,
+        repeat_id: 0
+      };
+      check.func = "getEventChangeImpact";
+      churchInterface.jsendWrite(check, function (ok, data) {
+        if (!ok) alert(data);
+        else {
+          if (allEvents[csevent.id].isSeries()) {
+            data.hint = "<b>Mit dem Ausführen wird das Event aus der Kalenderserie herausgenommen und die gewünschten Änderungen übernommen. </b><br/>" +
+            "Wenn alle Events geändert werden sollen, bitte " + masterData.churchcal_name + " verwenden!";
+          }
+          confirmImpactOfEventChange(data, function () {
+            if (check.originEvent.isSeries()) {
+              check.originEvent.doSplit(allEvents[csevent.id].startdate, false, function (newEvent, pastEvent) {
+                obj.func = "saveSplittedEvent";
+                obj.newEvent = newEvent;
+                obj.newEvent.bezeichnung = obj.bezeichnung;
+                obj.pastEvent = pastEvent;
+                obj.splitDate = allEvents[csevent.id].startdate;
+              });
+            }
+            else {
+              obj.func = "updateEvent";
+            }
+            churchInterface.jsendWrite(obj, function (ok, data) {
+              if (!ok) alert(data);
+              cs_loadEventData(null, function () {
+                this_object.renderList();
+              });
+            }, null, false);
+          });
         }
-        confirmImpactOfEventChange(data, function() {
-           if (check.originEvent.isSeries()) {
-             check.originEvent.doSplit(allEvents[csevent.id].startdate, false, function(newEvent, pastEvent) {
-               obj.func = "saveSplittedEvent";
-               obj.newEvent = newEvent;
-               obj.newEvent.bezeichnung = obj.bezeichnung;
-               obj.pastEvent = pastEvent;
-               obj.splitDate = allEvents[csevent.id].startdate;
-            });
-          }
-          else {
-            obj.func = "updateEvent";
-          }
-          churchInterface.jsendWrite(obj, function(ok, data) {
-            if (!ok) alert(data);
-            cs_loadEventData(null, function() {
-              this_object.renderList();
-            });
-          }, null, false);
+      });
+    } else {
+      // this is just a simple edit of the special info or the event admin => save it
+      obj.func = "updateEvent";
+      churchInterface.jsendWrite(obj, function (ok, data) {
+        if (!ok) alert(data);
+        cs_loadEventData(null, function () {
+          this_object.renderList();
         });
-      }
-    });
+      }, null, false);
+    }
   }
   else {
     obj.func="createEvent";
