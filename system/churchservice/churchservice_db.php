@@ -36,8 +36,6 @@ function churchservice_getEventChangeImpact($csparams) {
             "name" => $es->name,
             "person_id" => $es->cdb_person_id,
             "service" => $es->service,
-            // for debug reasons
-            "untilEnd" =>$untilEnd_yn, "checkDate" => $checkDate, "splitDate" =>$splitDate,
             "orig_startdate->getTimestamp()" => $orig_startdate->getTimestamp(),
             "param_startdate->getTimestamp()" => $param_startdate->getTimestamp()
         );
