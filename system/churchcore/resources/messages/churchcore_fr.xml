@@ -420,7 +420,7 @@
   <entry key="view.address">Voir les données d'adresse supplémentaires des personnes visibles (rue)</entry>
   <entry key="view.alldetails">Voir toutes les informations des personnes visibles, incluant les données d'adresse, adhésion de groupe, …</entry>
   <entry key="view.archive">Voir les archives de personnes</entry>
-  <entry key="use.complex.filters">"Complex filters" peut être utilisé</entry>
+  <entry key="use.complex.filters">'Complex filters' peut être utilisé</entry>
   <entry key="archivate.persons">Mettre des personnes dedans et les sortir des archives</entry>
   <entry key="edit.relations">Editer les relations des personnes visibles</entry>
   <entry key="edit.groups">Editer les adhésions de groupe des personnes visibles</entry>

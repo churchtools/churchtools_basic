@@ -644,7 +644,14 @@ function dateInCCEvent($date, $event) {
 function churchcal_getEventChangeImpact($params) {
   $res = new stdClass();
 
-  $res->cal = churchcal_getCCEventChangeImpact( $params["newEvent"], $params["pastEvent"], $params["originEvent"]);
+  // pastEvent and originEvent may be undefined
+  $pastEvent = null;
+  if (isset($params["pastEvent"])) $pastEvent = $params["pastEvent"];
+  
+  $originEvent = null;
+  if (isset($params["originEvent"])) $originEvent = $params["originEvent"];
+
+  $res->cal = churchcal_getCCEventChangeImpact( $params["newEvent"], $pastEvent, $originEvent);
 
   // Get ChurchService impact
   if (churchcore_isModuleActivated("churchservice") && isset($params["newEvent"]["csevents"])) {
@@ -658,7 +665,7 @@ function churchcal_getEventChangeImpact($params) {
     // Get dependencies from CR
     include_once ('./' . CHURCHRESOURCE . '/churchresource_db.php');
     $res->bookings = churchresource_getEventChangeImpact(
-                       $params["newEvent"], $params["pastEvent"], $params["originEvent"]
+                       $params["newEvent"], $pastEvent, $originEvent
                      );
   }
   return $res;

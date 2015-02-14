@@ -30,19 +30,19 @@ function churchresource_getEventChangeImpact($newEvent, $pastEvent, $originEvent
       if (!dateInCCEvent($d, $newEvent)) { // 1. Date is not in newEvent
         if (dateInCCEvent($d, $pastEvent)) {
           // 2a. in past Event, everything fine. Nothing to check, because in past is no changes in bookings!
-          foreach ($originEvent["bookings"] as $booking) {
+          if (isset($originEvent["bookings"])) foreach ($originEvent["bookings"] as $booking) {
             //$addCRChange($changes, $booking, "no.change", $d);
           }
         }
         else {
           // 2b. Deleted! Now for each booking make change entry
-          foreach ($originEvent["bookings"] as $booking) {
+          if (isset($originEvent["bookings"])) foreach ($originEvent["bookings"] as $booking) {
             $addCRChange($changes, $booking, "deleted", $d);
           }
         }
       }
       else { // 3. event is in newEvent, now check bookings!
-        if (!empty($originEvent["bookings"])) foreach ($originEvent["bookings"] as $booking) {
+        if (isset($originEvent["bookings"])) foreach ($originEvent["bookings"] as $booking) {
           if (empty($newEvent["bookings"])) {
             $addCRChange($changes, $booking, "deleted");
           }
@@ -58,7 +58,7 @@ function churchresource_getEventChangeImpact($newEvent, $pastEvent, $originEvent
           }
         }
         // Perhaps new resource in booking
-        foreach ($newEvent["bookings"] as $booking) {
+        if (isset($newEvent["bookings"])) foreach ($newEvent["bookings"] as $booking) {
           $originBooking = findBookingInOriginEvent($booking, $originEvent);
           if ($originBooking == null) {
             $addCRChange($changes, $booking, "new", $d);
@@ -72,7 +72,7 @@ function churchresource_getEventChangeImpact($newEvent, $pastEvent, $originEvent
     $ds = getAllDatesWithRepeats((object) $newEvent, 0, 9999, $splitDate);
     if ($ds) foreach ($ds as $d) {
       if (!dateInCCEvent($d, $originEvent)) {
-        foreach ($newEvent["bookings"] as $booking) {
+        if (isset($newEvent["bookings"])) foreach ($newEvent["bookings"] as $booking) {
           $addCRChange($changes, $booking, "new", $d);
         }
       }
