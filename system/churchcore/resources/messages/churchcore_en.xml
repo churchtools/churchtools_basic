@@ -300,7 +300,7 @@
   <entry key="send.bcc.copy.to.myself">send bcc copy to myself.</entry>
   <entry key="send.email.to.x">Send email to {0}</entry>
   <entry key="caution.that.email.will.be.send.to.x.persons">Do you really want to send this email to {0} recipients?</entry>
-  <entry key="please.fillin.name">Merci de remplir le nom</entry>
+  <entry key="please.fillin.name">Please fillin name</entry>
   <entry key="looking.for.visible.persons.in.all.your.departments">Looking in all persons visible to you and in persons of your departements</entry>
   <entry key="looking.for.a.person">Looking for a person</entry>
   <entry key="public.user">Public User</entry>

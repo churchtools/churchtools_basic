@@ -881,39 +881,6 @@ function getTagRelations() {
 }
 
 /**
- * get old group relation data, if user is allowed to view history
- * @return array
- */
-function getOldGroupRelations($id = null) {
-  if (!user_access("view history", "churchdb")) return null;
-
-  if ($id == null) {
-    $res = db_query("SELECT gp.person_id id, gpa.gruppe_id gp_id, status_no leiter, gpa.letzteaenderung d,
-                   gpa.aenderunguser user, gpa.comment
-                   FROM {cdb_gemeindeperson_gruppe_archive} gpa, {cdb_gemeindeperson} gp
-                   WHERE gpa.gemeindeperson_id=gp.id
-                   ORDER BY gpa.letzteaenderung DESC");
-  }
-  else {
-    $res = db_query("SELECT gp.person_id id, gpa.gruppe_id gp_id, status_no leiter, gpa.letzteaenderung d,
-                   gpa.aenderunguser user, gpa.comment
-                   FROM {cdb_gemeindeperson_gruppe_archive} gpa, {cdb_gemeindeperson} gp
-                   WHERE gpa.gemeindeperson_id=gp.id AND id=:id
-                   ORDER BY gpa.letzteaenderung DESC", array(":id"=>$id));
-  }
-  $arrs = null;
-  foreach ($res as $arr) {
-    $id = $arr->id;
-    unset($arr->id);
-    if ($arr->comment == null) unset($arr->comment);
-    if (empty($arrs[$id])) $arrs[$id] = array();
-    $arrs[$id][] = $arr;
-  }
-
-  return $arrs;
-}
-
-/**
  * get user settings for churchDB
  *
  * @param int $user_pid
