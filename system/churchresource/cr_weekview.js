@@ -456,7 +456,6 @@ WeekView.prototype.getBookings = function(res_id, date) {
   var tomorrow = new Date(d.getTime()-1);
 
   var searchString=this.getFilter("searchEntry").toUpperCase();
-
   each(t.getIndexedBookings(date), function(k,a) {
     var arr=$.extend({},allBookings[a.id]);
     if ((arr!=null) && ((!this.printview) || (arr.status_id==2))) {
@@ -526,6 +525,8 @@ WeekView.prototype.renderBookings = function(bookings) {
     if (a.location)
       text=text+" ("+a.location+")";
     if (a.status_id!=99 || (((masterData.auth.write) && (a.person_id==masterData.user_pid)) || ((user_access("edit",a.resource_id))))) {
+
+
       if ((!this.printview) &&
            ((masterData.auth.write) && (a.person_id==masterData.user_pid)) || ((user_access("edit", a.resource_id))))
         txt=txt+"<a href=\"#"+a.viewing_date.toStringEn()+"\" class=\"tooltips cr-status-"+a.status_id+"\" id=\"edit"+a.id+"\" data-tooltip-id=\""+a.id+"\" style=\"font-weight:normal;"
@@ -1030,6 +1031,7 @@ WeekView.prototype.showBookingDetails = function(func, id, date, element) {
   if (func == "copy") myEvent.id=null;
   // NEW This have to be before the split, cause the bookings have to split correctly
   if (myEvent.cc_cal_id!=null && myEvent.cc_cal_id!=0) myEvent = CR2CALType(myEvent);
+  if (date == null) date = myEvent.startdate;
 
   // D.h. entweder Erstelle oder Editiere
   myEvent.askForSplit(t.mousePosition, function(untilEnd) {

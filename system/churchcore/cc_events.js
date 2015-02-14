@@ -165,7 +165,7 @@ CCEvent.prototype.addException = function (date, deleteCS) {
   var t = this;
   if (t.exceptions==null) t.exceptions = new Object();
   else if (t.exceptions instanceof Array) {
-    // Change array to object, for adding -1 etc. 
+    // Change array to object, for adding -1 etc.
     t.exceptions = t.exceptions.reduce(function(o, v, i) {
       o[i] = v;
       return o;
@@ -265,11 +265,13 @@ CCEvent.prototype.isEqual = function (event) {
  * Ask user to doSplit. When event is no series, it will func(false)
  * @param {[type]} myEvent
  * @param {[type]} position (clientX, clientY)
- * @param {[type]} func (null = cancel, false=single event or single event in series, true=untilEnd)
+ * @param {[type]} func (null = cancel || false=single event or single event in series || true=untilEnd)
  */
 CCEvent.prototype.askForSplit = function (position, func) {
   var t = this;
-  if (!t.isSeries() || position == null) func(false);
+  if (!t.isSeries()) func(false);
+  // When no position is given, it is called from startpage, so display whole series
+  else if (position == null || position.clientX == null) (func(true));
   else {
     $("#popupmenu").popupmenu({
       entries: ["Nur diesen Termin ändern", "Diesen und zukünftige ändern", "Abbruch"],
@@ -422,12 +424,14 @@ function addCSEvent(currentEvent, csevent) {
  */
 function deleteNewerExceptionsAndAdditions(event, date, deleteCS) {
   each(event.exceptions, function(k,a) {
-    if (a.except_date_start.toDateEn(false).getTime() > date.getTime())
+    if (a.except_date_start.toDateEn(false).getTime() > date.getTime()) {
       delete event.exceptions[k];
+    }
   });
   each(event.additions, function(k,a) {
-    if (a.add_date.toDateEn(false).getTime() > date.getTime())
+    if (a.add_date.toDateEn(false).getTime() >= date.getTime()) {
       delete event.additions[k];
+    }
   });
   each(event.csevents, function(k,a) {
     if (a.startdate.withoutTime().getTime() > date.getTime()) {
@@ -445,12 +449,14 @@ function deleteNewerExceptionsAndAdditions(event, date, deleteCS) {
  */
 function deleteOlderExceptionsAndAdditions(event, date, deleteCS) {
   each(event.exceptions, function(k,a) {
-    if (a.except_date_start.toDateEn(false).getTime() < date.getTime())
+    if (a.except_date_start.toDateEn(false).getTime() < date.getTime()) {
       delete(event.exceptions[k]);
+    }
   });
   each(event.additions, function(k,a) {
-    if (a.add_date.toDateEn(false).getTime() < date.getTime())
+    if (a.add_date.toDateEn(false).getTime() <= date.getTime()) {
       delete(event.additions[k]);
+    }
   });
   each(event.csevents, function(k,a) {
     if (a.startdate.withoutTime().getTime() < date.getTime()) {
