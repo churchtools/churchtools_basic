@@ -21,26 +21,28 @@ function churchservice_rebindServicesToNewEvent($oldEventId, $newEventId, $split
 function churchservice_getEventChangeImpact($csparams) {
   $services = array();
   foreach ($csparams as $csparam) {
-    $res = db_query("SELECT es.id, e.startdate, s.bezeichnung service, es.zugesagt_yn, es.name, es.cdb_person_id
-                     FROM {cs_event} e, {cs_eventservice} es, {cs_service} s
-                     WHERE e.id = :id AND es.service_id = s.id
-                     AND es.event_id = e.id AND es.valid_yn = 1 AND cdb_person_id is not null",
-        array(":id" => $csparam["id"]));
-    $param_startdate = new DateTime($csparam["startdate"]);
-    foreach ($res as $es) {
-      $orig_startdate = new DateTime($es->startdate);
-      if ((getVar("action", null, $csparam)!=null)
-      || ($orig_startdate->getTimestamp()!=$param_startdate->getTimestamp())) {
-        $services[] = array("date" => $es->startdate,
-            "confirmed" => $es->zugesagt_yn==1,
-            "name" => $es->name,
-            "person_id" => $es->cdb_person_id,
-            "service" => $es->service,
-            // for debug reasons
-            "untilEnd" =>$untilEnd_yn, "checkDate" => $checkDate, "splitDate" =>$splitDate,
-            "orig_startdate->getTimestamp()" => $orig_startdate->getTimestamp(),
-            "param_startdate->getTimestamp()" => $param_startdate->getTimestamp()
-        );
+    if (isset($csparam["id"])) {
+      $res = db_query("SELECT es.id, e.startdate, s.bezeichnung service, es.zugesagt_yn, es.name, es.cdb_person_id
+                       FROM {cs_event} e, {cs_eventservice} es, {cs_service} s
+                       WHERE e.id = :id AND es.service_id = s.id
+                       AND es.event_id = e.id AND es.valid_yn = 1 AND cdb_person_id is not null",
+          array(":id" => $csparam["id"]));
+      $param_startdate = new DateTime($csparam["startdate"]);
+      foreach ($res as $es) {
+        $orig_startdate = new DateTime($es->startdate);
+        if ((getVar("action", null, $csparam)!=null)
+        || ($orig_startdate->getTimestamp()!=$param_startdate->getTimestamp())) {
+          $services[] = array("date" => $es->startdate,
+              "confirmed" => $es->zugesagt_yn==1,
+              "name" => $es->name,
+              "person_id" => $es->cdb_person_id,
+              "service" => $es->service,
+              // for debug reasons
+              //"untilEnd" =>$untilEnd_yn, "checkDate" => $checkDate, "splitDate" =>$splitDate,
+              "orig_startdate->getTimestamp()" => $orig_startdate->getTimestamp(),
+              "param_startdate->getTimestamp()" => $param_startdate->getTimestamp()
+          );
+        }
       }
     }
   }

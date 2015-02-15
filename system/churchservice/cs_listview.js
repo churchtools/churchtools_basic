@@ -407,6 +407,7 @@ ListView.prototype.saveEditEvent = function (elem) {
                 obj.newEvent.bezeichnung = obj.bezeichnung;
                 obj.pastEvent = pastEvent;
                 obj.splitDate = allEvents[csevent.id].startdate;
+                obj.untilEnd_yn = 0;
               });
             }
             else {

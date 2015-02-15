@@ -424,17 +424,17 @@ function addCSEvent(currentEvent, csevent) {
  */
 function deleteNewerExceptionsAndAdditions(event, date, deleteCS) {
   each(event.exceptions, function(k,a) {
-    if (a.except_date_start.toDateEn(false).getTime() > date.getTime()) {
+    if ((a != null) && (a.except_date_start.toDateEn(false).getTime() > date.getTime())) {
       delete event.exceptions[k];
     }
   });
   each(event.additions, function(k,a) {
-    if (a.add_date.toDateEn(false).getTime() >= date.getTime()) {
+    if ((a != null) && (a.add_date.toDateEn(false).getTime() >= date.getTime())) {
       delete event.additions[k];
     }
   });
   each(event.csevents, function(k,a) {
-    if (a.startdate.withoutTime().getTime() > date.getTime()) {
+    if ((a != null) && (a.startdate.withoutTime().getTime() > date.getTime())) {
       if (deleteCS==null || !deleteCS) event.csevents[k].action="delete";
       else delete event.csevents[k];
     }
@@ -449,17 +449,17 @@ function deleteNewerExceptionsAndAdditions(event, date, deleteCS) {
  */
 function deleteOlderExceptionsAndAdditions(event, date, deleteCS) {
   each(event.exceptions, function(k,a) {
-    if (a.except_date_start.toDateEn(false).getTime() < date.getTime()) {
+    if ((a != null) && (a.except_date_start.toDateEn(false).getTime() < date.getTime())) {
       delete(event.exceptions[k]);
     }
   });
   each(event.additions, function(k,a) {
-    if (a.add_date.toDateEn(false).getTime() <= date.getTime()) {
+    if ((a != null) && (a.add_date.toDateEn(false).getTime() <= date.getTime())) {
       delete(event.additions[k]);
     }
   });
   each(event.csevents, function(k,a) {
-    if (a.startdate.withoutTime().getTime() < date.getTime()) {
+    if ((a != null) && (a.startdate.withoutTime().getTime() < date.getTime())) {
       if (deleteCS==null || !deleteCS) event.csevents[k].action="delete";
       else delete event.csevents[k];
     }
