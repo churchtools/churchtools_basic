@@ -373,6 +373,8 @@ ListView.prototype.saveEditEvent = function (elem) {
     if (obj.enddate.toStringEn(true) != originEvent.enddate.toStringEn(true)) splitMaybeNeeded = true;
     if (obj.bezeichnung != originEvent.bezeichnung) splitMaybeNeeded = true;
     if (obj.category_id != originEvent.category_id) splitMaybeNeeded = true;
+    if (((originEvent.admin == null) && (csevent.admin != "")) ||
+      ((originEvent.admin != null) && (csevent.admin != originEvent.admin))) splitMaybeNeeded = true;
 
     if (splitMaybeNeeded) {
       var check = new Object();
@@ -420,9 +422,12 @@ ListView.prototype.saveEditEvent = function (elem) {
         }
       });
     } else {
-      // this is just a simple edit of the special info or the event admin => save it
-      obj.func = "updateEvent";
-      churchInterface.jsendWrite(obj, function (ok, data) {
+      // this is just a simple edit of the special info => save it
+      var saveobj = new Object();
+      saveobj.func="saveNote";
+      saveobj.text=csevent.special;
+      saveobj.event_id=csevent.id;
+      churchInterface.jsendWrite(saveobj, function(ok, data) {
         if (!ok) alert(data);
         cs_loadEventData(null, function () {
           this_object.renderList();
