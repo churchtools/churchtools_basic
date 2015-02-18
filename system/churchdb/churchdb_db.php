@@ -1204,7 +1204,7 @@ function archiveUser($p_id, $undo = false) {
     }
 
     // Now check fields if there is something to delete
-    $res = db_query("SELECT db_spalte, db_tabelle, id_name, feldtyp_id from cdb_feld f, cdb_feldkategorie fk
+    $res = db_query("SELECT db_spalte, db_tabelle, id_name, feldtyp_id FROM {cdb_feld} f, {cdb_feldkategorie} fk
                       WHERE f.feldkategorie_id=fk.id AND f.del_when_move_to_archive_yn=1");
     foreach ($res as $field) {
       if ($field->db_tabelle == 'cdb_person' || $field->db_tabelle == 'cdb_gemeindeperson') {
