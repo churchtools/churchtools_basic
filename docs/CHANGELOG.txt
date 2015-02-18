@@ -2,4 +2,5 @@ Das gesamte Changelog ist hier zu finden:
 https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc:Changelog/
 
 2.53b
-* Archivierung führte bei Prefix-Installation zu Problemen
+- (CDB) Archivierung führte bei Prefix-Installation zu Problemen
+- (Cal) Predigernamen bei freien Texten aus CS wurden nicht angezeigt

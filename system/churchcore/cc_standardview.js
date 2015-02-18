@@ -704,14 +704,21 @@ StandardTableView.prototype.renderFile = function(file, filename_length) {
   txt="";
   if (file!=null) {
     txt=txt+'<span class="tooltip-file file" data-id="'+file.id+'">';
+    var media = false;
     var i = file.bezeichnung.lastIndexOf(".");
     if (i>0) {
       switch (file.bezeichnung.substr(i,99)) {
       case '.mp3':
         txt=txt+this.renderImage("mp3",18);
+        media=true;
         break;
       case '.m4a':
         txt=txt+this.renderImage("mp3",18);
+        media=true;
+        break;
+      case '.mp4':
+        txt=txt+this.renderImage("paperclip",18);
+        media=true;
         break;
       case '.pdf':
         txt=txt+this.renderImage("pdf",18);
@@ -737,7 +744,10 @@ StandardTableView.prototype.renderFile = function(file, filename_length) {
       var filetype=file.bezeichnung.substr(i-4,99);
       filename=filename.substr(0,filename_length-4)+"[..]"+filetype;
     }
-    txt=txt+' <a target="_blank" href="?q='+masterData.modulename+'/filedownload&id='+file.id+'&filename='+file.filename+'">'+filename+'</a>';
+    if (!media || !churchcore_touchscreen())
+      txt=txt+' <a target="_blank" href="?q='+masterData.modulename+'/filedownload&id='+file.id+'&filename='+file.filename+'">'+filename+'</a>';
+    else // this is for touchscreens using the media player
+      txt=txt+' <a class="intern" href="#">'+filename+'</a>';
     txt=txt+'</span><br/>';
   }
   return txt;
@@ -788,6 +798,10 @@ StandardTableView.prototype.renderTooltipForFiles = function (tooltip, f, editau
   if (editauth) {
     rows.push(form_renderButton({label:_("delete"), cssid:"file_delete", htmlclass:"btn-danger btn-small"})+"&nbsp;");
     title='<span id="file_name">'+f.bezeichnung+" "+form_renderImage({label:_("rename"), src:"options.png", width:20, cssid:"file_rename"})+'</span>';
+    // Add close button for touchscreens
+    if (churchcore_touchscreen())
+      title=title+form_renderButton({label:_("close"), cssid:"file_close", htmlclass:"pull-right btn-small"});
+
   }
 
   rows.push(form_renderHidden({cssid:"file",value:"true"}));
@@ -841,6 +855,10 @@ StandardTableView.prototype.tooltipCallbackForFiles = function(id, tooltip, file
     });
     return false;
   });
+  tooltip.find("#file_close").click(function() {
+    clearTooltip(true);
+    return false;
+  });
   tooltip.find("#file_delete").click(function() {
     if (confirm(_("really.delete.file"))) {
       churchInterface.jsendWrite({func:"delFile", id:f.id}, function(ok, data) {
@@ -880,6 +898,7 @@ StandardTableView.prototype.renderFilelist = function(header, filecontainer, spe
           txt=txt+t.renderFile(a,filename_length);
         });
         $(this).html(txt);
+        $("a.intern").click(function() {return false;});
       }
     }
   });

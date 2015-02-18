@@ -807,17 +807,20 @@ function churchcal_getCalPerCategory($params, $withIntern = null) {
         if (strpos($e->cal_text_template, "[") === false) {
           $txt = $e->cal_text_template;
         }
+        $p = null;
+        // First use person_id
         if ($e->cdb_person_id) {
-          include_once (CHURCHDB . "/churchdb_db.php");
           $p = db_query("SELECT * FROM {cdb_person}
                          WHERE id=:id",
                          array (":id" => $e->cdb_person_id))
                          ->fetch();
-          if ($p) {
-            $txt = churchcore_personalizeTemplate($e->cal_text_template, $p);
-          }
         }
-        if (!in_array($txt, $service_texts)) { //TODO: maybe use in_array() instead
+        // When not available use name
+        if (!$p && $e->name) $p->name = $e->name;
+        if ($p) {
+          $txt = churchcore_personalizeTemplate($e->cal_text_template, $p);
+        }
+        if (!in_array($txt, $service_texts)) {
           $service_texts[] = $txt;
         }
       }
