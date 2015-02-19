@@ -471,45 +471,37 @@ SongView.prototype.renderStats = function() {
   if (!masterData.auth["view song statistics"] || churchcore_handyformat()) return;
 
   cs_loadSongStats(function() {
-    var months = new Array();
-    var d = new Date();
-    for (var i=18; i>0; i--) {
-      d.setMonth(d.getMonth()-1);
-      months[d.getFullYear()+""+d.getMonth()]=0;
-    }
-
-    if (masterData.auth["view song statistics"]) {
-      var maxVal=0;
-      var months = new Object();
-      each(allSongs, function(k,s) {
-        months[s.id] = new Object();
-        var d = new Date();
-        for (var i=18; i>0; i--) {
-          months[s.id][d.getFullYear()+""+d.getMonth()]=0;
-          d.setMonth(d.getMonth()-1);
-        }
-        var count = 0;
-        each(s.arrangement, function(i,a) {
-          if (a.statistics!=null) {
-            each(a.statistics, function(j,st) {
-              var d = st.toDateEn(false);
-              var w = d.getFullYear()+""+d.getMonth();
-              if (months[s.id][w]!=null) {
-                months[s.id][w] = months[s.id][w] + 1;
-                if (months[s.id][w]>maxVal) maxVal=months[s.id][w];
-              }
-            })
-          }
-        });
-      });
-      each(months, function(s, song) {
-        var sparks = new Array();
-        each(song, function(k,a) {
-          sparks.push(a);
-        })
-        $('.sparkline[data-id="'+s+'"]').sparkline(sparks, {chartRangeMax:maxVal, height:20, chartRangeMin:0, type:"bar"});
-        });
+    var maxVal=0;
+    var months = new Object();
+    each(allSongs, function(k,s) {
+      months[s.id] = new Object();
+      var d = new Date();
+      // Fill with 0 if there is no data
+      for (var i = 18; i > 0; i--) {
+        months[s.id][d.getFullYear() + "" + ("0" + (d.getMonth() + 1)).slice(-2)]=0;
+        d.setMonth(d.getMonth() - 1);
       }
+      var count = 0;
+      each(s.arrangement, function(i,arr) {
+        if (arr.statistics!=null) {
+          each(arr.statistics, function(j,st) {
+            var d = st.toDateEn(false);
+            var w = d.getFullYear() + "" + ("0" + (d.getMonth() + 1)).slice(-2);
+            if (months[s.id][w]!=null) {
+              months[s.id][w] = months[s.id][w] + 1;
+              if (months[s.id][w] > maxVal) maxVal = months[s.id][w];
+            }
+          });
+        }
+      });
+    });
+    each(months, function(s, song) {
+      var sparks = new Array();
+      each(song, function(k,a) {
+        sparks.push(a);
+      });
+      $('.sparkline[data-id="'+s+'"]').sparkline(sparks, {chartRangeMax:maxVal, height:20, chartRangeMin:0, type:"bar"});
+      });
   });
 
 }

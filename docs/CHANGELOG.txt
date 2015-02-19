@@ -4,3 +4,4 @@ https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc
 2.53b
 - (CDB) Archivierung führte bei Prefix-Installation zu Problemen
 - (Cal) Predigernamen bei freien Texten aus CS wurden nicht angezeigt
+- (CS) Fehler in der Songstatik behoben
