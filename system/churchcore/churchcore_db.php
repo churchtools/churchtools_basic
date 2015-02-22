@@ -2082,6 +2082,28 @@ function getUserAuthorization($user_id) {
 }
 
 /**
+ * If $permMore has more than $permOrig returns true, otherwise false
+ * @param Array $permOne getUserAuthorization()
+ * @param Array $permNew getUserAuthorization()
+ */
+function hasMorePerms($permOrig, $permMore) {
+  foreach ($permMore as $app => $perms) {
+    if (empty($permOrig[$app])) return true;
+
+    foreach ($perms as $permKey => $perm) {
+      if (empty($permOrig[$app][$permKey])) return true;
+
+      if (is_array($perm)) {
+        foreach ($perm as $dataKey => $data) {
+          if (!isset($permOrig[$app][$permKey][$dataKey])) return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
+/**
  * logout current user
  */
 function logout_current_user() {

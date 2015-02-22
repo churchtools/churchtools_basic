@@ -1410,21 +1410,28 @@ function f_functions($params) {
   $function = $params["func"];
   $fields = getAllFields("intern_code = '$function'");
 
-  // Check if someone try to set an existing email, but have no write access to churchdb
+  // Check if someone try to set an existing email, but have no administer persons
   // otherwise someone could use the email of an admin...
-  if (isset($params["email"]) && !user_access("write access", "churchdb")) {
+  if (isset($params["email"]) && !user_access("administer persons", "churchcore")) {
     // Check, if the email address has changed
-    $db = db_query("SELECT * FROM {cdb_person} p
+    $db = db_query("SELECT id FROM {cdb_person} p
                     WHERE id=:id",
                     array (":id" => $params["id"]))
                     ->fetch();
     if ($db->email != $params["email"]) {
-      // Check, if another user has this email
-      $db = db_query("SELECT * FROM {cdb_person} p
-                      WHERE email=:email AND id!=:id",
-                      array (":email" => $params["email"], ":id" => $params["id"]))
-                      ->fetch();
-      if ($db) throw new CTFail(t('email.already.used.you.need.more.rights.to.change.this'));
+      // Check if other user have more permissions than this one, than don't allow to set email
+      $newUserPerms = getUserAuthorization($params["id"]);
+      $db = db_query("SELECT id FROM {cdb_person} p
+                    WHERE email=:email",
+          array (":email" => $params["email"]));
+      $morePermissions = false;
+      foreach ($db as $p) {
+        $otherUserPerms = getUserAuthorization($p->id);
+        if (hasMorePerms($newUserPerms, $otherUserPerms)) $morePermissions = true;
+      }
+      if ($morePermissions) {
+        throw new CTFail(t('email.already.used.you.need.more.rights.to.change.this'));
+      }
     }
   }
   if ($function == "f_group") saveGeocodeGruppe($params["id"], "", "");
