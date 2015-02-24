@@ -1,0 +1,13 @@
+<h4>Hallo <?= $nickname ?>,</h4>
+
+  <p>Das ist eine Erinnerung an <i><?= $notifyName?></i>.
+  <p>
+  <ul>
+	<?php foreach ($fields as $key=>$field): ?>
+	    <?php if (!empty($field)) { ?>
+	    <li><?= $key ?>: <?= $field ?>
+	    <?php } ?>
+	<?php  endforeach; ?>
+  </ul>
+  <br/>
+  <a href="<?= $link?>">Aufruf von <?= $sitename?></a>

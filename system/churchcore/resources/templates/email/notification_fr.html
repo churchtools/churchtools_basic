@@ -1,0 +1,11 @@
+
+<h4>Hello <?=$nickname?>,</h4>
+
+  <p>News in <i><?= $notifyName ?></i>:
+  <ul>
+<?php foreach ($messages as $m): ?>
+    <li><?= $m->date ?> - <?= $m->text ?>
+<?php  endforeach; ?>
+  </ul>
+  <p>
+  <p><small>Settings for sending: <b><?= $notifyType ?></b></small>

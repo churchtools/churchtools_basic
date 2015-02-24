@@ -77,14 +77,14 @@ class CTChurchResourceModule extends CTAbstractModule {
     include_once ('./' . CHURCHCAL . '/churchcal_db.php');
     return churchcal_deleteEvent($params);
   }
-  
+
   public function updateBooking($params) {
-    include_once ("churchresource_db.php");
+    include_once ('./' . CHURCHRESOURCE . '/churchresource_db.php');
     return churchresource_updateBooking($params);
   }
-  
+
   public function createBooking($params) {
-    include_once ("churchresource_db.php");
+    include_once ('./' . CHURCHRESOURCE . '/churchresource_db.php');
     return churchresource_createBooking($params);
   }
 
