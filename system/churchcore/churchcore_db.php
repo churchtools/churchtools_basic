@@ -944,13 +944,13 @@ function churchcore_sendEMailToPersonIDs($ids, $subject, $content, $from = null,
  */
 function churchcore_personalizeTemplate($txt, $p) {
   if ($p == null) return $txt;
-  $txt = str_replace("[Vorname]", $p->vorname, $txt);
-  $txt = str_replace("[Nachname]", $p->name, $txt);
-  $txt = str_replace("[Titel]", $p->titel, $txt);
-  $txt = str_replace("[Spitzname]", ($p->spitzname ? $p->spitzname : $p->vorname), $txt);
-  $txt = str_replace("[Id]", $p->id, $txt);
-  $txt = str_replace("[Initialen]", substr($p->vorname,0,1) . substr($p->name,0,1), $txt);
-  $txt = str_replace("[Benutzername]", $p->cmsuserid, $txt);
+  if (isset($p->vorname))   $txt = str_replace("[Vorname]", $p->vorname, $txt);
+  if (isset($p->name))      $txt = str_replace("[Nachname]", $p->name, $txt);
+  if (isset($p->title))     $txt = str_replace("[Titel]", $p->titel, $txt);
+  if (isset($p->vorname))   $txt = str_replace("[Spitzname]", ($p->spitzname ? $p->spitzname : $p->vorname), $txt);
+  if (isset($p->id))        $txt = str_replace("[Id]", $p->id, $txt);
+  if (isset($p->vorname))   $txt = str_replace("[Initialen]", substr($p->vorname,0,1) . substr($p->name,0,1), $txt);
+  if (isset($p->cmsuserid)) $txt = str_replace("[Benutzername]", $p->cmsuserid, $txt);
   return $txt;
 }
 

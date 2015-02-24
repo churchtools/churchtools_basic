@@ -71,7 +71,7 @@ function login_main() {
         $res = db_query("DELETE FROM {cc_loginstr}
                          WHERE loginstr=:loginstr AND person_id=:id",
                          array (":loginstr" => $loginstr,
-                                ":id" => $i,
+                                ":id" => $id,
                          ));
         ct_log("Login User $id erfolgreich mit loginstr ", 2, "-1", "login");
         $res = churchcore_getPersonById($id);

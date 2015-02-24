@@ -816,7 +816,10 @@ function churchcal_getCalPerCategory($params, $withIntern = null) {
                          ->fetch();
         }
         // When not available use name
-        if (!$p && $e->name) $p->name = $e->name;
+        if (!$p && $e->name) {
+          $p = new stdClass();
+          $p->name = $e->name;
+        }
         if ($p) {
           $txt = churchcore_personalizeTemplate($e->cal_text_template, $p);
         }

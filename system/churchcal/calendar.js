@@ -1920,10 +1920,12 @@ function renderFilterCalender() {
         rows.push('<li><a href="#" class="options share">Freigabe-Einstellungen</a></li>');
         rows.push('<li><a href="#" class="options edit">Weitere Optionen</a></li>');
       }
-      if (getNotification("category", id-100)===false)
-        rows.push('<li><a href="#" class="options notification">Email-Abo einrichten</a></li>');
-      else
-        rows.push('<li><a href="#" class="options notification">Email-Abo bearbeiten</a></li>');
+      if (masterData.user_pid>0) {
+        if (getNotification("category", id-100)===false)
+          rows.push('<li><a href="#" class="options notification">Email-Abo einrichten</a></li>');
+        else
+          rows.push('<li><a href="#" class="options notification">Email-Abo bearbeiten</a></li>');
+      }
       rows.push('<li class="divider"></li>');
       rows.push('<li><a href="#" class="options enable-all">Alle aktivieren</a></li>');
       rows.push('<li><a href="#" class="options disable-all">Alle anderen deaktivieren</a></li>');

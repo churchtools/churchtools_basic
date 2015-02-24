@@ -83,15 +83,19 @@ function churchservice_getAuthorization() {
     $res["editfacts"] = true;
     $res["viewfacts"] = true;
   }
-  if (isset($auth["view song"]))  if (isset($auth["view songcategory"])) { //use this? if (isset($auth["view song"]) && isset($auth["view songcategory"]))
-    $res["viewsong"] = true;
-    $res["viewsongcategory"] = $auth["view songcategory"];
-  }
-  $res["view song statistics"] = $auth["view song statistics"];
-  if (isset($auth["edit song"])) if (isset($auth["view songcategory"])) {
-    $res["viewsong"] = true;
-    $res["editsong"] = true;
-    $res["viewsongcategory"] = $auth["view songcategory"];
+  if (isset($auth["view song"])) {
+    if (isset($auth["view songcategory"])) {
+      $res["viewsong"] = true;
+      $res["viewsongcategory"] = $auth["view songcategory"];
+    }
+    if (isset($auth["view song statistics"])) {
+      $res["view song statistics"] = $auth["view song statistics"];
+    }
+    if (isset($auth["edit song"])) if (isset($auth["view songcategory"])) {
+      $res["viewsong"] = true;
+      $res["editsong"] = true;
+      $res["viewsongcategory"] = $auth["view songcategory"];
+    }
   }
 
   if (isset($auth["view servicegroup"])) $res_view = $auth["view servicegroup"];
@@ -267,7 +271,7 @@ function churchservice_getAllEventData($params) {
       if ($arr->repeat_frequence == null) unset($arr->repeat_frequence);
       if ($arr->repeat_option_id == null) unset($arr->repeat_option_id);
       if ($arr->repeat_until == null) unset($arr->repeat_until);
-      if (isset($excs[$arr->cc_cal_id])) $arr->exceptions = $excs[$arr->cc_cal_id]; 
+      if (isset($excs[$arr->cc_cal_id])) $arr->exceptions = $excs[$arr->cc_cal_id];
 
       // here we go!
       $events[$arr->id] = $arr;
