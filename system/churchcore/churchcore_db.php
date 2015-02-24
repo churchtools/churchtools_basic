@@ -469,6 +469,8 @@ function addInfoMessage($message, $hide = false) {
 function t($txt) {
   global $i18n;
 
+  $return = null;
+
   if (isset($i18n)) {
     // calls the function with the values in $data as arguments like $i18n->getText($data[0], $data[1], ...)
     $return = call_user_func_array(array ($i18n, "getText"), func_get_args());
@@ -944,13 +946,15 @@ function churchcore_sendEMailToPersonIDs($ids, $subject, $content, $from = null,
  */
 function churchcore_personalizeTemplate($txt, $p) {
   if ($p == null) return $txt;
-  if (isset($p->vorname))   $txt = str_replace("[Vorname]", $p->vorname, $txt);
-  if (isset($p->name))      $txt = str_replace("[Nachname]", $p->name, $txt);
-  if (isset($p->title))     $txt = str_replace("[Titel]", $p->titel, $txt);
-  if (isset($p->vorname))   $txt = str_replace("[Spitzname]", ($p->spitzname ? $p->spitzname : $p->vorname), $txt);
-  if (isset($p->id))        $txt = str_replace("[Id]", $p->id, $txt);
-  if (isset($p->vorname))   $txt = str_replace("[Initialen]", substr($p->vorname,0,1) . substr($p->name,0,1), $txt);
-  if (isset($p->cmsuserid)) $txt = str_replace("[Benutzername]", $p->cmsuserid, $txt);
+  $txt = str_replace("[Vorname]", ( isset($p->vorname) ? $p->vorname : ""), $txt);
+  $txt = str_replace("[Nachname]", ( isset($p->name) ? $p->name : ""), $txt);
+  $txt = str_replace("[Name]", ( isset($p->name) ? $p->name : ""), $txt);
+  $txt = str_replace("[Titel]", ( isset($p->titel) ? $p->titel : ""), $txt);
+  $txt = str_replace("[Spitzname]", ( isset($p->spitzname) ? $p->spitzname : (isset ( $p->vorname ) ? $p->vorname : "")), $txt);
+  $txt = str_replace("[Id]", ( isset($p->id) ? $p->id : ""), $txt);
+  $txt = str_replace("[Initialen]", ( isset($p->vorname) ? substr($p->vorname,0,1) : "")
+                                   . ( isset($p->name) ? substr($p->name,0,1) : ""), $txt);
+  $txt = str_replace("[Benutzername]", ( isset($p->cmsuserid) ? $p->cmsuserid : ""), $txt);
   return $txt;
 }
 

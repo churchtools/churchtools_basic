@@ -62,7 +62,7 @@ function churchdb_getAllowedPersonData($cond = '', $fields = "p.id p_id, gp.id g
       }
       if ($res) {
         if (isset($departments[$p->p_id])) $p->access = $departments[$p->p_id];
-        if (isset($arrGroups[$p->gp_id])) $p->groups = $arrGroups[$p->gp_id];
+        if (isset($p->gp_id) && isset($arrGroups[$p->gp_id])) $p->groups = $arrGroups[$p->gp_id];
         $allPersons[$p->p_id] = $p;
       }
     }
