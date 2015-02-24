@@ -744,7 +744,7 @@ StandardTableView.prototype.renderFile = function(file, filename_length) {
       var filetype=file.bezeichnung.substr(i-4,99);
       filename=filename.substr(0,filename_length-4)+"[..]"+filetype;
     }
-    if (!media || !churchcore_touchscreen())
+    if (!media || !churchcore_touchscreen())
       txt=txt+' <a target="_blank" href="?q='+masterData.modulename+'/filedownload&id='+file.id+'&filename='+file.filename+'">'+filename+'</a>';
     else // this is for touchscreens using the media player
       txt=txt+' <a class="intern" href="#">'+filename+'</a>';
