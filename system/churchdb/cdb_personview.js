@@ -3716,7 +3716,7 @@ PersonView.prototype.renderEditEntry = function(id, fieldname, preselect) {
   }
   else if (fieldname=="f_image") {
     width=300; height=300;
-    rows[rows.length]="<p>Bitte nun ein Bild im Format JPG ausw&auml;hlen.<div id=\"upload_button\">Nochmal bitte...</div><p><div id=\"image_uploaded\"/>";
+    rows[rows.length]="<p>Bitte ein JPG oder PNG-Bild ausw&auml;hlen.<div id=\"upload_button\">Nochmal bitte...</div><p><div id=\"image_uploaded\"/>";
     rows.push('<p><small>Maximale Gr&ouml;sse: '+Math.round(masterData.max_uploadfile_size_kb/1024)+'MB</small>');
     if (a.imageurl!=null)
       rows.push('<P><a href="#" id="deleteimage">'+form_renderImage({src:'trashbox.png', width:16})+' Aktuelles Bild entfernen</a>');

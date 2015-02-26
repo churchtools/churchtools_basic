@@ -5,3 +5,5 @@ https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc
 - (CDB) Archivierung führte bei Prefix-Installation zu Problemen
 - (Cal) Predigernamen bei freien Texten aus CS wurden nicht angezeigt
 - (CS) Fehler in der Songstatik behoben
++ (CDB) Umgang bei Problemen mit Upload von Benutzerbilder verbessert und PNG-Upload ergänzt.
+- Sicherheit erhöht: Man kann nun nicht mehr Rechte durch das Setzen von vorhandenen E-Mail Adressen erschleichen
