@@ -52,6 +52,18 @@ abstract class CTAbstractModule implements CTModuleInterface {
   public function saveMasterData($params) {
     if ((user_access("edit masterdata", $this->modulename)) &&
          (churchcore_isAllowedMasterData($this->getMasterDataTablenames(), $params["table"]))) {
+
+      // Check CDB_Feld for existing db field, because this is support case no 1...
+      if ($params["table"] == "cdb_feld") {
+        $fk = churchcore_getTableData("cdb_feldkategorie");
+        $data = $fk[$params["value0"]];
+        try {
+          $res = db_query("SELECT ".$params["value2"]." FROM {".$data->db_tabelle."} LIMIT 1", null, false)->fetch();
+        }
+        catch (Exception $e) {
+          throw new CTException("Datenfeld ".$params["value2"]." existiert nicht. Bitte erst vom Datenbankadmin anlegen lassen.");
+        }
+      }
       churchcore_saveMasterData($params["id"], $params["table"]);
       $this->logMasterData($params);
     }
