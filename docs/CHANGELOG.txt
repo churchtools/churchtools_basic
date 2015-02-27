@@ -11,3 +11,4 @@ https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc
 2.53c
 + Erweitere Datums-Prüfung beim Editieren von Kalender und Resourcen-Einträgen.
 - (CS) Es wurde beim Bearbeiten von mehreren Agendas nicht immer die richtige ausgewählt.
++ Prüfe maximale Upload-Fähigkeit in den Admin-Einstellungen.

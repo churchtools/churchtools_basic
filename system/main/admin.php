@@ -108,6 +108,19 @@ function admin_main() {
   return $txt;
 }
 
+function churchadmin_validateAdminForm($key, $val) {
+  if ($key=="max_uploadfile_size_kb") {
+    try {
+      new qqFileUploader(array(), $val*1);
+    }
+    catch (Exception $e) {
+      return $e->getMessage();
+    }
+  }
+  return true;
+}
+
+
 /**
  * save admin settings and reload config
  *
@@ -116,6 +129,22 @@ function admin_main() {
  * @param CTForm $form
  */
 function admin_saveSettings($form) {
+
+  $modules = churchcore_getModulesSorted(false, true);
+  $modules[] = "churchadmin";
+  foreach ($modules as $module) {
+    foreach ($form->fields as $key => $value) {
+      if (function_exists($module . "_validateAdminForm")) {
+        $res = call_user_func($module . "_validateAdminForm", $key, $value->getValue());
+        if ($res !== true) {
+          $form->fields[$key]->setError($res);
+          addErrorMessage(t("error.occured") . ": " . $res);
+          return;
+        }
+      }
+    }
+  }
+
   foreach ($form->fields as $key => $value) {
     db_query("INSERT INTO {cc_config} (name, value)
               VALUES (:name,:value)

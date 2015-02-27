@@ -17,9 +17,9 @@ class qqFileUploader {
   function __construct(array $allowedExtensions = array(), $sizeLimit = 10485760) {
     $this->allowedExtensions = array_map("strtolower", $allowedExtensions);
     $this->sizeLimit = $sizeLimit;
-    
+
     $this->checkServerSettings();
-    
+
     if (isset($_GET['qqfile'])) {
       $this->file = new qqUploadedFileXhr();
     }
@@ -39,10 +39,9 @@ class qqFileUploader {
   private function checkServerSettings() {
     $postSize = $this->toBytes(ini_get('post_max_size'));
     $uploadSize = $this->toBytes(ini_get('upload_max_filesize'));
-    
     if ($postSize < $this->sizeLimit || $uploadSize < $this->sizeLimit) {
       $size = max(1, $this->sizeLimit / 1024 / 1024) . 'M';
-      die("{'error':'increase post_max_size and upload_max_filesize to $size'}");
+      throw new CTException("Entweder POST_MAX_SIZE und UPLOAD_MAX_SIZE erhöhen oder Zahl erniedrigen.");
     }
   }
 
@@ -104,26 +103,26 @@ class qqFileUploader {
     global $user;
     if (!is_writable($uploadDirectory))  return array ('error' => t("uploaddircetdory.not.writable"));
     if (!$this->file) return array ('error' => t('no.uploaded.files'));
-    
+
     $size = $this->file->getSize();
-    
+
     if ($size == 0) return array ('error' => t('file.is.empty'));
-    
+
     if ($size > $this->sizeLimit) return array ('error' => t('file.is.to.large'));
-    
+
     $pathinfo = pathinfo($this->file->getName());
     $bezeichnung = $pathinfo['filename'];
     // $filename = "aaaaa";
     $filename = md5(uniqid());
     $ext = $pathinfo['extension'];
-    
+
     if ($this->allowedExtensions && !in_array(strtolower($ext), $this->allowedExtensions)) {
       return array ('error' => t('invalid.fileextension.should.be.one.of.this', implode(', ', $this->allowedExtensions)));
     }
     //TODO: should return error if no id or type or somethin else is wrong!!!
     if (getVar("domain_type") && getVar("domain_id")) {
       $dt = new DateTime();
-      
+
       $id = db_insert('cc_file')->fields(array (
           "domain_type" =>  getVar("domain_type"),
           "domain_id" =>  getVar("domain_id"),
@@ -134,10 +133,10 @@ class qqFileUploader {
       ))->execute();
     }
     else $id = null;
-    
+
     $filename_absolute = "$uploadDirectory$filename.$ext";
     if ($this->file->save($filename_absolute)) {
-      
+
 // Sample for resizing using different max values for x, y
 //       $maxX = getVar("resizeX");
 //       $maxY = getVar("resizeY");
@@ -150,7 +149,7 @@ class qqFileUploader {
 //         $width  = round($x * $ratio);
 //         $height = round($y * $ratio);
 //       }
-      
+
       // If image should be resized
       if (($resize = getVar("resize")) && $this->check_jpeg($filename_absolute)) {
         list ($width, $height) = getimagesize($filename_absolute);
@@ -164,16 +163,16 @@ class qqFileUploader {
             $new_height = $resize;
             $new_width = $width * $new_height / $height;
           }
-          
+
           $image_p = imagecreatetruecolor($new_width, $new_height);
           $image = imagecreatefromjpeg($filename_absolute);
           imagecopyresampled($image_p, $image, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
-          
+
           // Output
           imagejpeg($image_p, $filename_absolute, 100);
         }
       }
-      
+
       return array ('success' => true, "id" => $id, "filename" => "$filename.$ext", "bezeichnung" => "$bezeichnung.$ext");
     }
     else return array ('error' => t('could.not.save.file.upload.canceled.or.server.error'));
@@ -195,14 +194,14 @@ class qqUploadedFileXhr {
     $temp = tmpfile();
     $realSize = stream_copy_to_stream($input, $temp);
     fclose($input);
-    
+
     if ($realSize != $this->getSize()) return false;
-    
+
     $target = fopen($path, "w");
     fseek($temp, 0, SEEK_SET);
     stream_copy_to_stream($temp, $target);
     fclose($target);
-    
+
     return true;
   }
 
