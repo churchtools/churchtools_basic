@@ -481,10 +481,6 @@ function churchservice_getAbsents($year = null) {
         }
         $txt .= '</ul>';
       }
-      if ($year == null && user_access("view", "churchcal")) {
-        // TODO: switch one some sort of absence calendars or at least put an message onto empty cal page
-        $txt .= '<p style="line-height:100%" align="right"><a href="?q=churchcal&viewname=yearView">' . t("more") . '</a></p>';
-      }
     }
   }
   return $txt;

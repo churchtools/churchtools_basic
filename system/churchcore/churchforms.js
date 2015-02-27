@@ -852,7 +852,8 @@ function _getHoursArray() {
 $.widget("ct.renderCCEvent", {
   options: {
     name : "renderCCEvent",
-    event : null
+    event : null,
+    beforeChange: function() { return true; }
   },
 
   _create: function() {
@@ -1160,134 +1161,179 @@ $.widget("ct.renderCCEvent", {
 
     // CALLBACKS
     var event = t.options.event;
+
     $('#inputAllDay').change(function(c) {
-      if ($(this).attr("checked")=="checked") {
-        event.startdate.setHours(0);
-        event.startdate.setMinutes(0);
-        event.enddate.setHours(0);
-        event.enddate.setMinutes(0);
-      }
-      else {
-        event.startdate.setHours(10);
-        event.enddate.setHours(11);
+      if (t.options.beforeChange()) {
+        if ($(this).attr("checked")=="checked") {
+          event.startdate.setHours(0);
+          event.startdate.setMinutes(0);
+          event.enddate.setHours(0);
+          event.enddate.setMinutes(0);
+        }
+        else {
+          event.startdate.setHours(10);
+          event.enddate.setHours(11);
+        }
       }
       t.render();
     });
 
     $("#inputStartdate").click(function() {
-      form_implantDatePicker('dp_startdate', event.startdate, function(dateText) {
-        $("#inputStartdate").val(dateText);
-        $("#inputStartdate").keyup();
-      });
+      if (t.options.beforeChange()) {
+        form_implantDatePicker('dp_startdate', event.startdate, function(dateText) {
+          $("#inputStartdate").val(dateText);
+          $("#inputStartdate").keyup();
+        });
+      }
     });
     $("#inputEnddate").click(function() {
-      form_implantDatePicker('dp_enddate', t.options.event.enddate, function(dateText) {
-        $("#inputEnddate").val(dateText);
-        $("#inputEnddate").keyup();
-      });
+      if (t.options.beforeChange()) {
+        form_implantDatePicker('dp_enddate', t.options.event.enddate, function(dateText) {
+          $("#inputEnddate").val(dateText);
+          $("#inputEnddate").keyup();
+        });
+      }
     });
     $("#inputStartdate").keyup(function() {
-      if ($("#inputStartdate").val().isGermanDateFormat()) {
-        $("#inputEnddate").val($("#inputStartdate").val());
-        form_getDatesInToObject(t.options.event);
-        t.options.event.repeat_option_id=null;
-        t.render();
-        t._checkExceptionCollision();
+      if (!t.options.beforeChange()) t.render();
+      else {
+        if ($("#inputStartdate").val().isGermanDateFormat()) {
+          $("#inputEnddate").val($("#inputStartdate").val());
+          form_getDatesInToObject(t.options.event);
+          t.options.event.repeat_option_id=null;
+          t.render();
+          t._checkExceptionCollision();
+        }
       }
+    });
+    $("#inputEnddate").keyup(function() {
+      if (!t.options.beforeChange()) t.render();
     });
     $("#inputStarthour").change(function() {
-      event.startdate.setHours($("#inputStarthour").val());
-      if (form_getDateFromForm("inputStart")>=form_getDateFromForm("inputEnd")) {
-        event.enddate.setHours($("#inputStarthour").val()*1+1);
-        t.render();
-      }
+      if (t.options.beforeChange()) {
+        event.startdate.setHours($("#inputStarthour").val());
+        if (form_getDateFromForm("inputStart")>=form_getDateFromForm("inputEnd")) {
+          event.enddate.setHours($("#inputStarthour").val()*1+1);
+          t.render();
+        }
+      } else t.render();
+    });
+    $("#inputStartminutes").change(function() {
+      if (!t.options.beforeChange()) t.render();
     });
     $("#inputEndhour").change(function() {
-      if (form_getDateFromForm("inputStart")>=form_getDateFromForm("inputEnd"))
-        $("#inputStarthour").val($("#inputEndhour").val()*1-1);
+      if (t.options.beforeChange()) {
+        if (form_getDateFromForm("inputStart")>=form_getDateFromForm("inputEnd"))
+          $("#inputStarthour").val($("#inputEndhour").val()*1-1);
+      }
+      else t.render();
+    });
+    $("#inputEndminutes").change(function() {
+      if (!t.options.beforeChange()) t.render();
     });
 
     $('#repeats_exceptions a').click(function() {
-      if ($(this).attr("id").indexOf("delException")==0) {
-        var exc=event.exceptions[$(this).attr("id").substr(12,99)];
-        delete event.exceptions[exc.id];
-        t.render();
-        return false;
-      }
-      else if ($(this).attr("id")=="addException") {
-        form_getDatesInToObject(event);
-        form_implantDatePicker('dp_addexception', event.startdate, function(dateText) {
-          event.addException(dateText.toDateDe());
+      if (!t.options.beforeChange()) t.render();
+      else {
+        if ($(this).attr("id").indexOf("delException")==0) {
+          var exc=event.exceptions[$(this).attr("id").substr(12,99)];
+          delete event.exceptions[exc.id];
           t.render();
-        }, function(chose) {
-          var select=false;
-          each(churchcore_getAllDatesWithRepeats(event), function(a,ds) {
-            if ((ds.startdate.toStringEn(false).toDateEn(false).getTime()==chose.getTime()))
-              select=true;
+          return false;
+        }
+        else if ($(this).attr("id")=="addException") {
+          form_getDatesInToObject(event);
+          form_implantDatePicker('dp_addexception', event.startdate, function(dateText) {
+            event.addException(dateText.toDateDe());
+            t.render();
+          }, function(chose) {
+            var select=false;
+            each(churchcore_getAllDatesWithRepeats(event), function(a,ds) {
+              if ((ds.startdate.toStringEn(false).toDateEn(false).getTime()==chose.getTime()))
+                select=true;
+            });
+            return [select];
           });
-          return [select];
-        });
 
-        return false;
+          return false;
+        }
       }
     });
     $('#repeats_addition a').click(function() {
-      if ($(this).attr("id").indexOf("delAddition")==0) {
-        var add=t.options.event.additions[$(this).attr("id").substr(11,99)];
-        delete t.options.event.additions[add.id];
-        t.render();
-        return false;
-      }
-      else if ($(this).attr("id").indexOf("changeAdditionRepeat")==0) {
-        var add=t.options.event.additions[$(this).attr("id").substr(21,99)];
-        t.options.event.additions[add.id].with_repeat_yn = $(this).attr("id").substr(20,1);
-        t.render();
-        return false;
-      }
-      else if ($(this).attr("id")=="addAddition") {
-        form_getDatesInToObject(t.options.event);
-        form_implantDatePicker('dp_addaddition', t.options.event.startdate, function(dateText) {
-          if (t.options.event.additions==null) t.options.event.additions=new Object();
-          if (t.options.event.exceptionids==null) t.options.event.exceptionids=0;
-          t.options.event.exceptionids=t.options.event.exceptionids-1;
-          t.options.event.additions[t.options.event.exceptionids]
-                ={id:t.options.event.exceptionids, add_date:dateText.toDateDe().toStringEn(), with_repeat_yn:1};
+      if (!t.options.beforeChange()) t.render();
+      else {
+        if ($(this).attr("id").indexOf("delAddition")==0) {
+          var add=t.options.event.additions[$(this).attr("id").substr(11,99)];
+          delete t.options.event.additions[add.id];
           t.render();
-        }, function(chose) {
-          var select=chose>event.startdate;
-          each(churchcore_getAllDatesWithRepeats(t.options.event), function(a,ds) {
-            if ((ds.startdate.toStringEn(false).toDateEn(false).getTime()==chose.getTime()))
-              select=false;
+          return false;
+        }
+        else if ($(this).attr("id").indexOf("changeAdditionRepeat")==0) {
+          var add=t.options.event.additions[$(this).attr("id").substr(21,99)];
+          t.options.event.additions[add.id].with_repeat_yn = $(this).attr("id").substr(20,1);
+          t.render();
+          return false;
+        }
+        else if ($(this).attr("id")=="addAddition") {
+          form_getDatesInToObject(t.options.event);
+          form_implantDatePicker('dp_addaddition', t.options.event.startdate, function(dateText) {
+            if (t.options.event.additions==null) t.options.event.additions=new Object();
+            if (t.options.event.exceptionids==null) t.options.event.exceptionids=0;
+            t.options.event.exceptionids=t.options.event.exceptionids-1;
+            t.options.event.additions[t.options.event.exceptionids]
+                  ={id:t.options.event.exceptionids, add_date:dateText.toDateDe().toStringEn(), with_repeat_yn:1};
+            t.render();
+          }, function(chose) {
+            var select=chose>event.startdate;
+            each(churchcore_getAllDatesWithRepeats(t.options.event), function(a,ds) {
+              if ((ds.startdate.toStringEn(false).toDateEn(false).getTime()==chose.getTime()))
+                select=false;
+            });
+            return [select];
           });
-          return [select];
-        });
 
-        return false;
+          return false;
+        }
       }
     });
 
 
     $('#inputRepeat_id').change(function(c) {
-      form_getDatesInToObject(t.options.event);
-      t.render();
-      $("#cdb_dialog").animate({scrollTop:135}, '500');
-    });
-    $("#inputRepeatUntil").click(function() {
-      form_getDatesInToObject(t.options.event);
-      form_implantDatePicker('dp_repeatuntil', t.options.event.repeat_until, function(dateText) {
-        $("#inputRepeatUntil").val(dateText);
-      });
-    });
-    $("#inputRepeatUntil").change(function() {
-      form_getDatesInToObject(t.options.event);
-      if (t.options.event.repeat_until.getFullYear()>3000) {
-        t.options.event.repeat_until=new Date();
-        $("#inputRepeatUntil").val(t.options.event.repeat_until.toStringDe());
+      if (!t.options.beforeChange()) t.render();
+      else {
+        form_getDatesInToObject(t.options.event);
+        t.render();
+        $("#cdb_dialog").animate({scrollTop:135}, '500');
       }
     });
+    $("#inputRepeatUntil").click(function() {
+      if (!t.options.beforeChange()) t.render();
+      else {
+        form_getDatesInToObject(t.options.event);
+        form_implantDatePicker('dp_repeatuntil', t.options.event.repeat_until, function(dateText) {
+          $("#inputRepeatUntil").val(dateText);
+        });
+      }
+    });
+    $("#inputRepeatUntil").change(function() {
+      if (!t.options.beforeChange()) t.render();
+      else {
+        form_getDatesInToObject(t.options.event);
+        if (t.options.event.repeat_until.getFullYear()>3000) {
+          t.options.event.repeat_until=new Date();
+          $("#inputRepeatUntil").val(t.options.event.repeat_until.toStringDe());
+        }
+      }
+    });
+    $("#inputRepeatFrequence").click(function() {
+      if (!t.options.beforeChange()) t.render();
+    });
     $("#inputRepeatFrequence").change(function() {
-      if (($("#inputRepeatFrequence").val()=="0") || ($("#inputRepeatFrequence").val()==""))
-        $("#inputRepeatFrequence").val("1");
+      if (!t.options.beforeChange()) t.render();
+      else {
+        if (($("#inputRepeatFrequence").val()=="0") || ($("#inputRepeatFrequence").val()==""))
+          $("#inputRepeatFrequence").val("1");
+      }
     });
 
     if (t.options.callback!=null)

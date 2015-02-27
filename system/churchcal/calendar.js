@@ -242,7 +242,6 @@ function _renderViewChurchResource(elem) {
       }
     });
   });
-
   var minutes = getMinutesDuration();
 
   var form = new CC_Form();
@@ -369,6 +368,9 @@ function _renderViewChurchResource(elem) {
   });
   elem.find("input.use-previous-bookings").click(function() {
     currentEvent.bookings=previousBookings;
+    each(currentEvent.bookings, function(k,a) {
+      if (masterData.resources[a.resource_id].autoaccept_yn == 0) a.status_id = 1;
+    });
     _renderEditEventContent(elem);
   });
   elem.find("a.delete-booking").click(function() {
@@ -490,7 +492,31 @@ function _renderEditEventContent(elem) {
     elem.find("#cal_content").html(rows.join(""));
 
     _renderInternVisible(elem, currentEvent);
-    $("#dates").renderCCEvent({event: currentEvent});
+
+    var firstChangeWarning = false;
+    // Check if there are confirmed bookings if no autoaccept resource
+    each(currentEvent.bookings, function(k,a) {
+      if (masterData.resources[a.resource_id].autoaccept_yn == 0 && a.status_id == 2) {
+        firstChangeWarning = true;
+      }
+    });
+    $("#dates").renderCCEvent({
+      event: currentEvent,
+      beforeChange: function() {
+        if (firstChangeWarning) {
+          if (confirm("Das Event hat Resourcenbuchungen, die dadurch wieder auf unbestätigt gesetzt werden. Wirklich editieren?")) {
+            firstChangeWarning = false;
+            each(currentEvent.bookings, function(k,a) {
+              if (masterData.resources[a.resource_id].autoaccept_yn == 0) {
+                $("#dates").renderCCEvent("getCCEvent").bookings[k].status_id = 1;
+                currentEvent.bookings[k].status_id = 1;
+              }
+            });
+          }
+        }
+        else return true;
+      }
+    });
 
     form_autocompletePersonSelect("#assistance_user", false, function(divid, ui) {
       $("#assistance_user").val(ui.item.label);
