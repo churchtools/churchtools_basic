@@ -13,3 +13,4 @@ https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc
 - (CS) Es wurde beim Bearbeiten von mehreren Agendas nicht immer die richtige ausgewählt.
 + Prüfe maximale Upload-Fähigkeit in den Admin-Einstellungen.
 + Prüfe CDB Felder (Nur Pro)
+- (Cal) Sortiere nun die Gruppenkalendereinträge auf der Startseite

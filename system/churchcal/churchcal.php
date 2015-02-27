@@ -185,24 +185,30 @@ function churchcal_getNextGroupCalDates() {
     $end->modify("+99 days");
     $categories = churchcal_getCalPerCategory(array("category_ids" => $ids), true);
     foreach ($categories as $id=>$category) {
-      $txt = "";
+      $entries = array();
       $count = 0;
       foreach ($category as $source) {
         $ds = getAllDatesWithRepeats($source, 0, 99);
         if ($ds) foreach ($ds as $d) {
           if ($d >= $now && $d <= $end) {
-            $count++;
-            if ($count < 4)
-              $txt .= $d->format('d.m.Y H:i') . ' ' . $source->bezeichnung . '<br/>';
-            else if ($count == 4) $txt .= '...';
+            $entries[$d->format('Y.m.d H:i')] = $d->format('d.m.Y H:i') . ' ' . $source->bezeichnung;
           }
         }
       }
-      if ($txt != "") $ret.= "<li>" . $cats[$id]->bezeichnung . "<br><p><small>" . $txt . '</small>';
+      if (count($entries)>0) {
+        ksort($entries);
+        $ret.= "<li>" . $cats[$id]->bezeichnung . "<br><p><small>";
+        $c = 0;
+        foreach ($entries as $entry) {
+          if ($c < 3) $ret.=$entry . '<br/>';
+          else if ($c == 3) $ret.="...";
+          $c++;
+        }
+        $ret.='</small>';
+      }
     }
     if ($ret!="") return '<ul>' . $ret . '</ul>';
   }
-
 }
 
 /**
