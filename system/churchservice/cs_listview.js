@@ -2837,8 +2837,11 @@ ListView.prototype.addFurtherListCallbacks = function(cssid) {
     var event=allEvents[$(this).parents("tr").attr("id")];
     if (event.agenda) {
       churchInterface.setCurrentLazyView("AgendaView", true, function(view) {
+        // Don't render an old selected agenda
+        view.currentAgenda = null;
         view.loadAgendaForEvent(event.id, function(data) {
           view.currentAgenda = allAgendas[data.id];
+          view.renderList();
         });
       });
     }

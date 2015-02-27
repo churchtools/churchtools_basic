@@ -9,4 +9,5 @@ https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc
 - Sicherheit erhöht: Man kann nun nicht mehr Rechte durch das Setzen von vorhandenen E-Mail Adressen erschleichen
 
 2.53c
-+ Add plausiblity check for editing calendar events
++ Erweitere Datums-Prüfung beim Editieren von Kalender und Resourcen-Einträgen.
+- (CS) Es wurde beim Bearbeiten von mehreren Agendas nicht immer die richtige ausgewählt.
