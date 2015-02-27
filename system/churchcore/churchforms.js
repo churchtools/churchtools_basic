@@ -17,6 +17,37 @@ function getMonthName(month) {
   return _(monthNames[month]);
 }
 
+/**
+ * Validate event with typical event fields (startdate, enddate, ...)
+ * @param event
+ * @returns Error Text or false if everything is fine.
+ */
+function form_validateEventDate(event) {
+  if (event.startdate.getTime()==0 || event.enddate.getTime()==0) {
+    return "Bitte ein gültiges Datum angeben!";
+  }
+  if (event.enddate.getFullYear() - event.startdate.getFullYear() > 3) {
+    return "Ein Event darf nicht länger als 3 Jahre gehen.";
+  }
+  if (event.startdate.getTime() > event.enddate.getTime()) {
+    return "Das Enddatum muß vor dem Startdatum liegen";
+  }
+  if (event.bezeichnung == "") {
+    return "Bitte eine Bezeichnung für das Event angeben!";
+  }
+  // Check if there is overlapping
+  var ok = true;
+  each(churchcore_getAllDatesWithRepeats(event), function(a, ds) {
+    if (ds.startdate.getTime() != event.startdate.getTime()
+         && ds.startdate.getTime() <= event.enddate.getTime())
+      ok = false;
+  });
+  if (!ok) {
+    return "Die Wiederholung darf sich nicht mit dem ersten Termin überschneiden! Bitte überprüfen.";
+  }
+  return false;
+}
+
 function getMinutesDuration(nameOf0) {
   var minutes=new Array();
   if (nameOf0==null) nameOf0 = "-"

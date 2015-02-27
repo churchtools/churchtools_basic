@@ -2923,8 +2923,11 @@ function ical_abo() {
   rows.push('<legend>Dienstplan abonnieren</legend>Deine Termine dieses Kalenders k&ouml;nnen abonniert werden. Hierzu kann die Adresse anbei in einen beliebigen Kalender importiert werden,'+
              ' der iCal unterst&uuml;tzt.<br><br>');
   var id=$(this).attr("data-id");
-//  rows.push(form_renderInput({label:"iCal-URL", value:settings.base_url+"?q=ical&id="+masterData.user_pid, disable:true}));
-  rows.push(form_renderInput({label:"<a href='"+settings.base_url+"?q=ical&id="+masterData.user_pid+"'>iCal-URL</a>", value:settings.base_url+"?q=ical&id="+masterData.user_pid, disable:true}));
+  rows.push(form_renderInput({
+        label:"<a href='"+settings.base_url+"?q=ical&id="+masterData.user_pid+"'>iCal-URL</a>"
+        + " &nbsp;|&nbsp; <a target='_clean' href='"+settings.base_url.replace(/https|http/, "webcal")+"?q=ical&id="+masterData.user_pid+"'>WebCal-URL</a>",
+
+        value:settings.base_url+"?q=ical&id="+masterData.user_pid, disable:true}));
   form_showOkDialog("Kalender abonnieren", rows.join(""));
 }
 

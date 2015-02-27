@@ -817,6 +817,13 @@ function renderEditEvent(myEvent, origEvent, isSeries, editSeries, func) {
           currentEvent = $("#dates").renderCCEvent("getCCEvent");
           getCalEditFields(currentEvent);
         }
+
+        var res = form_validateEventDate(currentEvent);
+        if (res) {
+          alert(res);
+          return;
+        }
+
         if ($("#assistance_user").val()!=null && $("#assistance_user").val()!="") {
           if ($("#assistance_user").attr("disabled")==null) {
             if (user_access("create person")) {

@@ -850,10 +850,12 @@ WeekView.prototype.prepareSaveBookingDetail = function (elem) {
   var a=t.currentBooking;
   a.repeat_frequence=1;
   form_getDatesInToObject(a);
-  if (a.enddate<a.startdate) {
-    alert("Das Enddatum liegt vor dem Startdatum, bitte korrigieren!");
+  var res = form_validateEventDate(a);
+  if (res) {
+    alert(res);
     return false;
   }
+
   if ($("#assistance_user").val()!=null && $("#assistance_user").val()!="") {
     if ($("#assistance_user").attr("disabled")==null) {
       if (user_access("create person")) {

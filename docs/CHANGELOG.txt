@@ -7,3 +7,6 @@ https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc
 - (CS) Fehler in der Songstatik behoben
 + (CDB) Umgang bei Problemen mit Upload von Benutzerbilder verbessert und PNG-Upload ergänzt.
 - Sicherheit erhöht: Man kann nun nicht mehr Rechte durch das Setzen von vorhandenen E-Mail Adressen erschleichen
+
+2.53c
++ Add plausiblity check for editing calendar events

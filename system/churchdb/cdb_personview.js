@@ -433,7 +433,7 @@ PersonView.prototype.renderAddEntry = function(prefill) {
 
     churchInterface.jsendWrite(obj, function(ok, json) {
       if (json.result=="exist") {
-        $("#searchEntry").val(json.id).keyup();
+        $("#searchEntry").val("#"+json.id).keyup();
         alert("Mindestens eine Person mit dem Namen existiert schon!");
       }
       else if (json.result!="ok") {
