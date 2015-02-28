@@ -540,7 +540,7 @@ function churchdb_getPersonDetails($id, $withComments = true) {
       }
     }
     $person->auth = getAuthForPerson($id);
-    if ($oldGroups = getOldGroupRelations($id) && isset($oldGroups[$id])) $person->oldGroups = $oldGroups[$id];
+    if (($oldGroups = getOldGroupRelations($id)) && isset($oldGroups[$id])) $person->oldGroups = $oldGroups[$id];
   }
   return $person;
 }

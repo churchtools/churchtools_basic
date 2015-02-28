@@ -889,7 +889,7 @@ function churchcal_updateICalSource($id) {
   $cat = db_query("SELECT * FROM {cc_calcategory}
                     WHERE id = :id", array(":id"=>$id))->fetch();
   if (!$cat) throw new CTException("No calcategory found");
-  require ASSETS . '/ics-parser/class.iCalReader.php';
+  include_once (ASSETS . '/ics-parser/class.iCalReader.php');
 
   $ical   = new ICal($cat->ical_source_url);
   $events = $ical->events();
