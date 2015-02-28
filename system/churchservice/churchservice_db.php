@@ -503,19 +503,20 @@ function churchservice_deleteEvent($params) {
                         array (":cal_id" => $db_event->cc_cal_id))
                         ->fetch();
     if ($db_cal!=false) {
-      $db = db_query("SELECT p.vorname, p.name, IF(p.spitzname, p.spitzname, p.vorname) AS nickname, p.email FROM {cs_eventservice} es, {cdb_person} p
+      $db = db_query("SELECT p.id p_id, p.vorname, p.name, IF(p.spitzname, p.spitzname, p.vorname) AS nickname, p.email FROM {cs_eventservice} es, {cdb_person} p
                       WHERE event_id = :event_id AND valid_yn = 1 AND p.id = es.cdb_person_id
                         AND es.cdb_person_id IS NOT NULL AND p.email != ''",
                       array (":event_id" => $params["id"]));
       foreach ($db as $p) {
-        $subject = "[" . getConf('site_name') . "] " . t('cancelation.of.event.date', $db_cal->bezeichnung, $db_event->date_de);
+        $lang = getUserLanguage($p->p_id);
+        $subject = "[" . getConf('site_name') . "] " . t2($lang, 'cancelation.of.event.date', $db_cal->bezeichnung, $db_event->date_de);
         $data = array(
           'person'     => $p,
           'eventTitle' => $db_cal->bezeichnung,
           'eventDate'  => $db_event->date_de
         );
-        // Deine Dienstanfrage wurde entsprechend entfernt.'; //TODO: meine Anfrage oder der (angefragte) Dienst? (Text im Template)
-        $content = getTemplateContent('email/eventDeleted', 'churchservice', $data);
+        // Deine Dienstanfrage wurde entsprechend entfernt.'
+        $content = getTemplateContent('email/eventDeleted', 'churchservice', $data, null, $lang);
         churchservice_send_mail($subject, $content, $p->email);
       }
     }

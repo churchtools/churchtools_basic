@@ -657,7 +657,8 @@ function churchservice_updateEventService($params) {
         if (isset($setting["informInquirer"]) && ($setting["informInquirer"] == 1)) {
 
           $txt = $base_url . '?q=churchservice&id=' . $arr->event_id;
-          $content = getTemplateContent('email/serviceRequest', 'churchservice', $data);
+          $lang = getUserLanguage($leader->id);
+          $content = getTemplateContent('email/serviceRequest', 'churchservice', $data, null, $lang);
           churchservice_send_mail($subject, $content, $leader->email);
         }
       }

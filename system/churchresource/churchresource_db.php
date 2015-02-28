@@ -226,8 +226,9 @@ function churchresource_createBooking($params, $sendEMails = true) {
             $data['nickname'] = $p->spitzname ? $p->spitzname : $p->vorname;
             $data['name']     = $p->name;
 
-            $content = getTemplateContent('email/bookingRequest', 'churchresource', $data);
-            churchresource_send_mail("[". getConf('site_name')."] ". t('new.booking.request'). ": ". $params["text"], $content, $p->email);
+            $lang = getUserLanguage($id);
+            $content = getTemplateContent('email/bookingRequest', 'churchresource', $data, null, $lang);
+            churchresource_send_mail("[". getConf('site_name')."] ". t2($lang, 'new.booking.request'). ": ". $params["text"], $content, $p->email);
           }
         }
         else $userIsAdmin = true;
@@ -378,7 +379,6 @@ function churchresource_updateBooking($params, $sendEMails = true) {
       }
 
       if ($sendEMails && getConf("churchresource_send_emails", true) && count($days) && $bUser) {
-        // FIXME: dont send such emails to users adding exceptions to their repeating event in cal
         $data = array(
           'canceled' => true,
           'surname'  => $bUser->vorname,
@@ -391,8 +391,9 @@ function churchresource_updateBooking($params, $sendEMails = true) {
           'person'   => $bUser,
           'contact'  => getConf('site_mail'), // TODO: add church contact data to config an use getConf('churchContact'),
         );
-        $content = getTemplateContent('email/bookingRequest', 'churchresource', $data);
-        churchresource_send_mail("[" . getConf('site_name') . "] " . t('updated.booking.request') . ": " . $params["text"], $content, $bUser->email);
+        $lang = getUserLanguage($oldBooking->person_id);
+        $content = getTemplateContent('email/bookingRequest', 'churchresource', $data, null, $lang);
+        churchresource_send_mail("[" . getConf('site_name') . "] " . t2($lang, 'updated.booking.request') . ": " . $params["text"], $content, $bUser->email);
       }
     }
 

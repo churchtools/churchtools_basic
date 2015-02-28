@@ -98,8 +98,9 @@ function churchcore_sendReminders() {
         'link'        => $site_url."?q=".$domaininfos["modulename"]."&id=".$reminder->domain_id,
         'fields'      => $domain
       );
-      $content = getTemplateContent('email/reminder', 'churchcore', $data);
-      churchcore_systemmail($p->email, "[" . getConf('site_name') . "] " . t('reminder.for.x', t($reminder->domain_type)), $content, true);
+      $lang = getUserLanguage($p->person_id);
+      $content = getTemplateContent('email/reminder', 'churchcore', $data, null, $lang);
+      churchcore_systemmail($p->email, "[" . getConf('site_name') . "] " . t2($lang, 'reminder.for.x', t($reminder->domain_type)), $content, true);
     }
     db_query("UPDATE {cc_reminder} SET mailsenddate=NOW()
               WHERE person_id = :person_id AND domain_type = :domain_type
@@ -250,8 +251,9 @@ function ct_sendPendingNotifications($max_delayhours = null) {
             'notifyType'  => $n->bezeichnung,
             'messages'    => $messages,
           );
-          $content = getTemplateContent("email/notification", 'churchcore', $data);
-          churchcore_systemmail($p->email, "[" . getConf('site_name') . "] " . t('news.for.abo.x', t($personANDtype->domain_type)), $content, true);
+          $lang = getUserLanguage($personANDtype->person_id);
+          $content = getTemplateContent("email/notification", 'churchcore', $data, null, $lang);
+          churchcore_systemmail($p->email, "[" . getConf('site_name') . "] " . t2($lang, 'news.for.abo.x', t($personANDtype->domain_type)), $content, true);
         }
       }
 
@@ -474,6 +476,32 @@ function t($txt) {
   if (isset($i18n)) {
     // calls the function with the values in $data as arguments like $i18n->getText($data[0], $data[1], ...)
     $return = call_user_func_array(array ($i18n, "getText"), func_get_args());
+  }
+  return $return ? $return : $txt;
+}
+
+/**
+ * Same as t() but here you have to set an language. This is espescially for email purpose.
+ * @param unknown $lang
+ * @param unknown $txt
+ * @return Ambigous <unknown, NULL>
+ */
+function t2($lang, $txt) {
+  global $i18n;
+
+  $return = null;
+
+  $args = func_get_args();
+  array_splice($args, 0, 1);
+
+  if (isset($i18n) && getConf("language")==$lang) {
+    // calls the function with the values in $data as arguments like $i18n->getText($data[0], $data[1], ...)
+    $return = call_user_func_array(array ($i18n, "getText"), $args);
+  }
+  else {
+    $i18n2 = new TextBundle(CHURCHCORE . "/resources/messages");
+    $i18n2->load("churchcore", $lang);
+    $return = call_user_func_array(array ($i18n2, "getText"), $args);
   }
   return $return ? $return : $txt;
 }
@@ -1412,18 +1440,39 @@ function _churchcore_savePidUserSetting($modulename, $pid, $attrib, $val) {
       $serizaled = 1;
     }
 
-    $res = db_query("SELECT * FROM {cc_usersettings}
-                     WHERE modulename='$modulename' AND person_id=$pid AND attrib='$attrib'")
-                     ->fetch();
-    if (!$res) {
-      db_query("INSERT INTO {cc_usersettings} (person_id, modulename, attrib, value, serialized_yn)
-                VALUES ($pid, '$modulename', '$attrib', :val, $serizaled)",
-                array (":val" => $val));
-    } //TODO: use ON DUPLICATE KEY UPDATE rather then two separate queries?
-    else db_query("UPDATE {cc_usersettings} SET value=:val, serialized_yn=$serizaled
-                   WHERE modulename='$modulename' and person_id=$pid and attrib='$attrib'",
-                   array (":val" => $val));
+    db_query("INSERT INTO {cc_usersettings} (person_id, modulename, attrib, value, serialized_yn) VALUES
+                  (:person_id, :modulename, :attrib, :value, :serialized)
+              ON DUPLICATE KEY UPDATE value=:value",
+        array(":person_id"=>$pid, ":value"=>$val, ":modulename"=>$modulename, ":attrib"=>$attrib, 'serialized'=>$serizaled));
   }
+}
+
+/**
+ * Load the user setting
+ * @param unknown $modulename
+ * @param unknown $pid
+ * @param unknown $attrib
+ * @return NULL if not available or the setting
+ */
+function getUserSetting($modulename, $pid, $attrib) {
+  $attr = db_query("SELECT value FROM {cc_usersettings}
+                     WHERE person_id=:p_id AND modulename=:modulename AND attrib=:attrib",
+      array("p_id" => $pid, ":modulename"=>$modulename, ":attrib"=>$attrib))->fetch();
+  if ($attr === false) return null;
+  else return $attr->value;
+}
+
+/**
+ * Load the user setting
+ * @param unknown $modulename
+ * @param unknown $pid
+ * @param unknown $attrib
+ * @return NULL if not available or the setting
+ */
+function getUserLanguage($pid) {
+  $ret = getUserSetting("churchcore", $pid, "language");
+  if ($ret == null) $ret = DEFAULT_LANGUAGE;
+  return $ret;
 }
 
 /**

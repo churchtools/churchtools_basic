@@ -3,7 +3,7 @@
  *  constants to use anywhere
  */
 // To prevent Browser caching old versions of JS and CSS Files
-define('JS_VERSION',     '25304');
+define('JS_VERSION',     '25305');
 
 //TODO: next two maybe not needed?
 define('SITES',          'sites');
@@ -29,6 +29,8 @@ define('TEMPLATES',      RESOURCES . '/templates');
 
 define('NL',        "\r\n"); //new line, \n, \r, \r\n or \n\r
 define('BR',        "<br/>" . NL); //html new line
+
+define('DEFAULT_LANGUAGE', 'de'); // When user not have language selected
 
 define('PHP_QPRINT_MAXL', 75);
 define('MAX_MAILS', 10);

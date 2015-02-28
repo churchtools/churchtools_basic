@@ -567,11 +567,9 @@ function churchservice_openservice_rememberdays() {
             AND ((es.mailsenddate IS NULL) OR (DATEDIFF(current_date,es.mailsenddate)>=$delay))
             AND p.email!='' AND p.id=es.cdb_person_id
           GROUP BY p_id"; //group to get each person only once, so querying all together dont interfere with the other services of the same person
-  // FIXME: test it with more then one or two services for only one person at once!
   $usersToMail = db_query($sql);
   $i = 0;
   // process only 15 services to prevent too many mails at once
-//  while ($i++ < 15 && $data = db_query($sql)->fetch() ) {
   while ($i++ < 15 && ($u = $usersToMail->fetch()) ) {
     $data = array(
       'inviter' => churchcore_getPersonById($u->modified_pid),
@@ -605,8 +603,9 @@ function churchservice_openservice_rememberdays() {
         ->execute();
     }
 
-    $content = getTemplateContent('email/openServiceReminder', 'churchservice', $data);
-    churchservice_send_mail("[" . getConf('site_name') . "] " . t('there.are.pending.services'), $content, $u->email);
+    $lang = getUserLanguage($u->p_id);
+    $content = getTemplateContent('email/openServiceReminder', 'churchservice', $data, null, $lang);
+    churchservice_send_mail("[" . getConf('site_name') . "] " . t2($lang, 'there.are.pending.services'), $content, $u->email);
     $usersToMail->next();
   }
 }
@@ -618,7 +617,7 @@ function churchservice_remindme() {
   global $base_url;
   include_once ("churchservice_db.php");
 
-  $sql = "SELECT p.vorname, p.name, p.spitzname, p.email, cal.bezeichnung, s.bezeichnung AS dienst, sg.bezeichnung AS sg, e.id AS event_id,
+  $sql = "SELECT p.id p_id, p.vorname, p.name, p.spitzname, p.email, cal.bezeichnung, s.bezeichnung AS dienst, sg.bezeichnung AS sg, e.id AS event_id,
            DATE_FORMAT(e.Startdate, '%d.%m.%Y %H:%i') AS datum, es.id AS eventservice_id
           FROM {cs_eventservice} es, {cs_service} s, {cs_event} e, {cc_cal} cal, {cs_servicegroup} sg, {cdb_person} p
           WHERE cal.id = e.cc_cal_id AND e.id = es.event_id AND s.id = es.service_id
@@ -660,7 +659,9 @@ function churchservice_remindme() {
             $data['services'][] = $s2;
           }
         }
-        $content = getTemplateContent('email/serviceReminder', 'churchservice', $data);
+
+        $lang = getUserSetting("churchcore", $u->p_id, "language");
+        $content = getTemplateContent('email/serviceReminder', 'churchservice', $data, null, getUserLanguage($u->p_id));
         churchservice_send_mail("[" . getConf('site_name') . "] Erinnerung an Deinen Dienst", $content, $s->email);
         break;
       }
@@ -757,8 +758,9 @@ function churchservice_inform_leader() {
           'name'         => $person["person"]->name,
       );
 
-      $content = getTemplateContent('email/openServicesLeaderInfo', 'churchservice', $data);
-      churchservice_send_mail("[" . getConf('site_name') . "] " . t('open.services'), $content, $person["person"]->email);
+      $lang = getUserLanguage($person["person"]->person_id);
+      $content = getTemplateContent('email/openServicesLeaderInfo', 'churchservice', $data, null, $lang);
+      churchservice_send_mail("[" . getConf('site_name') . "] " . t2($lang, 'open.services'), $content, $person["person"]->email);
     }
   }
 }

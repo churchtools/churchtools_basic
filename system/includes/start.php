@@ -355,7 +355,7 @@ function churchtools_app() {
       // Load i18n churchcore-bundle
       if (!isset($config["language"])) {
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) $config["language"] = substr($_SERVER['HTTP_ACCEPT_LANGUAGE'], 0, 2);
-        else $config["language"] = "de";
+        else $config["language"] = DEFAULT_LANGUAGE;
       }
       $i18n = new TextBundle(CHURCHCORE . "/resources/messages");
       $i18n->load("churchcore", ($config["language"] != null ? $config["language"] : null));

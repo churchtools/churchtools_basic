@@ -329,13 +329,14 @@ function externmapview__ajax() {
           'comment' => $comment,
           ),
         );
-        $content = getTemplateContent('email/groupRequest', 'churchdb', $data);
+        $lang = getUserLanguage($p->id);
+        $content = getTemplateContent('email/groupRequest', 'churchdb', $data, null, $lang);
         $res = churchcore_sendEMailToPersonIDs($p->id, "[" . getConf('site_name') . "] " .
-             t('form.request.to.group', $p->bezeichnung), $content, getConf('site_mail'), true, true);
+             t2($lang, 'form.request.to.group', $p->bezeichnung), $content, getConf('site_mail'), true, true);
       }
       if (!count($rec)) $txt = t("could.not.find.group.leader.please.try.other.ways");
       else {
-        $txt = t("email.send.to", implode($rec, ", "));
+        $txt = t2($lang, "email.send.to", implode($rec, ", "));
         sendConfirmationMail($email, $surname, $groupId);
       }
     }

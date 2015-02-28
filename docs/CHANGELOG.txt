@@ -14,3 +14,4 @@ https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc
 + Prüfe maximale Upload-Fähigkeit in den Admin-Einstellungen.
 + Prüfe CDB Felder (Nur Pro)
 - (Cal) Sortiere nun die Gruppenkalendereinträge auf der Startseite
+- EMails werden nun immer in der Sprache des jeweiligen Users gesendet

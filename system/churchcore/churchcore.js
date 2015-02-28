@@ -1053,7 +1053,7 @@ $(document).ready(function() {
     form.addSelect({data:data, label:_("please.select.your.language"), htmlclass:"language"});
     var elem=form_showDialog(_("select.language"), form.render(null, "vertical"), 300, 300).
       dialog("addbutton", _("save"), function() {
-        churchInterface.setCookie("language", elem.find("select.language").val(), function() {
+        churchInterface.jsendWrite({func:"setLanguage", "language": elem.find("select.language").val()}, function() {
           location.reload(true);
         });
       })

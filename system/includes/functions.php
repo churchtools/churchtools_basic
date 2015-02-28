@@ -138,6 +138,11 @@ function getBaseUrl() {
   return $baseUrl;
 }
 
+function getCurrentUser() {
+  global $user;
+  return $user;
+}
+
 /**
  * Get html or txt template. If no data is specified, return content (to eval later).
  * Otherwise replace variables with data and return eval'ed content
@@ -153,12 +158,11 @@ function getBaseUrl() {
  * @param array  $data; default: false
  * @param string $type; default: html, txt or any other file extension
  */
-function getTemplateContent($template, $module, $data = false, $type = 'html') {
-  global $user;
-
+function getTemplateContent($template, $module, $data = false, $type = 'html', $language = null) {
+  if (!$language) $language = getConf("language");
   if (!$type) $type = 'html';
-  $lang = '_'. getConf("language", 'de');
-  $defaultLang = '_en'; // TODO: use constant?
+  $lang = '_'. $language;
+  $defaultLang = '_en';
   $template = constant(strtoupper($module)) . TEMPLATES . "/$template";
   $filename = "$template$lang.$type";
 
@@ -179,14 +183,15 @@ function getTemplateContent($template, $module, $data = false, $type = 'html') {
   if (empty($data)) return $content;
 
   // else extract data into current symbole table and eval content to populate variables
+  $user = getCurrentUser(); // Get $user not through globals, otherwise it could overloaded through extract()!!
   $nickname = isset($user->spitzname) ? $user->spitzname : $user->vorname;
   $surname  = $user->vorname;
   $name     = $user->name;
   $sitename = getConf('site_name');
   $modulename = getConf($module . '_name', $module);
+
   if (count($data)) extract($data);
   ob_start();
-//  eval('$return = "$content"');
   eval($content);
   $content = ob_get_contents();
   ob_end_clean();

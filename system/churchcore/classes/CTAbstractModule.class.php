@@ -91,6 +91,12 @@ abstract class CTAbstractModule implements CTModuleInterface {
     setcookie($params["sub"], $params["val"], time() + 60 * 60 * 24 * 30); // 30 days
   }
 
+  public function setLanguage($params) {
+    global $user;
+    setcookie("language", $params["language"], time() + 60 * 60 * 24 * 30); // 30 days
+    _churchcore_savePidUserSetting("churchcore", $user->id, "language", $params["language"]);
+  }
+
   /**
    * get module settings for user
    * @see CTModuleInterface::getSettings()

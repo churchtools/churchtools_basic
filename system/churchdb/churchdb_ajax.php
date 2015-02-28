@@ -476,8 +476,9 @@ function informLeaderAboutMembershipChange($groupId, $pId, $changeType, $additio
            'gotoMemberUrl'    => $base_url. '?q=churchdb#PersonView/searchEntry:' . $pId,
          );
 
-      $content = getTemplateContent('email/groupMemberChange', 'churchdb', $data);
-      churchdb_send_mail("[". getConf('site_name'). "] " . t('change.in.group.x', $p->bezeichnung), $content, $p->email);
+      $lang = getUserLanguage($pId);
+      $content = getTemplateContent('email/groupMemberChange', 'churchdb', $data, null, $lang);
+      churchdb_send_mail("[". getConf('site_name'). "] " . t2($lang, 'change.in.group.x', $p->bezeichnung), $content, $p->email);
     }
   }
 }

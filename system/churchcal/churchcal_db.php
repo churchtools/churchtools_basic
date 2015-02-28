@@ -38,7 +38,8 @@ function churchcal_handleMeetingRequest($cal_id, $params) {
         ->fields($i->getDBInsertArrayFromParams($param))
         ->execute(false);
       // if person was not yet invited to churchtools send invitation
-      $p = db_query("SELECT name, vorname, IF(spitzname, spitzname, vorname) AS nickname, IF (password IS NULL AND loginstr IS NULL AND lastlogin IS NULL,1,0) as invite
+      $p = db_query("SELECT name, vorname, IF(spitzname, spitzname, vorname) AS nickname,
+                          IF (password IS NULL AND loginstr IS NULL AND lastlogin IS NULL,1,0) as invite
                       FROM {cdb_person}
                       WHERE id=:id",
                       array(":id" => $id))
@@ -60,8 +61,9 @@ function churchcal_handleMeetingRequest($cal_id, $params) {
           churchdb_invitePersonToSystem($id);
         }
         // get populated template and send email
-        $content = getTemplateContent('email/meetingRequest', 'churchcal', $data);
-        churchcore_sendEMailToPersonIDs($id, "[" . getConf('site_name') . "] " . t('new.meeting.request'), $content, null, true);
+        $lang = getUserLanguage($id);
+        $content = getTemplateContent('email/meetingRequest', 'churchcal', $data, null, $id);
+        churchcore_sendEMailToPersonIDs($id, "[" . getConf('site_name') . "] " . t2($lang, 'new.meeting.request'), $content, null, true);
       }
     }
     else {
@@ -225,8 +227,9 @@ function churchcal_createEvent($params, $callCS=true, $withoutPerm = false) {
       $data["p"] = $p;
 
       // get populated template and send email
-      $content = getTemplateContent('email/informCreator', 'churchcal', $data);
-      churchcore_sendEMailToPersonIDs($params["modified_pid"], "[" . getConf('site_name') . "] " . t('information.for.your.event'), $content, null, true);
+      $lang = getUserLanguage($params["modified_pid"]);
+      $content = getTemplateContent('email/informCreator', 'churchcal', $data, null, $lang);
+      churchcore_sendEMailToPersonIDs($params["modified_pid"], "[" . getConf('site_name') . "] " . t2($lang, 'information.for.your.event'), $content, null, true);
     }
   }
 
@@ -395,8 +398,10 @@ function churchcal_updateEvent($params, $callCS = true, $withoutPerm = false) {
       $data["p"] = $p;
 
       // get populated template and send email
-      $content = getTemplateContent('email/informCreator', 'churchcal', $data);
-      churchcore_sendEMailToPersonIDs($originEvent["modified_pid"], "[" . getConf('site_name') . "] " . t('information.for.your.event'), $content, null, true);
+
+      $lang = getUserLanguage($params["modified_pid"]);
+      $content = getTemplateContent('email/informCreator', 'churchcal', $data, null, $lang);
+      churchcore_sendEMailToPersonIDs($originEvent["modified_pid"], "[" . getConf('site_name') . "] " . t2($lang, 'information.for.your.event'), $content, null, true);
     }
   }
 
@@ -462,8 +467,9 @@ function churchcal_saveSplittedEvent($params) {
     $data["p"] = $p;
 
     // get populated template and send email
-    $content = getTemplateContent('email/informCreator', 'churchcal', $data);
-    churchcore_sendEMailToPersonIDs($originEvent["modified_pid"], "[" . getConf('site_name') . "] " . t('information.for.your.event'), $content, null, true);
+    $lang = getUserLanguage($params["modified_pid"]);
+    $content = getTemplateContent('email/informCreator', 'churchcal', $data, null, $lang);
+    churchcore_sendEMailToPersonIDs($originEvent["modified_pid"], "[" . getConf('site_name') . "] " . t2($lang, 'information.for.your.event'), $content, null, true);
   }
 
 

@@ -217,7 +217,7 @@ function login__newpwd() {
  * @return NULL
  */
 function login_user($u, $rember_me = false, $redirect = true) {
-  global $q, $q_orig;
+  global $q, $q_orig, $config;
 
   if (empty($u->id)) {
     addErrorMessage(t("login.error.no.id.specified"));
@@ -255,7 +255,12 @@ function login_user($u, $rember_me = false, $redirect = true) {
   $dt = new DateTime();
 
   db_query("UPDATE {cdb_person} SET lastlogin=NOW(), loginerrorcount=0 WHERE id=:id", array(':id' => $u->id));
-  // db_query("DELETE FROM {cc_session} WHERE person_id=".$u->id." AND hostname='".$_SERVER["HTTP_HOST"]."'");
+
+  // Save language or get it from usersetting
+  $lan = getUserSetting("churchcore", $u->id, "language");
+  if (!$lan) setcookie("language", $lan->value, time() + 60 * 60 * 24 * 30); // 30 days
+  else _churchcore_savePidUserSetting("churchcore", $u->id, "language", getConf("language"));
+
   db_query("DELETE FROM {cc_session} WHERE datediff(NOW(), datum)>7");
   db_query("INSERT INTO {cc_session} (person_id, session, hostname, datum)
             VALUES (:id, :session, :host, :date)",
