@@ -660,8 +660,8 @@ function churchservice_remindme() {
           }
         }
 
-        $lang = getUserSetting("churchcore", $u->p_id, "language");
-        $content = getTemplateContent('email/serviceReminder', 'churchservice', $data, null, getUserLanguage($u->p_id));
+        $lang = getUserLanguage($u->person_id);
+        $content = getTemplateContent('email/serviceReminder', 'churchservice', $data, null, $lang);
         churchservice_send_mail("[" . getConf('site_name') . "] Erinnerung an Deinen Dienst", $content, $s->email);
         break;
       }
@@ -758,6 +758,7 @@ function churchservice_inform_leader() {
           'name'         => $person["person"]->name,
       );
 
+      $lang = getUserLanguage($person["person"]->person_id);
       $content = getTemplateContent('email/openServicesLeaderInfo', 'churchservice', $data, null, $lang);
       churchservice_send_mail("[" . getConf('site_name') . "] " . t2($lang, 'open.services'), $content, $person["person"]->email);
     }

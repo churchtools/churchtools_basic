@@ -137,7 +137,7 @@ function validateLogin($form) {
       if (user_check_password($form->fields["password"]->getValue(), $u)) {
         if (!$u->active_yn) $accountInactive = true;
         else {
-          login_user($u, $form->fields["rememberMe"] ? $form->fields["rememberMe"]->getValue() : false);
+          login_user($u, isset($form->fields["rememberMe"]) ? $form->fields["rememberMe"]->getValue() : false);
           return null;
         }
       }

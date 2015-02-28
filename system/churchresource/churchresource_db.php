@@ -215,6 +215,7 @@ function churchresource_createBooking($params, $sendEMails = true) {
   );
   // Now send email to admin persons
   if (getConf("churchresource_send_emails", true)) {
+    $userIsAdmin = false;
     if ($resources[$params["resource_id"]]->admin_person_ids > 0) {
       foreach (explode(',', $resources[$params["resource_id"]]->admin_person_ids) as $id) {
         // dont send mails for own actions to resource admins
