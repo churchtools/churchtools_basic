@@ -72,6 +72,8 @@ function churchcore_getInfosForDomain($domainType) {
  * Send all pending reminders. Will be called by cron job
  */
 function churchcore_sendReminders() {
+  global $base_url;
+
   $reminders = db_query("SELECT r.*, p.id person_id, p.email, p.vorname, p.name, p.spitzname FROM {cc_reminder} r, {cdb_person} p
                          WHERE reminddate < now() AND r.person_id = p.id AND mailsenddate IS NULL");
   foreach ($reminders as $reminder) {
@@ -93,14 +95,14 @@ function churchcore_sendReminders() {
         'surname'     => $reminder->vorname,
         'name'        => $reminder->name,
         'nickname'    => ($reminder->spitzname ? $reminder->spitzname : $reminder->vorname),
-        'caption'     => $domain->bezeichnung,
+        'caption'     => $domain[t("caption")],
         'notifyName'  => t($reminder->domain_type),
-        'link'        => $site_url."?q=".$domaininfos["modulename"]."&id=".$reminder->domain_id,
+        'link'        => $base_url."?q=".$domaininfos["modulename"]."&id=".$reminder->domain_id,
         'fields'      => $domain
       );
-      $lang = getUserLanguage($p->person_id);
+      $lang = getUserLanguage($reminder->person_id);
       $content = getTemplateContent('email/reminder', 'churchcore', $data, null, $lang);
-      churchcore_systemmail($p->email, "[" . getConf('site_name') . "] " . t2($lang, 'reminder.for.x', t($reminder->domain_type)), $content, true);
+      churchcore_systemmail($reminder->email, "[" . getConf('site_name') . "] " . t2($lang, 'reminder.for.x', t($reminder->domain_type)), $content, true);
     }
     db_query("UPDATE {cc_reminder} SET mailsenddate=NOW()
               WHERE person_id = :person_id AND domain_type = :domain_type

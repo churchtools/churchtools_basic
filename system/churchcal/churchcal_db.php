@@ -62,7 +62,7 @@ function churchcal_handleMeetingRequest($cal_id, $params) {
         }
         // get populated template and send email
         $lang = getUserLanguage($id);
-        $content = getTemplateContent('email/meetingRequest', 'churchcal', $data, null, $id);
+        $content = getTemplateContent('email/meetingRequest', 'churchcal', $data, null, $lang);
         churchcore_sendEMailToPersonIDs($id, "[" . getConf('site_name') . "] " . t2($lang, 'new.meeting.request'), $content, null, true);
       }
     }

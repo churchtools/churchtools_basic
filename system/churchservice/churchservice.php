@@ -758,7 +758,6 @@ function churchservice_inform_leader() {
           'name'         => $person["person"]->name,
       );
 
-      $lang = getUserLanguage($person["person"]->person_id);
       $content = getTemplateContent('email/openServicesLeaderInfo', 'churchservice', $data, null, $lang);
       churchservice_send_mail("[" . getConf('site_name') . "] " . t2($lang, 'open.services'), $content, $person["person"]->email);
     }
