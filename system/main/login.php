@@ -256,10 +256,10 @@ function login_user($u, $rember_me = false, $redirect = true) {
 
   db_query("UPDATE {cdb_person} SET lastlogin=NOW(), loginerrorcount=0 WHERE id=:id", array(':id' => $u->id));
 
-  // Save language or get it from usersetting
-  $lan = getUserSetting("churchcore", $u->id, "language");
-  if (!$lan) setcookie("language", $lan->value, time() + 60 * 60 * 24 * 30); // 30 days
-  else _churchcore_savePidUserSetting("churchcore", $u->id, "language", getConf("language"));
+  // Get language form user setting, if not available set it from current cookie
+  $lang = getUserSetting("churchcore", $u->id, "language");
+  if (!$lang) _churchcore_savePidUserSetting("churchcore", $u->id, "language", getConf("language"));
+  else setcookie("language", $lang, time() + 60 * 60 * 24 * 30); // 30 days
 
   db_query("DELETE FROM {cc_session} WHERE datediff(NOW(), datum)>7");
   db_query("INSERT INTO {cc_session} (person_id, session, hostname, datum)
