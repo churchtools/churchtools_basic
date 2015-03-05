@@ -503,11 +503,16 @@ function churchdb_getPersonDetails($id, $withComments = true) {
 
   foreach ($res as $res2) {
     if (($res2->autorisierung == null) || (_checkPersonAuthorisation($res2->autorisierung, $userIsLeader, $userIsSuperLeader, $id))) {
-      if (($res2->intern_code == "f_address") || ($userIsLeader) || (user_access('view alldetails',"churchdb"))){
+      if (($res2->intern_code == "f_address")
+           || ($res2->db_spalte == "status_id")
+           || ($userIsLeader)
+           || (user_access('view alldetails',"churchdb"))){
         $sqlFields[]=$res2->db_spalte;
       }
     }
   }
+
+
   $sql = "SELECT " . join($sqlFields, ",");
   if ($userIsLeader || user_access('view alldetails', "churchdb") || user_access('administer persons', "churchcore")) {
     $sql .= ', p.letzteaenderung, p.aenderunguser, p.createdate, if (loginstr IS NULL , 0 , 1) AS einladung, p.active_yn, p.lastlogin';

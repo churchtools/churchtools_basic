@@ -4738,7 +4738,7 @@ PersonView.prototype.editExportTemplates = function(selected, func) {
   });
 
   // Add Group relation information
-  if (user_access("viewalldata")) {
+  if (user_access("viewalldetails")) {
     form.addHtml('<div class="span4" style="min-width:170px">');
     form.addHtml('<legend>'+_("groups")+'</legend>');
     each(masterData.groupTypes, function(k,a) {
@@ -5184,14 +5184,18 @@ PersonView.prototype.mailer = function() {
   });
   if (counter>=maxMails) alert(unescape("Es d%FCrfen nur max. "+masterData.max_exporter+" Eintr%E4ge exportiert werden. Bitte genauer filtern%21"));
   else {
-//    if (noEmail) alert("Hinweis: Einige Einträge haben keine E-Mailadresse, diese wurden nicht berücksichtigt!");
-    if ((noEmail) && confirm("Einige Personen haben keine E-Mail-Adresse, sollen diese anschließend angezeigt werden?")) {
-      t.filter["withoutEMail"]=1;
-      if (!t.furtherFilterVisible) {
-        t.furtherFilterVisible=true;
-        t.renderFurtherFilter();
+    if (noEmail && user_access("complex filter")) {
+      if (confirm("Einige Personen haben keine E-Mail-Adresse, sollen diese anschließend angezeigt werden?")) {
+        t.filter["withoutEMail"]=1;
+        if (!t.furtherFilterVisible) {
+          t.furtherFilterVisible=true;
+          t.renderFurtherFilter();
+        }
+        t.renderList();
       }
-      t.renderList();
+    }
+    else if (noEmail) {
+      alert("Hinweis: Einige Einträge haben keine E-Mailadresse, diese wurden nicht berücksichtigt!");
     }
     // Und los geht es
     if (masterData.settings.mailerType==0) {
