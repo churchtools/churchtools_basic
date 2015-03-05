@@ -60,25 +60,30 @@ ChurchInterface.prototype.acticateReminderPopup = function (delay) {
 ChurchInterface.prototype.showReminderPopup = function(domainType, domainId) {
   if (domainType=="event") {
     churchInterface.jsendRead({func: "getEvent", id: domainId}, function(ok, data) {
-      var rows = new Array();
-      rows.push("<legend>"+data.bezeichnung + " (" + masterData.category[data.category_id].bezeichnung+')</legend>');
-      rows.push("<p>Startzeit: "+data.startdate.toDateEn(true).toStringDe(true));
-      rows.push("<p>Endzeit: "+data.enddate.toDateEn(true).toStringDe(true));
-      if (calCCType.data[data.category_id]!=null)
-        rows.push("<p>"+form_renderButton({label:"Event öffnen", cssid:"openEvent"}));
-      var elem = form_showDialog("Erinnerung an " + _(domainType), rows.join(""), 300, 300);
-      elem.dialog("addbutton", _("close"), function() {
+      if (data == null) { // Event was deleted
         churchInterface.jsendWrite({func: "saveReminder", domain_id: domainId, domain_type: domainType});
-        elem.dialog("close");
-      });
-      elem.dialog("addbutton", "Erneut erinnern", function() {
-        elem.dialog("close");
-      });
-      elem.find("#openEvent").click(function() {
-        var event = calCCType.data[data.category_id].events[domainId];
-        var pos = elem.find("#openEvent").offset();
-        editEvent(event, true, event.startdate, {clientX: pos.left, clientY: pos.top});
-      });
+      }
+      else {
+        var rows = new Array();
+        rows.push("<legend>"+data.bezeichnung + " (" + masterData.category[data.category_id].bezeichnung+')</legend>');
+        rows.push("<p>Startzeit: "+data.startdate.toDateEn(true).toStringDe(true));
+        rows.push("<p>Endzeit: "+data.enddate.toDateEn(true).toStringDe(true));
+        if (calCCType.data[data.category_id]!=null)
+          rows.push("<p>"+form_renderButton({label:"Event öffnen", cssid:"openEvent"}));
+        var elem = form_showDialog("Erinnerung an " + _(domainType), rows.join(""), 300, 300);
+        elem.dialog("addbutton", _("close"), function() {
+          churchInterface.jsendWrite({func: "saveReminder", domain_id: domainId, domain_type: domainType});
+          elem.dialog("close");
+        });
+        elem.dialog("addbutton", "Erneut erinnern", function() {
+          elem.dialog("close");
+        });
+        elem.find("#openEvent").click(function() {
+          var event = calCCType.data[data.category_id].events[domainId];
+          var pos = elem.find("#openEvent").offset();
+          editEvent(event, true, event.startdate, {clientX: pos.left, clientY: pos.top});
+        });
+      }
     }, null, null, "churchcal");
   }
 };

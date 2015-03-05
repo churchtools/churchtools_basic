@@ -1351,7 +1351,7 @@ function renderTooltip(event) {
     if ((myEvent.ort!=null) && (myEvent.ort!=""))
       rows.push('<li><b>'+myEvent.ort+'</b>');
     if (myEvent.category_id!=null)
-      rows.push("<li>Kalender: <i>"+masterData.category[myEvent.category_id].bezeichnung+'</i>');
+      rows.push('<li class="event-calendar">Kalender: <i>'+masterData.category[myEvent.category_id].bezeichnung+'</i>');
     if (myEvent.bookings!=null && masterData.resources!=null) {
       rows.push('<li>Resourcen: <small>');
       var r = new Array();
