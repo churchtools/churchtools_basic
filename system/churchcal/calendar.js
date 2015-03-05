@@ -771,7 +771,7 @@ function _renderEditEventNavi(elem) {
     navi.addEntry(currentEvent.view=="view-churchservice","view-churchservice",masterData.churchservice_name);
   if (masterData.auth["create bookings"] || masterData.auth["administer bookings"])
     navi.addEntry(currentEvent.view=="view-churchresource","view-churchresource",masterData.churchresource_name);
-  navi.renderDiv("cal_menu", churchcore_handyformat());
+  navi.renderDiv("cal_menu", false);
 
   elem.find("ul.nav a").click(function() {
     if (currentEvent.view=="view-main") {
@@ -781,6 +781,7 @@ function _renderEditEventNavi(elem) {
     currentEvent.view=$(this).attr("id");
     _renderEditEventNavi(elem);
     _renderEditEventContent(elem);
+    return false;
   });
 }
 
