@@ -278,8 +278,8 @@ abstract class CTAbstractModule implements CTModuleInterface {
   public function generatePDF($params) {
     global $files_dir;
 
-    if (!file_exists("phantomjs")) {
-      return null;
+    if (!file_exists("bin/phantomjs")) {
+      throw new CTException("PhantomJS could not be found!");
     }
 
     $html = $params["html"];
@@ -292,7 +292,7 @@ abstract class CTAbstractModule implements CTModuleInterface {
     // convert to pdf
     $downloader_path = $files_dir . "/files/downloader";
     if (!is_dir($downloader_path)) mkdir($downloader_path);
-    $cmd = "./phantomjs ".ASSETS."/phantomjs/generatePDF.js file://".getcwd()."/$tempfile $downloader_path/$filename A4";
+    $cmd = "./bin/phantomjs ".ASSETS."/phantomjs/generatePDF.js file://".getcwd()."/$tempfile $downloader_path/$filename A4";
     exec($cmd, $output, $result);
 
     if ($result != 0) throw new CTException("Could not execute phantomjs, Error code: $result");
@@ -304,6 +304,6 @@ abstract class CTAbstractModule implements CTModuleInterface {
   }
 
   public function hasPDFGenerator() {
-    return file_exists("phantomjs");
+    return file_exists("bin/phantomjs");
   }
 }

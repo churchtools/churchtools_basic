@@ -8,10 +8,13 @@ https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc
 + (CDB) Umgang bei Problemen mit Upload von Benutzerbilder verbessert und PNG-Upload ergänzt.
 - Sicherheit erhöht: Man kann nun nicht mehr Rechte durch das Setzen von vorhandenen E-Mail Adressen erschleichen
 
-2.53c
+2.54
 + Erweitere Datums-Prüfung beim Editieren von Kalender und Resourcen-Einträgen.
-- (CS) Es wurde beim Bearbeiten von mehreren Agendas nicht immer die richtige ausgewählt.
 + Prüfe maximale Upload-Fähigkeit in den Admin-Einstellungen.
 + Prüfe CDB Felder (Nur Pro)
+- (CS) Es wurde beim Bearbeiten von mehreren Agendas nicht immer die richtige ausgewählt.
 - (Cal) Sortiere nun die Gruppenkalendereinträge auf der Startseite
 - EMails werden nun immer in der Sprache des jeweiligen Users gesendet
+- (CDB) Autorisierungsabfrage beim Export behoben, dadurch konnten unerlaubte Daten abgegriffen werden.
+- (CS) PhantomJS aus Sicherheitsgründen bitte in den Unterordner /bin verschieben und schützen!
+- (Cal) Fehler bei Handhelds behoben, dass keine Resourcen hinzugebucht werden konnten.
