@@ -6,10 +6,10 @@ var geocoder = null;
 function _cdb_setGeoPoint(map, info, point) {
   if (map!=null)
     var marker = new google.maps.Marker({
-      position: point, 
-      map: map, 
+      position: point,
+      map: map,
       title:info+" "+point.lat()+" "+point.lng()
-    });   
+    });
 }
 
 function _cdb_addPersonToMap(map,near_lat,near_lng) {
@@ -22,7 +22,7 @@ function _cdb_addPersonToMap(map,near_lat,near_lng) {
 
   each(allPersons, function(k, a){
     if ((a.geolat!="")) {
-      if ((near_lat==null) || 
+      if ((near_lat==null) ||
            (((Math.abs(parseFloat(near_lng)-parseFloat(a.geolng))<0.06)) &&
            (Math.abs(parseFloat(near_lat)-parseFloat(a.geolat))<0.03))) {
         var myLatLng = new google.maps.LatLng(a.geolat, a.geolng);
@@ -74,8 +74,8 @@ function _cdb_addGroupButton2Maps(controlDiv, map) {
   google.maps.event.addDomListener(controlUI, 'click', function() {
     if (map.getZoom()<11)
       alert("Bitte erst weiter reinzoomen!");
-    else 
-      cdb_addGroupsToMap(map, map.getCenter().lat(), map.getCenter().lng());  
+    else
+      cdb_addGroupsToMap(map, map.getCenter().lat(), map.getCenter().lng());
   });
 }
 /**
@@ -108,8 +108,8 @@ function _cdb_addPersonButton2Maps(controlDiv, map) {
   google.maps.event.addDomListener(controlUI, 'click', function() {
     if (map.getZoom()<12)
       alert("Bitte erst weiter reinzoomen!");
-    else 
-    _cdb_addPersonToMap(map, map.getCenter().lat(), map.getCenter().lng());  
+    else
+    _cdb_addPersonToMap(map, map.getCenter().lat(), map.getCenter().lng());
   });
 }
 
@@ -120,7 +120,7 @@ function _cdb_limitZoom(map) {
       alert("Ein weiterer Zoom ist leider nicht erlaubt!");
     }
   });
-}  
+}
 
 function cdb_prepareMap(id,latlng) {
   var myOptions = {
@@ -130,7 +130,7 @@ function cdb_prepareMap(id,latlng) {
   };
   var docId=document.getElementById(id);
   // Karte wird momentan nicht im Browser angezeigt, also brauche sie auch nicht zu f�llen
-  if (docId==null) 
+  if (docId==null)
     return null;
 
   var map =  new google.maps.Map(docId, myOptions);
@@ -141,25 +141,25 @@ function cdb_prepareMap(id,latlng) {
   var groupControl = new _cdb_addGroupButton2Maps(groupControlDiv, map);
   groupControlDiv.index = 1;
   map.controls[google.maps.ControlPosition.TOP_RIGHT].push(groupControlDiv);
-  
+
   if (masterData.auth.viewalldata) {
     var personControlDiv = document.createElement('DIV');
     var personControl = new _cdb_addPersonButton2Maps(personControlDiv, map);
     personControlDiv.index = 1;
     map.controls[google.maps.ControlPosition.TOP_RIGHT].push(personControlDiv);
-  }  
+  }
 
   if (masterData.settings.googleMapLayer==1) {
-    // Traffic Layer:  
+    // Traffic Layer:
     var trafficLayer = new google.maps.TrafficLayer();
     trafficLayer.setMap(map);
-  } 
+  }
   else if (masterData.settings.googleMapLayer==2) {
     // Bike Layer
     var bikeLayer = new google.maps.BicyclingLayer();
     bikeLayer.setMap(map);
   }
-  else if (masterData.settings.googleMapLayer==3) {  
+  else if (masterData.settings.googleMapLayer==3) {
     //Transit Layer
     var transitOptions = {
         getTileUrl: function(coord, zoom) {
@@ -171,13 +171,13 @@ function cdb_prepareMap(id,latlng) {
       };
     var transitMapType = new google.maps.ImageMapType(transitOptions);
     map.overlayMapTypes.insertAt(0, transitMapType);
-  }  
-  
+  }
+
   return map;
 }
 
 /**
- * 
+ *
  * @param {Object} address - Adresse in Textform
  * @param {Object} id - person_id
  */
@@ -190,7 +190,7 @@ function cdb_showGeoPerson(address, id, limit) {
       _cdb_setGeoPoint(map,address,latlng);
       if (limit==true)
         _cdb_limitZoom(map);
-    } 
+    }
     // Geo-Daten müssen erst geholt werden
     else {
       geocoder.geocode( { 'address': address}, function(results, status) {
@@ -200,7 +200,7 @@ function cdb_showGeoPerson(address, id, limit) {
           // Speichern in das Array im Browser und in die Datenbank per AJAX
           var obj=new Object();
           obj["id"]=id;
-          obj["func"] = "f_geocode_person";  
+          obj["func"] = "f_geocode_person";
           obj["lat"]=results[0].geometry.location.lat();
           obj["lng"]=results[0].geometry.location.lng();
           allPersons[id].geolat=results[0].geometry.location.lat();
@@ -213,12 +213,12 @@ function cdb_showGeoPerson(address, id, limit) {
           jQuery("#map_canvas"+id).html("Geocoding war nicht erfolgreich:" + status);
         }
       });
-    }  
+    }
   }
-}  
+}
 
 /**
- * 
+ *
  * @param {Object} address - Adresse in Textform
  * @param {Object} id - group_id
  */
@@ -229,7 +229,7 @@ function cdb_showGeoGruppe(address, id) {
       var latlng = new google.maps.LatLng(masterData.groups[id].geolat, masterData.groups[id].geolng);
       map=cdb_prepareMap("map_canvasg"+id,latlng);
       _cdb_setGeoPoint(map,address,latlng);
-    } 
+    }
     // Geo-Daten müssen erst geholt werden
     else {
       geocoder.geocode( { 'address': address}, function(results, status) {
@@ -239,7 +239,7 @@ function cdb_showGeoGruppe(address, id) {
           // Speichern in das Array im Browser und in die Datenbank per AJAX
           var obj=new Object();
           obj["id"]=id;
-          obj["func"] = "f_geocode_gruppe";  
+          obj["func"] = "f_geocode_gruppe";
           obj["lat"]=results[0].geometry.location.lat();
           obj["lng"]=results[0].geometry.location.lng();
           masterData.groups[id].geolat=results[0].geometry.location.lat();
@@ -247,14 +247,14 @@ function cdb_showGeoGruppe(address, id) {
           churchInterface.jsendWrite(obj, function(ok, json) {
             if (!ok) alert("Fehler beim Speichern der Geocode-Daten: "+json);
           });
-  
+
         } else {
           jQuery("#map_canvas"+id).html("Geocoding war nicht erfolgreich:" + status);
         }
       });
-    }  
-  }  
-} 
+    }
+  }
+}
 
 function cdb_addGroupsToMap(map,near_lat,near_lng, func) {
 
@@ -264,14 +264,15 @@ function cdb_addGroupsToMap(map,near_lat,near_lng, func) {
       new google.maps.Point(10, 25),
       new google.maps.Size(25, 25)
       );
-  
+
   if (masterData.groups!=null) {
     each(masterData.groups, function(k, a){
-      if ((a.geolat!="") && (a.valid_yn==1) && (a.versteckt_yn==0)) {
-        if ((near_lat==null) || 
+      if ((a.geolat!="") && (a.valid_yn==1) && (a.versteckt_yn==0) &&
+             churchInterface.views.GroupView.isAllowedToSeeName(a.id, masterData.user_pid)) {
+        if ((near_lat==null) ||
              (((Math.abs(parseFloat(near_lng)-parseFloat(a.geolng))<0.2)) &&
              (Math.abs(parseFloat(near_lat)-parseFloat(a.geolat))<0.1))) {
-  
+
           url = "gruppe_standard.png";
           if ((a.distrikt_id!=null) && (masterData.districts[a.distrikt_id].imageurl!=null))
             url = masterData.districts[a.distrikt_id].imageurl;
@@ -281,18 +282,18 @@ function cdb_addGroupsToMap(map,near_lat,near_lng, func) {
               new google.maps.Point(10, 25),
               new google.maps.Size(20, 25)
               );
-          
-          
+
+
           var myLatLng = new google.maps.LatLng(a.geolat, a.geolng);
-          
+
           var title="Gruppe: "+a.bezeichnung+" ["+a.id+"]";
           if (a.distrikt_id!=null)
             title=title+"\n Distrikt: "+masterData.districts[a.distrikt_id].bezeichnung;
           if (a.treffzeit!="") title=title+"\n "+a.treffzeit;
           if ((a.treffpunkt!=null) && (a.treffpunkt!="")) title=title+"\n Ort: "+a.treffpunkt;
           if (a.treffname!="") title=title+"\n bei: "+a.treffname;
-          if (a.zielgruppe!="") title=title+"\n Zielgruppe: "+a.zielgruppe;        
-          
+          if (a.zielgruppe!="") title=title+"\n Zielgruppe: "+a.zielgruppe;
+
           var beachMarker = new google.maps.Marker({
               position: myLatLng,
               map: map,
@@ -300,7 +301,7 @@ function cdb_addGroupsToMap(map,near_lat,near_lng, func) {
               shadow: shadow,
               title: title
           });
-          
+
           google.maps.event.addDomListener(beachMarker, 'click', function() {
             if (func!=null) func(a.id);
             else if (typeof(groupView)!='undefined'){
@@ -310,7 +311,7 @@ function cdb_addGroupsToMap(map,near_lat,near_lng, func) {
               groupView.renderView();
             }
           });
-          
+
         }
       }
     });
@@ -321,7 +322,7 @@ function cdb_initializeGoogleMaps() {
   churchInterface.setStatus("Initialisiere GoogleMap...");
   try {
      geocoder = new google.maps.Geocoder();
-  }  
+  }
   catch (e) {
     jQuery("#cdb_info").append('<div class="alert alert-info googlemaps">GoogleMaps steht nicht zur Verf&uuml;gung. ('+e.message+')</div>');
     window.setTimeout(function() {$("#cdb_info div.googlemaps").hide('slow');},5000);

@@ -35,7 +35,7 @@ StatisticView.prototype.renderMasterDataStatistic = function(divid, masterDatafi
 
   rows.push("<small><table cellpadding=\"2\"");
   var count=churchcore_countObjectElements(masterData[desc.shortname]);
-  each(masterData[desc.shortname], function(k,a) {
+  each(churchcore_sortMasterData(masterData[desc.shortname]), function(k,a) {
     if (res[k]!=null) {
       rows.push("<tr><td width=50%>"+a.bezeichnung+"<td>");
       rows.push("<a href=\"#\" id=\""+divid+"\" val=\""+a.id+"\">"+res[k]+"</a><td>"+Math.round(100*res[k]/summe)+"%");
