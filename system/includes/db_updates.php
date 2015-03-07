@@ -1938,6 +1938,11 @@ function run_db_updates($db_version) {
               WHERE enddate<startdate AND startdate>=now()");
     set_version("2.53");
 
+  case '2.53':
+    // Switch to MyISAM for big tables for better InnoDB performance cause not eating all of the cache:)
+    db_query("ALTER TABLE {cdb_log} ENGINE = MyISAM");
+    db_query("ALTER TABLE {cc_mail_queue} ENGINE = MyISAM");
+    set_version("2.54");
   } //end switch
 
   $a=db_query("select * from {cc_config} where name='version'",null,false);
