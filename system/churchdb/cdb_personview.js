@@ -4939,7 +4939,9 @@ PersonView.prototype.exportData = function(selectedTemplate, exportAllData) {
 
 
   elem.find("a.option").click(function() {
-    t.editExportTemplates(elem.find("select.template").val(), function(selected) {t.exportData(selected)});
+    t.editExportTemplates(elem.find("select.template").val(),
+      function(selected) {t.exportData(selected, exportAllData)}
+    );
     elem.dialog("close");
   });
 };
