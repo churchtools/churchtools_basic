@@ -351,7 +351,9 @@ StandardTableView.prototype.renderList = function(entry, newSort) {
 
       // Wenn es Handyformat ist dann zeige immer nur 10 Zeilen, au�er bei der Ressourcen-WeekView,
       // denn hier macht es Sinn, das man alle sieht.
-      if ((!t.overrideMaxRows) && (churchcore_handyformat()) && (churchInterface.getCurrentView().name!="WeekView")) {
+      if ((!t.overrideMaxRows) && (churchcore_handyformat())
+            && (churchInterface.getCurrentView().name!="SongView")
+            && (churchInterface.getCurrentView().name!="WeekView")) {
         masterData.settings["listMaxRows"+t.name]=10;
       }
 

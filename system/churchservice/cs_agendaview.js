@@ -1326,7 +1326,10 @@ AgendaView.prototype.renderListHeader = function(smallVersion) {
         if (servicegroups[sg.id]!=null &&
         	((masterData.settings["viewgroup_agenda"+sg.id]=="1") ||
         	 (masterData.settings["viewgroup_agenda"+sg.id]==null))) {
-          rows.push('<tr><td><b>'+sg.bezeichnung+'&nbsp;&nbsp;</b><td style="width:90%"><small>');
+          rows.push('<tr data-id="'+sg.id+'"><td class="hoveractor"><b>'+sg.bezeichnung+'&nbsp;&nbsp;</b>');
+          rows.push(form_renderImage({src:"trashbox.png", width:18, link:true,
+                          hover:true, data:[{name:"id", value:sg.id}], htmlclass:"delete-servicegroup"}));
+          rows.push('<td style="width:90%"><small>');
           each(churchcore_sortMasterData(masterData.service), function(i,service) {
             if (service.servicegroup_id==sg.id) {
               each(servicegroups[sg.id], function(j, s) {
@@ -1338,12 +1341,19 @@ AgendaView.prototype.renderListHeader = function(smallVersion) {
               });
             }
           });
+
+
           rows.push('</small>');
         }
       });
       var txt=rows.join("");
       if (txt!="") {
         $("#cdb_event").html('<table class="table table-condensed">'+rows.join("")+'</table>');
+        $("#cdb_event a.delete-servicegroup").click(function() {
+          $("#cdb_event tr[data-id=" + $(this).attr("data-id") + "]").remove();
+          if ($("#cdb_event tr").length==0) $("#cdb_event").remove();
+          return false;
+        });
       }
     }
 

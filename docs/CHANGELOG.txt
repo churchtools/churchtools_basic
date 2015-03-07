@@ -9,12 +9,16 @@ https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc
 - Sicherheit erhöht: Man kann nun nicht mehr Rechte durch das Setzen von vorhandenen E-Mail Adressen erschleichen
 
 2.54
+Wichtig für Admins:
+- (CS) PhantomJS aus Sicherheitsgründen bitte in den Unterordner /bin verschieben und schützen!
+
 + Erweitere Datums-Prüfung beim Editieren von Kalender und Resourcen-Einträgen.
 + Prüfe maximale Upload-Fähigkeit in den Admin-Einstellungen.
-+ Prüfe CDB Felder (Nur Pro)
+- EMails werden nun immer in der Sprache des jeweiligen Users gesendet
++ (CDB) Veränderungen von CDB Felder wird nun geprüft (Nur Pro)
++ (CS) Druckansicht der Agenda lassen sich nun Gruppeninfos ausblenden
 - (CS) Es wurde beim Bearbeiten von mehreren Agendas nicht immer die richtige ausgewählt.
 - (Cal) Sortiere nun die Gruppenkalendereinträge auf der Startseite
-- EMails werden nun immer in der Sprache des jeweiligen Users gesendet
 - (CDB) Autorisierungsabfrage beim Export behoben, dadurch konnten unerlaubte Daten abgegriffen werden.
-- (CS) PhantomJS aus Sicherheitsgründen bitte in den Unterordner /bin verschieben und schützen!
-- (Cal) Fehler bei Handhelds behoben, dass keine Resourcen hinzugebucht werden konnten.
+- (CDB) Exportfehler für Gesamtexport nach editieren von Templates behoben
+- (Cal) Fehler bei Smartphones behoben, dass keine Resourcen hinzugebucht werden konnten.
