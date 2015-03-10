@@ -182,7 +182,7 @@ WeekView.prototype.renderListMenu = function() {
 
   searchEntry=this.getFilter("searchEntry");
   var navi = new CC_Navi();
-  each(masterData.resourceTypes, function(k,a) {
+  each(churchcore_sortMasterData(masterData.resourceTypes), function(k,a) {
     navi.addEntry(t.filter["filterRessourcen-Typ"]==a.id,"ressourcentyp_"+a.id,a.bezeichnung);
   });
   navi.addEntry(t.filter["filterRessourcen-Typ"]=="-1","ressourcentyp_-1","<i>"+_("all")+"</i>");

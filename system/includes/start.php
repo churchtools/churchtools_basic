@@ -318,7 +318,17 @@ function churchtools_main() {
   }
 }
 
-
+/**
+ * Log all input params to files
+ */
+function logParams() {
+  global $files_dir;
+  $date = new DateTime();
+  $myVar = $date->format('Y-m-d H:i:s'). " : " . $_SERVER["SERVER_NAME"] . " - " . $_SERVER['HTTP_USER_AGENT'] . NL;
+  $myVar .= print_r($_REQUEST, true);
+  $myVar .= NL;
+  file_put_contents("$files_dir/tmp/churchtools.log", $myVar, FILE_APPEND);
+}
 
 /**
  * TODO: put this into churchtools_main, no need for two functions
@@ -343,6 +353,7 @@ function churchtools_app() {
   $base_url = getBaseUrl();
   $config = loadConfig();
   if ($config) {
+    if (isset($config["debug"])) logParams();
     if (db_connect()) {
       // DBConfig overwrites the config files
       loadDBConfig();

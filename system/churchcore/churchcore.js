@@ -1,6 +1,7 @@
 debug=false;
 lang=new Array();
 dayNames= ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+dayNamesShort = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 DATETIMEFORMAT_EN= "YYYY-MM-DD HH:mm";
 DATEFORMAT_EN= "YYYY-MM-DD";
 DATETIMEFORMAT_DE= "DD.MM.YYYY HH:mm";

@@ -1474,7 +1474,7 @@ PersonView.prototype.getListHeader = function() {
           cols = cols - 1;
           if (cols >= 0) {
             var d=m.datumvon.toDateEn(true);
-            tableHeader=tableHeader+'<th><span class="tooltip-groupmeeting" data-gruppentreffen-id="'+m.id+'" data-tooltip-id="'+g_id+'" data-datum="'+m.datumvon+'">'+d.getDate()+"."+(d.getMonth()+1)+". ";
+            tableHeader=tableHeader+'<th><span class="tooltip-groupmeeting" data-gruppentreffen-id="'+m.id+'" data-tooltip-id="'+g_id+'" data-datum="'+m.datumvon+'">'+dayNamesShort[d.getDay()]+". "+d.getDate()+"."+(d.getMonth()+1)+". ";
             if (d.getHours()!=0)
               tableHeader=tableHeader+" <small>"+d.getHours()+":"+((d.getMinutes()+"").length==1?"0"+d.getMinutes():d.getMinutes())+"h</small><br>";
             tableHeader=tableHeader+form_renderImage(
