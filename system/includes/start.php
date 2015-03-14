@@ -324,7 +324,9 @@ function churchtools_main() {
 function logParams() {
   global $files_dir;
   $date = new DateTime();
-  $myVar = $date->format('Y-m-d H:i:s'). " : " . $_SERVER["SERVER_NAME"] . " - " . $_SERVER['HTTP_USER_AGENT'] . NL;
+  $myVar = $date->format('Y-m-d H:i:s'). " : " . $_SERVER["SERVER_NAME"] . " ";
+  if (isset($_SESSION) && isset($_SESSION["user"])) $myVar .= $_SESSION["user"]->cmsuserid . "[" . $_SESSION["user"]->id . "] ";
+  $myVar .= "- " . $_SERVER['HTTP_USER_AGENT'] . NL;
   $myVar .= print_r($_REQUEST, true);
   $myVar .= NL;
   file_put_contents("$files_dir/tmp/churchtools.log", $myVar, FILE_APPEND);
@@ -353,7 +355,6 @@ function churchtools_app() {
   $base_url = getBaseUrl();
   $config = loadConfig();
   if ($config) {
-    if (isset($config["debug"])) logParams();
     if (db_connect()) {
       // DBConfig overwrites the config files
       loadDBConfig();
@@ -396,6 +397,9 @@ function churchtools_app() {
       if (strrpos($q, "ajax") === false) {
         $success = checkForDBUpdates();
       }
+
+      // Log if debug ist activated
+      if (isset($config["debug"])) logParams();
 
       if ($success) {
         // Is there a loginstr which does not fit to the current logged in user?

@@ -1,2 +1,6 @@
 Das gesamte Changelog ist hier zu finden:
 https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc:Changelog/
+
+v2.54b
+- (CDB) Fehler "Zoom nicht erlaubt" behoben bei dem Recht "view address"
+- (CDB) Fehler der Sortierung in der Statistik behoben

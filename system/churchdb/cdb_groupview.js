@@ -1009,7 +1009,7 @@ GroupView.prototype.getStatsOfGroup = function(g_id) {
   stats.entries=new Array();
 
   each(allPersons, function(k, a) {
-    if (a.gruppe!=null) {
+    if (a != null && a.gruppe!=null) {
       each(a.gruppe, function (i, b) {
         if ((b.id==g_id) &&
               ((masterData.settings.hideStatus==null) || (a.status_id!=masterData.settings.hideStatus))) {

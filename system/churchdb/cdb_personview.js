@@ -3095,7 +3095,7 @@ PersonView.prototype.renderDetails = function (id) {
   $("#detailTD"+id).html(rows.join(""));
 
   if ((a.plz!='') || (a.ort!=''))
-    cdb_showGeoPerson(a.strasse+", "+a.plz+" "+a.ort, id, !((personLeader) || (masterData.auth.viewalldata)));
+    cdb_showGeoPerson(a.strasse+", "+a.plz+" "+a.ort, id, !(personLeader || masterData.auth.viewaddress || masterData.auth.viewalldata));
 
 
   // Callbacks

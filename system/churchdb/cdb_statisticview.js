@@ -35,11 +35,11 @@ StatisticView.prototype.renderMasterDataStatistic = function(divid, masterDatafi
 
   rows.push("<small><table cellpadding=\"2\"");
   var count=churchcore_countObjectElements(masterData[desc.shortname]);
-  each(churchcore_sortMasterData(masterData[desc.shortname]), function(k,a) {
-    if (res[k]!=null) {
+  each(churchcore_sortMasterData(masterData[desc.shortname]), function(k, a) {
+    if (res[a.id]!=null) {
       rows.push("<tr><td width=50%>"+a.bezeichnung+"<td>");
-      rows.push("<a href=\"#\" id=\""+divid+"\" val=\""+a.id+"\">"+res[k]+"</a><td>"+Math.round(100*res[k]/summe)+"%");
-      data.push({ label:a.bezeichnung.trim(13), data: res[k] });
+      rows.push("<a href=\"#\" id=\""+divid+"\" val=\""+a.id+"\">"+res[a.id]+"</a><td>"+Math.round(100*res[a.id]/summe)+"%");
+      data.push({ label:a.bezeichnung.trim(13), data: res[a.id] });
     }
     else if (count<20) {
       rows.push("<tr><td width=50%>"+a.bezeichnung+"<td>");
