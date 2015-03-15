@@ -249,7 +249,7 @@ MaintainStandardView.prototype.renderEntryDetail = function(pos_id, data_id) {
           else {
             var id=table.id;
             var filter=table.filter;
-            cdb_loadMasterData(function() {
+            churchInterface.loadMasterData(function() {
               masterData.masterDataTables[id].open=true;
               masterData.masterDataTables[id].filter=filter;
               this_object.renderList(masterData.masterDataTables[id]);
