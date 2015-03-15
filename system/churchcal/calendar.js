@@ -2038,7 +2038,7 @@ function renderFilterCalender() {
   }
   if (!embedded && rows_cal.length>0 || user_access("create personal category") || user_access("admin personal category")) {
     rows.push('<ul class="ct-ul-list">');
-    if (user_access("admin group category") || user_access("create group category"))
+    if (user_access("admin personal category") || user_access("create personal category"))
       rows.push(form_renderImage({cssid:"edit_personal", src:"options.png", top:0, width:24, htmlclass:"pull-right"}));
     rows.push('<h4>'+_("personal.calendar"));
     rows.push('</h4>');

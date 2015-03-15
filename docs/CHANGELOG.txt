@@ -5,4 +5,7 @@ v2.54b
 - (CDB) Fehler "Zoom nicht erlaubt" behoben bei dem Recht "view address"
 - (CDB) Fehler der Sortierung in der Statistik behoben
 - (Cal) Fehler beim Enddatum in der Eventanzeige-Dialogbox behoben
+- (Cal) Das Recht persönliche Kalender erstellen wurde nicht korrekt abgefragt
+- (CS) Fehler bei Agenda beim Herausnehmen von Uhrzeiten vor einem Event behoben.
+- (CS) Fehler bei Agenda wenn man eine Agenda kopiert hat wies der alte Integrationsmerkmale auf.
 - Fehler beim Löschen von Stammdaten behoben

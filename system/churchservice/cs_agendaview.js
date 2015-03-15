@@ -1412,6 +1412,7 @@ AgendaView.prototype.startNewAgenda = function(template_agenda, copying) {
   if (t.currentAgenda.template_yn==1 || copying) {
     copying=true;
     delete t.currentAgenda.id;
+    delete t.currentAgenda.event_ids;
   }
 
   if (copying || template_agenda==null) {
@@ -1542,10 +1543,17 @@ AgendaView.prototype.renderTimes = function() {
   var t=this;
   if (t.currentAgenda==null || t.currentAgenda.items==null) return;
 
-  var preservice_seconds=0;
+  // Get Seconds before event
+  var preservice_seconds = new Array();
+  each(t.currentAgenda.event_ids, function(i,a) { preservice_seconds[a] = 0 });
   each(t.getData(), function(k,item) {
-    if (item.preservice_yn==1)
-      preservice_seconds=preservice_seconds+item.duration*1;
+    each(t.currentAgenda.event_ids, function(i,a) {
+      if ((t.currentAgenda.template_yn==1 || churchcore_inArray(a, item.event_ids))
+            && item.header_yn==0
+            && item.preservice_yn==1) {
+        preservice_seconds[a] = preservice_seconds[a] + item.duration * 1;
+      }
+    });
   });
 
   if (t.currentAgenda.template_yn==1) t.currentAgenda.event_ids=[-1];
@@ -1559,7 +1567,7 @@ AgendaView.prototype.renderTimes = function() {
       time[a]=new Date();
       time[a]=time[a].withoutTime();
     }
-    time[a].setSeconds(time[a].getSeconds() - preservice_seconds);
+    time[a].setSeconds(time[a].getSeconds() - preservice_seconds[a]);
   });
   var elem=$("table.AgendaView");
   // Now go through the Items and render the times
