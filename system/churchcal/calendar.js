@@ -935,7 +935,7 @@ function renderEditEvent(myEvent, origEvent, isSeries, editSeries, func) {
             origEvent.prooveEventChangeImpact(newEvent, null, null, null, function(ok) {
               if (ok) {
                 elem.dialog("close");
-                newEvent.saveEvent(newEvent);
+                newEvent.save();
               }
             });
           }
@@ -1022,7 +1022,7 @@ function delEventFormular(event, func, currentDate) {
         deleteNewerExceptionsAndAdditions(newEvent, d, false);
         elem.dialog("close");
         event.prooveEventChangeImpact(newEvent, null, null, null, function(ok) {
-          if (ok) event.saveEvent(newEvent);
+          if (ok) newEvent.save();
         });
       });
     }

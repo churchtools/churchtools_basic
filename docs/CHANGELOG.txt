@@ -9,3 +9,6 @@ v2.54b
 - (CS) Fehler bei Agenda beim Herausnehmen von Uhrzeiten vor einem Event behoben.
 - (CS) Fehler bei Agenda wenn man eine Agenda kopiert hat wies der alte Integrationsmerkmale auf.
 - Fehler beim Löschen von Stammdaten behoben
+
+v2.54c
+- (Cal) Problem beim Löschen von Serientermine von "diesen und zukünfitge" behoben.
