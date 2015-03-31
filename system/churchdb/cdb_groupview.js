@@ -1147,7 +1147,7 @@ GroupView.prototype.renderEntryDetail = function(pos_id, data_id) {
           info=info+"<br/>";
           var count_dabei=0;
           var count_stattgefunden=0;
-          each(churchcore_sortData(masterData.groups[g_id].meetingList,"datumvon"), function(k,a) {
+          each(churchcore_getLast(churchcore_sortData(masterData.groups[g_id].meetingList, "datumvon"), 16), function(k,a) {
             if (a.eintragerfolgt_yn=="0")
               info=info+'<img title="Eintrag noch nicht erfolgt f�r '+a.datumvon.toDateEn().toStringDe(false)+'" src="'+masterData.modulespath+'/images/box_white.png'+'"/>';
             if (a.ausgefallen_yn=="1")

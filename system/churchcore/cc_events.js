@@ -140,6 +140,17 @@ function CCEvent(source) {
   });
 }
 
+/**
+ * Delete all functions of the event object
+ */
+CCEvent.prototype.clean = function() {
+  var c = this.clone();
+  each(c, function(k, a) {
+    if ($.isFunction(a)) delete c[k];
+  });
+  return c;
+}
+
 CCEvent.prototype.clone = function () {
   var t = this;
   var e = jQuery.extend(true, {}, this);

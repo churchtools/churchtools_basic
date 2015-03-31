@@ -55,7 +55,7 @@ class CTChurchCalModule extends CTAbstractModule {
   public function getAllowedPeopleForCalender($params) {
     include_once ('./' . CHURCHDB . '/churchdb_db.php');
     $db = db_query("SELECT * FROM {cc_domain_auth}
-                    WHERE daten_id=:daten_id AND auth_id=403",
+                    WHERE daten_id=:daten_id AND (auth_id=403 || auth_id=404)",
                     array (":daten_id" => $params["category_id"]));
     $res = array ();
     foreach ($db as $d) {

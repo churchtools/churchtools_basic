@@ -100,6 +100,19 @@ function churchcore_sortData(data, sortVariable, reverse, alphanumeric, sortVari
     return churchcore_sortData_numeric(data, sortVariable, reverse, sortVariable2);
 }
 
+function churchcore_getLast(obj, max) {
+  var countObjects = churchcore_countObjectElements(obj);
+  var newObj = new Object();
+  var i = 0;
+  each (obj, function(k, o) {
+    if (i >= countObjects - max) {
+      newObj[k] = o;
+    }
+    i++;
+  })
+  return newObj;
+}
+
 function churchcore_isObjectEmpty(obj) {
   if (obj==null) return false;
   var ret = true;

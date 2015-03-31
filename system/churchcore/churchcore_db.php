@@ -955,7 +955,6 @@ function churchcore_sendEMailToPersonIDs($ids, $subject, $content, $from = null,
     else {
       $mailtxt = str_replace('\"', '"', $mailtxt);
       $mailtxt = churchcore_personalizeTemplate($mailtxt, $p);
-      // ct_log("[ChurchCore] - Sende Mail an $p->email $mailtxt",2,-1,"mail");
 
       churchcore_mail($from, $p->email, $subject, $mailtxt, $htmlmail, $withtemplate);
     }
@@ -980,7 +979,7 @@ function churchcore_personalizeTemplate($txt, $p) {
   $txt = str_replace("[Nachname]", ( isset($p->name) ? $p->name : ""), $txt);
   $txt = str_replace("[Name]", ( isset($p->name) ? $p->name : ""), $txt);
   $txt = str_replace("[Titel]", ( isset($p->titel) ? $p->titel : ""), $txt);
-  $txt = str_replace("[Spitzname]", ( isset($p->spitzname) ? $p->spitzname : (isset ( $p->vorname ) ? $p->vorname : "")), $txt);
+  $txt = str_replace("[Spitzname]", ( !empty($p->spitzname) ? $p->spitzname : (isset ( $p->vorname ) ? $p->vorname : "")), $txt);
   $txt = str_replace("[Id]", ( isset($p->id) ? $p->id : ""), $txt);
   $txt = str_replace("[Initialen]", ( isset($p->vorname) ? substr($p->vorname,0,1) : "")
                                    . ( isset($p->name) ? substr($p->name,0,1) : ""), $txt);

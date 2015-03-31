@@ -1943,6 +1943,12 @@ function run_db_updates($db_version) {
     db_query("ALTER TABLE {cdb_log} ENGINE = MyISAM");
     db_query("ALTER TABLE {cc_mail_queue} ENGINE = MyISAM");
     set_version("2.54");
+
+  case '2.54':
+    db_query("UPDATE {cdb_feld} set langtext='Familienstand' where langtext='Familenstand'");
+    db_query("UPDATE {cdb_feld} set kurztext='Familienstand' where kurztext='Familenstand'");
+    set_version("2.55");
+
   } //end switch
 
   $a=db_query("select * from {cc_config} where name='version'",null,false);

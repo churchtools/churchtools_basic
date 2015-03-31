@@ -1389,12 +1389,7 @@ function churchdb_sendsms($ids, $txt) {
     }
     else {
       $param["to"] = $p->telefonhandy;
-      $mailtxt = $txt;
-      $mailtxt = str_replace("[Vorname]", $p->vorname, $mailtxt);
-      $mailtxt = str_replace("[Nachname]", $p->name, $mailtxt);
-      $mailtxt = str_replace("[Spitzname]", $p->spitzname, $mailtxt);
-      $mailtxt = str_replace("[Id]", $p->id, $mailtxt);
-      $param["message"] = $mailtxt;
+      $param["message"] = churchcore_personalizeTemplate($txt, $p);
       $res[$p->id] = churchdb_smspromote($param);
       $res["smscount"]++;
     }

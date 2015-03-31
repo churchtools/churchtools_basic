@@ -58,10 +58,10 @@ QUnit.test( "Test Event Split", function( assert ) {
 
   // Test One Day in series
   cal_series.doSplit(new Date('2014-01-09 10:00'), false, function(newEvent, pastEvent, splitDate) {
-    assert.deepEqual(pastEvent, cal_series_with_exception.clone(), "pastEvent: Test one day in series");
+    assert.deepEqual(pastEvent.clean(), cal_series_with_exception.clean(), "pastEvent: Test one day in series");
   });
   cal_series.doSplit(new Date('2014-01-09 10:00'), false, function(newEvent, pastEvent, splitDate) {
-    assert.deepEqual(newEvent, cal_single.clone(), "NewEvent: Test one day in series");
+    assert.deepEqual(newEvent.clean(), cal_single.clean(), "NewEvent: Test one day in series");
   });
 
   // Test rest of series
@@ -70,7 +70,7 @@ QUnit.test( "Test Event Split", function( assert ) {
     assert.deepEqual(pastEvent, d, "pastEvent: Test rest of series");
   });
   cal_series.doSplit(new Date('2014-01-09 10:00'), true, function(newEvent, pastEvent, splitDate) {
-    assert.deepEqual(newEvent, cal_series_2nd.clone(), "Test rest of series");
+    assert.deepEqual(newEvent.clean(), cal_series_2nd.clean(), "Test rest of series");
   });
 
   // Test special case first element edited!
