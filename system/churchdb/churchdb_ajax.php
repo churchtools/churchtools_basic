@@ -547,7 +547,7 @@ function churchdb_addPersonGroupRelation($p_id, $g_id, $leader, $date, $followup
   }
 
   $info = getGroupInfo($g_id);
-  cdb_log("Neu: $info->gruppentyp $info->gruppe (P$p_id:G$g_id, ". "Leiter". ": $leader)", 2, $gp_id, CDB_LOG_PERSON, 1);
+  cdb_log("Neu: $info->gruppentyp $info->gruppe (P$p_id:G$g_id, ". "Leiter". ": $leader)", 2, $p_id, CDB_LOG_PERSON, 1);
   $automail = chuchdb_sendAutomaticGroupEMail($g_id, $p_id, $leader);
   if ((getConf('churchdb_sendgroupmails', true)) && ($info->mail_an_leiter_yn == 1)) {
     // TODO: put automail and comment in separate arguments in informLeaderAboutNewGroupMember to use it in mail template
