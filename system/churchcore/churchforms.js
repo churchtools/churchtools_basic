@@ -653,7 +653,7 @@ function form_renderInput (options) {
   rows.push('" size="'+size+'" '+cssid+' placeholder="'+placeholder+'" ');
   if (options.htmlclass!=null) rows.push('class="'+options.htmlclass+'" ');
   if (options.maxlength!=null) rows.push('maxlength="'+options.maxlength+'" ');
-  rows.push(disabled+' value="'+value+'"/>');
+  rows.push(disabled+' value="'+value.replace(/"/g, "&quot;")+'"/>');
 
   if (options.datepicker!=null) {
     rows.push('<div id="'+options.datepicker+'" style="position:absolute;background:#e7eef4;z-index:12001;"/>');
