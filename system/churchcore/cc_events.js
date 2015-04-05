@@ -445,7 +445,7 @@ function deleteNewerExceptionsAndAdditions(event, date, deleteCS) {
     }
   });
   each(event.csevents, function(k,a) {
-    if ((a != null) && (a.startdate.withoutTime().getTime() > date.getTime())) {
+    if ((a != null) && (a.startdate.withoutTime().getTime() >= date.getTime())) {
       if (deleteCS==null || !deleteCS) event.csevents[k].action="delete";
       else delete event.csevents[k];
     }

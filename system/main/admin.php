@@ -111,7 +111,7 @@ function admin_main() {
 function churchadmin_validateAdminForm($key, $val) {
   if ($key=="max_uploadfile_size_kb") {
     try {
-      new qqFileUploader(array(), $val*1);
+      new qqFileUploader(array(), $val*1000);
     }
     catch (Exception $e) {
       return $e->getMessage();
