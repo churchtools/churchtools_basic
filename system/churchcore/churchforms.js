@@ -616,7 +616,11 @@ function form_renderButton (options) {
  * @return html-code
  */
 function form_renderInput (options) {
-  var value = (options.value!=null?options.value:"");
+  var value = "";
+  if (options.value != null) {
+    if (typeof options.value == "string") value = options.value.replace(/"/g, "&quot;");
+    else value = options.value;
+  }
   var size = (options.size!=null?size:10);
   var disabled = ((options.disabled!=null) && (options.disabled)?"disabled":"");
   var separator = (options.separator!=null?options.separator:" ");
@@ -653,7 +657,7 @@ function form_renderInput (options) {
   rows.push('" size="'+size+'" '+cssid+' placeholder="'+placeholder+'" ');
   if (options.htmlclass!=null) rows.push('class="'+options.htmlclass+'" ');
   if (options.maxlength!=null) rows.push('maxlength="'+options.maxlength+'" ');
-  rows.push(disabled+' value="'+value.replace(/"/g, "&quot;")+'"/>');
+  rows.push(disabled+' value="'+value+'"/>');
 
   if (options.datepicker!=null) {
     rows.push('<div id="'+options.datepicker+'" style="position:absolute;background:#e7eef4;z-index:12001;"/>');
