@@ -2489,7 +2489,7 @@ ListView.prototype.sendEMailToEvent = function(event) {
       }
       var a=churchInterface.views.AgendaView.getAgendaForEventIdIfOnline(event.id);
       if (a!=null)
-        txt=txt+'<br/><br/><a href="'+masterData.base_url+'?q=churchservice&id='+a.id+'#AgendaView" class="button">Ablauf aufrufen</a>';
+        txt=txt+'<br/><br/><a href="'+masterData.base_url+'?q=churchservice&view=AgendaView&id='+a.id+'" class="button">Ablauf aufrufen</a>';
     }
 
     if (masterData.settings.signature!=null) txt=txt+masterData.settings.signature;
@@ -2594,7 +2594,7 @@ ListView.prototype.attachFile = function(event) {
     }
     var a=churchInterface.views.AgendaView.getAgendaForEventIdIfOnline(event.id);
     if (a!=null)
-      attachTxt = attachTxt+'<br/><br/><a href="'+masterData.base_url+'?q=churchservice&id='+a.id+'#AgendaView" class="button">Ablauf aufrufen</a>';
+      attachTxt = attachTxt+'<br/><br/><a href="'+masterData.base_url+'?q=churchservice&view=AgendaView&id='+a.id+'" class="button">Ablauf aufrufen</a>';
   }
 
 

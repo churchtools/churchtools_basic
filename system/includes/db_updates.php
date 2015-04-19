@@ -1949,6 +1949,10 @@ function run_db_updates($db_version) {
     db_query("UPDATE {cdb_feld} set kurztext='Familienstand' where kurztext='Familenstand'");
     set_version("2.55");
 
+  case '2.55':
+    db_query("ALTER TABLE {cs_song} CHANGE bezeichnung bezeichnung VARCHAR(255)");
+    set_version("2.56");
+
   } //end switch
 
   $a=db_query("select * from {cc_config} where name='version'",null,false);

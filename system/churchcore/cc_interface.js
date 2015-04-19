@@ -281,8 +281,14 @@ ChurchInterface.prototype.historyCreateStep = function (hash) {
  */
 ChurchInterface.prototype.history = function (hash) {
   var t=this;
-  if (hash==null) hash="";
-  var arr=hash.split("/");
+  if (!hash) {
+    var uri = getCurrentURLAsObject();
+    if (uri.searchObject && uri.searchObject["view"]) {
+      hash = uri.searchObject["view"];
+    }
+    else hash = "";
+  }
+  var arr = hash.split("/");
   // Wenn kein Hash vorhanden ist, wird erstmal die StandardViewName angezeigt
   if (t.views[arr[0]]==null && (masterData.views==null || masterData.views[arr[0]]==null)) {
     arr[0]=t.standardviewname+"/";
