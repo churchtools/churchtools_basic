@@ -2397,7 +2397,7 @@ $.widget("ct.editable", {
         if (width<123) width=123;
         rows.push('<textarea class="editor" maxlength="200" style="margin:0;width:'+width+'px;height:'+height+'px" '
             +'>'+t._renderEditor()+'</textarea>');
-        rows.push('<br/><span class="" style="position:absolute;">');
+        rows.push('<br/><span class="" style="position:absolute;z-index:1000">');
         rows.push(form_renderButton({type:"small", htmlclass:"save btn-primary", label:_("save")}));
         rows.push(form_renderButton({type:"small", htmlclass:"cancel ", label:_("cancel")}));
         rows.push('</span>');
