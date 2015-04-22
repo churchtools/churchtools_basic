@@ -618,6 +618,9 @@ ListView.prototype.renderEditEvent = function(event) {
     elem.dialog("addbutton", _("save"), function() {
       if ($("#Inputcategory").val()<0) alert("Bitte einen Kalender auswählen!");
       else if ($("#InputBezeichnung").val()=="") alert("Bitte eine Bezeichnung angeben!");
+      else if ($("#InputAdmin").val().trim()!="" && !$("#InputAdmin").val().isIDArray()) {
+        alert("Bitte Admin-Feld nur IDs kommasepariert angeben oder leer lassen.");
+      }
       else {
         this_object.saveEditEvent(elem);
         // Wenn es neu ist, dann soll das Datum gesetzt werden, damit der neue Eintrag sichtbar wird.

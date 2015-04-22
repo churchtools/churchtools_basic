@@ -456,6 +456,15 @@ String.prototype.trim = function (len) {
   return str;
 };
 
+String.prototype.isIDArray = function() {
+  var arr = this.split(",");
+  var isNumber = true;
+  $.each(arr, function(k, a) {
+    if (!$.isNumeric(a)) isNumber = false;
+  });
+  return isNumber;
+}
+
 /**
  * Recognize links and convert them as html a
  */
