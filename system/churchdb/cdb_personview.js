@@ -578,6 +578,8 @@ PersonView.prototype.addSecondMenu = function() {
     rows.push('<option value="delFromGroup">... '+_("delete.from.group"));
     if (masterData.auth.viewalldetails)
       rows.push('<option value="f_bereich">... '+_("add.to.department"));
+    if (masterData.auth.adminpersons)
+      rows.push('<option value="changeStatus">... '+'Status anpassen');
     if (masterData.auth.viewtags)
       rows.push('<option value="addPersonTag">... '+_("add.one.tag"));
     if (masterData.auth.adminpersons)
@@ -1059,6 +1061,15 @@ PersonView.prototype.personFunction = function (value, param) {
         cssid:"inputId"
       });
     }
+    else if (value=="changeStatus") {
+      form.setLabel("Bitte Status ausw&auml;hlen");
+      form.addSelect({
+        freeoption:false,
+        label:"Status",
+        data:masterData.status,
+        cssid:"inputId"
+      });
+    }
     else if (value=="addPersonTag") {
       form.setLabel("Bitte Tag ausw&auml;hlen");
       form.addSelect({
@@ -1128,6 +1139,13 @@ PersonView.prototype.personFunction = function (value, param) {
                  allPersons[ids[current_id]].auth=new Object();
                allPersons[ids[current_id]].auth[id]=id;
                obj.auth_id=id;
+               churchInterface.jsendWrite(obj, null, false);
+             }
+             else if (value=="changeStatus") {
+               obj.id=ids[current_id];
+               obj.func="f_category";
+               obj.status_id = id;
+               allPersons[ids[current_id]].status_id = id;
                churchInterface.jsendWrite(obj, null, false);
              }
              else if (value=="f_bereich") {
