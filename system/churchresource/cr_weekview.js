@@ -541,16 +541,23 @@ WeekView.prototype.renderBookings = function(bookings) {
   return txt;
 }
 
+/**
+ *  Currently only used for tooltip updates
+ * */
 WeekView.prototype.updateBookingStatus = function(id, newStatus) {
   var t = this;
 
   var myEvent = allBookings[id];
+
   myEvent.status_id = newStatus;
   if (myEvent.cc_cal_id!=null && myEvent.cc_cal_id!=0) {
     myEvent = CR2CALType(myEvent);
     myEvent.id = myEvent.cc_cal_id;
     delete myEvent.status_id;
     delete myEvent.resource_id;
+    // Use the orig cal time not the time with minpre and minpost
+    if (myEvent.cal_startdate) myEvent.startdate = new Date(myEvent.cal_startdate.getTime());
+    if (myEvent.cal_enddate) myEvent.enddate = new Date(myEvent.cal_enddate.getTime());
   }
 
   myEvent.save();
