@@ -191,8 +191,12 @@ function mapEvents(allEvents) {
           if (a.bookings!=null && masterData.resources!=null) {
             o.title=o.title+'<span class="event-resources">';
             each(a.bookings, function(i,e) {
-              if (masterData.resources[e.resource_id]!=null)
-                o.title=o.title+'<br/>'+masterData.resources[e.resource_id].bezeichnung.trim(20);
+              if (masterData.resources[e.resource_id]!=null) {
+                if (e.status_id != 99 && e.status_id != 3) {
+                  o.title=o.title+'<br/>'+masterData.resources[e.resource_id].bezeichnung.trim(20);
+                  if (e.status_id == 1) o.title = o.title + "?";
+                }
+              }
               else
                 o.title=o.title+'<br/><font color="red">Id:'+e.resource_id+'?</font>';
             });
