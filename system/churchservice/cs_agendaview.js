@@ -1032,7 +1032,21 @@ AgendaView.prototype.getListHeader = function () {
           if (data!=null) {
             if (allAgendas==null) allAgendas=new Object();
             each(data, function(k,a) {
-              allAgendas[a.id]=a;
+              allAgendas[a.id] = a;
+
+              // Sort event_ids with startdate
+              var ids = new Array();
+              each(a.event_ids, function(k, e) {
+                if (allEvents != null && allEvents[e])
+                  ids.push({startdate:allEvents[e].startdate, id:e});
+                else
+                  ids.push({startdate:new Date(), id:e});
+              });
+              a.event_ids = new Array();
+              each(churchcore_sortData(ids, "startdate", false), function(k, e) {
+                a.event_ids.push(e.id);
+              });
+
             });
             if ((churchInterface.views.ListView==null || churchInterface.views.ListView.currentEvent==null)
                     && masterData.settings.currentAgenda!=null)
