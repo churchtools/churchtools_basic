@@ -113,6 +113,7 @@ StandardTableView.prototype.renderView = function(withMenu) {
     this.renderFilter();
     if (!churchcore_touchscreen())
       $("#searchEntry").focus();
+    $("#searchEntry").select();
   }
   else {
     this.renderMenu();
