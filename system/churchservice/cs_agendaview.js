@@ -1444,6 +1444,7 @@ AgendaView.prototype.startNewAgenda = function(template_agenda, copying) {
   else {
     if (t.currentAgenda.items!=null) {
       each(t.currentAgenda.items, function(k,a) {
+        if (a.event_ids == null) a.event_ids = new Array();
         a.event_ids.push(churchInterface.views.ListView.currentEvent.id);
       });
     }
