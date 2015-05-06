@@ -353,11 +353,13 @@ class CTChurchServiceModule extends CTAbstractModule {
    */
   private function getBelongingEventIdsToAgenda($agenda_id) {
     $db = db_query("SELECT distinct ei.event_id id
-                    FROM {cs_event_item} ei, {cs_item} i
-                    WHERE ei.item_id=i.id and i.agenda_id=:agenda_id",
+                    FROM {cs_event_item} ei, {cs_item} i, {cs_event} e
+                    WHERE ei.item_id=i.id and i.agenda_id=:agenda_id
+                      AND ei.event_id = e.id
+                    ORDER BY e.startdate",
                     array (":agenda_id" => $agenda_id));
     $event_ids = array();
-    foreach ($db as $event) if ($event_ids[] = $event->id); // TODO: why if?
+    foreach ($db as $event) $event_ids[] = $event->id;
 
     return $event_ids;
   }
