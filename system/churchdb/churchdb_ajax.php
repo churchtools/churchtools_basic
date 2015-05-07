@@ -1410,7 +1410,7 @@ function f_functions($params) {
   // otherwise someone could use the email of an admin...
   if (isset($params["email"]) && !user_access("administer persons", "churchcore")) {
     // Check, if the email address has changed
-    $db = db_query("SELECT id FROM {cdb_person} p
+    $db = db_query("SELECT id, email FROM {cdb_person} p
                     WHERE id=:id",
                     array (":id" => $params["id"]))
                     ->fetch();
