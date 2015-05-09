@@ -54,6 +54,10 @@ function churchcal_main() {
       $txt .= '<input type="hidden" id="filterevent_id" name="id" value="' . $id . '"/>' . NL;
     }
   }
+  if (getVar("printview")) {
+    $txt .= '<input type="hidden" id="printview" value="true"/>';
+    $embedded = true;
+  }
 
   if ($embedded) {
     if ($catSel = getVar("category_select")) {
@@ -69,10 +73,9 @@ function churchcal_main() {
           <div id="cdb_filter"></div>
         </div>
         <div id="cdb_content"><div id="calendar"></div></div>
-        <input type="hidden" id="isembedded"/>
     ';
+    if (getVar("embedded")) $txt.= '<input type="hidden" id="isembedded"/>';
     if ($t = getVar("title"))     $txt .= '<input type="hidden" id="embeddedtitle" value="' . $t . '"/>';
-    if (getVar("printview"))      $txt .= '<input type="hidden" id="printview" value="true"/>';
     if ($e = getVar("entries"))   $txt .= '<input type="hidden" id="entries" value="' . $e . '"/>';
     if ($s = getVar("startdate")) $txt .= '<input type="hidden" id="init_startdate" value="' . $s . '"/>';
     if ($e = getVar("enddate"))   $txt .= '<input type="hidden" id="init_enddate" value="' . $e . '"/>';

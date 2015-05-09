@@ -521,6 +521,8 @@ function churchcal_getCCEventChangeImpact($newEvent, $pastEvent, $originEvent) {
 
 /**
  * Extracts one date out of a series. Make event single day event
+ * Critical situations:
+ * - when date is longer than one day, so we take difference between start and end
  * @param [type] $originEvent
  * @param [type] $d Which day to take (time will be ignored)
  */
@@ -531,6 +533,9 @@ function getOneEventOutOfSeries($originEvent, $d) {
   // Take date from $d and time from $ds
   $originEvent["startdate"] = $d->format('Y-m-d') . " " . $ds->format('H:i');
   $enddate = clone $d;
+  // Set Hours and Minutes from startdate
+  $enddate->setTime($ds->format('H'), $ds->format('i'), 0);
+  // Add difference from origin end to start date
   $enddate->modify("+" . $de->getTimestamp() - $ds->getTimestamp() . " seconds");
   $originEvent["enddate"] = $enddate->format('Y-m-d H:i');
   return $originEvent;

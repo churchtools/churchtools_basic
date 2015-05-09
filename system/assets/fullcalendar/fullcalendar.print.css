@@ -170,7 +170,7 @@ tbody,
 
 /* ...replace it with a more verbose version (includes AM/PM) stored in an html attribute */
 .fc-time-grid .fc-event .fc-time:after {
-	content: attr(data-full);
+/*	content: attr(data-full); */
 }
 
 

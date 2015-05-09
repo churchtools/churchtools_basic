@@ -1251,7 +1251,7 @@ function initCalendarView() {
       $("span.colorcheckbox .checked").each(function() {
         ids.push($(this).parents("span.colorcheckbox").attr("data-id")*1-100);
       });
-      var fenster=window.open("?q=churchcal&embedded=true&printview=true&category_id="+ids.join(","), '_blank', 'location=yes,height=570,width=700,scrollbars=yes,status=yes');
+      var fenster=window.open("?q=churchcal&printview=true&category_id="+ids.join(","), '_blank', 'location=yes,height=570,width=700,scrollbars=yes,status=yes');
       fenster.focus();
     }
   });
