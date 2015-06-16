@@ -275,10 +275,6 @@ function _getEditEventFromForm() {
   form_getDatesInToObject(obj);
   obj.category_id=$("#Inputcategory").val();
   obj.bezeichnung=$("#InputBezeichnung").val();
-  obj.intern_yn=1;
-  obj.notizen="Erstellt aus ChurchService";
-  obj.link="";
-  obj.ort="";
 
   csevent = new Object();
   csevent.special = $("#InputSpecial").val();
@@ -438,6 +434,10 @@ ListView.prototype.saveEditEvent = function (elem) {
   }
   else {
     obj.func="createEvent";
+    obj.intern_yn=1;
+    obj.notizen="Erstellt aus ChurchService";
+    obj.link="";
+    obj.ort="";
     churchInterface.jsendWrite(obj, function(ok, data) {
       if (!ok) alert(data);
       cs_loadEventData(null, function(){
