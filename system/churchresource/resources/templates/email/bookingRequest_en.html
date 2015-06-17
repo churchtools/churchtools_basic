@@ -24,7 +24,7 @@
   <?php endif; ?>
 <?php endif; ?>
 
-<?php if ($canceled): ?>
+<?php if (!empty($canceled) && !empty($days)): ?>
     <p>For your booking request <?= $booking->text ?> for <?= $resource ?>
     <?= $user->vorname ?> <?= $user->name ?> unfortunately had to cancel the followin days: <p>
        <b> <?= $days ?></b>

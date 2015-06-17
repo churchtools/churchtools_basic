@@ -1162,7 +1162,8 @@ WeekView.prototype.renderEditEvent = function(func, newEvent, myEvent, _isSeries
   else if (func=="copy") {
     t.id=null;
     // Pruefen, ob der Eintrag schon von einem Admin bestaetigt wurde, dann muss er auf 1 (unbestaetigt) zurueckgesetzt werden
-    if (user_access("edit", myEvent.resource_id) || (masterData.resources[myEvent.resource_id].autoaccept_yn==1))
+    if (newEvent.status_id!=1 &&
+         (user_access("edit", myEvent.resource_id) || (masterData.resources[myEvent.resource_id].autoaccept_yn==1)))
       newEvent.status_id=2;
     else newEvent.status_id=1;
     title="Buchungsanfrage kopieren";

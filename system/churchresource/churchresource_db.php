@@ -210,7 +210,7 @@ function churchresource_createBooking($params, $sendEMails = true) {
     'bookingUrl'  => $base_url . "?q=churchresource&id=" . $booking->id,
     'pending'     => getVar("status_id", false, $params) == CR_PENDING,
     'succesful'   => getVar("status_id", false, $params) == CR_APPROVED,
-    'canceled'    => false,
+    'canceled'    => getVar("status_id", false, $params) == CR_CANCELED,
     'person'      => false,
   );
   // Now send email to admin persons

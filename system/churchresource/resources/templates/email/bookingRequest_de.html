@@ -8,10 +8,10 @@
   <?php if (!empty($succesful)): ?>
     <p>Eine neue Buchung von <i><?=$user->vorname?> <?=$user->name?></i> wurde erstellt und automatisch genehmigt.
   <?php endif; ?>
-  <?php if (!empty($canceled)): ?>
-    <p>Eine neue Buchung von <i><?=$user->vorname?> <?=$user->name?></i> wurde erstellt gleich abgelehnt.
-  <?php endif; ?>
 
+  <?php if (!empty($canceled)): ?>
+    <p>Eine neue Buchung von <i><?=$user->vorname?> <?=$user->name?></i> wurde erstellt und gleich abgelehnt.
+  <?php endif; ?>
 <?php else: ?>
 
   <?php if (!empty($pending)): ?>
@@ -24,12 +24,11 @@
   <?php endif; ?>
 <?php endif; ?>
 
-<?php if (!empty($canceled)): ?>
+<?php if (!empty($canceled) && !empty($days)): ?>
     <p>Bei Deiner Serien-Buchungsanfrage <?= $booking->text ?> für <?= $resource ?> mussten leider
        von <?= $user->vorname ?> <?= $user->name ?> folgende Tage abgelehnt werden: <p>
        <b> <?= $days ?></b>
 <?php endif; ?>
-
 <?php if (!empty($pending) || !empty($succesful)): ?>
 
 <?php //TODO: should be shown on updated bookings too ?>
