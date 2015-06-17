@@ -4,18 +4,21 @@
   <?php if ($pending){ ?>
     <p>A new booking request from <i><?= $user->vorname ?> <?= $user->name ?></i> is awaiting approval.
   <?php } ?>
-  
+
   <?php if ($succesful): ?>
     <p>A new booking request from <i><?=$user->vorname?> <?=$user->name?></i> was created and automatically approved.
   <?php endif; ?>
-  
+  <?php if (!empty($canceled)): ?>
+    <p>Eine neue Buchung von <i><?=$user->vorname?> <?=$user->name?></i> wurde erstellt gleich abgelehnt.
+  <?php endif; ?>
+
   <?php else: ?>
 
   <?php if ($pending): ?>
     <p>Your booking request <i><?= $booking->text ?></i> has reached us and will be processed.
        If there are any changes you will be informed.
   <?php endif; ?>
-  
+
   <?php if ($succesful): ?>
     <p>Your booking <?= $booking->text ?> was succesful. If there are any changes you will be informed.
   <?php endif; ?>
@@ -44,7 +47,7 @@
     <?php if ($repeatUntil): ?>
       <tr><td>Repeat until: <td><?= $repeatUntil ?>
     <?php endif;?>
-  
+
     <?php if ($exceptions): ?>
       <tr><td>Exceptions: <td><?= $exceptions ?>
     <?php endif;?>
@@ -62,6 +65,6 @@
       <tr><td>Conflicts: <td><?= $conflicts ?>
   <?php endif;?>
     </table>
-    
+
     <p><a class="btn" href="<?= $bookingUrl ?>">Goto Booking Request &raquo;</a>
 <?php endif;?>
