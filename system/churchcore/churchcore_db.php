@@ -1836,7 +1836,7 @@ function getAllDatesWithRepeats($r, $_from = -1, $_to = 1, $fromDate = null) {
   $repeat_until = $repeat_until->modify('+1 day'); // include given day!
   if ($to < $repeat_until) $repeat_until = $to;
 
-  if (isset($r->additions)) $additions = $r->additions;
+  if (!empty($r->additions)) $additions = $r->additions;
   else $additions = array ();
 
   $my = new stdClass();
@@ -1851,14 +1851,14 @@ function getAllDatesWithRepeats($r, $_from = -1, $_to = 1, $fromDate = null) {
     $e = new DateTime(substr($add->add_date, 0, 10) . " " . $e->format('H:i:s'));
 
     // Mark exception as used, so datesInConflict() will be called only for new exceptions to save time!
-    if (isset($r->exceptions)) foreach ($r->exceptions as $key => $exc) {
+    if (!empty($r->exceptions)) foreach ($r->exceptions as $key => $exc) {
       if (is_array($r->exceptions[$key])) $r->exceptions[$key] = (object) $r->exceptions[$key];
       $r->exceptions[$key]->used = false;
     }
 
     do {
       $exception = false;
-      if (isset($r->exceptions)) foreach ($r->exceptions as $exc) {
+      if (!empty($r->exceptions)) foreach ($r->exceptions as $exc) {
         // if exception is not used proof conflict with exception date
         if (!$exception && !$exc->used && datesInConflict(new DateTime($exc->except_date_start), new DateTime($exc->except_date_end), $d, $e)) {
           $exception = true;

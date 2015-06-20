@@ -304,7 +304,7 @@ function churchcal_updateEvent($params, $callCS = true, $withoutPerm = false) {
   // get all exceptions for event
   $exc = churchcore_getTableData("cc_cal_except", null, "cal_id=" . $params["id"]);
   // look which are already in DB
-  if (isset($params["exceptions"])) foreach ($params["exceptions"] as $exception) {
+  if (!empty($params["exceptions"])) foreach ($params["exceptions"] as $exception) {
     if ($exception["id"] > 0) {
       $exc[$exception["id"]]->vorhanden = true;
     }
@@ -332,7 +332,7 @@ function churchcal_updateEvent($params, $callCS = true, $withoutPerm = false) {
   // get all additions
   $add = churchcore_getTableData("cc_cal_add", null, "cal_id=" . $params["id"]);
   // look which are already in DB.
-  if (isset($params["additions"])) foreach ($params["additions"] as $addition) {
+  if (!empty($params["additions"])) foreach ($params["additions"] as $addition) {
     if ($addition["id"] > 0) $add[$addition["id"]]->vorhanden = true;
     else {
       $add_add = array ("cal_id" => $params["id"],
