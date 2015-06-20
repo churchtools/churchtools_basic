@@ -2811,7 +2811,7 @@ function churchcore_saveMasterData($id, $table) {
     $sql = $sql . ") values (" . $max_id . ",";
     $i = 0;
     while (isset($_POST["col" . $i])) {
-      if ($_POST["value" . $i] != "null") $sql = $sql . "'" . $_POST["value" . $i] . "', "; // NEVER TRUST USER INPUT!!!
+      if ($_POST["value" . $i] != "null") $sql = $sql . "'" . str_replace("'", "\'", $_POST["value" . $i]) . "', "; // NEVER TRUST USER INPUT!!!
       else $sql = $sql . "null, ";
       $i++;
     }
