@@ -132,12 +132,14 @@ function ct_getMyReminders($person_id, $listOfDomainTypes) {
 
 /**
  * Saves the reminder or delete if no reminddate is given. used by AJAX call
+ * Please take care of authorization!!
  * @param unknown $params
  * @return multitype:unknown
  */
 function churchcore_saveReminder($params) {
   global $user;
   $params["person_id"] = $user->id;
+  $id = null;
 
   $i = new CTInterface();
   $i->setParam("domain_id");
@@ -149,7 +151,7 @@ function churchcore_saveReminder($params) {
     $id = db_delete("cc_reminder")
       ->fields($i->getDBInsertArrayFromParams($params))
       ->condition("person_id", $params["person_id"], "=")
-      ->condition("domain_id", $params["domain_id"], "=")
+      ->condition("domain_id", db_cleanParam($params["domain_id"]), "=")
       ->condition("domain_type", $params["domain_type"], "=")
       ->execute(false);
   }
@@ -157,22 +159,25 @@ function churchcore_saveReminder($params) {
     $reminder = db_query("SELECT * FROM {cc_reminder} r
                          WHERE person_id = :person_id AND domain_type = :domain_type
                            AND domain_id = :domain_id",
-                         array(':person_id' => $person_id,
-                               ':domain_type' => $params["domainType"],
-                               ':domain_id' => $params["domainId"]))->fetch();
+                         array(':person_id' => $params["person_id"],
+                               ':domain_type' => $params["domain_type"],
+                               ':domain_id' => $params["domain_id"]))->fetch();
     if (!$reminder) {
-      $id = db_insert("cc_reminder")
+      $id  = db_insert("cc_reminder")
           ->fields($i->getDBInsertArrayFromParams($params))
           ->execute(false);
     }
     else {
-      $params["id"] = db_insert("cc_reminder")
+      $id = $reminder->id;
+      db_update("cc_reminder")
         ->fields($i->getDBInsertArrayFromParams($params))
-        ->condition("id", $params["id"], "=")
+        ->condition("person_id", $params["person_id"], "=")
+        ->condition("domain_id", db_cleanParam($params["domain_id"]), "=")
+        ->condition("domain_type", $params["domain_type"], "=")
         ->execute(false);
     }
   }
-  return array("id" => $params["id"]);
+  return array("id" => $id);
 }
 
 /**
@@ -1490,7 +1495,8 @@ function churchcore_CCEventData2String($res) {
   $txt .= "<li>" . t('end') . ": " . churchcore_stringToDateDe($res->enddate);
   if ($res->repeat_id>0) {
     $rep = db_query("select * from {cc_repeat} where id=:id", array(":id" => $res->repeat_id)) -> fetch();
-    $txt .= "<li>" . $rep->bezeichnung . ", " . t('until') .": " . churchcore_stringToDateDe($res->repeat_until);
+    $txt .= "<li>" . $rep->bezeichnung ;
+    if (!empty($res->repeat_until)) $txt .= ", " . t('until') .": " . churchcore_stringToDateDe($res->repeat_until);
   }
   if (!empty($res->ort)) $txt .= "<li>" . t('note') . ": " . $res->ort;
   if (!empty($res->intern_yn)) $txt .= "<li>" . t('note') . ": " . $res->ort;
@@ -1839,6 +1845,7 @@ function getAllDatesWithRepeats($r, $_from = -1, $_to = 1, $fromDate = null) {
   if (!empty($r->additions)) $additions = $r->additions;
   else $additions = array ();
 
+  // Add addition date for Start date, so we only need one foreach loop
   $my = new stdClass();
   $my->add_date = $d->format('d.m.Y H:i');
   $my->with_repeat_yn = 1;
@@ -1846,7 +1853,9 @@ function getAllDatesWithRepeats($r, $_from = -1, $_to = 1, $fromDate = null) {
   $additions[0] = $my;
 
   // array_unshift($additions, $my);
-  foreach ($additions as $key => $add) {
+//  print_r($additions);
+  foreach ($additions as $key => $add_unkownFormat) {
+    $add = (object) $add_unkownFormat; // Parameter can be Arrays from HTTP Input or Objects from DB
     $d = new DateTime(substr($add->add_date, 0, 10) . " " . $d->format('H:i:s'));
     $e = new DateTime(substr($add->add_date, 0, 10) . " " . $e->format('H:i:s'));
 

@@ -72,7 +72,9 @@ ChurchInterface.prototype.showReminderPopup = function(domainType, domainId) {
           rows.push("<p>"+form_renderButton({label:"Event öffnen", cssid:"openEvent"}));
         var elem = form_showDialog("Erinnerung an " + _(domainType), rows.join(""), 300, 300);
         elem.dialog("addbutton", _("close"), function() {
-          churchInterface.jsendWrite({func: "saveReminder", domain_id: domainId, domain_type: domainType});
+          churchInterface.jsendWrite({func: "saveReminder", domain_id: domainId, domain_type: domainType}, function(ok, data) {
+            if (!ok) alert(data);
+          });
           elem.dialog("close");
         });
         elem.dialog("addbutton", "Erneut erinnern", function() {

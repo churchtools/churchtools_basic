@@ -163,7 +163,7 @@ function churchcal_createEvent($params, $callCS=true, $withoutPerm = false) {
     ->execute(false);
 
   // Add exceptions
-  if (isset($params["exceptions"])) foreach ($params["exceptions"] as $exception) {
+  if (!empty($params["exceptions"])) foreach ($params["exceptions"] as $exception) {
     $res = churchcal_addException(array(
             "cal_id" => $params["id"],
             "except_date_start" => $exception["except_date_start"],
@@ -172,7 +172,7 @@ function churchcal_createEvent($params, $callCS=true, $withoutPerm = false) {
   }
 
   // Add additions
-  if (isset($params["additions"])) foreach ($params["additions"] as $addition) {
+  if (!empty($params["additions"])) foreach ($params["additions"] as $addition) {
     $res = churchcal_addAddition(array (
             "cal_id" => $params["id"],
             "add_date" => $addition["add_date"],
@@ -181,7 +181,7 @@ function churchcal_createEvent($params, $callCS=true, $withoutPerm = false) {
   }
 
   // Meeting request
-  if (isset($params["meetingRequest"])) churchcal_handleMeetingRequest($params["id"], $params);
+  if (!empty($params["meetingRequest"])) churchcal_handleMeetingRequest($params["id"], $params);
 
   // Call other modules
   $newBookingIds = null;
@@ -246,6 +246,21 @@ function churchcal_isAllowedToEditCategory($categoryId) {
   $arr = churchcal_getAuthForAjax();
   if (!isset($arr["edit category"])) return false;
   if (isset($arr["edit category"][$categoryId])) return true;
+
+  return false;
+}
+
+
+/**
+ * @param int $categoryId
+ * @return boolean
+ */
+function churchcal_isAllowedToViewCategory($categoryId) {
+  if (!$categoryId) return false;
+
+  $arr = churchcal_getAuthForAjax();
+  if (!isset($arr["view category"])) return false;
+  if (isset($arr["view category"][$categoryId])) return true;
 
   return false;
 }

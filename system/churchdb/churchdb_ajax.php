@@ -326,7 +326,7 @@ function createAddress($params) {
     db_insert('cdb_gemeindeperson')->fields($save)->execute();
 
     db_query("INSERT INTO {cdb_bereich_person} (person_id, bereich_id)
-              VALUES ($id, ". $params["Inputf_dep"]. ")");
+              VALUES (:id, :dep)", array(":id" => $id, ":dep" => $params["Inputf_dep"]));
 
     $arr["result"] = "ok"; // result was not really checked :-(
     $arr["id"] = $id;

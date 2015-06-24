@@ -157,10 +157,14 @@ function form_editReminder(element, eventDate, freeOption) {
     else {
       elem.dialog("close");
       churchInterface.jsendWrite({func: "saveReminder", domain_id: domainId, domain_type: domainType,
-          reminddate: res});
-      if (masterData.reminder == null) masterData.reminder = new Object();
-      if (masterData.reminder[domainType] == null) masterData.reminder[domainType] = new Object();
-      masterData.reminder[domainType][domainId] = res.toStringEn(true);
+          reminddate: res}, function(ok, data) {
+        if (!ok) alert(data);
+        else {
+          if (masterData.reminder == null) masterData.reminder = new Object();
+          if (masterData.reminder[domainType] == null) masterData.reminder[domainType] = new Object();
+          masterData.reminder[domainType][domainId] = res.toStringEn(true);
+        }
+      });
     }
   })
   if (form_getReminder(domainType, domainId) != null) {

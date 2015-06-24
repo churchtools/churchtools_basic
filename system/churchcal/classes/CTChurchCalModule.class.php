@@ -85,6 +85,9 @@ class CTChurchCalModule extends CTAbstractModule {
   public function getEvent($params) {
     $event = db_query("SELECT * FROM {cc_cal} WHERE id = :id", array(":id"=>$params["id"]))->fetch();
     if (!$event) return null;
+    if (!churchcal_isAllowedToViewCategory($event->category_id)) {
+      throw new CTNoPermission("view category", "churchcal");
+    }
     $dummy = churchcal_getCalPerCategory(array ("category_ids" => array(0 => $event->category_id)));
     return $dummy[$event->category_id][$params["id"]];
   }
@@ -115,7 +118,18 @@ class CTChurchCalModule extends CTAbstractModule {
   }
 
   public function saveReminder($params) {
-    return churchcore_saveReminder($params);
+    if ($params["domain_type"] == "event") {
+      $db = db_query("SELECT * FROM {cc_cal} WHERE id = :id", array(":id" => $params["domain_id"]))->fetch();
+      if (!$db) throw new CTException("Id not available");
+
+      if (!churchcal_isAllowedToViewCategory($db->category_id)) {
+        throw new CTNoPermission("view category", "churchcal");
+      }
+      return churchcore_saveReminder($params);
+    }
+    else {
+      throw new CTException("Unnallowed domain_type");
+    }
   }
 
 }
