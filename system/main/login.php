@@ -182,7 +182,7 @@ function login__newpwd() {
     if ($res->c == 0) {
       $txt .= '
       <div class="alert alert-error">
-          <p>' . t('login.error.longtext', '<a href="' . getConf("site_mail") . '">' . getConf("site_mail") . '</a>') . '
+          <p>' . t('login.error.longtext', '<a href="mailto:' . getConf("site_mail") . '">' . getConf("site_mail") . '</a>') . '
       </div>';
     }
     else {
