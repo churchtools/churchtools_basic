@@ -270,8 +270,9 @@ ListView.prototype.messageReceiver = function(message, args) {
   }
 };
 
-function _getEditEventFromForm() {
-  obj=new Object();
+function _getEditEventFromForm(o) {
+  if (o!=null) var obj = o.clone();
+  else o = new Object();
   form_getDatesInToObject(obj);
   obj.category_id=$("#Inputcategory").val();
   obj.bezeichnung=$("#InputBezeichnung").val();
@@ -354,9 +355,9 @@ ListView.prototype.saveEventAsTemplate = function (event, template_name, func) {
 /**
  * template: wenn �bergeben, dann speichert er die �nderungen in das Template
  */
-ListView.prototype.saveEditEvent = function (elem) {
+ListView.prototype.saveEditEvent = function (elem, event) {
   var this_object=this;
-  var obj=_getEditEventFromForm();
+  var obj=_getEditEventFromForm(event);
   elem.dialog("close");
   var csevent = churchcore_getFirstElement(obj.csevents);
   if (csevent.id > 0) {    // Existing Event
@@ -622,7 +623,7 @@ ListView.prototype.renderEditEvent = function(event) {
         alert("Bitte Admin-Feld nur IDs kommasepariert angeben oder leer lassen.");
       }
       else {
-        this_object.saveEditEvent(elem);
+        this_object.saveEditEvent(elem, $("#datefields").renderCCEvent("getCCEvent"));
         // Wenn es neu ist, dann soll das Datum gesetzt werden, damit der neue Eintrag sichtbar wird.
         if (event.id==null) {
           delete(this_object.filter.searchEntry);
