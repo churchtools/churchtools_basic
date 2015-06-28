@@ -33,7 +33,7 @@ function churchwiki_getCurrentNo($doc_id, $wikicategory_id = 0) {
                    array (":doc_id" => $doc_id,
                           ":wikicategory_id" => $wikicategory_id,
                    ))->fetch();
-  
+
   return $res ? $res->c : -1;
 }
 
@@ -47,7 +47,7 @@ function churchwiki_getAuth() {
   $cc_auth = addAuth($cc_auth, 502, 'view category', 'churchwiki', 'cc_wikicategory', t('view.wiki.category'), 1);
   $cc_auth = addAuth($cc_auth, 503, 'edit category', 'churchwiki', 'cc_wikicategory', t('edit.wiki.category'), 1);
   $cc_auth = addAuth($cc_auth, 599, 'edit masterdata', 'churchwiki', null, t('edit.masterdata'), 1);
-  
+
   return $cc_auth;
 }
 
@@ -61,7 +61,7 @@ function churchwiki_setShowonstartpage($params) {
   $i->setParam("version_no");
   $i->setParam("wikicategory_id");
   $i->setParam("auf_startseite_yn");
-  
+
   db_update("cc_wiki")
     ->fields($i->getDBInsertArrayFromParams($params))
     ->condition("doc_id", $params["doc_id"], "=")
@@ -79,10 +79,10 @@ function churchwiki_setShowonstartpage($params) {
  * @return db result
  */
 function churchwiki_load($doc_id, $wikicategory_id, $version_no = null) {
-  
+
   if (!$version_no) $version_no = churchwiki_getCurrentNo($doc_id, $wikicategory_id);
   ct_log("Aufruf Hilfeseite $wikicategory_id:$doc_id ($version_no)", 2, "-1", "help");
-  
+
   $data = db_query("SELECT p.vorname, p.name, doc_id, version_no, wikicategory_id, text, modified_date, modified_pid, auf_startseite_yn
                     FROM {cc_wiki} w LEFT JOIN {cdb_person} p ON (w.modified_pid=p.id)
                     WHERE version_no=:version_no AND doc_id=:doc_id AND wikicategory_id=:wikicategory_id",
@@ -129,7 +129,7 @@ function churchwiki_getAuthForAjax() {
     if (!isset($auth["view"])) $auth["view"] = array ();
     $auth["view"][0] = "0";
   }
-  
+
   return $auth;
 }
 
@@ -139,14 +139,14 @@ function churchwiki_getAuthForAjax() {
  */
 function churchwiki__ajax() {
   global $user, $files_dir, $base_url, $mapping, $config;
-  
+
   $auth = churchwiki_getAuthForAjax();
-  
+
   if ((!user_access("view", "churchwiki"))
       && (!in_array("churchwiki", $mapping["page_with_noauth"]))
       && (!in_array("churchwiki", $config["page_with_noauth"])))
       throw new CTNoPermission("view", "churchwiki");
-  
+
   $module = new CTChurchWikiModule("churchwiki");
   $ajax = new CTAjaxHandler($module);
   $res = $ajax->call();
@@ -186,7 +186,7 @@ function churchwiki_getWikiOnStartpage() {
     }
   }
   if ($txt) $txt = "<ul>" . $txt . "</ul>";
-  
+
   return $txt;
 }
 
@@ -198,7 +198,7 @@ function churchwiki_getWikiInfos() {
   if (!user_access("view", "churchwiki")) return "";
   $ids = user_access("view category", "churchwiki");
   if (!$ids) return "";
-  
+
   $res = db_query("SELECT w.wikicategory_id, w.doc_id, wc.bezeichnung, DATE_FORMAT(w.modified_date , '%d.%m.%Y %H:%i') date,
                      CONCAT(p.vorname, ' ', p.name) user
                    FROM {cc_wiki} w, {cc_wikicategory} wc, {cdb_person} p
@@ -227,7 +227,7 @@ function churchwiki_getWikiInfos() {
  */
 function churchwiki_blocks() {
   global $config;
-  
+
   return (array (
     1 => array (
       "label" => t("important.from", $config["churchwiki_name"]),
@@ -270,7 +270,7 @@ function churchwiki__create() {
     }
   }
   $form->addButton(t('save'), t('ok'));
-  
+
   return $form->render();
 }
 
@@ -305,32 +305,32 @@ function help_main() {
  */
 function churchwiki_main() {
   global $files_dir;
-  
+
   drupal_add_js(ASSETS . '/js/jquery.history.js');
-  
+
   drupal_add_css(ASSETS . '/fileuploader/fileuploader.css');
   drupal_add_js(ASSETS . '/fileuploader/fileuploader.js');
-  
+
   drupal_add_js(ASSETS . '/tablesorter/jquery.tablesorter.min.js');
   drupal_add_js(ASSETS . '/tablesorter/jquery.tablesorter.widgets.min.js');
-  
+
   drupal_add_js(ASSETS . '/mediaelements/mediaelement-and-player.min.js');
   drupal_add_css(ASSETS . '/mediaelements/mediaelementplayer.css');
-  
+
   drupal_add_js(CHURCHCORE . '/cc_abstractview.js');
   drupal_add_js(CHURCHCORE . '/cc_standardview.js');
   drupal_add_js(CHURCHCORE . '/cc_maintainstandardview.js');
-  
+
   drupal_add_js(ASSETS . '/ckeditor/ckeditor.js');
   drupal_add_js(ASSETS . '/ckeditor/lang/de.js');
   drupal_add_js(CHURCHWIKI . '/wiki_maintainview.js');
   drupal_add_js(CHURCHWIKI . '/churchwiki.js');
-  
+
   drupal_add_js(createI18nFile("churchcore"));
   drupal_add_js(createI18nFile("churchwiki"));
-  
+
   $doc_id = getVar("doc");
-  
+
   $content = '
     <div class="row-fluid">
       <div class="span3 bs-docs-sidebar">
@@ -345,7 +345,7 @@ function churchwiki_main() {
   $content .= '
       </div>
     </div>';
- 
+
   return $content;
 }
 
@@ -355,36 +355,41 @@ function churchwiki_main() {
  */
 function churchwiki__printview() {
   global $files_dir;
-  
+
   drupal_add_js(ASSETS . '/js/jquery.history.js');
-  
+
   drupal_add_css(ASSETS . '/fileuploader/fileuploader.css');
   drupal_add_js(ASSETS . '/fileuploader/fileuploader.js');
-  
+
   drupal_add_js(ASSETS . '/tablesorter/jquery.tablesorter.min.js');
   drupal_add_js(ASSETS . '/tablesorter/jquery.tablesorter.widgets.min.js');
-  
-  drupal_add_js(CHURCHCORE . '/shortcut.js');
-  
+
+  drupal_add_js(ASSETS . '/mediaelements/mediaelement-and-player.min.js');
+  drupal_add_css(ASSETS . '/mediaelements/mediaelementplayer.css');
+
   drupal_add_js(CHURCHCORE . '/cc_abstractview.js');
   drupal_add_js(CHURCHCORE . '/cc_standardview.js');
   drupal_add_js(CHURCHCORE . '/cc_maintainstandardview.js');
-  
+
   drupal_add_js(ASSETS . '/ckeditor/ckeditor.js');
   drupal_add_js(ASSETS . '/ckeditor/lang/de.js');
   drupal_add_js(CHURCHWIKI . '/wiki_maintainview.js');
   drupal_add_js(CHURCHWIKI . '/churchwiki.js');
-  
-  $doc_id = "main";
-  if (isset($_GET["doc"])) $doc_id = $_GET["doc"];
-  
+
+  drupal_add_js(createI18nFile("churchcore"));
+  drupal_add_js(createI18nFile("churchwiki"));
+
+  $doc_id = getVar("doc");
+
   $content = '
-  <div id="cdb_content"></div>
-  <input type="hidden" id="doc_id" name="doc_id" value="' . $doc_id . '"/>
-  <input type="hidden" id="printview" name="doc_id" value="true"/>
-  <div class="row-fluid">
-    <div class="span12">' . $text . '</div>
-  </div>';
-  
+    <div class="row-fluid">
+      <div class="span12">
+        <div id="cdb_content"></div>';
+  if ($doc_id) $content .= '
+        <input type="hidden" id="doc_id" name="doc_id" value="' . $doc_id . '"/>';
+  $content .= '
+      </div>
+    </div>';
+
   return $content;
 }
