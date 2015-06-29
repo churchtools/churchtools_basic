@@ -120,7 +120,7 @@ function churchcal_getMyMeetingRequest() {
                     CONCAT(p.vorname,' ',p.name) AS modified_name, p.id modified_pid
                   FROM {cc_meetingrequest} mr, {cc_cal} c, {cdb_person} p
                   WHERE mr.person_id=:person_id AND c.modified_pid=p.id
-                    AND DATEDIFF(mr.event_date, NOW())>0 AND mr.cal_id=c.id",
+                    AND DATEDIFF(mr.event_date, NOW())>=0 AND mr.cal_id=c.id",
                   array(":person_id" => $user->id));
   $res = array();
   foreach ($db as $d) {
