@@ -458,7 +458,7 @@ function churchservice_getAbsents($year = null) {
               FROM {cdb_person} p, {cs_absent} a, {cs_absent_reason} ar
               WHERE a.absent_reason_id=ar.id AND p.id=a.person_id
               AND p.id in (" . db_implode($allPersonIds) . ") ";
-      if ($year == null) $sql .= "AND DATEDIFF(a.enddate,NOW())>=-1 AND DATEDIFF(a.enddate,NOW())<=31";
+      if ($year == null) $sql .= "AND DATEDIFF(a.startdate,NOW())>=-1 AND DATEDIFF(a.startdate,NOW())<=31";
       else $sql .= "AND (DATE_FORMAT(a.startdate, '%Y')=$year OR DATE_FORMAT(a.enddate, '%Y')=$year)";
       $sql .= "
               ORDER BY a.startdate";
