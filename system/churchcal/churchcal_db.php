@@ -52,7 +52,7 @@ function churchcal_handleMeetingRequest($cal_id, $params) {
       if ($p) {
         $data = array(
             'p'        => $p,
-            'caption'  => $db->bezeichnung,
+            'caption'  => $cal->bezeichnung,
             'date'     => churchcore_CCEventData2String($cal),
             'loginUrl' => $base_url . "?q=home&id=$id&loginstr" . churchcore_createOnTimeLoginKey($id),
         );
@@ -580,6 +580,7 @@ function makeCCEventDiff($originEvent, $newEvent) {
   $internFields[] = "exceptionids";
   $internFields[] = "exceptions";
   $internFields[] = "additions";
+  $internFields[] = "meetingRequest";
 
 
   // From CR
@@ -636,7 +637,9 @@ function makeCCEventDiff($originEvent, $newEvent) {
            if ($old!=null && $old != "") $old = churchcore_stringToDateDe($old);
            if ($new != "") $new = churchcore_stringToDateDe($new);
         }
-        if ($old != $new) $ret[$k] = array ("old" => $old . $einheit, "new" => $new . $einheit);
+        if ($old != $new) {
+          $ret[$k] = array ("old" => $old . $einheit, "new" => $new . $einheit);
+        }
       }
     }
   }
