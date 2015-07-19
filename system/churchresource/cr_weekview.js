@@ -809,27 +809,37 @@ WeekView.prototype.renderTooltip = function(id) {
 
 WeekView.prototype.calcConflicts = function(new_b, resource_id, withoutEvent) {
   var t=this;
-  var rows=Array();
-  each(churchcore_getAllDatesWithRepeats(new_b), function(k,ds) {
-    var e = new Date(ds.enddate.getTime()); e.addDays(1); // Add 1 day of full day dates
-    each(t.getIndexedBookings(ds.startdate, e), function(i,conflict) {
-      var booking=allBookings[conflict.id];
-      if ((booking!=null) && (booking.resource_id==resource_id)
-           && (new_b.id!=booking.id)
-           && (!booking.isEqual(withoutEvent))
-           && (masterData.resources[resource_id].virtual_yn==0)) {
-        if ((booking.status_id==1) || (booking.status_id==2)) {
-          if (churchcore_datesInConflict(ds.startdate, ds.enddate, conflict.startdate, conflict.enddate)) {
-            if (conflict.startdate.sameDay(conflict.enddate))
-              rows.push("<li>"+conflict.startdate.toStringDe(true)+' - '+conflict.enddate.toStringDeTime()+': '+booking.text);
-            else
-              rows.push("<li>"+conflict.startdate.toStringDe(true)+' - '+conflict.enddate.toStringDe(true)+': '+booking.text);
+  // Put txt in objects, so that no repeat conflicts will be shown through
+  // Dates with conflicts over more days
+  var rows = new Object();
+  var alreadyListed = new Object();
+  each(churchcore_getAllDatesWithRepeats(new_b), function(k, ds) {
+      var e = new Date(ds.enddate.getTime()); e.addDays(1); // Add 1 day of full day dates
+      each(t.getIndexedBookings(ds.startdate, e), function(i,conflict) {
+        var booking=allBookings[conflict.id];
+        if ((booking!=null) && (booking.resource_id==resource_id)
+             && (new_b.id!=booking.id)
+             && (!booking.isEqual(withoutEvent))
+             && (masterData.resources[resource_id].virtual_yn==0)) {
+          if ((booking.status_id==1) || (booking.status_id==2)) {
+            if (churchcore_datesInConflict(ds.startdate, ds.enddate, conflict.startdate, conflict.enddate)) {
+              alreadyListed[ds.startdate.getTime()] = true;
+              if (conflict.startdate.sameDay(conflict.enddate)) {
+                rows[conflict.startdate.toStringDe(true)+' - '+conflict.enddate.toStringDeTime()+': '+booking.text] = true;
+              }
+              else {
+                rows[conflict.startdate.toStringDe(true)+' - '+conflict.enddate.toStringDe(true)+': '+booking.text] = true;
+              }
+            }
           }
         }
-      }
-    });
+      });
   });
-  return rows.join("");
+  var txt = "";
+  each (rows, function(k, a) {
+    txt = '<li>' + k;
+  })
+  return txt;
 };
 
 WeekView.prototype.addWeekButtons = function() {

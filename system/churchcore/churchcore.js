@@ -760,8 +760,8 @@ function churchcore_isFullDay(startdate, enddate) {
 // Gibt true zur�ck, wenn sich die Dat�mer irgendwo �berschneiden
 // Wenn startdate=enddate und uhrzeit beides 0:00 gehe ich von ganztags aus
 function churchcore_datesInConflict(startdate, enddate, startdate2, enddate2) {
-  var _enddate=enddate;
-  var _enddate2=enddate2;
+  var _enddate=new Date(enddate.getTime());
+  var _enddate2=new Date(enddate2.getTime());
   if (churchcore_isFullDay(startdate, enddate)) {
     // Wenn ganztags setze Enddatum auf 23:59:59
     _enddate.addDays(1);
