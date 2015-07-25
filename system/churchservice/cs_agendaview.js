@@ -566,7 +566,7 @@ AgendaView.prototype.addFurtherListCallbacks = function(cssid, smallVersion) {
 
           success:
             function(newval, data) {
-              item=t.currentAgenda.items[data.id];
+              var item=t.currentAgenda.items[data.id];
               if (data.field=="bezeichnung") {
                 item[data.field]=newval;
                 t.saveItem(item);
