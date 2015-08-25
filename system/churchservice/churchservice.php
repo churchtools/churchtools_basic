@@ -83,6 +83,8 @@ function churchservice_getAdminForm() {
     ->setValue($config["churchservice_openservice_rememberdays"]);
   $model->addField("churchservice_reminderhours", "", "INPUT_REQUIRED", t('how.many.hours.before.service.send.remember.email'))
     ->setValue($config["churchservice_reminderhours"]);
+  $model->addField("churchservice_songwithcategoryasdir", "", "CHECKBOX", 'Beim Export nach SongBeamer Kategorien als Unterordner hinzufügen')
+    ->setValue(getVar("churchservice_songwithcategoryasdir", "0", $config));
 
   return $model;
 }
