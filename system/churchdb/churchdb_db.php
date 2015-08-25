@@ -383,7 +383,9 @@ function _checkPersonAuthorisation($authorisation, $userIsLeader, $userIsSuperLe
       if ($userIsSuperLeader) $ret = true;
     }
     else if ($auth == "changeownaddress") {
-      if ($userId == $user->id && isset($config["churchdb_changeownaddress"]) && ($config["churchdb_changeownaddress"] == 1)) $ret = true;
+      if ($userId == $user->id && isset($config["churchdb_changeownaddress"]) && ($config["churchdb_changeownaddress"] == 1)) {
+        $ret = true;
+      }
     }
     else
       throw new CTException("Unbekanntes Recht: '" . $auth . "'");
@@ -435,7 +437,7 @@ function getOldGroupRelations($id = null) {
  * @return person object
  */
 function churchdb_getPersonDetails($id, $withComments = true) {
-  global $user;
+  global $user, $config;
 
   $allowed = $user->id == $id;
   $userIsLeader = false;
@@ -501,17 +503,21 @@ function churchdb_getPersonDetails($id, $withComments = true) {
   $sqlFields[] = "geolng as lng";
   $sqlFields[] = "cmsuserid";
 
+  $allowedToEditMyself = $id == $user->id
+        && isset($config["churchdb_changeownaddress"])
+        && ($config["churchdb_changeownaddress"] == 1);
+
   foreach ($res as $res2) {
     if (($res2->autorisierung == null) || (_checkPersonAuthorisation($res2->autorisierung, $userIsLeader, $userIsSuperLeader, $id))) {
       if (($res2->intern_code == "f_address")
            || ($res2->db_spalte == "status_id")
            || ($userIsLeader)
+           || ($allowedToEditMyself)
            || (user_access('view alldetails',"churchdb"))){
         $sqlFields[]=$res2->db_spalte;
       }
     }
   }
-
 
   $sql = "SELECT " . join($sqlFields, ",");
   if ($userIsLeader || user_access('view alldetails', "churchdb") || user_access('administer persons', "churchcore")) {
