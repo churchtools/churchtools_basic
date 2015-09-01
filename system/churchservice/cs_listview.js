@@ -271,7 +271,10 @@ ListView.prototype.messageReceiver = function(message, args) {
 };
 
 function _getEditEventFromForm(o) {
-  if (o!=null) var obj = o.clone();
+  if (o!=null) {
+    var obj = o.clone();
+    obj.services = null; // Don't need services here
+  }
   else obj = new Object();
   form_getDatesInToObject(obj);
   obj.category_id=$("#Inputcategory").val();

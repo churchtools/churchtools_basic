@@ -407,7 +407,7 @@ function churchservice_updateEvent($params, $csevent) {
     ->condition('id', $event_id, "=")
     ->execute();
 
-  if (isset($params["services"])) {
+  if (!empty($params["services"])) {
     // update/insert eventservices
     $rm_services = array ();
     $new_services = array ();
