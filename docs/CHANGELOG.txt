@@ -1,7 +1,2 @@
 Das gesamte Changelog ist hier zu finden:
 https://intern.churchtools.de/?q=churchwiki#WikiView/filterWikicategory_id:0/doc:Changelog/
-
-2.55b
-- Fehler bei Kalender behoben, konnte unter ganz bestimmten Umständen zum Löschen eines Events führen
-- Korrektur der Fehlermeldung in der Admin-Einstellung der Upload-Größe.
-- Bessere Fehlermeldung bei Upload-Problemen von Dateien.

@@ -1953,6 +1953,9 @@ function run_db_updates($db_version) {
     db_query("ALTER TABLE {cs_song} CHANGE bezeichnung bezeichnung VARCHAR(255)");
     set_version("2.56");
 
+  case '2.56':
+    set_version("2.57");
+
   } //end switch
 
   $a=db_query("select * from {cc_config} where name='version'",null,false);
