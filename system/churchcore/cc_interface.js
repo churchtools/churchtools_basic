@@ -325,7 +325,8 @@ ChurchInterface.prototype.progressURLFilter = function (arr) {
       t.currentView.filter[a.substr(0,a.indexOf(":"))] = a.substr(a.indexOf(":")+1,99);
     }
     else if ((a.indexOf("doc")==0) && (a.indexOf(":")>1)) {
-      var newdoc = a.substr(a.indexOf(":")+1,99);
+      var docUrlencoded = a.substr(a.indexOf(":")+1,99);
+      var newdoc = decodeURIComponent(docUrlencoded.replace(/\+/g, ' '));
       var re=true;
       if (t.currentHistoryArray!=null)
         each(t.currentHistoryArray, function(i,b) {

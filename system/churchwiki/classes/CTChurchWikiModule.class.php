@@ -46,8 +46,8 @@ class CTChurchWikiModule extends CTAbstractModule {
     if (!$text) $text = " "; // Save an emtpy string, so I know there is some data
     db_query("INSERT INTO {cc_wiki} (doc_id, version_no, wikicategory_id, text, modified_date, modified_pid)
               VALUES (:doc_id, :version_no, :wikicategory_id, :text, :modified_date, :modified_pid)", 
-              array (":doc_id" => $_POST["doc_id"], 
-                     ":version_no" => churchwiki_getCurrentNo($_POST["doc_id"], $_POST["wikicategory_id"]) + 1, 
+              array (":doc_id" => urldecode($_POST["doc_id"]), 
+                     ":version_no" => churchwiki_getCurrentNo(urldecode($_POST["doc_id"]), $_POST["wikicategory_id"]) + 1, 
                      ":wikicategory_id" => $_POST["wikicategory_id"], ":text" => $text, 
                      ":modified_date" => $dt->format('Y-m-d H:i:s'), ":modified_pid" => $user->id,
               ), false);
@@ -62,7 +62,7 @@ class CTChurchWikiModule extends CTAbstractModule {
   public function load($params) {
     $auth = churchwiki_getAuthForAjax();
     if ($auth["view"] == false || $auth["view"][$params["wikicategory_id"]] != $params["wikicategory_id"]) throw new CTNoPermission("view", "churchwiki");
-    $data = churchwiki_load($params["doc_id"], $params["wikicategory_id"], (empty($params["version_no"]) ? null : $params["version_no"]));
+    $data = churchwiki_load(urldecode($params["doc_id"]), $params["wikicategory_id"], (empty($params["version_no"]) ? null : $params["version_no"]));
     return $data;
   }
 
@@ -79,7 +79,7 @@ class CTChurchWikiModule extends CTAbstractModule {
     $res = db_query("SELECT version_no id, CONCAT('Version ', version_no,' vom ', modified_date, ' - ',p.vorname, ' ', p.name) AS bezeichnung 
                      FROM {cc_wiki} w, {cdb_person} p WHERE w.modified_pid=p.id AND doc_id=:doc_id AND wikicategory_id=:wikicategory_id 
                      ORDER BY version_no DESC", 
-                     array (':doc_id' => $params["doc_id"], 
+                     array (':doc_id' => urldecode($params["doc_id"]), 
                             ':wikicategory_id' => $params["wikicategory_id"],
                      ));
     $data = array ();
