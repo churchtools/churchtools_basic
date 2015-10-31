@@ -7,6 +7,9 @@
  * Licensed under the MIT license, located in LICENSE.txt
  */
 
+// start output buffering (with compression)
+ob_start('ob_gzhandler');
+
 /* Important global vars */
 $q = ""; // which module to use
 $config = array (); // all config from config file and amended with table cc_config
@@ -25,8 +28,7 @@ $ajax = false; // to find out if its an ajax call
 // or we could put the content of churchtools_main direct in this file
 
 /**
- * Shutdown function, if an error happened, an error message is displayed.
- * FIXME: need to be changed - this errors are corrupting json answers
+ * Shutdown function, if an error happened, an error message is return as custom PHP header.
  *
  * global $ajax currently will be set to true in CTAjaxHandler! (there are errors caused by debugging which was hindering)
  * if error on ajax is needed, add something like $json['error'] = $info;
@@ -37,11 +39,10 @@ $ajax = false; // to find out if its an ajax call
  * I think heavy core errors shouldnt be shown on the page and all others should be catched by an exception handler.
  */
 function handleShutdown() {
-  global $ajax;
   $error = error_get_last();
-  if (!$ajax && $error !== NULL) { // no Error notizes on ajax requests!
-    $info = "[ERROR] file:" . $error['file'] . ":" . $error['line'] . " <br/><i>" . $error['message'] . '</i>' . PHP_EOL;
-    echo '<div class="alert alert-error">' . $info . '</div>';
+  if (isset($error) && $error['type'] !== E_DEPRECATED) {
+    $info = $error['file'] . ' (line ' . $error['line'] . '): ' . $error['message'];
+	header('X-CT-Error: ' . $info);
   }
 }
 
