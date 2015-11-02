@@ -41,7 +41,7 @@ $ajax = false; // to find out if its an ajax call
 function handleShutdown() {
   $error = error_get_last();
   if (isset($error) && $error['type'] !== E_DEPRECATED) {
-    header('X-CT-Error: ' . $error['file'] . ' (line ' . $error['line'] . '): ' . $error['message']);
+    header('X-CT-Error: ' . $error['file'] . ' (line ' . $error['line'] . '): ' . preg_replace('/\\s+/', ' ', $error['message']));
   }
 }
 
