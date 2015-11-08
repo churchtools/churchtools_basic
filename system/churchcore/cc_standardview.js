@@ -760,35 +760,29 @@ StandardTableView.prototype.renderTooltipForFiles = function (tooltip, f, editau
   var t=this;
   var rows = new Array();
   var i = f.bezeichnung.lastIndexOf(".");
-  if (i>0)
-
-  switch (f.bezeichnung.substr(i,99).toLowerCase()) {
-    case '.mp3':
-      rows.push('<audio style="width:300px" src="'+masterData.files_url+"/files/"+f.domain_type+"/"+f.domain_id+"/"+f.filename+'"/>');
-      break;
-    case '.wav':
-      rows.push('<audio style="width:300px" src="'+masterData.files_url+"/files/"+f.domain_type+"/"+f.domain_id+"/"+f.filename+'"/>');
-      break;
-    case '.m4a':
-      rows.push('<video src="'+masterData.files_url+"/files/"+f.domain_type+"/"+f.domain_id+"/"+f.filename+'"/>');
-      break;
-    case '.mp4':
-      rows.push('<video src="'+masterData.files_url+"/files/"+f.domain_type+"/"+f.domain_id+"/"+f.filename+'"/>');
-      break;
-    case '.avi':
-      rows.push('<video src="'+masterData.files_url+"/files/"+f.domain_type+"/"+f.domain_id+"/"+f.filename+'"/>');
-      break;
-    case '.mpeg':
-      rows.push('<video src="'+masterData.files_url+"/files/"+f.domain_type+"/"+f.domain_id+"/"+f.filename+'"/>');
-      break;
-    case '.jpg':
-      rows.push('<img style="max-width:200px;max-height:200px" src="'+masterData.files_url+"/files/"+f.domain_type+"/"+f.domain_id+"/"+f.filename+'"/>');
-      break;
-    case '.png':
-      rows.push('<img style="max-width:200px;max-height:200px" src="'+masterData.files_url+"/files/"+f.domain_type+"/"+f.domain_id+"/"+f.filename+'"/>');
-      break;
-    default:
-      break;
+  if (i>0) {
+    var getUrl = function (f) {
+      return "?q=churchservice/filedownload&id=" + f.id + "&filename=" + f.filename;
+    };
+    switch (f.bezeichnung.substr(i).toLowerCase()) {
+      case '.mp3':
+      case '.wav':
+        rows.push('<audio style="width:300px" src="' + getUrl(f) + '"/>');
+        break;
+      case '.m4a':
+      case '.mp4':
+      case '.avi':
+      case '.mpeg':
+        rows.push('<video src="' + getUrl(f) + '"/>');
+        break;
+      case '.jpg':
+      case '.jpeg':
+      case '.png':
+        rows.push('<img style="max-width:200px;max-height:200px" src="' + getUrl(f) + '"/>');
+        break;
+      default:
+        break;
+    }
   }
 
   if (f.modified_date!=null)

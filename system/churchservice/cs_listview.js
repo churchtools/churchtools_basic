@@ -2731,7 +2731,7 @@ ListView.prototype.attachFile = function(event) {
                       "<p>f&uuml;r <i>"+ev.bezeichnung+"</i> wurde eine neue Datei hochgeladen. Du wirst informiert, da Du zum Dienst angefragt bist.";
                   if ((kommentar!=null) && (kommentar!=""))
                     obj.inhalt=obj.inhalt+'<p><i>'+kommentar+'</i></p>';
-                  obj.inhalt=obj.inhalt+'<ul><li><a href="'+masterData.files_url+"/files/service/"+ev.id+"/"+res.filename+'">'+res.bezeichnung+'</a></ul>';
+                  obj.inhalt=obj.inhalt+'<ul><li><a href="' + masterData.base_url + '?q=churchservice/filedownload&id=' + res.id + '&filename=' + res.filename + '">'+res.bezeichnung+'</a></ul>';
                   obj.domain_id=ev.id;
                   obj.usetemplate="true";
                   obj.func="sendEMailToPersonIds";

@@ -1189,17 +1189,23 @@ function churchcore_getFilesAsDomainIdArr($domain_type, $domain_id = null) {
  */
 function churchcore_copyFileToOtherDomainId($id, $domain_ids) {
   global $files_dir;
+
   $res = db_query("SELECT * FROM {cc_file}
                    WHERE id=:id",
                    array (":id" => $id), false)
                    ->fetch();
   if (!$res) throw new CTFail(t('file.not.found.in.DB'));
+  //check if file is saved with new storage method
+  $newStorage = preg_match('/^[0-9a-f]{64}$/i', $res->filename);
 
   $arr = explode(",", $domain_ids);
   foreach ($arr as $val) if ($val) {
-    if (!file_exists("$files_dir/files/$res->domain_type/$val")) mkdir("$files_dir/files/$res->domain_type/$val", 0777, true);
-    if (!copy("$files_dir/files/$res->domain_type/$res->domain_id/$res->filename", "$files_dir/files/$res->domain_type/$val/$res->filename")) {
-      throw new CTFail("Datei konnte nicht nach $files_dir/files/$res->domain_type/$val/$res->filename kopiert werden!");
+    //there is no need of physical file replication for new storage
+    if(!$newStorage) {
+      if (!file_exists("$files_dir/files/$res->domain_type/$val")) mkdir("$files_dir/files/$res->domain_type/$val", 0777, true);
+      if (!copy("$files_dir/files/$res->domain_type/$res->domain_id/$res->filename", "$files_dir/files/$res->domain_type/$val/$res->filename")) {
+        throw new CTFail("Datei konnte nicht nach $files_dir/files/$res->domain_type/$val/$res->filename kopiert werden!");
+      }
     }
     db_query("INSERT INTO {cc_file} (domain_type, domain_id, bezeichnung, filename, modified_date, modified_pid)
               VALUES (:domain_type, :domain_id, :bezeichnung, :filename, :modified_date, :modified_pid)",
@@ -1248,7 +1254,21 @@ function churchcore_delFile($id) {
   db_query("DELETE FROM {cc_file}
             WHERE id=:id",
             array (":id" => $id), false);
-  if (!unlink("$files_dir/files/$res->domain_type/$res->domain_id/$res->filename")) throw new CTFail("Datei konnte auf dem Server nicht entfernt werden.");
+
+  if (preg_match('/^[0-9a-f]{64}$/i', $res->filename)) {
+    $c = db_query("SELECT COUNT(*) AS cnt FROM {cc_file} WHERE filename = ?",
+        array ($res->filename), false)->fetch();
+    if((int)$c->cnt === 0) {
+      if (!unlink("$files_dir/blobs/$res->filename")) {
+        throw new CTFail("Datei konnte auf dem Server nicht entfernt werden.");
+      }
+    }
+  } else {
+    if (!unlink("$files_dir/files/$res->domain_type/$res->domain_id/$res->filename")) {
+      throw new CTFail("Datei konnte auf dem Server nicht entfernt werden.");
+    }
+  }
+
 }
 
 function churchcore_renderFile($file) {
