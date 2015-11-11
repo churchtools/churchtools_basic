@@ -960,11 +960,11 @@ function _churchdb_getPersonByName($searchpattern, $withMyDepartment = false) {
        "SELECT p.*, gp.imageurl
         FROM {cdb_person} p, {cdb_gemeindeperson} gp, {cdb_bereich_person} bp
         WHERE p.archiv_yn=0 AND bp.person_id=p.id AND gp.person_id=p.id AND bp.bereich_id IN (". db_implode($auth). ")
-          AND (UPPER(name) LIKE UPPER('". $searchpattern. "%') OR UPPER(vorname) LIKE UPPER('". $searchpattern. "%')
-               OR (CONCAT(UPPER(vorname),' ',UPPER(name)) LIKE UPPER('". $searchpattern. "%') )
-          OR (CONCAT(UPPER(spitzname),' ',UPPER(name)) LIKE UPPER('". $searchpattern. "%') )
-          OR (UPPER(email) LIKE UPPER('". $searchpattern. "%') )
-        ) ORDER BY vorname, name");
+          AND (UPPER(name) LIKE UPPER(CONCAT(:searchpattern, '%')) OR UPPER(vorname) LIKE UPPER(CONCAT(:searchpattern, '%'))
+               OR ( CONCAT(UPPER(vorname),' ',UPPER(name)) LIKE UPPER(CONCAT(:searchpattern, '%')) )
+          OR ( CONCAT(UPPER(spitzname),' ',UPPER(name)) LIKE UPPER(CONCAT(:searchpattern, '%')) )
+          OR ( UPPER(email) LIKE UPPER(CONCAT(:searchpattern, '%')) )
+        ) ORDER BY vorname, name", array(':searchpattern' => $searchpattern));
 
     foreach ($res as $p) {
       $data[$p->id]["id"] = $p->id;
@@ -984,12 +984,12 @@ function _churchdb_getPersonByName($searchpattern, $withMyDepartment = false) {
   // get matching persons from this groups
   if (count($g_ids)) {
     $res = db_query("SELECT p.name, p.vorname, p.id, gp.imageurl
-          FROM {cdb_gemeindeperson} gp, {cdb_person} p, {cdb_gemeindeperson_gruppe} gpg
+		  FROM {cdb_gemeindeperson} gp, {cdb_person} p, {cdb_gemeindeperson_gruppe} gpg
           WHERE p.archiv_yn=0 AND gpg.gemeindeperson_id = gp.id AND gp.person_id = p.id
             AND gpg.gruppe_id IN (". db_implode($g_ids). ")
-            AND (UPPER(p.vorname) LIKE UPPER('". $searchpattern. "%')
-            OR UPPER(p.vorname) LIKE UPPER('". $searchpattern. "%'))
-          ORDER BY p.vorname, p.name");
+            AND (UPPER(p.vorname) LIKE UPPER(CONCAT(:searchpattern, '%'))
+            OR UPPER(p.vorname) LIKE UPPER(CONCAT(:searchpattern, '%')))
+          ORDER BY p.vorname, p.name", array(':searchpattern' => $searchpattern));
     foreach ($res as $p) if (!isset($data[$p->id])) { // if person not already inserted, add them
       $arr = array ();  // TODO: why not $data[$p->id] here? If not important replace with code below
       $arr["id"] = $p->id;
