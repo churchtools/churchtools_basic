@@ -5,7 +5,7 @@
  */
 class qqFileUploader {
   private $allowedExtensions = array();
-  private $sizeLimit = 10485760;
+  private $sizeLimit = 10 * 1024 * 1024;
   private $file;
 
   /**
@@ -14,9 +14,11 @@ class qqFileUploader {
    * @param array $allowedExtensions
    * @param int $sizeLimit
    */
-  function __construct(array $allowedExtensions = array(), $sizeLimit = 10485760) {
+  function __construct(array $allowedExtensions = array(), $sizeLimit = null) {
     $this->allowedExtensions = array_map("strtolower", $allowedExtensions);
-    $this->sizeLimit = $sizeLimit;
+    if(isset($sizeLimit)) {
+      $this->sizeLimit = $sizeLimit;
+    }
 
     $this->checkServerSettings();
 
@@ -182,24 +184,24 @@ class qqFileUploader {
  * Handle file uploads via XMLHttpRequest
  */
 class qqUploadedFileXhr {
-	
+
   private $tmpfile = null;
   private $realSize = null;
-  
+
   private function createTempFile() {
-	if(!isset($this->tmpfile)) {
-	  $input = fopen('php://input', 'rb');
-	  $this->tmpfile = tempnam(sys_get_temp_dir(), 'upload');
-	  $temp = fopen($this->tmpfile, 'w');
-	  $this->realSize = stream_copy_to_stream($input, $temp);
-	  fclose($temp);
+    if(!isset($this->tmpfile)) {
+      $input = fopen('php://input', 'rb');
+      $this->tmpfile = tempnam(sys_get_temp_dir(), 'upload');
+      $temp = fopen($this->tmpfile, 'w');
+      $this->realSize = stream_copy_to_stream($input, $temp);
+      fclose($temp);
       fclose($input);
-	}
-	return $this->tmpfile;
+    }
+    return $this->tmpfile;
   }
-  
+
   function getFileHash($algo = 'sha256') {
-	return hash_file($algo, $this->createTempFile());
+    return hash_file($algo, $this->createTempFile());
   }
 
   /**
@@ -267,9 +269,9 @@ class qqUploadedFileForm {
     }
     return true;
   }
-  
+
   function getFileHash($algo = 'sha256') {
-	return hash_file($algo, $_FILES['qqfile']['tmp_name']);
+    return hash_file($algo, $_FILES['qqfile']['tmp_name']);
   }
 
   function getName() {

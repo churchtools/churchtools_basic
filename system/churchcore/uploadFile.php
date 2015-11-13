@@ -11,18 +11,18 @@ function churchcore__uploadfile() {
   $allowedExtensions = array ();
   // max file size in bytes
 
-  $sizeLimit = ($s = getConf("max_uploadfile_size_kb")) ? ($s * 1024) : (10 * 1024 * 1024);
+  $sizeLimit = ($s = getConf('max_uploadfile_size_kb')) ? ($s * 1024) : (10 * 1024 * 1024);
 
   $result = null;
   try {
     $uploader = new qqFileUploader($allowedExtensions, $sizeLimit);
   }
   catch (Exception $e) {
-    $result = "Entweder POST_MAX_SIZE und UPLOAD_MAX_SIZE erhöhen oder Zahl erniedrigen. ";
+    $result = 'Entweder POST_MAX_SIZE und UPLOAD_MAX_SIZE erhöhen oder Zahl erniedrigen.';
   }
   if ($result == null) {
     $file_dir = $files_dir . "/blobs/";
-    if (!file_exists($file_dir)) mkdir($file_dir, 0755, true);
+    if (!file_exists($file_dir)) mkdir($file_dir, 0777, true);
     $result = $uploader->handleUpload($file_dir);
   }
   // to pass data through iframe you will need to encode all html tags
