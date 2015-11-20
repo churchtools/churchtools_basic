@@ -7,11 +7,11 @@
     
     <p class="pull-right">
 <? if (!$embedded): ?>
-  <? if (user_access("administer persons", "churchcore")):?>
+  <? if (user_access("administer persons", "churchcore")): ?>
       <a href="#" id="simulate_person" title="<?=t("simulate.user")?>"><img src="<?=CHURCHCORE?>/images/person_simulate.png" style="max-width:16px"/></a>&nbsp;
   <? endif; ?>
   
-  <? if (userLoggedIn()) :?>
+  <? if (userLoggedIn()): ?>
       <a href="#" id="email_admin" title="<?=t("write.email.to.admin")?>"><img src="<?=CHURCHCORE?>/images/email.png" style="max-width:16px"/></a>&nbsp;
       <a href="#" id="language_selector"><img src="<?=CHURCHCORE?>/images/flag_<?=$lang?>.png" style="max-width:16px"/></a>&nbsp;
   <? else: ?>
@@ -21,8 +21,8 @@
     </p>
 
     <p>
-  <?if (getConf("cronjob_delay") > 0):?>
-      <img src="?q=cron&standby=true"/>
+  <?if (getConf("cronjob_delay") > 0): ?>
+      <img width="0" height="0" src="?q=cron&standby=true" />
   <? endif; ?>
 <? endif; ?>
       <small>&copy; <a href="http://www.churchtools.de" target="_blank">www.churchtools.de</a> v<?=$config["version"]?></small>
