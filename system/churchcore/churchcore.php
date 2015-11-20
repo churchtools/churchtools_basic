@@ -112,15 +112,18 @@ function churchcore__filedownload() {
                     WHERE f.id=:id AND filename=:filename",
                     array (":id" => getVar("id"), ":filename" => getVar("filename")))
                     ->fetch();
-  $filename = "$files_dir/files/$file->domain_type/$file->domain_id/$file->filename";
+  if (preg_match('/^[0-9a-f]{64}$/i', $file->filename)) {
+    $filename = "$files_dir/blobs/$file->filename";
+  } else {
+    $filename = "$files_dir/files/$file->domain_type/$file->domain_id/$file->filename";
+  }
 
+  //open file for binary read
   $handle = fopen($filename, "rb");
-  if ($handle == false) echo "Die Datei konnte nicht gefunden werden!";
-  else {
-    $contents = fread($handle, filesize($filename));
-    fclose($handle);
-
-    if (isset($mime_types[substr(strrchr($filename, '.'), 1)])) {
+  if ($handle === false) {
+    echo "Die Datei konnte nicht gelesen werden!";
+  } else {
+    if (isset($mime_types[substr(strrchr($file->bezeichnung, '.'), 1)])) {
       drupal_add_http_header('Content-Type', $mime_types[substr(strrchr($filename, '.'), 1)], false);
     }
     else drupal_add_http_header('Content-Type', 'application/unknown', false);
@@ -130,11 +133,14 @@ function churchcore__filedownload() {
     }
     else drupal_add_http_header('Content-Disposition', 'inline;filename="' . $file->bezeichnung . '"', false);
 
-    drupal_add_http_header('Cache-Control', 'must-revalidate, post-check=0, pre-check=0', false);
     drupal_add_http_header('Cache-Control', 'private', true);
-    $content = drupal_get_header();
 
-    echo $contents;
+    //disable output buffer and delete contents
+    ob_end_clean();
+    //steam all data to apache output buffer
+    fpassthru($handle);
+    //close file handle
+    fclose($handle);
   }
 }
 
