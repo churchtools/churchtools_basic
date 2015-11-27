@@ -17,27 +17,11 @@
 <? endif; ?>
 
   <link href="<?= BOOTSTRAP ?>/css/bootstrap-responsive.min.css" rel="stylesheet">
-   <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-
   <script src="<?= ASSETS ?>/js/jquery-2.1.1.min.js"></script>
   <script src="<?= ASSETS ?>/js/jquery-migrate-1.2.1.min.js"></script>
+  <script src="<?= ASSETS ?>/ui/jquery-ui-1.10.3.min.js"></script>
 
   <script src="<?= CHURCHCORE ?>/shortcut.js"></script>
-  <script src="<?= ASSETS ?>/ui/jquery.ui.core.min.js"></script>
-  <script src="<?= ASSETS ?>/ui/jquery.ui.position.min.js"></script>
-  <script src="<?= ASSETS ?>/ui/jquery.ui.widget.min.js"></script>
-  <script src="<?= ASSETS ?>/ui/jquery.ui.menu.min.js"></script>
-  <script src="<?= ASSETS ?>/ui/jquery.ui.autocomplete.min.js"></script>
-  <script src="<?= ASSETS ?>/ui/jquery.ui.datepicker.min.js"></script>
-  <script src="<?= ASSETS ?>/ui/jquery.ui.dialog.min.js"></script>
-  <script src="<?= ASSETS ?>/ui/jquery.ui.mouse.min.js"></script>
-  <script src="<?= ASSETS ?>/ui/jquery.ui.draggable.min.js"></script>
-  <script src="<?= ASSETS ?>/ui/jquery.ui.droppable.min.js"></script>
-  <script src="<?= ASSETS ?>/ui/jquery.ui.sortable.min.js"></script>
-  <script src="<?= ASSETS ?>/ui/jquery.ui.resizable.min.js"></script>
   <script src="<?= CHURCHCORE ?>/churchcore.js?<?= JS_VERSION ?>"></script>
   <script src="<?= CHURCHCORE ?>/churchforms.js?<?= JS_VERSION ?>"></script>
   <script src="<?= CHURCHCORE ?>/cc_interface.js?<?= JS_VERSION ?>"></script>
@@ -57,13 +41,13 @@
       jsversion=<?= JS_VERSION ?>;
     </script>
 
-<!-- TODO: shouldnt this come from sites (if available) to allow customisation of site icon? -->
- <link rel="shortcut icon" href="<?= ASSETS ?>/ico/favicon.ico">
-    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="<?= ASSETS ?>/ico/apple-touch-icon-144-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="<?= ASSETS ?>/ico/apple-touch-icon-114-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" sizes="72x72" href="<?= ASSETS ?>/ico/apple-touch-icon-72-precomposed.png">
-    <link rel="apple-touch-icon-precomposed" href="<?= ASSETS ?>/ico/apple-touch-icon-57-precomposed.png">
-    <?= $add_header; ?>
+  <!-- TODO: shouldnt this come from sites (if available) to allow customisation of site icon? -->
+  <link rel="shortcut icon" href="<?= ASSETS ?>/ico/favicon.ico">
+  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="<?= ASSETS ?>/ico/apple-touch-icon-144-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="114x114" href="<?= ASSETS ?>/ico/apple-touch-icon-114-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" sizes="72x72" href="<?= ASSETS ?>/ico/apple-touch-icon-72-precomposed.png">
+  <link rel="apple-touch-icon-precomposed" href="<?= ASSETS ?>/ico/apple-touch-icon-57-precomposed.png">
+  <?= $add_header; ?>
 </head>
 
 <? if (!$embedded): ?>

@@ -1,4 +1,5 @@
 php_value memory_limit 64M
+php_value always_populate_raw_post_data -1
 
 <FilesMatch "\.(col|pro5plx|csv)$">
   ForceType application/octet-stream

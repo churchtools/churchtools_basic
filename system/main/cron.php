@@ -4,17 +4,27 @@
  * execute cron job for all modules
  */
 function do_cron() {
-  global $config;
+  global $files_dir;
   ct_log("Cron-Job started.", 2, -1, 'cron');
-  
-  $btns = churchcore_getModulesSorted(false, false);
-  foreach ($btns as $key) {
+
+  //delete temporary files (and sessions) older than one day
+  $tempDir = $files_dir . '/tmp/';
+  foreach (array_slice(scandir($tempDir), 2) as $file) {
+    $path = $tempDir . $file;
+    if (is_file($path) && filemtime($path) < time() - (3600 * 24)) {
+      unlink($path);
+    }
+  }
+  //launch the cronjobs of the individual CT modules
+  $modulesSorted = churchcore_getModulesSorted(false, false);
+  foreach ($modulesSorted as $key) {
     include_once (constant(strtoupper($key)) . "/$key.php");
     if (function_exists($key . "_cron") && getConf($key . "_name")) {
-      $arr = call_user_func($key . "_cron");
+      call_user_func($key . "_cron");
     }
   }
   ct_sendPendingNotifications();
+
   ct_log("Cron-Job finished.", 2, -1, 'cron');
 }
 
@@ -51,13 +61,11 @@ function cron_main() {
           do_cron();
         }
       }
-      else
-        db_query("INSERT INTO {cc_config} (name, value) 
-                  VALUES ('last_cron', UNIX_TIMESTAMP())");
     }
     
-    header('Content-Type: image/jpeg');
-    echo file_get_contents(ASSETS . '/img/1x1.png');
+    header('Content-Type: image/gif');
+    //tiniest transparent GIF, credit: http://probablyprogramming.com/2009/03/15/the-tiniest-gif-ever
+    echo base64_decode('R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==');
   }
   else {
     do_cron();

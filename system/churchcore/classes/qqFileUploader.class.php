@@ -4,19 +4,21 @@
  * Fileuploader
  */
 class qqFileUploader {
-  private $allowedExtensions = array ();
-  private $sizeLimit = 10485760;
+  private $allowedExtensions = array();
+  private $sizeLimit = 10 * 1024 * 1024;
   private $file;
 
   /**
    * create qqUploadedFileXhr or qqUploadedFileForm depending of variable set (get or file)
    *
    * @param array $allowedExtensions
-   * @param number $sizeLimit
+   * @param int $sizeLimit
    */
-  function __construct(array $allowedExtensions = array(), $sizeLimit = 10485760) {
+  function __construct(array $allowedExtensions = array(), $sizeLimit = null) {
     $this->allowedExtensions = array_map("strtolower", $allowedExtensions);
-    $this->sizeLimit = $sizeLimit;
+    if(isset($sizeLimit)) {
+      $this->sizeLimit = $sizeLimit;
+    }
 
     $this->checkServerSettings();
 
@@ -40,7 +42,6 @@ class qqFileUploader {
     $postSize = $this->toBytes(ini_get('post_max_size'));
     $uploadSize = $this->toBytes(ini_get('upload_max_filesize'));
     if ($postSize < $this->sizeLimit || $uploadSize < $this->sizeLimit) {
-      $size = max(1, $this->sizeLimit / 1024 / 1024) . 'M';
       throw new CTException("Entweder POST_MAX_SIZE und UPLOAD_MAX_SIZE erhöhen oder Zahl erniedrigen.");
     }
   }
@@ -112,8 +113,7 @@ class qqFileUploader {
 
     $pathinfo = pathinfo($this->file->getName());
     $bezeichnung = $pathinfo['filename'];
-    // $filename = "aaaaa";
-    $filename = md5(uniqid());
+    $filename = $this->file->getFileHash();
     $ext = $pathinfo['extension'];
 
     if ($this->allowedExtensions && !in_array(strtolower($ext), $this->allowedExtensions)) {
@@ -126,7 +126,7 @@ class qqFileUploader {
       $id = db_insert('cc_file')->fields(array (
           "domain_type" =>  getVar("domain_type"),
           "domain_id" =>  getVar("domain_id"),
-          "filename" => $filename . '.' . $ext,
+          "filename" => $filename,
           "bezeichnung" => $bezeichnung . '.' . $ext,
           "modified_date" => $dt->format('Y-m-d H:i:s'),
           "modified_pid" => $user->id
@@ -134,7 +134,7 @@ class qqFileUploader {
     }
     else $id = null;
 
-    $filename_absolute = "$uploadDirectory$filename.$ext";
+    $filename_absolute = "$uploadDirectory$filename";
     if ($this->file->save($filename_absolute)) {
 
 // Sample for resizing using different max values for x, y
@@ -173,7 +173,7 @@ class qqFileUploader {
         }
       }
 
-      return array ('success' => true, "id" => $id, "filename" => "$filename.$ext", "bezeichnung" => "$bezeichnung.$ext");
+      return array ('success' => true, "id" => $id, "filename" => "$filename", "bezeichnung" => "$bezeichnung.$ext");
     }
     else return array ('error' => t('could.not.save.file.upload.canceled.or.server.error'));
   }
@@ -185,22 +185,39 @@ class qqFileUploader {
  */
 class qqUploadedFileXhr {
 
+  private $tmpfile = null;
+  private $realSize = null;
+
+  private function createTempFile() {
+    if(!isset($this->tmpfile)) {
+      $input = fopen('php://input', 'rb');
+      $this->tmpfile = tempnam(sys_get_temp_dir(), 'upload');
+      $temp = fopen($this->tmpfile, 'w');
+      $this->realSize = stream_copy_to_stream($input, $temp);
+      fclose($temp);
+      fclose($input);
+    }
+    return $this->tmpfile;
+  }
+
+  function getFileHash($algo = 'sha256') {
+    return hash_file($algo, $this->createTempFile());
+  }
+
   /**
    * Save the file to the specified path
    * @return boolean TRUE on success
    */
   function save($path) {
-    $input = fopen("php://input", "r");
-    $temp = tmpfile();
-    $realSize = stream_copy_to_stream($input, $temp);
-    fclose($input);
-
-    if ($realSize != $this->getSize()) return false;
-
-    $target = fopen($path, "w");
-    fseek($temp, 0, SEEK_SET);
+    $tmpname = $this->createTempFile();
+    if ($this->realSize != $this->getSize()) {
+      return false;
+    }
+    $temp = fopen($tmpname, 'rb');
+    $target = fopen($path, 'w');
     stream_copy_to_stream($temp, $target);
     fclose($target);
+    fclose($temp);
 
     return true;
   }
@@ -230,6 +247,11 @@ class qqUploadedFileXhr {
     }
   }
 
+  //delete temporary file on object destruction
+  function __destruct() {
+    unlink($this->tmpfile);
+  }
+
 }
 
 /**
@@ -248,6 +270,10 @@ class qqUploadedFileForm {
     return true;
   }
 
+  function getFileHash($algo = 'sha256') {
+    return hash_file($algo, $_FILES['qqfile']['tmp_name']);
+  }
+
   function getName() {
     return $_FILES['qqfile']['name'];
   }
@@ -257,11 +283,3 @@ class qqUploadedFileForm {
   }
 
 }
-
-
-
-
-
-
-
-

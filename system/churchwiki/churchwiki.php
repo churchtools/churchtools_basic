@@ -64,7 +64,7 @@ function churchwiki_setShowonstartpage($params) {
 
   db_update("cc_wiki")
     ->fields($i->getDBInsertArrayFromParams($params))
-    ->condition("doc_id", $params["doc_id"], "=")
+    ->condition("doc_id", urldecode($params["doc_id"]), "=")
     ->condition("version_no", $params["version_no"], "=")
     ->condition("wikicategory_id", $params["wikicategory_id"], "=")
     ->execute(false);
@@ -258,7 +258,7 @@ function churchwiki__create() {
   $form->setHeader(t('edit.help.entry'), t('edit.help.entry.subtitle'));
   $form->addField("doc_id", "", "INPUT_REQUIRED", "Doc-Id");
   $form->addField("text", "", "TEXTAREA", "Text");
-  if ($doc = getVar("doc")) {
+  if ($doc = urldecode(getVar("doc"))) {
     $form->fields["doc_id"]->setValue($doc);
     $res = db_query("SELECT text FROM {cc_wiki}
                      WHERE doc_id=:doc_id",
@@ -329,7 +329,7 @@ function churchwiki_main() {
   drupal_add_js(createI18nFile("churchcore"));
   drupal_add_js(createI18nFile("churchwiki"));
 
-  $doc_id = getVar("doc");
+  $doc_id = urldecode(getVar("doc"));
 
   $content = '
     <div class="row-fluid">
@@ -379,7 +379,7 @@ function churchwiki__printview() {
   drupal_add_js(createI18nFile("churchcore"));
   drupal_add_js(createI18nFile("churchwiki"));
 
-  $doc_id = getVar("doc");
+  $doc_id = urldecode(getVar("doc"));
 
   $content = '
     <div class="row-fluid">
