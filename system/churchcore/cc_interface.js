@@ -237,7 +237,7 @@ ChurchInterface.prototype.sendMessageToAllViews = function (message, args) {
       window.setTimeout(function() {
         window.print();
       }
-      ,1000);
+      ,2000);
     }
   }
   each(this.getViews(), function(k,a) {

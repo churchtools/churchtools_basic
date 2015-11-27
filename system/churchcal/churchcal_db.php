@@ -54,7 +54,7 @@ function churchcal_handleMeetingRequest($cal_id, $params) {
             'p'        => $p,
             'caption'  => $cal->bezeichnung,
             'date'     => churchcore_CCEventData2String($cal),
-            'loginUrl' => $base_url . "?q=home&id=$id&loginstr" . churchcore_createOnTimeLoginKey($id),
+            'loginUrl' => $base_url . "?q=home&id=$id&loginstr=" . churchcore_createOnTimeLoginKey($id),
         );
         if ($data['invite'] = $p->invite) {
           include_once (CHURCHDB . '/churchdb_ajax.php');
