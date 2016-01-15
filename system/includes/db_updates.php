@@ -1956,6 +1956,9 @@ function run_db_updates($db_version) {
   case '2.56':
     set_version("2.57");
 
+  case '2.57':
+    set_version("2.58");
+
   } //end switch
 
   $a=db_query("select * from {cc_config} where name='version'",null,false);

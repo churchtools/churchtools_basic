@@ -1151,6 +1151,7 @@ function initCalendarView() {
       editable: true,
       monthNames: getMonthNames(),
       weekNumbers: true,
+      weekNumberCalculation: "ISO",
       weekNumberTitle : "",
       monthNamesShort: monthNamesShort,
       dayNames: dayNames,
