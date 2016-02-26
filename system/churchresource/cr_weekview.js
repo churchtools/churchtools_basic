@@ -837,7 +837,7 @@ WeekView.prototype.calcConflicts = function(new_b, resource_id, withoutEvent) {
   });
   var txt = "";
   each (rows, function(k, a) {
-    txt = '<li>' + k;
+    txt = txt + '<li>' + k;
   })
   return txt;
 };
