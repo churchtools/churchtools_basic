@@ -268,7 +268,7 @@ function cdb_addGroupsToMap(map,near_lat,near_lng, func) {
   if (masterData.groups!=null) {
     each(masterData.groups, function(k, a){
       if ((a.geolat!="") && (a.valid_yn==1) && (a.versteckt_yn==0) &&
-             churchInterface.views.GroupView.isAllowedToSeeName(a.id, masterData.user_pid)) {
+          (churchInterface.views.GroupView == null || churchInterface.views.GroupView.isAllowedToSeeName(a.id, masterData.user_pid))) {
         if ((near_lat==null) ||
              (((Math.abs(parseFloat(near_lng)-parseFloat(a.geolng))<0.2)) &&
              (Math.abs(parseFloat(near_lat)-parseFloat(a.geolat))<0.1))) {
