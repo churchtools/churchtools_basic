@@ -126,6 +126,7 @@ function checkFilesDir() {
     $handle = fopen($files_dir . "/.htaccess", 'w+');
     if ($handle) {
       fwrite($handle, "Deny from all\n");
+      fwrite($handle, "# IMPORTANT, prevents directory content listing!\nOptions -Indexes\n");
       fclose($handle);
     }
   }

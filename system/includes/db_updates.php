@@ -1957,6 +1957,15 @@ function run_db_updates($db_version) {
     set_version("2.57");
 
   case '2.57':
+    //not exactly a database update, but is there any better place for it?
+    $htaccess = __DIR__ . '/../../' . $files_dir . '/.htaccess';
+    if (file_exists($htaccess)) {
+      $handle = fopen($htaccess, 'a');
+      if ($handle) {
+        fwrite($handle, "# IMPORTANT, prevents directory content listing!\nOptions -Indexes\n");
+        fclose($handle);
+      }
+    }
     set_version("2.58");
 
   } //end switch
