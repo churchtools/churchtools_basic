@@ -147,7 +147,7 @@ class qqFileUploader {
           $filename_old = $uploadDirectory . $filename . '.' . $ext;
             
           if (function_exists('openssl_random_pseudo_bytes')) {
-              $filename = bin2hex(openssl_random_pseudo_bytes(32)).'.'.$ext;
+              $filename = bin2hex(openssl_random_pseudo_bytes(16)).'.'.$ext;
           } else {
               $rands = array_map('mt_rand', array_fill(0, 10, 0), array_fill(0, 10, mt_getrandmax()));
               $filename = md5(implode($rands)).'.'.$ext;
