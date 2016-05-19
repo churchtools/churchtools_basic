@@ -144,10 +144,14 @@ class qqFileUploader {
 
         if ($this->file->save($uploadDirectory . $filename . '.' . $ext)){
 
-
-          $person_id = $_GET['userid'];
-          $filename_old=$uploadDirectory . $filename . '.' . $ext;
-          $filename=md5(uniqid()).'.'.$ext;
+          $filename_old = $uploadDirectory . $filename . '.' . $ext;
+            
+          if (function_exists('openssl_random_pseudo_bytes')) {
+              $filename = bin2hex(openssl_random_pseudo_bytes(32)).'.'.$ext;
+          } else {
+              $rands = array_map('mt_rand', array_fill(0, 10, 0), array_fill(0, 10, mt_getrandmax()));
+              $filename = md5(implode($rands)).'.'.$ext;
+          }
 
           if (rename($filename_old, $files_dir."/fotos/".$filename)) {
               // Get new dimensions
