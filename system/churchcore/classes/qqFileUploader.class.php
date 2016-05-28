@@ -5,7 +5,7 @@
  */
 class qqFileUploader {
   private $allowedExtensions = array();
-  private $sizeLimit = 10 * 1024 * 1024;
+  private $sizeLimit = 10485760;
   private $file;
 
   /**
