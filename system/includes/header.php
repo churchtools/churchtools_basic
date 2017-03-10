@@ -12,9 +12,9 @@
   <!--  link href="<?= ASSETS ?>/ui/jquery-ui-1.8.18.custom.css" rel="stylesheet"-->
   <link href="<?= INCLUDES ?>/churchtools.css?<?= JS_VERSION ?>" rel="stylesheet">
 
-<? if (!$embedded): ?>
+<?php if (!$embedded): ?>
   <style> body {padding-top: 60px; padding-bottom: 40px; } </style>
-<? endif; ?>
+<?php endif; ?>
 
   <link href="<?= BOOTSTRAP ?>/css/bootstrap-responsive.min.css" rel="stylesheet">
   <script src="<?= ASSETS ?>/js/jquery-2.1.1.min.js"></script>
@@ -32,11 +32,11 @@
       settings.base_url="<?= $base_url ?>";
       settings.q="<?= $q ?>";
       settings.user=new Object();
-<? if (isset($user)): ?>
+<?php if (isset($user)): ?>
       settings.user.id="<?= $user->id ?>";
       settings.user.vorname="<?= $user->vorname ?>";
       settings.user.name="<?= $user->name ?>";
-<? endif; ?>
+<?php endif; ?>
       version=<?= getConf("version") ?>;
       jsversion=<?= JS_VERSION ?>;
     </script>
@@ -50,7 +50,7 @@
   <?= $add_header; ?>
 </head>
 
-<? if (!$embedded): ?>
+<?php if (!$embedded): ?>
 
 <body>
     <div class="navbar navbar-fixed-top <?= $simulate ?  '' : 'navbar-inverse' ?>">
@@ -62,48 +62,48 @@
             <span class="icon-bar"></span>
           </a>
           <a class="brand" href=".">
-            <? if ($logo): ?><img src="<?= $logo ?>" style="max-width:100px;max-height:32px;margin:-10px 4px -8px 0px"/><? endif; ?>
+            <?php if ($logo): ?><img src="<?= $logo ?>" style="max-width:100px;max-height:32px;margin:-10px 4px -8px 0px"/><?php endif; ?>
             <?= $sitename ?>
           </a>
 
-  <? if (userLoggedIn()): ?>
+  <?php if (userLoggedIn()): ?>
           <div class="btn-group pull-right">
-            <? if ($simulate) :?><a class="btn" href="?q=simulate&link=<?= $q ?>"><?= t('exit.simulation') ?></a><? endif; ?>
+            <?php if ($simulate) :?><a class="btn" href="?q=simulate&link=<?= $q ?>"><?= t('exit.simulation') ?></a><?php endif; ?>
             <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
               <i class="icon-user"></i>&nbsp;<span class="hidden-phone"><?= $user->vorname?> <?= $user->name ?></span>
               <span class="caret"></span>
             </a>
             <ul class="dropdown-menu">
-    <? if (isset($_SESSION["family"])): ?>
+    <?php if (isset($_SESSION["family"])): ?>
     <?php // TODO: in bootstrap 3.2.0 this looks nice, in CT dropdown-header is missed - manually added to bootstrap for now ?>
               <li class="dropdown-header"> <?= t('change.to') ?></li>
-      <? foreach ($_SESSION["family"] as $family): ?>
+      <?php foreach ($_SESSION["family"] as $family): ?>
               <li><a href="?q=login&family_id=<?= $family->id?>"><?= $family->vorname?> <?= $family->name ?></a></li>
-      <? endforeach; ?>
+      <?php endforeach; ?>
               <li class="divider"></li>
-    <? endif; ?>
+    <?php endif; ?>
 
               <li><a href="?q=profile"><?= isset($user->password) ? t("change.password"): t("set.password") ?></a></li>
-    <? if (user_access("view", "churchdb") && !empty($user->email)): ?>
+    <?php if (user_access("view", "churchdb") && !empty($user->email)): ?>
               <li><a href="?q=churchdb/mailviewer"><?= t('sent.messages')?></a></li>
-    <? endif; ?>
+    <?php endif; ?>
               <li class="divider"></li>
 
-    <? if (user_access("administer settings", "churchcore")): ?>
+    <?php if (user_access("administer settings", "churchcore")): ?>
               <li><a href="?q=admin"><?= t('admin.settings')?></a></li>
-    <? endif; ?>
-    <? if (user_access("administer persons",  "churchcore")): ?>
+    <?php endif; ?>
+    <?php if (user_access("administer persons",  "churchcore")): ?>
               <li><a href="?q=churchauth"><?= t('admin.permissions')?></a></li>
-    <? endif; ?>
-    <? if (user_access("administer settings", "churchcore")): ?>
+    <?php endif; ?>
+    <?php if (user_access("administer settings", "churchcore")): ?>
               <li><a href="?q=cron&manual=true"><?= t('start.cronjob')?></a></li>
-    <? endif; ?>
-    <? if (user_access("view logfile",        "churchcore")): ?>
+    <?php endif; ?>
+    <?php if (user_access("view logfile",        "churchcore")): ?>
               <li><a href="?q=churchcore/logviewer"><?= t('logviewer')?></a></li>
-    <? endif; ?>
-    <? if (user_access("administer settings", "churchcore")): ?>
+    <?php endif; ?>
+    <?php if (user_access("administer settings", "churchcore")): ?>
               <li class="divider"></li>
-    <? endif; ?>
+    <?php endif; ?>
 
              <li><a href="?q=about"><?= t('about')?> <?= $sitename ?></a></li>
              <li class="divider"></li>
@@ -115,7 +115,7 @@
              <li class="active"><p><div id="cdb_status" style="color:#999"></div></li>
            </ul>
          </div>
-  <? else: ?>
+  <?php else: ?>
          <div class="pull-right">
            <ul class="nav">
               <li<?= ($q == "login") ? ' class="active"' : '' ?>>
@@ -123,16 +123,16 @@
               </li>
            </ul>
          </div>
-  <? endif; ?>
+  <?php endif; ?>
           <div class="nav-collapse">
             <ul class="nav">
-  <? foreach (churchcore_getModulesSorted() as $key): ?>
-    <? if (getConf($key."_name") && getConf($key."_inmenu") == "1"
+  <?php foreach (churchcore_getModulesSorted() as $key): ?>
+    <?php if (getConf($key."_name") && getConf($key."_inmenu") == "1"
            && (user_access("view", $key) || in_array($key, $mapping["page_with_noauth"]))):?>
                 <li <?= ($q == $key) ? 'class="active"' : "" ?>>
                 <a href="?q=<?= $key ?>"><?= getConf($key."_name") ?></a></li>
-    <? endif; ?>
-  <? endforeach; ?>
+    <?php endif; ?>
+  <?php endforeach; ?>
             </ul>
               <!--form class="navbar-search pull-right">
                 <input type="text" class="search-query" placeholder="Search">
@@ -142,10 +142,10 @@
       </div>
     </div>
     <div class="container-fluid" id="page">
-<? else: ?>
+<?php else: ?>
      <body style="background:none">
      <div id="page">
-<? endif; ?>
-<? if (getConf("site_offline") == 1): ?>
+<?php endif; ?>
+<?php if (getConf("site_offline") == 1): ?>
      <div class="alert alert-info"><?= t("offline.mode.is.active") ?></div>
-<? endif; ?>
+<?php endif; ?>

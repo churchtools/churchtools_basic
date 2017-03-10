@@ -6,25 +6,25 @@
   <footer>
     
     <p class="pull-right">
-<? if (!$embedded): ?>
-  <? if (user_access("administer persons", "churchcore")): ?>
+<?php if (!$embedded): ?>
+  <?php if (user_access("administer persons", "churchcore")): ?>
       <a href="#" id="simulate_person" title="<?=t("simulate.user")?>"><img src="<?=CHURCHCORE?>/images/person_simulate.png" style="max-width:16px"/></a>&nbsp;
-  <? endif; ?>
+  <?php endif; ?>
   
-  <? if (userLoggedIn()): ?>
+  <?php if (userLoggedIn()): ?>
       <a href="#" id="email_admin" title="<?=t("write.email.to.admin")?>"><img src="<?=CHURCHCORE?>/images/email.png" style="max-width:16px"/></a>&nbsp;
       <a href="#" id="language_selector"><img src="<?=CHURCHCORE?>/images/flag_<?=$lang?>.png" style="max-width:16px"/></a>&nbsp;
-  <? else: ?>
-  <? //TODO: for which is a flag without function needed? ?>
+  <?php else: ?>
+  <?php //TODO: for which is a flag without function needed? ?>
       <img src="<?=CHURCHCORE?>/images/flag_<?=$lang?>.png" style="max-width:16px"/>&nbsp;
-  <? endif; ?>
+  <?php endif; ?>
     </p>
 
     <p>
-  <?if (getConf("cronjob_delay") > 0): ?>
+  <?php if (getConf("cronjob_delay") > 0): ?>
       <img width="0" height="0" src="?q=cron&standby=true" />
-  <? endif; ?>
-<? endif; ?>
+  <?php endif; ?>
+<?php endif; ?>
       <small>&copy; <a href="http://www.churchtools.de" target="_blank">www.churchtools.de</a> v<?=$config["version"]?></small>
     </p>
 
